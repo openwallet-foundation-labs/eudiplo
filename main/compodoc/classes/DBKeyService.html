@@ -240,7 +240,7 @@
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#importKeys" >importKeys</a>
+                                <a href="#importForTenant" >importForTenant</a>
                             </li>
                             <li>
                                 <a href="#update" >update</a>
@@ -263,12 +263,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, keyRepository: <a href="../classes/Key.html" target="_self">Repository&lt;KeyEntity&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, certRepository: <a href="../entitys/CertEntity.html" target="_self">Repository&lt;CertEntity&gt;</a>, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, logger: PinoLogger)</code>
+<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, keyRepository: <a href="../classes/Key.html" target="_self">Repository&lt;KeyEntity&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, certRepository: <a href="../entitys/CertEntity.html" target="_self">Repository&lt;CertEntity&gt;</a>, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, logger: PinoLogger, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:31</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:32</a></div>
                             </td>
                         </tr>
 
@@ -369,6 +369,18 @@
                                                     </td>
                                                     
                                                 </tr>
+                                                <tr>
+                                                        <td>configImportOrchestrator</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/ConfigImportOrchestratorService.html" target="_self" >ConfigImportOrchestratorService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -404,7 +416,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:31</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:32</a></div>
                         </td>
                     </tr>
 
@@ -446,7 +458,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:101</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:104</a></code>
 </div>
                         </td>
                     </tr>
@@ -524,7 +536,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:222</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:225</a></code>
 </div>
                         </td>
                     </tr>
@@ -609,7 +621,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:151</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:154</a></code>
 </div>
                         </td>
                     </tr>
@@ -682,8 +694,8 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="133"
-                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:133</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="136"
+                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:136</a></div>
                         </td>
                     </tr>
 
@@ -765,8 +777,8 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="73"
-                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:73</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="76"
+                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:76</a></div>
                         </td>
                     </tr>
 
@@ -840,7 +852,7 @@ If no key exists, it will throw an error.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:163</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:166</a></code>
 </div>
                         </td>
                     </tr>
@@ -933,8 +945,8 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="164"
-                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:164</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="167"
+                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:167</a></div>
                         </td>
                     </tr>
 
@@ -1026,8 +1038,8 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="169"
-                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:169</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="172"
+                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:172</a></div>
                         </td>
                     </tr>
 
@@ -1123,7 +1135,7 @@ If no key exists, it will throw an error.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:59</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:62</a></code>
 </div>
                         </td>
                     </tr>
@@ -1210,7 +1222,7 @@ If no key exists, it will throw an error.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:92</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:95</a></code>
 </div>
                         </td>
                     </tr>
@@ -1288,7 +1300,7 @@ This will create the keys if they do not exist.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:124</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:127</a></code>
 </div>
                         </td>
                     </tr>
@@ -1377,7 +1389,7 @@ This will create the keys if they do not exist.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:206</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:209</a></code>
 </div>
                         </td>
                     </tr>
@@ -1486,7 +1498,7 @@ This will create the keys if they do not exist.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:104</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:115</a></code>
 </div>
                         </td>
                     </tr>
@@ -1571,7 +1583,7 @@ This will create the keys if they do not exist.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:100</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:111</a></code>
 </div>
                         </td>
                     </tr>
@@ -1622,18 +1634,18 @@ This will create the keys if they do not exist.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="importKeys"></a>
+                    <a name="importForTenant"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
-                        <span ><b>importKeys</b></span>
-                        <a href="#importKeys"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>importForTenant</b></span>
+                        <a href="#importForTenant"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>importKeys()</code>
+                    <code>importForTenant(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -1646,7 +1658,7 @@ This will create the keys if they do not exist.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:119</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:130</a></code>
 </div>
                         </td>
                     </tr>
@@ -1654,13 +1666,43 @@ This will create the keys if they do not exist.</p>
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Imports keys from the file system into the key service.</p>
+                        <div class="io-description"><p>Imports keys for a specific tenant from the file system.</p>
 </div>
 
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
+                            <div class="io-description">
+                                
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -1691,7 +1733,7 @@ This will create the keys if they do not exist.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:49</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:60</a></code>
 </div>
                         </td>
                     </tr>
@@ -1793,6 +1835,7 @@ import { v4 } from &quot;uuid&quot;;
 import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
 import { EC_Public } from &quot;../../../issuer/issuance/oid4vci/well-known/dto/jwks-response.dto&quot;;
 import { ConfigImportService } from &quot;../../../shared/utils/config-import/config-import.service&quot;;
+import { ConfigImportOrchestratorService } from &quot;../../../shared/utils/config-import/config-import-orchestrator.service&quot;;
 import { CryptoImplementation } from &quot;../crypto-implementation/crypto-implementation&quot;;
 import { CryptoImplementationService } from &quot;../crypto-implementation/crypto-implementation.service&quot;;
 import { KeyImportDto } from &quot;../dto/key-import.dto&quot;;
@@ -1814,6 +1857,7 @@ export class DBKeyService extends KeyService {
         certRepository: Repository&lt;CertEntity&gt;,
         tenantRepository: Repository&lt;TenantEntity&gt;,
         logger: PinoLogger,
+        configImportOrchestrator: ConfigImportOrchestratorService,
     ) {
         super(
             configService,
@@ -1822,6 +1866,7 @@ export class DBKeyService extends KeyService {
             certRepository,
             tenantRepository,
             logger,
+            configImportOrchestrator,
         );
         this.crypto &#x3D; cryptoService.getCrypto();
     }

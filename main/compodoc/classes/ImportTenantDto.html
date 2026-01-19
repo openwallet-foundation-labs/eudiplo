@@ -114,7 +114,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Classes</li>
-  <li class="breadcrumb-item" >CreateClientDto</li>
+  <li class="breadcrumb-item" >ImportTenantDto</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -138,7 +138,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/auth/client/dto/create-client.dto.ts</code>
+            <code>src/auth/tenant/dto/import-tenant.dto.ts</code>
         </p>
 
 
@@ -147,9 +147,9 @@
                 <h3>Extends</h3>
             </p>
             <p class="comment">
-                            <code><a href="../entitys/ClientEntity.html" target="_self" >OmitType(ClientEntity, [
-    &quot;tenant&quot;,
-    &quot;tenantId&quot;,
+                            <code><a href="../classes/CreateTenantDto.html" target="_self" >PickType(CreateTenantDto, [
+    &quot;name&quot;,
+    &quot;description&quot;,
 ] as const)</a></code>
             </p>
 
@@ -168,12 +168,12 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { OmitType } from &quot;@nestjs/swagger&quot;;
-import { ClientEntity } from &quot;../entities/client.entity&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { PickType } from &quot;@nestjs/swagger&quot;;
+import { CreateTenantDto } from &quot;./create-tenant.dto&quot;;
 
-export class CreateClientDto extends OmitType(ClientEntity, [
-    &quot;tenant&quot;,
-    &quot;tenantId&quot;,
+export class ImportTenantDto extends PickType(CreateTenantDto, [
+    &quot;name&quot;,
+    &quot;description&quot;,
 ] as const) {}
 </code></pre>
     </div>
@@ -213,7 +213,7 @@ export class CreateClientDto extends OmitType(ClientEntity, [
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
-            var COMPODOC_CURRENT_PAGE_URL = 'CreateClientDto.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'ImportTenantDto.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

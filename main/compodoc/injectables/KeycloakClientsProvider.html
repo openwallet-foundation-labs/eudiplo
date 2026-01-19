@@ -139,6 +139,12 @@
 
 
 
+            <p class="comment">
+                <h3>Extends</h3>
+            </p>
+            <p class="comment">
+                            <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+            </p>
 
 
             <section data-compodoc="block-index">
@@ -185,7 +191,7 @@
                                 <a href="#getClientSecret" >getClientSecret</a>
                             </li>
                             <li>
-                                <a href="#import" >import</a>
+                                <a href="#importForTenant" >importForTenant</a>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
@@ -202,6 +208,10 @@
                             <li>
                                     <span class="modifier">Async</span>
                                 <a href="#updateClient" >updateClient</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Optional</span>
+                                <a href="#validateClientCredentials" >validateClientCredentials</a>
                             </li>
                         </ul>
                     </td>
@@ -221,12 +231,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(cfg: ConfigService, clientRepo: <a href="../entitys/ClientEntity.html" target="_self">Repository&lt;ClientEntity&gt;</a>)</code>
+<code>constructor(configService: ConfigService, clientRepo: <a href="../entitys/ClientEntity.html" target="_self">Repository&lt;ClientEntity&gt;</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:16</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:20</a></div>
                             </td>
                         </tr>
 
@@ -244,7 +254,7 @@
                                         </thead>
                                         <tbody>
                                                 <tr>
-                                                        <td>cfg</td>
+                                                        <td>configService</td>
                                                   
                                                         <td>
                                                                     <code>ConfigService</code>
@@ -260,6 +270,18 @@
                                                   
                                                         <td>
                                                                         <code><a href="../entitys/ClientEntity.html" target="_self" >Repository&lt;ClientEntity&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>configImportOrchestrator</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/ConfigImportOrchestratorService.html" target="_self" >ConfigImportOrchestratorService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -303,8 +325,14 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="107"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:107</a></div>
+                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:117</a></code>
+</div>
                         </td>
                     </tr>
 
@@ -384,8 +412,14 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="94"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:94</a></div>
+                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:104</a></code>
+</div>
                         </td>
                     </tr>
 
@@ -465,8 +499,14 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="88"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:88</a></div>
+                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:98</a></code>
+</div>
                         </td>
                     </tr>
 
@@ -525,15 +565,21 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getClientSecret(sub: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>getClientSecret(_sub: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="101"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:101</a></div>
+                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:111</a></code>
+</div>
                         </td>
                     </tr>
 
@@ -554,7 +600,7 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>sub</td>
+                                                <td>_sub</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -595,35 +641,73 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="import"></a>
+                    <a name="importForTenant"></a>
                     <span class="name">
-                        <span ><b>import</b></span>
-                        <a href="#import"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>importForTenant</b></span>
+                        <a href="#importForTenant"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>import()</code>
+<code>importForTenant(_tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:51</a></div>
+                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:61</a></code>
+</div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Imports clients for a tenant. No-op for Keycloak as clients are managed directly in Keycloak.</p>
+</div>
 
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>_tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         <div class="io-description">
                             <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
 
                         </div>
+                            <div class="io-description">
+                                
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -650,8 +734,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="58"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:58</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="68"
+                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:68</a></div>
                         </td>
                     </tr>
 
@@ -662,7 +746,7 @@
 </div>
 
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
                 </td>
@@ -691,8 +775,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="24"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:24</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="31"
+                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:31</a></div>
                         </td>
                     </tr>
 
@@ -730,8 +814,14 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="251"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:251</a></div>
+                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:261</a></code>
+</div>
                         </td>
                     </tr>
 
@@ -811,8 +901,14 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="186"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:186</a></div>
+                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:196</a></code>
+</div>
                         </td>
                     </tr>
 
@@ -882,6 +978,92 @@
             </tr>
         </tbody>
     </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="validateClientCredentials"></a>
+                    <span class="name">
+                            <span class="modifier">Optional</span>
+                        <span ><b>validateClientCredentials</b></span>
+                        <a href="#validateClientCredentials"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>validateClientCredentials(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientSecret: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:31</a></code>
+</div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>clientId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>clientSecret</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/ClientEntity.html" target="_self" >Promise&lt;ClientEntity | null&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>
             <section data-compodoc="block-properties">
     
@@ -908,7 +1090,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:16</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:20</a></div>
                         </td>
                     </tr>
 
@@ -928,6 +1110,7 @@ import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { decodeJwt } from &quot;jose&quot;;
 import { Repository } from &quot;typeorm&quot;;
+import { ConfigImportOrchestratorService } from &quot;../../../shared/utils/config-import/config-import-orchestrator.service&quot;;
 import { Role } from &quot;../../roles/role.enum&quot;;
 import { ClientsProvider } from &quot;../client.provider&quot;;
 import { CreateClientDto } from &quot;../dto/create-client.dto&quot;;
@@ -935,24 +1118,30 @@ import { UpdateClientDto } from &quot;../dto/update-client.dto&quot;;
 import { ClientEntity } from &quot;../entities/client.entity&quot;;
 
 @Injectable()
-export class KeycloakClientsProvider implements ClientsProvider, OnModuleInit {
+export class KeycloakClientsProvider
+    extends ClientsProvider
+    implements OnModuleInit
+{
     private kc!: KeycloakAdminClient;
 
     constructor(
-        private cfg: ConfigService,
+        private readonly configService: ConfigService,
         @InjectRepository(ClientEntity)
-        private clientRepo: Repository&lt;ClientEntity&gt;,
-    ) {}
+        private readonly clientRepo: Repository&lt;ClientEntity&gt;,
+        configImportOrchestrator: ConfigImportOrchestratorService,
+    ) {
+        super(configImportOrchestrator);
+    }
 
     async onModuleInit() {
-        const oidc &#x3D; this.cfg.getOrThrow&lt;string&gt;(&quot;OIDC&quot;);
+        const oidc &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;OIDC&quot;);
         const [baseUrl, realmName] &#x3D; oidc.split(&quot;/realms/&quot;);
         this.kc &#x3D; new KeycloakAdminClient({ baseUrl, realmName });
 
         const creds: Credentials &#x3D; {
             grantType: &quot;client_credentials&quot;,
-            clientId: this.cfg.getOrThrow(&quot;OIDC_CLIENT_ID&quot;),
-            clientSecret: this.cfg.getOrThrow(&quot;OIDC_CLIENT_SECRET&quot;),
+            clientId: this.configService.getOrThrow(&quot;OIDC_CLIENT_ID&quot;),
+            clientSecret: this.configService.getOrThrow(&quot;OIDC_CLIENT_SECRET&quot;),
         };
 
         await this.kc.auth(creds);
@@ -964,14 +1153,17 @@ export class KeycloakClientsProvider implements ClientsProvider, OnModuleInit {
         setInterval(async () &#x3D;&gt; {
             try {
                 await this.kc.auth(creds);
-            } catch (e) {
+            } catch {
                 // log &amp; keep trying on next tick.
             }
         }, refreshMs);
         await this.init();
     }
 
-    import(): Promise&lt;void&gt; {
+    /**
+     * Imports clients for a tenant. No-op for Keycloak as clients are managed directly in Keycloak.
+     */
+    importForTenant(_tenantId: string): Promise&lt;void&gt; {
         return Promise.resolve();
     }
 
@@ -987,12 +1179,12 @@ export class KeycloakClientsProvider implements ClientsProvider, OnModuleInit {
             Role.PresentationOffer,
             Role.Presentations,
         ];
-        this.kc.roles
+        return this.kc.roles
             .find()
             .then((roles) &#x3D;&gt; {
                 // Check if all roles exist
                 const missingRoles &#x3D; existingRoles.filter(
-                    (role) &#x3D;&gt; !roles.find((r) &#x3D;&gt; r.name &#x3D;&#x3D;&#x3D; role),
+                    (role) &#x3D;&gt; !roles.some((r) &#x3D;&gt; r.name &#x3D;&#x3D;&#x3D; role),
                 );
                 if (missingRoles.length) {
                     // Create missing roles
@@ -1021,7 +1213,7 @@ export class KeycloakClientsProvider implements ClientsProvider, OnModuleInit {
         });
     }
 
-    getClientSecret(sub: string, id: string): Promise&lt;string&gt; {
+    getClientSecret(_sub: string, id: string): Promise&lt;string&gt; {
         return this.kc.clients
             .find({ clientId: id })
             .then((clients) &#x3D;&gt; clients[0].secret!);

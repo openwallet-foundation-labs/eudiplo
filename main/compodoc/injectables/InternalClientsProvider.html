@@ -139,6 +139,12 @@
 
 
 
+            <p class="comment">
+                <h3>Extends</h3>
+            </p>
+            <p class="comment">
+                            <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+            </p>
 
 
             <section data-compodoc="block-index">
@@ -169,7 +175,7 @@
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#import" >import</a>
+                                <a href="#importForTenant" >importForTenant</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
@@ -203,12 +209,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, repo: <a href="../entitys/ClientEntity.html" target="_self">Repository&lt;ClientEntity&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>)</code>
+<code>constructor(configService: ConfigService, repo: <a href="../entitys/ClientEntity.html" target="_self">Repository&lt;ClientEntity&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="18" class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:18</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:20</a></div>
                             </td>
                         </tr>
 
@@ -261,6 +267,18 @@
                                                     </td>
                                                     
                                                 </tr>
+                                                <tr>
+                                                        <td>configImportOrchestrator</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/ConfigImportOrchestratorService.html" target="_self" >ConfigImportOrchestratorService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -297,8 +315,14 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="102"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:102</a></div>
+                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:108</a></code>
+</div>
                         </td>
                     </tr>
 
@@ -396,8 +420,14 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="85"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:85</a></div>
+                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:91</a></code>
+</div>
                         </td>
                     </tr>
 
@@ -475,8 +505,14 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="72"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:72</a></div>
+                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:78</a></code>
+</div>
                         </td>
                     </tr>
 
@@ -542,8 +578,14 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="96"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:96</a></div>
+                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:102</a></code>
+</div>
                         </td>
                     </tr>
 
@@ -605,26 +647,32 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="import"></a>
+                    <a name="importForTenant"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
-                        <span ><b>import</b></span>
-                        <a href="#import"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>importForTenant</b></span>
+                        <a href="#importForTenant"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>import()</code>
+                    <code>importForTenant(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="43"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:43</a></div>
+                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:46</a></code>
+</div>
                         </td>
                     </tr>
 
@@ -632,10 +680,40 @@
             <tr>
                 <td class="col-md-4">
 
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
+                            <div class="io-description">
+                                
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -662,8 +740,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="25"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:25</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="31"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:31</a></div>
                         </td>
                     </tr>
 
@@ -672,7 +750,7 @@
                 <td class="col-md-4">
 
                         <div class="io-description">
-                            <b>Returns : </b>    <code>unknown</code>
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
                 </td>
@@ -701,8 +779,14 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="132"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:132</a></div>
+                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:138</a></code>
+</div>
                         </td>
                     </tr>
 
@@ -780,8 +864,14 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="121"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:121</a></div>
+                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:127</a></code>
+</div>
                         </td>
                     </tr>
 
@@ -871,8 +961,14 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="136"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:136</a></div>
+                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:142</a></code>
+</div>
                         </td>
                     </tr>
 
@@ -936,14 +1032,15 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, OnApplicationBootstrap } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomBytes } from &quot;node:crypto&quot;;
+import { readFileSync } from &quot;node:fs&quot;;
+import { Injectable, OnApplicationBootstrap } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
-import { randomBytes } from &quot;crypto&quot;;
-import { readFileSync } from &quot;fs&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { ConfigImportService } from &quot;../../../shared/utils/config-import/config-import.service&quot;;
+import { ConfigImportOrchestratorService } from &quot;../../../shared/utils/config-import/config-import-orchestrator.service&quot;;
 import { Role } from &quot;../../roles/role.enum&quot;;
 import { ClientsProvider } from &quot;../client.provider&quot;;
 import { CreateClientDto } from &quot;../dto/create-client.dto&quot;;
@@ -952,17 +1049,21 @@ import { ClientEntity } from &quot;../entities/client.entity&quot;;
 
 @Injectable()
 export class InternalClientsProvider
-    implements ClientsProvider, OnApplicationBootstrap
+    extends ClientsProvider
+    implements OnApplicationBootstrap
 {
     constructor(
-        private configService: ConfigService,
-        @InjectRepository(ClientEntity) private repo: Repository&lt;ClientEntity&gt;,
-        private configImportService: ConfigImportService,
-    ) {}
+        private readonly configService: ConfigService,
+        @InjectRepository(ClientEntity)
+        private readonly repo: Repository&lt;ClientEntity&gt;,
+        private readonly configImportService: ConfigImportService,
+        configImportOrchestrator: ConfigImportOrchestratorService,
+    ) {
+        super(configImportOrchestrator);
+    }
 
     async onApplicationBootstrap() {
         //add the root user
-
         const clientId &#x3D; this.configService.getOrThrow(&quot;AUTH_CLIENT_ID&quot;);
         const clientSecret &#x3D;
             this.configService.getOrThrow(&quot;AUTH_CLIENT_SECRET&quot;);
@@ -974,37 +1075,38 @@ export class InternalClientsProvider
                 roles: [Role.Tenants],
             });
         });
-
-        return this.import();
     }
 
-    async import() {
-        await this.configImportService.importConfigs&lt;ClientEntity&gt;({
-            subfolder: &quot;clients&quot;,
-            fileExtension: &quot;.json&quot;,
-            validationClass: ClientEntity,
-            resourceType: &quot;client config&quot;,
-            loadData: (filePath) &#x3D;&gt; {
-                const payload &#x3D; JSON.parse(readFileSync(filePath, &quot;utf8&quot;));
-                return plainToClass(ClientEntity, payload);
+    async importForTenant(tenantId: string) {
+        await this.configImportService.importConfigsForTenant&lt;ClientEntity&gt;(
+            tenantId,
+            {
+                subfolder: &quot;clients&quot;,
+                fileExtension: &quot;.json&quot;,
+                validationClass: ClientEntity,
+                resourceType: &quot;client config&quot;,
+                loadData: (filePath) &#x3D;&gt; {
+                    const payload &#x3D; JSON.parse(readFileSync(filePath, &quot;utf8&quot;));
+                    return plainToClass(ClientEntity, payload);
+                },
+                checkExists: async (tenantId, data) &#x3D;&gt; {
+                    return this.getClient(tenantId, (data as any).clientId)
+                        .then(() &#x3D;&gt; true)
+                        .catch(() &#x3D;&gt; false);
+                },
+                deleteExisting: async (tenantId, data) &#x3D;&gt; {
+                    await this.repo.delete({
+                        clientId: (data as any).clientId,
+                        tenant: { id: tenantId },
+                    });
+                },
+                processItem: async (tenantId, data, file) &#x3D;&gt; {
+                    const secret &#x3D;
+                        (data as any).secret ?? randomBytes(32).toString(&quot;hex&quot;);
+                    await this.addClient(tenantId, data as any, secret);
+                },
             },
-            checkExists: async (tenantId, data) &#x3D;&gt; {
-                return this.getClient(tenantId, (data as any).clientId)
-                    .then(() &#x3D;&gt; true)
-                    .catch(() &#x3D;&gt; false);
-            },
-            deleteExisting: async (tenantId, data) &#x3D;&gt; {
-                await this.repo.delete({
-                    clientId: (data as any).clientId,
-                    tenant: { id: tenantId },
-                });
-            },
-            processItem: async (tenantId, data, file) &#x3D;&gt; {
-                const secret &#x3D;
-                    (data as any).secret ?? randomBytes(32).toString(&quot;hex&quot;);
-                await this.addClient(tenantId, data as any, secret);
-            },
-        });
+        );
     }
 
     getClients(tenantId: string) {

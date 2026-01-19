@@ -1086,11 +1086,11 @@ export class Oid4vpService {
 
             //check if a redirect URI is defined and return it to the caller. If so, sendResponse is ignored
             if (session.redirectUri) {
+                //TODO: not clear with the brackets are encoded
                 // Replace {sessionId} placeholder with actual session ID
-                const processedRedirectUri &#x3D; session.redirectUri.replaceAll(
-                    &quot;{sessionId}&quot;,
-                    session.id,
-                );
+                const processedRedirectUri &#x3D; decodeURIComponent(
+                    session.redirectUri,
+                ).replaceAll(&quot;{sessionId}&quot;, session.id);
                 console.log(&quot;Redirecting to URI:&quot;, processedRedirectUri);
                 return {
                     redirect_uri: processedRedirectUri,

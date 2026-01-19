@@ -186,11 +186,7 @@ It provides methods to get, store, and delete issuance configurations.</p>
                             <li>
                                     <span class="modifier">Private</span>
                                     <span class="modifier">Async</span>
-                                <a href="#import" >import</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#onApplicationBootstrap" >onApplicationBootstrap</a>
+                                <a href="#importForTenant" >importForTenant</a>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
@@ -218,12 +214,12 @@ It provides methods to get, store, and delete issuance configurations.</p>
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(issuanceConfigRepo: <a href="../classes/IssuanceConfig.html" target="_self">Repository&lt;IssuanceConfig&gt;</a>, credentialsConfigService: <a href="../injectables/CredentialConfigService.html" target="_self">CredentialConfigService</a>, statusListService: <a href="../injectables/StatusListService.html" target="_self">StatusListService</a>, logger: PinoLogger, filesService: <a href="../injectables/FilesService.html" target="_self">FilesService</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>, certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, keyService: <a href="../classes/KeyService.html" target="_self">KeyService</a>)</code>
+<code>constructor(issuanceConfigRepo: <a href="../classes/IssuanceConfig.html" target="_self">Repository&lt;IssuanceConfig&gt;</a>, logger: PinoLogger, filesService: <a href="../injectables/FilesService.html" target="_self">FilesService</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>, keyService: <a href="../classes/KeyService.html" target="_self">KeyService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:26</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:23</a></div>
                             </td>
                         </tr>
 
@@ -247,30 +243,6 @@ It provides methods to get, store, and delete issuance configurations.</p>
                                                   
                                                         <td>
                                                                         <code><a href="../classes/IssuanceConfig.html" target="_self" >Repository&lt;IssuanceConfig&gt;</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>credentialsConfigService</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/CredentialConfigService.html" target="_self" >CredentialConfigService</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>statusListService</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/StatusListService.html" target="_self" >StatusListService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -327,18 +299,6 @@ It provides methods to get, store, and delete issuance configurations.</p>
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>certService</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/CertService.html" target="_self" >CertService</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
                                                         <td>keyService</td>
                                                   
                                                         <td>
@@ -386,8 +346,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="143"
-                                    class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:143</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="111"
+                                    class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:111</a></div>
                         </td>
                     </tr>
 
@@ -439,81 +399,70 @@ It provides methods to get, store, and delete issuance configurations.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="import"></a>
+                    <a name="importForTenant"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
                             <span class="modifier">Async</span>
-                        <span ><b>import</b></span>
-                        <a href="#import"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>importForTenant</b></span>
+                        <a href="#importForTenant"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>import()</code>
+                    <code>importForTenant(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="80"
-                                    class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:80</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="48"
+                                    class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:48</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Import issuance configurations from the configured folder.</p>
+                        <div class="io-description"><p>Import issuance configurations for a specific tenant.</p>
 </div>
 
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="onApplicationBootstrap"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>onApplicationBootstrap</b></span>
-                        <a href="#onApplicationBootstrap"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>onApplicationBootstrap()</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="73"
-                                    class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:73</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Import issuance configurations and the credential configurations from the configured folder.</p>
-</div>
-
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
+                            <div class="io-description">
+                                
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -540,8 +489,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="113"
-                                    class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:113</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="84"
+                                    class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:84</a></div>
                         </td>
                     </tr>
 
@@ -621,8 +570,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="160"
-                                    class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:160</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="128"
+                                    class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:128</a></div>
                         </td>
                     </tr>
 
@@ -719,7 +668,7 @@ It provides methods to get, store, and delete issuance configurations.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:42</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:36</a></div>
                         </td>
                     </tr>
 
@@ -732,13 +681,12 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Inject, Injectable, OnApplicationBootstrap } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { readFileSync } from &quot;node:fs&quot;;
+import { Inject, Injectable } from &quot;@nestjs/common&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
-import { readFileSync } from &quot;fs&quot;;
 import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { Repository } from &quot;typeorm&quot;;
-import { CertService } from &quot;../../../crypto/key/cert/cert.service&quot;;
 import { KeyService } from &quot;../../../crypto/key/key.service&quot;;
 import { ConfigImportService } from &quot;../../../shared/utils/config-import/config-import.service&quot;;
 import {
@@ -746,8 +694,6 @@ import {
     ImportPhase,
 } from &quot;../../../shared/utils/config-import/config-import-orchestrator.service&quot;;
 import { FilesService } from &quot;../../../storage/files.service&quot;;
-import { StatusListService } from &quot;../../lifecycle/status/status-list.service&quot;;
-import { CredentialConfigService } from &quot;../credentials/credential-config/credential-config.service&quot;;
 import { DisplayInfo } from &quot;./dto/display.dto&quot;;
 import { IssuanceDto } from &quot;./dto/issuance.dto&quot;;
 import { IssuanceConfig } from &quot;./entities/issuance-config.entity&quot;;
@@ -757,7 +703,7 @@ import { IssuanceConfig } from &quot;./entities/issuance-config.entity&quot;;
  * It provides methods to get, store, and delete issuance configurations.
  */
 @Injectable()
-export class IssuanceService implements OnApplicationBootstrap {
+export class IssuanceService {
     /**
      * Constructor for IssuanceService.
      * @param issuanceConfigRepo
@@ -766,82 +712,56 @@ export class IssuanceService implements OnApplicationBootstrap {
     constructor(
         @InjectRepository(IssuanceConfig)
         private readonly issuanceConfigRepo: Repository&lt;IssuanceConfig&gt;,
-        private readonly credentialsConfigService: CredentialConfigService,
-        private readonly statusListService: StatusListService,
         private readonly logger: PinoLogger,
         private readonly filesService: FilesService,
         private readonly configImportService: ConfigImportService,
         private readonly configImportOrchestrator: ConfigImportOrchestratorService,
-        private readonly certService: CertService,
         @Inject(&quot;KeyService&quot;) public readonly keyService: KeyService,
     ) {
-        // Register imports with the orchestrator in the correct order
-        this.configImportOrchestrator.register(&quot;keys&quot;, ImportPhase.CORE, () &#x3D;&gt;
-            this.keyService.importKeys(),
-        );
-        this.configImportOrchestrator.register(
-            &quot;certificates&quot;,
-            ImportPhase.CORE,
-            () &#x3D;&gt; this.certService.importCerts(),
-        );
         this.configImportOrchestrator.register(
             &quot;issuance&quot;,
             ImportPhase.CONFIGURATION,
-            () &#x3D;&gt; this.import(),
-        );
-        this.configImportOrchestrator.register(
-            &quot;credentials&quot;,
-            ImportPhase.CONFIGURATION,
-            () &#x3D;&gt; this.credentialsConfigService.import(),
-        );
-        this.configImportOrchestrator.register(
-            &quot;status-lists&quot;,
-            ImportPhase.FINAL,
-            () &#x3D;&gt; this.statusListService.import(),
+            (tenantId) &#x3D;&gt; this.importForTenant(tenantId),
         );
     }
 
     /**
-     * Import issuance configurations and the credential configurations from the configured folder.
+     * Import issuance configurations for a specific tenant.
      */
-    async onApplicationBootstrap() {
-        await this.configImportOrchestrator.runImports();
-    }
+    private async importForTenant(tenantId: string) {
+        await this.configImportService.importConfigsForTenant&lt;IssuanceDto&gt;(
+            tenantId,
+            {
+                subfolder: &quot;issuance&quot;,
+                fileExtension: &quot;.json&quot;,
+                validationClass: IssuanceDto,
+                resourceType: &quot;issuance config&quot;,
+                formatValidationError: (error) &#x3D;&gt;
+                    this.configImportService.formatNestedValidationError(error),
+                checkExists: (tid) &#x3D;&gt; {
+                    return this.getIssuanceConfiguration(tid)
+                        .then(() &#x3D;&gt; true)
+                        .catch(() &#x3D;&gt; false);
+                },
+                deleteExisting: (tid) &#x3D;&gt;
+                    this.issuanceConfigRepo
+                        .delete({ tenantId: tid })
+                        .then(() &#x3D;&gt; undefined),
+                loadData: (filePath) &#x3D;&gt; {
+                    const payload &#x3D; JSON.parse(readFileSync(filePath, &quot;utf8&quot;));
+                    return plainToClass(IssuanceDto, payload);
+                },
+                processItem: async (tid, issuanceDto) &#x3D;&gt; {
+                    // Replace relative URIs with public URLs
+                    issuanceDto.display &#x3D; await this.replaceUrl(
+                        issuanceDto.display,
+                        tid,
+                    );
 
-    /**
-     * Import issuance configurations from the configured folder.
-     */
-    private async import() {
-        await this.configImportService.importConfigs&lt;IssuanceDto&gt;({
-            subfolder: &quot;issuance&quot;,
-            fileExtension: &quot;.json&quot;,
-            validationClass: IssuanceDto,
-            resourceType: &quot;issuance config&quot;,
-            formatValidationError: (error) &#x3D;&gt;
-                this.configImportService.formatNestedValidationError(error),
-            checkExists: (tenantId) &#x3D;&gt; {
-                return this.getIssuanceConfiguration(tenantId)
-                    .then(() &#x3D;&gt; true)
-                    .catch(() &#x3D;&gt; false);
+                    await this.storeIssuanceConfiguration(tid, issuanceDto);
+                },
             },
-            deleteExisting: (tenantId) &#x3D;&gt;
-                this.issuanceConfigRepo
-                    .delete({ tenantId })
-                    .then(() &#x3D;&gt; undefined),
-            loadData: (filePath) &#x3D;&gt; {
-                const payload &#x3D; JSON.parse(readFileSync(filePath, &quot;utf8&quot;));
-                return plainToClass(IssuanceDto, payload);
-            },
-            processItem: async (tenantId, issuanceDto) &#x3D;&gt; {
-                // Replace relative URIs with public URLs
-                issuanceDto.display &#x3D; await this.replaceUrl(
-                    issuanceDto.display,
-                    tenantId,
-                );
-
-                await this.storeIssuanceConfiguration(tenantId, issuanceDto);
-            },
-        });
+        );
     }
 
     private replaceUrl(display: DisplayInfo[], tenantId: string) {
@@ -853,11 +773,8 @@ export class IssuanceService implements OnApplicationBootstrap {
                         display.logo.uri.trim(),
                     );
                     if (!uri) {
-                        this.logger.error(
-                            {
-                                event: &quot;Import&quot;,
-                            },
-                            &#x60;Could not find logo ${display.logo.uri} for ${tenantId}, skipping import&#x60;,
+                        this.logger.warn(
+                            &#x60;[${tenantId}] Could not find logo ${display.logo.uri}, skipping&#x60;,
                         );
                         delete display.logo;
                     } else {

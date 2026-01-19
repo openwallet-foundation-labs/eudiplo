@@ -170,8 +170,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="21"
-                                    class="link-to-prism">src/crypto/key/key.module.ts:21</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="22"
+                                    class="link-to-prism">src/crypto/key/key.module.ts:22</a></div>
                         </td>
                     </tr>
 
@@ -200,6 +200,7 @@ import { PinoLogger } from &quot;nestjs-pino/PinoLogger&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { TenantEntity } from &quot;../../auth/tenant/entitites/tenant.entity&quot;;
 import { ConfigImportService } from &quot;../../shared/utils/config-import/config-import.service&quot;;
+import { ConfigImportOrchestratorService } from &quot;../../shared/utils/config-import/config-import-orchestrator.service&quot;;
 import { DBKeyService } from &quot;./adapters/db-key.service&quot;;
 import { VaultKeyService } from &quot;./adapters/vault-key.service&quot;;
 import { CertService } from &quot;./cert/cert.service&quot;;
@@ -239,6 +240,7 @@ export class KeyModule {
                         certRepository: Repository&lt;CertEntity&gt;,
                         tenantRepository: Repository&lt;TenantEntity&gt;,
                         logger: PinoLogger,
+                        configImportOrchestrator: ConfigImportOrchestratorService,
                     ) &#x3D;&gt; {
                         const kmType &#x3D; configService.get&lt;&quot;vault&quot; | &quot;file&quot;&gt;(
                             &quot;KM_TYPE&quot;,
@@ -253,6 +255,7 @@ export class KeyModule {
                                 certRepository,
                                 tenantRepository,
                                 logger,
+                                configImportOrchestrator,
                             );
                         }
 
@@ -264,6 +267,7 @@ export class KeyModule {
                             certRepository,
                             tenantRepository,
                             logger,
+                            configImportOrchestrator,
                         );
                     },
                     inject: [
@@ -275,6 +279,7 @@ export class KeyModule {
                         getRepositoryToken(CertEntity),
                         getRepositoryToken(TenantEntity),
                         PinoLogger,
+                        ConfigImportOrchestratorService,
                     ],
                 },
             ],

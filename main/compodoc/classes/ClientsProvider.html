@@ -94,7 +94,7 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content interface">
+               <div class="content class">
                    <div class="content-data">
 
 
@@ -112,12 +112,9 @@
 
 
 
-
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Interfaces</li>
-  <li class="breadcrumb-item"
-  >
-  ClientsProvider</li>
+  <li class="breadcrumb-item">Classes</li>
+  <li class="breadcrumb-item" >ClientsProvider</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -147,73 +144,114 @@
 
 
 
-        <section data-compodoc="block-index">
-            <h3 id="index">Index</h3>
-            <table class="table table-sm table-bordered index-table">
-                <tbody>
-                    <tr>
-                        <td class="col-md-4">
-                            <h6><b>Methods</b></h6>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                            <ul class="index-list">
-                                <li>
-                                    <a href="#addClient" 
->
-                                        addClient
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#getClient" 
->
-                                        getClient
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#getClients" 
->
-                                        getClients
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#getClientSecret" 
->
-                                        getClientSecret
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#import" 
->
-                                        import
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#removeClient" 
->
-                                        removeClient
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#updateClient" 
->
-                                        updateClient
-                                    </a>
-                                </li>
-                                <li>
-                                        <span class="modifier">Optional</span>
-                                    <a href="#validateClientCredentials" 
->
-                                        validateClientCredentials
-                                    </a>
-                                </li>
-                            </ul>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
+
+
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Abstract</span>
+                                <a href="#addClient" >addClient</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Abstract</span>
+                                <a href="#getClient" >getClient</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Abstract</span>
+                                <a href="#getClients" >getClients</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Abstract</span>
+                                <a href="#getClientSecret" >getClientSecret</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Abstract</span>
+                                <a href="#importForTenant" >importForTenant</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Abstract</span>
+                                <a href="#removeClient" >removeClient</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Abstract</span>
+                                <a href="#updateClient" >updateClient</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Optional</span>
+                                <a href="#validateClientCredentials" >validateClientCredentials</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="34" class="link-to-prism">src/auth/client/client.provider.ts:34</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>configImportOrchestrator</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/ConfigImportOrchestratorService.html" target="_self" >ConfigImportOrchestratorService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
 
             <section data-compodoc="block-methods">
     
@@ -226,6 +264,7 @@
                 <td class="col-md-4">
                     <a name="addClient"></a>
                     <span class="name">
+                            <span class="modifier">Abstract</span>
                         <span ><b>addClient</b></span>
                         <a href="#addClient"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -233,15 +272,16 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>addClient(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/CreateClientDto.html" target="_self">CreateClientDto</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>addClient(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/CreateClientDto.html" target="_self">CreateClientDto</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="16"
-                                    class="link-to-prism">src/auth/client/client.provider.ts:16</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="23"
+                                    class="link-to-prism">src/auth/client/client.provider.ts:23</a></div>
                         </td>
                     </tr>
 
@@ -305,6 +345,7 @@
                 <td class="col-md-4">
                     <a name="getClient"></a>
                     <span class="name">
+                            <span class="modifier">Abstract</span>
                         <span ><b>getClient</b></span>
                         <a href="#getClient"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -312,15 +353,16 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getClient(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getClient(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="15"
-                                    class="link-to-prism">src/auth/client/client.provider.ts:15</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="19"
+                                    class="link-to-prism">src/auth/client/client.provider.ts:19</a></div>
                         </td>
                     </tr>
 
@@ -384,6 +426,7 @@
                 <td class="col-md-4">
                     <a name="getClients"></a>
                     <span class="name">
+                            <span class="modifier">Abstract</span>
                         <span ><b>getClients</b></span>
                         <a href="#getClients"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -391,15 +434,16 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getClients(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getClients(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="14"
-                                    class="link-to-prism">src/auth/client/client.provider.ts:14</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="18"
+                                    class="link-to-prism">src/auth/client/client.provider.ts:18</a></div>
                         </td>
                     </tr>
 
@@ -451,6 +495,7 @@
                 <td class="col-md-4">
                     <a name="getClientSecret"></a>
                     <span class="name">
+                            <span class="modifier">Abstract</span>
                         <span ><b>getClientSecret</b></span>
                         <a href="#getClientSecret"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -458,15 +503,16 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getClientSecret(sub: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getClientSecret(sub: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="13"
-                                    class="link-to-prism">src/auth/client/client.provider.ts:13</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="17"
+                                    class="link-to-prism">src/auth/client/client.provider.ts:17</a></div>
                         </td>
                     </tr>
 
@@ -528,24 +574,26 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="import"></a>
+                    <a name="importForTenant"></a>
                     <span class="name">
-                        <span ><b>import</b></span>
-                        <a href="#import"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Abstract</span>
+                        <span ><b>importForTenant</b></span>
+                        <a href="#importForTenant"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>import()</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>importForTenant(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="18"
-                                    class="link-to-prism">src/auth/client/client.provider.ts:18</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="28"
+                                    class="link-to-prism">src/auth/client/client.provider.ts:28</a></div>
                         </td>
                     </tr>
 
@@ -553,10 +601,40 @@
             <tr>
                 <td class="col-md-4">
 
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         <div class="io-description">
                             <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
 
                         </div>
+                            <div class="io-description">
+                                
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -567,6 +645,7 @@
                 <td class="col-md-4">
                     <a name="removeClient"></a>
                     <span class="name">
+                            <span class="modifier">Abstract</span>
                         <span ><b>removeClient</b></span>
                         <a href="#removeClient"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -574,15 +653,16 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>removeClient(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>removeClient(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="17"
-                                    class="link-to-prism">src/auth/client/client.provider.ts:17</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="27"
+                                    class="link-to-prism">src/auth/client/client.provider.ts:27</a></div>
                         </td>
                     </tr>
 
@@ -646,6 +726,7 @@
                 <td class="col-md-4">
                     <a name="updateClient"></a>
                     <span class="name">
+                            <span class="modifier">Abstract</span>
                         <span ><b>updateClient</b></span>
                         <a href="#updateClient"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -653,15 +734,16 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>updateClient(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, updateClientDto: <a href="../classes/UpdateClientDto.html" target="_self">UpdateClientDto</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>updateClient(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, updateClientDto: <a href="../classes/UpdateClientDto.html" target="_self">UpdateClientDto</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="8"
-                                    class="link-to-prism">src/auth/client/client.provider.ts:8</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="12"
+                                    class="link-to-prism">src/auth/client/client.provider.ts:12</a></div>
                         </td>
                     </tr>
 
@@ -752,8 +834,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="21"
-                                    class="link-to-prism">src/auth/client/client.provider.ts:21</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="31"
+                                    class="link-to-prism">src/auth/client/client.provider.ts:31</a></div>
                         </td>
                     </tr>
 
@@ -813,38 +895,61 @@
     </table>
 </section>
 
+
+
+
+
     </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { CreateClientDto } from &quot;./dto/create-client.dto&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    ConfigImportOrchestratorService,
+    ImportPhase,
+} from &quot;../../shared/utils/config-import/config-import-orchestrator.service&quot;;
+import { CreateClientDto } from &quot;./dto/create-client.dto&quot;;
 import { UpdateClientDto } from &quot;./dto/update-client.dto&quot;;
 import { ClientEntity } from &quot;./entities/client.entity&quot;;
 
 export const CLIENTS_PROVIDER &#x3D; &quot;CLIENTS_PROVIDER&quot;;
 
-export interface ClientsProvider {
-    updateClient(
+export abstract class ClientsProvider {
+    abstract updateClient(
         tenantId: string,
         clientId: string,
         updateClientDto: UpdateClientDto,
     ): unknown;
-    getClientSecret(sub: string, id: string): Promise&lt;string&gt;;
-    getClients(tenantId: string): Promise&lt;ClientEntity[]&gt;;
-    getClient(tenantId: string, clientId: string): Promise&lt;ClientEntity&gt;;
-    addClient(tenantId: string, dto: CreateClientDto): Promise&lt;ClientEntity&gt;;
-    removeClient(tenantId: string, clientId: string): Promise&lt;void&gt;;
-    import(): Promise&lt;void&gt;;
+    abstract getClientSecret(sub: string, id: string): Promise&lt;string&gt;;
+    abstract getClients(tenantId: string): Promise&lt;ClientEntity[]&gt;;
+    abstract getClient(
+        tenantId: string,
+        clientId: string,
+    ): Promise&lt;ClientEntity&gt;;
+    abstract addClient(
+        tenantId: string,
+        dto: CreateClientDto,
+    ): Promise&lt;ClientEntity&gt;;
+    abstract removeClient(tenantId: string, clientId: string): Promise&lt;void&gt;;
+    abstract importForTenant(tenantId: string): Promise&lt;void&gt;;
 
     // Only for internal backend (not used with KC; you’ll validate JWTs instead)
     validateClientCredentials?(
         clientId: string,
         clientSecret: string,
     ): Promise&lt;ClientEntity | null&gt;;
+
+    constructor(configImportOrchestrator: ConfigImportOrchestratorService) {
+        configImportOrchestrator.register(
+            &quot;clients&quot;,
+            ImportPhase.CORE,
+            (tenantId) &#x3D;&gt; this.importForTenant(tenantId),
+        );
+    }
 }
 </code></pre>
     </div>
 </div>
+
 
 
 
@@ -878,7 +983,7 @@ export interface ClientsProvider {
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
             var COMPODOC_CURRENT_PAGE_URL = 'ClientsProvider.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
