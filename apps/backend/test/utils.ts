@@ -398,7 +398,7 @@ export async function getToken(
 
 export function getDefaultSecret(input: string): string {
     const pattern = /\$\{([A-Z0-9_]+)(?::([^}]*))?\}/g;
-    return input.replace(
+    return input.replaceAll(
         pattern,
         (fullMatch, varName: string, defVal: string) => {
             return defVal;

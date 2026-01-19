@@ -13,6 +13,7 @@ import { RegistrarService } from "../../registrar/registrar.service";
 import { ConfigImportOrchestratorService } from "../../shared/utils/config-import/config-import-orchestrator.service";
 import { FilesService } from "../../storage/files.service";
 import { CLIENTS_PROVIDER, ClientsProvider } from "../client/client.provider";
+import { Role } from "../roles/role.enum";
 import { CreateTenantDto } from "./dto/create-tenant.dto";
 import { ImportTenantDto } from "./dto/import-tenant.dto";
 import { TenantEntity } from "./entitites/tenant.entity";
@@ -136,6 +137,17 @@ export class TenantService implements OnApplicationBootstrap {
     async createTenant(data: ImportTenantDto | CreateTenantDto) {
         const tenant = await this.tenantRepository.save(data);
         await this.setUpTenant(tenant);
+
+        if ((data as CreateTenantDto).roles) {
+            await this.clients.addClient(tenant.id, {
+                clientId: `${tenant.id}-admin`,
+                description: `auto generated admin client for tenant ${tenant.id}`,
+                roles: [
+                    Role.Clients,
+                    ...((data as CreateTenantDto).roles || []),
+                ],
+            });
+        }
     }
 
     /**
