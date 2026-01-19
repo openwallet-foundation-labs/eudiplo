@@ -504,7 +504,7 @@ import {
     IsString,
     ValidateNested,
 } from &quot;class-validator&quot;;
-import { Column, Entity, ManyToOne } from &quot;typeorm&quot;;
+import { Column, Entity, JoinColumn, ManyToOne } from &quot;typeorm&quot;;
 import { TenantEntity } from &quot;../../../../auth/tenant/entitites/tenant.entity&quot;;
 import { CertEntity } from &quot;../../../../crypto/key/entities/cert.entity&quot;;
 import { WebhookConfig } from &quot;../../../../shared/utils/webhook/webhook.dto&quot;;
@@ -666,12 +666,23 @@ export class CredentialConfig {
     @IsBoolean()
     keyBinding?: boolean;
 
+    /**
+     * Reference to the certificate used for signing.
+     * Note: No DB-level FK constraint because CertEntity has a composite PK
+     * (id + tenantId) and SET NULL behavior cannot work when tenantId is
+     * part of this entity&#x27;s own PK.
+     */
     @IsOptional()
     @IsString()
+    @Column(&quot;varchar&quot;, { nullable: true })
     certId?: string;
 
-    @ManyToOne(() &#x3D;&gt; CertEntity, { onDelete: &quot;SET NULL&quot; })
-    cert!: CertEntity;
+    @ManyToOne(() &#x3D;&gt; CertEntity, { createForeignKeyConstraints: false })
+    @JoinColumn([
+        { name: &quot;certId&quot;, referencedColumnName: &quot;id&quot; },
+        { name: &quot;tenantId&quot;, referencedColumnName: &quot;tenantId&quot; },
+    ])
+    cert?: CertEntity;
 
     @IsOptional()
     @Column(&quot;boolean&quot;, { default: false })

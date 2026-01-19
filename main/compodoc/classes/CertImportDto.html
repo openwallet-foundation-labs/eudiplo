@@ -336,7 +336,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsOptional()<br />@IsUUID()<br />
+                            @IsOptional()<br />@IsString()<br />
                         </code>
                     </td>
                 </tr>
@@ -449,7 +449,7 @@ If not provided, the tenant name will be used.</p>
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { OmitType } from &quot;@nestjs/swagger&quot;;
-import { IsEnum, IsOptional, IsString, IsUUID } from &quot;class-validator&quot;;
+import { IsEnum, IsOptional, IsString } from &quot;class-validator&quot;;
 import { CertEntity } from &quot;../entities/cert.entity&quot;;
 import { CertUsage } from &quot;../entities/cert-usage.entity&quot;;
 
@@ -467,7 +467,7 @@ export class CertImportDto extends OmitType(CertEntity, [
     &quot;id&quot;,
 ] as const) {
     @IsOptional()
-    @IsUUID()
+    @IsString()
     id?: string;
 
     /**

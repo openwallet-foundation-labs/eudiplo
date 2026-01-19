@@ -159,6 +159,7 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#cert" >cert</a>
                             </li>
                             <li>
@@ -192,8 +193,6 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier">Optional</span>
                                 <a href="#id" >id</a>
                             </li>
                             <li>
@@ -241,6 +240,7 @@
                     <a name="cert"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>cert</b></span>
                         <a href="#cert"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -257,13 +257,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ManyToOne(undefined, {cascade: true, onDelete: &#x27;CASCADE&#x27;})<br />
+                            @ManyToOne(undefined, {cascade: true, onDelete: &#x27;CASCADE&#x27;})<br />@JoinColumn([&#x27;undefined&#x27;, &#x27;undefined&#x27;])<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="51" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:51</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:54</a></div>
                         </td>
                     </tr>
 
@@ -299,7 +299,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:45</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:44</a></div>
                         </td>
                     </tr>
 
@@ -335,7 +335,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="82" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:82</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="85" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:85</a></div>
                         </td>
                     </tr>
 
@@ -374,7 +374,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="59" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:59</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="62" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:62</a></div>
                         </td>
                     </tr>
 
@@ -419,7 +419,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:30</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:29</a></div>
                         </td>
                     </tr>
 
@@ -457,7 +457,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="67" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:67</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="70" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:70</a></div>
                         </td>
                     </tr>
 
@@ -479,8 +479,6 @@ Stored for round-tripping when editing.</p>
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier">Optional</span>
                         <span ><b>id</b></span>
                         <a href="#id"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -497,13 +495,13 @@ Stored for round-tripping when editing.</p>
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsUUID()<br />@IsOptional()<br />@PrimaryGeneratedColumn(&#x27;uuid&#x27;)<br />
+                            @IsString()<br />@Column(&#x27;varchar&#x27;, {primary: true})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:25</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:24</a></div>
                         </td>
                     </tr>
 
@@ -545,7 +543,7 @@ Stored for round-tripping when editing.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="79" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:79</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="82" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:82</a></div>
                         </td>
                     </tr>
 
@@ -587,7 +585,7 @@ Stored for round-tripping when editing.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="73" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:73</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="76" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:76</a></div>
                         </td>
                     </tr>
 
@@ -629,7 +627,7 @@ Stored for round-tripping when editing.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:42</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -671,7 +669,7 @@ Stored for round-tripping when editing.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:36</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:35</a></div>
                         </td>
                     </tr>
 
@@ -713,7 +711,7 @@ Stored for round-tripping when editing.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="85" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:85</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="88" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:88</a></div>
                         </td>
                     </tr>
 
@@ -725,13 +723,13 @@ Stored for round-tripping when editing.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsObject, IsOptional, IsString, IsUUID } from &quot;class-validator&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsObject, IsOptional, IsString } from &quot;class-validator&quot;;
 import {
     Column,
     CreateDateColumn,
     Entity,
+    JoinColumn,
     ManyToOne,
-    PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from &quot;typeorm&quot;;
 import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
@@ -746,10 +744,9 @@ export class TrustList {
     /**
      * Unique identifier for the trust list
      * */
-    @IsUUID()
-    @IsOptional()
-    @PrimaryGeneratedColumn(&quot;uuid&quot;)
-    id?: string;
+    @IsString()
+    @Column(&quot;varchar&quot;, { primary: true })
+    id: string;
 
     @IsString()
     @IsOptional()
@@ -775,6 +772,10 @@ export class TrustList {
         cascade: true,
         onDelete: &quot;CASCADE&quot;,
     })
+    @JoinColumn([
+        { name: &quot;certId&quot;, referencedColumnName: &quot;id&quot; },
+        { name: &quot;tenantId&quot;, referencedColumnName: &quot;tenantId&quot; },
+    ])
     cert!: CertEntity;
 
     /**

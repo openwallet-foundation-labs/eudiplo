@@ -636,7 +636,12 @@ export class TrustListCreateDto extends OmitType(TrustList, [
     &quot;createdAt&quot;,
     &quot;updatedAt&quot;,
     &quot;entityConfig&quot;,
+    &quot;id&quot;,
 ] as const) {
+    @IsString()
+    @IsOptional()
+    id?: string;
+
     @IsString()
     @IsOptional()
     certId?: string;

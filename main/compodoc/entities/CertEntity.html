@@ -180,6 +180,7 @@
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#key" >key</a>
                             </li>
                             <li>
@@ -251,7 +252,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="86" class="link-to-prism">src/crypto/key/entities/cert.entity.ts:86</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="91" class="link-to-prism">src/crypto/key/entities/cert.entity.ts:91</a></div>
                         </td>
                     </tr>
 
@@ -294,7 +295,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">src/crypto/key/entities/cert.entity.ts:44</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">src/crypto/key/entities/cert.entity.ts:45</a></div>
                         </td>
                     </tr>
 
@@ -339,7 +340,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="62" class="link-to-prism">src/crypto/key/entities/cert.entity.ts:62</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="63" class="link-to-prism">src/crypto/key/entities/cert.entity.ts:63</a></div>
                         </td>
                     </tr>
 
@@ -376,13 +377,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsUUID()<br />@Column(&#x27;varchar&#x27;, {primary: true})<br />
+                            @IsString()<br />@Column(&#x27;varchar&#x27;, {primary: true})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/crypto/key/entities/cert.entity.ts:25</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/crypto/key/entities/cert.entity.ts:26</a></div>
                         </td>
                     </tr>
 
@@ -402,6 +403,7 @@
                     <a name="key"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>key</b></span>
                         <a href="#key"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -418,13 +420,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ManyToOne(undefined, key &#x3D;&gt; key.certificates, {onDelete: &#x27;CASCADE&#x27;})<br />
+                            @ManyToOne(undefined, key &#x3D;&gt; key.certificates, {onDelete: &#x27;CASCADE&#x27;})<br />@JoinColumn([&#x27;undefined&#x27;, &#x27;undefined&#x27;])<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="80" class="link-to-prism">src/crypto/key/entities/cert.entity.ts:80</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="85" class="link-to-prism">src/crypto/key/entities/cert.entity.ts:85</a></div>
                         </td>
                     </tr>
 
@@ -456,13 +458,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty({description: &#x27;The key ID this certificate is associated with&#x27;, example: &#x27;039af178-3ca0-48f4-a2e4-7b1209f30376&#x27;})<br />@IsUUID()<br />@Column(&#x27;varchar&#x27;)<br />
+                            @ApiProperty({description: &#x27;The key ID this certificate is associated with&#x27;, example: &#x27;039af178-3ca0-48f4-a2e4-7b1209f30376&#x27;})<br />@IsString()<br />@Column(&#x27;varchar&#x27;)<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="73" class="link-to-prism">src/crypto/key/entities/cert.entity.ts:73</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="74" class="link-to-prism">src/crypto/key/entities/cert.entity.ts:74</a></div>
                         </td>
                     </tr>
 
@@ -504,7 +506,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">src/crypto/key/entities/cert.entity.ts:37</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="38" class="link-to-prism">src/crypto/key/entities/cert.entity.ts:38</a></div>
                         </td>
                     </tr>
 
@@ -546,7 +548,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/crypto/key/entities/cert.entity.ts:31</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/crypto/key/entities/cert.entity.ts:32</a></div>
                         </td>
                     </tr>
 
@@ -588,7 +590,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="92" class="link-to-prism">src/crypto/key/entities/cert.entity.ts:92</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="97" class="link-to-prism">src/crypto/key/entities/cert.entity.ts:97</a></div>
                         </td>
                     </tr>
 
@@ -630,7 +632,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/crypto/key/entities/cert.entity.ts:54</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="55" class="link-to-prism">src/crypto/key/entities/cert.entity.ts:55</a></div>
                         </td>
                     </tr>
 
@@ -648,6 +650,7 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    JoinColumn,
     ManyToOne,
     OneToMany,
     UpdateDateColumn,
@@ -664,7 +667,7 @@ export class CertEntity {
     /**
      * Unique identifier for the key.
      */
-    @IsUUID()
+    @IsString()
     @Column(&quot;varchar&quot;, { primary: true })
     id!: string;
 
@@ -712,7 +715,7 @@ export class CertEntity {
         description: &quot;The key ID this certificate is associated with&quot;,
         example: &quot;039af178-3ca0-48f4-a2e4-7b1209f30376&quot;,
     })
-    @IsUUID()
+    @IsString()
     @Column(&quot;varchar&quot;)
     keyId!: string;
 
@@ -721,6 +724,10 @@ export class CertEntity {
         (key) &#x3D;&gt; key.certificates,
         { onDelete: &quot;CASCADE&quot; },
     )
+    @JoinColumn([
+        { name: &quot;keyId&quot;, referencedColumnName: &quot;id&quot; },
+        { name: &quot;tenantId&quot;, referencedColumnName: &quot;tenantId&quot; },
+    ])
     key!: KeyEntity;
 
     /**
