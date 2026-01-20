@@ -8,7 +8,7 @@
     "dev:server": "tsx watch src/server.ts",
     "dev:client": "esbuild src/client/*/app.ts --bundle --outdir=public/js --watch --sourcemap",
     "build": "pnpm run build:server && pnpm run build:client",
-    "build:server": "esbuild src/server.ts --bundle --platform=node --format=esm --outfile=dist/server.js --external:express --packages=external",
+    "build:server": "esbuild src/server.ts --bundle --platform=node --format=esm --outfile=dist/server.js --banner:js=\"import { createRequire } from 'module'; const require = createRequire(import.meta.url);\" --packages=bundle",
     "build:client": "esbuild src/client/*/app.ts --bundle --outdir=public/js --minify",
     "start": "node dist/server.js",
     "start:dev": "pnpm run dev"

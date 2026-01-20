@@ -91,6 +91,11 @@ app.options('*', (_req: Request, res: Response) => {
   res.sendStatus(200);
 });
 
+// Health check endpoint
+app.get('/health', (_req: Request, res: Response) => {
+  res.json({ status: 'ok' });
+});
+
 // Create EUDIPLO client helper
 function createClient(): EudiploClient {
   return new EudiploClient({
