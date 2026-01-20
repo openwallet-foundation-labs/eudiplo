@@ -200,6 +200,32 @@ jobs:
       - name: Build webhook
         run: pnpm --filter test-rp build
 
+  build-playground:
+    name: Build Playground
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build playground
+        run: pnpm --filter @eudiplo/playground build
+
   build-doc:
     name: Build Documentation
     permissions:
@@ -248,7 +274,14 @@ jobs:
       contents: read
     name: E2E Tests
     runs-on: ubuntu-latest
-    needs: [build-backend, build-client, build-verifier, build-webhook]
+    needs:
+      [
+        build-backend,
+        build-client,
+        build-verifier,
+        build-webhook,
+        build-playground,
+      ]
     steps:
       - uses: actions/checkout@v6
 

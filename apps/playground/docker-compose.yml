@@ -1,0 +1,30 @@
+# EUDIPLO Playground Standalone
+# This docker-compose file runs the playground independently from the main EUDIPLO setup
+
+services:
+  playground:
+    build:
+      context: ../..
+      dockerfile: apps/playground/Dockerfile
+    ports:
+      - '8080:8080'
+    environment:
+      - PORT=8080
+      - EUDIPLO_URL=${EUDIPLO_URL:-http://host.docker.internal:3000}
+      - CLIENT_ID=${CLIENT_ID:-root}
+      - CLIENT_SECRET=${CLIENT_SECRET:-root}
+    restart: unless-stopped
+
+  # Optional: Include EUDIPLO backend for a complete standalone setup
+  # Uncomment the following to run with the EUDIPLO backend included
+  #
+  # eudiplo:
+  #   image: ghcr.io/openwallet-foundation-labs/eudiplo:latest
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - PUBLIC_URL=http://localhost:3000
+  #     - JWT_SECRET=change-me-in-production
+  #     - AUTH_CLIENT_SECRET=root
+  #   volumes:
+  #     - ../../assets/config:/app/config
