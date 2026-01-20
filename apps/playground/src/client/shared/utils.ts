@@ -17,10 +17,16 @@ export interface VerificationResult {
   uri: string;
 }
 
+export interface IssuanceResult {
+  sessionId: string;
+  uri: string;
+}
+
 export interface Session {
   sessionId: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed' | 'expired';
+  status: 'pending' | 'processing' | 'completed' | 'fetched' | 'failed' | 'expired';
   presentation?: Record<string, unknown>;
+  credentials?: Array<Record<string, unknown>>;
 }
 
 export interface WaitOptions {
@@ -52,6 +58,32 @@ function extractErrorMessage(error: unknown, fallback: string): string {
     }
   }
   return fallback;
+}
+
+/**
+ * Create a credential issuance offer
+ */
+export async function createIssuanceOffer(
+  credentialId: string,
+  claims?: Record<string, unknown>
+): Promise<IssuanceResult> {
+  const response = await fetch('/api/issue', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ credentialId, claims }),
+  });
+
+  if (!response.ok) {
+    let errorBody: unknown;
+    try {
+      errorBody = await response.json();
+    } catch {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+    throw new Error(extractErrorMessage(errorBody, 'Failed to create issuance offer'));
+  }
+
+  return response.json();
 }
 
 /**
@@ -166,7 +198,8 @@ export async function waitForSession(
       onUpdate(session);
     }
 
-    if (session.status === 'completed') {
+    // 'completed' for verification, 'fetched' for issuance
+    if (session.status === 'completed' || session.status === 'fetched') {
       return session;
     }
 

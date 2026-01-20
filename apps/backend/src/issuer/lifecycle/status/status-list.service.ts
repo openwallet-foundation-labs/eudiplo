@@ -198,14 +198,14 @@ export class StatusListService {
             ttl, // Maximum cache time in seconds for verifiers
         };
 
-        // Use the pinned certificate if specified, otherwise use/create the default StatusList cert
+        // Use the pinned certificate if specified, otherwise use the tenant's default status list cert
         const cert = entry.certId
             ? await this.certService.find({
                   tenantId: entry.tenantId,
                   type: CertUsage.StatusList,
                   id: entry.certId,
               })
-            : await this.certService.findOrCreate({
+            : await this.certService.find({
                   tenantId: entry.tenantId,
                   type: CertUsage.StatusList,
               });
@@ -244,7 +244,7 @@ export class StatusListService {
         // Store JWT and expiration time
         const expiresAt = new Date(exp * 1000);
         await this.statusListRepository.update(
-            { id: entry.id },
+            { id: entry.id, tenantId: entry.tenantId },
             { jwt, expiresAt },
         );
     }

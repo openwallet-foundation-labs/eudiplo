@@ -37,7 +37,8 @@
                     {
                         "type": "etsi_tl",
                         "values": [
-                            "https://bmi.usercontent.opencode.de/eudi-wallet/test-trust-lists/pid-provider.jwt"
+                            "https://bmi.usercontent.opencode.de/eudi-wallet/test-trust-lists/pid-provider.jwt",
+                            "<TENANT_URL>/trust-list/7f3f6c77-15d7-4ad1-a0e2-0d01bb3bf15e"
                         ]
                     }
                 ]

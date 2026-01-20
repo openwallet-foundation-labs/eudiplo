@@ -581,6 +581,17 @@ header .badge {
   color: var(--text-muted);
 }
 
+.verified-city {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: var(--radius);
+  color: #92400e;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
 .still-welcome {
   background: #f0f9ff;
   border: 1px solid #bae6fd;

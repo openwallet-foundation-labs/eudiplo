@@ -121,11 +121,15 @@ async function handleVerify(): Promise<void> {
 
 // Check if user is from Berlin
 function isBerlinResident(session: Session): boolean {
-  const claims = extractClaims(session.presentation || {});
+  const claims = extractClaims(session);
   
   // Check various possible city field names
-  const city = claims.resident_city || claims.locality || claims.city || claims.place_of_residence;
+  // PID credentials have city in address.locality
+  const address = claims.address as Record<string, unknown> | undefined;
+  const city = address?.locality || claims.resident_city || claims.locality || claims.city || claims.place_of_residence;
   
+  console.log(city);
+
   if (typeof city === 'string') {
     const cityLower = city.toLowerCase().trim();
     return cityLower === 'berlin' || cityLower.includes('berlin');
@@ -188,8 +192,9 @@ function showSuccess(session: Session): void {
   if (verifiedDataEl) {
     verifiedDataEl.innerHTML = '';
     
-    const claims = extractClaims(session.presentation || {});
-    const city = claims.resident_city || claims.locality || claims.city || claims.place_of_residence;
+    const claims = extractClaims(session);
+    const address = claims.address as Record<string, unknown> | undefined;
+    const city = address?.locality || claims.resident_city || claims.locality || claims.city || claims.place_of_residence;
     
     // Only show city verification result
     const item = document.createElement('div');
@@ -214,10 +219,37 @@ function showSuccess(session: Session): void {
 // Show not Berlin state
 function showNotBerlin(session: Session): void {
   showSection(notBerlinSection);
+  
+  // Show the actual city that was presented
+  const claims = extractClaims(session);
+  const address = claims.address as Record<string, unknown> | undefined;
+  const city = address?.locality || claims.resident_city || claims.locality || claims.city || claims.place_of_residence;
+  
+  const cityInfoEl = document.getElementById('notBerlinCity');
+  if (cityInfoEl && city) {
+    cityInfoEl.textContent = `Your verified residence: ${city}`;
+  }
 }
 
-// Extract claims from various presentation formats
-function extractClaims(presentation: Record<string, unknown>): Record<string, unknown> {
+// Credential structure from session
+interface SessionCredential {
+  id: string;
+  values: Array<Record<string, unknown>>;
+}
+
+// Extract claims from session credentials
+function extractClaims(session: Session): Record<string, unknown> {
+  // Session has credentials array: [{ id: "pid-sd-jwt", values: [{ address: { locality: "BERLIN" }, ... }] }]
+  if (Array.isArray(session.credentials) && session.credentials.length > 0) {
+    const credential = session.credentials[0] as unknown as SessionCredential;
+    if (Array.isArray(credential.values) && credential.values.length > 0) {
+      return credential.values[0];
+    }
+  }
+  
+  // Fallback to presentation for backwards compatibility
+  const presentation = session.presentation || {};
+  
   // Direct claims
   if (presentation.resident_city || presentation.locality || presentation.city) {
     return presentation;

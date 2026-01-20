@@ -6,6 +6,7 @@
   "certUsageTypes": [
     "access",
     "signing",
-    "statusList"
+    "statusList",
+    "trustList"
   ]
 }
