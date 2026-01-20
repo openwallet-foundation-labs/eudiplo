@@ -4,17 +4,16 @@
   "license": "Apache-2.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"pnpm run dev:server\" \"pnpm run dev:client\"",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:server": "tsx watch src/server.ts",
     "dev:client": "esbuild src/client/*/app.ts --bundle --outdir=public/js --watch --sourcemap",
-    "build": "pnpm run build:server && pnpm run build:client",
+    "build": "npm run build:server && npm run build:client",
     "build:server": "esbuild src/server.ts --bundle --platform=node --format=esm --outfile=dist/server.js --external:express --packages=external",
     "build:client": "esbuild src/client/*/app.ts --bundle --outdir=public/js --minify",
-    "start": "node dist/server.js",
-    "start:dev": "pnpm run dev"
+    "start": "node dist/server.js"
   },
   "dependencies": {
-    "@eudiplo/sdk-core": "workspace:*",
+    "@eudiplo/sdk-core": "^1.14.0",
     "express": "^4.21.0"
   },
   "devDependencies": {
