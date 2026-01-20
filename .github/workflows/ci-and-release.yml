@@ -223,6 +223,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Build SDK (dependency)
+        run: pnpm --filter @eudiplo/sdk build
+
       - name: Build playground
         run: pnpm --filter @eudiplo/playground build
 
