@@ -46,6 +46,13 @@ RUN pnpm install --prod --ignore-scripts
 ENV NODE_ENV=production
 ENV PORT=8080
 
+# Install curl for healthcheck
+RUN apk add --no-cache curl
+
 EXPOSE 8080
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:8080/health || exit 1
 
 CMD ["node", "dist/server.js"]
