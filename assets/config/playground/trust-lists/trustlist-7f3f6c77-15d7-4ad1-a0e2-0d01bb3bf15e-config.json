@@ -1,0 +1,112 @@
+{
+  "id": "7f3f6c77-15d7-4ad1-a0e2-0d01bb3bf15e",
+  "description": "PID trust list",
+  "certId": "750af17f-0bc4-497f-9d4a-1f0b4c63a5cc",
+  "entities": [
+    {
+      "type": "internal",
+      "issuerCertId": "750af17f-0bc4-497f-9d4a-1f0b4c63a5cc",
+      "revocationCertId": "750af17f-0bc4-497f-9d4a-1f0b4c63a5cc",
+      "info": {
+        "name": "Playground PID Provider",
+        "lang": "en"
+      }
+    }
+  ],
+  "data": {
+    "ListAndSchemeInformation": {
+      "LoTEVersionIdentifier": 1,
+      "LoTESequenceNumber": 1,
+      "LoTEType": "http://uri.etsi.org/19602/LoTEType/EUEAAProvidersList",
+      "StatusDeterminationApproach": "http://uri.etsi.org/19602/EUEAAProvidersList/StatusDetn/EU",
+      "SchemeTypeCommunityRules": [
+        {
+          "lang": "en",
+          "uriValue": "http://uri.etsi.org/19602/EUEAAProviders/schemerules/EU"
+        }
+      ],
+      "SchemeTerritory": "EU",
+      "NextUpdate": "2026-02-19T11:34:26.070Z",
+      "SchemeOperatorName": [
+        {
+          "lang": "en",
+          "value": "Playground"
+        }
+      ],
+      "ListIssueDateTime": "2026-01-20T11:34:26.070Z"
+    },
+    "TrustedEntitiesList": [
+      {
+        "TrustedEntityInformation": {
+          "TEInformationURI": [
+            {
+              "lang": "en",
+              "uriValue": ""
+            }
+          ],
+          "TEName": [
+            {
+              "lang": "en",
+              "value": "Playground PID Provider"
+            }
+          ],
+          "TEAddress": {
+            "TEElectronicAddress": [
+              {
+                "lang": "en",
+                "uriValue": ""
+              }
+            ],
+            "TEPostalAddress": [
+              {
+                "Country": "",
+                "lang": "en",
+                "Locality": "",
+                "PostalCode": "",
+                "StreetAddress": ""
+              }
+            ]
+          }
+        },
+        "TrustedEntityServices": [
+          {
+            "ServiceInformation": {
+              "ServiceTypeIdentifier": "http://uri.etsi.org/19602/SvcType/EAA/Issuance",
+              "ServiceName": [
+                {
+                  "lang": "en",
+                  "value": "EAA-Issuance-Service"
+                }
+              ],
+              "ServiceDigitalIdentity": {
+                "X509Certificates": [
+                  {
+                    "val": "MIIBmTCCAT+gAwIBAgIBATAKBggqhkjOPQQDAjAiMQswCQYDVQQGEwJERTETMBEGA1UEAxMKUGxheWdyb3VuZDAeFw0yNjAxMTgxNTEzMDNaFw0yNzAxMTgxNTEzMDNaMCIxCzAJBgNVBAYTAkRFMRMwEQYDVQQDEwpQbGF5Z3JvdW5kMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEbQG/8L9b9jKxvtwhzJQWoAMdAklvwd+RVQPHS/wr+F16OXjqscrbFngPH5aio3WutIDO4GEMdSVdAcIwz5kdPqNmMGQwIgYDVR0RBBswGYIXc2VydmljZS5ldWRpLXdhbGxldC5kZXYwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMCAqQwHQYDVR0OBBYEFEyi0mUHTgVaBL4GE/Yy9QCQ/1wGMAoGCCqGSM49BAMCA0gAMEUCIHNRgw4yHNi0L/V8Ch+NkNwOWr7bkrNH+DRDgzYjdBz6AiEAkuf3gOSCh9oPiyvvTTQm2iDVI5/yUOxTSX2P0YOcWf0="
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "ServiceInformation": {
+              "ServiceName": [
+                {
+                  "lang": "en",
+                  "value": "EAA-Revocation-Service"
+                }
+              ],
+              "ServiceTypeIdentifier": "http://uri.etsi.org/19602/SvcType/EAA/Revocation",
+              "ServiceDigitalIdentity": {
+                "X509Certificates": [
+                  {
+                    "val": "MIIBmTCCAT+gAwIBAgIBATAKBggqhkjOPQQDAjAiMQswCQYDVQQGEwJERTETMBEGA1UEAxMKUGxheWdyb3VuZDAeFw0yNjAxMTgxNTEzMDNaFw0yNzAxMTgxNTEzMDNaMCIxCzAJBgNVBAYTAkRFMRMwEQYDVQQDEwpQbGF5Z3JvdW5kMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEbQG/8L9b9jKxvtwhzJQWoAMdAklvwd+RVQPHS/wr+F16OXjqscrbFngPH5aio3WutIDO4GEMdSVdAcIwz5kdPqNmMGQwIgYDVR0RBBswGYIXc2VydmljZS5ldWRpLXdhbGxldC5kZXYwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMCAqQwHQYDVR0OBBYEFEyi0mUHTgVaBL4GE/Yy9QCQ/1wGMAoGCCqGSM49BAMCA0gAMEUCIHNRgw4yHNi0L/V8Ch+NkNwOWr7bkrNH+DRDgzYjdBz6AiEAkuf3gOSCh9oPiyvvTTQm2iDVI5/yUOxTSX2P0YOcWf0="
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

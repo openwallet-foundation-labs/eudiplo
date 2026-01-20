@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="data:," />
+    <title>Get Your PID | EUDIPLO Playground</title>
+    <link rel="stylesheet" href="/shared/styles.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
+      integrity="sha384-lQXOAyZwHXE55JFyrOMB7nY2Wv+m5ZWNtJcHrd1rceRQXAYNLak8ukN5TjBTcIwz"
+      crossorigin="anonymous"
+    ></script>
+    <style>
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        color: white;
+        margin: -2rem -2rem 2rem -2rem;
+      }
+
+      @media (max-width: 640px) {
+        header {
+          padding: 1rem;
+          margin: -1rem -1rem 1.5rem -1rem;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+        }
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: white;
+        text-decoration: none;
+      }
+
+      .logo-icon {
+        font-size: 2rem;
+      }
+
+      .badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.25rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+
+      .info-section {
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .info-section h3 {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        color: #1e40af;
+      }
+
+      .info-section p {
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+
+      .credential-preview {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+      }
+
+      .credential-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .credential-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+      }
+
+      .credential-title h4 {
+        margin: 0 0 0.25rem 0;
+        color: var(--text);
+      }
+
+      .credential-title span {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+      }
+
+      .claims-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+
+      .claim-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        background: var(--bg);
+        border-radius: 6px;
+      }
+
+      .claim-icon {
+        font-size: 1.25rem;
+      }
+
+      .claim-label {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+      }
+
+      .persona-section {
+        margin-bottom: 1.5rem;
+      }
+
+      .persona-section label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: var(--text);
+      }
+
+      .persona-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        font-size: 1rem;
+        background: white;
+        cursor: pointer;
+      }
+
+      .persona-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+
+      .form-section {
+        background: var(--bg);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .form-section h3 {
+        margin-bottom: 1rem;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .form-group label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-muted);
+      }
+
+      .form-group input {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 0.95rem;
+      }
+
+      .form-group input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+      }
+
+      .form-group input:disabled {
+        background: var(--bg);
+        color: var(--text-muted);
+      }
+
+      .toggle-edit {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        padding: 0.5rem 0;
+        color: var(--primary);
+        cursor: pointer;
+        font-size: 0.875rem;
+        background: none;
+        border: none;
+      }
+
+      .toggle-edit:hover {
+        text-decoration: underline;
+      }
+
+      .age-info {
+        background: #fef3c7;
+        border: 1px solid #f59e0b;
+        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        margin-top: 1rem;
+        font-size: 0.875rem;
+        color: #92400e;
+      }
+
+      .age-info strong {
+        color: #78350f;
+      }
+
+      .eudi-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, #003399 0%, #0066cc 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 1.5rem;
+      }
+
+      .qr-container {
+        text-align: center;
+        padding: 2rem;
+        background: var(--bg);
+        border-radius: var(--radius);
+        margin: 1.5rem 0;
+      }
+
+      .qr-code {
+        display: inline-block;
+        padding: 1rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+      }
+
+      .qr-code.has-qr {
+        padding: 0.5rem;
+      }
+
+      .qr-code img {
+        display: block;
+      }
+
+      .same-device-section {
+        margin-top: 1rem;
+      }
+
+      .divider-text {
+        display: block;
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .same-device-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .status-text {
+        margin-top: 1rem;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+      }
+
+      .success-header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .success-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: white;
+        margin: 0 auto 1rem;
+      }
+
+      .success-header h2 {
+        color: #059669;
+        margin-bottom: 0.5rem;
+      }
+
+      .success-subtitle {
+        color: var(--text-muted);
+      }
+
+      .next-steps {
+        background: var(--bg);
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+      }
+
+      .next-steps h3 {
+        margin-bottom: 1rem;
+        color: var(--text);
+      }
+
+      .step-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .step-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: white;
+        border-radius: 8px;
+        text-decoration: none;
+        color: inherit;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+
+      a.step-item:hover {
+        transform: translateX(4px);
+        box-shadow: var(--shadow);
+      }
+
+      .step-icon {
+        font-size: 1.5rem;
+      }
+
+      .step-text strong {
+        display: block;
+        margin-bottom: 0.125rem;
+      }
+
+      .step-text span {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+      }
+
+      footer {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        border-top: 1px solid var(--border);
+        margin-top: 2rem;
+      }
+
+      footer a {
+        color: var(--primary);
+        text-decoration: none;
+      }
+
+      footer a:hover {
+        text-decoration: underline;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="../" class="logo">
+        <span class="logo-icon">🪪</span>
+        EUDIPLO Playground
+      </a>
+      <span class="badge">Credential Issuance</span>
+    </header>
+
+    <main class="container">
+      <!-- Step 1: Info & Start -->
+      <section id="startSection" class="card">
+        <h1>Get Your Demo PID</h1>
+
+        <div class="info-section">
+          <h3>📋 What is this?</h3>
+          <p>
+            This page issues a
+            <strong>demo Personal ID (PID)</strong> credential to your EUDI
+            Wallet. Choose a persona or customize the data to test different
+            verification scenarios.
+          </p>
+        </div>
+
+        <div class="persona-section">
+          <label for="personaSelect">👤 Choose a Persona</label>
+          <select id="personaSelect" class="persona-select">
+            <option value="max">Max Mustermann (35, Berlin) - Adult</option>
+            <option value="erika">Erika Mustermann (61, Köln) - Senior</option>
+            <option value="anna">Anna Schmidt (17, München) - Minor</option>
+            <option value="thomas">
+              Thomas Weber (20, Hamburg) - Young Adult
+            </option>
+            <option value="custom">✏️ Custom...</option>
+          </select>
+        </div>
+
+        <div class="form-section">
+          <h3>📝 Identity Details</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="givenName">Given Name</label>
+              <input type="text" id="givenName" value="Max" disabled />
+            </div>
+            <div class="form-group">
+              <label for="familyName">Family Name</label>
+              <input type="text" id="familyName" value="Mustermann" disabled />
+            </div>
+            <div class="form-group">
+              <label for="birthdate">Birth Date</label>
+              <input type="date" id="birthdate" value="1990-01-15" disabled />
+            </div>
+            <div class="form-group">
+              <label for="birthCity">Place of Birth</label>
+              <input type="text" id="birthCity" value="BERLIN" disabled />
+            </div>
+            <div class="form-group">
+              <label for="streetAddress">Street Address</label>
+              <input
+                type="text"
+                id="streetAddress"
+                value="Musterstraße 123"
+                disabled
+              />
+            </div>
+            <div class="form-group">
+              <label for="city">City</label>
+              <input type="text" id="city" value="BERLIN" disabled />
+            </div>
+            <div class="form-group">
+              <label for="postalCode">Postal Code</label>
+              <input type="text" id="postalCode" value="10115" disabled />
+            </div>
+            <div class="form-group">
+              <label for="nationality">Nationality</label>
+              <input type="text" id="nationality" value="DE" disabled />
+            </div>
+          </div>
+          <div id="ageInfo" class="age-info">
+            <strong>Age:</strong> <span id="calculatedAge">35</span> years old —
+            <span id="ageFlags">✓ Over 18, ✓ Over 21</span>
+          </div>
+        </div>
+
+        <button id="getCredentialBtn" class="btn btn-primary btn-large">
+          🪪 Get Demo PID
+        </button>
+      </section>
+
+      <!-- Step 2: QR Code / Wallet Connect -->
+      <section id="issuanceSection" class="card hidden">
+        <h2>🪪 Receive Your PID</h2>
+        <p class="verification-subtitle">
+          Scan the QR code with your EUDI Wallet to receive your demo PID
+          credential.
+        </p>
+
+        <div class="eudi-badge">
+          <span class="eu-flag">🇪🇺</span>
+          EUDI Wallet Credential Offer
+        </div>
+
+        <div class="qr-container">
+          <div id="qrCode" class="qr-code"></div>
+          <div class="same-device-section">
+            <span class="divider-text">or on this device</span>
+            <div id="sameDeviceLink" class="hidden"></div>
+          </div>
+          <p id="statusText" class="status-text">
+            Waiting for wallet to accept...
+          </p>
+        </div>
+      </section>
+
+      <!-- Step 3: Success -->
+      <section id="successSection" class="card hidden">
+        <div class="success-header">
+          <div class="success-icon">✓</div>
+          <h2>Credential Issued!</h2>
+          <p class="success-subtitle">
+            Your demo PID has been successfully issued to your wallet.
+          </p>
+        </div>
+
+        <div class="next-steps">
+          <h3>🚀 Try it out!</h3>
+          <p style="color: var(--text-muted); margin-bottom: 1rem">
+            Now you can use your PID in any of our verification demos:
+          </p>
+          <div class="step-list">
+            <a href="/alcohol-shop/" class="step-item">
+              <span class="step-icon">🍷</span>
+              <div class="step-text">
+                <strong>Vineyard Select</strong>
+                <span>Prove you're 18+ for alcohol purchases</span>
+              </div>
+            </a>
+            <a href="/bank-onboarding/" class="step-item">
+              <span class="step-icon">🏦</span>
+              <div class="step-text">
+                <strong>Nordic Digital Bank</strong>
+                <span>Complete KYC for account opening</span>
+              </div>
+            </a>
+            <a href="/sim-activation/" class="step-item">
+              <span class="step-icon">📱</span>
+              <div class="step-text">
+                <strong>TechMarkt SIM Activation</strong>
+                <span>Verify identity for prepaid SIM</span>
+              </div>
+            </a>
+            <a href="/hotel-checkin/" class="step-item">
+              <span class="step-icon">🏨</span>
+              <div class="step-text">
+                <strong>Alpine Grand Hotel</strong>
+                <span>Digital hotel check-in</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 1.5rem">
+          <button id="getAnotherBtn" class="btn btn-secondary">
+            Get Another PID
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        Powered by
+        <a
+          href="https://github.com/openwallet-foundation-labs/eudiplo"
+          target="_blank"
+          >EUDIPLO</a
+        >
+        · <a href="../">Back to Playground</a>
+      </p>
+    </footer>
+
+    <script type="module" src="/js/get-pid/app.js"></script>
+  </body>
+</html>

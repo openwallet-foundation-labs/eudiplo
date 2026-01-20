@@ -42,9 +42,19 @@ const USE_CASES: Record<string, { presentationConfigId: string; name: string }> 
   },
 };
 
+// Credential configurations for issuance
+const CREDENTIALS: Record<string, { credentialConfigId: string; name: string }> = {
+  'pid': {
+    credentialConfigId: 'pid',
+    name: 'Personal ID (PID)',
+  },
+};
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+
+    console.log(env.EUDIPLO_URL);
 
     // Handle CORS preflight
     if (request.method === 'OPTIONS') {
@@ -114,6 +124,33 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
         configId: useCase.presentationConfigId,
         // Pass redirect URI directly - caller is responsible for including session param
         redirectUri: body.redirectUri,
+      });
+
+      return Response.json({ uri, sessionId }, { headers: corsHeaders });
+    }
+
+    // POST /api/issue - Create a credential issuance offer
+    if (url.pathname === '/api/issue' && request.method === 'POST') {
+      const body = await request.json() as { credentialId: string; claims?: Record<string, unknown> };
+      const credential = CREDENTIALS[body.credentialId];
+
+      if (!credential) {
+        return Response.json(
+          { error: `Unknown credential: ${body.credentialId}` },
+          { status: 400, headers: corsHeaders }
+        );
+      }
+
+      const client = new EudiploClient({
+        baseUrl: env.EUDIPLO_URL,
+        clientId: env.CLIENT_ID,
+        clientSecret: env.CLIENT_SECRET,
+      });
+
+      // Create the issuance offer
+      const { uri, sessionId } = await client.createIssuanceOffer({
+        credentialConfigurationIds: [credential.credentialConfigId],
+        claims: body.claims ? { [credential.credentialConfigId]: body.claims } : undefined,
       });
 
       return Response.json({ uri, sessionId }, { headers: corsHeaders });

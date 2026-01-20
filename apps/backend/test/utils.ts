@@ -466,7 +466,12 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
         .set("Authorization", `Bearer ${authToken}`)
         .send({
             keyId: privateKey.id,
-            certUsageTypes: [CertUsage.Access, CertUsage.Signing],
+            certUsageTypes: [
+                CertUsage.Access,
+                CertUsage.Signing,
+                CertUsage.StatusList,
+                CertUsage.TrustList,
+            ],
         } as CertImportDto)
         .expect(201);
 
