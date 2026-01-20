@@ -12,8 +12,5 @@ onlyBuiltDependencies:
   - esbuild
   - sqlite3
 
-patchedDependencies:
-  '@sd-jwt/core': patches/@sd-jwt__core.patch
-
 syncInjectedDepsAfterScripts:
   - build

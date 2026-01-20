@@ -5,11 +5,6 @@ settings:
   excludeLinksFromLockfile: false
   injectWorkspacePackages: true
 
-patchedDependencies:
-  '@sd-jwt/core':
-    hash: 37ce8c817429a32c0ac07924651dca327de4d72c55f80d7c5a7cbbb567a42ef2
-    path: patches/@sd-jwt__core.patch
-
 importers:
 
   .:
@@ -13777,7 +13772,7 @@ snapshots:
     transitivePeerDependencies:
       - chokidar
 
-  '@sd-jwt/core@0.18.1(patch_hash=37ce8c817429a32c0ac07924651dca327de4d72c55f80d7c5a7cbbb567a42ef2)':
+  '@sd-jwt/core@0.18.1':
     dependencies:
       '@sd-jwt/decode': 0.18.1
       '@sd-jwt/present': 0.18.1
@@ -13805,7 +13800,7 @@ snapshots:
 
   '@sd-jwt/sd-jwt-vc@0.18.1':
     dependencies:
-      '@sd-jwt/core': 0.18.1(patch_hash=37ce8c817429a32c0ac07924651dca327de4d72c55f80d7c5a7cbbb567a42ef2)
+      '@sd-jwt/core': 0.18.1
       '@sd-jwt/jwt-status-list': 0.18.1
       '@sd-jwt/utils': 0.18.1
       zod: 4.3.5
