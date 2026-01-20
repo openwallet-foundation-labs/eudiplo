@@ -33,7 +33,10 @@ WORKDIR /app
 # Copy only necessary files
 COPY --from=builder /app/apps/playground/dist ./dist
 COPY --from=builder /app/apps/playground/public ./public
-COPY --from=builder /app/apps/playground/package.json ./
+
+# Create a minimal package.json with only runtime dependencies
+# The SDK is bundled into dist/server.js, so we only need express
+RUN echo '{"type":"module","dependencies":{"express":"^4.21.0","express-rate-limit":"^7.5.0"}}' > package.json
 
 # Install only production dependencies
 RUN corepack enable && corepack prepare pnpm@latest --activate
