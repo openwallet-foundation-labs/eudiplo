@@ -7,6 +7,7 @@
  */
 
 import express, { Request, Response, NextFunction } from 'express';
+import rateLimit from 'express-rate-limit';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { EudiploClient } from '@eudiplo/sdk-core';
@@ -22,8 +23,6 @@ const config = {
   clientId: process.env.CLIENT_ID || 'root',
   clientSecret: process.env.CLIENT_SECRET || 'root',
 };
-
-console.log(config);
 
 // Use case configurations - map use case ID to presentation config
 const USE_CASES: Record<string, { presentationConfigId: string; name: string }> = {
@@ -63,6 +62,18 @@ const CREDENTIALS: Record<string, { credentialConfigId: string; name: string }> 
 
 // Create Express app
 const app = express();
+
+// Rate limiting for API endpoints
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  limit: 120, // 120 requests per minute
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' },
+});
+
+// Apply rate limiting to API routes
+app.use('/api/', apiLimiter);
 
 // Middleware
 app.use(express.json());
@@ -176,27 +187,37 @@ app.get('/api/session/:id', async (req: Request, res: Response) => {
 });
 
 // Serve static files from public directory
-const publicDir = path.join(__dirname, '..', 'public');  
+const publicDir = path.resolve(__dirname, '..', 'public');
 
 app.use(express.static(publicDir));
 
 // Fallback to index.html for SPA-like behavior (serve index.html for directories)
 app.get('*', (req: Request, res: Response) => {
-  // Check if the path ends with / or has no extension (likely a directory)
   const requestPath = req.path;
-  
-  // Try to serve the path as a directory with index.html
+
+  // Files with extensions are handled by express.static, return 404 for missing files
   if (requestPath.includes('.')) {
     res.status(404).send('Not Found');
-  } else {
-    const indexPath = path.join(publicDir, requestPath, 'index.html');
-    res.sendFile(indexPath, (err) => {
-      if (err) {
-        // Fallback to main index.html
-        res.sendFile(path.join(publicDir, 'index.html'));
-      }
-    });
+    return;
   }
+
+  // Sanitize path to prevent path traversal attacks
+  // path.normalize removes redundant separators and resolves . and .. segments
+  const normalizedPath = path.normalize(requestPath).replace(/^(\.\.[/\\])+/, '');
+  const indexPath = path.resolve(publicDir, normalizedPath.slice(1), 'index.html');
+
+  // Ensure the resolved path is still within publicDir (prevent path traversal)
+  if (!indexPath.startsWith(publicDir)) {
+    res.status(403).send('Forbidden');
+    return;
+  }
+
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      // Fallback to main index.html
+      res.sendFile(path.join(publicDir, 'index.html'));
+    }
+  });
 });
 
 // Start server
