@@ -94,9 +94,12 @@ export class RegistrarService {
    */
   async createAccessCertificate(keyId: string): Promise<AccessCertificateResponse> {
     return firstValueFrom(
-      this.http.post<AccessCertificateResponse>(`${this.getBaseUrl()}/registrar/access-certificate`, {
-        keyId,
-      })
+      this.http.post<AccessCertificateResponse>(
+        `${this.getBaseUrl()}/registrar/access-certificate`,
+        {
+          keyId,
+        }
+      )
     );
   }
 }

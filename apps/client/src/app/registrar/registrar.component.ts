@@ -204,9 +204,13 @@ export class RegistrarComponent implements OnInit {
         clientId: preset.clientId,
         clientSecret: preset.clientSecret || '',
       });
-      this.snackBar.open(`Applied "${preset.name}" preset. Please enter your credentials.`, 'Close', {
-        duration: 3000,
-      });
+      this.snackBar.open(
+        `Applied "${preset.name}" preset. Please enter your credentials.`,
+        'Close',
+        {
+          duration: 3000,
+        }
+      );
     }
   }
 }
