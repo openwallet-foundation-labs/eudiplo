@@ -484,7 +484,7 @@ jobs:
   npm-prerelease:
     name: Publish SDK Pre-release to npm
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: [build-sdk]
+    needs: [build-sdk-core]
     runs-on: ubuntu-latest
     permissions:
       contents: read
