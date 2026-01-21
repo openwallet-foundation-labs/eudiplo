@@ -478,6 +478,54 @@ jobs:
           cache-to: type=gha,mode=max
 
   # =============================================================================
+  # NPM Pre-release (Main Branch Only)
+  # Publishes @eudiplo/sdk-core with a "main" tag as a pre-release version.
+  # =============================================================================
+  npm-prerelease:
+    name: Publish SDK Pre-release to npm
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [build-sdk]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build SDK
+        run: pnpm --filter @eudiplo/sdk-core build
+
+      - name: Set pre-release version
+        working-directory: packages/eudiplo-sdk-core
+        run: |
+          # Get current version and append commit SHA for uniqueness
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          PRE_VERSION="${CURRENT_VERSION}-main.${SHORT_SHA}"
+          echo "Publishing version: ${PRE_VERSION}"
+          npm version "${PRE_VERSION}" --no-git-tag-version
+
+      - name: Publish to npm with main tag
+        working-directory: packages/eudiplo-sdk-core
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --tag main --access public
+
+  # =============================================================================
   # Versioned Release (Manual Trigger Only)
   # Creates a new semantic version, publishes Docker images with version tags,
   # publishes npm package, and updates documentation.
