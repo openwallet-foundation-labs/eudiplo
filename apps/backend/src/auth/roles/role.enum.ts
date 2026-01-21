@@ -11,4 +11,6 @@ export enum Role {
     Clients = "clients:manage",
     // to manage tenant resources
     Tenants = "tenants:manage",
+    // to manage registrar configuration and operations
+    Registrar = "registrar:manage",
 }

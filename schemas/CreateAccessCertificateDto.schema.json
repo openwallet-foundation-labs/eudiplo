@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateAccessCertificateDto.schema.json",
+  "title": "CreateAccessCertificateDto",
+  "type": "object",
+  "properties": {
+    "keyId": {
+      "type": "string",
+      "description": "The ID of the key to create an access certificate for",
+      "example": "my-signing-key"
+    }
+  },
+  "required": [
+    "keyId"
+  ]
+}

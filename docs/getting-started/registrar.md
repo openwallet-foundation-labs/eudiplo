@@ -5,39 +5,75 @@ To interact with an EUDI Wallet, two types of certificates are required:
 - **Access Certificate** – Grants access to the EUDI Wallet.
 - **Registration Certificate** – Authorizes data requests from the EUDI Wallet.
 
-You can still use EUDIPLO without these certificates, but it can end up into
+You can still use EUDIPLO without these certificates, but it can result in
 warnings when making requests to the EUDI Wallet.
 
-## Configuration
+## Per-Tenant Configuration
 
---8<-- "docs/generated/config-registrar.md"
+Each tenant can configure their own registrar connection with OIDC credentials.
+This allows different tenants to connect to different registrar instances or
+use different credentials for the same registrar.
 
-## Accessing the Registrar
+### Via the Web UI
 
-To enable EUDIPLO to communicate with the registrar, you must configure the
-necessary environment variables.
+1. Navigate to **Registrar** in the sidebar
+2. Select a preset (e.g., "German Sandbox") or manually enter the registrar details:
+    - **Registrar URL**: The base URL of the registrar API
+    - **OIDC URL**: The OpenID Connect realm URL for authentication
+    - **Client ID**: The OIDC client ID
+    - **Client Secret**: Optional OIDC client secret
+    - **Username**: Your registrar account username
+    - **Password**: Your registrar account password
+3. Click **Save Configuration**
 
-On startup, EUDIPLO checks whether a Relying Party (RP) is already registered
-using the `config/registrar.json` file. If no ID is specified, EUDIPLO will
-automatically register a new Relying Party with the registrar using the
-`name` from the tenant entity stored in the database.
+The credentials will be validated before saving. If authentication fails, you'll
+receive an error message.
+
+### Via Configuration File
+
+You can also configure the registrar by placing a `registrar.json` file in the
+tenant's configuration folder:
+
+```json title="config/{tenant-id}/registrar.json"
+{
+    "registrarUrl": "https://sandbox.eudi-wallet.org/api",
+    "oidcUrl": "https://auth.sandbox.eudi-wallet.org/realms/sandbox-registrar",
+    "clientId": "swagger",
+    "username": "your-username",
+    "password": "your-password"
+}
+```
 
 ## Access Certificate
 
-At startup, EUDIPLO checks for a valid access certificate based on the
-`accessCertificateId` in `config/registrar.json`. If no valid certificate is
-found, a new one will be requested from the registrar and bound to the
-`CREDENTIAL_ISSUER` URL. The resulting certificate ID will then be stored in
-`config/registrar.json`.
+Once the registrar is configured, you can create access certificates for your keys:
+
+### Via the Web UI
+
+1. Navigate to **Registrar** in the sidebar
+2. In the "Create Access Certificate" section, select a key from the dropdown
+3. Click **Create Certificate**
+
+The certificate will be automatically stored in EUDIPLO and you'll be redirected
+to the certificate detail page.
+
+### Via the API
+
+```bash
+curl -X POST "https://your-eudiplo-instance/registrar/access-certificate" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"keyId": "your-key-id"}'
+```
+
+The response includes:
+
+- `id`: The registrar's certificate ID
+- `certId`: The local EUDIPLO certificate ID
+- `crt`: The certificate content
 
 ## Registration Certificate
 
-The registration certificate is required to request data from the EUDI Wallet.
-Each configuration file in the `config/presentation` folder defines the payload
-for the corresponding registration certificate.
+!!! note "Coming Soon"
 
-Since registration certificates are tied to specific presentation types, they
-are managed within the individual presentation configuration files—not in
-`config/registrar.json`. If no certificate ID is specified in a presentation
-config, a new registration certificate will be requested automatically when a
-presentation request is made.
+    Registration Certificate creation through EUDIPLO is not yet implemented. Currently, registration certificates must be managed directly through the registrar's interface.

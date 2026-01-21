@@ -241,6 +241,13 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'registrar',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: getRole('registrar:manage') },
+    loadComponent: () =>
+      import('./registrar/registrar.component').then((m) => m.RegistrarComponent),
+  },
+  {
     path: 'credential-config',
     canActivate: [AuthGuard],
     children: [

@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ApiService, RoleDto } from '@eudiplo/sdk-angular';
 
-export type Role = RoleDto['role'];
+// Extend RoleDto to include registrar:manage which may not be in the SDK yet
+export type Role = RoleDto['role'] | 'registrar:manage' | 'tenants:manage';
 
 export const roles: Role[] = [
   'clients:manage',
@@ -9,6 +10,8 @@ export const roles: Role[] = [
   'issuance:offer',
   'presentation:manage',
   'presentation:offer',
+  'registrar:manage',
+  'tenants:manage',
 ];
 
 export function getRole(role: Role) {

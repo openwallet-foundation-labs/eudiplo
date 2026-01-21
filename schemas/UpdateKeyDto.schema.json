@@ -6,8 +6,7 @@
   "properties": {
     "id": {
       "type": "string",
-      "description": "Unique identifier for the key.",
-      "format": "uuid"
+      "description": "Unique identifier for the key."
     },
     "description": {
       "type": "string",

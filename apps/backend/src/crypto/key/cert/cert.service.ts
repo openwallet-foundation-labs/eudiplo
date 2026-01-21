@@ -137,9 +137,11 @@ export class CertService {
      */
     async addCertificate(
         tenantId: string,
-        keyId: string,
         dto: CertImportDto,
     ): Promise<string> {
+        //check if the key exists
+        await this.keyService.getKey(tenantId, dto.keyId);
+
         const certId = dto.id ?? v4();
 
         await this.certRepository.save({
@@ -147,7 +149,7 @@ export class CertService {
             tenantId,
             crt: dto.crt,
             description: dto.description,
-            key: { id: keyId, tenantId },
+            key: { id: dto.keyId, tenantId },
             usages: dto.certUsageTypes.map((usage) => ({
                 certId,
                 usage,
@@ -217,7 +219,7 @@ export class CertService {
 
         const crtPem = selfSignedCert.toString("pem"); // PEM-encoded certificate
 
-        return this.addCertificate(tenant.id, keyId, {
+        return this.addCertificate(tenant.id, {
             crt: crtPem,
             certUsageTypes: dto.certUsageTypes,
             description:
@@ -372,22 +374,6 @@ export class CertService {
     }
 
     /**
-     * Store the access certificate for the tenant.
-     * @param crt - The certificate PEM string
-     * @param tenantId - The tenant ID
-     * @param id - The certificate ID
-     */
-    async storeAccessCertificate(crt: string, tenantId: string, id: string) {
-        await this.certRepository.save({
-            tenantId,
-            id,
-            crt,
-            isAccessCert: true,
-            isSigningCert: false,
-        });
-    }
-
-    /**
      * Get the base64 url encoded SHA-256 hash of the certificate.
      * @param cert - The certificate entity
      * @returns The certificate hash as base64url encoded string
@@ -450,12 +436,8 @@ export class CertService {
                         await this.tenantRepository.findOneByOrFail({
                             id: tid,
                         });
-                    const key = await this.keyService.getKey(
-                        tenantEntity.id,
-                        config.keyId,
-                    );
 
-                    this.addCertificate(tid, key.id, config);
+                    this.addCertificate(tid, config);
                 },
             },
         );
