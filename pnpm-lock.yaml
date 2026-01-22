@@ -67,8 +67,8 @@ importers:
   apps/backend:
     dependencies:
       '@animo-id/mdoc':
-        specifier: 0.6.0-alpha-20251209053057
-        version: 0.6.0-alpha-20251209053057
+        specifier: 0.6.0-alpha-20260120161117
+        version: 0.6.0-alpha-20260120161117
       '@aws-sdk/client-s3':
         specifier: ^3.972.0
         version: 3.972.0
@@ -959,8 +959,8 @@ packages:
       '@angular/platform-browser': 21.1.1
       rxjs: ^6.5.3 || ^7.4.0
 
-  '@animo-id/mdoc@0.6.0-alpha-20251209053057':
-    resolution: {integrity: sha512-CJnOo7vWbVjrbGhx2cM9mKAHDr6r7QKLpKISO1EkU/mexdjwc93Mb/+RsyyTeVPWAC/JNp+kctQiTv8ozY5ZdA==}
+  '@animo-id/mdoc@0.6.0-alpha-20260120161117':
+    resolution: {integrity: sha512-8S6tLYqJE44IkGX+U/YyEZ+1rkOuOmZ5vlKasQ+HJKmLaS2W7HnHoTHWX2I1cX6prWLajnI7MMb/WuBbtoXteA==}
 
   '@apidevtools/json-schema-ref-parser@15.2.1':
     resolution: {integrity: sha512-XaFfxKmYHUlYla8VMG1sOaX+uZwX2Bbk51pC7D4Oy723HVmzTrJuh5oEFAeFfPQX3HkILXabuvlXzs1YcQmvJQ==}
@@ -10410,7 +10410,7 @@ snapshots:
       rxjs: 7.8.2
       tslib: 2.8.1
 
-  '@animo-id/mdoc@0.6.0-alpha-20251209053057': {}
+  '@animo-id/mdoc@0.6.0-alpha-20260120161117': {}
 
   '@apidevtools/json-schema-ref-parser@15.2.1(@types/json-schema@7.0.15)':
     dependencies:
