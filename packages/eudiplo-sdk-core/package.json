@@ -47,7 +47,7 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/openwallet-foundation-labs/eudiplo.git",
+        "url": "git+https://github.com/openwallet-foundation-labs/eudiplo.git",
         "directory": "packages/eudiplo-sdk-core"
     },
     "homepage": "https://github.com/openwallet-foundation-labs/eudiplo/tree/main/packages/eudiplo-sdk-core#readme",
