@@ -16,6 +16,10 @@ updates:
     versioning-strategy: increase-if-necessary
     labels: ["dependencies", "pnpm", "javascript"]
 
+    # Ignore internal workspace packages (Dependabot doesn't support workspace: protocol)
+    ignore:
+      - dependency-name: "@eudiplo/*"
+
     groups:
       angular-minor-patch:
         patterns: ["@angular/*", "rxjs", "zone.js"]
