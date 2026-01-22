@@ -28,6 +28,7 @@ import {
     registrationCertificateControllerAll,
     registrationCertificateControllerRegister,
     relyingPartyControllerFindAll,
+    relyingPartyControllerRegister,
 } from "./generated";
 import { client as registrarClient } from "./generated/client.gen";
 
@@ -369,13 +370,16 @@ export class RegistrarService {
 
         const relyingParties = res.data || [];
         if (relyingParties.length === 0) {
-            throw new BadRequestException(
-                "No relying party found at the registrar. Please register one at the registrar first.",
-            );
+            //register one
+            const res = await relyingPartyControllerRegister({
+                client,
+                body: {},
+            });
+            return res.data!.id;
+        } else {
+            // Return the first (and typically only) relying party
+            return relyingParties[0].id;
         }
-
-        // Return the first (and typically only) relying party
-        return relyingParties[0].id;
     }
 
     /**
