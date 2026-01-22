@@ -24,11 +24,10 @@
         "dev": "tsup --watch",
         "prepublishOnly": "pnpm build"
     },
-    "dependencies": {},
     "devDependencies": {
-        "@hey-api/openapi-ts": "^0.90.1",
-        "@types/node": "^25.0.9",
-        "tsup": "^8.0.0",
+        "@hey-api/openapi-ts": "^0.90.8",
+        "@types/node": "^25.0.10",
+        "tsup": "^8.5.1",
         "typescript": "^5.9.3"
     },
     "files": [
