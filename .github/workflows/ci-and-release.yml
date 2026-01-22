@@ -522,7 +522,7 @@ jobs:
 
       - name: Publish to npm with main tag
         working-directory: packages/eudiplo-sdk-core
-        run: npm publish --tag main --access public
+        run: npm publish --tag main --access public --provenance
 
   # =============================================================================
   # Versioned Release (Manual Trigger Only)
@@ -569,6 +569,7 @@ jobs:
         id: semantic_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
           DOCKER_REGISTRY_USER: ${{ github.actor }}
           DOCKER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: |
