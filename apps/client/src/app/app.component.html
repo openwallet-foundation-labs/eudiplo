@@ -68,6 +68,12 @@
           <mat-list-item [routerLink]="['/certificates']" routerLinkActive="active-link">
             <span matListItemTitle>Certificates</span>
           </mat-list-item>
+
+          @if (hasRole('registrar:manage')) {
+            <mat-list-item [routerLink]="['/registrar']" routerLinkActive="active-link">
+              <span matListItemTitle>Registrar</span>
+            </mat-list-item>
+          }
           <mat-divider></mat-divider>
         }
 

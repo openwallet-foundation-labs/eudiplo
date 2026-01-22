@@ -85,7 +85,9 @@ export class Oid4vpService {
                 return rest;
             });
 
-            if (this.registrarService.isEnabled()) {
+            if (
+                await this.registrarService.isEnabledForTenant(session.tenantId)
+            ) {
                 const registrationCert = JSON.parse(
                     JSON.stringify(
                         presentationConfig.registrationCert,
@@ -395,7 +397,6 @@ export class Oid4vpService {
                 const processedRedirectUri = decodeURIComponent(
                     session.redirectUri,
                 ).replaceAll("{sessionId}", session.id);
-                console.log("Redirecting to URI:", processedRedirectUri);
                 return {
                     redirect_uri: processedRedirectUri,
                 };

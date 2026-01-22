@@ -40,6 +40,12 @@
     },
     {
       "fileMatch": [
+        "/assets/config/*/registrar.json"
+      ],
+      "url": "./schemas/CreateRegistrarConfigDto.schema.json"
+    },
+    {
+      "fileMatch": [
         "/assets/config/*/issuance/issuance.json"
       ],
       "url": "./schemas/IssuanceDto.schema.json"

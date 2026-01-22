@@ -9,7 +9,6 @@ import {
     SignJwtCallback,
 } from "@openid4vc/oauth2";
 import { importJWK, type JWK, jwtVerify } from "jose";
-import { CertService } from "./key/cert/cert.service";
 import { KeyService } from "./key/key.service";
 
 /**
@@ -25,23 +24,8 @@ export class CryptoService {
     /**
      * Constructor for CryptoService.
      * @param keyService
-     * @param certService
-     * @param certRepository
-     * @param logger
-     * @param tenantRepository
-     * @param configImportService
      */
-    constructor(
-        @Inject("KeyService") public readonly keyService: KeyService,
-        @Inject(CertService) private readonly certService: CertService,
-    ) {}
-
-    /**
-     * Store the access certificate.
-     */
-    storeAccessCertificate(crt: string, tenantId: string, id: string) {
-        return this.certService.storeAccessCertificate(crt, tenantId, id);
-    }
+    constructor(@Inject("KeyService") public readonly keyService: KeyService) {}
 
     /**
      * Verify a JWT with the key service.

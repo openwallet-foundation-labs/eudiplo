@@ -6,8 +6,7 @@
   "properties": {
     "id": {
       "type": "string",
-      "description": "Unique identifier for the status list",
-      "example": "mdl-status-list"
+      "description": "Unique identifier for the status list"
     },
     "credentialConfigurationId": {
       "type": "string",

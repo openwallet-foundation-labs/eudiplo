@@ -7,12 +7,10 @@
     "keyId": {
       "type": "string",
       "description": "The key ID this certificate is associated with",
-      "format": "uuid",
       "example": "039af178-3ca0-48f4-a2e4-7b1209f30376"
     },
     "id": {
-      "type": "string",
-      "format": "uuid"
+      "type": "string"
     },
     "certUsageTypes": {
       "description": "Usage types for the certificate.",

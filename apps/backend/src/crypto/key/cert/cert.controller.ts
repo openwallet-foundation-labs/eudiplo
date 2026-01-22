@@ -91,7 +91,7 @@ export class CertController {
                 .then((id) => ({ id }));
         }
         return this.certService
-            .addCertificate(token.entity!.id, body.keyId, body)
+            .addCertificate(token.entity!.id, body)
             .then((id) => ({ id }));
     }
 

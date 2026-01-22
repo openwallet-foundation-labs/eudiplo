@@ -1,0 +1,220 @@
+<div class="registrar-container" fxLayout="column" fxLayoutGap="24px">
+  <!-- Header -->
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <h1>Registrar Configuration</h1>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading) {
+    <div fxLayout="column" fxLayoutAlign="center center" class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading registrar data...</p>
+    </div>
+  } @else {
+    <!-- Main Content -->
+    <div fxLayout="column" fxLayoutGap="24px">
+      <!-- Configuration Card -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>settings</mat-icon>
+            Registrar Credentials
+          </mat-card-title>
+          <mat-card-subtitle>
+            Configure OIDC credentials for accessing the registrar service
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <!-- Preset Selector -->
+          <div
+            class="preset-section"
+            fxLayout="row"
+            fxLayoutAlign="start center"
+            fxLayoutGap="16px"
+          >
+            <mat-form-field appearance="outline" class="preset-select">
+              <mat-label>Quick Start Preset</mat-label>
+              <mat-select [(value)]="selectedPreset" (selectionChange)="applyPreset($event.value)">
+                <mat-option value="">-- Select a preset --</mat-option>
+                @for (preset of presets; track preset.name) {
+                  <mat-option [value]="preset.name">
+                    {{ preset.name }}
+                  </mat-option>
+                }
+              </mat-select>
+              <mat-hint>Pre-fill configuration from a known registrar</mat-hint>
+            </mat-form-field>
+          </div>
+
+          <mat-divider class="preset-divider"></mat-divider>
+
+          <form [formGroup]="configForm" fxLayout="column" fxLayoutGap="16px">
+            <div fxLayout="row" fxLayoutGap="16px" fxLayout.lt-md="column">
+              <mat-form-field fxFlex appearance="outline">
+                <mat-label>Registrar URL</mat-label>
+                <input
+                  matInput
+                  formControlName="registrarUrl"
+                  placeholder="https://registrar.example.com/api"
+                />
+                <mat-hint>Base URL of the registrar API</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field fxFlex appearance="outline">
+                <mat-label>OIDC URL</mat-label>
+                <input
+                  matInput
+                  formControlName="oidcUrl"
+                  placeholder="https://auth.example.com/realms/registrar"
+                />
+                <mat-hint>OpenID Connect realm URL</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <div fxLayout="row" fxLayoutGap="16px" fxLayout.lt-md="column">
+              <mat-form-field fxFlex appearance="outline">
+                <mat-label>Client ID</mat-label>
+                <input matInput formControlName="clientId" placeholder="registrar-client" />
+              </mat-form-field>
+
+              <mat-form-field fxFlex appearance="outline">
+                <mat-label>Client Secret (optional)</mat-label>
+                <input
+                  matInput
+                  formControlName="clientSecret"
+                  [type]="showPassword ? 'text' : 'password'"
+                />
+                <button
+                  mat-icon-button
+                  matSuffix
+                  type="button"
+                  (click)="togglePasswordVisibility()"
+                >
+                  <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+              </mat-form-field>
+            </div>
+
+            <div fxLayout="row" fxLayoutGap="16px" fxLayout.lt-md="column">
+              <mat-form-field fxFlex appearance="outline">
+                <mat-label>Username</mat-label>
+                <input matInput formControlName="username" placeholder="user@example.com" />
+              </mat-form-field>
+
+              <mat-form-field fxFlex appearance="outline">
+                <mat-label>Password</mat-label>
+                <input
+                  matInput
+                  formControlName="password"
+                  [type]="showPassword ? 'text' : 'password'"
+                />
+                <button
+                  mat-icon-button
+                  matSuffix
+                  type="button"
+                  (click)="togglePasswordVisibility()"
+                >
+                  <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+              </mat-form-field>
+            </div>
+          </form>
+        </mat-card-content>
+
+        <mat-card-actions align="end">
+          <button
+            mat-button
+            color="warn"
+            (click)="deleteConfig()"
+            [disabled]="!hasConfig || isSaving"
+          >
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="saveConfig()"
+            [disabled]="configForm.invalid || isSaving"
+          >
+            @if (isSaving) {
+              <mat-spinner diameter="18" class="button-spinner"></mat-spinner>
+            } @else {
+              <mat-icon>save</mat-icon>
+            }
+            {{ hasConfig ? 'Update' : 'Save' }} Configuration
+          </button>
+        </mat-card-actions>
+      </mat-card>
+
+      <!-- Create Access Certificate Card -->
+      @if (hasConfig) {
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>badge</mat-icon>
+              Create Access Certificate
+            </mat-card-title>
+            <mat-card-subtitle>
+              Request an access certificate from the registrar for one of your keys
+            </mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div
+              fxLayout="row"
+              fxLayoutAlign="start center"
+              fxLayoutGap="16px"
+              fxLayout.lt-md="column"
+            >
+              <mat-form-field appearance="outline" class="key-select" fxFlex>
+                <mat-label>Select Key</mat-label>
+                <mat-select [(value)]="selectedKeyId">
+                  <mat-option value="">-- Select a key --</mat-option>
+                  @for (key of keys; track key.id) {
+                    <mat-option [value]="key.id"> {{ key.description || key.id }}</mat-option>
+                  }
+                </mat-select>
+                <mat-hint>The certificate will be stored for this key</mat-hint>
+              </mat-form-field>
+            </div>
+          </mat-card-content>
+          <mat-card-actions align="end">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="createAccessCertificate()"
+              [disabled]="!selectedKeyId || isCreatingCert"
+              matTooltip="Create an access certificate at the registrar and store it in EUDIPLO"
+            >
+              @if (isCreatingCert) {
+                <mat-spinner diameter="18" class="button-spinner"></mat-spinner>
+              } @else {
+                <mat-icon>add_circle</mat-icon>
+              }
+              Create Certificate
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      }
+
+      <!-- Info Card -->
+      <mat-card class="info-card">
+        <mat-card-content>
+          <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="start center">
+            <div fxLayout="column" fxLayoutGap="4px">
+              <strong>About the Registrar</strong>
+              <span>
+                The registrar service manages verifier enrollment for EUDI Wallet interactions. You
+                need to have a relying party registered at the registrar before creating access
+                certificates. The certificate will be automatically stored in EUDIPLO for use in
+                verification sessions.
+              </span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
+</div>
