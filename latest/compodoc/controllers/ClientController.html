@@ -235,8 +235,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="89"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:89</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="91"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:91</a></div>
                         </td>
                     </tr>
 
@@ -325,8 +325,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="103"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:103</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="105"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:105</a></div>
                         </td>
                     </tr>
 
@@ -415,8 +415,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="46"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:46</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="48"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:48</a></div>
                         </td>
                     </tr>
 
@@ -505,8 +505,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="35"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:35</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="37"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:37</a></div>
                         </td>
                     </tr>
 
@@ -583,8 +583,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="57"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:57</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="59"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:59</a></div>
                         </td>
                     </tr>
 
@@ -673,8 +673,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="74"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:74</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="76"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:76</a></div>
                         </td>
                     </tr>
 
@@ -776,7 +776,9 @@ import { UpdateClientDto } from &quot;./dto/update-client.dto&quot;;
 @Secured([Role.Clients, Role.Tenants])
 @Controller(&quot;client&quot;)
 export class ClientController {
-    constructor(@Inject(CLIENTS_PROVIDER) private clients: ClientsProvider) {}
+    constructor(
+        @Inject(CLIENTS_PROVIDER) private readonly clients: ClientsProvider,
+    ) {}
 
     /**
      * Get all clients for a user

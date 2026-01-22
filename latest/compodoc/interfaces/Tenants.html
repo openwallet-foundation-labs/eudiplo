@@ -253,27 +253,24 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
-    Inject,
-    Injectable,
-    OnApplicationBootstrap,
-    OnModuleInit,
-} from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { existsSync, readFileSync } from &quot;node:fs&quot;;
+import { Inject, Injectable, OnApplicationBootstrap } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { InjectMetric } from &quot;@willsoto/nestjs-prometheus&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
 import { validate } from &quot;class-validator&quot;;
-import { existsSync, readdirSync, readFileSync } from &quot;fs&quot;;
 import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { Gauge } from &quot;prom-client&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { EncryptionService } from &quot;../../crypto/encryption/encryption.service&quot;;
 import { RegistrarService } from &quot;../../registrar/registrar.service&quot;;
+import { ConfigImportOrchestratorService } from &quot;../../shared/utils/config-import/config-import-orchestrator.service&quot;;
 import { FilesService } from &quot;../../storage/files.service&quot;;
 import { CLIENTS_PROVIDER, ClientsProvider } from &quot;../client/client.provider&quot;;
 import { Role } from &quot;../roles/role.enum&quot;;
 import { CreateTenantDto } from &quot;./dto/create-tenant.dto&quot;;
+import { ImportTenantDto } from &quot;./dto/import-tenant.dto&quot;;
 import { TenantEntity } from &quot;./entitites/tenant.entity&quot;;
 
 // Tenant interface for service integration
@@ -283,81 +280,100 @@ export interface Tenants {
 }
 
 @Injectable()
-export class TenantService implements OnApplicationBootstrap, OnModuleInit {
+export class TenantService implements OnApplicationBootstrap {
     constructor(
-        @Inject(CLIENTS_PROVIDER) private clients: ClientsProvider,
-        private configService: ConfigService,
-        private encryptionService: EncryptionService,
-        private registrarService: RegistrarService,
+        @Inject(CLIENTS_PROVIDER) private readonly clients: ClientsProvider,
+        private readonly configService: ConfigService,
+        private readonly encryptionService: EncryptionService,
+        private readonly registrarService: RegistrarService,
         @InjectRepository(TenantEntity)
-        private tenantRepository: Repository&lt;TenantEntity&gt;,
+        private readonly tenantRepository: Repository&lt;TenantEntity&gt;,
         @InjectMetric(&quot;tenant_total&quot;)
-        private tenantTotal: Gauge&lt;string&gt;,
-        private filesService: FilesService,
-        private logger: PinoLogger,
-    ) {}
-
-    async onModuleInit() {
-        if (this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT&quot;)) {
-            const configPath &#x3D; this.configService.getOrThrow(&quot;CONFIG_FOLDER&quot;);
-            if (this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT&quot;)) {
-                const tenantFolders &#x3D; readdirSync(configPath, {
-                    withFileTypes: true,
-                }).filter((tenant) &#x3D;&gt; tenant.isDirectory());
-                for (const tenant of tenantFolders) {
-                    const setUp &#x3D; await this.tenantRepository.findOneBy({
-                        id: tenant.name,
-                        status: &quot;active&quot;,
-                    });
-                    if (!setUp) {
-                        const file &#x3D; &#x60;${configPath}/${tenant.name}/info.json&#x60;;
-                        if (!existsSync(file)) {
-                            // throw an eror because we need the tenant info file to set up the tenant.
-                            throw new Error(
-                                &#x60;Tenant config file not found for tenant ${tenant.name} in ${file}&#x60;,
-                            );
-                        }
-                        const configFile &#x3D; readFileSync(file, &quot;utf-8&quot;);
-                        const payload &#x3D; JSON.parse(configFile);
-                        payload.id &#x3D; tenant.name;
-                        // Validate the payload against CreateTenantDto
-                        const tenantDto &#x3D; plainToClass(
-                            CreateTenantDto,
-                            payload,
-                        );
-                        const validationErrors &#x3D; await validate(tenantDto, {
-                            whitelist: true,
-                            forbidUnknownValues: false, // avoid false positives on plain objects
-                            forbidNonWhitelisted: false,
-                            stopAtFirstError: false,
-                        });
-                        if (validationErrors.length &gt; 0) {
-                            this.logger.error(
-                                {
-                                    event: &quot;ValidationError&quot;,
-                                    file,
-                                    tenant: tenant.name,
-                                    errors: validationErrors.map((error) &#x3D;&gt; ({
-                                        property: error.property,
-                                        constraints: error.constraints,
-                                        value: error.value,
-                                    })),
-                                },
-                                &#x60;Validation failed for tenant config ${file} in tenant ${tenant.name}: ${JSON.stringify(validationErrors, null, 2)}&#x60;,
-                            );
-                        } else {
-                            await this.createTenant(tenantDto);
-                        }
-                    }
-                }
-            }
-        }
+        private readonly tenantTotal: Gauge&lt;string&gt;,
+        private readonly filesService: FilesService,
+        private readonly logger: PinoLogger,
+        private readonly configImportOrchestrator: ConfigImportOrchestratorService,
+    ) {
+        // Register tenant setup - this runs first for each tenant before other imports
+        this.configImportOrchestrator.registerTenantSetup(
+            &quot;tenants&quot;,
+            (tenantId) &#x3D;&gt; this.setupTenant(tenantId),
+        );
     }
 
     async onApplicationBootstrap() {
         // Initialize the tenant metrics
         const count &#x3D; await this.tenantRepository.count();
         this.tenantTotal.set({}, count);
+    }
+
+    /**
+     * Setup a single tenant from config.
+     * Creates the tenant from info.json if it doesn&#x27;t exist.
+     * @returns true if tenant is valid and ready for imports, false to skip this tenant
+     */
+    async setupTenant(tenantId: string): Promise&lt;boolean&gt; {
+        const configPath &#x3D; this.configService.getOrThrow(&quot;CONFIG_FOLDER&quot;);
+
+        // Check if tenant already exists
+        const existing &#x3D; await this.tenantRepository.findOneBy({
+            id: tenantId,
+            status: &quot;active&quot;,
+        });
+
+        if (existing) {
+            this.logger.debug(
+                &#x60;[${tenantId}] Tenant already exists, proceeding with imports&#x60;,
+            );
+            return true;
+        }
+
+        // Look for info.json
+        const file &#x3D; &#x60;${configPath}/${tenantId}/info.json&#x60;;
+        if (!existsSync(file)) {
+            // Skip folders without info.json - they might be for other purposes
+            this.logger.warn(
+                &#x60;[${tenantId}] Skipping tenant folder - no info.json found&#x60;,
+            );
+            return false;
+        }
+
+        try {
+            const configFile &#x3D; readFileSync(file, &quot;utf-8&quot;);
+            const payload &#x3D; JSON.parse(configFile);
+
+            // Validate the payload against ImportTenantDto (name, description only)
+            const tenantDto &#x3D; plainToClass(ImportTenantDto, payload);
+            const validationErrors &#x3D; await validate(tenantDto, {
+                whitelist: true,
+                forbidUnknownValues: false,
+                forbidNonWhitelisted: false,
+                stopAtFirstError: false,
+            });
+
+            if (validationErrors.length &gt; 0) {
+                this.logger.error(
+                    {
+                        errors: validationErrors.map((error) &#x3D;&gt; ({
+                            property: error.property,
+                            constraints: error.constraints,
+                            value: error.value,
+                        })),
+                    },
+                    &#x60;[${tenantId}] Validation failed for tenant config&#x60;,
+                );
+                return false;
+            }
+
+            // ID is always derived from folder name, not from config file
+            await this.createTenant({ ...tenantDto, id: tenantId });
+            return true;
+        } catch (error: any) {
+            this.logger.error(
+                &#x60;[${tenantId}] Failed to setup tenant: ${error.message}&#x60;,
+            );
+            return false;
+        }
     }
 
     /**
@@ -373,16 +389,18 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
      * @param data
      * @returns
      */
-    async createTenant(data: CreateTenantDto) {
+    async createTenant(data: ImportTenantDto | CreateTenantDto) {
         const tenant &#x3D; await this.tenantRepository.save(data);
         await this.setUpTenant(tenant);
-        // only add the tenant when the auth user is not assigned to this tenant.
-        const authTenant &#x3D; this.configService.get&lt;string&gt;(&quot;AUTH_CLIENT_TENANT&quot;);
-        if (authTenant !&#x3D;&#x3D; tenant.id) {
+
+        if ((data as CreateTenantDto).roles) {
             await this.clients.addClient(tenant.id, {
                 clientId: &#x60;${tenant.id}-admin&#x60;,
                 description: &#x60;auto generated admin client for tenant ${tenant.id}&#x60;,
-                roles: [Role.Clients, ...(data.roles || [])],
+                roles: [
+                    Role.Clients,
+                    ...((data as CreateTenantDto).roles || []),
+                ],
             });
         }
     }
@@ -410,6 +428,20 @@ export class TenantService implements OnApplicationBootstrap, OnModuleInit {
             { id: tenant.id },
             { status: &quot;active&quot; },
         );
+    }
+
+    /**
+     * Update a tenant by ID
+     * @param id The ID of the tenant to update
+     * @param data The updated tenant data
+     * @returns The updated tenant entity
+     */
+    async updateTenant(
+        id: string,
+        data: Partial&lt;Omit&lt;TenantEntity, &quot;id&quot; | &quot;clients&quot; | &quot;status&quot;&gt;&gt;,
+    ): Promise&lt;TenantEntity&gt; {
+        await this.tenantRepository.update({ id }, data);
+        return this.getTenant(id);
     }
 
     /**

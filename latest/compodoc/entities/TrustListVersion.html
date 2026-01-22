@@ -188,6 +188,7 @@
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#trustList" >trustList</a>
                             </li>
                             <li>
@@ -241,7 +242,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="52" class="link-to-prism">src/issuer/trust-list/entities/trust-list-version.entity.ts:52</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="57" class="link-to-prism">src/issuer/trust-list/entities/trust-list-version.entity.ts:57</a></div>
                         </td>
                     </tr>
 
@@ -277,7 +278,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">src/issuer/trust-list/entities/trust-list-version.entity.ts:37</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/trust-list/entities/trust-list-version.entity.ts:42</a></div>
                         </td>
                     </tr>
 
@@ -320,7 +321,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="43" class="link-to-prism">src/issuer/trust-list/entities/trust-list-version.entity.ts:43</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/issuer/trust-list/entities/trust-list-version.entity.ts:48</a></div>
                         </td>
                     </tr>
 
@@ -356,13 +357,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @PrimaryGeneratedColumn(&#x27;uuid&#x27;)<br />
+                            @PrimaryGeneratedColumn()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/issuer/trust-list/entities/trust-list-version.entity.ts:16</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/issuer/trust-list/entities/trust-list-version.entity.ts:17</a></div>
                         </td>
                     </tr>
 
@@ -398,7 +399,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">src/issuer/trust-list/entities/trust-list-version.entity.ts:49</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/issuer/trust-list/entities/trust-list-version.entity.ts:54</a></div>
                         </td>
                     </tr>
 
@@ -440,7 +441,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/issuer/trust-list/entities/trust-list-version.entity.ts:31</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/issuer/trust-list/entities/trust-list-version.entity.ts:36</a></div>
                         </td>
                     </tr>
 
@@ -482,7 +483,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/issuer/trust-list/entities/trust-list-version.entity.ts:25</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/issuer/trust-list/entities/trust-list-version.entity.ts:30</a></div>
                         </td>
                     </tr>
 
@@ -495,6 +496,7 @@
                 <td class="col-md-4">
                     <a name="trustList"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier"></span>
                         <span ><b>trustList</b></span>
                         <a href="#trustList"><span class="icon ion-ios-link"></span></a>
@@ -512,13 +514,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ManyToOne(undefined, {onDelete: &#x27;CASCADE&#x27;})<br />
+                            @ManyToOne(undefined, {onDelete: &#x27;CASCADE&#x27;})<br />@JoinColumn([&#x27;undefined&#x27;, &#x27;undefined&#x27;])<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="22" class="link-to-prism">src/issuer/trust-list/entities/trust-list-version.entity.ts:22</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/issuer/trust-list/entities/trust-list-version.entity.ts:27</a></div>
                         </td>
                     </tr>
 
@@ -554,7 +556,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/issuer/trust-list/entities/trust-list-version.entity.ts:19</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/issuer/trust-list/entities/trust-list-version.entity.ts:20</a></div>
                         </td>
                     </tr>
 
@@ -570,6 +572,7 @@
     Column,
     CreateDateColumn,
     Entity,
+    JoinColumn,
     ManyToOne,
     PrimaryGeneratedColumn,
 } from &quot;typeorm&quot;;
@@ -580,13 +583,17 @@ import { TrustList } from &quot;./trust-list.entity&quot;;
  */
 @Entity()
 export class TrustListVersion {
-    @PrimaryGeneratedColumn(&quot;uuid&quot;)
+    @PrimaryGeneratedColumn()
     id: string;
 
     @Column(&quot;varchar&quot;)
     trustListId: string;
 
     @ManyToOne(() &#x3D;&gt; TrustList, { onDelete: &quot;CASCADE&quot; })
+    @JoinColumn([
+        { name: &quot;trustListId&quot;, referencedColumnName: &quot;id&quot; },
+        { name: &quot;tenantId&quot;, referencedColumnName: &quot;tenantId&quot; },
+    ])
     trustList: TrustList;
 
     @Column(&quot;varchar&quot;)

@@ -464,8 +464,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="217"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:217</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="219"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:219</a></div>
                         </td>
                     </tr>
 
@@ -583,8 +583,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="309"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:309</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="311"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:311</a></div>
                         </td>
                     </tr>
 
@@ -781,7 +781,9 @@ export class Oid4vpService {
                 return rest;
             });
 
-            if (this.registrarService.isEnabled()) {
+            if (
+                await this.registrarService.isEnabledForTenant(session.tenantId)
+            ) {
                 const registrationCert &#x3D; JSON.parse(
                     JSON.stringify(
                         presentationConfig.registrationCert,
@@ -814,6 +816,7 @@ export class Oid4vpService {
             const cert &#x3D; await this.certService.find({
                 tenantId: session.tenantId,
                 type: CertUsage.Access,
+                id: presentationConfig.accessCertId ?? undefined,
             });
 
             const certHash &#x3D; this.certService.getCertHash(cert);
@@ -840,10 +843,9 @@ export class Oid4vpService {
                             ],
                         },
                         vp_formats_supported: {
-                            //MDOC not supported yet
-                            /* mso_mdoc: {
+                            mso_mdoc: {
                                 alg: [&quot;ES256&quot;, &quot;Ed25519&quot;],
-                            }, */
+                            },
                             &quot;dc+sd-jwt&quot;: {
                                 &quot;kb-jwt_alg_values&quot;:
                                     this.cryptoImplementationService.getSupportedAlgorithms(),
@@ -1086,8 +1088,13 @@ export class Oid4vpService {
 
             //check if a redirect URI is defined and return it to the caller. If so, sendResponse is ignored
             if (session.redirectUri) {
+                //TODO: not clear with the brackets are encoded
+                // Replace {sessionId} placeholder with actual session ID
+                const processedRedirectUri &#x3D; decodeURIComponent(
+                    session.redirectUri,
+                ).replaceAll(&quot;{sessionId}&quot;, session.id);
                 return {
-                    redirect_uri: session.redirectUri,
+                    redirect_uri: processedRedirectUri,
                 };
             }
 
@@ -1097,7 +1104,6 @@ export class Oid4vpService {
 
             return {};
         } catch (error: any) {
-            console.log(error);
             this.sessionLogger.logFlowError(logContext, error as Error, {
                 action: &quot;process_presentation_response&quot;,
             });

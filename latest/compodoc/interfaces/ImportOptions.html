@@ -659,6 +659,12 @@ export interface ImportOptions&lt;T extends object&gt; {
      */
     resourceType: string;
 }
+
+/**
+ * Import options for tenant-specific imports (without tenantId parameter in callbacks).
+ * Used with importConfigsForTenant where tenantId is passed separately.
+ */
+export type TenantImportOptions&lt;T extends object&gt; &#x3D; ImportOptions&lt;T&gt;;
 </code></pre>
     </div>
 </div>

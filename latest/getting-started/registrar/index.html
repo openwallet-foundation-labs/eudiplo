@@ -974,24 +974,41 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#configuration" class="md-nav__link">
+  <a href="#per-tenant-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configuration
+        Per-Tenant Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Per-Tenant Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#via-the-web-ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Via the Web UI
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#accessing-the-registrar" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#via-configuration-file" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Accessing the Registrar
+        Via Configuration File
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1003,6 +1020,34 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Access Certificate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#via-the-web-ui_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Via the Web UI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#via-the-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Via the API
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1924,24 +1969,41 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#configuration" class="md-nav__link">
+  <a href="#per-tenant-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configuration
+        Per-Tenant Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Per-Tenant Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#via-the-web-ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Via the Web UI
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#accessing-the-registrar" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#via-configuration-file" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Accessing the Registrar
+        Via Configuration File
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1953,6 +2015,34 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Access Certificate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#via-the-web-ui_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Via the Web UI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#via-the-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Via the API
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2055,62 +2145,66 @@
 <li><strong>Access Certificate</strong> – Grants access to the EUDI Wallet.</li>
 <li><strong>Registration Certificate</strong> – Authorizes data requests from the EUDI Wallet.</li>
 </ul>
-<p>You can still use EUDIPLO without these certificates, but it can end up into
+<p>You can still use EUDIPLO without these certificates, but it can result in
 warnings when making requests to the EUDI Wallet.</p>
-<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¶</a></h2>
-<table>
-<thead>
-<tr>
-<th>Key</th>
-<th>Type</th>
-<th>Notes</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>REGISTRAR_URL</code></td>
-<td><code>string</code></td>
-<td>The URL of the registrar</td>
-</tr>
-<tr>
-<td><code>REGISTRAR_OIDC_URL</code></td>
-<td><code>string</code></td>
-<td>The OIDC URL of the registrar [when REGISTRAR_URL is set → then required]</td>
-</tr>
-<tr>
-<td><code>REGISTRAR_OIDC_CLIENT_ID</code></td>
-<td><code>string</code></td>
-<td>The OIDC client ID of the registrar [when REGISTRAR_URL is set → then required]</td>
-</tr>
-<tr>
-<td><code>REGISTRAR_OIDC_CLIENT_SECRET</code></td>
-<td><code>string</code></td>
-<td>The OIDC client secret of the registrar [when REGISTRAR_URL is set → then required]</td>
-</tr>
-</tbody>
-</table>
-<h2 id="accessing-the-registrar">Accessing the Registrar<a class="headerlink" href="#accessing-the-registrar" title="Permanent link">¶</a></h2>
-<p>To enable EUDIPLO to communicate with the registrar, you must configure the
-necessary environment variables.</p>
-<p>On startup, EUDIPLO checks whether a Relying Party (RP) is already registered
-using the <code>config/registrar.json</code> file. If no ID is specified, EUDIPLO will
-automatically register a new Relying Party with the registrar using the
-<code>name</code> from the tenant entity stored in the database.</p>
+<h2 id="per-tenant-configuration">Per-Tenant Configuration<a class="headerlink" href="#per-tenant-configuration" title="Permanent link">¶</a></h2>
+<p>Each tenant can configure their own registrar connection with OIDC credentials.
+This allows different tenants to connect to different registrar instances or
+use different credentials for the same registrar.</p>
+<h3 id="via-the-web-ui">Via the Web UI<a class="headerlink" href="#via-the-web-ui" title="Permanent link">¶</a></h3>
+<ol>
+<li>Navigate to <strong>Registrar</strong> in the sidebar</li>
+<li>Select a preset (e.g., "German Sandbox") or manually enter the registrar details:<ul>
+<li><strong>Registrar URL</strong>: The base URL of the registrar API</li>
+<li><strong>OIDC URL</strong>: The OpenID Connect realm URL for authentication</li>
+<li><strong>Client ID</strong>: The OIDC client ID</li>
+<li><strong>Client Secret</strong>: Optional OIDC client secret</li>
+<li><strong>Username</strong>: Your registrar account username</li>
+<li><strong>Password</strong>: Your registrar account password</li>
+</ul>
+</li>
+<li>Click <strong>Save Configuration</strong></li>
+</ol>
+<p>The credentials will be validated before saving. If authentication fails, you'll
+receive an error message.</p>
+<h3 id="via-configuration-file">Via Configuration File<a class="headerlink" href="#via-configuration-file" title="Permanent link">¶</a></h3>
+<p>You can also configure the registrar by placing a <code>registrar.json</code> file in the
+tenant's configuration folder:</p>
+<div class="highlight"><span class="filename">config/{tenant-id}/registrar.json</span><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nt">"registrarUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://sandbox.eudi-wallet.org/api"</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">"oidcUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://auth.sandbox.eudi-wallet.org/realms/sandbox-registrar"</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nt">"clientId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"swagger"</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nt">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"your-username"</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">"password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"your-password"</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">}</span>
+</code></pre></div>
 <h2 id="access-certificate">Access Certificate<a class="headerlink" href="#access-certificate" title="Permanent link">¶</a></h2>
-<p>At startup, EUDIPLO checks for a valid access certificate based on the
-<code>accessCertificateId</code> in <code>config/registrar.json</code>. If no valid certificate is
-found, a new one will be requested from the registrar and bound to the
-<code>CREDENTIAL_ISSUER</code> URL. The resulting certificate ID will then be stored in
-<code>config/registrar.json</code>.</p>
+<p>Once the registrar is configured, you can create access certificates for your keys:</p>
+<h3 id="via-the-web-ui_1">Via the Web UI<a class="headerlink" href="#via-the-web-ui_1" title="Permanent link">¶</a></h3>
+<ol>
+<li>Navigate to <strong>Registrar</strong> in the sidebar</li>
+<li>In the "Create Access Certificate" section, select a key from the dropdown</li>
+<li>Click <strong>Create Certificate</strong></li>
+</ol>
+<p>The certificate will be automatically stored in EUDIPLO and you'll be redirected
+to the certificate detail page.</p>
+<h3 id="via-the-api">Via the API<a class="headerlink" href="#via-the-api" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"https://your-eudiplo-instance/registrar/access-certificate"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer &lt;token&gt;"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"keyId": "your-key-id"}'</span>
+</code></pre></div>
+<p>The response includes:</p>
+<ul>
+<li><code>id</code>: The registrar's certificate ID</li>
+<li><code>certId</code>: The local EUDIPLO certificate ID</li>
+<li><code>crt</code>: The certificate content</li>
+</ul>
 <h2 id="registration-certificate">Registration Certificate<a class="headerlink" href="#registration-certificate" title="Permanent link">¶</a></h2>
-<p>The registration certificate is required to request data from the EUDI Wallet.
-Each configuration file in the <code>config/presentation</code> folder defines the payload
-for the corresponding registration certificate.</p>
-<p>Since registration certificates are tied to specific presentation types, they
-are managed within the individual presentation configuration files—not in
-<code>config/registrar.json</code>. If no certificate ID is specified in a presentation
-config, a new registration certificate will be requested automatically when a
-presentation request is made.</p>
+<div class="admonition note">
+<p class="admonition-title">Coming Soon</p>
+<p>Registration Certificate creation through EUDIPLO is not yet implemented. Currently, registration certificates must be managed directly through the registrar's interface.</p>
+</div>
 
 
 

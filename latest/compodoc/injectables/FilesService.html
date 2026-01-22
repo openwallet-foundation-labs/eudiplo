@@ -169,10 +169,7 @@
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#import" >import</a>
-                            </li>
-                            <li>
-                                <a href="#onApplicationBootstrap" >onApplicationBootstrap</a>
+                                <a href="#importForTenant" >importForTenant</a>
                             </li>
                             <li>
                                 <a href="#replaceUriWithPublicUrl" >replaceUriWithPublicUrl</a>
@@ -199,12 +196,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(storage: <a href="../interfaces/FileStorage.html" target="_self">FileStorage</a>, fileRepository: <a href="../entitys/FileEntity.html" target="_self">Repository&lt;FileEntity&gt;</a>, configService: ConfigService, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>)</code>
+<code>constructor(storage: <a href="../interfaces/FileStorage.html" target="_self">FileStorage</a>, fileRepository: <a href="../entitys/FileEntity.html" target="_self">Repository&lt;FileEntity&gt;</a>, configService: ConfigService, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, orchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/storage/files.service.ts:16</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/storage/files.service.ts:25</a></div>
                             </td>
                         </tr>
 
@@ -269,6 +266,18 @@
                                                     </td>
                                                     
                                                 </tr>
+                                                <tr>
+                                                        <td>orchestrator</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/ConfigImportOrchestratorService.html" target="_self" >ConfigImportOrchestratorService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -303,8 +312,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="136"
-                                    class="link-to-prism">src/storage/files.service.ts:136</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="142"
+                                    class="link-to-prism">src/storage/files.service.ts:142</a></div>
                         </td>
                     </tr>
 
@@ -380,8 +389,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="151"
-                                    class="link-to-prism">src/storage/files.service.ts:151</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="157"
+                                    class="link-to-prism">src/storage/files.service.ts:157</a></div>
                         </td>
                     </tr>
 
@@ -454,8 +463,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="140"
-                                    class="link-to-prism">src/storage/files.service.ts:140</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="146"
+                                    class="link-to-prism">src/storage/files.service.ts:146</a></div>
                         </td>
                     </tr>
 
@@ -521,8 +530,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="127"
-                                    class="link-to-prism">src/storage/files.service.ts:127</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="133"
+                                    class="link-to-prism">src/storage/files.service.ts:133</a></div>
                         </td>
                     </tr>
 
@@ -580,74 +589,62 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="import"></a>
+                    <a name="importForTenant"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
-                        <span ><b>import</b></span>
-                        <a href="#import"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>importForTenant</b></span>
+                        <a href="#importForTenant"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>import()</code>
+                    <code>importForTenant(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="36"
-                                    class="link-to-prism">src/storage/files.service.ts:36</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="44"
+                                    class="link-to-prism">src/storage/files.service.ts:44</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Import images from the config folder</p>
+                        <div class="io-description"><p>Import images from the config folder for a specific tenant</p>
 </div>
 
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
 
-                        </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="onApplicationBootstrap"></a>
-                    <span class="name">
-                        <span ><b>onApplicationBootstrap</b></span>
-                        <a href="#onApplicationBootstrap"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>onApplicationBootstrap()</code>
-                </td>
-            </tr>
+                                            <td>
+                                                    No
+                                            </td>
 
 
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="29"
-                                    class="link-to-prism">src/storage/files.service.ts:29</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>On application bootstrap, import images from the config folder</p>
-</div>
-
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
@@ -679,8 +676,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="81"
-                                    class="link-to-prism">src/storage/files.service.ts:81</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="87"
+                                    class="link-to-prism">src/storage/files.service.ts:87</a></div>
                         </td>
                     </tr>
 
@@ -762,8 +759,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="99"
-                                    class="link-to-prism">src/storage/files.service.ts:99</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="105"
+                                    class="link-to-prism">src/storage/files.service.ts:105</a></div>
                         </td>
                     </tr>
 
@@ -863,13 +860,17 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Inject, Injectable, OnApplicationBootstrap } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &quot;node:crypto&quot;;
+import { readFileSync } from &quot;node:fs&quot;;
+import { Inject, Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
-import { randomUUID } from &quot;crypto&quot;;
-import { readFileSync } from &quot;fs&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { ConfigImportService } from &quot;../shared/utils/config-import/config-import.service&quot;;
+import {
+    ConfigImportOrchestratorService,
+    ImportPhase,
+} from &quot;../shared/utils/config-import/config-import-orchestrator.service&quot;;
 import {
     FILE_STORAGE,
     FileStorage,
@@ -877,64 +878,66 @@ import {
 } from &quot;../storage/storage.types&quot;;
 import { FileEntity } from &quot;./entities/files.entity&quot;;
 
-@Injectable()
-export class FilesService implements OnApplicationBootstrap {
-    constructor(
-        @Inject(FILE_STORAGE) private storage: FileStorage,
-        @InjectRepository(FileEntity)
-        private fileRepository: Repository&lt;FileEntity&gt;,
-        private configService: ConfigService,
-        private configImportService: ConfigImportService,
-    ) {}
+interface FileImportData {
+    filename: string;
+    content: Buffer;
+}
 
-    /**
-     * On application bootstrap, import images from the config folder
-     * @returns
-     */
-    onApplicationBootstrap() {
-        return this.import();
+@Injectable()
+export class FilesService {
+    constructor(
+        @Inject(FILE_STORAGE) private readonly storage: FileStorage,
+        @InjectRepository(FileEntity)
+        private readonly fileRepository: Repository&lt;FileEntity&gt;,
+        private readonly configService: ConfigService,
+        private readonly configImportService: ConfigImportService,
+        private readonly orchestrator: ConfigImportOrchestratorService,
+    ) {
+        this.orchestrator.register(
+            &quot;images&quot;,
+            ImportPhase.CORE,
+            this.importForTenant.bind(this),
+        );
     }
 
     /**
-     * Import images from the config folder
+     * Import images from the config folder for a specific tenant
      */
-    async import() {
-        interface FileImportData {
-            filename: string;
-            content: Buffer;
-        }
-
-        await this.configImportService.importConfigs&lt;FileImportData&gt;({
-            subfolder: &quot;images&quot;,
-            resourceType: &quot;image&quot;,
-            loadData: (filePath) &#x3D;&gt; {
-                const filename &#x3D; filePath.split(&quot;/&quot;).pop() || &quot;&quot;;
-                return {
-                    filename,
-                    content: readFileSync(filePath),
-                };
+    async importForTenant(tenantId: string) {
+        await this.configImportService.importConfigsForTenant&lt;FileImportData&gt;(
+            tenantId,
+            {
+                subfolder: &quot;images&quot;,
+                resourceType: &quot;image&quot;,
+                loadData: (filePath) &#x3D;&gt; {
+                    const filename &#x3D; filePath.split(&quot;/&quot;).pop() || &quot;&quot;;
+                    return {
+                        filename,
+                        content: readFileSync(filePath),
+                    };
+                },
+                checkExists: async (_tenantId, data) &#x3D;&gt; {
+                    const exists &#x3D; await this.fileRepository.findOneBy({
+                        filename: data.filename,
+                        tenantId,
+                    });
+                    return !!exists;
+                },
+                processItem: async (_tenantId, data) &#x3D;&gt; {
+                    const key &#x3D; randomUUID();
+                    await this.storage.put(key, data.content, {
+                        contentType: &quot;application/octet-stream&quot;,
+                        acl: &quot;public&quot;,
+                        metadata: { originalName: data.filename },
+                    });
+                    await this.fileRepository.save({
+                        id: key,
+                        filename: data.filename,
+                        tenantId,
+                    });
+                },
             },
-            checkExists: async (tenantId, data) &#x3D;&gt; {
-                const exists &#x3D; await this.fileRepository.findOneBy({
-                    filename: data.filename,
-                    tenantId,
-                });
-                return !!exists;
-            },
-            processItem: async (tenantId, data) &#x3D;&gt; {
-                const key &#x3D; randomUUID();
-                await this.storage.put(key, data.content, {
-                    contentType: &quot;application/octet-stream&quot;,
-                    acl: &quot;public&quot;,
-                    metadata: { originalName: data.filename },
-                });
-                await this.fileRepository.save({
-                    id: key,
-                    filename: data.filename,
-                    tenantId,
-                });
-            },
-        });
+        );
     }
 
     /**

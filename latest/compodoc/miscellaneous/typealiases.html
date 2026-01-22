@@ -290,6 +290,12 @@
                             <a href="#TEName" title="src/issuer/trust-list/dto/types.ts" ><b>TEName</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
                         </li>
                         <li>
+                            <a href="#TenantImportFn" title="src/shared/utils/config-import/config-import-orchestrator.service.ts" ><b>TenantImportFn</b>&nbsp;&nbsp;&nbsp;(src/.../config-import-orchestrator.service.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#TenantImportOptions" title="src/shared/utils/config-import/import-options.ts" ><b>TenantImportOptions</b>&nbsp;&nbsp;&nbsp;(src/.../import-options.ts)</a>
+                        </li>
+                        <li>
                             <a href="#TenantStatus" title="src/auth/tenant/entitites/tenant.entity.ts" ><b>TenantStatus</b>&nbsp;&nbsp;&nbsp;(src/.../tenant.entity.ts)</a>
                         </li>
                         <li>
@@ -1555,6 +1561,56 @@ from the same entity.</p>
             <tr>
                 <td class="col-md-4">
                     <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/shared/utils/config-import/config-import-orchestrator.service.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="TenantImportFn"></a>
+                    <span class="name "><b>TenantImportFn</b><a href="#TenantImportFn"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Type for tenant-aware import functions.
+Each function receives the tenant ID and processes imports for that specific tenant.</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/shared/utils/config-import/import-options.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="TenantImportOptions"></a>
+                    <span class="name "><b>TenantImportOptions</b><a href="#TenantImportOptions"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Import options for tenant-specific imports (without tenantId parameter in callbacks).
+Used with importConfigsForTenant where tenantId is passed separately.</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>        <code><a href="../interfaces/ImportOptions.html" target="_self" >ImportOptions&lt;T&gt;</a></code>
 </code>
                 </td>
             </tr>

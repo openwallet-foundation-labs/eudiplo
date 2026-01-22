@@ -164,7 +164,7 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier">Optional</span>
-                                <a href="#credential_set" >credential_set</a>
+                                <a href="#credential_sets" >credential_sets</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
@@ -195,15 +195,15 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="credential_set"></a>
+                    <a name="credential_sets"></a>
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier">Optional</span>
-                        <span ><b>credential_set</b></span>
-                        <a href="#credential_set"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>credential_sets</b></span>
+                        <a href="#credential_sets"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
@@ -405,7 +405,7 @@ export class DCQL {
     @IsOptional()
     @ValidateNested({ each: true })
     @Type(() &#x3D;&gt; CredentialSetQuery)
-    credential_set?: CredentialSetQuery[];
+    credential_sets?: CredentialSetQuery[];
 }
 
 /**
@@ -498,11 +498,27 @@ export class PresentationConfig {
 
     /**
      * Redirect URI to which the user-agent should be redirected after the presentation is completed.
+     * You can use the &#x60;{sessionId}&#x60; placeholder in the URI, which will be replaced with the actual session ID.
+     * @example &quot;https://example.com/callback?session&#x3D;{sessionId}&quot;
      */
     @IsOptional()
     @IsString()
     @Column(&quot;varchar&quot;, { nullable: true })
     redirectUri?: string | null;
+
+    /**
+     * Optional ID of the access certificate to use for signing the presentation request.
+     * If not provided, the default access certificate for the tenant will be used.
+     *
+     * Note: This is intentionally NOT a TypeORM relationship because CertEntity uses
+     * a composite primary key (id + tenantId), and SQLite cannot create foreign keys
+     * that reference only part of a composite primary key. The relationship is handled
+     * at the application level in the service layer.
+     */
+    @IsOptional()
+    @IsString()
+    @Column(&quot;varchar&quot;, { nullable: true })
+    accessCertId?: string | null;
 }
 </code></pre>
     </div>

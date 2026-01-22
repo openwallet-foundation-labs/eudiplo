@@ -224,13 +224,16 @@
                             <a href="#toBuffer" title="src/verifier/presentations/mdl-context.ts" ><b>toBuffer</b>&nbsp;&nbsp;&nbsp;(src/.../mdl-context.ts)</a>
                         </li>
                         <li>
-                            <a href="#toBuffer" title="src/verifier/presentations/credential/mdlverifier/mdlverifier.service.ts" ><b>toBuffer</b>&nbsp;&nbsp;&nbsp;(src/.../mdlverifier.service.ts)</a>
+                            <a href="#toBuffer" title="src/verifier/presentations/credential/base-verifier.service.ts" ><b>toBuffer</b>&nbsp;&nbsp;&nbsp;(src/.../base-verifier.service.ts)</a>
                         </li>
                         <li>
                             <a href="#Token" title="src/auth/token.decorator.ts" ><b>Token</b>&nbsp;&nbsp;&nbsp;(src/.../token.decorator.ts)</a>
                         </li>
                         <li>
                             <a href="#VALIDATION_SCHEMA" title="src/shared/utils/config-printer/combined.schema.ts" ><b>VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../combined.schema.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#webCrypto" title="src/verifier/presentations/mdl-context.ts" ><b>webCrypto</b>&nbsp;&nbsp;&nbsp;(src/.../mdl-context.ts)</a>
                         </li>
                     </ul>
                 </td>
@@ -1254,14 +1257,14 @@ This decorator can be used to determine the media type of the request.</p>
                         <i>Default value : </i><code>{
     crypto: {
         digest: async ({ digestAlgorithm, bytes }) &#x3D;&gt; {
-            const digest &#x3D; await crypto.subtle.digest(
+            const digest &#x3D; await webCrypto.subtle.digest(
                 digestAlgorithm,
                 toBuffer(bytes),
             );
             return new Uint8Array(digest);
         },
         random: (length: number) &#x3D;&gt; {
-            return crypto.getRandomValues(new Uint8Array(length));
+            return webCrypto.getRandomValues(new Uint8Array(length));
         },
         calculateEphemeralMacKey: async (input) &#x3D;&gt; {
             const { privateKey, publicKey, sessionTranscriptBytes, info } &#x3D;
@@ -1270,7 +1273,7 @@ This decorator can be used to determine the media type of the request.</p>
                 .getSharedSecret(privateKey, publicKey, true)
                 .slice(1);
             const salt &#x3D; new Uint8Array(
-                await crypto.subtle.digest(
+                await webCrypto.subtle.digest(
                     &quot;SHA-256&quot;,
                     toBuffer(sessionTranscriptBytes),
                 ),
@@ -1486,6 +1489,32 @@ use Uint8Array<ArrayBufferLike> which is not assignable to BufferSource</p>
 </div>
                 </td>
             </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="webCrypto"></a>
+                    <span class="name">
+                        <span ><b>webCrypto</b></span>
+                        <a href="#webCrypto"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>globalThis.crypto</code>
+                    </td>
+                </tr>
+
 
         </tbody>
     </table>
@@ -1924,7 +1953,7 @@ Defines the required environment variables and their types.</p>
         </tbody>
     </table>
 </section>
-    <h3>src/verifier/presentations/credential/mdlverifier/mdlverifier.service.ts</h3>
+    <h3>src/verifier/presentations/credential/base-verifier.service.ts</h3>
     <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
@@ -2029,7 +2058,6 @@ This is needed due to TypeScript version differences</p>
     .concat(DB_VALIDATION_SCHEMA)
     .concat(CONFIG_VALIDATION_SCHEMA)
     .concat(LOG_VALIDATION_SCHEMA)
-    .concat(REGISTRAR_VALIDATION_SCHEMA)
     .concat(KEY_VALIDATION_SCHEMA)
     .concat(CRYPTO_VALIDATION_SCHEMA)
     .concat(ISSUER_VALIDATION_SCHEMA)

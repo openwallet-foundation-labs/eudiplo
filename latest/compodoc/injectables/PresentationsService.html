@@ -176,11 +176,7 @@
                             <li>
                                     <span class="modifier">Private</span>
                                     <span class="modifier">Async</span>
-                                <a href="#import" >import</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#onApplicationBootstrap" >onApplicationBootstrap</a>
+                                <a href="#importForTenant" >importForTenant</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
@@ -216,7 +212,7 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(vpRequestRepository: <a href="../entitys/PresentationConfig.html" target="_self">Repository&lt;PresentationConfig&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, sdjwtvcverifierService: <a href="../injectables/SdjwtvcverifierService.html" target="_self">SdjwtvcverifierService</a>, mdlverifierService: <a href="../injectables/MdlverifierService.html" target="_self">MdlverifierService</a>, configService: ConfigService)</code>
+<code>constructor(vpRequestRepository: <a href="../entitys/PresentationConfig.html" target="_self">Repository&lt;PresentationConfig&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>, sdjwtvcverifierService: <a href="../injectables/SdjwtvcverifierService.html" target="_self">SdjwtvcverifierService</a>, mdlverifierService: <a href="../injectables/MdlverifierService.html" target="_self">MdlverifierService</a>, configService: ConfigService)</code>
                     </td>
                 </tr>
                         <tr>
@@ -264,6 +260,20 @@
                                                   
                                                         <td>
                                                                         <code><a href="../injectables/ConfigImportService.html" target="_self" >ConfigImportService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                        <td>
+                                                        </td>
+                                                </tr>
+                                                <tr>
+                                                        <td>configImportOrchestrator</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/ConfigImportOrchestratorService.html" target="_self" >ConfigImportOrchestratorService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -349,8 +359,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="151"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:151</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="154"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:154</a></div>
                         </td>
                     </tr>
 
@@ -444,8 +454,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="161"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:161</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="164"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:164</a></div>
                         </td>
                     </tr>
 
@@ -539,8 +549,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="97"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:97</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="100"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:100</a></div>
                         </td>
                     </tr>
 
@@ -616,8 +626,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="301"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:301</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="303"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:303</a></div>
                         </td>
                     </tr>
 
@@ -681,81 +691,70 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="import"></a>
+                    <a name="importForTenant"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
                             <span class="modifier">Async</span>
-                        <span ><b>import</b></span>
-                        <a href="#import"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>importForTenant</b></span>
+                        <a href="#importForTenant"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>import()</code>
+                    <code>importForTenant(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="58"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:58</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="60"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:60</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Imports presentation configurations from a predefined directory structure.</p>
+                        <div class="io-description"><p>Imports presentation configurations for a specific tenant.</p>
 </div>
 
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="onApplicationBootstrap"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>onApplicationBootstrap</b></span>
-                        <a href="#onApplicationBootstrap"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>onApplicationBootstrap()</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:51</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Imports presentation configurations from a predefined directory structure.</p>
-</div>
-
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
+                            <div class="io-description">
+                                
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -782,8 +781,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="200"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:200</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="203"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:203</a></div>
                         </td>
                     </tr>
 
@@ -875,8 +874,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="110"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:110</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="113"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:113</a></div>
                         </td>
                     </tr>
 
@@ -973,8 +972,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="182"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:182</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="185"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:185</a></div>
                         </td>
                     </tr>
 
@@ -1087,8 +1086,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="127"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:127</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="130"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:130</a></div>
                         </td>
                     </tr>
 
@@ -1167,11 +1166,7 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { readFileSync } from &quot;node:fs&quot;;
-import {
-    ConflictException,
-    Injectable,
-    OnApplicationBootstrap,
-} from &quot;@nestjs/common&quot;;
+import { ConflictException, Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
@@ -1180,6 +1175,10 @@ import { Repository } from &quot;typeorm&quot;;
 import { ServiceTypeIdentifier } from &quot;../../issuer/trust-list/trustlist.service&quot;;
 import { Session } from &quot;../../session/entities/session.entity&quot;;
 import { ConfigImportService } from &quot;../../shared/utils/config-import/config-import.service&quot;;
+import {
+    ConfigImportOrchestratorService,
+    ImportPhase,
+} from &quot;../../shared/utils/config-import/config-import-orchestrator.service&quot;;
 import { VerifierOptions } from &quot;../resolver/trust/types&quot;;
 import { MdlverifierService } from &quot;./credential/mdlverifier/mdlverifier.service&quot;;
 import { SdjwtvcverifierService } from &quot;./credential/sdjwtvcverifier/sdjwtvcverifier.service&quot;;
@@ -1197,7 +1196,7 @@ type CredentialType &#x3D; &quot;dc+sd-jwt&quot; | &quot;mso_mdoc&quot;;
  * Service for managing Verifiable Presentations (VPs) and handling SD-JWT-VCs.
  */
 @Injectable()
-export class PresentationsService implements OnApplicationBootstrap {
+export class PresentationsService {
     /**
      * Constructor for the PresentationsService.
      * @param httpService - Instance of HttpService for making HTTP requests.
@@ -1208,23 +1207,26 @@ export class PresentationsService implements OnApplicationBootstrap {
         @InjectRepository(PresentationConfig)
         private readonly vpRequestRepository: Repository&lt;PresentationConfig&gt;,
         private readonly configImportService: ConfigImportService,
+        private readonly configImportOrchestrator: ConfigImportOrchestratorService,
         private readonly sdjwtvcverifierService: SdjwtvcverifierService,
         private readonly mdlverifierService: MdlverifierService,
         private readonly configService: ConfigService,
-    ) {}
-
-    /**
-     * Imports presentation configurations from a predefined directory structure.
-     */
-    async onApplicationBootstrap() {
-        await this.import();
+    ) {
+        // Register presentation config import in REFERENCES phase
+        // This runs after CORE (keys, certs) and CONFIGURATION phases
+        this.configImportOrchestrator.register(
+            &quot;presentation-configs&quot;,
+            ImportPhase.REFERENCES,
+            (tenantId) &#x3D;&gt; this.importForTenant(tenantId),
+        );
     }
 
     /**
-     * Imports presentation configurations from a predefined directory structure.
+     * Imports presentation configurations for a specific tenant.
      */
-    private async import() {
-        await this.configImportService.importConfigs&lt;PresentationConfigCreateDto&gt;(
+    private async importForTenant(tenantId: string) {
+        await this.configImportService.importConfigsForTenant&lt;PresentationConfigCreateDto&gt;(
+            tenantId,
             {
                 subfolder: &quot;presentation&quot;,
                 fileExtension: &quot;.json&quot;,
@@ -1239,19 +1241,19 @@ export class PresentationsService implements OnApplicationBootstrap {
                     payload.id &#x3D; id;
                     return plainToClass(PresentationConfigCreateDto, payload);
                 },
-                checkExists: (tenantId, data) &#x3D;&gt; {
-                    return this.getPresentationConfig(data.id, tenantId)
+                checkExists: (tid, data) &#x3D;&gt; {
+                    return this.getPresentationConfig(data.id, tid)
                         .then(() &#x3D;&gt; true)
                         .catch(() &#x3D;&gt; false);
                 },
-                deleteExisting: async (tenantId, data) &#x3D;&gt; {
+                deleteExisting: async (tid, data) &#x3D;&gt; {
                     await this.vpRequestRepository.delete({
                         id: data.id,
-                        tenantId,
+                        tenantId: tid,
                     });
                 },
-                processItem: async (tenantId, config) &#x3D;&gt; {
-                    await this.storePresentationConfig(tenantId, config);
+                processItem: async (tid, config) &#x3D;&gt; {
+                    await this.storePresentationConfig(tid, config);
                 },
             },
         );
@@ -1413,7 +1415,6 @@ export class PresentationsService implements OnApplicationBootstrap {
                 };
 
                 const type &#x3D; this.getType(session.requestObject!, attId);
-
                 const values &#x3D; await Promise.all(
                     credentials.map(async (cred) &#x3D;&gt; {
                         if (type &#x3D;&#x3D;&#x3D; &quot;mso_mdoc&quot;) {

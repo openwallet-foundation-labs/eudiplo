@@ -232,7 +232,12 @@
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#import" >import</a>
+                                <a href="#importForTenant" >importForTenant</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#processStatusListConfig" >processStatusListConfig</a>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
@@ -269,12 +274,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, keyService: <a href="../classes/KeyService.html" target="_self">KeyService</a>, statusMappingRepository: <a href="../entitys/StatusMapping.html" target="_self">Repository&lt;StatusMapping&gt;</a>, statusListRepository: <a href="../entitys/StatusListEntity.html" target="_self">Repository&lt;StatusListEntity&gt;</a>, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, logger: PinoLogger, statusListConfigService: <a href="../injectables/StatusListConfigService.html" target="_self">StatusListConfigService</a>)</code>
+<code>constructor(configService: ConfigService, certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, keyService: <a href="../classes/KeyService.html" target="_self">KeyService</a>, statusMappingRepository: <a href="../entitys/StatusMapping.html" target="_self">Repository&lt;StatusMapping&gt;</a>, statusListRepository: <a href="../entitys/StatusListEntity.html" target="_self">Repository&lt;StatusListEntity&gt;</a>, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, logger: PinoLogger, statusListConfigService: <a href="../injectables/StatusListConfigService.html" target="_self">StatusListConfigService</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="34" class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:34</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="39" class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:39</a></div>
                             </td>
                         </tr>
 
@@ -399,6 +404,18 @@
                                                     </td>
                                                     
                                                 </tr>
+                                                <tr>
+                                                        <td>configImportOrchestrator</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/ConfigImportOrchestratorService.html" target="_self" >ConfigImportOrchestratorService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -435,8 +452,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="98"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:98</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="110"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:110</a></div>
                         </td>
                     </tr>
 
@@ -508,8 +525,8 @@ See RFC draft-ietf-oauth-status-list Section 9.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="88"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:88</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="100"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:100</a></div>
                         </td>
                     </tr>
 
@@ -591,8 +608,8 @@ See RFC draft-ietf-oauth-status-list Section 9.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="374"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:374</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="387"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:387</a></div>
                         </td>
                     </tr>
 
@@ -685,8 +702,8 @@ Automatically creates a new list if no available list is found.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="165"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:165</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="178"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:178</a></div>
                         </td>
                     </tr>
 
@@ -763,8 +780,8 @@ The JWT includes:</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="109"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:109</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="121"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:121</a></div>
                         </td>
                     </tr>
 
@@ -856,8 +873,8 @@ The JWT includes:</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="490"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:490</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="503"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:503</a></div>
                         </td>
                     </tr>
 
@@ -950,8 +967,8 @@ Only allows deletion if the list has no used entries.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="329"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:329</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="342"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:342</a></div>
                         </td>
                     </tr>
 
@@ -1045,8 +1062,8 @@ Priority: dedicated list for the credential config &gt; shared lists</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="65"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:65</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="77"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:77</a></div>
                         </td>
                     </tr>
 
@@ -1117,8 +1134,8 @@ Priority: dedicated list for the credential config &gt; shared lists</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="54"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:54</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="66"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:66</a></div>
                         </td>
                     </tr>
 
@@ -1188,8 +1205,8 @@ Priority: dedicated list for the credential config &gt; shared lists</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="268"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:268</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="281"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:281</a></div>
                         </td>
                     </tr>
 
@@ -1281,8 +1298,8 @@ Priority: dedicated list for the credential config &gt; shared lists</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="288"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:288</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="301"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:301</a></div>
                         </td>
                     </tr>
 
@@ -1374,8 +1391,8 @@ Priority: dedicated list for the credential config &gt; shared lists</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="244"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:244</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="257"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:257</a></div>
                         </td>
                     </tr>
 
@@ -1451,8 +1468,8 @@ Priority: dedicated list for the credential config &gt; shared lists</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="257"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:257</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="270"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:270</a></div>
                         </td>
                     </tr>
 
@@ -1529,8 +1546,8 @@ Used for the status list aggregation endpoint (RFC Section 9.3).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="310"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:310</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="323"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:323</a></div>
                         </td>
                     </tr>
 
@@ -1604,40 +1621,153 @@ Used for the status list aggregation endpoint (RFC Section 9.3).</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="import"></a>
+                    <a name="importForTenant"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
-                        <span ><b>import</b></span>
-                        <a href="#import"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>importForTenant</b></span>
+                        <a href="#importForTenant"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>import()</code>
+                    <code>importForTenant(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="566"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:566</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="578"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:578</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Import status list configurations from JSON files.
-This enables &quot;config as code&quot; for status lists.</p>
+                        <div class="io-description"><p>Import status list configurations for a specific tenant.</p>
 </div>
 
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         <div class="io-description">
                             <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
 
                         </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="processStatusListConfig"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>processStatusListConfig</b></span>
+                        <a href="#processStatusListConfig"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>processStatusListConfig(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, config: <a href="../classes/StatusListImportDto.html" target="_self">StatusListImportDto</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="622"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:622</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Process a status list config for import.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>config</td>
+                                            <td>
+                                                            <code><a href="../classes/StatusListImportDto.html" target="_self" >StatusListImportDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -1665,8 +1795,8 @@ This enables &quot;config as code&quot; for status lists.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="434"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:434</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="447"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:447</a></div>
                         </td>
                     </tr>
 
@@ -1794,8 +1924,8 @@ JWT regeneration depends on the tenant&#39;s <code>immediateUpdate</code> settin
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="76"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:76</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="88"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:88</a></div>
                         </td>
                     </tr>
 
@@ -1873,8 +2003,8 @@ JWT regeneration depends on the tenant&#39;s <code>immediateUpdate</code> settin
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="515"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:515</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="528"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:528</a></div>
                         </td>
                     </tr>
 
@@ -1981,8 +2111,8 @@ JWT regeneration depends on the tenant&#39;s <code>immediateUpdate</code> settin
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="460"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:460</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="473"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:473</a></div>
                         </td>
                     </tr>
 
@@ -2088,7 +2218,7 @@ JWT regeneration depends on the tenant&#39;s <code>immediateUpdate</code> settin
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="38" class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:38</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="43" class="link-to-prism">src/issuer/lifecycle/status/status-list.service.ts:43</a></div>
                         </td>
                     </tr>
 
@@ -2121,12 +2251,17 @@ import {
 import { JwtPayload } from &quot;@sd-jwt/types&quot;;
 import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { IsNull, Repository } from &quot;typeorm&quot;;
+import { v4 } from &quot;uuid&quot;;
 import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
 import { CertService } from &quot;../../../crypto/key/cert/cert.service&quot;;
 import { CertUsage } from &quot;../../../crypto/key/entities/cert-usage.entity&quot;;
 import { KeyService } from &quot;../../../crypto/key/key.service&quot;;
 import { Session } from &quot;../../../session/entities/session.entity&quot;;
 import { ConfigImportService } from &quot;../../../shared/utils/config-import/config-import.service&quot;;
+import {
+    ConfigImportOrchestratorService,
+    ImportPhase,
+} from &quot;../../../shared/utils/config-import/config-import-orchestrator.service&quot;;
 import { StatusListImportDto } from &quot;./dto/status-list-import.dto&quot;;
 import { StatusUpdateDto } from &quot;./dto/status-update.dto&quot;;
 import { StatusListEntity } from &quot;./entities/status-list.entity&quot;;
@@ -2149,7 +2284,14 @@ export class StatusListService {
         private readonly logger: PinoLogger,
         @Inject(forwardRef(() &#x3D;&gt; StatusListConfigService))
         private readonly statusListConfigService: StatusListConfigService,
-    ) {}
+        readonly configImportOrchestrator: ConfigImportOrchestratorService,
+    ) {
+        configImportOrchestrator.register(
+            &quot;status-lists&quot;,
+            ImportPhase.FINAL,
+            (tenantId) &#x3D;&gt; this.importForTenant(tenantId),
+        );
+    }
 
     /**
      * Get the effective status list capacity for a tenant.
@@ -2244,6 +2386,7 @@ export class StatusListService {
         }
 
         const entry &#x3D; await this.statusListRepository.save({
+            id: v4(),
             tenantId,
             credentialConfigurationId:
                 options?.credentialConfigurationId ?? null,
@@ -2288,14 +2431,14 @@ export class StatusListService {
             ttl, // Maximum cache time in seconds for verifiers
         };
 
-        // Use the pinned certificate if specified, otherwise use/create the default StatusList cert
+        // Use the pinned certificate if specified, otherwise use the tenant&#x27;s default status list cert
         const cert &#x3D; entry.certId
             ? await this.certService.find({
                   tenantId: entry.tenantId,
                   type: CertUsage.StatusList,
                   id: entry.certId,
               })
-            : await this.certService.findOrCreate({
+            : await this.certService.find({
                   tenantId: entry.tenantId,
                   type: CertUsage.StatusList,
               });
@@ -2334,7 +2477,7 @@ export class StatusListService {
         // Store JWT and expiration time
         const expiresAt &#x3D; new Date(exp * 1000);
         await this.statusListRepository.update(
-            { id: entry.id },
+            { id: entry.id, tenantId: entry.tenantId },
             { jwt, expiresAt },
         );
     }
@@ -2663,90 +2806,94 @@ export class StatusListService {
     }
 
     /**
-     * Import status list configurations from JSON files.
-     * This enables &quot;config as code&quot; for status lists.
+     * Import status list configurations for a specific tenant.
      */
-    async import(): Promise&lt;void&gt; {
-        await this.configImportService.importConfigs&lt;StatusListImportDto&gt;({
-            subfolder: &quot;issuance/status-lists&quot;,
-            fileExtension: &quot;.json&quot;,
-            validationClass: StatusListImportDto,
-            resourceType: &quot;status list&quot;,
-            checkExists: async (tenantId, data) &#x3D;&gt; {
-                // Check if a list with this ID already exists
-                const existing &#x3D; await this.statusListRepository.findOneBy({
-                    id: data.id,
-                    tenantId,
-                });
-                return existing !&#x3D;&#x3D; null;
-            },
-            deleteExisting: async (tenantId, data) &#x3D;&gt; {
-                // Check if the list has any mappings before deleting
-                const mappingsCount &#x3D;
-                    await this.statusMappingRepository.countBy({
-                        tenantId,
-                        statusListId: data.id,
+    async importForTenant(tenantId: string): Promise&lt;void&gt; {
+        await this.configImportService.importConfigsForTenant&lt;StatusListImportDto&gt;(
+            tenantId,
+            {
+                subfolder: &quot;issuance/status-lists&quot;,
+                fileExtension: &quot;.json&quot;,
+                validationClass: StatusListImportDto,
+                resourceType: &quot;status list&quot;,
+                checkExists: async (tid, data) &#x3D;&gt; {
+                    // Check if a list with this ID already exists
+                    const existing &#x3D; await this.statusListRepository.findOneBy({
+                        id: data.id,
+                        tenantId: tid,
                     });
-                if (mappingsCount &gt; 0) {
-                    this.logger.warn(
-                        {
-                            event: &quot;ImportWarning&quot;,
-                            tenant: tenantId,
-                            listId: data.id,
-                        },
-                        &#x60;Cannot reimport status list ${data.id}: ${mappingsCount} credentials are using it&#x60;,
-                    );
-                    return;
-                }
-                await this.statusListRepository.delete({
-                    id: data.id,
-                    tenantId,
-                });
-            },
-            processItem: async (tenantId, config) &#x3D;&gt; {
-                // Get effective size and bits (from config, tenant defaults, or global defaults)
-                const size &#x3D;
-                    config.capacity ??
-                    (await this.getEffectiveCapacity(tenantId));
-                const bits &#x3D;
-                    config.bits ?? (await this.getEffectiveBits(tenantId));
-
-                // Create the shuffled stack
-                const elements &#x3D; new Array(size).fill(0).map(() &#x3D;&gt; 0);
-                const stack &#x3D; this.shuffleArray(
-                    new Array(size).fill(0).map((_, i) &#x3D;&gt; i),
-                );
-
-                // Validate certId if provided
-                if (config.certId) {
-                    const cert &#x3D; await this.certService.find({
-                        tenantId,
-                        type: CertUsage.StatusList,
-                        id: config.certId,
-                    });
-                    if (!cert) {
-                        throw new Error(
-                            &#x60;Certificate ${config.certId} not found for tenant ${tenantId}&#x60;,
+                    return existing !&#x3D;&#x3D; null;
+                },
+                deleteExisting: async (tid, data) &#x3D;&gt; {
+                    // Check if the list has any mappings before deleting
+                    const mappingsCount &#x3D;
+                        await this.statusMappingRepository.countBy({
+                            tenantId: tid,
+                            statusListId: data.id,
+                        });
+                    if (mappingsCount &gt; 0) {
+                        this.logger.warn(
+                            &#x60;[${tid}] Cannot reimport status list ${data.id}: ${mappingsCount} credentials are using it&#x60;,
                         );
+                        return;
                     }
-                }
-
-                // Save with the provided ID
-                const entry &#x3D; await this.statusListRepository.save({
-                    id: config.id,
-                    tenantId,
-                    credentialConfigurationId:
-                        config.credentialConfigurationId ?? null,
-                    certId: config.certId ?? null,
-                    elements,
-                    stack,
-                    bits,
-                });
-
-                // Generate the JWT
-                await this.createListJWT(entry);
+                    await this.statusListRepository.delete({
+                        id: data.id,
+                        tenantId: tid,
+                    });
+                },
+                processItem: async (tid, config) &#x3D;&gt; {
+                    await this.processStatusListConfig(tid, config);
+                },
             },
+        );
+    }
+
+    /**
+     * Process a status list config for import.
+     */
+    private async processStatusListConfig(
+        tenantId: string,
+        config: StatusListImportDto,
+    ) {
+        // Get effective size and bits (from config, tenant defaults, or global defaults)
+        const size &#x3D;
+            config.capacity ?? (await this.getEffectiveCapacity(tenantId));
+        const bits &#x3D; config.bits ?? (await this.getEffectiveBits(tenantId));
+
+        // Create the shuffled stack
+        const elements &#x3D; new Array(size).fill(0).map(() &#x3D;&gt; 0);
+        const stack &#x3D; this.shuffleArray(
+            new Array(size).fill(0).map((_, i) &#x3D;&gt; i),
+        );
+
+        // Validate certId if provided
+        if (config.certId) {
+            const cert &#x3D; await this.certService.find({
+                tenantId,
+                type: CertUsage.StatusList,
+                id: config.certId,
+            });
+            if (!cert) {
+                throw new Error(
+                    &#x60;Certificate ${config.certId} not found for tenant ${tenantId}&#x60;,
+                );
+            }
+        }
+
+        // Save with the provided ID
+        const entry &#x3D; await this.statusListRepository.save({
+            id: config.id,
+            tenantId,
+            credentialConfigurationId: config.credentialConfigurationId ?? null,
+            certId: config.certId ?? null,
+            elements,
+            stack,
+            bits,
         });
+
+        // Generate the JWT
+        await this.createListJWT(entry);
     }
 }
 </code></pre>
