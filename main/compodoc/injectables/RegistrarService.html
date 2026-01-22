@@ -143,7 +143,9 @@
             </p>
             <p class="comment">
                 <p>RegistrarService is responsible for managing the interaction with the registrar,
-including adding relying parties, access certificates, and registration certificates.</p>
+specifically for creating access certificates.</p>
+<p>This service supports per-tenant registrar configuration, allowing each tenant
+to connect to their own registrar instance with their own credentials.</p>
 
             </p>
 
@@ -163,15 +165,8 @@ including adding relying parties, access certificates, and registration certific
                         <ul class="index-list">
                             <li>
                                     <span class="modifier">Private</span>
-                                <a href="#accessToken" >accessToken</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Private</span>
-                                <a href="#client" >client</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Private</span>
-                                <a href="#oauth2Client" >oauth2Client</a>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#tokenCache" >tokenCache</a>
                             </li>
                         </ul>
                     </td>
@@ -186,27 +181,43 @@ including adding relying parties, access certificates, and registration certific
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                    <span class="modifier">Private</span>
-                                    <span class="modifier">Async</span>
-                                <a href="#addAccessCertificate" >addAccessCertificate</a>
-                            </li>
-                            <li>
                                     <span class="modifier">Async</span>
                                 <a href="#addRegistrationCertificate" >addRegistrationCertificate</a>
                             </li>
                             <li>
-                                <a href="#addRp" >addRp</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Private</span>
-                                <a href="#getExistingRp" >getExistingRp</a>
-                            </li>
-                            <li>
-                                <a href="#isEnabled" >isEnabled</a>
+                                    <span class="modifier">Async</span>
+                                <a href="#createAccessCertificate" >createAccessCertificate</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#onModuleInit" >onModuleInit</a>
+                                <a href="#deleteConfig" >deleteConfig</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getAccessToken" >getAccessToken</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getClient" >getClient</a>
+                            </li>
+                            <li>
+                                <a href="#getConfig" >getConfig</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getRelyingPartyId" >getRelyingPartyId</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#importForTenant" >importForTenant</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#isEnabledForTenant" >isEnabledForTenant</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
@@ -214,7 +225,16 @@ including adding relying parties, access certificates, and registration certific
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#refreshAccessToken" >refreshAccessToken</a>
+                                <a href="#saveConfig" >saveConfig</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#testCredentials" >testCredentials</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#updateConfig" >updateConfig</a>
                             </li>
                         </ul>
                     </td>
@@ -234,19 +254,17 @@ including adding relying parties, access certificates, and registration certific
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, registrarRepository: <a href="../entitys/RegistrarEntity.html" target="_self">Repository&lt;RegistrarEntity&gt;</a>)</code>
+<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, logger: PinoLogger, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>, configRepository: <a href="../entitys/RegistrarConfigEntity.html" target="_self">Repository&lt;RegistrarConfigEntity&gt;</a>, certService: <a href="../injectables/CertService.html" target="_self">CertService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">src/registrar/registrar.service.ts:35</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="55" class="link-to-prism">src/registrar/registrar.service.ts:55</a></div>
                             </td>
                         </tr>
 
                 <tr>
                     <td class="col-md-4">
-                            <div class="io-description"><p>Constructor for the RegistrarService.</p>
-</div>
                             <div>
                                     <b>Parameters :</b>
                                     <table class="params">
@@ -255,7 +273,6 @@ including adding relying parties, access certificates, and registration certific
                                                 <td>Name</td>
                                                     <td>Type</td>
                                                 <td>Optional</td>
-                                                    <td>Description</td>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -270,12 +287,6 @@ including adding relying parties, access certificates, and registration certific
                                                             No
                                                     </td>
                                                     
-                                                        <td>
-                                                                <ul>
-<li>Instance of ConfigService for accessing configuration values.</li>
-</ul>
-
-                                                        </td>
                                                 </tr>
                                                 <tr>
                                                         <td>cryptoService</td>
@@ -288,26 +299,54 @@ including adding relying parties, access certificates, and registration certific
                                                             No
                                                     </td>
                                                     
-                                                        <td>
-                                                                <ul>
-<li>Instance of CryptoService for cryptographic operations.</li>
-</ul>
-
-                                                        </td>
                                                 </tr>
                                                 <tr>
-                                                        <td>registrarRepository</td>
+                                                        <td>logger</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../entitys/RegistrarEntity.html" target="_self" >Repository&lt;RegistrarEntity&gt;</a></code>
+                                                                    <code>PinoLogger</code>
                                                         </td>
                                                   
                                                     <td>
                                                             No
                                                     </td>
                                                     
+                                                </tr>
+                                                <tr>
+                                                        <td>configImportOrchestrator</td>
+                                                  
                                                         <td>
+                                                                        <code><a href="../injectables/ConfigImportOrchestratorService.html" target="_self" >ConfigImportOrchestratorService</a></code>
                                                         </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>configRepository</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../entitys/RegistrarConfigEntity.html" target="_self" >Repository&lt;RegistrarConfigEntity&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>certService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/CertService.html" target="_self" >CertService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
                                                 </tr>
                                         </tbody>
                                     </table>
@@ -327,92 +366,6 @@ including adding relying parties, access certificates, and registration certific
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="addAccessCertificate"></a>
-                    <span class="name">
-                            <span class="modifier">Private</span>
-                            <span class="modifier">Async</span>
-                        <span ><b>addAccessCertificate</b></span>
-                        <a href="#addAccessCertificate"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>addAccessCertificate(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, relyingPartyId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="178"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:178</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Add a new access certificate to the registrar.
-This is only needed once, when the access certificate is created.
-If the access certificate already exists, it will be returned.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>relyingPartyId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="addRegistrationCertificate"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -424,202 +377,23 @@ If the access certificate already exists, it will be returned.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>addRegistrationCertificate(req: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, dcql_query: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, requestId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>addRegistrationCertificate(req: literal type, _dcqlQuery: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, _requestId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="223"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:223</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="457"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:457</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Add a new registration certificate to the registrar.
-This is only needed once, when the registration certificate is created.
-If the registration certificate already exists, it will be returned.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>req</td>
-                                            <td>
-                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>dcql_query</td>
-                                            <td>
-                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>requestId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>unknown</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="addRp"></a>
-                    <span class="name">
-                        <span ><b>addRp</b></span>
-                        <a href="#addRp"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>addRp(name: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="138"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:138</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Adds a new relying party to the registrar.
-This is only needed once, when the relying party is created.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>name</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getExistingRp"></a>
-                    <span class="name">
-                            <span class="modifier">Private</span>
-                        <span ><b>getExistingRp</b></span>
-                        <a href="#getExistingRp"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getExistingRp(name: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="161"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:161</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Stores the existing relying party ID based on the name.
-This is used when the relying party already exists in the registrar.</p>
+                        <div class="io-description"><p>Add a registration certificate for a verification session.
+This is called during VP flows to get a registration certificate from the registrar.</p>
 </div>
 
                             <div class="io-description">
@@ -636,7 +410,53 @@ This is used when the relying party already exists in the registrar.</p>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>name</td>
+                                                <td>req</td>
+                                            <td>
+                                                        <code>literal type</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The registration certificate request body</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>_dcqlQuery</td>
+                                            <td>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>_requestId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>tenantId</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -648,7 +468,7 @@ This is used when the relying party already exists in the registrar.</p>
 
                                             <td>
                                                     <ul>
-<li>The name of the relying party.</li>
+<li>The tenant ID</li>
 </ul>
 
                                             </td>
@@ -657,11 +477,11 @@ This is used when the relying party already exists in the registrar.</p>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
 
                         </div>
                             <div class="io-description">
-                                <p>The ID of the existing relying party.</p>
+                                <p>The registration certificate JWT</p>
 
                             </div>
                 </td>
@@ -672,82 +492,653 @@ This is used when the relying party already exists in the registrar.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="isEnabled"></a>
-                    <span class="name">
-                        <span ><b>isEnabled</b></span>
-                        <a href="#isEnabled"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>isEnabled()</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="92"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:92</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Checks if the registrar service is enabled based on the configuration.</p>
-</div>
-
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                <p>True if the registrar service is enabled, false otherwise.</p>
-
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="onModuleInit"></a>
+                    <a name="createAccessCertificate"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
-                        <span ><b>onModuleInit</b></span>
-                        <a href="#onModuleInit"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>createAccessCertificate</b></span>
+                        <a href="#createAccessCertificate"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>onModuleInit()</code>
+                    <code>createAccessCertificate(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/CreateAccessCertificateDto.html" target="_self">CreateAccessCertificateDto</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="52"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:52</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="393"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:393</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Initializes the OAuth2 client and registrar client with the necessary configurations.</p>
+                        <div class="io-description"><p>Create an access certificate for a key.
+Fetches the relying party from the registrar, creates the certificate,
+and stores it in EUDIPLO.</p>
 </div>
 
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The tenant ID</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>dto</td>
+                                            <td>
+                                                            <code><a href="../classes/CreateAccessCertificateDto.html" target="_self" >CreateAccessCertificateDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The access certificate creation data</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>Promise&lt;literal type&gt;</code>
 
                         </div>
+                            <div class="io-description">
+                                <p>The access certificate response with registrar ID, local cert ID, and certificate</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="deleteConfig"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>deleteConfig</b></span>
+                        <a href="#deleteConfig"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>deleteConfig(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="231"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:231</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Delete the registrar configuration for a tenant.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The tenant ID</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getAccessToken"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getAccessToken</b></span>
+                        <a href="#getAccessToken"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getAccessToken(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="276"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:276</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get or refresh the access token for a tenant.
+Uses Resource Owner Password Credentials (ROPC) flow.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The tenant ID</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>The access token</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getClient"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getClient</b></span>
+                        <a href="#getClient"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getClient(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="332"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:332</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Create a configured client for the registrar API.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The tenant ID</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>Configured registrar client</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getConfig"></a>
+                    <span class="name">
+                        <span ><b>getConfig</b></span>
+                        <a href="#getConfig"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getConfig(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="150"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:150</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get the registrar configuration for a tenant.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The tenant ID</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/RegistrarConfigEntity.html" target="_self" >Promise&lt;RegistrarConfigEntity | null&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>The registrar configuration or null if not configured</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getRelyingPartyId"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getRelyingPartyId</b></span>
+                        <a href="#getRelyingPartyId"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getRelyingPartyId(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="357"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:357</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get the relying party ID from the registrar.
+Assumes the user has exactly one relying party.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The tenant ID</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>The relying party ID</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="importForTenant"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>importForTenant</b></span>
+                        <a href="#importForTenant"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>importForTenant(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="79"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:79</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Import registrar configuration for a tenant from the config folder.
+Looks for a registrar.json file in the tenant&#39;s folder.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The tenant ID to import for</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="isEnabledForTenant"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>isEnabledForTenant</b></span>
+                        <a href="#isEnabledForTenant"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>isEnabledForTenant(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="128"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:128</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Check if a tenant has registrar configuration.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The tenant ID to check</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;boolean&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>True if the tenant has registrar config, false otherwise</p>
+
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -767,22 +1158,24 @@ This is used when the relying party already exists in the registrar.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>onTenantInit(tenant: <a href="../entitys/TenantEntity.html" target="_self">TenantEntity</a>)</code>
+                    <code>onTenantInit(_tenant: <a href="../entitys/TenantEntity.html" target="_self">TenantEntity</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="100"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:100</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="140"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:140</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>This function is called when a tenant is initialized.</p>
+                        <div class="io-description"><p>Called when a tenant is initialized.
+With per-tenant configuration, this is a no-op.
+The tenant must explicitly configure their registrar settings.</p>
 </div>
 
                             <div class="io-description">
@@ -794,11 +1187,12 @@ This is used when the relying party already exists in the registrar.</p>
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>tenant</td>
+                                                <td>_tenant</td>
                                             <td>
                                                             <code><a href="../entitys/TenantEntity.html" target="_self" >TenantEntity</a></code>
                                             </td>
@@ -808,12 +1202,18 @@ This is used when the relying party already exists in the registrar.</p>
                                             </td>
 
 
+                                            <td>
+                                                    <ul>
+<li>The tenant entity (unused)</li>
+</ul>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -827,40 +1227,273 @@ This is used when the relying party already exists in the registrar.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="refreshAccessToken"></a>
+                    <a name="saveConfig"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
-                        <span ><b>refreshAccessToken</b></span>
-                        <a href="#refreshAccessToken"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>saveConfig</b></span>
+                        <a href="#saveConfig"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>refreshAccessToken()</code>
+                    <code>saveConfig(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/CreateRegistrarConfigDto.html" target="_self">CreateRegistrarConfigDto</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="121"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:121</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="161"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:161</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Refreshes the access token for the registrar using client credentials.
-This method is called periodically to ensure the access token is valid.</p>
+                        <div class="io-description"><p>Create or update the registrar configuration for a tenant.
+Tests the credentials before saving.</p>
 </div>
 
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The tenant ID</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>dto</td>
+                                            <td>
+                                                            <code><a href="../classes/CreateRegistrarConfigDto.html" target="_self" >CreateRegistrarConfigDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The configuration data</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>        <code><a href="../entitys/RegistrarConfigEntity.html" target="_self" >Promise&lt;RegistrarConfigEntity&gt;</a></code>
 
                         </div>
+                            <div class="io-description">
+                                <p>The saved configuration</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="testCredentials"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>testCredentials</b></span>
+                        <a href="#testCredentials"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>testCredentials(config: literal type)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="242"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:242</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Test OIDC credentials by attempting to obtain an access token.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>config</td>
+                                            <td>
+                                                        <code>literal type</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The configuration to test</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="updateConfig"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>updateConfig</b></span>
+                        <a href="#updateConfig"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>updateConfig(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/UpdateRegistrarConfigDto.html" target="_self">UpdateRegistrarConfigDto</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="187"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:187</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Update the registrar configuration for a tenant.
+Tests the credentials before saving if auth-related fields are updated.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The tenant ID</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>dto</td>
+                                            <td>
+                                                            <code><a href="../classes/UpdateRegistrarConfigDto.html" target="_self" >UpdateRegistrarConfigDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The partial configuration data to update</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/RegistrarConfigEntity.html" target="_self" >Promise&lt;RegistrarConfigEntity&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>The updated configuration</p>
+
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -875,44 +1508,12 @@ This method is called periodically to ensure the access token is valid.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="accessToken"></a>
+                    <a name="tokenCache"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
-                        <span ><b>accessToken</b></span>
-                        <a href="#accessToken"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">src/registrar/registrar.service.ts:35</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Access token for authenticating requests to the registrar.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="client"></a>
-                    <span class="name">
-                            <span class="modifier">Private</span>
-                        <span ><b>client</b></span>
-                        <a href="#client"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Readonly</span>
+                        <span ><b>tokenCache</b></span>
+                        <a href="#tokenCache"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
@@ -922,48 +1523,20 @@ This method is called periodically to ensure the access token is valid.</p>
 
                     </td>
                 </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/registrar/registrar.service.ts:31</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Client for interacting with the registrar API.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="oauth2Client"></a>
-                    <span class="name">
-                            <span class="modifier">Private</span>
-                        <span ><b>oauth2Client</b></span>
-                        <a href="#oauth2Client"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>    <code>OAuth2Client</code>
-
+                        <i>Default value : </i><code>new Map&lt;string, CachedToken&gt;()</code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/registrar/registrar.service.ts:27</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="55" class="link-to-prism">src/registrar/registrar.service.ts:55</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>OAuth2 client for interacting with the OIDC provider.</p>
+                    <div class="io-description"><p>Cache of OAuth2 tokens per tenant.</p>
 </div>
                 </td>
             </tr>
@@ -976,14 +1549,31 @@ This method is called periodically to ensure the access token is valid.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { OAuth2Client } from &quot;@badgateway/oauth2-client&quot;;
-import { Injectable, OnModuleInit } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { existsSync, readFileSync } from &quot;node:fs&quot;;
+import { join } from &quot;node:path&quot;;
+import { OAuth2Client, OAuth2Token } from &quot;@badgateway/oauth2-client&quot;;
+import {
+    BadRequestException,
+    Injectable,
+    NotFoundException,
+} from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
+import { plainToClass } from &quot;class-transformer&quot;;
+import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { TenantEntity } from &quot;../auth/tenant/entitites/tenant.entity&quot;;
 import { CryptoService } from &quot;../crypto/crypto.service&quot;;
-import { RegistrarEntity } from &quot;./entities/registrar.entity&quot;;
+import { CertService } from &quot;../crypto/key/cert/cert.service&quot;;
+import { CertUsage } from &quot;../crypto/key/entities/cert-usage.entity&quot;;
+import {
+    ConfigImportOrchestratorService,
+    ImportPhase,
+} from &quot;../shared/utils/config-import/config-import-orchestrator.service&quot;;
+import { CreateAccessCertificateDto } from &quot;./dto/create-access-certificate.dto&quot;;
+import { CreateRegistrarConfigDto } from &quot;./dto/create-registrar-config.dto&quot;;
+import { UpdateRegistrarConfigDto } from &quot;./dto/update-registrar-config.dto&quot;;
+import { RegistrarConfigEntity } from &quot;./entities/registrar-config.entity&quot;;
 import {
     accessCertificateControllerRegister,
     registrationCertificateControllerAll,
@@ -991,266 +1581,481 @@ import {
     relyingPartyControllerFindAll,
     relyingPartyControllerRegister,
 } from &quot;./generated&quot;;
-import { client } from &quot;./generated/client.gen&quot;;
+import { client as registrarClient } from &quot;./generated/client.gen&quot;;
+
+/**
+ * Cached OAuth2 token with its expiration time.
+ */
+interface CachedToken {
+    token: string;
+    expiresAt: number;
+}
 
 /**
  * RegistrarService is responsible for managing the interaction with the registrar,
- * including adding relying parties, access certificates, and registration certificates.
+ * specifically for creating access certificates.
+ *
+ * This service supports per-tenant registrar configuration, allowing each tenant
+ * to connect to their own registrar instance with their own credentials.
  */
 @Injectable()
-export class RegistrarService implements OnModuleInit {
+export class RegistrarService {
     /**
-     * OAuth2 client for interacting with the OIDC provider.
+     * Cache of OAuth2 tokens per tenant.
      */
-    private oauth2Client!: OAuth2Client;
-    /**
-     * Client for interacting with the registrar API.
-     */
-    private client!: typeof client;
-    /**
-     * Access token for authenticating requests to the registrar.
-     */
-    private accessToken!: string;
-    /**
-     * Constructor for the RegistrarService.
-     * @param configService - Instance of ConfigService for accessing configuration values.
-     * @param cryptoService - Instance of CryptoService for cryptographic operations.
-     * @param presentationsService - Instance of PresentationsService for handling presentations.
-     */
+    private readonly tokenCache &#x3D; new Map&lt;string, CachedToken&gt;();
+
     constructor(
-        private configService: ConfigService,
-        private cryptoService: CryptoService,
-        @InjectRepository(RegistrarEntity)
-        private registrarRepository: Repository&lt;RegistrarEntity&gt;,
-    ) {}
+        private readonly configService: ConfigService,
+        private readonly cryptoService: CryptoService,
+        private readonly logger: PinoLogger,
+        configImportOrchestrator: ConfigImportOrchestratorService,
+        @InjectRepository(RegistrarConfigEntity)
+        private readonly configRepository: Repository&lt;RegistrarConfigEntity&gt;,
+        private readonly certService: CertService,
+    ) {
+        // Register for config import at CORE phase (same as certificates)
+        configImportOrchestrator.register(
+            &quot;registrar&quot;,
+            ImportPhase.CORE,
+            (tenantId) &#x3D;&gt; this.importForTenant(tenantId),
+        );
+    }
 
     /**
-     * Initializes the OAuth2 client and registrar client with the necessary configurations.
+     * Import registrar configuration for a tenant from the config folder.
+     * Looks for a registrar.json file in the tenant&#x27;s folder.
+     * @param tenantId - The tenant ID to import for
      */
-    async onModuleInit() {
-        //when not set, we will not use the registrar
-        if (!this.isEnabled()) {
+    private async importForTenant(tenantId: string): Promise&lt;void&gt; {
+        const configPath &#x3D; this.configService.getOrThrow(&quot;CONFIG_FOLDER&quot;);
+        const force &#x3D; this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT_FORCE&quot;);
+        const filePath &#x3D; join(configPath, tenantId, &quot;registrar.json&quot;);
+
+        if (!existsSync(filePath)) {
             return;
         }
 
-        const oidcIssuerUrl &#x3D;
-            this.configService.getOrThrow&lt;string&gt;(&quot;REGISTRAR_OIDC_URL&quot;);
-        const clientId &#x3D; this.configService.getOrThrow&lt;string&gt;(
-            &quot;REGISTRAR_OIDC_CLIENT_ID&quot;,
-        );
-        const clientSecret &#x3D; this.configService.getOrThrow&lt;string&gt;(
-            &quot;REGISTRAR_OIDC_CLIENT_SECRET&quot;,
-        );
-
-        this.oauth2Client &#x3D; new OAuth2Client({
-            server: &#x60;${oidcIssuerUrl}/protocol/openid-connect/token&#x60;,
-            clientId,
-            clientSecret,
-            discoveryEndpoint: &#x60;${oidcIssuerUrl}/.well-known/openid-configuration&#x60;,
-        });
-
-        this.client &#x3D; client;
-        this.client.setConfig({
-            baseUrl: this.configService.getOrThrow&lt;string&gt;(&quot;REGISTRAR_URL&quot;),
-            auth: () &#x3D;&gt; this.accessToken,
-        });
-
-        if (!this.configService.get&lt;string&gt;(&quot;REGISTRAR_URL&quot;)) {
-            return;
-        }
-        await this.refreshAccessToken();
-
-        //TODO: there may be the case that the registrar is activated after the tenant was created. For this action, the registrar would need to include the tenantservice, causing a circular dependency.
-    }
-
-    /**
-     * Checks if the registrar service is enabled based on the configuration.
-     * @returns True if the registrar service is enabled, false otherwise.
-     */
-    isEnabled() {
-        return !!this.configService.get&lt;string&gt;(&quot;REGISTRAR_URL&quot;);
-    }
-
-    /**
-     * This function is called when a tenant is initialized.
-     * @param tenant
-     */
-    async onTenantInit(tenant: TenantEntity) {
-        if (!this.isEnabled()) {
-            return;
-        }
-        const name &#x3D; tenant.name;
-        const relyingPartyId &#x3D; await this.addRp(name);
-        const accessCertificateId &#x3D; await this.addAccessCertificate(
-            tenant.id,
-            relyingPartyId,
-        );
-        await this.registrarRepository.save({
-            tenantId: tenant.id,
-            relyingPartyId,
-            accessCertificateId,
-        });
-    }
-
-    /**
-     * Refreshes the access token for the registrar using client credentials.
-     * This method is called periodically to ensure the access token is valid.
-     */
-    async refreshAccessToken() {
-        await this.oauth2Client.clientCredentials().then((token) &#x3D;&gt; {
-            this.accessToken &#x3D; token.accessToken;
-            const date &#x3D; new Date();
-            const expirationDate &#x3D; new Date(token.expiresAt as number);
-            setTimeout(
-                // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                () &#x3D;&gt; this.refreshAccessToken(),
-                expirationDate.getTime() - date.getTime() - 1000,
-            );
-        });
-    }
-
-    /**
-     * Adds a new relying party to the registrar.
-     * This is only needed once, when the relying party is created.
-     */
-    addRp(name: string): Promise&lt;string&gt; {
-        return relyingPartyControllerRegister({
-            client: this.client,
-            body: {
-                name,
-            },
-        }).then(async (response) &#x3D;&gt; {
-            let rpId: string;
-            if (response.error) {
-                rpId &#x3D; await this.getExistingRp(name);
-            } else {
-                rpId &#x3D; response.data![&quot;id&quot;];
+        try {
+            // Check if already exists
+            const existing &#x3D; await this.configRepository.findOneBy({
+                tenantId,
+            });
+            if (existing &amp;&amp; !force) {
+                this.logger.debug(
+                    &#x60;[${tenantId}] Registrar config already exists, skipping&#x60;,
+                );
+                return;
             }
-            return rpId;
-        });
+
+            // Delete existing if force is enabled
+            if (existing &amp;&amp; force) {
+                await this.configRepository.delete({ tenantId });
+            }
+
+            // Load and validate the config
+            const payload &#x3D; JSON.parse(readFileSync(filePath, &quot;utf8&quot;));
+            const config &#x3D; plainToClass(CreateRegistrarConfigDto, payload);
+
+            // Save without testing credentials (they may not be valid during import)
+            await this.configRepository.save({
+                tenantId,
+                ...config,
+            });
+
+            this.logger.info(&#x60;[${tenantId}] Registrar config imported&#x60;);
+        } catch (error: any) {
+            this.logger.error(
+                &#x60;[${tenantId}] Failed to import registrar config: ${error.message}&#x60;,
+            );
+        }
     }
 
     /**
-     * Stores the existing relying party ID based on the name.
-     * This is used when the relying party already exists in the registrar.
-     * @param name - The name of the relying party.
-     * @returns The ID of the existing relying party.
+     * Check if a tenant has registrar configuration.
+     * @param tenantId - The tenant ID to check
+     * @returns True if the tenant has registrar config, false otherwise
      */
-    private getExistingRp(name: string) {
-        return relyingPartyControllerFindAll({
-            client: this.client,
-            query: {
-                name,
-            },
-        }).then((response) &#x3D;&gt; {
-            return response.data!.find((item) &#x3D;&gt; item.name &#x3D;&#x3D;&#x3D; name)?.id!;
-        });
+    async isEnabledForTenant(tenantId: string): Promise&lt;boolean&gt; {
+        const config &#x3D; await this.configRepository.findOneBy({ tenantId });
+        return !!config;
     }
 
     /**
-     * Add a new access certificate to the registrar.
-     * This is only needed once, when the access certificate is created.
-     * If the access certificate already exists, it will be returned.
-     * @returns
+     * Called when a tenant is initialized.
+     * With per-tenant configuration, this is a no-op.
+     * The tenant must explicitly configure their registrar settings.
+     * @param _tenant - The tenant entity (unused)
      */
-    private async addAccessCertificate(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async onTenantInit(_tenant: TenantEntity): Promise&lt;void&gt; {
+        // No-op: with per-tenant configuration, registrar setup is done explicitly
+        // through the registrar config API, not automatically on tenant creation.
+    }
+
+    /**
+     * Get the registrar configuration for a tenant.
+     * @param tenantId - The tenant ID
+     * @returns The registrar configuration or null if not configured
+     */
+    getConfig(tenantId: string): Promise&lt;RegistrarConfigEntity | null&gt; {
+        return this.configRepository.findOneBy({ tenantId });
+    }
+
+    /**
+     * Create or update the registrar configuration for a tenant.
+     * Tests the credentials before saving.
+     * @param tenantId - The tenant ID
+     * @param dto - The configuration data
+     * @returns The saved configuration
+     */
+    async saveConfig(
         tenantId: string,
-        relyingPartyId: string,
-    ): Promise&lt;string&gt; {
-        const keyId &#x3D; await this.cryptoService.keyService.getKid(
+        dto: CreateRegistrarConfigDto,
+    ): Promise&lt;RegistrarConfigEntity&gt; {
+        // Test credentials before saving
+        await this.testCredentials(dto);
+
+        const config &#x3D; await this.configRepository.save({
             tenantId,
-            &quot;sign&quot;,
-        );
+            ...dto,
+        });
+
+        // Clear any cached token for this tenant
+        this.tokenCache.delete(tenantId);
+
+        this.logger.info(&#x60;[${tenantId}] Registrar configuration saved&#x60;);
+        return config;
+    }
+
+    /**
+     * Update the registrar configuration for a tenant.
+     * Tests the credentials before saving if auth-related fields are updated.
+     * @param tenantId - The tenant ID
+     * @param dto - The partial configuration data to update
+     * @returns The updated configuration
+     */
+    async updateConfig(
+        tenantId: string,
+        dto: UpdateRegistrarConfigDto,
+    ): Promise&lt;RegistrarConfigEntity&gt; {
+        const existing &#x3D; await this.configRepository.findOneBy({ tenantId });
+        if (!existing) {
+            throw new NotFoundException(
+                &#x60;No registrar configuration found for tenant ${tenantId}&#x60;,
+            );
+        }
+
+        // If any auth-related field is being updated, test the new credentials
+        const hasAuthChanges &#x3D;
+            dto.oidcUrl !&#x3D;&#x3D; undefined ||
+            dto.clientId !&#x3D;&#x3D; undefined ||
+            dto.clientSecret !&#x3D;&#x3D; undefined ||
+            dto.username !&#x3D;&#x3D; undefined ||
+            dto.password !&#x3D;&#x3D; undefined;
+
+        if (hasAuthChanges) {
+            // Merge existing config with updates for testing
+            const testConfig &#x3D; {
+                registrarUrl: dto.registrarUrl ?? existing.registrarUrl,
+                oidcUrl: dto.oidcUrl ?? existing.oidcUrl,
+                clientId: dto.clientId ?? existing.clientId,
+                clientSecret: dto.clientSecret ?? existing.clientSecret,
+                username: dto.username ?? existing.username,
+                password: dto.password ?? existing.password,
+            };
+            await this.testCredentials(testConfig);
+        }
+
+        await this.configRepository.update({ tenantId }, dto);
+
+        // Clear any cached token for this tenant
+        this.tokenCache.delete(tenantId);
+
+        return this.configRepository.findOneByOrFail({ tenantId });
+    }
+
+    /**
+     * Delete the registrar configuration for a tenant.
+     * @param tenantId - The tenant ID
+     */
+    async deleteConfig(tenantId: string): Promise&lt;void&gt; {
+        await this.configRepository.delete({ tenantId });
+        this.tokenCache.delete(tenantId);
+        this.logger.info(&#x60;[${tenantId}] Registrar configuration deleted&#x60;);
+    }
+
+    /**
+     * Test OIDC credentials by attempting to obtain an access token.
+     * @param config - The configuration to test
+     * @throws BadRequestException if authentication fails
+     */
+    private async testCredentials(config: {
+        oidcUrl: string;
+        clientId: string;
+        clientSecret?: string;
+        username: string;
+        password: string;
+    }): Promise&lt;void&gt; {
+        const oauth2Client &#x3D; new OAuth2Client({
+            server: &#x60;${config.oidcUrl}/protocol/openid-connect/token&#x60;,
+            clientId: config.clientId,
+            clientSecret: config.clientSecret,
+            discoveryEndpoint: &#x60;${config.oidcUrl}/.well-known/openid-configuration&#x60;,
+        });
+
+        try {
+            await oauth2Client.password({
+                username: config.username,
+                password: config.password,
+            });
+            this.logger.info(&quot;Registrar credentials validated successfully&quot;);
+        } catch (error: any) {
+            this.logger.warn(&#x60;Credential validation failed: ${error.message}&#x60;);
+            throw new BadRequestException(
+                &#x60;Failed to authenticate with registrar. Please check your credentials. Error: ${error.message}&#x60;,
+            );
+        }
+    }
+
+    /**
+     * Get or refresh the access token for a tenant.
+     * Uses Resource Owner Password Credentials (ROPC) flow.
+     * @param tenantId - The tenant ID
+     * @returns The access token
+     */
+    private async getAccessToken(tenantId: string): Promise&lt;string&gt; {
+        // Check cache first
+        const cached &#x3D; this.tokenCache.get(tenantId);
+        if (cached &amp;&amp; cached.expiresAt &gt; Date.now() + 5000) {
+            return cached.token;
+        }
+
+        const config &#x3D; await this.configRepository.findOneBy({ tenantId });
+        if (!config) {
+            throw new NotFoundException(
+                &#x60;No registrar configuration found for tenant ${tenantId}&#x60;,
+            );
+        }
+
+        const oauth2Client &#x3D; new OAuth2Client({
+            server: &#x60;${config.oidcUrl}/protocol/openid-connect/token&#x60;,
+            clientId: config.clientId,
+            clientSecret: config.clientSecret,
+            discoveryEndpoint: &#x60;${config.oidcUrl}/.well-known/openid-configuration&#x60;,
+        });
+
+        let tokenResponse: OAuth2Token;
+        try {
+            // Use Resource Owner Password Credentials (ROPC) flow
+            tokenResponse &#x3D; await oauth2Client.password({
+                username: config.username,
+                password: config.password,
+            });
+        } catch (error: any) {
+            this.logger.error(
+                &#x60;[${tenantId}] Failed to obtain access token: ${error.message}&#x60;,
+            );
+            throw new BadRequestException(
+                &#x60;Failed to authenticate with registrar: ${error.message}&#x60;,
+            );
+        }
+
+        // Cache the token
+        const expiresAt &#x3D;
+            typeof tokenResponse.expiresAt &#x3D;&#x3D;&#x3D; &quot;number&quot;
+                ? tokenResponse.expiresAt
+                : Date.now() + 3600 * 1000; // Default 1 hour
+
+        this.tokenCache.set(tenantId, {
+            token: tokenResponse.accessToken,
+            expiresAt,
+        });
+
+        return tokenResponse.accessToken;
+    }
+
+    /**
+     * Create a configured client for the registrar API.
+     * @param tenantId - The tenant ID
+     * @returns Configured registrar client
+     */
+    private async getClient(tenantId: string) {
+        const config &#x3D; await this.configRepository.findOneBy({ tenantId });
+        if (!config) {
+            throw new NotFoundException(
+                &#x60;No registrar configuration found for tenant ${tenantId}&#x60;,
+            );
+        }
+
+        const client &#x3D; registrarClient;
+        const accessToken &#x3D; await this.getAccessToken(tenantId);
+
+        client.setConfig({
+            baseUrl: config.registrarUrl,
+            auth: () &#x3D;&gt; accessToken,
+        });
+
+        return client;
+    }
+
+    /**
+     * Get the relying party ID from the registrar.
+     * Assumes the user has exactly one relying party.
+     * @param tenantId - The tenant ID
+     * @returns The relying party ID
+     */
+    private async getRelyingPartyId(tenantId: string): Promise&lt;string&gt; {
+        const client &#x3D; await this.getClient(tenantId);
+
+        const res &#x3D; await relyingPartyControllerFindAll({ client });
+        if (res.error) {
+            this.logger.error(
+                { error: res.error },
+                &#x60;[${tenantId}] Failed to fetch relying parties&#x60;,
+            );
+            throw new BadRequestException(
+                &quot;Failed to fetch relying parties from registrar&quot;,
+            );
+        }
+
+        const relyingParties &#x3D; res.data || [];
+        if (relyingParties.length &#x3D;&#x3D;&#x3D; 0) {
+            //register one
+            const res &#x3D; await relyingPartyControllerRegister({
+                client,
+                body: {},
+            });
+            return res.data!.id;
+        } else {
+            // Return the first (and typically only) relying party
+            return relyingParties[0].id;
+        }
+    }
+
+    /**
+     * Create an access certificate for a key.
+     * Fetches the relying party from the registrar, creates the certificate,
+     * and stores it in EUDIPLO.
+     * @param tenantId - The tenant ID
+     * @param dto - The access certificate creation data
+     * @returns The access certificate response with registrar ID, local cert ID, and certificate
+     */
+    async createAccessCertificate(
+        tenantId: string,
+        dto: CreateAccessCertificateDto,
+    ): Promise&lt;{ id: string; certId: string; crt: string }&gt; {
+        const client &#x3D; await this.getClient(tenantId);
+
+        // Fetch the relying party ID from the registrar
+        const relyingPartyId &#x3D; await this.getRelyingPartyId(tenantId);
+
         const host &#x3D; this.configService
             .getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)
             .replace(&quot;https://&quot;, &quot;&quot;);
-        return accessCertificateControllerRegister({
-            client: this.client,
+
+        const publicKey &#x3D; await this.cryptoService.keyService.getPublicKey(
+            &quot;pem&quot;,
+            tenantId,
+            dto.keyId,
+        );
+
+        const res &#x3D; await accessCertificateControllerRegister({
+            client,
             body: {
-                publicKey: await this.cryptoService.keyService.getPublicKey(
-                    &quot;pem&quot;,
-                    tenantId,
-                    keyId,
-                ),
+                publicKey,
                 dns: [host],
+                rpId: relyingPartyId,
             },
-            path: {
-                rp: relyingPartyId,
-            },
-        }).then(async (res) &#x3D;&gt; {
-            if (res.error) {
-                console.error(&quot;Error adding access certificate:&quot;, res.error);
-                throw new Error(&quot;Error adding access certificate&quot;);
-            }
-            //store the cert
-            await this.cryptoService.storeAccessCertificate(
-                res.data![&quot;crt&quot;],
-                tenantId,
-                keyId,
-            );
-            return res.data![&quot;id&quot;];
         });
+
+        if (res.error) {
+            this.logger.error(
+                { error: res.error },
+                &#x60;[${tenantId}] Failed to create access certificate&#x60;,
+            );
+            throw new BadRequestException(
+                &quot;Failed to create access certificate&quot;,
+            );
+        }
+
+        const { id, crt } &#x3D; res.data!;
+
+        // Store the certificate in EUDIPLO
+        const certId &#x3D; await this.certService.addCertificate(tenantId, {
+            crt,
+            keyId: dto.keyId,
+            certUsageTypes: [CertUsage.Access],
+            description: &#x60;Access certificate from registrar (ID: ${id})&#x60;,
+        });
+
+        this.logger.info(
+            &#x60;[${tenantId}] Created access certificate with ID: ${id}, stored as ${certId}&#x60;,
+        );
+
+        return { id, certId, crt };
     }
 
     /**
-     * Add a new registration certificate to the registrar.
-     * This is only needed once, when the registration certificate is created.
-     * If the registration certificate already exists, it will be returned.
-     * @returns
+     * Add a registration certificate for a verification session.
+     * This is called during VP flows to get a registration certificate from the registrar.
+     * @param req - The registration certificate request body
+     * @param dcqlQuery - The DCQL query (for future validation)
+     * @param requestId - The session request ID
+     * @param tenantId - The tenant ID
+     * @returns The registration certificate JWT
      */
     async addRegistrationCertificate(
-        req: any,
-        //TODO: check if the dcql_query is covered by the registration certificate. If not, we need to throw an error since we do not know the new purpose for it.
-        dcql_query: any,
-        requestId: string,
+        req: { id?: string; body: any },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        _dcqlQuery: any,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        _requestId: string,
         tenantId: string,
-    ) {
-        const entry &#x3D; await this.registrarRepository.findOneByOrFail({
-            tenantId,
-        });
+    ): Promise&lt;string&gt; {
+        const client &#x3D; await this.getClient(tenantId);
+        const relyingPartyId &#x3D; await this.getRelyingPartyId(tenantId);
 
-        //TODO: need to check if the access certificate is bound to the access certificate with the subject. Also that the requested fields are matching.
-
-        const certs &#x3D;
-            (await registrationCertificateControllerAll({
-                client: this.client,
-                path: {
-                    rp: entry.relyingPartyId,
+        // Check if a certificate with the given ID already exists
+        if (req.id) {
+            const existingCerts &#x3D; await registrationCertificateControllerAll({
+                client,
+                query: {
+                    rp: relyingPartyId,
                 },
-            }).then((res) &#x3D;&gt;
-                res.data?.filter(
-                    (cert) &#x3D;&gt;
-                        cert.revoked &#x3D;&#x3D; null &amp;&amp; cert.id &#x3D;&#x3D;&#x3D; (req.id as string),
-                ),
-            )) || [];
+            });
 
-        if (certs?.length &gt; 0) {
-            return certs[0].jwt;
+            const validCerts &#x3D; existingCerts.data?.filter(
+                (cert) &#x3D;&gt; cert.revoked &#x3D;&#x3D; null &amp;&amp; cert.id &#x3D;&#x3D;&#x3D; req.id,
+            );
+
+            if (validCerts &amp;&amp; validCerts.length &gt; 0) {
+                return validCerts[0].jwt;
+            }
         }
 
-        return registrationCertificateControllerRegister({
-            client: this.client,
-            path: {
-                rp: entry.relyingPartyId,
-            },
-            body: req.body,
-        }).then((res) &#x3D;&gt; {
-            if (res.error) {
-                console.error(
-                    &quot;Error adding registration certificate:&quot;,
-                    res.error,
-                );
-                throw new Error(&quot;Error adding registration certificate&quot;);
-            }
+        // Create a new registration certificate - rpId is included in the body
+        const bodyWithRpId &#x3D; {
+            ...req.body,
+            rpId: relyingPartyId,
+        };
 
-            //TODO: write the ID to the config so its easier to use it. Easier than writing the comparison algorithm (any maybe someone wants to use a different one)
-            /*             await this.presentationsService.storeRCID(
-                res.data![&quot;id&quot;],
-                requestId,
-                tenantId,
-            ); */
-            return res.data![&quot;jwt&quot;];
+        const res &#x3D; await registrationCertificateControllerRegister({
+            client,
+            body: bodyWithRpId,
         });
+
+        if (res.error) {
+            this.logger.error(
+                { error: res.error },
+                &#x60;[${tenantId}] Failed to create registration certificate&#x60;,
+            );
+            throw new BadRequestException(
+                &quot;Failed to create registration certificate&quot;,
+            );
+        }
+
+        return res.data!.jwt;
     }
 }
 </code></pre>

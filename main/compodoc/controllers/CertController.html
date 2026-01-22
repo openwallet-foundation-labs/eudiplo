@@ -950,7 +950,7 @@ export class CertController {
                 .then((id) &#x3D;&gt; ({ id }));
         }
         return this.certService
-            .addCertificate(token.entity!.id, body.keyId, body)
+            .addCertificate(token.entity!.id, body)
             .then((id) &#x3D;&gt; ({ id }));
     }
 
