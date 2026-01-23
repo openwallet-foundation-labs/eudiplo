@@ -68,6 +68,7 @@ export class IssuanceConfigCreateComponent implements OnInit {
   ) {
     this.form = new FormGroup({
       display: this.fb.array([]),
+      authServers: this.fb.array([]),
       batchSize: new FormControl(1, [Validators.min(1)]),
       dPopRequired: new FormControl(true),
     } as { [k in keyof IssuanceDto]: any });
@@ -105,6 +106,15 @@ export class IssuanceConfigCreateComponent implements OnInit {
         }
       }
 
+      // Load auth servers
+      const authServersArray = this.form.get('authServers') as FormArray;
+      authServersArray.clear();
+      if (config.authServers && Array.isArray(config.authServers)) {
+        for (const server of config.authServers) {
+          authServersArray.push(new FormControl(server, [Validators.required]));
+        }
+      }
+
       // Patch other form values
       this.form.patchValue({
         batchSize: config.batchSize,
@@ -126,6 +136,7 @@ export class IssuanceConfigCreateComponent implements OnInit {
       batchSize: formValue.batchSize,
       display: formValue.display,
       dPopRequired: formValue.dPopRequired,
+      authServers: formValue.authServers?.length > 0 ? formValue.authServers : undefined,
     };
 
     this.issuanceConfigService
@@ -171,6 +182,18 @@ export class IssuanceConfigCreateComponent implements OnInit {
 
   removeDisplay(index: number): void {
     this.displays.removeAt(index);
+  }
+
+  get authServers(): FormArray {
+    return this.form.get('authServers') as FormArray;
+  }
+
+  addAuthServer(): void {
+    this.authServers.push(new FormControl('', [Validators.required]));
+  }
+
+  removeAuthServer(index: number): void {
+    this.authServers.removeAt(index);
   }
 
   private markFormGroupTouched(): void {

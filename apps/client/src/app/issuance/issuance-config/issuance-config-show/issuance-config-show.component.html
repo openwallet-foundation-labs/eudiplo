@@ -49,6 +49,17 @@
             <span matListItemTitle>Batch Size</span>
             <span matListItemLine>{{ config.batchSize || 1 }} credential(s) per request</span>
           </mat-list-item>
+          <mat-list-item>
+            <mat-icon matListItemIcon>dns</mat-icon>
+            <span matListItemTitle>Authorization Servers</span>
+            <span matListItemLine>
+              @if (config.authServers && config.authServers.length > 0) {
+                {{ config.authServers.join(', ') }}
+              } @else {
+                Using built-in authorization server
+              }
+            </span>
+          </mat-list-item>
         </mat-list>
       </mat-card-content>
     </mat-card>

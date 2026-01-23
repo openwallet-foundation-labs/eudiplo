@@ -2,6 +2,7 @@ import {
     Body,
     Controller,
     Delete,
+    ForbiddenException,
     Get,
     Inject,
     Param,
@@ -78,6 +79,15 @@ export class ClientController {
         @Body() updateClientDto: UpdateClientDto,
         @Token() user: TokenPayload,
     ) {
+        // Prevent privilege escalation: only users with tenant:manage can grant tenant:manage
+        if (
+            updateClientDto.roles?.includes(Role.Tenants) &&
+            !user.roles.includes(Role.Tenants)
+        ) {
+            throw new ForbiddenException(
+                "Cannot assign tenant:manage role without having tenant:manage privileges",
+            );
+        }
         return this.clients.updateClient(user.entity!.id, id, updateClientDto);
     }
 
@@ -92,6 +102,15 @@ export class ClientController {
         @Body() createClientDto: CreateClientDto,
         @Token() user: TokenPayload,
     ) {
+        // Prevent privilege escalation: only users with tenant:manage can grant tenant:manage
+        if (
+            createClientDto.roles?.includes(Role.Tenants) &&
+            !user.roles.includes(Role.Tenants)
+        ) {
+            throw new ForbiddenException(
+                "Cannot assign tenant:manage role without having tenant:manage privileges",
+            );
+        }
         return this.clients.addClient(user.entity!.id, createClientDto);
     }
 
