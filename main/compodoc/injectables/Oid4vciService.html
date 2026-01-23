@@ -230,7 +230,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:53</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:54</a></div>
                             </td>
                         </tr>
 
@@ -415,8 +415,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="189"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:189</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="184"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:184</a></div>
                         </td>
                     </tr>
 
@@ -524,8 +524,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="309"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:309</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="310"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:310</a></div>
                         </td>
                     </tr>
 
@@ -605,8 +605,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="74"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:74</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="75"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:75</a></div>
                         </td>
                     </tr>
 
@@ -680,8 +680,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="86"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:86</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="87"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:87</a></div>
                         </td>
                     </tr>
 
@@ -757,8 +757,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="484"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:484</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="485"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:485</a></div>
                         </td>
                     </tr>
 
@@ -852,8 +852,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="98"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:98</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="99"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:99</a></div>
                         </td>
                     </tr>
 
@@ -943,8 +943,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="296"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:296</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="297"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:297</a></div>
                         </td>
                     </tr>
 
@@ -984,8 +984,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="282"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:282</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="283"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:283</a></div>
                         </td>
                     </tr>
 
@@ -1060,7 +1060,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="57" class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:57</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="58" class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:58</a></div>
                         </td>
                     </tr>
 
@@ -1091,6 +1091,7 @@ import {
     SupportedAuthenticationScheme,
 } from &quot;@openid4vc/oauth2&quot;;
 import {
+    CredentialOfferAuthorizationCodeGrant,
     type CredentialResponse,
     type IssuerMetadataResult,
     Openid4vciIssuer,
@@ -1181,44 +1182,39 @@ export class Oid4vciService {
         const issuanceConfig &#x3D;
             await this.issuanceService.getIssuanceConfiguration(tenantId);
 
-        let authorizationServerMetadata: AuthorizationServerMetadata;
+        const authorizationServers: AuthorizationServerMetadata[] &#x3D; [];
         let authServers: string[] &#x3D; [];
 
-        if (
-            issuanceConfig.authServers &amp;&amp;
-            issuanceConfig.authServers.length &gt; 0
-        ) {
-            authServers &#x3D; issuanceConfig.authServers;
-            authorizationServerMetadata &#x3D; await firstValueFrom(
-                this.httpService.get(
-                    &#x60;${issuanceConfig.authServers}/.well-known/oauth-authorization-server&#x60;,
+        for (const authServerUrl of issuanceConfig.authServers || []) {
+            authServers.push(authServerUrl);
+            //TODO: check where this is needed to reduce calls
+            authorizationServers.push(
+                await firstValueFrom(
+                    this.httpService.get(
+                        &#x60;${authServerUrl}/.well-known/oauth-authorization-server&#x60;,
+                    ),
+                ).then(
+                    (response) &#x3D;&gt; response.data,
+                    async () &#x3D;&gt; {
+                        // Retry fetching from OIDC metadata endpoint
+                        return await firstValueFrom(
+                            this.httpService.get(
+                                &#x60;${authServerUrl}/.well-known/openid-configuration&#x60;,
+                            ),
+                        ).then(
+                            (response) &#x3D;&gt; response.data,
+                            () &#x3D;&gt; {
+                                throw new BadRequestException(
+                                    &quot;Failed to fetch authorization server metadata&quot;,
+                                );
+                            },
+                        );
+                    },
                 ),
-            ).then(
-                (response) &#x3D;&gt; response.data,
-                async () &#x3D;&gt; {
-                    // Retry fetching from OIDC metadata endpoint
-                    return await firstValueFrom(
-                        this.httpService.get(
-                            &#x60;${issuanceConfig.authServers}/.well-known/openid-configuration&#x60;,
-                        ),
-                    ).then(
-                        (response) &#x3D;&gt; response.data,
-                        () &#x3D;&gt; {
-                            throw new BadRequestException(
-                                &quot;Failed to fetch authorization server metadata&quot;,
-                            );
-                        },
-                    );
-                },
             );
-        } else {
-            authServers.push(
-                this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;) +
-                    &#x60;/${tenantId}&#x60;,
-            );
-            authorizationServerMetadata &#x3D;
-                this.authzService.authzMetadata(tenantId);
         }
+        authServers.push(this.authzService.getAuthzIssuer(tenantId));
+        authorizationServers.push(this.authzService.authzMetadata(tenantId));
 
         // Check if status list aggregation is enabled for this tenant
         const statusListConfig &#x3D;
@@ -1235,7 +1231,6 @@ export class Oid4vciService {
                 ),
             credential_endpoint: &#x60;${credential_issuer}/vci/credential&#x60;,
             authorization_servers: authServers,
-            authorization_server: authServers[0],
             notification_endpoint: &#x60;${credential_issuer}/vci/notification&#x60;,
             nonce_endpoint: &#x60;${credential_issuer}/vci/nonce&#x60;,
             display: issuanceConfig.display as any,
@@ -1249,7 +1244,7 @@ export class Oid4vciService {
         });
         return {
             credentialIssuer,
-            authorizationServers: [authorizationServerMetadata],
+            authorizationServers,
             originalDraftVersion: Openid4vciVersion.V1,
         } as IssuerMetadataResult;
     }
@@ -1286,13 +1281,19 @@ export class Oid4vciService {
                               //TODO: should give the possiblity to pass a description
                           }
                         : undefined,
+                    authorization_server:
+                        body.authorization_server ??
+                        this.authzService.getAuthzIssuer(tenantId),
                 },
             };
         } else {
             grants &#x3D; {
                 [authorizationCodeGrantIdentifier]: {
                     issuer_state,
-                },
+                    authorization_server:
+                        body.authorization_server ??
+                        this.authzService.getAuthzIssuer(tenantId),
+                } as CredentialOfferAuthorizationCodeGrant,
             };
         }
 

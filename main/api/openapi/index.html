@@ -10740,21 +10740,25 @@ configuration and/or certificate.</p>
 <a id="__codelineno-94-90" name="__codelineno-94-90" href="#__codelineno-94-90"></a><span class="w">                </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
 <a id="__codelineno-94-91" name="__codelineno-94-91" href="#__codelineno-94-91"></a><span class="w">            </span><span class="p">}</span>
 <a id="__codelineno-94-92" name="__codelineno-94-92" href="#__codelineno-94-92"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-94-93" name="__codelineno-94-93" href="#__codelineno-94-93"></a><span class="w">        </span><span class="nt">"notifyWebhook"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-94-94" name="__codelineno-94-94" href="#__codelineno-94-94"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Webhook to notify about the status of the issuance process."</span><span class="p">,</span>
-<a id="__codelineno-94-95" name="__codelineno-94-95" href="#__codelineno-94-95"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-94-96" name="__codelineno-94-96" href="#__codelineno-94-96"></a><span class="w">                </span><span class="p">{</span>
-<a id="__codelineno-94-97" name="__codelineno-94-97" href="#__codelineno-94-97"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/WebhookConfig"</span>
-<a id="__codelineno-94-98" name="__codelineno-94-98" href="#__codelineno-94-98"></a><span class="w">                </span><span class="p">}</span>
-<a id="__codelineno-94-99" name="__codelineno-94-99" href="#__codelineno-94-99"></a><span class="w">            </span><span class="p">]</span>
-<a id="__codelineno-94-100" name="__codelineno-94-100" href="#__codelineno-94-100"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-94-101" name="__codelineno-94-101" href="#__codelineno-94-101"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-94-102" name="__codelineno-94-102" href="#__codelineno-94-102"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-94-103" name="__codelineno-94-103" href="#__codelineno-94-103"></a><span class="w">        </span><span class="s2">"response_type"</span><span class="p">,</span>
-<a id="__codelineno-94-104" name="__codelineno-94-104" href="#__codelineno-94-104"></a><span class="w">        </span><span class="s2">"flow"</span><span class="p">,</span>
-<a id="__codelineno-94-105" name="__codelineno-94-105" href="#__codelineno-94-105"></a><span class="w">        </span><span class="s2">"credentialConfigurationIds"</span>
-<a id="__codelineno-94-106" name="__codelineno-94-106" href="#__codelineno-94-106"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-94-107" name="__codelineno-94-107" href="#__codelineno-94-107"></a><span class="p">}</span>
+<a id="__codelineno-94-93" name="__codelineno-94-93" href="#__codelineno-94-93"></a><span class="w">        </span><span class="nt">"authorization_server"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-94-94" name="__codelineno-94-94" href="#__codelineno-94-94"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-94-95" name="__codelineno-94-95" href="#__codelineno-94-95"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional authorization server to be used for this issuance flow."</span>
+<a id="__codelineno-94-96" name="__codelineno-94-96" href="#__codelineno-94-96"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-94-97" name="__codelineno-94-97" href="#__codelineno-94-97"></a><span class="w">        </span><span class="nt">"notifyWebhook"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-94-98" name="__codelineno-94-98" href="#__codelineno-94-98"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Webhook to notify about the status of the issuance process."</span><span class="p">,</span>
+<a id="__codelineno-94-99" name="__codelineno-94-99" href="#__codelineno-94-99"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-94-100" name="__codelineno-94-100" href="#__codelineno-94-100"></a><span class="w">                </span><span class="p">{</span>
+<a id="__codelineno-94-101" name="__codelineno-94-101" href="#__codelineno-94-101"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/WebhookConfig"</span>
+<a id="__codelineno-94-102" name="__codelineno-94-102" href="#__codelineno-94-102"></a><span class="w">                </span><span class="p">}</span>
+<a id="__codelineno-94-103" name="__codelineno-94-103" href="#__codelineno-94-103"></a><span class="w">            </span><span class="p">]</span>
+<a id="__codelineno-94-104" name="__codelineno-94-104" href="#__codelineno-94-104"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-94-105" name="__codelineno-94-105" href="#__codelineno-94-105"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-94-106" name="__codelineno-94-106" href="#__codelineno-94-106"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-94-107" name="__codelineno-94-107" href="#__codelineno-94-107"></a><span class="w">        </span><span class="s2">"response_type"</span><span class="p">,</span>
+<a id="__codelineno-94-108" name="__codelineno-94-108" href="#__codelineno-94-108"></a><span class="w">        </span><span class="s2">"flow"</span><span class="p">,</span>
+<a id="__codelineno-94-109" name="__codelineno-94-109" href="#__codelineno-94-109"></a><span class="w">        </span><span class="s2">"credentialConfigurationIds"</span>
+<a id="__codelineno-94-110" name="__codelineno-94-110" href="#__codelineno-94-110"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-94-111" name="__codelineno-94-111" href="#__codelineno-94-111"></a><span class="p">}</span>
 </code></pre></div>
 </details>
 </div>
@@ -14655,6 +14659,10 @@ updated.</p>
         </tr>
     </thead>
     <tbody>
+        <tr>
+            <td><code>authorization_server</code></td>
+            <td><span class="string-type">string</span></td>
+        </tr>
         <tr>
             <td><code>credentialClaims</code></td>
             <td><em>Example: </em><code>{'citizen': {'type': 'inline', 'claims': {'given_name': 'John', 'family_name': 'Doe'}}}</code></td>

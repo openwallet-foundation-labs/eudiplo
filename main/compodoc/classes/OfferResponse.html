@@ -202,7 +202,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="199" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:199</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="206" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:206</a></div>
                         </td>
                     </tr>
 
@@ -228,7 +228,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="198" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:198</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="205" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:205</a></div>
                         </td>
                     </tr>
 
@@ -368,6 +368,13 @@ export class OfferRequestDto {
      */
     @IsArray()
     credentialConfigurationIds!: string[];
+
+    /**
+     * Optional authorization server to be used for this issuance flow.
+     */
+    @IsString()
+    @IsOptional()
+    authorization_server?: string;
 
     /**
      * Credential claims configuration per credential.

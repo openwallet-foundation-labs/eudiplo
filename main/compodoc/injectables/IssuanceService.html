@@ -810,6 +810,7 @@ export class IssuanceService {
      */
     async storeIssuanceConfiguration(tenantId: string, value: IssuanceDto) {
         value.display &#x3D; await this.replaceUrl(value.display, tenantId);
+        console.log(value);
         return this.issuanceConfigRepo.save({
             ...value,
             tenantId,
