@@ -46,6 +46,55 @@
       </mat-card-content>
     </mat-card>
 
+    <!-- Authorization Servers Card -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>dns</mat-icon>
+          Authorization Servers
+        </mat-card-title>
+        <mat-card-subtitle
+          >Configure external authorization server URLs. Leave empty to use the built-in
+          server.</mat-card-subtitle
+        >
+      </mat-card-header>
+      <mat-card-content fxLayout="column" fxLayoutGap="16px">
+        <div formArrayName="authServers">
+          @for (server of authServers.controls; track $index; let i = $index) {
+            <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+              <mat-form-field fxFlex>
+                <mat-label>Authorization Server {{ i + 1 }}</mat-label>
+                <input
+                  matInput
+                  [formControlName]="i"
+                  placeholder="https://auth.example.com"
+                  type="url"
+                />
+                <mat-icon matSuffix>link</mat-icon>
+                @if (server.invalid && server.touched) {
+                  <mat-error>Please enter a valid URL</mat-error>
+                }
+              </mat-form-field>
+              <button
+                matIconButton
+                type="button"
+                color="warn"
+                (click)="removeAuthServer(i)"
+                matTooltip="Remove this authorization server"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+        <div fxLayout="row" fxLayoutAlign="center center">
+          <button mat-raised-button type="button" (click)="addAuthServer()">
+            <mat-icon>add</mat-icon> Add Authorization Server
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
     <!-- Display Configurations Card -->
     <mat-card>
       <mat-card-header>

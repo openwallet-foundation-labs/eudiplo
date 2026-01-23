@@ -40,6 +40,25 @@
             <mat-hint>Select flow for the issuance offer</mat-hint>
           </mat-form-field>
 
+          <!-- Authorization Server Selection (visible only for authorization_code flow) -->
+          @if (
+            form.get('flow')?.value === 'authorization_code' && availableAuthServers.length > 0
+          ) {
+            <mat-form-field>
+              <mat-label>Authorization Server (Optional)</mat-label>
+              <mat-select formControlName="authorization_server">
+                <mat-option value="">Use default (built-in)</mat-option>
+                @for (server of availableAuthServers; track server) {
+                  <mat-option [value]="server">{{ server }}</mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>dns</mat-icon>
+              <mat-hint
+                >Select an external authorization server or leave empty for built-in</mat-hint
+              >
+            </mat-form-field>
+          }
+
           <!-- TX Code (visible only for pre-authorized flow) -->
           @if (form.get('flow')?.value === 'pre_authorized_code') {
             <mat-form-field>

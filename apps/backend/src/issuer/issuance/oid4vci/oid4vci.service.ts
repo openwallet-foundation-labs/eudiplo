@@ -16,6 +16,7 @@ import {
     SupportedAuthenticationScheme,
 } from "@openid4vc/oauth2";
 import {
+    CredentialOfferAuthorizationCodeGrant,
     type CredentialResponse,
     type IssuerMetadataResult,
     Openid4vciIssuer,
@@ -106,44 +107,39 @@ export class Oid4vciService {
         const issuanceConfig =
             await this.issuanceService.getIssuanceConfiguration(tenantId);
 
-        let authorizationServerMetadata: AuthorizationServerMetadata;
+        const authorizationServers: AuthorizationServerMetadata[] = [];
         let authServers: string[] = [];
 
-        if (
-            issuanceConfig.authServers &&
-            issuanceConfig.authServers.length > 0
-        ) {
-            authServers = issuanceConfig.authServers;
-            authorizationServerMetadata = await firstValueFrom(
-                this.httpService.get(
-                    `${issuanceConfig.authServers}/.well-known/oauth-authorization-server`,
+        for (const authServerUrl of issuanceConfig.authServers || []) {
+            authServers.push(authServerUrl);
+            //TODO: check where this is needed to reduce calls
+            authorizationServers.push(
+                await firstValueFrom(
+                    this.httpService.get(
+                        `${authServerUrl}/.well-known/oauth-authorization-server`,
+                    ),
+                ).then(
+                    (response) => response.data,
+                    async () => {
+                        // Retry fetching from OIDC metadata endpoint
+                        return await firstValueFrom(
+                            this.httpService.get(
+                                `${authServerUrl}/.well-known/openid-configuration`,
+                            ),
+                        ).then(
+                            (response) => response.data,
+                            () => {
+                                throw new BadRequestException(
+                                    "Failed to fetch authorization server metadata",
+                                );
+                            },
+                        );
+                    },
                 ),
-            ).then(
-                (response) => response.data,
-                async () => {
-                    // Retry fetching from OIDC metadata endpoint
-                    return await firstValueFrom(
-                        this.httpService.get(
-                            `${issuanceConfig.authServers}/.well-known/openid-configuration`,
-                        ),
-                    ).then(
-                        (response) => response.data,
-                        () => {
-                            throw new BadRequestException(
-                                "Failed to fetch authorization server metadata",
-                            );
-                        },
-                    );
-                },
             );
-        } else {
-            authServers.push(
-                this.configService.getOrThrow<string>("PUBLIC_URL") +
-                    `/${tenantId}`,
-            );
-            authorizationServerMetadata =
-                this.authzService.authzMetadata(tenantId);
         }
+        authServers.push(this.authzService.getAuthzIssuer(tenantId));
+        authorizationServers.push(this.authzService.authzMetadata(tenantId));
 
         // Check if status list aggregation is enabled for this tenant
         const statusListConfig =
@@ -160,7 +156,6 @@ export class Oid4vciService {
                 ),
             credential_endpoint: `${credential_issuer}/vci/credential`,
             authorization_servers: authServers,
-            authorization_server: authServers[0],
             notification_endpoint: `${credential_issuer}/vci/notification`,
             nonce_endpoint: `${credential_issuer}/vci/nonce`,
             display: issuanceConfig.display as any,
@@ -174,7 +169,7 @@ export class Oid4vciService {
         });
         return {
             credentialIssuer,
-            authorizationServers: [authorizationServerMetadata],
+            authorizationServers,
             originalDraftVersion: Openid4vciVersion.V1,
         } as IssuerMetadataResult;
     }
@@ -211,13 +206,19 @@ export class Oid4vciService {
                               //TODO: should give the possiblity to pass a description
                           }
                         : undefined,
+                    authorization_server:
+                        body.authorization_server ??
+                        this.authzService.getAuthzIssuer(tenantId),
                 },
             };
         } else {
             grants = {
                 [authorizationCodeGrantIdentifier]: {
                     issuer_state,
-                },
+                    authorization_server:
+                        body.authorization_server ??
+                        this.authzService.getAuthzIssuer(tenantId),
+                } as CredentialOfferAuthorizationCodeGrant,
             };
         }
 
