@@ -1429,7 +1429,7 @@ export class Oid4vciService {
         const { tokenPayload } &#x3D; await resourceServer.verifyResourceRequest({
             authorizationServers: issuerMetadata.authorizationServers,
             request: {
-                url: &#x60;${protocol}//${req.host}${req.url}&#x60;,
+                url: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}${req.url}&#x60;,
                 method: req.method as HttpMethod,
                 headers,
             },
@@ -1584,7 +1584,7 @@ export class Oid4vciService {
         const { tokenPayload } &#x3D; await resourceServer.verifyResourceRequest({
             authorizationServers: issuerMetadata.authorizationServers,
             request: {
-                url: &#x60;${protocol}//${req.host}${req.url}&#x60;,
+                url: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}${req.url}&#x60;,
                 method: req.method as HttpMethod,
                 headers,
             },
