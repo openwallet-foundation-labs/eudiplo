@@ -8,7 +8,7 @@ import {
   StatusListResponseDto,
   CreateStatusListDto,
   UpdateStatusListDto,
-} from '@eudiplo/sdk-angular';
+} from '@eudiplo/sdk-core';
 
 @Injectable({
   providedIn: 'root',

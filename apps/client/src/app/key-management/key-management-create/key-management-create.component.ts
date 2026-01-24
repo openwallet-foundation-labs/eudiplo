@@ -17,7 +17,7 @@ import { KeyManagementService } from '../key-management.service';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { EditorComponent } from '../../utils/editor/editor.component';
 import { jwkSchema } from '../../utils/schemas';
-import { KeyImportDto } from '@eudiplo/sdk-angular';
+import { KeyImportDto } from '@eudiplo/sdk-core';
 import { v4 } from 'uuid';
 import { KeyDownloadDialogComponent } from './key-download-dialog/key-download-dialog.component';
 

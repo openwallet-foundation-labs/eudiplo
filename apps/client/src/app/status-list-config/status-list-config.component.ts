@@ -13,7 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { StatusListConfigService, bitsOptions } from './status-list-config.service';
-import { StatusListConfig } from '@eudiplo/sdk-angular';
+import { StatusListConfig } from '@eudiplo/sdk-core';
 
 @Component({
   selector: 'app-status-list-config',

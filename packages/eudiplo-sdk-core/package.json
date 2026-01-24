@@ -16,6 +16,16 @@
             "types": "./dist/api/index.d.ts",
             "import": "./dist/api/index.mjs",
             "require": "./dist/api/index.js"
+        },
+        "./api/*": {
+            "types": "./dist/api/*.d.ts",
+            "import": "./dist/api/*.mjs",
+            "require": "./dist/api/*.js"
+        },
+        "./api/client/*": {
+            "types": "./dist/api/client/*.d.ts",
+            "import": "./dist/api/client/*.mjs",
+            "require": "./dist/api/client/*.js"
         }
     },
     "scripts": {

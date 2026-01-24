@@ -18,7 +18,7 @@ import {
   tenantControllerGetTenant,
   tenantControllerInitTenant,
   tenantControllerUpdateTenant,
-} from '@eudiplo/sdk-angular';
+} from '@eudiplo/sdk-core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Role, roles } from '../../services/jwt.service';

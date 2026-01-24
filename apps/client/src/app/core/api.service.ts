@@ -2,11 +2,9 @@ import { Injectable } from '@angular/core';
 import { OAuth2Client } from '@badgateway/oauth2-client';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs/internal/firstValueFrom';
-import { Client } from './api/client';
-import { client } from './api/client.gen';
-import { clientControllerGetClientSecret } from './api/sdk.gen';
-import { ClientEntity } from './api/types.gen';
-
+import { client, clientControllerGetClientSecret, ClientEntity } from '@eudiplo/sdk-core';
+import type { Client } from '@eudiplo/sdk-core/api/client/index';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -18,19 +16,23 @@ export class ApiService {
   private tokenExpirationTime?: number;
   private baseUrl?: string;
   client!: Client;
-  private refreshTimerId?: any;
+  private refreshTimerId?: ReturnType<typeof setTimeout>;
   private refreshInProgress?: Promise<void> | null = null;
 
-  constructor(private httpClient: HttpClient) {
+  constructor(private readonly httpClient: HttpClient) {
+    // Set default base URL from environment first
+    this.setClient(environment.api?.baseUrl || 'http://localhost:3000');
+    // Then try to load stored config (may override the default)
     this.loadTokenFromStorage();
-    this.setClient(this.baseUrl || 'http://localhost:3000'); // Default base URL
   }
 
   async login(clientId: string, clientSecret: string, baseUrl: string) {
     // Get OIDC issuer URL (safe network call with error handling)
     let oidcUrl: string;
     try {
-      const res: any = await firstValueFrom(this.httpClient.get(`${baseUrl}/.well-known/oauth-authorization-server`));
+      const res: any = await firstValueFrom(
+        this.httpClient.get(`${baseUrl}/.well-known/oauth-authorization-server`)
+      );
       oidcUrl = res?.issuer;
       if (!oidcUrl) throw new Error('Invalid OIDC discovery response');
     } catch (err) {
@@ -42,7 +44,7 @@ export class ApiService {
       discoveryEndpoint: `${oidcUrl}/.well-known/oauth-authorization-server`,
       clientId,
       clientSecret,
-    });    
+    });
 
     const safeConfig = {
       server: oidcUrl,
@@ -69,10 +71,10 @@ export class ApiService {
 
   setClient(url: string) {
     this.baseUrl = url;
-    // Configure SDK client to ensure it requests a fresh token when needed.    
+    // Configure SDK client to ensure it requests a fresh token when needed.
     client.setConfig({
       baseUrl: url,
-      auth: async () => {        
+      auth: async () => {
         // Ensure token is valid or refreshed before providing it to the SDK
         try {
           await this.ensureAuthenticated();
@@ -98,11 +100,11 @@ export class ApiService {
 
     this.refreshInProgress = (async () => {
       try {
-        // Ensure oauth2Client exists, otherwise try to rehydrate from storage        
-        if (!this.oauth2Client || !this.oauth2Client.settings.clientSecret) {          
+        // Ensure oauth2Client exists, otherwise try to rehydrate from storage
+        if (!this.oauth2Client || !this.oauth2Client.settings.clientSecret) {
           const storedSecret = localStorage.getItem('oauth_client_secret');
           const oauthConfig = this.getOAuthConfiguration();
-          if (storedSecret && oauthConfig?.server && oauthConfig?.clientId) {            
+          if (storedSecret && oauthConfig?.server && oauthConfig?.clientId) {
             this.oauth2Client = new OAuth2Client({
               discoveryEndpoint: `${oauthConfig.server}/.well-known/oauth-authorization-server`,
               clientId: oauthConfig.clientId,
@@ -111,7 +113,7 @@ export class ApiService {
           } else {
             throw new Error('OAuth2 client not properly configured. Please log in again.');
           }
-        }        
+        }
 
         const token = await this.oauth2Client.clientCredentials();
         this.accessToken = token.accessToken;
@@ -406,26 +408,28 @@ export class ApiService {
       }
       this.refreshTimerId = setTimeout(() => {
         this.refreshTimerId = undefined;
-        this.refreshAccessToken().catch((e) => console.warn('Immediate scheduled refresh failed', e));
+        this.refreshAccessToken().catch((e) =>
+          console.warn('Immediate scheduled refresh failed', e)
+        );
       }, 1000);
     }
   }
 
-  async createConfigUrl(client: ClientEntity, apiUrl: string) {
+  async createConfigUrl(clientEntity: ClientEntity, apiUrl: string) {
     const currentUrl = `${window.location.protocol}//${window.location.host}/login`;
     const url = new URL(currentUrl);
 
-    if (!client.secret) {
-      client.secret = await clientControllerGetClientSecret<true>({
-        path: { id: client.clientId },
+    if (!clientEntity.secret) {
+      clientEntity.secret = await clientControllerGetClientSecret<true>({
+        path: { id: clientEntity.clientId },
       }).then((res) => res.data.secret);
     }
 
-    if (client.clientId) {
-      url.searchParams.append('clientId', client.clientId);
+    if (clientEntity.clientId) {
+      url.searchParams.append('clientId', clientEntity.clientId);
     }
-    if (client.secret) {
-      url.searchParams.append('clientSecret', client.secret);
+    if (clientEntity.secret) {
+      url.searchParams.append('clientSecret', clientEntity.secret);
     }
     url.searchParams.append('apiUrl', apiUrl);
     return url.toString();

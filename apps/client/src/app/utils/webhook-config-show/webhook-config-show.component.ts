@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
-import { WebhookConfig } from '@eudiplo/sdk-angular';
+import { WebhookConfig } from '@eudiplo/sdk-core';
 
 @Component({
   selector: 'app-webhook-config-show',

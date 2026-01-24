@@ -1,10 +1,10 @@
 # Copilot Instructions for EUDIPLO
 
 ## Project Architecture
-- **Monorepo**: Contains multiple apps (backend, client, dcapi, verifier-app, webhook) and shared packages.
+- **Monorepo**: Contains multiple apps (backend, client, dcapi, webhook) and shared packages.
 - **Backend**: [apps/backend](../apps/backend) — NestJS API server, main business logic, protocol abstraction.
 - **Client**: [apps/client](../apps/client) — Angular web UI for managing credentials, keys, and sessions.
-- **Other Apps**: [apps/dcapi](../apps/dcapi) (Cloudflare Worker demo), [apps/webhook](../apps/webhook) (webhook simulator), [apps/verifier-app](../apps/verifier-app) (Angular verifier demo).
+- **Other Apps**: [apps/dcapi](../apps/dcapi) (Cloudflare Worker demo), [apps/webhook](../apps/webhook) (webhook simulator).
 - **Deployment**: [deployment/](../deployment) — Docker Compose configs for minimal/full setups. See [deployment/README.md](../deployment/README.md).
 - **Monitoring**: [monitor/](../monitor) — Prometheus & Grafana stack for observability.
 

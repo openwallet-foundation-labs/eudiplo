@@ -11,7 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { StatusListResponseDto } from '@eudiplo/sdk-angular';
+import { StatusListResponseDto } from '@eudiplo/sdk-core';
 import { StatusListManagementService } from '../status-list-management.service';
 
 @Component({

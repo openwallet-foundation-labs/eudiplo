@@ -10,7 +10,7 @@ import {
   tenantControllerDeleteTenant,
   tenantControllerGetTenants,
   TenantEntity,
-} from '@eudiplo/sdk-angular';
+} from '@eudiplo/sdk-core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({

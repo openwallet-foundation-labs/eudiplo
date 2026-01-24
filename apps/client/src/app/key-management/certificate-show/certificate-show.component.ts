@@ -14,7 +14,7 @@ import {
   keyControllerGetKey,
   type CertEntity,
   type KeyEntity,
-} from '@eudiplo/sdk-angular';
+} from '@eudiplo/sdk-core';
 import { X509Certificate, SubjectAlternativeNameExtension } from '@peculiar/x509';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 

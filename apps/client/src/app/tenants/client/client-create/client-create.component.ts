@@ -8,11 +8,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import {
-  ApiService,
   clientControllerCreateClient,
   clientControllerGetClient,
   clientControllerUpdateClient,
-} from '@eudiplo/sdk-angular';
+} from '@eudiplo/sdk-core';
+import { ApiService } from '../../../core';
 import { roles } from '../../../services/jwt.service';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';

@@ -5,7 +5,6 @@
     "build": "pnpm -r build",
     "build:apps": "pnpm --filter './apps/*' build",
     "dev:client": "pnpm --filter @eudiplo/client dev",
-    "dev:verifier": "pnpm --filter verifier-app dev",
     "dev:backend": "pnpm --filter @eudiplo/backend dev",
     "lint": "pnpm -r lint",
     "test": "pnpm -r test",

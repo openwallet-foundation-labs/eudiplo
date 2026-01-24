@@ -5,7 +5,7 @@ import {
   issuanceConfigControllerStoreIssuanceConfiguration,
   credentialOfferControllerGetOffer,
   type OfferRequestDto,
-} from '@eudiplo/sdk-angular';
+} from '@eudiplo/sdk-core';
 
 @Injectable({
   providedIn: 'root',

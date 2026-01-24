@@ -4,7 +4,7 @@ import {
   statusListConfigControllerUpdateConfig,
   statusListConfigControllerResetConfig,
   StatusListConfig,
-} from '@eudiplo/sdk-angular';
+} from '@eudiplo/sdk-core';
 
 export const bitsOptions = [
   { value: 1, label: '1 bit', description: 'Valid/Revoked only (2 states)' },
