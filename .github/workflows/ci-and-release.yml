@@ -135,6 +135,9 @@ jobs:
       - name: Run linter
         run: pnpm run lint
 
+      - name: Build sdk core
+        run: pnpm --filter @eudiplo/sdk-core build
+
       - name: Build client
         run: pnpm --filter @eudiplo/client build
 
