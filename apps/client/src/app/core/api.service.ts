@@ -216,7 +216,7 @@ export class ApiService {
    * Returns false if client secret is not stored (after page reload)
    */
   canRefreshToken(): boolean {
-    return !!(this.oauth2Client?.settings.clientSecret);
+    return !!this.oauth2Client?.settings.clientSecret;
   }
 
   /**
