@@ -5,6 +5,8 @@
     "roles": [
         "clients:manage",
         "issuance:manage",
-        "presentation:manage"
+        "issuance:offer",
+        "presentation:manage",
+        "presentation:offer"
     ]
 }
