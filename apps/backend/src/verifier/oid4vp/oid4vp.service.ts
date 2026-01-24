@@ -85,7 +85,7 @@ export class Oid4vpService {
                 return rest;
             });
 
-            if (
+            /*             if (
                 await this.registrarService.isEnabledForTenant(session.tenantId)
             ) {
                 const registrationCert = JSON.parse(
@@ -100,7 +100,7 @@ export class Oid4vpService {
                         session.requestId!,
                         session.tenantId,
                     );
-            }
+            } */
             const nonce = randomUUID();
             await this.sessionService.add(session.id, {
                 vp_nonce: nonce,

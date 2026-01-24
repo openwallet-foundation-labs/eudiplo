@@ -28,7 +28,7 @@ services:
       eudiplo:
         condition: service_healthy
     environment:
-      - API_BASE_URL=http://eudiplo:3010
+      - API_BASE_URL=http://eudiplo:3000
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:80']
       interval: 30s

@@ -45,6 +45,8 @@ export class SdjwtvcverifierService extends BaseVerifierService {
         // Closure to capture the matched TrustedEntity during verification
         let matchedEntity: MatchedTrustedEntity | null = null;
 
+        console.log(cred);
+
         // Create a fresh instance per verification to ensure thread safety
         const sdjwtInstance = new SDJwtVcInstance({
             hasher: digest,

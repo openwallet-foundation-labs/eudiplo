@@ -15,7 +15,7 @@ RUN pnpm deploy --filter=@eudiplo/backend --prod /prod/backend
 
 FROM build AS build-frontend
 # Build SDK first (required by both Angular apps), then client
-RUN pnpm --filter @eudiplo/sdk build
+RUN pnpm --filter @eudiplo/sdk-core build
 RUN pnpm --filter @eudiplo/client build
 
 FROM base AS eudiplo
