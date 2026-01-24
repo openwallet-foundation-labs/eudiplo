@@ -12,7 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { SessionConfigService, cleanupModes } from './session-config.service';
-import { SessionStorageConfig } from '@eudiplo/sdk-angular';
+import { SessionStorageConfig } from '@eudiplo/sdk-core';
 
 @Component({
   selector: 'app-session-config',

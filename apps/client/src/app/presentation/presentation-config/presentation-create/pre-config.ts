@@ -1,4 +1,4 @@
-import { PresentationConfigCreateDto } from '@eudiplo/sdk-angular';
+import { PresentationConfigCreateDto } from '@eudiplo/sdk-core';
 
 export interface PredefinedConfig {
   name: string;

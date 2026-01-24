@@ -354,7 +354,7 @@ export class Oid4vciService {
         const { tokenPayload } = await resourceServer.verifyResourceRequest({
             authorizationServers: issuerMetadata.authorizationServers,
             request: {
-                url: `${protocol}//${req.host}${req.url}`,
+                url: `${this.configService.getOrThrow<string>("PUBLIC_URL")}${req.url}`,
                 method: req.method as HttpMethod,
                 headers,
             },
@@ -509,7 +509,7 @@ export class Oid4vciService {
         const { tokenPayload } = await resourceServer.verifyResourceRequest({
             authorizationServers: issuerMetadata.authorizationServers,
             request: {
-                url: `${protocol}//${req.host}${req.url}`,
+                url: `${this.configService.getOrThrow<string>("PUBLIC_URL")}${req.url}`,
                 method: req.method as HttpMethod,
                 headers,
             },

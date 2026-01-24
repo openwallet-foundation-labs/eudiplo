@@ -14,7 +14,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { certControllerAddCertificate } from '@eudiplo/sdk-angular';
+import { certControllerAddCertificate } from '@eudiplo/sdk-core';
 import { v4 } from 'uuid';
 
 @Component({

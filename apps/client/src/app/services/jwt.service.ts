@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { ApiService, RoleDto } from '@eudiplo/sdk-angular';
+import { RoleDto } from '@eudiplo/sdk-core';
+import { ApiService } from '../core';
 
 // Extend RoleDto to include registrar:manage which may not be in the SDK yet
 export type Role = RoleDto['role'] | 'registrar:manage' | 'tenants:manage';

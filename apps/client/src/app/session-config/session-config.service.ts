@@ -4,7 +4,7 @@ import {
   sessionConfigControllerUpdateConfig,
   sessionConfigControllerResetConfig,
   SessionStorageConfig,
-} from '@eudiplo/sdk-angular';
+} from '@eudiplo/sdk-core';
 
 export const cleanupModes = [
   { value: 'full', label: 'Full Delete', description: 'Delete entire session record' },

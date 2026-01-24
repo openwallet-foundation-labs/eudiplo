@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ApiService } from '@eudiplo/sdk-angular';
+import { ApiService } from '../core';
 import { firstValueFrom } from 'rxjs';
 
 /**

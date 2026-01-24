@@ -7,7 +7,7 @@ import {
   keyControllerGetKey,
   keyControllerGetKeys,
   keyControllerUpdateKey,
-} from '@eudiplo/sdk-angular';
+} from '@eudiplo/sdk-core';
 
 interface JWKwithKey extends JsonWebKey {
   kid?: string;

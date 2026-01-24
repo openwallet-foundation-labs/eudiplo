@@ -11,7 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { IssuanceConfig } from '@eudiplo/sdk-angular';
+import { IssuanceConfig } from '@eudiplo/sdk-core';
 import { IssuanceConfigService } from '../issuance-config.service';
 
 @Component({

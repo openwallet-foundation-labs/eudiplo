@@ -15,7 +15,7 @@ import {
   presentationManagementControllerUpdateConfiguration,
   certControllerGetCertificates,
   CertEntity,
-} from '@eudiplo/sdk-angular';
+} from '@eudiplo/sdk-core';
 import { PresentationManagementService } from '../presentation-management.service';
 import { MatDialog } from '@angular/material/dialog';
 import { JsonViewDialogComponent } from '../../../issuance/credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';

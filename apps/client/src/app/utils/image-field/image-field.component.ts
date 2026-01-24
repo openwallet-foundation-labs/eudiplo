@@ -4,7 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { storageControllerUpload } from '@eudiplo/sdk-angular';
+import { storageControllerUpload } from '@eudiplo/sdk-core';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({

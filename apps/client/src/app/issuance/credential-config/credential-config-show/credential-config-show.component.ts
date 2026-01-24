@@ -13,7 +13,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { CredentialConfig, StatusListResponseDto } from '@eudiplo/sdk-angular';
+import { CredentialConfig, StatusListResponseDto } from '@eudiplo/sdk-core';
 import { CredentialConfigService } from '../credential-config.service';
 import { StatusListManagementService } from '../../../status-list-management/status-list-management.service';
 import { WebhookConfigShowComponent } from '../../../utils/webhook-config-show/webhook-config-show.component';

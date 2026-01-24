@@ -13,7 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { KeyEntity } from '@eudiplo/sdk-angular';
+import { KeyEntity } from '@eudiplo/sdk-core';
 import { KeyManagementService } from '../key-management/key-management.service';
 import { RegistrarConfig, RegistrarService } from './registrar.service';
 

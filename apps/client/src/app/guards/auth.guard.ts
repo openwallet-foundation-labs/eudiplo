@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
-import { ApiService } from '@eudiplo/sdk-angular';
+import { ApiService } from '../core';
 
 @Injectable({
   providedIn: 'root',

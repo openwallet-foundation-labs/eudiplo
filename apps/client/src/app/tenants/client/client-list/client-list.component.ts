@@ -10,8 +10,8 @@ import {
   clientControllerGetClients,
   ClientEntity,
   clientControllerDeleteClient,
-  ApiService,
-} from '@eudiplo/sdk-angular';
+} from '@eudiplo/sdk-core';
+import { ApiService } from '../../../core';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -103,7 +103,7 @@ export class ClientListComponent implements OnInit {
       // Fetch the client secret if not available
       let clientSecret = client.secret;
       if (!clientSecret) {
-        const secretResponse = await import('@eudiplo/sdk-angular').then((m) =>
+        const secretResponse = await import('@eudiplo/sdk-core').then((m) =>
           m.clientControllerGetClientSecret({ path: { id: client.clientId } })
         );
         clientSecret = secretResponse.data?.secret;

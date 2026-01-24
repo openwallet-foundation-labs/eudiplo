@@ -12,14 +12,14 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
-  ApiService,
   TrustList,
   TrustListVersion,
   trustListControllerDeleteTrustList,
   trustListControllerExportTrustList,
   trustListControllerGetTrustList,
   trustListControllerGetTrustListVersions,
-} from '@eudiplo/sdk-angular';
+} from '@eudiplo/sdk-core';
+import { ApiService } from '../../core';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 
 interface EntityInfo {

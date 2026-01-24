@@ -17,7 +17,7 @@ import {
   CertUsageEntity,
   keyControllerGetKeys,
   KeyEntity,
-} from '@eudiplo/sdk-angular';
+} from '@eudiplo/sdk-core';
 import { MatSelectModule } from '@angular/material/select';
 import { EditorComponent } from '../../utils/editor/editor.component';
 

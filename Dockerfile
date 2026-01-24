@@ -14,9 +14,9 @@ RUN pnpm --filter @eudiplo/backend build
 RUN pnpm deploy --filter=@eudiplo/backend --prod /prod/backend
 
 FROM build AS build-frontend
-# Build SDK first (required by both Angular apps), then both frontend apps
-RUN pnpm --filter @eudiplo/sdk build
-RUN pnpm --filter @eudiplo/client --filter verifier-app build
+# Build SDK first (required by both Angular apps), then client
+RUN pnpm --filter @eudiplo/sdk-core build
+RUN pnpm --filter @eudiplo/client build
 
 FROM base AS eudiplo
 # Copy production dependencies for backend and built dist
@@ -89,53 +89,6 @@ RUN apk add --no-cache curl
 USER nginx
 
 # --- HEALTHCHECK (Client / Nginx) ---
-HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-  CMD curl -f http://localhost/ || exit 1
-
-# Use our custom entrypoint script
-ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["nginx", "-g", "daemon off;"]
-
-FROM nginx:alpine AS verifier
-# Copy the Angular build output into the nginx html directory.
-COPY --from=build-frontend /usr/src/app/apps/verifier-app/dist/verifier-app/browser /usr/share/nginx/html
-
-# Copy nginx configuration (using client's nginx config as template)
-COPY apps/client/nginx.conf /etc/nginx/nginx.conf
-
-# Copy entrypoint script
-COPY apps/client/docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
-
-# Accept VERSION as build argument and set as environment variable
-ARG VERSION=latest
-ENV VERSION=$VERSION
-
-# Environment variables with defaults
-ENV API_BASE_URL=http://localhost:3000
-
-# --- Security: Run as non-root user ---
-# Create nginx user/group and fix permissions
-RUN addgroup -g 101 -S nginx || true && \
-    adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx || true && \
-    chown -R nginx:nginx /usr/share/nginx/html && \
-    chown -R nginx:nginx /var/cache/nginx && \
-    chown -R nginx:nginx /var/log/nginx && \
-    chown -R nginx:nginx /etc/nginx/conf.d && \
-    touch /var/run/nginx.pid && \
-    chown -R nginx:nginx /var/run/nginx.pid
-
-USER nginx
-
-# Expose port 80
-EXPOSE 80
-
-# --- Healthcheck dependencies ---
-USER root
-RUN apk add --no-cache curl
-USER nginx
-
-# --- HEALTHCHECK (Verifier / Nginx) ---
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
   CMD curl -f http://localhost/ || exit 1
 

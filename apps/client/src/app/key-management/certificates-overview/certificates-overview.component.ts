@@ -12,7 +12,7 @@ import {
   certControllerGetCertificates,
   certControllerExportConfig,
   type CertEntity,
-} from '@eudiplo/sdk-angular';
+} from '@eudiplo/sdk-core';
 
 @Component({
   selector: 'app-certificates-overview',

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { clientControllerGetClient, ClientEntity } from '@eudiplo/sdk-angular';
+import { clientControllerGetClient, ClientEntity } from '@eudiplo/sdk-core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { MatCardModule } from '@angular/material/card';

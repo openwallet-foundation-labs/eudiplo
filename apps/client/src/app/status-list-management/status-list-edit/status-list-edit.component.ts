@@ -20,7 +20,7 @@ import {
   CertEntity,
   credentialConfigControllerGetConfigs,
   certControllerGetCertificates,
-} from '@eudiplo/sdk-angular';
+} from '@eudiplo/sdk-core';
 import { StatusListManagementService } from '../status-list-management.service';
 
 @Component({

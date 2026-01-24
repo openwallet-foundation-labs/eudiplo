@@ -10,7 +10,7 @@ import {
   TrustList,
   trustListControllerExportTrustList,
   trustListControllerGetAllTrustLists,
-} from '@eudiplo/sdk-angular';
+} from '@eudiplo/sdk-core';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 
 @Component({

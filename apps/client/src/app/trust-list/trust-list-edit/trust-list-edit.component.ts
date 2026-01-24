@@ -21,7 +21,7 @@ import {
   trustListControllerUpdateTrustList,
   type CertEntity,
   type TrustList,
-} from '@eudiplo/sdk-angular';
+} from '@eudiplo/sdk-core';
 import { EditorComponent } from '../../utils/editor/editor.component';
 
 /** Common info fields for both internal and external entities */
@@ -99,6 +99,7 @@ export class TrustListEditComponent implements OnInit {
     this.trustListId = this.route.snapshot.paramMap.get('id');
 
     this.form = new FormGroup({
+      id: new FormControl('', { validators: [Validators.required] }),
       description: new FormControl(''),
       certId: new FormControl(''),
       entities: new FormArray([]),
@@ -113,6 +114,10 @@ export class TrustListEditComponent implements OnInit {
 
   get entitiesArray(): FormArray {
     return this.form.get('entities') as FormArray;
+  }
+
+  get isEditMode(): boolean {
+    return !!this.trustListId;
   }
 
   private async loadCertificates(): Promise<void> {
@@ -149,6 +154,7 @@ export class TrustListEditComponent implements OnInit {
       this.trustList = response.data;
 
       this.form.patchValue({
+        id: this.trustList.id || this.trustListId,
         description: this.trustList.description || '',
         certId: this.trustList.certId || '',
       });
@@ -418,6 +424,7 @@ export class TrustListEditComponent implements OnInit {
     });
 
     const body = {
+      id: formValue.id,
       description: formValue.description || undefined,
       certId: formValue.certId || undefined,
       entities,
@@ -431,7 +438,13 @@ export class TrustListEditComponent implements OnInit {
           body,
         });
       } else {
-        // Create new trust list
+        // Create new trust list - id is required
+        if (!formValue.id) {
+          this.snackBar.open('ID is required for creating a new trust list', 'Close', {
+            duration: 5000,
+          });
+          return;
+        }
         await trustListControllerCreateTrustList({ body });
       }
 
@@ -449,9 +462,5 @@ export class TrustListEditComponent implements OnInit {
         duration: 5000,
       });
     }
-  }
-
-  get isEditMode(): boolean {
-    return !!this.trustListId;
   }
 }

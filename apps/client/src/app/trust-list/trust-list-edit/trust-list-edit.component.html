@@ -22,6 +22,21 @@
         <mat-card-content>
           <div fxLayout="column" fxLayoutGap="16px">
             <mat-form-field appearance="outline">
+              <mat-label>ID</mat-label>
+              <input
+                matInput
+                formControlName="id"
+                placeholder="e.g., pid-trust-list"
+                [readonly]="isEditMode"
+              />
+              <mat-icon matSuffix>fingerprint</mat-icon>
+              <mat-hint>Unique identifier for this trust list</mat-hint>
+              @if (form.get('id')?.hasError('required') && form.get('id')?.touched) {
+                <mat-error>ID is required</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
               <mat-label>Description</mat-label>
               <input
                 matInput
