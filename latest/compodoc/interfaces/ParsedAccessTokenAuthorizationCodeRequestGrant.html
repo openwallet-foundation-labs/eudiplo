@@ -310,13 +310,15 @@ export class AuthorizeService {
         });
     }
 
+    getAuthzIssuer(tenantId: string) {
+        return &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${tenantId}&#x60;;
+    }
+
     authzMetadata(tenantId: string): AuthorizationServerMetadata {
         //TODO: read from config
         const useDpop &#x3D; true;
 
-        const authServer &#x3D;
-            this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;) +
-            &#x60;/${tenantId}&#x60;;
+        const authServer &#x3D; this.getAuthzIssuer(tenantId);
         return this.getAuthorizationServer(
             tenantId,
         ).createAuthorizationServerMetadata({
@@ -406,6 +408,7 @@ export class AuthorizeService {
 
         const authorizationServerMetadata &#x3D; await this.authzMetadata(tenantId);
         let dpopValue;
+
         if (
             parsedAccessTokenRequest.grant.grantType &#x3D;&#x3D;&#x3D;
             preAuthorizedCodeGrantIdentifier

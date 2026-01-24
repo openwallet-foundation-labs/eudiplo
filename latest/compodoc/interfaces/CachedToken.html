@@ -661,9 +661,9 @@ export class RegistrarService {
         // Fetch the relying party ID from the registrar
         const relyingPartyId &#x3D; await this.getRelyingPartyId(tenantId);
 
-        const host &#x3D; this.configService
-            .getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)
-            .replace(&quot;https://&quot;, &quot;&quot;);
+        const host &#x3D; new URL(
+            this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
+        ).hostname;
 
         const publicKey &#x3D; await this.cryptoService.keyService.getPublicKey(
             &quot;pem&quot;,
