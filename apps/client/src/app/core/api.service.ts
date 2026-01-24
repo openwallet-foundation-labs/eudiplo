@@ -101,7 +101,7 @@ export class ApiService {
     this.refreshInProgress = (async () => {
       try {
         // Ensure oauth2Client exists, otherwise try to rehydrate from storage
-        if (!this.oauth2Client || !this.oauth2Client.settings.clientSecret) {
+        if (!this.oauth2Client?.settings.clientSecret) {
           const storedSecret = localStorage.getItem('oauth_client_secret');
           const oauthConfig = this.getOAuthConfiguration();
           if (storedSecret && oauthConfig?.server && oauthConfig?.clientId) {
@@ -216,7 +216,7 @@ export class ApiService {
    * Returns false if client secret is not stored (after page reload)
    */
   canRefreshToken(): boolean {
-    return !!(this.oauth2Client && this.oauth2Client.settings.clientSecret);
+    return !!(this.oauth2Client?.settings.clientSecret);
   }
 
   /**
@@ -280,7 +280,7 @@ export class ApiService {
       const storedSecret = localStorage.getItem('oauth_client_secret');
 
       if (storedToken && storedExpiration && storedOAuthConfig) {
-        const expirationTime = parseInt(storedExpiration, 10);
+        const expirationTime = Number.parseInt(storedExpiration, 10);
         const currentTime = Date.now();
 
         // Check if token is still valid (with 1 minute buffer)
@@ -309,7 +309,7 @@ export class ApiService {
           this.scheduleTokenRefresh(expirationTime);
         } else {
           // Token expired - try to refresh automatically if we have credentials
-          if (storedSecret && storedOAuthConfig) {
+          if (storedSecret) {
             const oauthConfig = JSON.parse(storedOAuthConfig);
             if (oauthConfig.server && oauthConfig.clientId) {
               console.log('Token expired on app refresh, attempting automatic renewal...');
@@ -377,7 +377,7 @@ export class ApiService {
    */
   private scheduleTokenRefresh(expirationTime: number): void {
     // Don't schedule refresh if we don't have client credentials
-    if (!this.oauth2Client || !this.oauth2Client.settings.clientSecret) {
+    if (!this.oauth2Client?.settings.clientSecret) {
       console.warn('Cannot schedule token refresh: client secret not available');
       return;
     }
@@ -416,7 +416,7 @@ export class ApiService {
   }
 
   async createConfigUrl(clientEntity: ClientEntity, apiUrl: string) {
-    const currentUrl = `${window.location.protocol}//${window.location.host}/login`;
+    const currentUrl = `${globalThis.location.protocol}//${globalThis.location.host}/login`;
     const url = new URL(currentUrl);
 
     if (!clientEntity.secret) {
