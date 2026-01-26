@@ -1,10 +1,11 @@
+import { createHash } from "node:crypto";
 import { HttpService } from "@nestjs/axios";
-import { Injectable, Logger } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import * as x509 from "@peculiar/x509";
 import { digest } from "@sd-jwt/crypto-nodejs";
 import { SDJwtVcInstance, VerificationResult } from "@sd-jwt/sd-jwt-vc";
 import { KbVerifier } from "@sd-jwt/types";
-import { JWK } from "jose";
+import { base64url, JWK } from "jose";
 import { firstValueFrom } from "rxjs";
 import { CryptoImplementationService } from "../../../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { ResolverService } from "../../../resolver/resolver.service";
@@ -34,11 +35,16 @@ export class SdjwtvcverifierService extends BaseVerifierService {
      * Verifies an SD-JWT-VC credential.
      * Creates a fresh SDJwtVcInstance per verification to safely capture
      * the matched TrustedEntity for status list verification.
+     *
+     * If transaction data is provided in options, this method also validates
+     * that the KB-JWT contains matching transaction_data_hashes.
+     * See OID4VP spec Appendix B.3.3.1 for details.
+     *
      * @param cred
      * @param options
      * @returns
      */
-    verify(
+    async verify(
         cred: string,
         options: VerifierOptions,
     ): Promise<VerificationResult> {
@@ -70,7 +76,99 @@ export class SdjwtvcverifierService extends BaseVerifierService {
             },
         });
 
-        return sdjwtInstance.verify(cred, options as any);
+        const result = await sdjwtInstance.verify(cred, options as any);
+
+        // Validate transaction data hashes if transaction data was provided
+        if (options.transactionData && options.transactionData.length > 0) {
+            this.validateTransactionDataHashes(result, options.transactionData);
+        }
+
+        return result;
+    }
+
+    /**
+     * Validates that the KB-JWT contains transaction_data_hashes that match
+     * the SHA-256 hashes of the provided transaction data.
+     *
+     * According to OID4VP spec Appendix B.3.3.1:
+     * - transaction_data_hashes: A non-empty array of strings where each element
+     *   is a base64url-encoded hash calculated over the transaction data string
+     *   (base64url decoding is NOT performed before hashing).
+     * - The hash function defaults to SHA-256 unless transaction_data_hashes_alg
+     *   specifies otherwise.
+     *
+     * @param result The verification result containing the KB-JWT payload
+     * @param transactionData The base64url-encoded transaction data strings from the request
+     * @throws BadRequestException if validation fails
+     */
+    private validateTransactionDataHashes(
+        result: VerificationResult,
+        transactionData: string[],
+    ): void {
+        const kbPayload = result.kb?.payload as
+            | (Record<string, unknown> & {
+                  transaction_data_hashes?: string[];
+                  transaction_data_hashes_alg?: string;
+              })
+            | undefined;
+
+        if (!kbPayload) {
+            throw new BadRequestException(
+                "Transaction data was provided but KB-JWT is missing",
+            );
+        }
+
+        const receivedHashes = kbPayload.transaction_data_hashes;
+
+        if (!receivedHashes || !Array.isArray(receivedHashes)) {
+            throw new BadRequestException(
+                "Transaction data was provided but KB-JWT does not contain transaction_data_hashes",
+            );
+        }
+
+        if (receivedHashes.length !== transactionData.length) {
+            throw new BadRequestException(
+                `Transaction data hash count mismatch: expected ${transactionData.length}, received ${receivedHashes.length}`,
+            );
+        }
+
+        // Determine hash algorithm - defaults to sha-256 per spec
+        const hashAlg = kbPayload.transaction_data_hashes_alg ?? "sha-256";
+
+        // Map OID4VP hash algorithm names to Node.js crypto names
+        const algoMap: Record<string, string> = {
+            "sha-256": "sha256",
+            "sha-384": "sha384",
+            "sha-512": "sha512",
+        };
+
+        const nodeAlgo = algoMap[hashAlg];
+        if (!nodeAlgo) {
+            throw new BadRequestException(
+                `Unsupported transaction_data_hashes_alg: ${hashAlg}`,
+            );
+        }
+
+        // Compute expected hashes and compare
+        // Per spec: hash is computed over the string as-is (no base64url decoding)
+        for (let i = 0; i < transactionData.length; i++) {
+            const expectedHash = base64url.encode(
+                createHash(nodeAlgo).update(transactionData[i]).digest(),
+            );
+
+            if (receivedHashes[i] !== expectedHash) {
+                this.logger.debug(
+                    `Transaction data hash mismatch at index ${i}: expected ${expectedHash}, received ${receivedHashes[i]}`,
+                );
+                throw new BadRequestException(
+                    `Transaction data hash mismatch at index ${i}`,
+                );
+            }
+        }
+
+        this.logger.debug(
+            `Transaction data hashes validated successfully (${transactionData.length} entries)`,
+        );
     }
 
     /**

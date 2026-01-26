@@ -51,6 +51,30 @@
             <mat-slide-toggle formControlName="dcapi">
               Use DC-API instead of QR-Code
             </mat-slide-toggle>
+
+            <!-- Transaction Data Override Toggle -->
+            <mat-slide-toggle
+              [(ngModel)]="showTransactionDataOverride"
+              [ngModelOptions]="{ standalone: true }"
+            >
+              Override Transaction Data
+            </mat-slide-toggle>
+
+            <!-- Transaction Data Override Editor -->
+            @if (showTransactionDataOverride) {
+              <div class="transaction-data-section">
+                <h4>Transaction Data (Override)</h4>
+                <app-editor
+                  formControlName="transaction_data"
+                  [schema]="transactionDataArraySchema"
+                  [errors]="form.get('transaction_data')?.errors"
+                ></app-editor>
+                <mat-hint>
+                  Provide custom transaction data to override the configuration default. Format:
+                  <code>[{{ '{' }}"type": "...", "credential_ids": [...]{{ '}' }}]</code>
+                </mat-hint>
+              </div>
+            }
           </mat-card-content>
           <mat-card-actions fxLayout="row" fxLayoutAlign="end center">
             <button

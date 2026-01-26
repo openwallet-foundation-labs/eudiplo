@@ -125,6 +125,15 @@ export class DCQL {
     credential_sets?: CredentialSetQuery[];
 }
 
+export class TransactionData {
+    @IsString()
+    type: string;
+    @IsArray()
+    @IsString({ each: true })
+    credential_ids: string[];
+    [key: string]: any;
+}
+
 /**
  * Entity representing a configuration for a Verifiable Presentation (VP) request.
  */
@@ -173,6 +182,17 @@ export class PresentationConfig {
     @ValidateNested()
     @Type(() => DCQL)
     dcql_query!: DCQL;
+
+    /**
+     *
+     */
+    @Column("json", { nullable: true })
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => TransactionData)
+    transaction_data?: TransactionData[];
+
     /**
      * The registration certificate request containing the necessary details.
      */

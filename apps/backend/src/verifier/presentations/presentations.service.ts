@@ -3,7 +3,7 @@ import { ConflictException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
-import { decodeJwt } from "jose";
+import { base64url, decodeJwt } from "jose";
 import { Repository } from "typeorm";
 import { ServiceTypeIdentifier } from "../../issuer/trust-list/trustlist.service";
 import { Session } from "../../session/entities/session.entity";
@@ -209,6 +209,10 @@ export class PresentationsService {
         const host = this.configService.getOrThrow<string>("PUBLIC_URL");
         const tenantHost = `${host}/${presentationConfig.tenantId}`;
 
+        // Get transaction data from session (which was base64url-encoded in the request)
+        // We need the encoded strings for hash comparison
+        const transactionDataObjects = session.transaction_data;
+
         const results = await Promise.all(
             attestationIds.map(async (attId) => {
                 const credentials = res.vp_token[attId] as unknown as string[];
@@ -222,6 +226,13 @@ export class PresentationsService {
                         `${attId} not found in the presentation config`,
                     );
                 }
+
+                // Find transaction data entries that reference this credential
+                // According to the spec, each transaction_data object has credential_ids
+                // and the wallet must use one of the referenced credentials
+                const relevantTransactionData = transactionDataObjects
+                    ?.filter((td) => td.credential_ids.includes(attId))
+                    .map((td) => base64url.encode(JSON.stringify(td)));
 
                 const verifyOptions: VerifierOptions = {
                     trustListSource: {
@@ -245,6 +256,8 @@ export class PresentationsService {
                     policy: {
                         requireX5c: true,
                     },
+                    // Pass transaction data for hash validation (only for credentials that have it)
+                    transactionData: relevantTransactionData,
                 };
 
                 const type = this.getType(session.requestObject!, attId);

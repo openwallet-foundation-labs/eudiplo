@@ -163,6 +163,33 @@
       </mat-card-content>
     </mat-card>
 
+    <!-- Transaction Data Card -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>receipt_long</mat-icon>
+          Transaction Data
+        </mat-card-title>
+        <mat-card-subtitle>
+          Optional transaction data to include in the OID4VP request
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content fxLayout="column" fxLayoutGap="16px">
+        <app-editor
+          formControlName="transaction_data"
+          [schema]="transactionDataArraySchema"
+          [errors]="form.controls['transaction_data']?.errors"
+        ></app-editor>
+        <mat-hint>
+          Transaction data is an array of objects with at least <code>type</code> and
+          <code>credential_ids</code> properties. Example:
+          <code
+            >[{{ '{' }}"type": "payment", "credential_ids": ["pid"], "amount": 100{{ '}' }}]</code
+          >
+        </mat-hint>
+      </mat-card-content>
+    </mat-card>
+
     <!-- Attachment Configuration Card -->
     <mat-card>
       <mat-card-header>

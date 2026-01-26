@@ -25,6 +25,12 @@
         }
       ]
     },
+    "transaction_data": {
+      "type": "array",
+      "items": {
+        "$ref": "./TransactionData.schema.json"
+      }
+    },
     "registrationCert": {
       "nullable": true,
       "description": "The registration certificate request containing the necessary details.",

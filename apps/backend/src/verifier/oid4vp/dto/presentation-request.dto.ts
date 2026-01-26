@@ -1,5 +1,14 @@
-import { IsEnum, IsObject, IsOptional, IsString } from "class-validator";
+import { Type } from "class-transformer";
+import {
+    IsArray,
+    IsEnum,
+    IsObject,
+    IsOptional,
+    IsString,
+    ValidateNested,
+} from "class-validator";
 import { WebhookConfig } from "../../../shared/utils/webhook/webhook.dto";
+import { TransactionData } from "../../presentations/entities/presentation-config.entity";
 
 /**
  * Enum for the type of response expected from the presentation request.
@@ -51,4 +60,14 @@ export class PresentationRequest {
     @IsOptional()
     @IsString()
     redirectUri?: string;
+
+    /**
+     * Optional transaction data to include in the OID4VP request.
+     * If provided, this will override the transaction_data from the presentation configuration.
+     */
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => TransactionData)
+    transaction_data?: TransactionData[];
 }

@@ -24,6 +24,7 @@ be requested from users.
 - `registrationCert`: **OPTIONAL** - Registration certificate containing legal and privacy information about the verifier. See [Registration Certificate](../registrar.md#registration-certificate) for details.
 - `webhook`: **OPTIONAL** - Webhook configuration for receiving verified presentations asynchronously. See [Webhook Integration](../../architecture/webhooks.md#presentation-webhook) for details.
 - `redirectUri`: **OPTIONAL** - URI to redirect the user to after completing the presentation. This is useful for web applications that need to return the user to a specific page after verification. You can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID (e.g., `https://example.com/callback?session={sessionId}`).
+- `transaction_data`: **OPTIONAL** - Array of transaction data objects to include in the OID4VP authorization request. See [Transaction Data](transaction-data.md) for details.
 
 !!! Info
 

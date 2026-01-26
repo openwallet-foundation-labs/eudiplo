@@ -137,6 +137,13 @@
           "$ref": "./WebhookConfig.schema.json"
         }
       ]
+    },
+    "transaction_data": {
+      "description": "Transaction data to include in the OID4VP authorization request.\nCan be overridden per-request from the presentation configuration.",
+      "type": "array",
+      "items": {
+        "$ref": "./TransactionData.schema.json"
+      }
     }
   },
   "required": [
