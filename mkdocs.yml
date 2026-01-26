@@ -119,7 +119,11 @@ nav:
           - Transaction Data: getting-started/presentation/transaction-data.md
       - Advanced:
         - Registrar: getting-started/registrar.md
-        - Monitor: getting-started/monitor.md        
+        - Monitor: getting-started/monitor.md
+  - Deployment:
+      - Overview: deployment/index.md
+      - Docker Compose: deployment/docker-compose.md
+      - Kubernetes: deployment/kubernetes.md
   - Architecture:
       - Overview: architecture/index.md      
       - Supported Protocols: architecture/supported-protocols.md
