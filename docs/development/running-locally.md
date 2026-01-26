@@ -179,6 +179,7 @@ If you can't install Node.js locally (e.g., restricted environment) or prefer a 
 3. **Wait for setup** - The container builds and dependencies install automatically (first run takes a few minutes)
 
 4. **Start development:**
+
     ```bash
     pnpm dev          # Start both backend and client
     # Or run separately:
