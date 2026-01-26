@@ -1,0 +1,62 @@
+{
+    "name": "EUDIPLO Development",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "devcontainer",
+    "workspaceFolder": "/workspace",
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {},
+        "ghcr.io/devcontainers/features/github-cli:1": {}
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "Angular.ng-template",
+                "ms-azuretools.vscode-docker",
+                "eamodio.gitlens",
+                "streetsidesoftware.code-spell-checker",
+                "biomejs.biome",
+                "Orta.vscode-jest",
+                "humao.rest-client"
+            ],
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "zsh",
+                "editor.formatOnSave": true,
+                "editor.defaultFormatter": "biomejs.biome",
+                "[typescript]": {
+                    "editor.defaultFormatter": "biomejs.biome"
+                },
+                "[javascript]": {
+                    "editor.defaultFormatter": "biomejs.biome"
+                },
+                "[json]": {
+                    "editor.defaultFormatter": "biomejs.biome"
+                },
+                "[html]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                },
+                "[scss]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode"
+                }
+            }
+        }
+    },
+    "forwardPorts": [
+        3000,
+        4200
+    ],
+    "portsAttributes": {
+        "3000": {
+            "label": "Backend API",
+            "onAutoForward": "notify"
+        },
+        "4200": {
+            "label": "Client UI",
+            "onAutoForward": "notify"
+        }
+    },
+    "postCreateCommand": "pnpm install",
+    "postStartCommand": "echo '✅ Dev container ready! Run: pnpm dev'",
+    "remoteUser": "node"
+}

@@ -18,6 +18,9 @@ Before you start, make sure you have the following tools installed:
 - [ngrok](https://ngrok.com/) (optional, for exposing a public URL)
 - [Docker](https://www.docker.com/) (optional, for supporting services or containerized deployment)
 
+!!! tip "No Node.js installation required"
+If you can't or prefer not to install Node.js locally, you can use **Dev Containers** to develop entirely inside a Docker container. See [Dev Container Setup](#dev-container-setup) below.
+
 ## 1. Clone the Repository
 
 ```bash
@@ -147,6 +150,79 @@ http://localhost:4200
 ```string
 https://f8e3-84-123-45-67.ngrok.io
 ```
+
+---
+
+## Dev Container Setup
+
+If you can't install Node.js locally (e.g., restricted environment) or prefer a consistent development environment, you can use **VS Code Dev Containers** to develop entirely inside a Docker container.
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) installed and running
+- [Visual Studio Code](https://code.visualstudio.com/) with the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+
+### Quick Start with Dev Containers
+
+1. **Clone and open in VS Code:**
+
+    ```bash
+    git clone https://github.com/openwallet-foundation-labs/eudiplo.git
+    cd eudiplo
+    code .
+    ```
+
+2. **Reopen in Container:**
+    - Press ++f1++ and select **"Dev Containers: Reopen in Container"**
+    - Or click the green button in the bottom-left corner → "Reopen in Container"
+
+3. **Wait for setup** - The container builds and dependencies install automatically (first run takes a few minutes)
+
+4. **Start development:**
+    ```bash
+    pnpm dev          # Start both backend and client
+    # Or run separately:
+    pnpm dev:backend  # Start backend only (port 3000)
+    pnpm dev:client   # Start client only (port 4200)
+    ```
+
+### GitHub Codespaces
+
+You can also use [GitHub Codespaces](https://github.com/features/codespaces) for cloud-based development:
+
+1. Go to the [repository on GitHub](https://github.com/openwallet-foundation-labs/eudiplo)
+2. Click **Code** → **Codespaces** → **Create codespace on main**
+
+The codespace automatically uses the devcontainer configuration.
+
+### What's Included
+
+The development container includes:
+
+| Tool     | Version | Purpose              |
+| -------- | ------- | -------------------- |
+| Node.js  | 24      | JavaScript runtime   |
+| pnpm     | latest  | Package manager      |
+| Python 3 | system  | Documentation tools  |
+| Git      | system  | Version control      |
+| Zsh      | system  | Shell with Oh My Zsh |
+
+Pre-configured VS Code extensions:
+
+- ESLint & Biome (linting/formatting)
+- Angular Language Service
+- Docker extension
+- GitLens
+- REST Client
+
+### Port Forwarding
+
+Ports are automatically forwarded:
+
+| Port | Service     |
+| ---- | ----------- |
+| 3000 | Backend API |
+| 4200 | Client UI   |
 
 ---
 
