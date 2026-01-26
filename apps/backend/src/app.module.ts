@@ -1,6 +1,5 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { DevtoolsModule } from "@nestjs/devtools-integration";
 import { MulterModule } from "@nestjs/platform-express";
 import { ScheduleModule } from "@nestjs/schedule";
 import { memoryStorage } from "multer";
@@ -25,9 +24,6 @@ import { VerifierModule } from "./verifier/verifier.module";
             validationSchema: VALIDATION_SCHEMA,
             isGlobal: true,
             expandVariables: true,
-        }),
-        DevtoolsModule.register({
-            http: process.env.NODE_ENV !== "production",
         }),
         LoggerModule.forRootAsync({
             imports: [ConfigModule],

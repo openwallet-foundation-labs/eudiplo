@@ -1,0 +1,26 @@
+services:
+  devcontainer:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/workspace:cached
+      - node_modules:/workspace/node_modules
+      - pnpm-store:/home/node/.local/share/pnpm/store
+    command: sleep infinity
+    environment:
+      - NODE_ENV=development
+      # Backend configuration
+      - PUBLIC_URL=http://localhost:3000
+      - JWT_SECRET=dev-secret-change-in-production
+      - AUTH_CLIENT_SECRET=dev-client-secret
+      # Database (SQLite for development)
+      - DATABASE_TYPE=sqlite
+      - DATABASE_PATH=/workspace/apps/backend/data/eudiplo.sqlite
+    ports:
+      - '3000:3000'
+      - '4200:4200'
+
+volumes:
+  node_modules:
+  pnpm-store:

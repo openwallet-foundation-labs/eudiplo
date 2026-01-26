@@ -33,6 +33,8 @@ Have an idea to improve EUDIPLO?
 
 ## Getting Started
 
+### Option A: Local Development
+
 1. **Fork the repo** and clone it locally:
 
    ```bash
@@ -60,13 +62,33 @@ Have an idea to improve EUDIPLO?
    ```bash
    # Start just the backend
    pnpm --filter @eudiplo/backend run start:dev
-   
+
    # Start just the client
    pnpm --filter @eudiplo/client run dev
-   
+
    # Or start both with Docker Compose
    docker compose up -d
    ```
+
+### Option B: Dev Container (No Node.js Installation Required)
+
+If you can't or don't want to install Node.js locally, use VS Code Dev Containers:
+
+1. **Prerequisites**: Install [Docker](https://docs.docker.com/get-docker/) and [VS Code](https://code.visualstudio.com/) with the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+
+2. **Clone and open in VS Code**:
+
+   ```bash
+   git clone https://github.com/your-username/eudiplo.git
+   cd eudiplo
+   code .
+   ```
+
+3. **Reopen in Container**: Press `F1` → "Dev Containers: Reopen in Container"
+
+4. **Start development**: Dependencies install automatically, then run `pnpm dev`
+
+See [.devcontainer/README.md](.devcontainer/README.md) for more details.
 
 ---
 
@@ -119,6 +141,7 @@ pnpm run doc:watch
 ```
 
 The documentation includes:
+
 - User guides in `docs/getting-started/`
 - Developer guides in `docs/development/`
 - API documentation generated from code
