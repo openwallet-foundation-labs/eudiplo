@@ -738,6 +738,8 @@
       
         
       
+        
+      
     
     
     
@@ -809,6 +811,34 @@
     
   
     Presentation Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/presentation/transaction-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Transaction Data
   
 
     
@@ -3190,6 +3220,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#transactiondata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TransactionData
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#trustedauthorityquery" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -5407,6 +5448,17 @@
     <span class="md-ellipsis">
       
         TenantEntity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transactiondata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TransactionData
       
     </span>
   </a>
@@ -9018,9 +9070,17 @@ configuration and/or certificate.</p>
 <a id="__codelineno-65-28" name="__codelineno-65-28" href="#__codelineno-65-28"></a><span class="w">        </span><span class="nt">"clientId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
 <a id="__codelineno-65-29" name="__codelineno-65-29" href="#__codelineno-65-29"></a><span class="w">        </span><span class="nt">"responseUri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
 <a id="__codelineno-65-30" name="__codelineno-65-30" href="#__codelineno-65-30"></a><span class="w">        </span><span class="nt">"redirectUri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-65-31" name="__codelineno-65-31" href="#__codelineno-65-31"></a><span class="w">        </span><span class="nt">"parsedWebhook"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
-<a id="__codelineno-65-32" name="__codelineno-65-32" href="#__codelineno-65-32"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-65-33" name="__codelineno-65-33" href="#__codelineno-65-33"></a><span class="p">]</span>
+<a id="__codelineno-65-31" name="__codelineno-65-31" href="#__codelineno-65-31"></a><span class="w">        </span><span class="nt">"parsedWebhook"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<a id="__codelineno-65-32" name="__codelineno-65-32" href="#__codelineno-65-32"></a><span class="w">        </span><span class="nt">"transaction_data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-65-33" name="__codelineno-65-33" href="#__codelineno-65-33"></a><span class="w">            </span><span class="p">{</span>
+<a id="__codelineno-65-34" name="__codelineno-65-34" href="#__codelineno-65-34"></a><span class="w">                </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-65-35" name="__codelineno-65-35" href="#__codelineno-65-35"></a><span class="w">                </span><span class="nt">"credential_ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-65-36" name="__codelineno-65-36" href="#__codelineno-65-36"></a><span class="w">                    </span><span class="s2">"string"</span>
+<a id="__codelineno-65-37" name="__codelineno-65-37" href="#__codelineno-65-37"></a><span class="w">                </span><span class="p">]</span>
+<a id="__codelineno-65-38" name="__codelineno-65-38" href="#__codelineno-65-38"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-65-39" name="__codelineno-65-39" href="#__codelineno-65-39"></a><span class="w">        </span><span class="p">]</span>
+<a id="__codelineno-65-40" name="__codelineno-65-40" href="#__codelineno-65-40"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-65-41" name="__codelineno-65-41" href="#__codelineno-65-41"></a><span class="p">]</span>
 </code></pre></div>
 <span class="small-note">⚠️</span>&nbsp;<em class="small-note warning">This example has been generated automatically from the schema and it is not accurate. Refer to the schema for more information.</em><p></p>
 <details class="hint">
@@ -9108,8 +9168,16 @@ configuration and/or certificate.</p>
 <a id="__codelineno-67-27" name="__codelineno-67-27" href="#__codelineno-67-27"></a><span class="w">    </span><span class="nt">"clientId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
 <a id="__codelineno-67-28" name="__codelineno-67-28" href="#__codelineno-67-28"></a><span class="w">    </span><span class="nt">"responseUri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
 <a id="__codelineno-67-29" name="__codelineno-67-29" href="#__codelineno-67-29"></a><span class="w">    </span><span class="nt">"redirectUri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-67-30" name="__codelineno-67-30" href="#__codelineno-67-30"></a><span class="w">    </span><span class="nt">"parsedWebhook"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
-<a id="__codelineno-67-31" name="__codelineno-67-31" href="#__codelineno-67-31"></a><span class="p">}</span>
+<a id="__codelineno-67-30" name="__codelineno-67-30" href="#__codelineno-67-30"></a><span class="w">    </span><span class="nt">"parsedWebhook"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<a id="__codelineno-67-31" name="__codelineno-67-31" href="#__codelineno-67-31"></a><span class="w">    </span><span class="nt">"transaction_data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-67-32" name="__codelineno-67-32" href="#__codelineno-67-32"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-67-33" name="__codelineno-67-33" href="#__codelineno-67-33"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-67-34" name="__codelineno-67-34" href="#__codelineno-67-34"></a><span class="w">            </span><span class="nt">"credential_ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-67-35" name="__codelineno-67-35" href="#__codelineno-67-35"></a><span class="w">                </span><span class="s2">"string"</span>
+<a id="__codelineno-67-36" name="__codelineno-67-36" href="#__codelineno-67-36"></a><span class="w">            </span><span class="p">]</span>
+<a id="__codelineno-67-37" name="__codelineno-67-37" href="#__codelineno-67-37"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-67-38" name="__codelineno-67-38" href="#__codelineno-67-38"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-67-39" name="__codelineno-67-39" href="#__codelineno-67-39"></a><span class="p">}</span>
 </code></pre></div>
 <span class="small-note">⚠️</span>&nbsp;<em class="small-note warning">This example has been generated automatically from the schema and it is not accurate. Refer to the schema for more information.</em><p></p>
 <details class="hint">
@@ -9250,19 +9318,26 @@ configuration and/or certificate.</p>
 <a id="__codelineno-68-134" name="__codelineno-68-134" href="#__codelineno-68-134"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/WebhookConfig"</span>
 <a id="__codelineno-68-135" name="__codelineno-68-135" href="#__codelineno-68-135"></a><span class="w">                </span><span class="p">}</span>
 <a id="__codelineno-68-136" name="__codelineno-68-136" href="#__codelineno-68-136"></a><span class="w">            </span><span class="p">]</span>
-<a id="__codelineno-68-137" name="__codelineno-68-137" href="#__codelineno-68-137"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-68-138" name="__codelineno-68-138" href="#__codelineno-68-138"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-68-139" name="__codelineno-68-139" href="#__codelineno-68-139"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-68-140" name="__codelineno-68-140" href="#__codelineno-68-140"></a><span class="w">        </span><span class="s2">"status"</span><span class="p">,</span>
-<a id="__codelineno-68-141" name="__codelineno-68-141" href="#__codelineno-68-141"></a><span class="w">        </span><span class="s2">"id"</span><span class="p">,</span>
-<a id="__codelineno-68-142" name="__codelineno-68-142" href="#__codelineno-68-142"></a><span class="w">        </span><span class="s2">"createdAt"</span><span class="p">,</span>
-<a id="__codelineno-68-143" name="__codelineno-68-143" href="#__codelineno-68-143"></a><span class="w">        </span><span class="s2">"updatedAt"</span><span class="p">,</span>
-<a id="__codelineno-68-144" name="__codelineno-68-144" href="#__codelineno-68-144"></a><span class="w">        </span><span class="s2">"useDcApi"</span><span class="p">,</span>
-<a id="__codelineno-68-145" name="__codelineno-68-145" href="#__codelineno-68-145"></a><span class="w">        </span><span class="s2">"tenantId"</span><span class="p">,</span>
-<a id="__codelineno-68-146" name="__codelineno-68-146" href="#__codelineno-68-146"></a><span class="w">        </span><span class="s2">"tenant"</span><span class="p">,</span>
-<a id="__codelineno-68-147" name="__codelineno-68-147" href="#__codelineno-68-147"></a><span class="w">        </span><span class="s2">"notifications"</span>
-<a id="__codelineno-68-148" name="__codelineno-68-148" href="#__codelineno-68-148"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-68-149" name="__codelineno-68-149" href="#__codelineno-68-149"></a><span class="p">}</span>
+<a id="__codelineno-68-137" name="__codelineno-68-137" href="#__codelineno-68-137"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-68-138" name="__codelineno-68-138" href="#__codelineno-68-138"></a><span class="w">        </span><span class="nt">"transaction_data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-68-139" name="__codelineno-68-139" href="#__codelineno-68-139"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Transaction data to include in the OID4VP authorization request.\nCan be overridden per-request from the presentation configuration."</span><span class="p">,</span>
+<a id="__codelineno-68-140" name="__codelineno-68-140" href="#__codelineno-68-140"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"array"</span><span class="p">,</span>
+<a id="__codelineno-68-141" name="__codelineno-68-141" href="#__codelineno-68-141"></a><span class="w">            </span><span class="nt">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-68-142" name="__codelineno-68-142" href="#__codelineno-68-142"></a><span class="w">                </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/TransactionData"</span>
+<a id="__codelineno-68-143" name="__codelineno-68-143" href="#__codelineno-68-143"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-68-144" name="__codelineno-68-144" href="#__codelineno-68-144"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-68-145" name="__codelineno-68-145" href="#__codelineno-68-145"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-68-146" name="__codelineno-68-146" href="#__codelineno-68-146"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-68-147" name="__codelineno-68-147" href="#__codelineno-68-147"></a><span class="w">        </span><span class="s2">"status"</span><span class="p">,</span>
+<a id="__codelineno-68-148" name="__codelineno-68-148" href="#__codelineno-68-148"></a><span class="w">        </span><span class="s2">"id"</span><span class="p">,</span>
+<a id="__codelineno-68-149" name="__codelineno-68-149" href="#__codelineno-68-149"></a><span class="w">        </span><span class="s2">"createdAt"</span><span class="p">,</span>
+<a id="__codelineno-68-150" name="__codelineno-68-150" href="#__codelineno-68-150"></a><span class="w">        </span><span class="s2">"updatedAt"</span><span class="p">,</span>
+<a id="__codelineno-68-151" name="__codelineno-68-151" href="#__codelineno-68-151"></a><span class="w">        </span><span class="s2">"useDcApi"</span><span class="p">,</span>
+<a id="__codelineno-68-152" name="__codelineno-68-152" href="#__codelineno-68-152"></a><span class="w">        </span><span class="s2">"tenantId"</span><span class="p">,</span>
+<a id="__codelineno-68-153" name="__codelineno-68-153" href="#__codelineno-68-153"></a><span class="w">        </span><span class="s2">"tenant"</span><span class="p">,</span>
+<a id="__codelineno-68-154" name="__codelineno-68-154" href="#__codelineno-68-154"></a><span class="w">        </span><span class="s2">"notifications"</span>
+<a id="__codelineno-68-155" name="__codelineno-68-155" href="#__codelineno-68-155"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-68-156" name="__codelineno-68-156" href="#__codelineno-68-156"></a><span class="p">}</span>
 </code></pre></div>
 </details>
 </div>
@@ -12609,23 +12684,31 @@ certificate is automatically stored in EUDIPLO.</p>
 <a id="__codelineno-133-5" name="__codelineno-133-5" href="#__codelineno-133-5"></a><span class="w">        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
 <a id="__codelineno-133-6" name="__codelineno-133-6" href="#__codelineno-133-6"></a><span class="w">        </span><span class="nt">"lifeTime"</span><span class="p">:</span><span class="w"> </span><span class="mf">10.12</span><span class="p">,</span>
 <a id="__codelineno-133-7" name="__codelineno-133-7" href="#__codelineno-133-7"></a><span class="w">        </span><span class="nt">"dcql_query"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<a id="__codelineno-133-8" name="__codelineno-133-8" href="#__codelineno-133-8"></a><span class="w">        </span><span class="nt">"registrationCert"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<a id="__codelineno-133-9" name="__codelineno-133-9" href="#__codelineno-133-9"></a><span class="w">        </span><span class="nt">"webhook"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<a id="__codelineno-133-10" name="__codelineno-133-10" href="#__codelineno-133-10"></a><span class="w">        </span><span class="nt">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2022-04-13T15:42:05.901Z"</span><span class="p">,</span>
-<a id="__codelineno-133-11" name="__codelineno-133-11" href="#__codelineno-133-11"></a><span class="w">        </span><span class="nt">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2022-04-13T15:42:05.901Z"</span><span class="p">,</span>
-<a id="__codelineno-133-12" name="__codelineno-133-12" href="#__codelineno-133-12"></a><span class="w">        </span><span class="nt">"attached"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-133-13" name="__codelineno-133-13" href="#__codelineno-133-13"></a><span class="w">            </span><span class="p">{</span>
-<a id="__codelineno-133-14" name="__codelineno-133-14" href="#__codelineno-133-14"></a><span class="w">                </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-133-15" name="__codelineno-133-15" href="#__codelineno-133-15"></a><span class="w">                </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
-<a id="__codelineno-133-16" name="__codelineno-133-16" href="#__codelineno-133-16"></a><span class="w">                </span><span class="nt">"credential_ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-133-17" name="__codelineno-133-17" href="#__codelineno-133-17"></a><span class="w">                    </span><span class="s2">"string"</span>
-<a id="__codelineno-133-18" name="__codelineno-133-18" href="#__codelineno-133-18"></a><span class="w">                </span><span class="p">]</span>
-<a id="__codelineno-133-19" name="__codelineno-133-19" href="#__codelineno-133-19"></a><span class="w">            </span><span class="p">}</span>
-<a id="__codelineno-133-20" name="__codelineno-133-20" href="#__codelineno-133-20"></a><span class="w">        </span><span class="p">],</span>
-<a id="__codelineno-133-21" name="__codelineno-133-21" href="#__codelineno-133-21"></a><span class="w">        </span><span class="nt">"redirectUri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://example.com/callback?session={sessionId}"</span><span class="p">,</span>
-<a id="__codelineno-133-22" name="__codelineno-133-22" href="#__codelineno-133-22"></a><span class="w">        </span><span class="nt">"accessCertId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
-<a id="__codelineno-133-23" name="__codelineno-133-23" href="#__codelineno-133-23"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-133-24" name="__codelineno-133-24" href="#__codelineno-133-24"></a><span class="p">]</span>
+<a id="__codelineno-133-8" name="__codelineno-133-8" href="#__codelineno-133-8"></a><span class="w">        </span><span class="nt">"transaction_data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-133-9" name="__codelineno-133-9" href="#__codelineno-133-9"></a><span class="w">            </span><span class="p">{</span>
+<a id="__codelineno-133-10" name="__codelineno-133-10" href="#__codelineno-133-10"></a><span class="w">                </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-133-11" name="__codelineno-133-11" href="#__codelineno-133-11"></a><span class="w">                </span><span class="nt">"credential_ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-133-12" name="__codelineno-133-12" href="#__codelineno-133-12"></a><span class="w">                    </span><span class="s2">"string"</span>
+<a id="__codelineno-133-13" name="__codelineno-133-13" href="#__codelineno-133-13"></a><span class="w">                </span><span class="p">]</span>
+<a id="__codelineno-133-14" name="__codelineno-133-14" href="#__codelineno-133-14"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-133-15" name="__codelineno-133-15" href="#__codelineno-133-15"></a><span class="w">        </span><span class="p">],</span>
+<a id="__codelineno-133-16" name="__codelineno-133-16" href="#__codelineno-133-16"></a><span class="w">        </span><span class="nt">"registrationCert"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<a id="__codelineno-133-17" name="__codelineno-133-17" href="#__codelineno-133-17"></a><span class="w">        </span><span class="nt">"webhook"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<a id="__codelineno-133-18" name="__codelineno-133-18" href="#__codelineno-133-18"></a><span class="w">        </span><span class="nt">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2022-04-13T15:42:05.901Z"</span><span class="p">,</span>
+<a id="__codelineno-133-19" name="__codelineno-133-19" href="#__codelineno-133-19"></a><span class="w">        </span><span class="nt">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2022-04-13T15:42:05.901Z"</span><span class="p">,</span>
+<a id="__codelineno-133-20" name="__codelineno-133-20" href="#__codelineno-133-20"></a><span class="w">        </span><span class="nt">"attached"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-133-21" name="__codelineno-133-21" href="#__codelineno-133-21"></a><span class="w">            </span><span class="p">{</span>
+<a id="__codelineno-133-22" name="__codelineno-133-22" href="#__codelineno-133-22"></a><span class="w">                </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-133-23" name="__codelineno-133-23" href="#__codelineno-133-23"></a><span class="w">                </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-133-24" name="__codelineno-133-24" href="#__codelineno-133-24"></a><span class="w">                </span><span class="nt">"credential_ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-133-25" name="__codelineno-133-25" href="#__codelineno-133-25"></a><span class="w">                    </span><span class="s2">"string"</span>
+<a id="__codelineno-133-26" name="__codelineno-133-26" href="#__codelineno-133-26"></a><span class="w">                </span><span class="p">]</span>
+<a id="__codelineno-133-27" name="__codelineno-133-27" href="#__codelineno-133-27"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-133-28" name="__codelineno-133-28" href="#__codelineno-133-28"></a><span class="w">        </span><span class="p">],</span>
+<a id="__codelineno-133-29" name="__codelineno-133-29" href="#__codelineno-133-29"></a><span class="w">        </span><span class="nt">"redirectUri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://example.com/callback?session={sessionId}"</span><span class="p">,</span>
+<a id="__codelineno-133-30" name="__codelineno-133-30" href="#__codelineno-133-30"></a><span class="w">        </span><span class="nt">"accessCertId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
+<a id="__codelineno-133-31" name="__codelineno-133-31" href="#__codelineno-133-31"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-133-32" name="__codelineno-133-32" href="#__codelineno-133-32"></a><span class="p">]</span>
 </code></pre></div>
 <span class="small-note">⚠️</span>&nbsp;<em class="small-note warning">This example has been generated automatically from the schema and it is not accurate. Refer to the schema for more information.</em><p></p>
 <details class="hint">
@@ -12679,20 +12762,28 @@ updated.</p>
 <a id="__codelineno-135-3" name="__codelineno-135-3" href="#__codelineno-135-3"></a><span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
 <a id="__codelineno-135-4" name="__codelineno-135-4" href="#__codelineno-135-4"></a><span class="w">    </span><span class="nt">"lifeTime"</span><span class="p">:</span><span class="w"> </span><span class="mf">10.12</span><span class="p">,</span>
 <a id="__codelineno-135-5" name="__codelineno-135-5" href="#__codelineno-135-5"></a><span class="w">    </span><span class="nt">"dcql_query"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<a id="__codelineno-135-6" name="__codelineno-135-6" href="#__codelineno-135-6"></a><span class="w">    </span><span class="nt">"registrationCert"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<a id="__codelineno-135-7" name="__codelineno-135-7" href="#__codelineno-135-7"></a><span class="w">    </span><span class="nt">"webhook"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<a id="__codelineno-135-8" name="__codelineno-135-8" href="#__codelineno-135-8"></a><span class="w">    </span><span class="nt">"attached"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-135-9" name="__codelineno-135-9" href="#__codelineno-135-9"></a><span class="w">        </span><span class="p">{</span>
-<a id="__codelineno-135-10" name="__codelineno-135-10" href="#__codelineno-135-10"></a><span class="w">            </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-135-11" name="__codelineno-135-11" href="#__codelineno-135-11"></a><span class="w">            </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
-<a id="__codelineno-135-12" name="__codelineno-135-12" href="#__codelineno-135-12"></a><span class="w">            </span><span class="nt">"credential_ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-135-13" name="__codelineno-135-13" href="#__codelineno-135-13"></a><span class="w">                </span><span class="s2">"string"</span>
-<a id="__codelineno-135-14" name="__codelineno-135-14" href="#__codelineno-135-14"></a><span class="w">            </span><span class="p">]</span>
-<a id="__codelineno-135-15" name="__codelineno-135-15" href="#__codelineno-135-15"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-135-16" name="__codelineno-135-16" href="#__codelineno-135-16"></a><span class="w">    </span><span class="p">],</span>
-<a id="__codelineno-135-17" name="__codelineno-135-17" href="#__codelineno-135-17"></a><span class="w">    </span><span class="nt">"redirectUri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://example.com/callback?session={sessionId}"</span><span class="p">,</span>
-<a id="__codelineno-135-18" name="__codelineno-135-18" href="#__codelineno-135-18"></a><span class="w">    </span><span class="nt">"accessCertId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
-<a id="__codelineno-135-19" name="__codelineno-135-19" href="#__codelineno-135-19"></a><span class="p">}</span>
+<a id="__codelineno-135-6" name="__codelineno-135-6" href="#__codelineno-135-6"></a><span class="w">    </span><span class="nt">"transaction_data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-135-7" name="__codelineno-135-7" href="#__codelineno-135-7"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-135-8" name="__codelineno-135-8" href="#__codelineno-135-8"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-135-9" name="__codelineno-135-9" href="#__codelineno-135-9"></a><span class="w">            </span><span class="nt">"credential_ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-135-10" name="__codelineno-135-10" href="#__codelineno-135-10"></a><span class="w">                </span><span class="s2">"string"</span>
+<a id="__codelineno-135-11" name="__codelineno-135-11" href="#__codelineno-135-11"></a><span class="w">            </span><span class="p">]</span>
+<a id="__codelineno-135-12" name="__codelineno-135-12" href="#__codelineno-135-12"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-135-13" name="__codelineno-135-13" href="#__codelineno-135-13"></a><span class="w">    </span><span class="p">],</span>
+<a id="__codelineno-135-14" name="__codelineno-135-14" href="#__codelineno-135-14"></a><span class="w">    </span><span class="nt">"registrationCert"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<a id="__codelineno-135-15" name="__codelineno-135-15" href="#__codelineno-135-15"></a><span class="w">    </span><span class="nt">"webhook"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<a id="__codelineno-135-16" name="__codelineno-135-16" href="#__codelineno-135-16"></a><span class="w">    </span><span class="nt">"attached"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-135-17" name="__codelineno-135-17" href="#__codelineno-135-17"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-135-18" name="__codelineno-135-18" href="#__codelineno-135-18"></a><span class="w">            </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-135-19" name="__codelineno-135-19" href="#__codelineno-135-19"></a><span class="w">            </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-135-20" name="__codelineno-135-20" href="#__codelineno-135-20"></a><span class="w">            </span><span class="nt">"credential_ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-135-21" name="__codelineno-135-21" href="#__codelineno-135-21"></a><span class="w">                </span><span class="s2">"string"</span>
+<a id="__codelineno-135-22" name="__codelineno-135-22" href="#__codelineno-135-22"></a><span class="w">            </span><span class="p">]</span>
+<a id="__codelineno-135-23" name="__codelineno-135-23" href="#__codelineno-135-23"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-135-24" name="__codelineno-135-24" href="#__codelineno-135-24"></a><span class="w">    </span><span class="p">],</span>
+<a id="__codelineno-135-25" name="__codelineno-135-25" href="#__codelineno-135-25"></a><span class="w">    </span><span class="nt">"redirectUri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://example.com/callback?session={sessionId}"</span><span class="p">,</span>
+<a id="__codelineno-135-26" name="__codelineno-135-26" href="#__codelineno-135-26"></a><span class="w">    </span><span class="nt">"accessCertId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
+<a id="__codelineno-135-27" name="__codelineno-135-27" href="#__codelineno-135-27"></a><span class="p">}</span>
 </code></pre></div>
 <span class="small-note">⚠️</span>&nbsp;<em class="small-note warning">This example has been generated automatically from the schema and it is not accurate. Refer to the schema for more information.</em><p></p>
 <details class="hint">
@@ -12721,49 +12812,55 @@ updated.</p>
 <a id="__codelineno-136-22" name="__codelineno-136-22" href="#__codelineno-136-22"></a><span class="w">                </span><span class="p">}</span>
 <a id="__codelineno-136-23" name="__codelineno-136-23" href="#__codelineno-136-23"></a><span class="w">            </span><span class="p">]</span>
 <a id="__codelineno-136-24" name="__codelineno-136-24" href="#__codelineno-136-24"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-136-25" name="__codelineno-136-25" href="#__codelineno-136-25"></a><span class="w">        </span><span class="nt">"registrationCert"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-136-26" name="__codelineno-136-26" href="#__codelineno-136-26"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-136-27" name="__codelineno-136-27" href="#__codelineno-136-27"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The registration certificate request containing the necessary details."</span><span class="p">,</span>
-<a id="__codelineno-136-28" name="__codelineno-136-28" href="#__codelineno-136-28"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-136-29" name="__codelineno-136-29" href="#__codelineno-136-29"></a><span class="w">                </span><span class="p">{</span>
-<a id="__codelineno-136-30" name="__codelineno-136-30" href="#__codelineno-136-30"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/RegistrationCertificateRequest"</span>
-<a id="__codelineno-136-31" name="__codelineno-136-31" href="#__codelineno-136-31"></a><span class="w">                </span><span class="p">}</span>
-<a id="__codelineno-136-32" name="__codelineno-136-32" href="#__codelineno-136-32"></a><span class="w">            </span><span class="p">]</span>
-<a id="__codelineno-136-33" name="__codelineno-136-33" href="#__codelineno-136-33"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-136-34" name="__codelineno-136-34" href="#__codelineno-136-34"></a><span class="w">        </span><span class="nt">"webhook"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-136-35" name="__codelineno-136-35" href="#__codelineno-136-35"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-136-36" name="__codelineno-136-36" href="#__codelineno-136-36"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional webhook URL to receive the response."</span><span class="p">,</span>
-<a id="__codelineno-136-37" name="__codelineno-136-37" href="#__codelineno-136-37"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-136-38" name="__codelineno-136-38" href="#__codelineno-136-38"></a><span class="w">                </span><span class="p">{</span>
-<a id="__codelineno-136-39" name="__codelineno-136-39" href="#__codelineno-136-39"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/WebhookConfig"</span>
-<a id="__codelineno-136-40" name="__codelineno-136-40" href="#__codelineno-136-40"></a><span class="w">                </span><span class="p">}</span>
-<a id="__codelineno-136-41" name="__codelineno-136-41" href="#__codelineno-136-41"></a><span class="w">            </span><span class="p">]</span>
-<a id="__codelineno-136-42" name="__codelineno-136-42" href="#__codelineno-136-42"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-136-43" name="__codelineno-136-43" href="#__codelineno-136-43"></a><span class="w">        </span><span class="nt">"attached"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-136-44" name="__codelineno-136-44" href="#__codelineno-136-44"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-136-45" name="__codelineno-136-45" href="#__codelineno-136-45"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Attestation that should be attached"</span><span class="p">,</span>
-<a id="__codelineno-136-46" name="__codelineno-136-46" href="#__codelineno-136-46"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"array"</span><span class="p">,</span>
-<a id="__codelineno-136-47" name="__codelineno-136-47" href="#__codelineno-136-47"></a><span class="w">            </span><span class="nt">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-136-48" name="__codelineno-136-48" href="#__codelineno-136-48"></a><span class="w">                </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/PresentationAttachment"</span>
-<a id="__codelineno-136-49" name="__codelineno-136-49" href="#__codelineno-136-49"></a><span class="w">            </span><span class="p">}</span>
-<a id="__codelineno-136-50" name="__codelineno-136-50" href="#__codelineno-136-50"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-136-51" name="__codelineno-136-51" href="#__codelineno-136-51"></a><span class="w">        </span><span class="nt">"redirectUri"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-136-52" name="__codelineno-136-52" href="#__codelineno-136-52"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-136-53" name="__codelineno-136-53" href="#__codelineno-136-53"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-136-54" name="__codelineno-136-54" href="#__codelineno-136-54"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID."</span><span class="p">,</span>
-<a id="__codelineno-136-55" name="__codelineno-136-55" href="#__codelineno-136-55"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://example.com/callback?session={sessionId}"</span>
+<a id="__codelineno-136-25" name="__codelineno-136-25" href="#__codelineno-136-25"></a><span class="w">        </span><span class="nt">"transaction_data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-136-26" name="__codelineno-136-26" href="#__codelineno-136-26"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"array"</span><span class="p">,</span>
+<a id="__codelineno-136-27" name="__codelineno-136-27" href="#__codelineno-136-27"></a><span class="w">            </span><span class="nt">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-136-28" name="__codelineno-136-28" href="#__codelineno-136-28"></a><span class="w">                </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/TransactionData"</span>
+<a id="__codelineno-136-29" name="__codelineno-136-29" href="#__codelineno-136-29"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-136-30" name="__codelineno-136-30" href="#__codelineno-136-30"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-136-31" name="__codelineno-136-31" href="#__codelineno-136-31"></a><span class="w">        </span><span class="nt">"registrationCert"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-136-32" name="__codelineno-136-32" href="#__codelineno-136-32"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-136-33" name="__codelineno-136-33" href="#__codelineno-136-33"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The registration certificate request containing the necessary details."</span><span class="p">,</span>
+<a id="__codelineno-136-34" name="__codelineno-136-34" href="#__codelineno-136-34"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-136-35" name="__codelineno-136-35" href="#__codelineno-136-35"></a><span class="w">                </span><span class="p">{</span>
+<a id="__codelineno-136-36" name="__codelineno-136-36" href="#__codelineno-136-36"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/RegistrationCertificateRequest"</span>
+<a id="__codelineno-136-37" name="__codelineno-136-37" href="#__codelineno-136-37"></a><span class="w">                </span><span class="p">}</span>
+<a id="__codelineno-136-38" name="__codelineno-136-38" href="#__codelineno-136-38"></a><span class="w">            </span><span class="p">]</span>
+<a id="__codelineno-136-39" name="__codelineno-136-39" href="#__codelineno-136-39"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-136-40" name="__codelineno-136-40" href="#__codelineno-136-40"></a><span class="w">        </span><span class="nt">"webhook"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-136-41" name="__codelineno-136-41" href="#__codelineno-136-41"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-136-42" name="__codelineno-136-42" href="#__codelineno-136-42"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional webhook URL to receive the response."</span><span class="p">,</span>
+<a id="__codelineno-136-43" name="__codelineno-136-43" href="#__codelineno-136-43"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-136-44" name="__codelineno-136-44" href="#__codelineno-136-44"></a><span class="w">                </span><span class="p">{</span>
+<a id="__codelineno-136-45" name="__codelineno-136-45" href="#__codelineno-136-45"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/WebhookConfig"</span>
+<a id="__codelineno-136-46" name="__codelineno-136-46" href="#__codelineno-136-46"></a><span class="w">                </span><span class="p">}</span>
+<a id="__codelineno-136-47" name="__codelineno-136-47" href="#__codelineno-136-47"></a><span class="w">            </span><span class="p">]</span>
+<a id="__codelineno-136-48" name="__codelineno-136-48" href="#__codelineno-136-48"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-136-49" name="__codelineno-136-49" href="#__codelineno-136-49"></a><span class="w">        </span><span class="nt">"attached"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-136-50" name="__codelineno-136-50" href="#__codelineno-136-50"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-136-51" name="__codelineno-136-51" href="#__codelineno-136-51"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Attestation that should be attached"</span><span class="p">,</span>
+<a id="__codelineno-136-52" name="__codelineno-136-52" href="#__codelineno-136-52"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"array"</span><span class="p">,</span>
+<a id="__codelineno-136-53" name="__codelineno-136-53" href="#__codelineno-136-53"></a><span class="w">            </span><span class="nt">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-136-54" name="__codelineno-136-54" href="#__codelineno-136-54"></a><span class="w">                </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/PresentationAttachment"</span>
+<a id="__codelineno-136-55" name="__codelineno-136-55" href="#__codelineno-136-55"></a><span class="w">            </span><span class="p">}</span>
 <a id="__codelineno-136-56" name="__codelineno-136-56" href="#__codelineno-136-56"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-136-57" name="__codelineno-136-57" href="#__codelineno-136-57"></a><span class="w">        </span><span class="nt">"accessCertId"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-136-57" name="__codelineno-136-57" href="#__codelineno-136-57"></a><span class="w">        </span><span class="nt">"redirectUri"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-136-58" name="__codelineno-136-58" href="#__codelineno-136-58"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
 <a id="__codelineno-136-59" name="__codelineno-136-59" href="#__codelineno-136-59"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-136-60" name="__codelineno-136-60" href="#__codelineno-136-60"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.\n\nNote: This is intentionally NOT a TypeORM relationship because CertEntity uses\na composite primary key (id + tenantId), and SQLite cannot create foreign keys\nthat reference only part of a composite primary key. The relationship is handled\nat the application level in the service layer."</span>
-<a id="__codelineno-136-61" name="__codelineno-136-61" href="#__codelineno-136-61"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-136-62" name="__codelineno-136-62" href="#__codelineno-136-62"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-136-63" name="__codelineno-136-63" href="#__codelineno-136-63"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-136-64" name="__codelineno-136-64" href="#__codelineno-136-64"></a><span class="w">        </span><span class="s2">"id"</span><span class="p">,</span>
-<a id="__codelineno-136-65" name="__codelineno-136-65" href="#__codelineno-136-65"></a><span class="w">        </span><span class="s2">"dcql_query"</span>
-<a id="__codelineno-136-66" name="__codelineno-136-66" href="#__codelineno-136-66"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-136-67" name="__codelineno-136-67" href="#__codelineno-136-67"></a><span class="p">}</span>
+<a id="__codelineno-136-60" name="__codelineno-136-60" href="#__codelineno-136-60"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID."</span><span class="p">,</span>
+<a id="__codelineno-136-61" name="__codelineno-136-61" href="#__codelineno-136-61"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://example.com/callback?session={sessionId}"</span>
+<a id="__codelineno-136-62" name="__codelineno-136-62" href="#__codelineno-136-62"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-136-63" name="__codelineno-136-63" href="#__codelineno-136-63"></a><span class="w">        </span><span class="nt">"accessCertId"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-136-64" name="__codelineno-136-64" href="#__codelineno-136-64"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-136-65" name="__codelineno-136-65" href="#__codelineno-136-65"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-136-66" name="__codelineno-136-66" href="#__codelineno-136-66"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.\n\nNote: This is intentionally NOT a TypeORM relationship because CertEntity uses\na composite primary key (id + tenantId), and SQLite cannot create foreign keys\nthat reference only part of a composite primary key. The relationship is handled\nat the application level in the service layer."</span>
+<a id="__codelineno-136-67" name="__codelineno-136-67" href="#__codelineno-136-67"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-136-68" name="__codelineno-136-68" href="#__codelineno-136-68"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-136-69" name="__codelineno-136-69" href="#__codelineno-136-69"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-136-70" name="__codelineno-136-70" href="#__codelineno-136-70"></a><span class="w">        </span><span class="s2">"id"</span><span class="p">,</span>
+<a id="__codelineno-136-71" name="__codelineno-136-71" href="#__codelineno-136-71"></a><span class="w">        </span><span class="s2">"dcql_query"</span>
+<a id="__codelineno-136-72" name="__codelineno-136-72" href="#__codelineno-136-72"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-136-73" name="__codelineno-136-73" href="#__codelineno-136-73"></a><span class="p">}</span>
 </code></pre></div>
 </details>
 </div>
@@ -12835,22 +12932,30 @@ updated.</p>
 <a id="__codelineno-138-4" name="__codelineno-138-4" href="#__codelineno-138-4"></a><span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
 <a id="__codelineno-138-5" name="__codelineno-138-5" href="#__codelineno-138-5"></a><span class="w">    </span><span class="nt">"lifeTime"</span><span class="p">:</span><span class="w"> </span><span class="mf">10.12</span><span class="p">,</span>
 <a id="__codelineno-138-6" name="__codelineno-138-6" href="#__codelineno-138-6"></a><span class="w">    </span><span class="nt">"dcql_query"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<a id="__codelineno-138-7" name="__codelineno-138-7" href="#__codelineno-138-7"></a><span class="w">    </span><span class="nt">"registrationCert"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<a id="__codelineno-138-8" name="__codelineno-138-8" href="#__codelineno-138-8"></a><span class="w">    </span><span class="nt">"webhook"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<a id="__codelineno-138-9" name="__codelineno-138-9" href="#__codelineno-138-9"></a><span class="w">    </span><span class="nt">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2022-04-13T15:42:05.901Z"</span><span class="p">,</span>
-<a id="__codelineno-138-10" name="__codelineno-138-10" href="#__codelineno-138-10"></a><span class="w">    </span><span class="nt">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2022-04-13T15:42:05.901Z"</span><span class="p">,</span>
-<a id="__codelineno-138-11" name="__codelineno-138-11" href="#__codelineno-138-11"></a><span class="w">    </span><span class="nt">"attached"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-138-12" name="__codelineno-138-12" href="#__codelineno-138-12"></a><span class="w">        </span><span class="p">{</span>
-<a id="__codelineno-138-13" name="__codelineno-138-13" href="#__codelineno-138-13"></a><span class="w">            </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-138-14" name="__codelineno-138-14" href="#__codelineno-138-14"></a><span class="w">            </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
-<a id="__codelineno-138-15" name="__codelineno-138-15" href="#__codelineno-138-15"></a><span class="w">            </span><span class="nt">"credential_ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-138-16" name="__codelineno-138-16" href="#__codelineno-138-16"></a><span class="w">                </span><span class="s2">"string"</span>
-<a id="__codelineno-138-17" name="__codelineno-138-17" href="#__codelineno-138-17"></a><span class="w">            </span><span class="p">]</span>
-<a id="__codelineno-138-18" name="__codelineno-138-18" href="#__codelineno-138-18"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-138-19" name="__codelineno-138-19" href="#__codelineno-138-19"></a><span class="w">    </span><span class="p">],</span>
-<a id="__codelineno-138-20" name="__codelineno-138-20" href="#__codelineno-138-20"></a><span class="w">    </span><span class="nt">"redirectUri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://example.com/callback?session={sessionId}"</span><span class="p">,</span>
-<a id="__codelineno-138-21" name="__codelineno-138-21" href="#__codelineno-138-21"></a><span class="w">    </span><span class="nt">"accessCertId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
-<a id="__codelineno-138-22" name="__codelineno-138-22" href="#__codelineno-138-22"></a><span class="p">}</span>
+<a id="__codelineno-138-7" name="__codelineno-138-7" href="#__codelineno-138-7"></a><span class="w">    </span><span class="nt">"transaction_data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-138-8" name="__codelineno-138-8" href="#__codelineno-138-8"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-138-9" name="__codelineno-138-9" href="#__codelineno-138-9"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-138-10" name="__codelineno-138-10" href="#__codelineno-138-10"></a><span class="w">            </span><span class="nt">"credential_ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-138-11" name="__codelineno-138-11" href="#__codelineno-138-11"></a><span class="w">                </span><span class="s2">"string"</span>
+<a id="__codelineno-138-12" name="__codelineno-138-12" href="#__codelineno-138-12"></a><span class="w">            </span><span class="p">]</span>
+<a id="__codelineno-138-13" name="__codelineno-138-13" href="#__codelineno-138-13"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-138-14" name="__codelineno-138-14" href="#__codelineno-138-14"></a><span class="w">    </span><span class="p">],</span>
+<a id="__codelineno-138-15" name="__codelineno-138-15" href="#__codelineno-138-15"></a><span class="w">    </span><span class="nt">"registrationCert"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<a id="__codelineno-138-16" name="__codelineno-138-16" href="#__codelineno-138-16"></a><span class="w">    </span><span class="nt">"webhook"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<a id="__codelineno-138-17" name="__codelineno-138-17" href="#__codelineno-138-17"></a><span class="w">    </span><span class="nt">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2022-04-13T15:42:05.901Z"</span><span class="p">,</span>
+<a id="__codelineno-138-18" name="__codelineno-138-18" href="#__codelineno-138-18"></a><span class="w">    </span><span class="nt">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2022-04-13T15:42:05.901Z"</span><span class="p">,</span>
+<a id="__codelineno-138-19" name="__codelineno-138-19" href="#__codelineno-138-19"></a><span class="w">    </span><span class="nt">"attached"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-138-20" name="__codelineno-138-20" href="#__codelineno-138-20"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-138-21" name="__codelineno-138-21" href="#__codelineno-138-21"></a><span class="w">            </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-138-22" name="__codelineno-138-22" href="#__codelineno-138-22"></a><span class="w">            </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-138-23" name="__codelineno-138-23" href="#__codelineno-138-23"></a><span class="w">            </span><span class="nt">"credential_ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-138-24" name="__codelineno-138-24" href="#__codelineno-138-24"></a><span class="w">                </span><span class="s2">"string"</span>
+<a id="__codelineno-138-25" name="__codelineno-138-25" href="#__codelineno-138-25"></a><span class="w">            </span><span class="p">]</span>
+<a id="__codelineno-138-26" name="__codelineno-138-26" href="#__codelineno-138-26"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-138-27" name="__codelineno-138-27" href="#__codelineno-138-27"></a><span class="w">    </span><span class="p">],</span>
+<a id="__codelineno-138-28" name="__codelineno-138-28" href="#__codelineno-138-28"></a><span class="w">    </span><span class="nt">"redirectUri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://example.com/callback?session={sessionId}"</span><span class="p">,</span>
+<a id="__codelineno-138-29" name="__codelineno-138-29" href="#__codelineno-138-29"></a><span class="w">    </span><span class="nt">"accessCertId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
+<a id="__codelineno-138-30" name="__codelineno-138-30" href="#__codelineno-138-30"></a><span class="p">}</span>
 </code></pre></div>
 <span class="small-note">⚠️</span>&nbsp;<em class="small-note warning">This example has been generated automatically from the schema and it is not accurate. Refer to the schema for more information.</em><p></p>
 <details class="hint">
@@ -12887,62 +12992,68 @@ updated.</p>
 <a id="__codelineno-139-30" name="__codelineno-139-30" href="#__codelineno-139-30"></a><span class="w">                </span><span class="p">}</span>
 <a id="__codelineno-139-31" name="__codelineno-139-31" href="#__codelineno-139-31"></a><span class="w">            </span><span class="p">]</span>
 <a id="__codelineno-139-32" name="__codelineno-139-32" href="#__codelineno-139-32"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-139-33" name="__codelineno-139-33" href="#__codelineno-139-33"></a><span class="w">        </span><span class="nt">"registrationCert"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-139-34" name="__codelineno-139-34" href="#__codelineno-139-34"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-139-35" name="__codelineno-139-35" href="#__codelineno-139-35"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The registration certificate request containing the necessary details."</span><span class="p">,</span>
-<a id="__codelineno-139-36" name="__codelineno-139-36" href="#__codelineno-139-36"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-139-37" name="__codelineno-139-37" href="#__codelineno-139-37"></a><span class="w">                </span><span class="p">{</span>
-<a id="__codelineno-139-38" name="__codelineno-139-38" href="#__codelineno-139-38"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/RegistrationCertificateRequest"</span>
-<a id="__codelineno-139-39" name="__codelineno-139-39" href="#__codelineno-139-39"></a><span class="w">                </span><span class="p">}</span>
-<a id="__codelineno-139-40" name="__codelineno-139-40" href="#__codelineno-139-40"></a><span class="w">            </span><span class="p">]</span>
-<a id="__codelineno-139-41" name="__codelineno-139-41" href="#__codelineno-139-41"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-139-42" name="__codelineno-139-42" href="#__codelineno-139-42"></a><span class="w">        </span><span class="nt">"webhook"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-139-43" name="__codelineno-139-43" href="#__codelineno-139-43"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-139-44" name="__codelineno-139-44" href="#__codelineno-139-44"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional webhook URL to receive the response."</span><span class="p">,</span>
-<a id="__codelineno-139-45" name="__codelineno-139-45" href="#__codelineno-139-45"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-139-46" name="__codelineno-139-46" href="#__codelineno-139-46"></a><span class="w">                </span><span class="p">{</span>
-<a id="__codelineno-139-47" name="__codelineno-139-47" href="#__codelineno-139-47"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/WebhookConfig"</span>
-<a id="__codelineno-139-48" name="__codelineno-139-48" href="#__codelineno-139-48"></a><span class="w">                </span><span class="p">}</span>
-<a id="__codelineno-139-49" name="__codelineno-139-49" href="#__codelineno-139-49"></a><span class="w">            </span><span class="p">]</span>
-<a id="__codelineno-139-50" name="__codelineno-139-50" href="#__codelineno-139-50"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-139-51" name="__codelineno-139-51" href="#__codelineno-139-51"></a><span class="w">        </span><span class="nt">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-139-52" name="__codelineno-139-52" href="#__codelineno-139-52"></a><span class="w">            </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"date-time"</span><span class="p">,</span>
-<a id="__codelineno-139-53" name="__codelineno-139-53" href="#__codelineno-139-53"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-139-54" name="__codelineno-139-54" href="#__codelineno-139-54"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The timestamp when the VP request was created."</span>
-<a id="__codelineno-139-55" name="__codelineno-139-55" href="#__codelineno-139-55"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-139-56" name="__codelineno-139-56" href="#__codelineno-139-56"></a><span class="w">        </span><span class="nt">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-139-57" name="__codelineno-139-57" href="#__codelineno-139-57"></a><span class="w">            </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"date-time"</span><span class="p">,</span>
-<a id="__codelineno-139-58" name="__codelineno-139-58" href="#__codelineno-139-58"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-139-59" name="__codelineno-139-59" href="#__codelineno-139-59"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The timestamp when the VP request was last updated."</span>
-<a id="__codelineno-139-60" name="__codelineno-139-60" href="#__codelineno-139-60"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-139-61" name="__codelineno-139-61" href="#__codelineno-139-61"></a><span class="w">        </span><span class="nt">"attached"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-139-62" name="__codelineno-139-62" href="#__codelineno-139-62"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-139-63" name="__codelineno-139-63" href="#__codelineno-139-63"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Attestation that should be attached"</span><span class="p">,</span>
-<a id="__codelineno-139-64" name="__codelineno-139-64" href="#__codelineno-139-64"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"array"</span><span class="p">,</span>
-<a id="__codelineno-139-65" name="__codelineno-139-65" href="#__codelineno-139-65"></a><span class="w">            </span><span class="nt">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-139-66" name="__codelineno-139-66" href="#__codelineno-139-66"></a><span class="w">                </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/PresentationAttachment"</span>
-<a id="__codelineno-139-67" name="__codelineno-139-67" href="#__codelineno-139-67"></a><span class="w">            </span><span class="p">}</span>
-<a id="__codelineno-139-68" name="__codelineno-139-68" href="#__codelineno-139-68"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-139-69" name="__codelineno-139-69" href="#__codelineno-139-69"></a><span class="w">        </span><span class="nt">"redirectUri"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-139-70" name="__codelineno-139-70" href="#__codelineno-139-70"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-139-71" name="__codelineno-139-71" href="#__codelineno-139-71"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-139-72" name="__codelineno-139-72" href="#__codelineno-139-72"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID."</span><span class="p">,</span>
-<a id="__codelineno-139-73" name="__codelineno-139-73" href="#__codelineno-139-73"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://example.com/callback?session={sessionId}"</span>
+<a id="__codelineno-139-33" name="__codelineno-139-33" href="#__codelineno-139-33"></a><span class="w">        </span><span class="nt">"transaction_data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-139-34" name="__codelineno-139-34" href="#__codelineno-139-34"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"array"</span><span class="p">,</span>
+<a id="__codelineno-139-35" name="__codelineno-139-35" href="#__codelineno-139-35"></a><span class="w">            </span><span class="nt">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-139-36" name="__codelineno-139-36" href="#__codelineno-139-36"></a><span class="w">                </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/TransactionData"</span>
+<a id="__codelineno-139-37" name="__codelineno-139-37" href="#__codelineno-139-37"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-139-38" name="__codelineno-139-38" href="#__codelineno-139-38"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-139-39" name="__codelineno-139-39" href="#__codelineno-139-39"></a><span class="w">        </span><span class="nt">"registrationCert"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-139-40" name="__codelineno-139-40" href="#__codelineno-139-40"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-139-41" name="__codelineno-139-41" href="#__codelineno-139-41"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The registration certificate request containing the necessary details."</span><span class="p">,</span>
+<a id="__codelineno-139-42" name="__codelineno-139-42" href="#__codelineno-139-42"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-139-43" name="__codelineno-139-43" href="#__codelineno-139-43"></a><span class="w">                </span><span class="p">{</span>
+<a id="__codelineno-139-44" name="__codelineno-139-44" href="#__codelineno-139-44"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/RegistrationCertificateRequest"</span>
+<a id="__codelineno-139-45" name="__codelineno-139-45" href="#__codelineno-139-45"></a><span class="w">                </span><span class="p">}</span>
+<a id="__codelineno-139-46" name="__codelineno-139-46" href="#__codelineno-139-46"></a><span class="w">            </span><span class="p">]</span>
+<a id="__codelineno-139-47" name="__codelineno-139-47" href="#__codelineno-139-47"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-139-48" name="__codelineno-139-48" href="#__codelineno-139-48"></a><span class="w">        </span><span class="nt">"webhook"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-139-49" name="__codelineno-139-49" href="#__codelineno-139-49"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-139-50" name="__codelineno-139-50" href="#__codelineno-139-50"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional webhook URL to receive the response."</span><span class="p">,</span>
+<a id="__codelineno-139-51" name="__codelineno-139-51" href="#__codelineno-139-51"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-139-52" name="__codelineno-139-52" href="#__codelineno-139-52"></a><span class="w">                </span><span class="p">{</span>
+<a id="__codelineno-139-53" name="__codelineno-139-53" href="#__codelineno-139-53"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/WebhookConfig"</span>
+<a id="__codelineno-139-54" name="__codelineno-139-54" href="#__codelineno-139-54"></a><span class="w">                </span><span class="p">}</span>
+<a id="__codelineno-139-55" name="__codelineno-139-55" href="#__codelineno-139-55"></a><span class="w">            </span><span class="p">]</span>
+<a id="__codelineno-139-56" name="__codelineno-139-56" href="#__codelineno-139-56"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-139-57" name="__codelineno-139-57" href="#__codelineno-139-57"></a><span class="w">        </span><span class="nt">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-139-58" name="__codelineno-139-58" href="#__codelineno-139-58"></a><span class="w">            </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"date-time"</span><span class="p">,</span>
+<a id="__codelineno-139-59" name="__codelineno-139-59" href="#__codelineno-139-59"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-139-60" name="__codelineno-139-60" href="#__codelineno-139-60"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The timestamp when the VP request was created."</span>
+<a id="__codelineno-139-61" name="__codelineno-139-61" href="#__codelineno-139-61"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-139-62" name="__codelineno-139-62" href="#__codelineno-139-62"></a><span class="w">        </span><span class="nt">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-139-63" name="__codelineno-139-63" href="#__codelineno-139-63"></a><span class="w">            </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"date-time"</span><span class="p">,</span>
+<a id="__codelineno-139-64" name="__codelineno-139-64" href="#__codelineno-139-64"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-139-65" name="__codelineno-139-65" href="#__codelineno-139-65"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The timestamp when the VP request was last updated."</span>
+<a id="__codelineno-139-66" name="__codelineno-139-66" href="#__codelineno-139-66"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-139-67" name="__codelineno-139-67" href="#__codelineno-139-67"></a><span class="w">        </span><span class="nt">"attached"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-139-68" name="__codelineno-139-68" href="#__codelineno-139-68"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-139-69" name="__codelineno-139-69" href="#__codelineno-139-69"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Attestation that should be attached"</span><span class="p">,</span>
+<a id="__codelineno-139-70" name="__codelineno-139-70" href="#__codelineno-139-70"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"array"</span><span class="p">,</span>
+<a id="__codelineno-139-71" name="__codelineno-139-71" href="#__codelineno-139-71"></a><span class="w">            </span><span class="nt">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-139-72" name="__codelineno-139-72" href="#__codelineno-139-72"></a><span class="w">                </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/PresentationAttachment"</span>
+<a id="__codelineno-139-73" name="__codelineno-139-73" href="#__codelineno-139-73"></a><span class="w">            </span><span class="p">}</span>
 <a id="__codelineno-139-74" name="__codelineno-139-74" href="#__codelineno-139-74"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-139-75" name="__codelineno-139-75" href="#__codelineno-139-75"></a><span class="w">        </span><span class="nt">"accessCertId"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-139-75" name="__codelineno-139-75" href="#__codelineno-139-75"></a><span class="w">        </span><span class="nt">"redirectUri"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-139-76" name="__codelineno-139-76" href="#__codelineno-139-76"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
 <a id="__codelineno-139-77" name="__codelineno-139-77" href="#__codelineno-139-77"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-139-78" name="__codelineno-139-78" href="#__codelineno-139-78"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.\n\nNote: This is intentionally NOT a TypeORM relationship because CertEntity uses\na composite primary key (id + tenantId), and SQLite cannot create foreign keys\nthat reference only part of a composite primary key. The relationship is handled\nat the application level in the service layer."</span>
-<a id="__codelineno-139-79" name="__codelineno-139-79" href="#__codelineno-139-79"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-139-80" name="__codelineno-139-80" href="#__codelineno-139-80"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-139-81" name="__codelineno-139-81" href="#__codelineno-139-81"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-139-82" name="__codelineno-139-82" href="#__codelineno-139-82"></a><span class="w">        </span><span class="s2">"id"</span><span class="p">,</span>
-<a id="__codelineno-139-83" name="__codelineno-139-83" href="#__codelineno-139-83"></a><span class="w">        </span><span class="s2">"tenant"</span><span class="p">,</span>
-<a id="__codelineno-139-84" name="__codelineno-139-84" href="#__codelineno-139-84"></a><span class="w">        </span><span class="s2">"dcql_query"</span><span class="p">,</span>
-<a id="__codelineno-139-85" name="__codelineno-139-85" href="#__codelineno-139-85"></a><span class="w">        </span><span class="s2">"createdAt"</span><span class="p">,</span>
-<a id="__codelineno-139-86" name="__codelineno-139-86" href="#__codelineno-139-86"></a><span class="w">        </span><span class="s2">"updatedAt"</span>
-<a id="__codelineno-139-87" name="__codelineno-139-87" href="#__codelineno-139-87"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-139-88" name="__codelineno-139-88" href="#__codelineno-139-88"></a><span class="p">}</span>
+<a id="__codelineno-139-78" name="__codelineno-139-78" href="#__codelineno-139-78"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID."</span><span class="p">,</span>
+<a id="__codelineno-139-79" name="__codelineno-139-79" href="#__codelineno-139-79"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://example.com/callback?session={sessionId}"</span>
+<a id="__codelineno-139-80" name="__codelineno-139-80" href="#__codelineno-139-80"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-139-81" name="__codelineno-139-81" href="#__codelineno-139-81"></a><span class="w">        </span><span class="nt">"accessCertId"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-139-82" name="__codelineno-139-82" href="#__codelineno-139-82"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-139-83" name="__codelineno-139-83" href="#__codelineno-139-83"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-139-84" name="__codelineno-139-84" href="#__codelineno-139-84"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.\n\nNote: This is intentionally NOT a TypeORM relationship because CertEntity uses\na composite primary key (id + tenantId), and SQLite cannot create foreign keys\nthat reference only part of a composite primary key. The relationship is handled\nat the application level in the service layer."</span>
+<a id="__codelineno-139-85" name="__codelineno-139-85" href="#__codelineno-139-85"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-139-86" name="__codelineno-139-86" href="#__codelineno-139-86"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-139-87" name="__codelineno-139-87" href="#__codelineno-139-87"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-139-88" name="__codelineno-139-88" href="#__codelineno-139-88"></a><span class="w">        </span><span class="s2">"id"</span><span class="p">,</span>
+<a id="__codelineno-139-89" name="__codelineno-139-89" href="#__codelineno-139-89"></a><span class="w">        </span><span class="s2">"tenant"</span><span class="p">,</span>
+<a id="__codelineno-139-90" name="__codelineno-139-90" href="#__codelineno-139-90"></a><span class="w">        </span><span class="s2">"dcql_query"</span><span class="p">,</span>
+<a id="__codelineno-139-91" name="__codelineno-139-91" href="#__codelineno-139-91"></a><span class="w">        </span><span class="s2">"createdAt"</span><span class="p">,</span>
+<a id="__codelineno-139-92" name="__codelineno-139-92" href="#__codelineno-139-92"></a><span class="w">        </span><span class="s2">"updatedAt"</span>
+<a id="__codelineno-139-93" name="__codelineno-139-93" href="#__codelineno-139-93"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-139-94" name="__codelineno-139-94" href="#__codelineno-139-94"></a><span class="p">}</span>
 </code></pre></div>
 </details>
 </div>
@@ -12993,20 +13104,28 @@ updated.</p>
 <a id="__codelineno-140-3" name="__codelineno-140-3" href="#__codelineno-140-3"></a><span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
 <a id="__codelineno-140-4" name="__codelineno-140-4" href="#__codelineno-140-4"></a><span class="w">    </span><span class="nt">"lifeTime"</span><span class="p">:</span><span class="w"> </span><span class="mf">10.12</span><span class="p">,</span>
 <a id="__codelineno-140-5" name="__codelineno-140-5" href="#__codelineno-140-5"></a><span class="w">    </span><span class="nt">"dcql_query"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<a id="__codelineno-140-6" name="__codelineno-140-6" href="#__codelineno-140-6"></a><span class="w">    </span><span class="nt">"registrationCert"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<a id="__codelineno-140-7" name="__codelineno-140-7" href="#__codelineno-140-7"></a><span class="w">    </span><span class="nt">"webhook"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<a id="__codelineno-140-8" name="__codelineno-140-8" href="#__codelineno-140-8"></a><span class="w">    </span><span class="nt">"attached"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-140-9" name="__codelineno-140-9" href="#__codelineno-140-9"></a><span class="w">        </span><span class="p">{</span>
-<a id="__codelineno-140-10" name="__codelineno-140-10" href="#__codelineno-140-10"></a><span class="w">            </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-140-11" name="__codelineno-140-11" href="#__codelineno-140-11"></a><span class="w">            </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
-<a id="__codelineno-140-12" name="__codelineno-140-12" href="#__codelineno-140-12"></a><span class="w">            </span><span class="nt">"credential_ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-140-13" name="__codelineno-140-13" href="#__codelineno-140-13"></a><span class="w">                </span><span class="s2">"string"</span>
-<a id="__codelineno-140-14" name="__codelineno-140-14" href="#__codelineno-140-14"></a><span class="w">            </span><span class="p">]</span>
-<a id="__codelineno-140-15" name="__codelineno-140-15" href="#__codelineno-140-15"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-140-16" name="__codelineno-140-16" href="#__codelineno-140-16"></a><span class="w">    </span><span class="p">],</span>
-<a id="__codelineno-140-17" name="__codelineno-140-17" href="#__codelineno-140-17"></a><span class="w">    </span><span class="nt">"redirectUri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://example.com/callback?session={sessionId}"</span><span class="p">,</span>
-<a id="__codelineno-140-18" name="__codelineno-140-18" href="#__codelineno-140-18"></a><span class="w">    </span><span class="nt">"accessCertId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
-<a id="__codelineno-140-19" name="__codelineno-140-19" href="#__codelineno-140-19"></a><span class="p">}</span>
+<a id="__codelineno-140-6" name="__codelineno-140-6" href="#__codelineno-140-6"></a><span class="w">    </span><span class="nt">"transaction_data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-140-7" name="__codelineno-140-7" href="#__codelineno-140-7"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-140-8" name="__codelineno-140-8" href="#__codelineno-140-8"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-140-9" name="__codelineno-140-9" href="#__codelineno-140-9"></a><span class="w">            </span><span class="nt">"credential_ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-140-10" name="__codelineno-140-10" href="#__codelineno-140-10"></a><span class="w">                </span><span class="s2">"string"</span>
+<a id="__codelineno-140-11" name="__codelineno-140-11" href="#__codelineno-140-11"></a><span class="w">            </span><span class="p">]</span>
+<a id="__codelineno-140-12" name="__codelineno-140-12" href="#__codelineno-140-12"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-140-13" name="__codelineno-140-13" href="#__codelineno-140-13"></a><span class="w">    </span><span class="p">],</span>
+<a id="__codelineno-140-14" name="__codelineno-140-14" href="#__codelineno-140-14"></a><span class="w">    </span><span class="nt">"registrationCert"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<a id="__codelineno-140-15" name="__codelineno-140-15" href="#__codelineno-140-15"></a><span class="w">    </span><span class="nt">"webhook"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<a id="__codelineno-140-16" name="__codelineno-140-16" href="#__codelineno-140-16"></a><span class="w">    </span><span class="nt">"attached"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-140-17" name="__codelineno-140-17" href="#__codelineno-140-17"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-140-18" name="__codelineno-140-18" href="#__codelineno-140-18"></a><span class="w">            </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-140-19" name="__codelineno-140-19" href="#__codelineno-140-19"></a><span class="w">            </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-140-20" name="__codelineno-140-20" href="#__codelineno-140-20"></a><span class="w">            </span><span class="nt">"credential_ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-140-21" name="__codelineno-140-21" href="#__codelineno-140-21"></a><span class="w">                </span><span class="s2">"string"</span>
+<a id="__codelineno-140-22" name="__codelineno-140-22" href="#__codelineno-140-22"></a><span class="w">            </span><span class="p">]</span>
+<a id="__codelineno-140-23" name="__codelineno-140-23" href="#__codelineno-140-23"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-140-24" name="__codelineno-140-24" href="#__codelineno-140-24"></a><span class="w">    </span><span class="p">],</span>
+<a id="__codelineno-140-25" name="__codelineno-140-25" href="#__codelineno-140-25"></a><span class="w">    </span><span class="nt">"redirectUri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://example.com/callback?session={sessionId}"</span><span class="p">,</span>
+<a id="__codelineno-140-26" name="__codelineno-140-26" href="#__codelineno-140-26"></a><span class="w">    </span><span class="nt">"accessCertId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
+<a id="__codelineno-140-27" name="__codelineno-140-27" href="#__codelineno-140-27"></a><span class="p">}</span>
 </code></pre></div>
 <span class="small-note">⚠️</span>&nbsp;<em class="small-note warning">This example has been generated automatically from the schema and it is not accurate. Refer to the schema for more information.</em><p></p>
 <details class="hint">
@@ -13035,45 +13154,51 @@ updated.</p>
 <a id="__codelineno-141-22" name="__codelineno-141-22" href="#__codelineno-141-22"></a><span class="w">                </span><span class="p">}</span>
 <a id="__codelineno-141-23" name="__codelineno-141-23" href="#__codelineno-141-23"></a><span class="w">            </span><span class="p">]</span>
 <a id="__codelineno-141-24" name="__codelineno-141-24" href="#__codelineno-141-24"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-141-25" name="__codelineno-141-25" href="#__codelineno-141-25"></a><span class="w">        </span><span class="nt">"registrationCert"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-141-26" name="__codelineno-141-26" href="#__codelineno-141-26"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-141-27" name="__codelineno-141-27" href="#__codelineno-141-27"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The registration certificate request containing the necessary details."</span><span class="p">,</span>
-<a id="__codelineno-141-28" name="__codelineno-141-28" href="#__codelineno-141-28"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-141-29" name="__codelineno-141-29" href="#__codelineno-141-29"></a><span class="w">                </span><span class="p">{</span>
-<a id="__codelineno-141-30" name="__codelineno-141-30" href="#__codelineno-141-30"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/RegistrationCertificateRequest"</span>
-<a id="__codelineno-141-31" name="__codelineno-141-31" href="#__codelineno-141-31"></a><span class="w">                </span><span class="p">}</span>
-<a id="__codelineno-141-32" name="__codelineno-141-32" href="#__codelineno-141-32"></a><span class="w">            </span><span class="p">]</span>
-<a id="__codelineno-141-33" name="__codelineno-141-33" href="#__codelineno-141-33"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-141-34" name="__codelineno-141-34" href="#__codelineno-141-34"></a><span class="w">        </span><span class="nt">"webhook"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-141-35" name="__codelineno-141-35" href="#__codelineno-141-35"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-141-36" name="__codelineno-141-36" href="#__codelineno-141-36"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional webhook URL to receive the response."</span><span class="p">,</span>
-<a id="__codelineno-141-37" name="__codelineno-141-37" href="#__codelineno-141-37"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-141-38" name="__codelineno-141-38" href="#__codelineno-141-38"></a><span class="w">                </span><span class="p">{</span>
-<a id="__codelineno-141-39" name="__codelineno-141-39" href="#__codelineno-141-39"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/WebhookConfig"</span>
-<a id="__codelineno-141-40" name="__codelineno-141-40" href="#__codelineno-141-40"></a><span class="w">                </span><span class="p">}</span>
-<a id="__codelineno-141-41" name="__codelineno-141-41" href="#__codelineno-141-41"></a><span class="w">            </span><span class="p">]</span>
-<a id="__codelineno-141-42" name="__codelineno-141-42" href="#__codelineno-141-42"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-141-43" name="__codelineno-141-43" href="#__codelineno-141-43"></a><span class="w">        </span><span class="nt">"attached"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-141-44" name="__codelineno-141-44" href="#__codelineno-141-44"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-141-45" name="__codelineno-141-45" href="#__codelineno-141-45"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Attestation that should be attached"</span><span class="p">,</span>
-<a id="__codelineno-141-46" name="__codelineno-141-46" href="#__codelineno-141-46"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"array"</span><span class="p">,</span>
-<a id="__codelineno-141-47" name="__codelineno-141-47" href="#__codelineno-141-47"></a><span class="w">            </span><span class="nt">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-141-48" name="__codelineno-141-48" href="#__codelineno-141-48"></a><span class="w">                </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/PresentationAttachment"</span>
-<a id="__codelineno-141-49" name="__codelineno-141-49" href="#__codelineno-141-49"></a><span class="w">            </span><span class="p">}</span>
-<a id="__codelineno-141-50" name="__codelineno-141-50" href="#__codelineno-141-50"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-141-51" name="__codelineno-141-51" href="#__codelineno-141-51"></a><span class="w">        </span><span class="nt">"redirectUri"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-141-52" name="__codelineno-141-52" href="#__codelineno-141-52"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-141-53" name="__codelineno-141-53" href="#__codelineno-141-53"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-141-54" name="__codelineno-141-54" href="#__codelineno-141-54"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID."</span><span class="p">,</span>
-<a id="__codelineno-141-55" name="__codelineno-141-55" href="#__codelineno-141-55"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://example.com/callback?session={sessionId}"</span>
+<a id="__codelineno-141-25" name="__codelineno-141-25" href="#__codelineno-141-25"></a><span class="w">        </span><span class="nt">"transaction_data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-141-26" name="__codelineno-141-26" href="#__codelineno-141-26"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"array"</span><span class="p">,</span>
+<a id="__codelineno-141-27" name="__codelineno-141-27" href="#__codelineno-141-27"></a><span class="w">            </span><span class="nt">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-141-28" name="__codelineno-141-28" href="#__codelineno-141-28"></a><span class="w">                </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/TransactionData"</span>
+<a id="__codelineno-141-29" name="__codelineno-141-29" href="#__codelineno-141-29"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-141-30" name="__codelineno-141-30" href="#__codelineno-141-30"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-141-31" name="__codelineno-141-31" href="#__codelineno-141-31"></a><span class="w">        </span><span class="nt">"registrationCert"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-141-32" name="__codelineno-141-32" href="#__codelineno-141-32"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-141-33" name="__codelineno-141-33" href="#__codelineno-141-33"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The registration certificate request containing the necessary details."</span><span class="p">,</span>
+<a id="__codelineno-141-34" name="__codelineno-141-34" href="#__codelineno-141-34"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-141-35" name="__codelineno-141-35" href="#__codelineno-141-35"></a><span class="w">                </span><span class="p">{</span>
+<a id="__codelineno-141-36" name="__codelineno-141-36" href="#__codelineno-141-36"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/RegistrationCertificateRequest"</span>
+<a id="__codelineno-141-37" name="__codelineno-141-37" href="#__codelineno-141-37"></a><span class="w">                </span><span class="p">}</span>
+<a id="__codelineno-141-38" name="__codelineno-141-38" href="#__codelineno-141-38"></a><span class="w">            </span><span class="p">]</span>
+<a id="__codelineno-141-39" name="__codelineno-141-39" href="#__codelineno-141-39"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-141-40" name="__codelineno-141-40" href="#__codelineno-141-40"></a><span class="w">        </span><span class="nt">"webhook"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-141-41" name="__codelineno-141-41" href="#__codelineno-141-41"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-141-42" name="__codelineno-141-42" href="#__codelineno-141-42"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional webhook URL to receive the response."</span><span class="p">,</span>
+<a id="__codelineno-141-43" name="__codelineno-141-43" href="#__codelineno-141-43"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-141-44" name="__codelineno-141-44" href="#__codelineno-141-44"></a><span class="w">                </span><span class="p">{</span>
+<a id="__codelineno-141-45" name="__codelineno-141-45" href="#__codelineno-141-45"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/WebhookConfig"</span>
+<a id="__codelineno-141-46" name="__codelineno-141-46" href="#__codelineno-141-46"></a><span class="w">                </span><span class="p">}</span>
+<a id="__codelineno-141-47" name="__codelineno-141-47" href="#__codelineno-141-47"></a><span class="w">            </span><span class="p">]</span>
+<a id="__codelineno-141-48" name="__codelineno-141-48" href="#__codelineno-141-48"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-141-49" name="__codelineno-141-49" href="#__codelineno-141-49"></a><span class="w">        </span><span class="nt">"attached"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-141-50" name="__codelineno-141-50" href="#__codelineno-141-50"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-141-51" name="__codelineno-141-51" href="#__codelineno-141-51"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Attestation that should be attached"</span><span class="p">,</span>
+<a id="__codelineno-141-52" name="__codelineno-141-52" href="#__codelineno-141-52"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"array"</span><span class="p">,</span>
+<a id="__codelineno-141-53" name="__codelineno-141-53" href="#__codelineno-141-53"></a><span class="w">            </span><span class="nt">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-141-54" name="__codelineno-141-54" href="#__codelineno-141-54"></a><span class="w">                </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/PresentationAttachment"</span>
+<a id="__codelineno-141-55" name="__codelineno-141-55" href="#__codelineno-141-55"></a><span class="w">            </span><span class="p">}</span>
 <a id="__codelineno-141-56" name="__codelineno-141-56" href="#__codelineno-141-56"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-141-57" name="__codelineno-141-57" href="#__codelineno-141-57"></a><span class="w">        </span><span class="nt">"accessCertId"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-141-57" name="__codelineno-141-57" href="#__codelineno-141-57"></a><span class="w">        </span><span class="nt">"redirectUri"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-141-58" name="__codelineno-141-58" href="#__codelineno-141-58"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
 <a id="__codelineno-141-59" name="__codelineno-141-59" href="#__codelineno-141-59"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-141-60" name="__codelineno-141-60" href="#__codelineno-141-60"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.\n\nNote: This is intentionally NOT a TypeORM relationship because CertEntity uses\na composite primary key (id + tenantId), and SQLite cannot create foreign keys\nthat reference only part of a composite primary key. The relationship is handled\nat the application level in the service layer."</span>
-<a id="__codelineno-141-61" name="__codelineno-141-61" href="#__codelineno-141-61"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-141-62" name="__codelineno-141-62" href="#__codelineno-141-62"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-141-63" name="__codelineno-141-63" href="#__codelineno-141-63"></a><span class="p">}</span>
+<a id="__codelineno-141-60" name="__codelineno-141-60" href="#__codelineno-141-60"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID."</span><span class="p">,</span>
+<a id="__codelineno-141-61" name="__codelineno-141-61" href="#__codelineno-141-61"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://example.com/callback?session={sessionId}"</span>
+<a id="__codelineno-141-62" name="__codelineno-141-62" href="#__codelineno-141-62"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-141-63" name="__codelineno-141-63" href="#__codelineno-141-63"></a><span class="w">        </span><span class="nt">"accessCertId"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-141-64" name="__codelineno-141-64" href="#__codelineno-141-64"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-141-65" name="__codelineno-141-65" href="#__codelineno-141-65"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-141-66" name="__codelineno-141-66" href="#__codelineno-141-66"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.\n\nNote: This is intentionally NOT a TypeORM relationship because CertEntity uses\na composite primary key (id + tenantId), and SQLite cannot create foreign keys\nthat reference only part of a composite primary key. The relationship is handled\nat the application level in the service layer."</span>
+<a id="__codelineno-141-67" name="__codelineno-141-67" href="#__codelineno-141-67"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-141-68" name="__codelineno-141-68" href="#__codelineno-141-68"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-141-69" name="__codelineno-141-69" href="#__codelineno-141-69"></a><span class="p">}</span>
 </code></pre></div>
 </details>
 </div>
@@ -13213,13 +13338,20 @@ updated.</p>
 <a id="__codelineno-146-26" name="__codelineno-146-26" href="#__codelineno-146-26"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
 <a id="__codelineno-146-27" name="__codelineno-146-27" href="#__codelineno-146-27"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID."</span><span class="p">,</span>
 <a id="__codelineno-146-28" name="__codelineno-146-28" href="#__codelineno-146-28"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://example.com/callback?session={sessionId}"</span>
-<a id="__codelineno-146-29" name="__codelineno-146-29" href="#__codelineno-146-29"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-146-30" name="__codelineno-146-30" href="#__codelineno-146-30"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-146-31" name="__codelineno-146-31" href="#__codelineno-146-31"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-146-32" name="__codelineno-146-32" href="#__codelineno-146-32"></a><span class="w">        </span><span class="s2">"response_type"</span><span class="p">,</span>
-<a id="__codelineno-146-33" name="__codelineno-146-33" href="#__codelineno-146-33"></a><span class="w">        </span><span class="s2">"requestId"</span>
-<a id="__codelineno-146-34" name="__codelineno-146-34" href="#__codelineno-146-34"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-146-35" name="__codelineno-146-35" href="#__codelineno-146-35"></a><span class="p">}</span>
+<a id="__codelineno-146-29" name="__codelineno-146-29" href="#__codelineno-146-29"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-146-30" name="__codelineno-146-30" href="#__codelineno-146-30"></a><span class="w">        </span><span class="nt">"transaction_data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-146-31" name="__codelineno-146-31" href="#__codelineno-146-31"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional transaction data to include in the OID4VP request.\nIf provided, this will override the transaction_data from the presentation configuration."</span><span class="p">,</span>
+<a id="__codelineno-146-32" name="__codelineno-146-32" href="#__codelineno-146-32"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"array"</span><span class="p">,</span>
+<a id="__codelineno-146-33" name="__codelineno-146-33" href="#__codelineno-146-33"></a><span class="w">            </span><span class="nt">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-146-34" name="__codelineno-146-34" href="#__codelineno-146-34"></a><span class="w">                </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/TransactionData"</span>
+<a id="__codelineno-146-35" name="__codelineno-146-35" href="#__codelineno-146-35"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-146-36" name="__codelineno-146-36" href="#__codelineno-146-36"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-146-37" name="__codelineno-146-37" href="#__codelineno-146-37"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-146-38" name="__codelineno-146-38" href="#__codelineno-146-38"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-146-39" name="__codelineno-146-39" href="#__codelineno-146-39"></a><span class="w">        </span><span class="s2">"response_type"</span><span class="p">,</span>
+<a id="__codelineno-146-40" name="__codelineno-146-40" href="#__codelineno-146-40"></a><span class="w">        </span><span class="s2">"requestId"</span>
+<a id="__codelineno-146-41" name="__codelineno-146-41" href="#__codelineno-146-41"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-146-42" name="__codelineno-146-42" href="#__codelineno-146-42"></a><span class="p">}</span>
 </code></pre></div>
 </details>
 </div>
@@ -14808,6 +14940,10 @@ updated.</p>
             <td></td>
         </tr>
         <tr>
+            <td><code>transaction_data</code></td>
+            <td>Array&lt;<a href="#transactiondata" class="ref-link">TransactionData</a>&gt;</td>
+        </tr>
+        <tr>
             <td><code>updatedAt</code></td>
             <td><span class="string-type">string</span>(<span class="date-time-format format">date-time</span>)</td>
         </tr>
@@ -14860,6 +14996,10 @@ updated.</p>
             <td></td>
         </tr>
         <tr>
+            <td><code>transaction_data</code></td>
+            <td>Array&lt;<a href="#transactiondata" class="ref-link">TransactionData</a>&gt;</td>
+        </tr>
+        <tr>
             <td><code>webhook</code></td>
             <td></td>
         </tr>
@@ -14908,6 +15048,10 @@ updated.</p>
             <td></td>
         </tr>
         <tr>
+            <td><code>transaction_data</code></td>
+            <td>Array&lt;<a href="#transactiondata" class="ref-link">TransactionData</a>&gt;</td>
+        </tr>
+        <tr>
             <td><code>webhook</code></td>
             <td></td>
         </tr>
@@ -14950,6 +15094,10 @@ updated.</p>
         <tr>
             <td><code>response_type</code></td>
             <td><span class="string-type">string</span></td>
+        </tr>
+        <tr>
+            <td><code>transaction_data</code></td>
+            <td>Array&lt;<a href="#transactiondata" class="ref-link">TransactionData</a>&gt;</td>
         </tr>
         <tr>
             <td><code>webhook</code></td>
@@ -15172,6 +15320,10 @@ updated.</p>
             <td><span class="string-type">string</span></td>
         </tr>
         <tr>
+            <td><code>transaction_data</code></td>
+            <td>Array&lt;<a href="#transactiondata" class="ref-link">TransactionData</a>&gt;</td>
+        </tr>
+        <tr>
             <td><code>updatedAt</code></td>
             <td><span class="string-type">string</span>(<span class="date-time-format format">date-time</span>)</td>
         </tr>
@@ -15354,6 +15506,26 @@ updated.</p>
         <tr>
             <td><code>statusListConfig</code></td>
             <td></td>
+        </tr>
+    </tbody>
+</table>
+
+<h3 id="transactiondata">TransactionData<a class="headerlink" href="#transactiondata" title="Permanent link">¶</a></h3>
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>credential_ids</code></td>
+            <td>Array&lt;<span class="string-type">string</span>&gt;</td>
+        </tr>
+        <tr>
+            <td><code>type</code></td>
+            <td><span class="string-type">string</span></td>
         </tr>
     </tbody>
 </table>

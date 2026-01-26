@@ -988,6 +988,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/TokenResponse.html" data-type="entity-link" >TokenResponse</a>
                             </li>
                             <li class="link">
+                                <a href="classes/TransactionData.html" data-type="entity-link" >TransactionData</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/TrustedAuthorityQuery.html" data-type="entity-link" >TrustedAuthorityQuery</a>
                             </li>
                             <li class="link">

@@ -626,8 +626,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="303"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:303</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="316"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:316</a></div>
                         </td>
                     </tr>
 
@@ -1170,7 +1170,7 @@ import { ConflictException, Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
-import { decodeJwt } from &quot;jose&quot;;
+import { base64url, decodeJwt } from &quot;jose&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { ServiceTypeIdentifier } from &quot;../../issuer/trust-list/trustlist.service&quot;;
 import { Session } from &quot;../../session/entities/session.entity&quot;;
@@ -1376,6 +1376,10 @@ export class PresentationsService {
         const host &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
         const tenantHost &#x3D; &#x60;${host}/${presentationConfig.tenantId}&#x60;;
 
+        // Get transaction data from session (which was base64url-encoded in the request)
+        // We need the encoded strings for hash comparison
+        const transactionDataObjects &#x3D; session.transaction_data;
+
         const results &#x3D; await Promise.all(
             attestationIds.map(async (attId) &#x3D;&gt; {
                 const credentials &#x3D; res.vp_token[attId] as unknown as string[];
@@ -1389,6 +1393,13 @@ export class PresentationsService {
                         &#x60;${attId} not found in the presentation config&#x60;,
                     );
                 }
+
+                // Find transaction data entries that reference this credential
+                // According to the spec, each transaction_data object has credential_ids
+                // and the wallet must use one of the referenced credentials
+                const relevantTransactionData &#x3D; transactionDataObjects
+                    ?.filter((td) &#x3D;&gt; td.credential_ids.includes(attId))
+                    .map((td) &#x3D;&gt; base64url.encode(JSON.stringify(td)));
 
                 const verifyOptions: VerifierOptions &#x3D; {
                     trustListSource: {
@@ -1412,6 +1423,8 @@ export class PresentationsService {
                     policy: {
                         requireX5c: true,
                     },
+                    // Pass transaction data for hash validation (only for credentials that have it)
+                    transactionData: relevantTransactionData,
                 };
 
                 const type &#x3D; this.getType(session.requestObject!, attId);
