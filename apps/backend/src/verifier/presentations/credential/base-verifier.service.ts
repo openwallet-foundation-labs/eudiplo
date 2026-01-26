@@ -3,11 +3,11 @@ import * as x509 from "@peculiar/x509";
 import {
     BuiltTrustStore,
     TrustStoreService,
-} from "../../resolver/trust/trust-store.service";
+} from "../../../shared/trust/trust-store.service";
 import {
     ServiceTypeIdentifiers,
     TrustListSource,
-} from "../../resolver/trust/types";
+} from "../../../shared/trust/types";
 
 /**
  * Helper to convert Uint8Array<ArrayBufferLike> to Uint8Array<ArrayBuffer>

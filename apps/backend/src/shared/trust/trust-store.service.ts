@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { decodeJwt } from "jose";
-import { LoTE } from "../../../issuer/trust-list/dto/types";
+import { LoTE } from "../../issuer/trust-list/dto/types";
 import { LoteParserService } from "./lote-parser.service";
 import { TrustListJwtService } from "./trustlist-jwt.service";
 import { TrustedEntity, TrustListSource } from "./types";

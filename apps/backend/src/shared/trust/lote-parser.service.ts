@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { LoTE } from "../../../issuer/trust-list/dto/types";
+import { LoTE } from "../../issuer/trust-list/dto/types";
 import {
     ServiceTypeIdentifier,
     TrustedEntity,

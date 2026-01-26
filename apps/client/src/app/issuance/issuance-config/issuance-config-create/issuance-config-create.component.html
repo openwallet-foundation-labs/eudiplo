@@ -163,6 +163,80 @@
       </mat-card-content>
     </mat-card>
 
+    <!-- Wallet Attestation Card -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>verified_user</mat-icon>
+          Wallet Attestation
+        </mat-card-title>
+        <mat-card-subtitle
+          >Configure wallet attestation requirements for client authentication</mat-card-subtitle
+        >
+      </mat-card-header>
+      <mat-card-content fxLayout="column" fxLayoutGap="16px">
+        <mat-slide-toggle formControlName="walletAttestationRequired">
+          <div fxLayout="column">
+            <span><strong>Require Wallet Attestation</strong></span>
+            <span class="toggle-description"
+              >When enabled, wallets must provide OAuth-Client-Attestation headers at the token
+              endpoint</span
+            >
+          </div>
+        </mat-slide-toggle>
+
+        @if (form.get('walletAttestationRequired')?.value) {
+          <div fxLayout="column" fxLayoutGap="16px" class="trust-lists-section">
+            <p class="section-hint">
+              <mat-icon>info</mat-icon>
+              Add trust list URLs containing trusted wallet providers. The wallet's X.509
+              certificate will be validated against these lists.
+            </p>
+            <div formArrayName="walletProviderTrustLists">
+              @for (trustList of walletProviderTrustLists.controls; track $index; let i = $index) {
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                  <mat-form-field fxFlex>
+                    <mat-label>Trust List URL {{ i + 1 }}</mat-label>
+                    <input
+                      matInput
+                      [formControlName]="i"
+                      placeholder="https://trust-list.example.com/wallet-providers"
+                      type="url"
+                    />
+                    <mat-icon matSuffix>security</mat-icon>
+                    @if (trustList.invalid && trustList.touched) {
+                      <mat-error>Please enter a valid URL</mat-error>
+                    }
+                  </mat-form-field>
+                  <button
+                    matIconButton
+                    type="button"
+                    color="warn"
+                    (click)="removeWalletProviderTrustList(i)"
+                    matTooltip="Remove this trust list"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+            <div fxLayout="row" fxLayoutAlign="center center">
+              <button mat-raised-button type="button" (click)="addWalletProviderTrustList()">
+                <mat-icon>add</mat-icon> Add Trust List URL
+              </button>
+            </div>
+            @if (walletProviderTrustLists.length === 0) {
+              <p class="warning-hint">
+                <mat-icon>warning</mat-icon>
+                No trust lists configured. All wallet providers will be rejected when wallet
+                attestation is required.
+              </p>
+            }
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
     <!-- Action Buttons -->
     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center">
       <button mat-button type="button" [routerLink]="['../']">Cancel</button>

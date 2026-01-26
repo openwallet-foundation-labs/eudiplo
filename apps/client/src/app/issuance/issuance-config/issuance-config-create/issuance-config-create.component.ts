@@ -71,6 +71,8 @@ export class IssuanceConfigCreateComponent implements OnInit {
       authServers: this.fb.array([]),
       batchSize: new FormControl(1, [Validators.min(1)]),
       dPopRequired: new FormControl(true),
+      walletAttestationRequired: new FormControl(false),
+      walletProviderTrustLists: this.fb.array([]),
     } as { [k in keyof IssuanceDto]: any });
   }
 
@@ -115,10 +117,20 @@ export class IssuanceConfigCreateComponent implements OnInit {
         }
       }
 
+      // Load wallet provider trust lists
+      const walletTrustListsArray = this.form.get('walletProviderTrustLists') as FormArray;
+      walletTrustListsArray.clear();
+      if (config.walletProviderTrustLists && Array.isArray(config.walletProviderTrustLists)) {
+        for (const url of config.walletProviderTrustLists) {
+          walletTrustListsArray.push(new FormControl(url, [Validators.required]));
+        }
+      }
+
       // Patch other form values
       this.form.patchValue({
         batchSize: config.batchSize,
         dPopRequired: config.dPopRequired,
+        walletAttestationRequired: config.walletAttestationRequired ?? false,
       });
     } catch (error) {
       console.error('Error loading config:', error);
@@ -137,6 +149,11 @@ export class IssuanceConfigCreateComponent implements OnInit {
       display: formValue.display,
       dPopRequired: formValue.dPopRequired,
       authServers: formValue.authServers?.length > 0 ? formValue.authServers : undefined,
+      walletAttestationRequired: formValue.walletAttestationRequired,
+      walletProviderTrustLists:
+        formValue.walletProviderTrustLists?.length > 0
+          ? formValue.walletProviderTrustLists
+          : undefined,
     };
 
     this.issuanceConfigService
@@ -194,6 +211,18 @@ export class IssuanceConfigCreateComponent implements OnInit {
 
   removeAuthServer(index: number): void {
     this.authServers.removeAt(index);
+  }
+
+  get walletProviderTrustLists(): FormArray {
+    return this.form.get('walletProviderTrustLists') as FormArray;
+  }
+
+  addWalletProviderTrustList(): void {
+    this.walletProviderTrustLists.push(new FormControl('', [Validators.required]));
+  }
+
+  removeWalletProviderTrustList(index: number): void {
+    this.walletProviderTrustLists.removeAt(index);
   }
 
   private markFormGroupTouched(): void {

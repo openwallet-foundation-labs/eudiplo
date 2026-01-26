@@ -1,20 +1,19 @@
 import { createHash } from "node:crypto";
-import { HttpService } from "@nestjs/axios";
 import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import * as x509 from "@peculiar/x509";
 import { digest } from "@sd-jwt/crypto-nodejs";
 import { SDJwtVcInstance, VerificationResult } from "@sd-jwt/sd-jwt-vc";
 import { KbVerifier } from "@sd-jwt/types";
 import { base64url, JWK } from "jose";
-import { firstValueFrom } from "rxjs";
 import { CryptoImplementationService } from "../../../../crypto/key/crypto-implementation/crypto-implementation.service";
-import { ResolverService } from "../../../resolver/resolver.service";
-import { TrustStoreService } from "../../../resolver/trust/trust-store.service";
-import { VerifierOptions } from "../../../resolver/trust/types";
+import { StatusListVerifierService } from "../../../../shared/trust/status-list-verifier.service";
+import { TrustStoreService } from "../../../../shared/trust/trust-store.service";
+import { VerifierOptions } from "../../../../shared/trust/types";
 import {
     MatchedTrustedEntity,
     X509ValidationService,
-} from "../../../resolver/trust/x509-validation.service";
+} from "../../../../shared/trust/x509-validation.service";
+import { ResolverService } from "../../../resolver/resolver.service";
 import { BaseVerifierService } from "../base-verifier.service";
 
 @Injectable()
@@ -24,9 +23,9 @@ export class SdjwtvcverifierService extends BaseVerifierService {
     constructor(
         private readonly resolverService: ResolverService,
         private readonly cryptoService: CryptoImplementationService,
-        private readonly httpService: HttpService,
         trustStore: TrustStoreService,
         private readonly x509v: X509ValidationService,
+        private readonly statusListVerifier: StatusListVerifierService,
     ) {
         super(trustStore);
     }
@@ -439,16 +438,14 @@ export class SdjwtvcverifierService extends BaseVerifierService {
     }
 
     /**
-     * Fetch the status list from the uri.
+     * Fetch the status list from the uri with caching.
      * @param uri
      * @returns
      */
     private readonly statusListFetcher: (uri: string) => Promise<string> = (
         uri: string,
     ) => {
-        return firstValueFrom(this.httpService.get<string>(uri)).then(
-            (res) => res.data,
-        );
+        return this.statusListVerifier.getStatusListJwt(uri);
     };
 
     /**

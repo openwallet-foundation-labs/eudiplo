@@ -1,8 +1,8 @@
 import { HttpModule } from "@nestjs/axios";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { TrustModule } from "../../shared/trust/trust.module";
 import { ResolverModule } from "../resolver/resolver.module";
-import { TrustModule } from "../resolver/trust/trust.module";
 import { MdlverifierService } from "./credential/mdlverifier/mdlverifier.service";
 import { SdjwtvcverifierService } from "./credential/sdjwtvcverifier/sdjwtvcverifier.service";
 import { PresentationConfig } from "./entities/presentation-config.entity";

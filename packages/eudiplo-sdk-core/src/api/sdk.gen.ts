@@ -104,6 +104,20 @@ import type {
   PresentationManagementControllerUpdateConfigurationResponses,
   PrometheusControllerIndexData,
   PrometheusControllerIndexResponses,
+  RegistrarControllerCreateAccessCertificateData,
+  RegistrarControllerCreateAccessCertificateErrors,
+  RegistrarControllerCreateAccessCertificateResponses,
+  RegistrarControllerCreateConfigData,
+  RegistrarControllerCreateConfigErrors,
+  RegistrarControllerCreateConfigResponses,
+  RegistrarControllerDeleteConfigData,
+  RegistrarControllerDeleteConfigResponses,
+  RegistrarControllerGetConfigData,
+  RegistrarControllerGetConfigErrors,
+  RegistrarControllerGetConfigResponses,
+  RegistrarControllerUpdateConfigData,
+  RegistrarControllerUpdateConfigErrors,
+  RegistrarControllerUpdateConfigResponses,
   SessionConfigControllerGetConfigData,
   SessionConfigControllerGetConfigResponses,
   SessionConfigControllerResetConfigData,
@@ -1476,6 +1490,113 @@ export const oid4VpControllerGetResponse = <
     ThrowOnError
   >({
     url: "/{session}/oid4vp",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete registrar configuration
+ */
+export const registrarControllerDeleteConfig = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<RegistrarControllerDeleteConfigData, ThrowOnError>,
+) =>
+  (options?.client ?? client).delete<
+    RegistrarControllerDeleteConfigResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/registrar/config",
+    ...options,
+  });
+
+/**
+ * Get registrar configuration
+ */
+export const registrarControllerGetConfig = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<RegistrarControllerGetConfigData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    RegistrarControllerGetConfigResponses,
+    RegistrarControllerGetConfigErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/registrar/config",
+    ...options,
+  });
+
+/**
+ * Update registrar configuration
+ */
+export const registrarControllerUpdateConfig = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<RegistrarControllerUpdateConfigData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    RegistrarControllerUpdateConfigResponses,
+    RegistrarControllerUpdateConfigErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/registrar/config",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Create or replace registrar configuration
+ */
+export const registrarControllerCreateConfig = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<RegistrarControllerCreateConfigData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    RegistrarControllerCreateConfigResponses,
+    RegistrarControllerCreateConfigErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/registrar/config",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Create an access certificate for a key
+ *
+ * Creates an access certificate at the registrar for the specified key. Requires a relying party to be already registered at the registrar. The certificate is automatically stored in EUDIPLO.
+ */
+export const registrarControllerCreateAccessCertificate = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    RegistrarControllerCreateAccessCertificateData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    RegistrarControllerCreateAccessCertificateResponses,
+    RegistrarControllerCreateAccessCertificateErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/registrar/access-certificate",
     ...options,
     headers: {
       "Content-Type": "application/json",

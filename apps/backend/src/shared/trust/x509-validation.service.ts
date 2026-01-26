@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import * as x509 from "@peculiar/x509";
 import {
     getRevocationCert,
+    ServiceTypeIdentifier,
     ServiceTypeIdentifiers,
     TrustedEntity,
 } from "./types";
@@ -101,18 +102,20 @@ export class X509ValidationService {
      * Returns the matched entity with its issuance and revocation certificates.
      *
      * Policy:
-     * - Looks for issuance certificates (EaaIssuance service type) in each entity
-     * - If issuance cert is CA: require path terminates in that anchor
-     * - If issuance cert is not CA: treat as pin
+     * - Looks for certificates matching the specified service type in each entity
+     * - If cert is CA: require path terminates in that anchor
+     * - If cert is not CA: treat as pin
      *   - pinnedMode "leaf": leaf equals pinned cert
      *   - pinnedMode "pathEnd": path end equals pinned cert
      *
+     * @param serviceType The service type to match (defaults to EaaIssuance for credential validation)
      * @returns The matched entity info, or null if no match
      */
     async pathMatchesTrustedEntities(
         path: x509.X509Certificate[],
         entities: TrustedEntity[],
         pinnedMode: "leaf" | "pathEnd" = "leaf",
+        serviceType: ServiceTypeIdentifier = ServiceTypeIdentifiers.EaaIssuance,
     ): Promise<MatchedTrustedEntity | null> {
         const leaf = path[0];
         const end = path.at(-1)!;
@@ -120,37 +123,32 @@ export class X509ValidationService {
         const endThumb = arrayBufferToHex(await end.getThumbprint());
 
         for (const entity of entities) {
-            // Find issuance certificates in this entity
-            const issuanceServices = entity.services.filter(
-                (s) =>
-                    s.serviceTypeIdentifier ===
-                    ServiceTypeIdentifiers.EaaIssuance,
+            // Find certificates matching the specified service type in this entity
+            const matchingServices = entity.services.filter(
+                (s) => s.serviceTypeIdentifier === serviceType,
             );
 
-            for (const issuanceSvc of issuanceServices) {
-                const issuanceCert = certFromValue(issuanceSvc.certValue);
-                const issuanceThumb = arrayBufferToHex(
-                    await issuanceCert.getThumbprint(),
+            for (const svc of matchingServices) {
+                const matchCert = certFromValue(svc.certValue);
+                const matchThumb = arrayBufferToHex(
+                    await matchCert.getThumbprint(),
                 );
-                const issuanceIsCa = this.isCaCert(issuanceCert);
+                const matchIsCa = this.isCaCert(matchCert);
 
                 let matchMode: "ca" | "leaf-pinned" | "pathEnd-pinned" | null =
                     null;
 
-                if (issuanceIsCa) {
+                if (matchIsCa) {
                     // CA cert: path must terminate at this anchor
-                    if (issuanceThumb === endThumb) {
+                    if (matchThumb === endThumb) {
                         matchMode = "ca";
                     }
-                } else if (
-                    pinnedMode === "leaf" &&
-                    issuanceThumb === leafThumb
-                ) {
+                } else if (pinnedMode === "leaf" && matchThumb === leafThumb) {
                     // Pinned cert (non-CA) - leaf mode
                     matchMode = "leaf-pinned";
                 } else if (
                     pinnedMode === "pathEnd" &&
-                    issuanceThumb === endThumb
+                    matchThumb === endThumb
                 ) {
                     // Pinned cert (non-CA) - pathEnd mode
                     matchMode = "pathEnd-pinned";
@@ -171,9 +169,9 @@ export class X509ValidationService {
 
                     return {
                         entity,
-                        issuanceCert,
-                        issuanceThumbprint: issuanceThumb,
-                        issuanceIsCa,
+                        issuanceCert: matchCert,
+                        issuanceThumbprint: matchThumb,
+                        issuanceIsCa: matchIsCa,
                         matchMode,
                         revocationCert,
                         revocationThumbprint,

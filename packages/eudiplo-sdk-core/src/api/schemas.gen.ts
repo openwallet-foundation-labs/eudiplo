@@ -11,6 +11,7 @@ export const RoleDtoSchema = {
         "issuance:offer",
         "clients:manage",
         "tenants:manage",
+        "registrar:manage",
       ],
       type: "string",
       description: "OAuth2 roles",
@@ -212,6 +213,7 @@ export const ClientEntitySchema = {
           "issuance:offer",
           "clients:manage",
           "tenants:manage",
+          "registrar:manage",
         ],
       },
     },
@@ -260,6 +262,7 @@ export const CreateTenantDtoSchema = {
           "issuance:offer",
           "clients:manage",
           "tenants:manage",
+          "registrar:manage",
         ],
       },
     },
@@ -320,6 +323,7 @@ export const UpdateTenantDtoSchema = {
           "issuance:offer",
           "clients:manage",
           "tenants:manage",
+          "registrar:manage",
         ],
       },
     },
@@ -355,6 +359,7 @@ export const UpdateClientDtoSchema = {
           "issuance:offer",
           "clients:manage",
           "tenants:manage",
+          "registrar:manage",
         ],
       },
     },
@@ -389,6 +394,7 @@ export const CreateClientDtoSchema = {
           "issuance:offer",
           "clients:manage",
           "tenants:manage",
+          "registrar:manage",
         ],
       },
     },
@@ -422,7 +428,6 @@ export const KeyEntitySchema = {
     id: {
       type: "string",
       description: "Unique identifier for the key.",
-      format: "uuid",
     },
     description: {
       type: "string",
@@ -484,13 +489,11 @@ export const CertEntitySchema = {
     keyId: {
       type: "string",
       description: "The key ID this certificate is associated with",
-      format: "uuid",
       example: "039af178-3ca0-48f4-a2e4-7b1209f30376",
     },
     id: {
       type: "string",
       description: "Unique identifier for the key.",
-      format: "uuid",
     },
     tenantId: {
       type: "string",
@@ -584,7 +587,6 @@ export const KeyImportDtoSchema = {
     id: {
       type: "string",
       description: "Unique identifier for the key.",
-      format: "uuid",
     },
     description: {
       type: "string",
@@ -600,7 +602,6 @@ export const UpdateKeyDtoSchema = {
     id: {
       type: "string",
       description: "Unique identifier for the key.",
-      format: "uuid",
     },
     description: {
       type: "string",
@@ -616,12 +617,10 @@ export const CertImportDtoSchema = {
     keyId: {
       type: "string",
       description: "The key ID this certificate is associated with",
-      format: "uuid",
       example: "039af178-3ca0-48f4-a2e4-7b1209f30376",
     },
     id: {
       type: "string",
-      format: "uuid",
     },
     certUsageTypes: {
       description: "Usage types for the certificate.",
@@ -691,7 +690,6 @@ export const StatusListImportDtoSchema = {
     id: {
       type: "string",
       description: "Unique identifier for the status list",
-      format: "uuid",
     },
     credentialConfigurationId: {
       type: "string",
@@ -1106,6 +1104,11 @@ export const OfferRequestDtoSchema = {
         type: "string",
       },
     },
+    authorization_server: {
+      type: "string",
+      description:
+        "Optional authorization server to be used for this issuance flow.",
+    },
     notifyWebhook: {
       description:
         "Webhook to notify about the status of the issuance process.",
@@ -1117,6 +1120,22 @@ export const OfferRequestDtoSchema = {
     },
   },
   required: ["response_type", "flow", "credentialConfigurationIds"],
+} as const;
+
+export const TransactionDataSchema = {
+  type: "object",
+  properties: {
+    type: {
+      type: "string",
+    },
+    credential_ids: {
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+  },
+  required: ["type", "credential_ids"],
 } as const;
 
 export const SessionSchema = {
@@ -1253,6 +1272,14 @@ export const SessionSchema = {
           $ref: "#/components/schemas/WebhookConfig",
         },
       ],
+    },
+    transaction_data: {
+      description:
+        "Transaction data to include in the OID4VP authorization request.\nCan be overridden per-request from the presentation configuration.",
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/TransactionData",
+      },
     },
   },
   required: [
@@ -1437,6 +1464,19 @@ export const IssuanceConfigSchema = {
       description:
         "Indicates whether DPoP is required for the issuance process. Default value is true.",
     },
+    walletAttestationRequired: {
+      type: "boolean",
+      description:
+        "Indicates whether wallet attestation is required for the token endpoint.\nWhen enabled, wallets must provide OAuth-Client-Attestation headers.\nDefault value is false.",
+    },
+    walletProviderTrustLists: {
+      description:
+        "URLs of trust lists containing trusted wallet providers.\nThe wallet attestation's X.509 certificate will be validated against these trust lists.\nIf empty and walletAttestationRequired is true, all wallet providers are rejected.",
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
     display: {
       type: "array",
       items: {
@@ -1476,6 +1516,19 @@ export const IssuanceDtoSchema = {
       type: "boolean",
       description:
         "Indicates whether DPoP is required for the issuance process. Default value is true.",
+    },
+    walletAttestationRequired: {
+      type: "boolean",
+      description:
+        "Indicates whether wallet attestation is required for the token endpoint.\nWhen enabled, wallets must provide OAuth-Client-Attestation headers.\nDefault value is false.",
+    },
+    walletProviderTrustLists: {
+      description:
+        "URLs of trust lists containing trusted wallet providers.\nThe wallet attestation's X.509 certificate will be validated against these trust lists.\nIf empty and walletAttestationRequired is true, all wallet providers are rejected.",
+      type: "array",
+      items: {
+        type: "string",
+      },
     },
     display: {
       type: "array",
@@ -1900,6 +1953,8 @@ export const CredentialConfigSchema = {
     },
     certId: {
       type: "string",
+      description:
+        "Reference to the certificate used for signing.\nNote: No DB-level FK constraint because CertEntity has a composite PK\n(id + tenantId) and SET NULL behavior cannot work when tenantId is\npart of this entity's own PK.",
     },
     cert: {
       $ref: "#/components/schemas/CertEntity",
@@ -1919,7 +1974,7 @@ export const CredentialConfigSchema = {
       ],
     },
   },
-  required: ["id", "tenant", "config", "cert"],
+  required: ["id", "tenant", "config"],
 } as const;
 
 export const CredentialConfigCreateSchema = {
@@ -2004,6 +2059,8 @@ export const CredentialConfigCreateSchema = {
     },
     certId: {
       type: "string",
+      description:
+        "Reference to the certificate used for signing.\nNote: No DB-level FK constraint because CertEntity has a composite PK\n(id + tenantId) and SET NULL behavior cannot work when tenantId is\npart of this entity's own PK.",
     },
     statusManagement: {
       type: "boolean",
@@ -2105,6 +2162,8 @@ export const CredentialConfigUpdateSchema = {
     },
     certId: {
       type: "string",
+      description:
+        "Reference to the certificate used for signing.\nNote: No DB-level FK constraint because CertEntity has a composite PK\n(id + tenantId) and SET NULL behavior cannot work when tenantId is\npart of this entity's own PK.",
     },
     statusManagement: {
       type: "boolean",
@@ -2219,6 +2278,154 @@ export const AuthorizationResponseSchema = {
   required: ["response"],
 } as const;
 
+export const RegistrarConfigEntitySchema = {
+  type: "object",
+  properties: {
+    registrarUrl: {
+      type: "string",
+      description: "The base URL of the registrar API",
+      format: "uri",
+      example: "https://sandbox.eudi-wallet.org/api",
+    },
+    oidcUrl: {
+      type: "string",
+      description:
+        "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
+      format: "uri",
+      example: "https://auth.example.com/realms/my-realm",
+    },
+    clientId: {
+      type: "string",
+      description: "The OIDC client ID for the registrar",
+      example: "registrar-client",
+    },
+    clientSecret: {
+      type: "string",
+      description:
+        "The OIDC client secret (optional, for confidential clients)",
+    },
+    username: {
+      type: "string",
+      description: "The username for OIDC login",
+      example: "admin@example.com",
+    },
+    password: {
+      type: "string",
+      description: "The password for OIDC login (stored in plaintext)",
+    },
+    tenantId: {
+      type: "string",
+      description: "The tenant ID this configuration belongs to.",
+    },
+    tenant: {
+      description: "The tenant that owns this configuration.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/TenantEntity",
+        },
+      ],
+    },
+  },
+  required: [
+    "registrarUrl",
+    "oidcUrl",
+    "clientId",
+    "username",
+    "password",
+    "tenantId",
+    "tenant",
+  ],
+} as const;
+
+export const CreateRegistrarConfigDtoSchema = {
+  type: "object",
+  properties: {
+    registrarUrl: {
+      type: "string",
+      description: "The base URL of the registrar API",
+      format: "uri",
+      example: "https://sandbox.eudi-wallet.org/api",
+    },
+    oidcUrl: {
+      type: "string",
+      description:
+        "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
+      format: "uri",
+      example: "https://auth.example.com/realms/my-realm",
+    },
+    clientId: {
+      type: "string",
+      description: "The OIDC client ID for the registrar",
+      example: "registrar-client",
+    },
+    clientSecret: {
+      type: "string",
+      description:
+        "The OIDC client secret (optional, for confidential clients)",
+    },
+    username: {
+      type: "string",
+      description: "The username for OIDC login",
+      example: "admin@example.com",
+    },
+    password: {
+      type: "string",
+      description: "The password for OIDC login (stored in plaintext)",
+    },
+  },
+  required: ["registrarUrl", "oidcUrl", "clientId", "username", "password"],
+} as const;
+
+export const UpdateRegistrarConfigDtoSchema = {
+  type: "object",
+  properties: {
+    registrarUrl: {
+      type: "string",
+      description: "The base URL of the registrar API",
+      format: "uri",
+      example: "https://sandbox.eudi-wallet.org/api",
+    },
+    oidcUrl: {
+      type: "string",
+      description:
+        "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
+      format: "uri",
+      example: "https://auth.example.com/realms/my-realm",
+    },
+    clientId: {
+      type: "string",
+      description: "The OIDC client ID for the registrar",
+      example: "registrar-client",
+    },
+    clientSecret: {
+      type: "string",
+      description:
+        "The OIDC client secret (optional, for confidential clients)",
+    },
+    username: {
+      type: "string",
+      description: "The username for OIDC login",
+      example: "admin@example.com",
+    },
+    password: {
+      type: "string",
+      description: "The password for OIDC login (stored in plaintext)",
+    },
+  },
+} as const;
+
+export const CreateAccessCertificateDtoSchema = {
+  type: "object",
+  properties: {
+    keyId: {
+      type: "string",
+      description: "The ID of the key to create an access certificate for",
+      example: "my-signing-key",
+    },
+  },
+  required: ["keyId"],
+} as const;
+
 export const DCQLSchema = {
   type: "object",
   properties: {
@@ -2302,6 +2509,12 @@ export const PresentationConfigSchema = {
         },
       ],
     },
+    transaction_data: {
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/TransactionData",
+      },
+    },
     registrationCert: {
       nullable: true,
       description:
@@ -2381,6 +2594,12 @@ export const PresentationConfigCreateDtoSchema = {
         },
       ],
     },
+    transaction_data: {
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/TransactionData",
+      },
+    },
     registrationCert: {
       nullable: true,
       description:
@@ -2450,6 +2669,12 @@ export const PresentationConfigUpdateDtoSchema = {
         },
       ],
     },
+    transaction_data: {
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/TransactionData",
+      },
+    },
     registrationCert: {
       nullable: true,
       description:
@@ -2496,6 +2721,9 @@ export const PresentationConfigUpdateDtoSchema = {
 export const TrustListCreateDtoSchema = {
   type: "object",
   properties: {
+    id: {
+      type: "string",
+    },
     certId: {
       type: "string",
     },
@@ -2505,11 +2733,6 @@ export const TrustListCreateDtoSchema = {
         type: "object",
       },
     },
-    id: {
-      type: "string",
-      description: "Unique identifier for the trust list",
-      format: "uuid",
-    },
     description: {
       type: "string",
     },
@@ -2518,7 +2741,7 @@ export const TrustListCreateDtoSchema = {
       description: "The full trust list JSON (generated LoTE structure)",
     },
   },
-  required: ["entities", "id"],
+  required: ["entities"],
 } as const;
 
 export const TrustListSchema = {
@@ -2527,7 +2750,6 @@ export const TrustListSchema = {
     id: {
       type: "string",
       description: "Unique identifier for the trust list",
-      format: "uuid",
     },
     description: {
       type: "string",
@@ -2668,6 +2890,14 @@ export const PresentationRequestSchema = {
       description:
         "Optional redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.",
       example: "https://example.com/callback?session={sessionId}",
+    },
+    transaction_data: {
+      description:
+        "Optional transaction data to include in the OID4VP request.\nIf provided, this will override the transaction_data from the presentation configuration.",
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/TransactionData",
+      },
     },
   },
   required: ["response_type", "requestId"],
