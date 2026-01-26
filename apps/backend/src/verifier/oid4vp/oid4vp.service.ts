@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { BadRequestException, Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { base64url } from "jose";
 import { v4 } from "uuid";
 import { EncryptionService } from "../../crypto/encryption/encryption.service";
 import { CertService } from "../../crypto/key/cert/cert.service";
@@ -125,6 +126,14 @@ export class Oid4vpService {
 
             const certHash = this.certService.getCertHash(cert);
 
+            // Use transaction_data from session (which may have been overridden) or fall back to config
+            const transaction_data =
+                (
+                    session.transaction_data ??
+                    presentationConfig.transaction_data
+                )?.map((td) => base64url.encode(JSON.stringify(td))) ||
+                undefined;
+
             const request = {
                 payload: {
                     response_type: "vp_token",
@@ -160,6 +169,7 @@ export class Oid4vpService {
                         encrypted_response_enc_values_supported: ["A128GCM"],
                     },
                     state: session.useDcApi ? undefined : session.id,
+                    transaction_data,
                     //TODO: check if this value is correct accroding to https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-aud-of-a-request-object
                     aud: "https://self-issued.me/v2",
                     exp: Math.floor(Date.now() / 1000) + lifeTime,
@@ -263,6 +273,10 @@ export class Oid4vpService {
                 ? undefined
                 : `${host}/${values.session}/oid4vp`;
 
+            // Use transaction_data from options if provided, otherwise fall back to config
+            const transaction_data =
+                values.transaction_data ?? presentationConfig.transaction_data;
+
             const session = await this.sessionService.create({
                 id: values.session,
                 parsedWebhook: values.webhook,
@@ -277,6 +291,7 @@ export class Oid4vpService {
                 useDcApi,
                 clientId,
                 responseUri,
+                transaction_data,
             });
 
             if (request_uri_method === "get") {

@@ -11,7 +11,6 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import {
-  PresentationConfig,
   presentationManagementControllerUpdateConfiguration,
   certControllerGetCertificates,
   CertEntity,
@@ -29,6 +28,7 @@ import {
   DCQLSchema,
   presentationConfigSchema,
   registrationCertificateRequestSchema,
+  transactionDataArraySchema,
 } from '../../../utils/schemas';
 import { CredentialIdsComponent } from '../../credential-ids/credential-ids.component';
 
@@ -65,6 +65,8 @@ export class PresentationCreateComponent implements OnInit {
 
   DCQLSchema = DCQLSchema;
 
+  transactionDataArraySchema = transactionDataArraySchema;
+
   public predefinedConfigs = configs;
 
   public certificates: CertEntity[] = [];
@@ -84,6 +86,7 @@ export class PresentationCreateComponent implements OnInit {
       dcql_query: new FormControl(undefined, [Validators.required]),
       lifeTime: new FormControl(300, [Validators.required, Validators.min(1)]),
       registrationCert: new FormControl(undefined), // Optional field
+      transaction_data: new FormControl(undefined), // Optional transaction data
       attached: new FormArray([]),
       webhook: new FormGroup({
         url: new FormControl(undefined), // Optional, but if filled, should be valid URL
@@ -95,7 +98,7 @@ export class PresentationCreateComponent implements OnInit {
           }),
         }),
       }),
-    } as { [k in keyof Omit<PresentationConfig, 'createdAt'>]: any });
+    });
   }
 
   ngOnInit(): void {
@@ -135,6 +138,10 @@ export class PresentationCreateComponent implements OnInit {
 
           if (formData.registrationCert && typeof formData.registrationCert === 'object') {
             formData.registrationCert = JSON.stringify(formData.registrationCert, null, 2);
+          }
+
+          if (formData.transaction_data && typeof formData.transaction_data === 'object') {
+            formData.transaction_data = JSON.stringify(formData.transaction_data, null, 2);
           }
 
           (formData.attached || []).forEach(() => this.addAttachment());
@@ -189,6 +196,7 @@ export class PresentationCreateComponent implements OnInit {
       try {
         formValue.dcql_query = extractSchema(formValue.dcql_query);
         formValue.registrationCert = extractSchema(formValue.registrationCert);
+        formValue.transaction_data = extractSchema(formValue.transaction_data);
       } catch (error) {
         console.error('Error parsing DCQL Query JSON:', error);
         return;
@@ -201,6 +209,10 @@ export class PresentationCreateComponent implements OnInit {
 
     if (!formValue.registrationCert) {
       formValue.registrationCert = null; // Set to null to clear registrationCert
+    }
+
+    if (!formValue.transaction_data) {
+      formValue.transaction_data = null; // Set to null to clear transaction_data
     }
 
     // In copy mode or new creation, use form ID; in edit mode, use route param ID

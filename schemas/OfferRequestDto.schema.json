@@ -93,6 +93,10 @@
         "type": "string"
       }
     },
+    "authorization_server": {
+      "type": "string",
+      "description": "Optional authorization server to be used for this issuance flow."
+    },
     "notifyWebhook": {
       "description": "Webhook to notify about the status of the issuance process.",
       "allOf": [

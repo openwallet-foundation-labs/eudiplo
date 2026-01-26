@@ -1,6 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, type OnInit } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,11 +21,14 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { OfferResponse, PresentationConfig, PresentationRequest } from '@eudiplo/sdk-core';
 import { PresentationManagementService } from '../presentation-config/presentation-management.service';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { EditorComponent, extractSchema } from '../../utils/editor/editor.component';
+import { transactionDataArraySchema } from '../../utils/schemas';
 
 @Component({
   selector: 'app-presentation-offer',
   imports: [
     CommonModule,
+    FormsModule,
     ReactiveFormsModule,
     MatButtonModule,
     MatIconModule,
@@ -33,6 +42,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     FlexLayoutModule,
     RouterModule,
     MatSlideToggleModule,
+    EditorComponent,
   ],
   templateUrl: './presentation-offer.component.html',
   styleUrl: './presentation-offer.component.scss',
@@ -44,6 +54,8 @@ export class PresentationOfferComponent implements OnInit {
   generatingOffer = false;
   offerResult: OfferResponse | null = null;
   qrCodeDataUrl: string | null = null;
+  showTransactionDataOverride = false;
+  transactionDataArraySchema = transactionDataArraySchema;
 
   constructor(
     private presentationManagementService: PresentationManagementService,
@@ -54,6 +66,7 @@ export class PresentationOfferComponent implements OnInit {
     this.form = new FormGroup({
       requestId: new FormControl('', Validators.required),
       dcapi: new FormControl(false),
+      transaction_data: new FormControl(undefined),
     });
   }
 
@@ -93,9 +106,27 @@ export class PresentationOfferComponent implements OnInit {
 
     try {
       const formValue = this.form.value;
+
+      // Parse transaction_data if provided
+      let transactionData = undefined;
+      if (formValue.transaction_data) {
+        try {
+          transactionData = extractSchema(formValue.transaction_data);
+        } catch (error) {
+          console.error('Error parsing transaction_data JSON:', error);
+          this.snackBar.open('Invalid transaction data JSON format', 'Close', {
+            duration: 3000,
+            panelClass: ['error-snackbar'],
+          });
+          this.generatingOffer = false;
+          return;
+        }
+      }
+
       const offerRequest: PresentationRequest = {
         requestId: formValue.requestId,
         response_type: formValue.dcapi ? 'dc-api' : 'uri',
+        ...(transactionData && { transaction_data: transactionData }),
       };
 
       const result = await this.presentationManagementService.getOffer(offerRequest);

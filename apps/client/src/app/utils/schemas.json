@@ -1268,6 +1268,10 @@
             "type": "string"
           }
         },
+        "authorization_server": {
+          "type": "string",
+          "description": "Optional authorization server to be used for this issuance flow."
+        },
         "notifyWebhook": {
           "description": "Webhook to notify about the status of the issuance process.",
           "allOf": [
@@ -1278,6 +1282,28 @@
         }
       },
       "required": ["response_type", "flow", "credentialConfigurationIds"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TransactionData.schema.json",
+    "fileMatch": ["a://b/TransactionData.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TransactionData.schema.json",
+      "title": "TransactionData",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "credential_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["type", "credential_ids"]
     }
   },
   {
@@ -1416,6 +1442,13 @@
               "$ref": "./WebhookConfig.schema.json"
             }
           ]
+        },
+        "transaction_data": {
+          "description": "Transaction data to include in the OID4VP authorization request.\nCan be overridden per-request from the presentation configuration.",
+          "type": "array",
+          "items": {
+            "$ref": "./TransactionData.schema.json"
+          }
         }
       },
       "required": [
@@ -2849,6 +2882,12 @@
             }
           ]
         },
+        "transaction_data": {
+          "type": "array",
+          "items": {
+            "$ref": "./TransactionData.schema.json"
+          }
+        },
         "registrationCert": {
           "nullable": true,
           "description": "The registration certificate request containing the necessary details.",
@@ -2930,6 +2969,12 @@
             }
           ]
         },
+        "transaction_data": {
+          "type": "array",
+          "items": {
+            "$ref": "./TransactionData.schema.json"
+          }
+        },
         "registrationCert": {
           "nullable": true,
           "description": "The registration certificate request containing the necessary details.",
@@ -3000,6 +3045,12 @@
               "$ref": "./DCQL.schema.json"
             }
           ]
+        },
+        "transaction_data": {
+          "type": "array",
+          "items": {
+            "$ref": "./TransactionData.schema.json"
+          }
         },
         "registrationCert": {
           "nullable": true,
@@ -3232,6 +3283,13 @@
           "type": "string",
           "description": "Optional redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.",
           "example": "https://example.com/callback?session={sessionId}"
+        },
+        "transaction_data": {
+          "description": "Optional transaction data to include in the OID4VP request.\nIf provided, this will override the transaction_data from the presentation configuration.",
+          "type": "array",
+          "items": {
+            "$ref": "./TransactionData.schema.json"
+          }
         }
       },
       "required": ["response_type", "requestId"]

@@ -16,6 +16,7 @@ import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
 import { AuthorizeQueries } from "../../issuer/issuance/oid4vci/authorize/dto/authorize-request.dto";
 import { OfferRequestDto } from "../../issuer/issuance/oid4vci/dto/offer-request.dto";
 import { WebhookConfig } from "../../shared/utils/webhook/webhook.dto";
+import { TransactionData } from "../../verifier/presentations/entities/presentation-config.entity";
 
 export enum SessionStatus {
     Active = "active",
@@ -204,4 +205,11 @@ export class Session {
      */
     @Column("json", { nullable: true })
     parsedWebhook?: WebhookConfig;
+
+    /**
+     * Transaction data to include in the OID4VP authorization request.
+     * Can be overridden per-request from the presentation configuration.
+     */
+    @Column("json", { nullable: true })
+    transaction_data?: TransactionData[];
 }

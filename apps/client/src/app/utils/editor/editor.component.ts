@@ -10,7 +10,7 @@ import {
 import { MonacoEditorModule, NgxEditorModel } from 'ngx-monaco-editor-v2';
 import Ajv, { ValidateFunction } from 'ajv/dist/2020';
 import addFormats from 'ajv-formats';
-import { Component, forwardRef, OnChanges, Input, SimpleChanges } from '@angular/core';
+import { Component, forwardRef, OnChanges, Input, SimpleChanges, OnInit } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { SchemaValidation } from '../schemas';
 import schemas from '../schemas.json';
@@ -40,12 +40,12 @@ export function extractSchema(obj: any) {
     { provide: NG_VALIDATORS, useExisting: forwardRef(() => EditorComponent), multi: true },
   ],
 })
-export class EditorComponent implements ControlValueAccessor, Validator, OnChanges {
+export class EditorComponent implements ControlValueAccessor, Validator, OnChanges, OnInit {
   @Input() schema?: SchemaValidation;
   @Input() editorOptions: any = { language: 'json', automaticLayout: true };
   @Input() errors?: ValidationErrors | null = null;
 
-  model: NgxEditorModel;
+  model?: NgxEditorModel;
 
   value = '';
   disabled = false;
@@ -63,38 +63,24 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
         console.error(`Failed to add schema ${key}:`, error);
       }
     }
+  }
+  ngOnInit(): void {
     this.model = {
       value: this.value,
       language: 'json',
-      //uri: this.schema?.getUri(),
+      uri: this.schema?.getFileMatchUri(),
     };
   }
 
   // CVA
   writeValue(obj: any): void {
-    if (this.schema) {
-      let parsed = obj;
-      if (!obj) {
-        parsed = {};
-      }
-      if (typeof obj !== 'object') {
-        parsed = JSON.parse(obj === '' ? '{}' : obj);
-      }
-      if (!parsed['$schema']) {
-        parsed = {
-          $schema: this.schema?.getSchemaUrl(),
-          ...parsed,
-        };
-      }
-      obj = JSON.stringify(parsed, null, 2);
-    }
-
+    // No longer inject $schema - Monaco uses URI-based schema matching via fileMatch
     this.value = obj == null ? '' : typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2);
 
     this.model = {
       value: this.value,
       language: this.editorOptions.language,
-      //uri: this.schema?.getUri(),
+      uri: this.schema?.getFileMatchUri(),
     };
   }
   registerOnChange = (fn: any) => (this._onChange = fn);

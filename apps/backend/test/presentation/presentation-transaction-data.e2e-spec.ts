@@ -1,0 +1,504 @@
+import crypto from "node:crypto";
+import { INestApplication } from "@nestjs/common";
+import {
+    Openid4vpAuthorizationRequest,
+    Openid4vpClient,
+} from "@openid4vc/openid4vp";
+import { digest, ES256 } from "@sd-jwt/crypto-nodejs";
+import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
+import { kbPayload } from "@sd-jwt/types";
+import { base64url, CryptoKey } from "jose";
+import request from "supertest";
+import { App } from "supertest/types";
+import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { StatusListService } from "../../src/issuer/lifecycle/status/status-list.service";
+import { AuthConfig } from "../../src/shared/utils/webhook/webhook.dto";
+import {
+    PresentationRequest,
+    ResponseType,
+} from "../../src/verifier/oid4vp/dto/presentation-request.dto";
+import { PresentationConfigCreateDto } from "../../src/verifier/presentations/dto/presentation-config-create.dto";
+import {
+    TransactionData,
+    TrustedAuthorityType,
+} from "../../src/verifier/presentations/entities/presentation-config.entity";
+import {
+    callbacks,
+    createPresentationRequest,
+    createTestFetch,
+    encryptVpToken,
+    PresentationTestContext,
+    setupPresentationTestApp,
+} from "../utils";
+
+/**
+ * Creates a credential for testing (similar to the internal createCredential in utils.ts)
+ */
+async function createCredentialWithStatus(options: {
+    claims: any;
+    privateKey: CryptoKey;
+    x5c: string[];
+}) {
+    const { privateKeyHolder, publicKeyHolder } =
+        await ES256.generateKeyPair().then((keyPair) => ({
+            privateKeyHolder: keyPair.privateKey,
+            publicKeyHolder: keyPair.publicKey,
+        }));
+
+    const sdjwt = new SDJwtVcInstance({
+        signer: async (data: string) => {
+            const encoder = new TextEncoder();
+            const signature = await globalThis.crypto.subtle.sign(
+                { name: "ECDSA", hash: "SHA-256" },
+                options.privateKey,
+                encoder.encode(data),
+            );
+
+            return btoa(String.fromCodePoint(...new Uint8Array(signature)))
+                .replaceAll("+", "-")
+                .replaceAll("/", "_")
+                .replace(/=+$/, "");
+        },
+        signAlg: "ES256",
+        hasher: digest,
+        loadTypeMetadataFormat: true,
+        saltGenerator: (length: number) =>
+            crypto.randomBytes(length).toString("base64url"),
+    });
+
+    return sdjwt
+        .issue(
+            {
+                ...options.claims,
+                cnf: { jwk: publicKeyHolder },
+            },
+            undefined,
+            {
+                header: {
+                    x5c: options.x5c,
+                },
+            },
+        )
+        .then((credential) => ({
+            credential,
+            privateKey: privateKeyHolder,
+        }));
+}
+
+/**
+ * Computes SHA-256 hash and returns base64url-encoded result
+ * According to spec, hashes are computed over the raw string (no decoding before hashing)
+ */
+function computeTransactionDataHash(transactionDataBase64url: string): string {
+    return base64url.encode(
+        crypto.createHash("sha256").update(transactionDataBase64url).digest(),
+    );
+}
+
+/**
+ * Prepares a presentation with transaction_data_hashes in the KB-JWT
+ */
+async function preparePresentationWithTransactionData(
+    kb: Omit<kbPayload, "sd_hash"> & {
+        transaction_data_hashes?: string[];
+        transaction_data_hashes_alg?: string;
+    },
+    privateKey: CryptoKey,
+    x5c: string[],
+    statusListService: StatusListService,
+    credentialConfigId: string,
+) {
+    const status = await statusListService.createEntry(
+        { tenantId: "root", id: "1" } as any,
+        credentialConfigId,
+    );
+
+    const credential = await createCredentialWithStatus({
+        claims: {
+            vct: "http://localhost:3000/root/credentials-metadata/vct/pid",
+            status,
+        },
+        privateKey,
+        x5c,
+    });
+
+    const sdjwt = new SDJwtVcInstance({
+        hasher: digest,
+        kbSigner: await ES256.getSigner(credential.privateKey),
+        kbSignAlg: "ES256",
+    });
+
+    const presentation = await sdjwt.present(
+        credential.credential,
+        {
+            birthdate: true,
+            address: {
+                locality: true,
+            },
+        },
+        {
+            kb: {
+                payload: kb,
+            },
+        },
+    );
+    return presentation;
+}
+
+describe("Presentation - Transaction Data", () => {
+    let app: INestApplication<App>;
+    let authToken: string;
+    let host: string;
+    let privateIssuerKey: CryptoKey;
+    let issuerCert: string;
+    let statusListService: StatusListService;
+    let ctx: PresentationTestContext;
+
+    const credentialConfigId = "pid";
+
+    let client: Openid4vpClient;
+
+    /**
+     * Helper function to submit a presentation with transaction data support
+     */
+    async function submitPresentationWithTransactionData(values: {
+        requestId: string;
+        credentialId: string;
+        webhookUrl?: string;
+        privateKey: CryptoKey;
+        issuerCert: string;
+        transactionData?: TransactionData[];
+        // Transaction data hashes to include in KB-JWT (if different from computed hashes)
+        overrideTransactionDataHashes?: string[];
+    }) {
+        const requestBody: PresentationRequest = {
+            response_type: ResponseType.URI,
+            requestId: values.requestId,
+            ...(values.webhookUrl && {
+                webhook: {
+                    url: values.webhookUrl,
+                    auth: { type: AuthConfig.NONE },
+                },
+            }),
+            ...(values.transactionData && {
+                transaction_data: values.transactionData,
+            }),
+        };
+
+        const res = await createPresentationRequest(
+            app,
+            authToken,
+            requestBody,
+        );
+
+        const authRequest = client.parseOpenid4vpAuthorizationRequest({
+            authorizationRequest: res.body.uri,
+        });
+
+        const resolved = await client.resolveOpenId4vpAuthorizationRequest({
+            authorizationRequestPayload: authRequest.params,
+        });
+
+        const x5c = [
+            values.issuerCert
+                .replace("-----BEGIN CERTIFICATE-----", "")
+                .replace("-----END CERTIFICATE-----", "")
+                .replaceAll(/\r?\n|\r/g, ""),
+        ];
+
+        // Compute transaction_data_hashes for KB-JWT if transaction data is provided
+        let transactionDataHashes: string[] | undefined;
+        if (values.transactionData && values.transactionData.length > 0) {
+            // Filter transaction data that references this credential
+            const relevantTransactionData = values.transactionData.filter(
+                (td) => td.credential_ids.includes(values.credentialId),
+            );
+            if (relevantTransactionData.length > 0) {
+                if (values.overrideTransactionDataHashes) {
+                    transactionDataHashes =
+                        values.overrideTransactionDataHashes;
+                } else {
+                    // Compute hashes as the wallet would: base64url encode each transaction data object
+                    // then hash it with SHA-256 and base64url encode the result
+                    transactionDataHashes = relevantTransactionData.map(
+                        (td) => {
+                            const encoded = base64url.encode(
+                                JSON.stringify(td),
+                            );
+                            return computeTransactionDataHash(encoded);
+                        },
+                    );
+                }
+            }
+        }
+
+        const vp_token = await preparePresentationWithTransactionData(
+            {
+                iat: Math.floor(Date.now() / 1000),
+                aud: resolved.authorizationRequestPayload.aud as string,
+                nonce: resolved.authorizationRequestPayload.nonce,
+                ...(transactionDataHashes && {
+                    transaction_data_hashes: transactionDataHashes,
+                }),
+            },
+            values.privateKey,
+            x5c,
+            statusListService,
+            credentialConfigId,
+        );
+
+        const jwt = await encryptVpToken(
+            vp_token,
+            values.credentialId || "pid",
+            resolved,
+        );
+
+        const authorizationResponse =
+            await client.createOpenid4vpAuthorizationResponse({
+                authorizationRequestPayload: authRequest.params,
+                authorizationResponsePayload: {
+                    response: jwt,
+                },
+                ...callbacks,
+            });
+
+        const submitRes = await client.submitOpenid4vpAuthorizationResponse({
+            authorizationResponsePayload:
+                authorizationResponse.authorizationResponsePayload,
+            authorizationRequestPayload:
+                resolved.authorizationRequestPayload as Openid4vpAuthorizationRequest,
+        });
+
+        return { res, submitRes, authRequest, resolved };
+    }
+
+    beforeAll(async () => {
+        ctx = await setupPresentationTestApp();
+        app = ctx.app;
+        authToken = ctx.authToken;
+        host = ctx.host;
+        privateIssuerKey = ctx.privateIssuerKey;
+        issuerCert = ctx.issuerCert;
+        statusListService = ctx.statusListService;
+
+        client = new Openid4vpClient({
+            callbacks: {
+                ...callbacks,
+                fetch: createTestFetch(app, () => host),
+            },
+        });
+
+        // Create a presentation config with transaction data
+        await request(app.getHttpServer())
+            .post("/verifier/config")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .send({
+                id: "pid-with-transaction-data",
+                description: "PID presentation with transaction data",
+                dcql_query: {
+                    credentials: [
+                        {
+                            id: "pid",
+                            format: "dc+sd-jwt",
+                            meta: {
+                                vct_values: [
+                                    `${host}/root/credentials-metadata/vct/pid`,
+                                ],
+                            },
+                            claims: [
+                                {
+                                    path: ["address", "locality"],
+                                },
+                            ],
+                            trusted_authorities: [
+                                {
+                                    type: TrustedAuthorityType.ETSI_TL,
+                                    values: [
+                                        `${host}/root/trust-list/580831bc-ef11-43f4-a3be-a2b6bf1b29a3`,
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                },
+                transaction_data: [
+                    {
+                        type: "payment_authorization",
+                        credential_ids: ["pid"],
+                        amount: "100.00",
+                        currency: "EUR",
+                        merchant: "Test Merchant",
+                    },
+                ],
+            } satisfies PresentationConfigCreateDto)
+            .expect(201);
+    });
+
+    afterAll(async () => {
+        await app.close();
+    });
+
+    test("should accept presentation with valid transaction data hashes", async () => {
+        const transactionData: TransactionData[] = [
+            {
+                type: "payment_authorization",
+                credential_ids: ["pid"],
+                amount: "50.00",
+                currency: "EUR",
+                merchant: "E-Commerce Store",
+            },
+        ];
+
+        const { submitRes } = await submitPresentationWithTransactionData({
+            requestId: "pid-no-hook",
+            credentialId: "pid",
+            privateKey: privateIssuerKey,
+            issuerCert,
+            transactionData,
+        });
+
+        expect(submitRes).toBeDefined();
+        expect(submitRes.response.status).toBe(200);
+    });
+
+    test("should accept presentation using transaction data from config", async () => {
+        // This test uses the presentation config that already has transaction_data defined
+        const { submitRes } = await submitPresentationWithTransactionData({
+            requestId: "pid-with-transaction-data",
+            credentialId: "pid",
+            privateKey: privateIssuerKey,
+            issuerCert,
+            // Transaction data comes from the config, so we need to match what's in the config
+            transactionData: [
+                {
+                    type: "payment_authorization",
+                    credential_ids: ["pid"],
+                    amount: "100.00",
+                    currency: "EUR",
+                    merchant: "Test Merchant",
+                },
+            ],
+        });
+
+        expect(submitRes).toBeDefined();
+        expect(submitRes.response.status).toBe(200);
+    });
+
+    test("should accept presentation with multiple transaction data entries", async () => {
+        const transactionData: TransactionData[] = [
+            {
+                type: "payment_authorization",
+                credential_ids: ["pid"],
+                amount: "75.00",
+                currency: "EUR",
+                merchant: "Store A",
+            },
+            {
+                type: "consent",
+                credential_ids: ["pid"],
+                purpose: "data_sharing",
+                recipient: "Partner B",
+            },
+        ];
+
+        const { submitRes } = await submitPresentationWithTransactionData({
+            requestId: "pid-no-hook",
+            credentialId: "pid",
+            privateKey: privateIssuerKey,
+            issuerCert,
+            transactionData,
+        });
+
+        expect(submitRes).toBeDefined();
+        expect(submitRes.response.status).toBe(200);
+    });
+
+    test("should reject presentation with mismatched transaction data hashes", async () => {
+        const transactionData: TransactionData[] = [
+            {
+                type: "payment_authorization",
+                credential_ids: ["pid"],
+                amount: "99.00",
+                currency: "EUR",
+                merchant: "Legit Store",
+            },
+        ];
+
+        // Provide wrong hashes that don't match the actual transaction data
+        const { submitRes } = await submitPresentationWithTransactionData({
+            requestId: "pid-no-hook",
+            credentialId: "pid",
+            privateKey: privateIssuerKey,
+            issuerCert,
+            transactionData,
+            overrideTransactionDataHashes: ["INVALID_HASH_THAT_WONT_MATCH"],
+        });
+
+        // The response should fail validation
+        expect(submitRes.response.status).toBe(400);
+    });
+
+    test("should reject presentation when transaction data provided but no hashes in KB-JWT", async () => {
+        // This simulates a wallet that doesn't include transaction_data_hashes
+        // when they were expected
+        const transactionData: TransactionData[] = [
+            {
+                type: "payment_authorization",
+                credential_ids: ["pid"],
+                amount: "25.00",
+                currency: "EUR",
+                merchant: "Quick Shop",
+            },
+        ];
+
+        // Override with empty array to simulate missing hashes
+        const { submitRes } = await submitPresentationWithTransactionData({
+            requestId: "pid-no-hook",
+            credentialId: "pid",
+            privateKey: privateIssuerKey,
+            issuerCert,
+            transactionData,
+            overrideTransactionDataHashes: [], // Empty hashes when data was expected
+        });
+
+        // Should fail because hash count doesn't match
+        expect(submitRes.response.status).toBe(400);
+    });
+
+    test("should accept presentation without transaction data", async () => {
+        // Normal presentation without any transaction data
+        const { submitRes } = await submitPresentationWithTransactionData({
+            requestId: "pid-no-hook",
+            credentialId: "pid",
+            privateKey: privateIssuerKey,
+            issuerCert,
+            // No transactionData
+        });
+
+        expect(submitRes).toBeDefined();
+        expect(submitRes.response.status).toBe(200);
+    });
+
+    test("should override config transaction data with request transaction data", async () => {
+        // Use the config that has transaction data, but override it in the request
+        const overrideTransactionData: TransactionData[] = [
+            {
+                type: "custom_authorization",
+                credential_ids: ["pid"],
+                custom_field: "custom_value",
+            },
+        ];
+
+        const { submitRes } = await submitPresentationWithTransactionData({
+            requestId: "pid-with-transaction-data",
+            credentialId: "pid",
+            privateKey: privateIssuerKey,
+            issuerCert,
+            transactionData: overrideTransactionData,
+        });
+
+        expect(submitRes).toBeDefined();
+        expect(submitRes.response.status).toBe(200);
+    });
+});

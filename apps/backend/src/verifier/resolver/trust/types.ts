@@ -66,6 +66,13 @@ export function getRevocationCert(
 export type VerifierOptions = {
     trustListSource: TrustListSource;
     policy: VerifyPolicy;
+    /**
+     * Transaction data from the OID4VP request.
+     * When provided, the verifier will validate that the KB-JWT contains
+     * transaction_data_hashes that match SHA-256 hashes of each transaction data string.
+     * See OID4VP spec Appendix B.3.3.1 for details.
+     */
+    transactionData?: string[];
 };
 
 export type TrustListSource = {

@@ -1,22 +1,24 @@
-<div fxLayout="column">
-  <div class="editor">
-    <ngx-monaco-editor
-      [options]="editorOptions"
-      [(ngModel)]="value"
-      [model]="model"
-      (ngModelChange)="handleChange($event)"
-      (blur)="onBlur()"
-    ></ngx-monaco-editor>
+@if (model) {
+  <div fxLayout="column">
+    <div class="editor">
+      <ngx-monaco-editor
+        [options]="editorOptions"
+        [(ngModel)]="value"
+        [model]="model"
+        (ngModelChange)="handleChange($event)"
+        (blur)="onBlur()"
+      ></ngx-monaco-editor>
+    </div>
+    @if (errors?.['invalidSchema']) {
+      <mat-error>
+        {{ errors?.['invalidSchema'] }}
+      </mat-error>
+    }
+    @if (errors?.['invalidJson']) {
+      <mat-error> Input must be valid JSON. </mat-error>
+    }
+    @if (errors?.['required']) {
+      <mat-error> This field is required. </mat-error>
+    }
   </div>
-  @if (errors?.['invalidSchema']) {
-    <mat-error>
-      {{ errors?.['invalidSchema'] }}
-    </mat-error>
-  }
-  @if (errors?.['invalidJson']) {
-    <mat-error> Input must be valid JSON. </mat-error>
-  }
-  @if (errors?.['required']) {
-    <mat-error> This field is required. </mat-error>
-  }
-</div>
+}
