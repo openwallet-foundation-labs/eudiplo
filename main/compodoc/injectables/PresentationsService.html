@@ -1174,12 +1174,12 @@ import { base64url, decodeJwt } from &quot;jose&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { ServiceTypeIdentifier } from &quot;../../issuer/trust-list/trustlist.service&quot;;
 import { Session } from &quot;../../session/entities/session.entity&quot;;
+import { VerifierOptions } from &quot;../../shared/trust/types&quot;;
 import { ConfigImportService } from &quot;../../shared/utils/config-import/config-import.service&quot;;
 import {
     ConfigImportOrchestratorService,
     ImportPhase,
 } from &quot;../../shared/utils/config-import/config-import-orchestrator.service&quot;;
-import { VerifierOptions } from &quot;../resolver/trust/types&quot;;
 import { MdlverifierService } from &quot;./credential/mdlverifier/mdlverifier.service&quot;;
 import { SdjwtvcverifierService } from &quot;./credential/sdjwtvcverifier/sdjwtvcverifier.service&quot;;
 import { AuthResponse } from &quot;./dto/auth-response.dto&quot;;

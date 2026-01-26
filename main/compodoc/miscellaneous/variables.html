@@ -203,7 +203,7 @@
                             <a href="#ROLES_KEY" title="src/auth/roles/roles.decorator.ts" ><b>ROLES_KEY</b>&nbsp;&nbsp;&nbsp;(src/.../roles.decorator.ts)</a>
                         </li>
                         <li>
-                            <a href="#ServiceTypeIdentifiers" title="src/verifier/resolver/trust/types.ts" ><b>ServiceTypeIdentifiers</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
+                            <a href="#ServiceTypeIdentifiers" title="src/shared/trust/types.ts" ><b>ServiceTypeIdentifiers</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
                         </li>
                         <li>
                             <a href="#SESSION_LOGGER_KEY" title="src/shared/utils/logger/session-logger.decorator.ts" ><b>SESSION_LOGGER_KEY</b>&nbsp;&nbsp;&nbsp;(src/.../session-logger.decorator.ts)</a>
@@ -1635,7 +1635,7 @@ Defines the required environment variables and their types.</p>
         </tbody>
     </table>
 </section>
-    <h3>src/verifier/resolver/trust/types.ts</h3>
+    <h3>src/shared/trust/types.ts</h3>
     <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
@@ -1659,6 +1659,8 @@ Defines the required environment variables and their types.</p>
                         <i>Default value : </i><code>{
     EaaIssuance: &quot;http://uri.etsi.org/19602/SvcType/EAA/Issuance&quot;,
     EaaRevocation: &quot;http://uri.etsi.org/19602/SvcType/EAA/Revocation&quot;,
+    /** Wallet provider service type for wallet attestation validation */
+    WalletProvider: &quot;http://uri.etsi.org/19602/SvcType/WalletProvider&quot;,
 } as const</code>
                     </td>
                 </tr>

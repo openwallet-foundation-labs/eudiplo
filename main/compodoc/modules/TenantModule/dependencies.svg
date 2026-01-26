@@ -28,13 +28,13 @@
 <title>cluster_TenantModule_providers</title>
 <polygon fill="none" stroke="black" points="745,-78 745,-130 895,-130 895,-78 745,-78"/>
 </g>
-<g id="clust3" class="cluster">
-<title>cluster_TenantModule_imports</title>
-<polygon fill="none" stroke="black" points="16,-78 16,-195 737,-195 737,-78 16,-78"/>
-</g>
 <g id="clust4" class="cluster">
 <title>cluster_TenantModule_exports</title>
 <polygon fill="none" stroke="black" points="453,-208 453,-260 569,-260 569,-208 453,-208"/>
+</g>
+<g id="clust3" class="cluster">
+<title>cluster_TenantModule_imports</title>
+<polygon fill="none" stroke="black" points="16,-78 16,-195 737,-195 737,-78 16,-78"/>
 </g>
 <!-- ClientModule -->
 <g id="node1" class="node">
