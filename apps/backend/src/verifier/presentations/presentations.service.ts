@@ -7,12 +7,12 @@ import { base64url, decodeJwt } from "jose";
 import { Repository } from "typeorm";
 import { ServiceTypeIdentifier } from "../../issuer/trust-list/trustlist.service";
 import { Session } from "../../session/entities/session.entity";
+import { VerifierOptions } from "../../shared/trust/types";
 import { ConfigImportService } from "../../shared/utils/config-import/config-import.service";
 import {
     ConfigImportOrchestratorService,
     ImportPhase,
 } from "../../shared/utils/config-import/config-import-orchestrator.service";
-import { VerifierOptions } from "../resolver/trust/types";
 import { MdlverifierService } from "./credential/mdlverifier/mdlverifier.service";
 import { SdjwtvcverifierService } from "./credential/sdjwtvcverifier/sdjwtvcverifier.service";
 import { AuthResponse } from "./dto/auth-response.dto";

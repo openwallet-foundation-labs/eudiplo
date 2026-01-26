@@ -71,6 +71,26 @@ export class IssuanceConfig {
     @Column("boolean", { default: true })
     dPopRequired?: boolean;
 
+    /**
+     * Indicates whether wallet attestation is required for the token endpoint.
+     * When enabled, wallets must provide OAuth-Client-Attestation headers.
+     * Default value is false.
+     */
+    @IsBoolean()
+    @IsOptional()
+    @Column("boolean", { default: false })
+    walletAttestationRequired?: boolean;
+
+    /**
+     * URLs of trust lists containing trusted wallet providers.
+     * The wallet attestation's X.509 certificate will be validated against these trust lists.
+     * If empty and walletAttestationRequired is true, all wallet providers are rejected.
+     */
+    @IsArray()
+    @IsOptional()
+    @Column({ type: "json", nullable: true })
+    walletProviderTrustLists?: string[];
+
     @ValidateNested({ each: true })
     @Type(() => DisplayInfo)
     @Column("json", { nullable: true })

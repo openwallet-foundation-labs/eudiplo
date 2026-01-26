@@ -3,6 +3,7 @@ import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { CryptoModule } from "../../crypto/crypto.module";
 import { SessionModule } from "../../session/session.module";
+import { TrustModule } from "../../shared/trust/trust.module";
 import { WebhookService } from "../../shared/utils/webhook/webhook.service";
 import { Oid4vpModule } from "../../verifier/oid4vp/oid4vp.module";
 import { ConfigurationModule } from "../configuration/configuration.module";
@@ -32,6 +33,7 @@ import { WellKnownService } from "./oid4vci/well-known/well-known.service";
         Oid4vpModule,
         SessionModule,
         HttpModule,
+        TrustModule,
         TypeOrmModule.forFeature([NonceEntity]),
     ],
     controllers: [

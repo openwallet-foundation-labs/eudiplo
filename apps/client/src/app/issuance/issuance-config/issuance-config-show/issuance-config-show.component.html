@@ -60,6 +60,33 @@
               }
             </span>
           </mat-list-item>
+          <mat-list-item>
+            <mat-icon
+              matListItemIcon
+              [class]="config.walletAttestationRequired ? '' : 'icon-disabled'"
+            >
+              {{ config.walletAttestationRequired ? 'verified_user' : 'no_encryption' }}
+            </mat-icon>
+            <span matListItemTitle>Wallet Attestation</span>
+            <span matListItemLine>{{
+              config.walletAttestationRequired ? 'Required' : 'Not required'
+            }}</span>
+          </mat-list-item>
+          @if (config.walletAttestationRequired) {
+            <mat-list-item>
+              <mat-icon matListItemIcon>security</mat-icon>
+              <span matListItemTitle>Wallet Provider Trust Lists</span>
+              <span matListItemLine>
+                @if (
+                  config.walletProviderTrustLists && config.walletProviderTrustLists.length > 0
+                ) {
+                  {{ config.walletProviderTrustLists.length }} trust list(s) configured
+                } @else {
+                  <span class="warning-text">No trust lists configured - all wallets rejected</span>
+                }
+              </span>
+            </mat-list-item>
+          }
         </mat-list>
       </mat-card-content>
     </mat-card>

@@ -7,8 +7,8 @@ import {
     Verifier,
 } from "@animo-id/mdoc";
 import { Injectable, Logger } from "@nestjs/common";
-import { TrustStoreService } from "../../../resolver/trust/trust-store.service";
-import { VerifierOptions } from "../../../resolver/trust/types";
+import { TrustStoreService } from "../../../../shared/trust/trust-store.service";
+import { VerifierOptions } from "../../../../shared/trust/types";
 import { mdocContext } from "../../mdl-context";
 import { BaseVerifierService } from "../base-verifier.service";
 

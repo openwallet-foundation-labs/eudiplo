@@ -13,6 +13,8 @@ export type ServiceTypeIdentifier = string;
 export const ServiceTypeIdentifiers = {
     EaaIssuance: "http://uri.etsi.org/19602/SvcType/EAA/Issuance",
     EaaRevocation: "http://uri.etsi.org/19602/SvcType/EAA/Revocation",
+    /** Wallet provider service type for wallet attestation validation */
+    WalletProvider: "http://uri.etsi.org/19602/SvcType/WalletProvider",
 } as const;
 
 /**

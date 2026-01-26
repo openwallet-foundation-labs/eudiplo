@@ -14,7 +14,8 @@ export type RoleDto = {
     | "issuance:manage"
     | "issuance:offer"
     | "clients:manage"
-    | "tenants:manage";
+    | "tenants:manage"
+    | "registrar:manage";
 };
 
 export type ClientCredentialsDto = {
@@ -133,6 +134,7 @@ export type ClientEntity = {
     | "issuance:offer"
     | "clients:manage"
     | "tenants:manage"
+    | "registrar:manage"
   >;
   /**
    * The tenant that the client belongs to.
@@ -156,6 +158,7 @@ export type CreateTenantDto = {
     | "issuance:offer"
     | "clients:manage"
     | "tenants:manage"
+    | "registrar:manage"
   >;
   /**
    * The unique identifier for the tenant.
@@ -195,6 +198,7 @@ export type UpdateTenantDto = {
     | "issuance:offer"
     | "clients:manage"
     | "tenants:manage"
+    | "registrar:manage"
   >;
 };
 
@@ -217,6 +221,7 @@ export type UpdateClientDto = {
     | "issuance:offer"
     | "clients:manage"
     | "tenants:manage"
+    | "registrar:manage"
   >;
 };
 
@@ -243,6 +248,7 @@ export type CreateClientDto = {
     | "issuance:offer"
     | "clients:manage"
     | "tenants:manage"
+    | "registrar:manage"
   >;
 };
 
@@ -635,9 +641,18 @@ export type OfferRequestDto = {
    */
   credentialConfigurationIds: Array<string>;
   /**
+   * Optional authorization server to be used for this issuance flow.
+   */
+  authorization_server?: string;
+  /**
    * Webhook to notify about the status of the issuance process.
    */
   notifyWebhook?: WebhookConfig;
+};
+
+export type TransactionData = {
+  type: string;
+  credential_ids: Array<string>;
 };
 
 export type Session = {
@@ -741,6 +756,11 @@ export type Session = {
    * Where to send the claims webhook response.
    */
   parsedWebhook?: WebhookConfig;
+  /**
+   * Transaction data to include in the OID4VP authorization request.
+   * Can be overridden per-request from the presentation configuration.
+   */
+  transaction_data?: Array<TransactionData>;
 };
 
 export type StatusUpdateDto = {
@@ -833,6 +853,18 @@ export type IssuanceConfig = {
    * Indicates whether DPoP is required for the issuance process. Default value is true.
    */
   dPopRequired?: boolean;
+  /**
+   * Indicates whether wallet attestation is required for the token endpoint.
+   * When enabled, wallets must provide OAuth-Client-Attestation headers.
+   * Default value is false.
+   */
+  walletAttestationRequired?: boolean;
+  /**
+   * URLs of trust lists containing trusted wallet providers.
+   * The wallet attestation's X.509 certificate will be validated against these trust lists.
+   * If empty and walletAttestationRequired is true, all wallet providers are rejected.
+   */
+  walletProviderTrustLists?: Array<string>;
   display: Array<DisplayInfo>;
   /**
    * The timestamp when the VP request was created.
@@ -858,6 +890,18 @@ export type IssuanceDto = {
    * Indicates whether DPoP is required for the issuance process. Default value is true.
    */
   dPopRequired?: boolean;
+  /**
+   * Indicates whether wallet attestation is required for the token endpoint.
+   * When enabled, wallets must provide OAuth-Client-Attestation headers.
+   * Default value is false.
+   */
+  walletAttestationRequired?: boolean;
+  /**
+   * URLs of trust lists containing trusted wallet providers.
+   * The wallet attestation's X.509 certificate will be validated against these trust lists.
+   * If empty and walletAttestationRequired is true, all wallet providers are rejected.
+   */
+  walletProviderTrustLists?: Array<string>;
   display: Array<DisplayInfo>;
 };
 
@@ -1021,8 +1065,14 @@ export type CredentialConfig = {
     [key: string]: unknown;
   };
   keyBinding?: boolean;
+  /**
+   * Reference to the certificate used for signing.
+   * Note: No DB-level FK constraint because CertEntity has a composite PK
+   * (id + tenantId) and SET NULL behavior cannot work when tenantId is
+   * part of this entity's own PK.
+   */
   certId?: string;
-  cert: CertEntity;
+  cert?: CertEntity;
   statusManagement?: boolean;
   lifeTime?: number;
   schema?: SchemaResponse;
@@ -1057,6 +1107,12 @@ export type CredentialConfigCreate = {
     [key: string]: unknown;
   };
   keyBinding?: boolean;
+  /**
+   * Reference to the certificate used for signing.
+   * Note: No DB-level FK constraint because CertEntity has a composite PK
+   * (id + tenantId) and SET NULL behavior cannot work when tenantId is
+   * part of this entity's own PK.
+   */
   certId?: string;
   statusManagement?: boolean;
   lifeTime?: number;
@@ -1092,6 +1148,12 @@ export type CredentialConfigUpdate = {
     [key: string]: unknown;
   };
   keyBinding?: boolean;
+  /**
+   * Reference to the certificate used for signing.
+   * Note: No DB-level FK constraint because CertEntity has a composite PK
+   * (id + tenantId) and SET NULL behavior cannot work when tenantId is
+   * part of this entity's own PK.
+   */
   certId?: string;
   statusManagement?: boolean;
   lifeTime?: number;
@@ -1158,6 +1220,102 @@ export type AuthorizationResponse = {
   sendResponse?: boolean;
 };
 
+export type RegistrarConfigEntity = {
+  /**
+   * The base URL of the registrar API
+   */
+  registrarUrl: string;
+  /**
+   * The OIDC issuer URL for authentication (e.g., Keycloak realm URL)
+   */
+  oidcUrl: string;
+  /**
+   * The OIDC client ID for the registrar
+   */
+  clientId: string;
+  /**
+   * The OIDC client secret (optional, for confidential clients)
+   */
+  clientSecret?: string;
+  /**
+   * The username for OIDC login
+   */
+  username: string;
+  /**
+   * The password for OIDC login (stored in plaintext)
+   */
+  password: string;
+  /**
+   * The tenant ID this configuration belongs to.
+   */
+  tenantId: string;
+  /**
+   * The tenant that owns this configuration.
+   */
+  tenant: TenantEntity;
+};
+
+export type CreateRegistrarConfigDto = {
+  /**
+   * The base URL of the registrar API
+   */
+  registrarUrl: string;
+  /**
+   * The OIDC issuer URL for authentication (e.g., Keycloak realm URL)
+   */
+  oidcUrl: string;
+  /**
+   * The OIDC client ID for the registrar
+   */
+  clientId: string;
+  /**
+   * The OIDC client secret (optional, for confidential clients)
+   */
+  clientSecret?: string;
+  /**
+   * The username for OIDC login
+   */
+  username: string;
+  /**
+   * The password for OIDC login (stored in plaintext)
+   */
+  password: string;
+};
+
+export type UpdateRegistrarConfigDto = {
+  /**
+   * The base URL of the registrar API
+   */
+  registrarUrl?: string;
+  /**
+   * The OIDC issuer URL for authentication (e.g., Keycloak realm URL)
+   */
+  oidcUrl?: string;
+  /**
+   * The OIDC client ID for the registrar
+   */
+  clientId?: string;
+  /**
+   * The OIDC client secret (optional, for confidential clients)
+   */
+  clientSecret?: string;
+  /**
+   * The username for OIDC login
+   */
+  username?: string;
+  /**
+   * The password for OIDC login (stored in plaintext)
+   */
+  password?: string;
+};
+
+export type CreateAccessCertificateDto = {
+  /**
+   * The ID of the key to create an access certificate for
+   */
+  keyId: string;
+};
+
 export type Dcql = {
   credentials: Array<CredentialQuery>;
   credential_sets?: Array<CredentialSetQuery>;
@@ -1199,6 +1357,7 @@ export type PresentationConfig = {
    * The DCQL query to be used for the VP request.
    */
   dcql_query: Dcql;
+  transaction_data?: Array<TransactionData>;
   /**
    * The registration certificate request containing the necessary details.
    */
@@ -1253,6 +1412,7 @@ export type PresentationConfigCreateDto = {
    * The DCQL query to be used for the VP request.
    */
   dcql_query: Dcql;
+  transaction_data?: Array<TransactionData>;
   /**
    * The registration certificate request containing the necessary details.
    */
@@ -1299,6 +1459,7 @@ export type PresentationConfigUpdateDto = {
    * The DCQL query to be used for the VP request.
    */
   dcql_query?: Dcql;
+  transaction_data?: Array<TransactionData>;
   /**
    * The registration certificate request containing the necessary details.
    */
@@ -1329,14 +1490,11 @@ export type PresentationConfigUpdateDto = {
 };
 
 export type TrustListCreateDto = {
+  id?: string;
   certId?: string;
   entities: Array<{
     [key: string]: unknown;
   }>;
-  /**
-   * Unique identifier for the trust list
-   */
-  id: string;
   description?: string;
   /**
    * The full trust list JSON (generated LoTE structure)
@@ -1434,6 +1592,11 @@ export type PresentationRequest = {
    * You can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.
    */
   redirectUri?: string;
+  /**
+   * Optional transaction data to include in the OID4VP request.
+   * If provided, this will override the transaction_data from the presentation configuration.
+   */
+  transaction_data?: Array<TransactionData>;
 };
 
 export type FileUploadDto = {
@@ -2587,6 +2750,136 @@ export type Oid4VpControllerGetResponseResponses = {
 
 export type Oid4VpControllerGetResponseResponse =
   Oid4VpControllerGetResponseResponses[keyof Oid4VpControllerGetResponseResponses];
+
+export type RegistrarControllerDeleteConfigData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/registrar/config";
+};
+
+export type RegistrarControllerDeleteConfigResponses = {
+  /**
+   * Configuration deleted successfully
+   */
+  204: void;
+};
+
+export type RegistrarControllerDeleteConfigResponse =
+  RegistrarControllerDeleteConfigResponses[keyof RegistrarControllerDeleteConfigResponses];
+
+export type RegistrarControllerGetConfigData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/registrar/config";
+};
+
+export type RegistrarControllerGetConfigErrors = {
+  /**
+   * No registrar configuration found
+   */
+  404: unknown;
+};
+
+export type RegistrarControllerGetConfigResponses = {
+  /**
+   * The registrar configuration
+   */
+  200: RegistrarConfigEntity;
+};
+
+export type RegistrarControllerGetConfigResponse =
+  RegistrarControllerGetConfigResponses[keyof RegistrarControllerGetConfigResponses];
+
+export type RegistrarControllerUpdateConfigData = {
+  body: UpdateRegistrarConfigDto;
+  path?: never;
+  query?: never;
+  url: "/registrar/config";
+};
+
+export type RegistrarControllerUpdateConfigErrors = {
+  /**
+   * Invalid credentials
+   */
+  400: unknown;
+  /**
+   * No registrar configuration found
+   */
+  404: unknown;
+};
+
+export type RegistrarControllerUpdateConfigResponses = {
+  /**
+   * Configuration updated successfully
+   */
+  200: RegistrarConfigEntity;
+};
+
+export type RegistrarControllerUpdateConfigResponse =
+  RegistrarControllerUpdateConfigResponses[keyof RegistrarControllerUpdateConfigResponses];
+
+export type RegistrarControllerCreateConfigData = {
+  body: CreateRegistrarConfigDto;
+  path?: never;
+  query?: never;
+  url: "/registrar/config";
+};
+
+export type RegistrarControllerCreateConfigErrors = {
+  /**
+   * Invalid credentials
+   */
+  400: unknown;
+};
+
+export type RegistrarControllerCreateConfigResponses = {
+  /**
+   * Configuration created successfully
+   */
+  201: RegistrarConfigEntity;
+};
+
+export type RegistrarControllerCreateConfigResponse =
+  RegistrarControllerCreateConfigResponses[keyof RegistrarControllerCreateConfigResponses];
+
+export type RegistrarControllerCreateAccessCertificateData = {
+  body: CreateAccessCertificateDto;
+  path?: never;
+  query?: never;
+  url: "/registrar/access-certificate";
+};
+
+export type RegistrarControllerCreateAccessCertificateErrors = {
+  /**
+   * No relying party found at registrar or failed to create certificate
+   */
+  400: unknown;
+  /**
+   * No registrar configuration found or key not found
+   */
+  404: unknown;
+};
+
+export type RegistrarControllerCreateAccessCertificateResponses = {
+  /**
+   * Access certificate created successfully
+   */
+  201: {
+    /**
+     * The certificate ID at the registrar
+     */
+    id?: string;
+    /**
+     * The certificate in PEM format
+     */
+    crt?: string;
+  };
+};
+
+export type RegistrarControllerCreateAccessCertificateResponse =
+  RegistrarControllerCreateAccessCertificateResponses[keyof RegistrarControllerCreateAccessCertificateResponses];
 
 export type PresentationManagementControllerConfigurationData = {
   body?: never;

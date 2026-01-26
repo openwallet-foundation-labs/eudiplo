@@ -14,5 +14,8 @@ export type {
   OfferResult,
 } from './client';
 
+// Re-export the HTTP client instance for direct API usage
+export { client } from './api/client.gen';
+
 // Re-export API types for advanced usage
 export * from './api';
