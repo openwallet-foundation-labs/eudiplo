@@ -397,7 +397,6 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &quot;@nestjs/common&quot;;
 import { ConfigModule, ConfigService } from &quot;@nestjs/config&quot;;
-import { DevtoolsModule } from &quot;@nestjs/devtools-integration&quot;;
 import { MulterModule } from &quot;@nestjs/platform-express&quot;;
 import { ScheduleModule } from &quot;@nestjs/schedule&quot;;
 import { memoryStorage } from &quot;multer&quot;;
@@ -422,9 +421,6 @@ import { VerifierModule } from &quot;./verifier/verifier.module&quot;;
             validationSchema: VALIDATION_SCHEMA,
             isGlobal: true,
             expandVariables: true,
-        }),
-        DevtoolsModule.register({
-            http: process.env.NODE_ENV !&#x3D;&#x3D; &quot;production&quot;,
         }),
         LoggerModule.forRootAsync({
             imports: [ConfigModule],

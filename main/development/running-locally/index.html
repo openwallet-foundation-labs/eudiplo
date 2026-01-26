@@ -1799,6 +1799,78 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#dev-container-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dev Container Setup
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dev Container Setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quick-start-with-dev-containers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Start with Dev Containers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github-codespaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GitHub Codespaces
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#whats-included" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's Included
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#port-forwarding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Port Forwarding
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#6-troubleshooting" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2125,6 +2197,78 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#dev-container-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dev Container Setup
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dev Container Setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quick-start-with-dev-containers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Start with Dev Containers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github-codespaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GitHub Codespaces
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#whats-included" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's Included
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#port-forwarding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Port Forwarding
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#6-troubleshooting" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2191,6 +2335,10 @@
 <li><a href="https://ngrok.com/">ngrok</a> (optional, for exposing a public URL)</li>
 <li><a href="https://www.docker.com/">Docker</a> (optional, for supporting services or containerized deployment)</li>
 </ul>
+<div class="admonition tip">
+<p class="admonition-title">No Node.js installation required</p>
+</div>
+<p>If you can't or prefer not to install Node.js locally, you can use <strong>Dev Containers</strong> to develop entirely inside a Docker container. See <a href="#dev-container-setup">Dev Container Setup</a> below.</p>
 <h2 id="1-clone-the-repository">1. Clone the Repository<a class="headerlink" href="#1-clone-the-repository" title="Permanent link">¶</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/openwallet-foundation-labs/eudiplo
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>eudiplo
@@ -2269,6 +2417,115 @@ configure key storage and database options beyond the default settings.</p>
 <p><strong>Or via the public URL configured with ngrok:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>https://f8e3-84-123-45-67.ngrok.io
 </code></pre></div>
+<hr>
+<h2 id="dev-container-setup">Dev Container Setup<a class="headerlink" href="#dev-container-setup" title="Permanent link">¶</a></h2>
+<p>If you can't install Node.js locally (e.g., restricted environment) or prefer a consistent development environment, you can use <strong>VS Code Dev Containers</strong> to develop entirely inside a Docker container.</p>
+<h3 id="prerequisites_1">Prerequisites<a class="headerlink" href="#prerequisites_1" title="Permanent link">¶</a></h3>
+<ul>
+<li><a href="https://docs.docker.com/get-docker/">Docker</a> installed and running</li>
+<li><a href="https://code.visualstudio.com/">Visual Studio Code</a> with the <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers">Dev Containers extension</a></li>
+</ul>
+<h3 id="quick-start-with-dev-containers">Quick Start with Dev Containers<a class="headerlink" href="#quick-start-with-dev-containers" title="Permanent link">¶</a></h3>
+<ol>
+<li>
+<p><strong>Clone and open in VS Code:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/openwallet-foundation-labs/eudiplo.git
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="nb">cd</span><span class="w"> </span>eudiplo
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>code<span class="w"> </span>.
+</code></pre></div>
+</li>
+<li>
+<p><strong>Reopen in Container:</strong></p>
+<ul>
+<li>Press <span class="keys"><kbd class="key-f1">F1</kbd></span> and select <strong>"Dev Containers: Reopen in Container"</strong></li>
+<li>Or click the green button in the bottom-left corner → "Reopen in Container"</li>
+</ul>
+</li>
+<li>
+<p><strong>Wait for setup</strong> - The container builds and dependencies install automatically (first run takes a few minutes)</p>
+</li>
+<li>
+<p><strong>Start development:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>pnpm<span class="w"> </span>dev<span class="w">          </span><span class="c1"># Start both backend and client</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="c1"># Or run separately:</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>pnpm<span class="w"> </span>dev:backend<span class="w">  </span><span class="c1"># Start backend only (port 3000)</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>pnpm<span class="w"> </span>dev:client<span class="w">   </span><span class="c1"># Start client only (port 4200)</span>
+</code></pre></div>
+</li>
+</ol>
+<h3 id="github-codespaces">GitHub Codespaces<a class="headerlink" href="#github-codespaces" title="Permanent link">¶</a></h3>
+<p>You can also use <a href="https://github.com/features/codespaces">GitHub Codespaces</a> for cloud-based development:</p>
+<ol>
+<li>Go to the <a href="https://github.com/openwallet-foundation-labs/eudiplo">repository on GitHub</a></li>
+<li>Click <strong>Code</strong> → <strong>Codespaces</strong> → <strong>Create codespace on main</strong></li>
+</ol>
+<p>The codespace automatically uses the devcontainer configuration.</p>
+<h3 id="whats-included">What's Included<a class="headerlink" href="#whats-included" title="Permanent link">¶</a></h3>
+<p>The development container includes:</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Version</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node.js</td>
+<td>24</td>
+<td>JavaScript runtime</td>
+</tr>
+<tr>
+<td>pnpm</td>
+<td>latest</td>
+<td>Package manager</td>
+</tr>
+<tr>
+<td>Python 3</td>
+<td>system</td>
+<td>Documentation tools</td>
+</tr>
+<tr>
+<td>Git</td>
+<td>system</td>
+<td>Version control</td>
+</tr>
+<tr>
+<td>Zsh</td>
+<td>system</td>
+<td>Shell with Oh My Zsh</td>
+</tr>
+</tbody>
+</table>
+<p>Pre-configured VS Code extensions:</p>
+<ul>
+<li>ESLint &amp; Biome (linting/formatting)</li>
+<li>Angular Language Service</li>
+<li>Docker extension</li>
+<li>GitLens</li>
+<li>REST Client</li>
+</ul>
+<h3 id="port-forwarding">Port Forwarding<a class="headerlink" href="#port-forwarding" title="Permanent link">¶</a></h3>
+<p>Ports are automatically forwarded:</p>
+<table>
+<thead>
+<tr>
+<th>Port</th>
+<th>Service</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3000</td>
+<td>Backend API</td>
+</tr>
+<tr>
+<td>4200</td>
+<td>Client UI</td>
+</tr>
+</tbody>
+</table>
 <hr>
 <h2 id="6-troubleshooting">6. Troubleshooting<a class="headerlink" href="#6-troubleshooting" title="Permanent link">¶</a></h2>
 <ul>
