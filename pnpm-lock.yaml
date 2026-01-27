@@ -14,7 +14,7 @@ importers:
         version: 8.0.10
       '@apidevtools/json-schema-ref-parser':
         specifier: ^15.2.1
-        version: 15.2.1(@types/json-schema@7.0.15)
+        version: 15.2.2(@types/json-schema@7.0.15)
       '@codedependant/semantic-release-docker':
         specifier: ^5.1.1
         version: 5.1.1
@@ -843,8 +843,8 @@ packages:
   '@animo-id/mdoc@0.6.0-alpha-20260126144751':
     resolution: {integrity: sha512-/vfE0REOXKu5g+FSocdM0FtuQFu9hHp8hdwH3ZSMA49kXX0N+ud0f2yhAOJ66W48uWojtZbD7Nxmu09jNmWdyQ==}
 
-  '@apidevtools/json-schema-ref-parser@15.2.1':
-    resolution: {integrity: sha512-XaFfxKmYHUlYla8VMG1sOaX+uZwX2Bbk51pC7D4Oy723HVmzTrJuh5oEFAeFfPQX3HkILXabuvlXzs1YcQmvJQ==}
+  '@apidevtools/json-schema-ref-parser@15.2.2':
+    resolution: {integrity: sha512-54fvjSwWiBTdVviiUItOCeyxtPSBmCrSEjlOl8XFEDuYD3lXY1lOBWKim/WJ3i1EYzdGx6rSOjK5KRDMppLI4Q==}
     engines: {node: '>=20'}
     peerDependencies:
       '@types/json-schema': ^7.0.15
@@ -10339,7 +10339,7 @@ snapshots:
 
   '@animo-id/mdoc@0.6.0-alpha-20260126144751': {}
 
-  '@apidevtools/json-schema-ref-parser@15.2.1(@types/json-schema@7.0.15)':
+  '@apidevtools/json-schema-ref-parser@15.2.2(@types/json-schema@7.0.15)':
     dependencies:
       '@types/json-schema': 7.0.15
       js-yaml: 4.1.1
