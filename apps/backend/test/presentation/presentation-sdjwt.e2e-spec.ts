@@ -145,4 +145,65 @@ describe("Presentation - SD-JWT Credential", () => {
         expect(submitRes).toBeDefined();
         expect(submitRes.response.status).toBe(200);
     });
+
+    test("present sd jwt credential with A256GCM encryption", async () => {
+        const requestBody: PresentationRequest = {
+            response_type: ResponseType.URI,
+            requestId: "pid-no-hook",
+        };
+
+        const res = await createPresentationRequest(
+            app,
+            authToken,
+            requestBody,
+        );
+
+        const authRequest = client.parseOpenid4vpAuthorizationRequest({
+            authorizationRequest: res.body.uri,
+        });
+
+        const resolved = await client.resolveOpenId4vpAuthorizationRequest({
+            authorizationRequestPayload: authRequest.params,
+        });
+
+        const x5c = [
+            issuerCert
+                .replace("-----BEGIN CERTIFICATE-----", "")
+                .replace("-----END CERTIFICATE-----", "")
+                .replaceAll(/\r?\n|\r/g, ""),
+        ];
+        const vp_token = await preparePresentation(
+            {
+                iat: Math.floor(Date.now() / 1000),
+                aud: resolved.authorizationRequestPayload.aud as string,
+                nonce: resolved.authorizationRequestPayload.nonce,
+            },
+            privateIssuerKey,
+            x5c,
+            statusListService,
+            credentialConfigId,
+        );
+
+        // Use A256GCM encryption instead of A128GCM
+        const jwt = await encryptVpToken(vp_token, "pid", resolved, "A256GCM");
+
+        const authorizationResponse =
+            await client.createOpenid4vpAuthorizationResponse({
+                authorizationRequestPayload: authRequest.params,
+                authorizationResponsePayload: {
+                    response: jwt,
+                },
+                ...callbacks,
+            });
+
+        const submitRes = await client.submitOpenid4vpAuthorizationResponse({
+            authorizationResponsePayload:
+                authorizationResponse.authorizationResponsePayload,
+            authorizationRequestPayload:
+                resolved.authorizationRequestPayload as Openid4vpAuthorizationRequest,
+        });
+
+        expect(submitRes).toBeDefined();
+        expect(submitRes.response.status).toBe(200);
+    });
 });
