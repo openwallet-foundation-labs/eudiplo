@@ -464,8 +464,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="229"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:229</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="232"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:232</a></div>
                         </td>
                     </tr>
 
@@ -583,8 +583,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="326"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:326</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="329"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:329</a></div>
                         </td>
                     </tr>
 
@@ -862,7 +862,10 @@ export class Oid4vpService {
                                     this.cryptoImplementationService.getSupportedAlgorithms(),
                             },
                         },
-                        encrypted_response_enc_values_supported: [&quot;A128GCM&quot;],
+                        encrypted_response_enc_values_supported: [
+                            &quot;A128GCM&quot;,
+                            &quot;A256GCM&quot;,
+                        ],
                     },
                     state: session.useDcApi ? undefined : session.id,
                     transaction_data,
