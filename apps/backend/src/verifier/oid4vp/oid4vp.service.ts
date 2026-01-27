@@ -166,7 +166,10 @@ export class Oid4vpService {
                                     this.cryptoImplementationService.getSupportedAlgorithms(),
                             },
                         },
-                        encrypted_response_enc_values_supported: ["A128GCM"],
+                        encrypted_response_enc_values_supported: [
+                            "A128GCM",
+                            "A256GCM",
+                        ],
                     },
                     state: session.useDcApi ? undefined : session.id,
                     transaction_data,

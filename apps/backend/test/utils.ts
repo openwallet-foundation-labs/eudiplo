@@ -774,6 +774,7 @@ export async function encryptVpToken(
     vp_token: string,
     credentialId: string,
     resolved: ResolvedOpenid4vpAuthorizationRequest,
+    enc: "A128GCM" | "A256GCM" = "A128GCM",
 ): Promise<string> {
     const key = (await importJWK(
         resolved.authorizationRequestPayload.client_metadata?.jwks
@@ -787,7 +788,7 @@ export async function encryptVpToken(
     })
         .setProtectedHeader({
             alg: "ECDH-ES",
-            enc: "A128GCM",
+            enc,
         })
         .setIssuedAt()
         .setExpirationTime("2h")
