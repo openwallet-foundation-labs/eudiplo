@@ -14,6 +14,19 @@ export type {
   OfferResult,
 } from './client';
 
+// Digital Credentials API exports
+export {
+  isDcApiAvailable,
+  verifyWithDcApi,
+  createDcApiRequest,
+} from './client';
+export type {
+  DcApiVerifyOptions,
+  DcApiPresentationOptions,
+  DcApiPresentationResult,
+  DigitalCredentialResponse,
+} from './client';
+
 // Re-export the HTTP client instance for direct API usage
 export { client } from './api/client.gen';
 

@@ -11,6 +11,69 @@ import type {
   PresentationRequest,
 } from './api/types.gen';
 
+// ============================================================================
+// Digital Credentials API Types
+// ============================================================================
+
+/**
+ * Digital Credential response from the browser API
+ */
+export interface DigitalCredentialResponse {
+  data: {
+    response?: string;
+    error?: string;
+    error_description?: string;
+  };
+}
+
+/**
+ * Result of a DC API presentation
+ */
+export interface DcApiPresentationResult {
+  /** The verified credentials from the presentation */
+  credentials?: Array<Record<string, unknown>>;
+  /** The raw response from the verifier */
+  response: unknown;
+  /** Redirect URI if provided by the verifier */
+  redirectUri?: string;
+}
+
+/**
+ * Options for DC API presentation
+ */
+export interface DcApiPresentationOptions {
+  /** Whether to return the full credential data in the response (default: true) */
+  sendResponse?: boolean;
+}
+
+/**
+ * Check if the Digital Credentials API is available in the current browser
+ */
+export function isDcApiAvailable(): boolean {
+  return (
+    typeof navigator !== 'undefined' &&
+    'credentials' in navigator &&
+    'get' in navigator.credentials &&
+    typeof window !== 'undefined' &&
+    'DigitalCredential' in window
+  );
+}
+
+/**
+ * Decode a JWT payload without verification (for extracting response_uri)
+ */
+function decodeJwtPayload<T = Record<string, unknown>>(jwt: string): T {
+  const parts = jwt.split('.');
+  if (parts.length !== 3) {
+    throw new Error('Invalid JWT format');
+  }
+  const payload = parts[1];
+  // Handle base64url encoding
+  const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+  const jsonPayload = atob(base64);
+  return JSON.parse(jsonPayload) as T;
+}
+
 /**
  * Configuration options for the EudiploClient
  */
@@ -374,6 +437,169 @@ export class EudiploClient {
   getBaseUrl(): string {
     return this.config.baseUrl;
   }
+
+  // ==========================================================================
+  // Digital Credentials API Methods
+  // ==========================================================================
+
+  /**
+   * Create a presentation request configured for DC API usage.
+   * Returns a session with the signed request object needed for DC API.
+   *
+   * @example
+   * ```typescript
+   * const session = await client.createDcApiPresentationRequest({
+   *   configId: 'age-over-18'
+   * });
+   *
+   * // Use the requestObject with the DC API
+   * const result = await client.submitDcApiPresentation(session);
+   * ```
+   */
+  async createDcApiPresentationRequest(
+    options: Omit<PresentationRequestOptions, 'responseType'>
+  ): Promise<Session> {
+    await this.ensureAuthenticated();
+
+    const body: PresentationRequest = {
+      response_type: 'dc-api',
+      requestId: options.configId,
+      redirectUri: options.redirectUri,
+    };
+
+    const response = await verifierOfferControllerGetOffer({
+      body,
+    });
+
+    if (!response.data) {
+      throw new Error('Failed to create DC API presentation request');
+    }
+
+    // Fetch the full session to get the requestObject
+    return this.getSession(response.data.session);
+  }
+
+  /**
+   * Submit a presentation using the Digital Credentials API.
+   * This method handles the browser DC API call and submits the response to the verifier.
+   *
+   * @example
+   * ```typescript
+   * // Check if DC API is available
+   * if (!isDcApiAvailable()) {
+   *   throw new Error('DC API not supported in this browser');
+   * }
+   *
+   * const session = await client.createDcApiPresentationRequest({
+   *   configId: 'age-over-18'
+   * });
+   *
+   * const result = await client.submitDcApiPresentation(session);
+   * console.log('Verified credentials:', result.credentials);
+   * ```
+   */
+  async submitDcApiPresentation(
+    session: Session,
+    options: DcApiPresentationOptions = {}
+  ): Promise<DcApiPresentationResult> {
+    if (!isDcApiAvailable()) {
+      throw new Error(
+        'Digital Credentials API is not available in this browser. ' +
+          'Please use a supported browser or fall back to QR code flow.'
+      );
+    }
+
+    if (!session.requestObject) {
+      throw new Error(
+        'Session does not contain a requestObject. ' +
+          'Make sure to create the session with response_type: "dc-api"'
+      );
+    }
+
+    // Call the Digital Credentials API
+    const dcResponse = (await navigator.credentials.get({
+      mediation: 'required',
+      digital: {
+        requests: [
+          {
+            protocol: 'openid4vp-v1-signed',
+            data: { request: session.requestObject },
+          },
+        ],
+      },
+    } as CredentialRequestOptions)) as DigitalCredentialResponse | null;
+
+    if (!dcResponse) {
+      throw new Error('No response from Digital Credentials API');
+    }
+
+    if (dcResponse.data?.error) {
+      throw new Error(
+        `Wallet error: ${dcResponse.data.error}${
+          dcResponse.data.error_description
+            ? ` - ${dcResponse.data.error_description}`
+            : ''
+        }`
+      );
+    }
+
+    // Extract response_uri from the request object
+    const requestPayload = decodeJwtPayload<{ response_uri?: string }>(
+      session.requestObject
+    );
+
+    if (!requestPayload.response_uri) {
+      throw new Error('No response_uri found in request object');
+    }
+
+    // Submit the response to the verifier
+    const fetchImpl = this.config.fetch ?? fetch;
+    const submitResponse = await fetchImpl(requestPayload.response_uri, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...dcResponse.data,
+        sendResponse: options.sendResponse ?? true,
+      }),
+    });
+
+    if (!submitResponse.ok) {
+      const errorText = await submitResponse.text();
+      throw new Error(
+        `Failed to submit presentation: ${submitResponse.status} ${errorText}`
+      );
+    }
+
+    const result = await submitResponse.json();
+
+    return {
+      credentials: result.credentials ?? result,
+      response: result,
+      redirectUri: result.redirect_uri,
+    };
+  }
+
+  /**
+   * Convenience method to create a presentation request and immediately
+   * submit it using the Digital Credentials API.
+   *
+   * @example
+   * ```typescript
+   * const result = await client.verifyWithDcApi({
+   *   configId: 'age-over-18'
+   * });
+   * console.log('Verified:', result.credentials);
+   * ```
+   */
+  async verifyWithDcApi(
+    options: Omit<PresentationRequestOptions, 'responseType'>,
+    dcOptions: DcApiPresentationOptions = {}
+  ): Promise<DcApiPresentationResult> {
+    const session = await this.createDcApiPresentationRequest(options);
+    return this.submitDcApiPresentation(session, dcOptions);
+  }
 }
 
 // ============================================================================
@@ -568,4 +794,111 @@ export async function issueAndWait(
   const { uri, waitForCompletion } = await issue(options);
   options.onUri(uri);
   return waitForCompletion(options.polling);
+}
+
+// ============================================================================
+// Digital Credentials API Factory Functions
+// ============================================================================
+
+/**
+ * Options for DC API verification
+ */
+export interface DcApiVerifyOptions extends EudiploCredentials {
+  /** Presentation configuration ID */
+  configId: string;
+  /** Optional redirect URI */
+  redirectUri?: string;
+  /** Whether to return full credential data (default: true) */
+  sendResponse?: boolean;
+}
+
+/**
+ * Verify a credential using the Digital Credentials API (browser-native flow).
+ * This is the simplest way to verify credentials when the DC API is available.
+ *
+ * @example
+ * ```typescript
+ * import { verifyWithDcApi, isDcApiAvailable } from '@eudiplo/sdk-core';
+ *
+ * if (isDcApiAvailable()) {
+ *   const result = await verifyWithDcApi({
+ *     baseUrl: 'https://eudiplo.example.com',
+ *     clientId: 'demo',
+ *     clientSecret: 'secret',
+ *     configId: 'age-over-18'
+ *   });
+ *   console.log('Verified!', result.credentials);
+ * } else {
+ *   // Fall back to QR code flow
+ *   const { uri } = await verify({ ... });
+ * }
+ * ```
+ */
+export async function verifyWithDcApi(
+  options: DcApiVerifyOptions
+): Promise<DcApiPresentationResult> {
+  const eudiploClient = new EudiploClient({
+    baseUrl: options.baseUrl,
+    clientId: options.clientId,
+    clientSecret: options.clientSecret,
+  });
+
+  return eudiploClient.verifyWithDcApi(
+    {
+      configId: options.configId,
+      redirectUri: options.redirectUri,
+    },
+    {
+      sendResponse: options.sendResponse,
+    }
+  );
+}
+
+/**
+ * Create a presentation request for DC API and get the session.
+ * Use this when you need more control over the DC API flow.
+ *
+ * @example
+ * ```typescript
+ * import { createDcApiRequest, submitDcApiPresentation, isDcApiAvailable } from '@eudiplo/sdk-core';
+ *
+ * if (isDcApiAvailable()) {
+ *   const { session, submit } = await createDcApiRequest({
+ *     baseUrl: 'https://eudiplo.example.com',
+ *     clientId: 'demo',
+ *     clientSecret: 'secret',
+ *     configId: 'age-over-18'
+ *   });
+ *
+ *   // Show some UI, then submit when user is ready
+ *   const result = await submit();
+ *   console.log('Verified!', result.credentials);
+ * }
+ * ```
+ */
+export async function createDcApiRequest(
+  options: DcApiVerifyOptions
+): Promise<{
+  session: Session;
+  submit: (dcOptions?: DcApiPresentationOptions) => Promise<DcApiPresentationResult>;
+}> {
+  const eudiploClient = new EudiploClient({
+    baseUrl: options.baseUrl,
+    clientId: options.clientId,
+    clientSecret: options.clientSecret,
+  });
+
+  const session = await eudiploClient.createDcApiPresentationRequest({
+    configId: options.configId,
+    redirectUri: options.redirectUri,
+  });
+
+  return {
+    session,
+    submit: (dcOptions?: DcApiPresentationOptions) =>
+      eudiploClient.submitDcApiPresentation(session, {
+        sendResponse: options.sendResponse,
+        ...dcOptions,
+      }),
+  };
 }

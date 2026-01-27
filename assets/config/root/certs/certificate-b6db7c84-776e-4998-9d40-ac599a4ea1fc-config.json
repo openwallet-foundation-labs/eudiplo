@@ -1,7 +1,7 @@
 {
   "id": "b6db7c84-776e-4998-9d40-ac599a4ea1fc",
   "keyId": "dbb65456-c358-46c1-bb5b-c777ef72c1d3",
-  "description": "Self-signed certificate (access, signing) for tenant Root Tenant",
+  "description": "Self-signed certificate (access, signing, statusList) for tenant Root Tenant",
   "crt": "-----BEGIN CERTIFICATE-----\nMIIBiTCCATCgAwIBAgIBATAKBggqhkjOPQQDAjAjMQswCQYDVQQGEwJERTEUMBIG\nA1UEAxMLUm9vdCBUZW5hbnQwHhcNMjYwMTAzMTczMTAyWhcNMjcwMTAzMTczMTAy\nWjAjMQswCQYDVQQGEwJERTEUMBIGA1UEAxMLUm9vdCBUZW5hbnQwWTATBgcqhkjO\nPQIBBggqhkjOPQMBBwNCAAQceSRtSApKSSpeYvy62X5MtYiDwJhBLhY8nyP+c7jh\njNTSWNC095hLrnC0AmSVjawO31VvMqUeGX+XLrvOTY0so1UwUzAiBgNVHREEGzAZ\nghdzZXJ2aWNlLmV1ZGktd2FsbGV0LmRldjAOBgNVHQ8BAf8EBAMCBaAwHQYDVR0O\nBBYEFG9BfgN82iWP/ERGyroyefQsnUtkMAoGCCqGSM49BAMCA0cAMEQCIECyGfF/\nNtZi/x8rwmcTi4xURmlkMLsPJhDRqFwbsGWrAiAjHVDTHiVsNyKSCDGZYDeI4mN0\nXSjy5D8WPahXZeUINQ==\n-----END CERTIFICATE-----",
   "certUsageTypes": [
     "access",

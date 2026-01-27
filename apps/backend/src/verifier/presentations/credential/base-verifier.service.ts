@@ -126,7 +126,7 @@ export abstract class BaseVerifierService {
      * @returns Hex-encoded thumbprint
      */
     protected async getThumbprint(cert: x509.X509Certificate): Promise<string> {
-        const buffer = await cert.getThumbprint();
+        const buffer = await cert.getThumbprint("SHA-256");
         return Array.from(new Uint8Array(buffer))
             .map((b) => b.toString(16).padStart(2, "0"))
             .join("");
