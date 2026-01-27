@@ -10,11 +10,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import * as QRCode from 'qrcode';
-import {
-  Session,
-  isDcApiAvailable,
-  type DigitalCredentialResponse,
-} from '@eudiplo/sdk-core';
+import { Session, isDcApiAvailable, type DigitalCredentialResponse } from '@eudiplo/sdk-core';
 import { SessionManagementService } from '../session-management.service';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
