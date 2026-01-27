@@ -175,6 +175,9 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
+                                <a href="#clearCache" >clearCache</a>
+                            </li>
+                            <li>
                                     <span class="modifier">Async</span>
                                 <a href="#getTrustStore" >getTrustStore</a>
                             </li>
@@ -256,6 +259,46 @@
     <h3 id="methods">
         Methods
     </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="clearCache"></a>
+                    <span class="name">
+                        <span ><b>clearCache</b></span>
+                        <a href="#clearCache"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>clearCache()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="76"
+                                    class="link-to-prism">src/shared/trust/trust-store.service.ts:76</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Clear the cached trust store.
+Useful for testing or when trust lists are known to have changed.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -489,6 +532,14 @@ export class TrustStoreService {
             &#x60;Built trust store with ${entities.length} trusted entit${entities.length &#x3D;&#x3D;&#x3D; 1 ? &quot;y&quot; : &quot;ies&quot;}&#x60;,
         );
         return store;
+    }
+
+    /**
+     * Clear the cached trust store.
+     * Useful for testing or when trust lists are known to have changed.
+     */
+    clearCache(): void {
+        this.cache &#x3D; null;
     }
 }
 </code></pre>

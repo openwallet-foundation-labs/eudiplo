@@ -869,8 +869,8 @@ export class X509ValidationService {
     ): Promise&lt;MatchedTrustedEntity | null&gt; {
         const leaf &#x3D; path[0];
         const end &#x3D; path.at(-1)!;
-        const leafThumb &#x3D; arrayBufferToHex(await leaf.getThumbprint());
-        const endThumb &#x3D; arrayBufferToHex(await end.getThumbprint());
+        const leafThumb &#x3D; arrayBufferToHex(await leaf.getThumbprint(&quot;SHA-256&quot;));
+        const endThumb &#x3D; arrayBufferToHex(await end.getThumbprint(&quot;SHA-256&quot;));
 
         for (const entity of entities) {
             // Find certificates matching the specified service type in this entity
@@ -881,7 +881,7 @@ export class X509ValidationService {
             for (const svc of matchingServices) {
                 const matchCert &#x3D; certFromValue(svc.certValue);
                 const matchThumb &#x3D; arrayBufferToHex(
-                    await matchCert.getThumbprint(),
+                    await matchCert.getThumbprint(&quot;SHA-256&quot;),
                 );
                 const matchIsCa &#x3D; this.isCaCert(matchCert);
 
@@ -913,7 +913,7 @@ export class X509ValidationService {
                     if (revocationSvc) {
                         revocationCert &#x3D; certFromValue(revocationSvc.certValue);
                         revocationThumbprint &#x3D; arrayBufferToHex(
-                            await revocationCert.getThumbprint(),
+                            await revocationCert.getThumbprint(&quot;SHA-256&quot;),
                         );
                     }
 
