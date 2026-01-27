@@ -10,7 +10,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import * as QRCode from 'qrcode';
-import { Session } from '@eudiplo/sdk-core';
+import {
+  Session,
+  isDcApiAvailable,
+  type DigitalCredentialResponse,
+} from '@eudiplo/sdk-core';
 import { SessionManagementService } from '../session-management.service';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
@@ -116,51 +120,81 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
   }
 
   async getDcApiCall() {
-    if (!this.session?.requestUrl) return;
-
-    if (
-      !('credentials' in navigator) ||
-      !('get' in navigator.credentials) ||
-      !('DigitalCredential' in window)
-    ) {
-      console.warn('Digital Credentials API not available — handing off via deep link.');
+    if (!this.session?.requestObject) {
+      this.snackBar.open('No request object available for DC API', 'Close', { duration: 3000 });
       return;
     }
 
-    console.log('Calling Digital Credentials API (signed)…');
-    console.log({
-      mediation: 'required',
-      digital: {
-        requests: [
-          { protocol: 'openid4vp-v1-signed', data: { request: this.session.requestObject } },
-        ],
-      },
-    });
-    const dcResponse = await navigator.credentials
-      .get({
+    if (!isDcApiAvailable()) {
+      console.warn('Digital Credentials API not available — handing off via deep link.');
+      this.snackBar.open('Digital Credentials API not available in this browser', 'Close', {
+        duration: 3000,
+      });
+      return;
+    }
+
+    try {
+      console.log('Calling Digital Credentials API (signed)…');
+
+      // Call the Digital Credentials API
+      const credential = (await navigator.credentials.get({
         mediation: 'required',
         digital: {
           requests: [
-            { protocol: 'openid4vp-v1-signed', data: { request: this.session.requestObject } },
+            {
+              protocol: 'openid4vp-v1-signed',
+              data: { request: this.session.requestObject },
+            },
           ],
         },
-      } as CredentialRequestOptions)
-      .catch((err) => {
-        console.error(err);
-        throw err;
-      });
-    console.log('Digital Credentials API response:', dcResponse);
+      } as CredentialRequestOptions)) as DigitalCredentialResponse | null;
 
-    if (dcResponse?.data?.error) {
-      console.error('Wallet protocol error:', dcResponse.data.error, dcResponse.data);
-      throw new Error(dcResponse.data.error);
+      console.log('Digital Credentials API response:', credential);
+
+      if (!credential) {
+        throw new Error('No response from Digital Credentials API');
+      }
+
+      if (credential.data?.error) {
+        console.error('Wallet protocol error:', credential.data.error, credential.data);
+        throw new Error(
+          `${credential.data.error}${credential.data.error_description ? `: ${credential.data.error_description}` : ''}`
+        );
+      }
+
+      // Extract response_uri from the request object and submit
+      const responseUri = decodeJwt<{ response_uri?: string }>(
+        this.session.requestObject
+      ).response_uri;
+
+      if (!responseUri) {
+        throw new Error('No response_uri found in request object');
+      }
+
+      const submitRes = await firstValueFrom(
+        this.httpClient.post(responseUri, { ...credential.data, sendResponse: true })
+      );
+
+      console.log('Verifier response:', submitRes);
+      this.snackBar.open('Presentation submitted successfully!', 'Close', { duration: 3000 });
+
+      // Refresh the session to show updated status
+      await this.loadSession(this.session.id);
+    } catch (error) {
+      console.error('DC API error:', error);
+      this.snackBar.open(
+        `DC API error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        'Close',
+        { duration: 5000 }
+      );
     }
+  }
 
-    const responseUri = decodeJwt<any>(this.session.requestObject!).response_uri;
-    const submitRes = await firstValueFrom(
-      this.httpClient.post(responseUri, { ...dcResponse!.data, sendResponse: true })
-    );
-    console.log('Verifier response:', submitRes);
+  /**
+   * Check if the Digital Credentials API is available
+   */
+  isDcApiAvailable(): boolean {
+    return isDcApiAvailable();
   }
 
   getStatusClass(status: any): string {

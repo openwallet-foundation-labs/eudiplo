@@ -82,6 +82,60 @@ await waitForCompletion();
 | `verifyAndWait(options)` | One-liner: create request + wait for result                                               |
 | `issueAndWait(options)`  | One-liner: create offer + wait for result                                                 |
 
+### Digital Credentials API (Browser Native)
+
+The SDK includes utilities for the [Digital Credentials API](https://wicg.github.io/digital-credentials/), enabling browser-native credential presentation without QR codes.
+
+```typescript
+import { isDcApiAvailable, verifyWithDcApi } from '@eudiplo/sdk-core';
+
+// Check if browser supports DC API
+if (isDcApiAvailable()) {
+  const result = await verifyWithDcApi({
+    baseUrl: 'https://eudiplo.example.com',
+    clientId: 'my-demo',
+    clientSecret: 'secret',
+    configId: 'age-over-18',
+  });
+
+  console.log('Verified!', result.session.credentials);
+} else {
+  // Fall back to QR code flow
+  const session = await verifyAndWait({...});
+}
+```
+
+#### DC API Functions
+
+| Function               | Description                                         |
+| ---------------------- | --------------------------------------------------- |
+| `isDcApiAvailable()`   | Check if browser supports Digital Credentials API   |
+| `verifyWithDcApi()`    | Complete verification flow using browser-native API |
+| `createDcApiRequest()` | Create a `DigitalCredentialRequestOptions` object   |
+
+#### Lower-level DC API Usage
+
+```typescript
+import { createDcApiRequest, EudiploClient } from '@eudiplo/sdk-core';
+
+const client = new EudiploClient({...});
+
+// Create presentation request
+const { uri, sessionId } = await client.createPresentationRequest({
+  configId: 'age-over-18',
+  responseType: 'dc-api',
+});
+
+// Create the browser request object
+const request = createDcApiRequest(uri);
+
+// Call the browser API directly
+const credential = await navigator.credentials.get(request);
+
+// Submit the response and get verified session
+const session = await client.submitDcApiResponse(sessionId, credential);
+```
+
 ### Class-based API (More Control)
 
 ```typescript

@@ -138,9 +138,7 @@ export class Oid4vpService {
                 payload: {
                     response_type: "vp_token",
                     client_id: "x509_hash:" + certHash,
-                    response_uri: session.useDcApi
-                        ? undefined
-                        : `${host}/${session.id}/oid4vp`,
+                    response_uri: `${host}/${session.id}/oid4vp`,
                     response_mode: session.useDcApi
                         ? "dc_api.jwt"
                         : "direct_post.jwt",

@@ -1,9 +1,0 @@
-{
-  "id": "0f6e186f-9763-49ec-8d93-6cb801ded7a4",
-  "keyId": "dae7553f-321b-419e-a5d6-eb0933936793",
-  "description": "Self-signed certificate (statusList) for tenant Root Tenant",
-  "crt": "-----BEGIN CERTIFICATE-----\nMIIBcDCCARagAwIBAgIBATAKBggqhkjOPQQDAjAWMRQwEgYDVQQDEwtSb290IFRl\nbmFudDAeFw0yNjAxMDIwODQwNDFaFw0yNzAxMDIwODQwNDFaMBYxFDASBgNVBAMT\nC1Jvb3QgVGVuYW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEjl97bi6xKezs\nht0gbbRpkprPE7Ib926KL7MCbnHtnoGNCEJmvdXuaZm86HO1S6T0+QgH8XyC+8FR\nNGssEDxkQKNVMFMwIgYDVR0RBBswGYIXc2VydmljZS5ldWRpLXdhbGxldC5kZXYw\nDgYDVR0PAQH/BAQDAgWgMB0GA1UdDgQWBBQ0c6zxfvAgXDu6ikUlMCge3Yn2LTAK\nBggqhkjOPQQDAgNIADBFAiEA2/XJ9iirNeYCewMScN2SoGa41T1trYmPfqyqV/BP\n8+8CIFzOX+GgcnGp4H6qJ3IMueeU8ujXeS3nTHKT6U2yONH6\n-----END CERTIFICATE-----",
-  "certUsageTypes": [
-    "statusList"
-  ]
-}
