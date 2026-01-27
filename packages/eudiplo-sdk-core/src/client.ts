@@ -902,3 +902,220 @@ export async function createDcApiRequest(
       }),
   };
 }
+
+// ============================================================================
+// Server/Client Split Helper Functions
+// ============================================================================
+// These functions help when you need to keep credentials on your server
+// but call the DC API from the browser.
+
+/**
+ * Data returned from server to browser for DC API flow
+ */
+export interface DcApiRequestData {
+  /** The signed JWT request object to pass to the DC API */
+  requestObject: string;
+  /** Session ID for tracking */
+  sessionId: string;
+  /** The response_uri where wallet responses should be submitted */
+  responseUri: string;
+}
+
+/**
+ * Wallet response data from the DC API to send back to server
+ */
+export interface DcApiWalletResponse {
+  /** The encrypted VP token response from the wallet */
+  response?: string;
+  /** Error code if the wallet returned an error */
+  error?: string;
+  /** Error description if available */
+  error_description?: string;
+}
+
+/**
+ * SERVER-SIDE: Create a DC API request and return the data needed by the browser.
+ * Use this on your server where credentials are stored securely.
+ *
+ * @example
+ * ```typescript
+ * // On your server (e.g., Express/Next.js API route)
+ * import { createDcApiRequestForBrowser } from '@eudiplo/sdk-core';
+ *
+ * app.post('/api/start-verification', async (req, res) => {
+ *   const requestData = await createDcApiRequestForBrowser({
+ *     baseUrl: 'https://eudiplo.example.com',
+ *     clientId: process.env.EUDIPLO_CLIENT_ID,     // Safe on server
+ *     clientSecret: process.env.EUDIPLO_SECRET,   // Safe on server
+ *     configId: 'age-over-18',
+ *   });
+ *
+ *   // Send only the safe data to the browser
+ *   res.json(requestData);
+ * });
+ * ```
+ */
+export async function createDcApiRequestForBrowser(
+  options: DcApiVerifyOptions
+): Promise<DcApiRequestData> {
+  const eudiploClient = new EudiploClient({
+    baseUrl: options.baseUrl,
+    clientId: options.clientId,
+    clientSecret: options.clientSecret,
+  });
+
+  const session = await eudiploClient.createDcApiPresentationRequest({
+    configId: options.configId,
+    redirectUri: options.redirectUri,
+  });
+
+  if (!session.requestObject) {
+    throw new Error('Session does not contain a requestObject');
+  }
+
+  // Extract response_uri from the signed JWT
+  const requestPayload = decodeJwtPayload<{ response_uri?: string }>(
+    session.requestObject
+  );
+
+  if (!requestPayload.response_uri) {
+    throw new Error('No response_uri found in request object');
+  }
+
+  return {
+    requestObject: session.requestObject,
+    sessionId: session.id,
+    responseUri: requestPayload.response_uri,
+  };
+}
+
+/**
+ * BROWSER-SIDE: Call the Digital Credentials API with a request from your server.
+ * This function runs in the browser and invokes the native DC API.
+ *
+ * @example
+ * ```typescript
+ * // In your browser code
+ * import { callDcApi, isDcApiAvailable } from '@eudiplo/sdk-core';
+ *
+ * // Get request data from your server
+ * const requestData = await fetch('/api/start-verification', { method: 'POST' })
+ *   .then(r => r.json());
+ *
+ * if (isDcApiAvailable()) {
+ *   // This calls the browser's native Digital Credentials API
+ *   const walletResponse = await callDcApi(requestData.requestObject);
+ *
+ *   // Send the wallet response back to your server for verification
+ *   const result = await fetch('/api/complete-verification', {
+ *     method: 'POST',
+ *     headers: { 'Content-Type': 'application/json' },
+ *     body: JSON.stringify({
+ *       sessionId: requestData.sessionId,
+ *       walletResponse,
+ *     }),
+ *   }).then(r => r.json());
+ * }
+ * ```
+ */
+export async function callDcApi(
+  requestObject: string
+): Promise<DcApiWalletResponse> {
+  if (!isDcApiAvailable()) {
+    throw new Error(
+      'Digital Credentials API is not available in this browser. ' +
+        'Please use a supported browser or fall back to QR code flow.'
+    );
+  }
+
+  const dcResponse = (await navigator.credentials.get({
+    mediation: 'required',
+    digital: {
+      requests: [
+        {
+          protocol: 'openid4vp-v1-signed',
+          data: { request: requestObject },
+        },
+      ],
+    },
+  } as CredentialRequestOptions)) as DigitalCredentialResponse | null;
+
+  if (!dcResponse) {
+    throw new Error('No response from Digital Credentials API');
+  }
+
+  if (dcResponse.data?.error) {
+    throw new Error(
+      `Wallet error: ${dcResponse.data.error}${
+        dcResponse.data.error_description
+          ? ` - ${dcResponse.data.error_description}`
+          : ''
+      }`
+    );
+  }
+
+  return dcResponse.data;
+}
+
+/**
+ * SERVER-SIDE: Submit the wallet response to EUDIPLO and get verified credentials.
+ * Use this on your server after receiving the wallet response from the browser.
+ *
+ * @example
+ * ```typescript
+ * // On your server
+ * import { submitDcApiWalletResponse } from '@eudiplo/sdk-core';
+ *
+ * app.post('/api/complete-verification', async (req, res) => {
+ *   const { sessionId, walletResponse } = req.body;
+ *
+ *   // You stored the responseUri when creating the request, or pass it from client
+ *   const result = await submitDcApiWalletResponse({
+ *     responseUri: storedResponseUri,  // or from request
+ *     walletResponse,
+ *     sendResponse: true,  // Get verified claims back
+ *   });
+ *
+ *   // result.credentials contains the verified data
+ *   res.json(result);
+ * });
+ * ```
+ */
+export async function submitDcApiWalletResponse(options: {
+  /** The response_uri from the request (from DcApiRequestData.responseUri) */
+  responseUri: string;
+  /** The wallet response from callDcApi() */
+  walletResponse: DcApiWalletResponse;
+  /** Whether to return full credential data (default: true) */
+  sendResponse?: boolean;
+  /** Custom fetch implementation (optional) */
+  fetch?: typeof fetch;
+}): Promise<DcApiPresentationResult> {
+  const fetchImpl = options.fetch ?? fetch;
+
+  const submitResponse = await fetchImpl(options.responseUri, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      ...options.walletResponse,
+      sendResponse: options.sendResponse ?? true,
+    }),
+  });
+
+  if (!submitResponse.ok) {
+    const errorText = await submitResponse.text();
+    throw new Error(
+      `Failed to submit presentation: ${submitResponse.status} ${errorText}`
+    );
+  }
+
+  const result = await submitResponse.json();
+
+  return {
+    credentials: result.credentials ?? result,
+    response: result,
+    redirectUri: result.redirect_uri,
+  };
+}

@@ -19,12 +19,19 @@ export {
   isDcApiAvailable,
   verifyWithDcApi,
   createDcApiRequest,
+  // Server/Client split helpers
+  createDcApiRequestForBrowser,
+  callDcApi,
+  submitDcApiWalletResponse,
 } from './client';
 export type {
   DcApiVerifyOptions,
   DcApiPresentationOptions,
   DcApiPresentationResult,
   DigitalCredentialResponse,
+  // Server/Client split types
+  DcApiRequestData,
+  DcApiWalletResponse,
 } from './client';
 
 // Re-export the HTTP client instance for direct API usage
