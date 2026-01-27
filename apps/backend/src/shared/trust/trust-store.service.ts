@@ -68,4 +68,12 @@ export class TrustStoreService {
         );
         return store;
     }
+
+    /**
+     * Clear the cached trust store.
+     * Useful for testing or when trust lists are known to have changed.
+     */
+    clearCache(): void {
+        this.cache = null;
+    }
 }
