@@ -655,7 +655,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
 
     // Import statuslist key and cert
     const statusListKey = readConfig<KeyImportDto>(
-        join(configFolder, "root/keys/status-list.json"),
+        join(configFolder, "root/keys/sign.json"),
     );
 
     await expectRequest(
