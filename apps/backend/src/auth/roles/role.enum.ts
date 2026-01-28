@@ -23,10 +23,10 @@ export enum Role {
  */
 export const allRoles = [
     Role.Tenants,
-    Role.Tenants,
     Role.IssuanceOffer,
     Role.Issuances,
     Role.PresentationOffer,
     Role.Presentations,
+    Role.Clients,
     Role.Registrar,
 ];
