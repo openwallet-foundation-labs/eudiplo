@@ -331,7 +331,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:117</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:110</a></code>
 </div>
                         </td>
                     </tr>
@@ -418,7 +418,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:104</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:97</a></code>
 </div>
                         </td>
                     </tr>
@@ -505,7 +505,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:98</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:91</a></code>
 </div>
                         </td>
                     </tr>
@@ -578,7 +578,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:111</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:104</a></code>
 </div>
                         </td>
                     </tr>
@@ -820,7 +820,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:261</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:254</a></code>
 </div>
                         </td>
                     </tr>
@@ -907,7 +907,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:196</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:189</a></code>
 </div>
                         </td>
                     </tr>
@@ -1111,7 +1111,7 @@ import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { decodeJwt } from &quot;jose&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { ConfigImportOrchestratorService } from &quot;../../../shared/utils/config-import/config-import-orchestrator.service&quot;;
-import { Role } from &quot;../../roles/role.enum&quot;;
+import { allRoles, Role } from &quot;../../roles/role.enum&quot;;
 import { ClientsProvider } from &quot;../client.provider&quot;;
 import { CreateClientDto } from &quot;../dto/create-client.dto&quot;;
 import { UpdateClientDto } from &quot;../dto/update-client.dto&quot;;
@@ -1171,14 +1171,7 @@ export class KeycloakClientsProvider
      * Checks if all the roles are available in the realm. If not they will be created.
      */
     private init() {
-        const existingRoles: Role[] &#x3D; [
-            Role.Tenants,
-            Role.Tenants,
-            Role.IssuanceOffer,
-            Role.Issuances,
-            Role.PresentationOffer,
-            Role.Presentations,
-        ];
+        const existingRoles: Role[] &#x3D; allRoles;
         return this.kc.roles
             .find()
             .then((roles) &#x3D;&gt; {
