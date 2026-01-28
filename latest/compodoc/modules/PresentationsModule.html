@@ -136,13 +136,13 @@
 <title>cluster_PresentationsModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="8,-70 8,-268 870,-268 870,-70 8,-70"/>
 </g>
-<g id="clust4" class="cluster">
-<title>cluster_PresentationsModule_exports</title>
-<polygon fill="none" stroke="black" points="289,-208 289,-260 441,-260 441,-208 289,-208"/>
-</g>
 <g id="clust6" class="cluster">
 <title>cluster_PresentationsModule_providers</title>
 <polygon fill="none" stroke="black" points="257,-78 257,-130 862,-130 862,-78 257,-78"/>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_PresentationsModule_exports</title>
+<polygon fill="none" stroke="black" points="289,-208 289,-260 441,-260 441,-208 289,-208"/>
 </g>
 <g id="clust3" class="cluster">
 <title>cluster_PresentationsModule_imports</title>
@@ -330,8 +330,8 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpModule } from &quot;@nestjs/axios&quot;;
 import { Module } from &quot;@nestjs/common&quot;;
 import { TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
+import { TrustModule } from &quot;../../shared/trust/trust.module&quot;;
 import { ResolverModule } from &quot;../resolver/resolver.module&quot;;
-import { TrustModule } from &quot;../resolver/trust/trust.module&quot;;
 import { MdlverifierService } from &quot;./credential/mdlverifier/mdlverifier.service&quot;;
 import { SdjwtvcverifierService } from &quot;./credential/sdjwtvcverifier/sdjwtvcverifier.service&quot;;
 import { PresentationConfig } from &quot;./entities/presentation-config.entity&quot;;

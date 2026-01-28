@@ -206,7 +206,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:23</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:24</a></div>
                             </td>
                         </tr>
 
@@ -379,8 +379,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="45"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:45</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="46"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:46</a></div>
                         </td>
                     </tr>
 
@@ -464,8 +464,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="219"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:219</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="230"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:230</a></div>
                         </td>
                     </tr>
 
@@ -583,8 +583,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="311"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:311</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="327"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:327</a></div>
                         </td>
                     </tr>
 
@@ -681,7 +681,7 @@ It initializes the session logging context and logs the start of the flow.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:26</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:27</a></div>
                         </td>
                     </tr>
 
@@ -697,6 +697,7 @@ It initializes the session logging context and logs the start of the flow.</p>
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &quot;node:crypto&quot;;
 import { BadRequestException, Inject, Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
+import { base64url } from &quot;jose&quot;;
 import { v4 } from &quot;uuid&quot;;
 import { EncryptionService } from &quot;../../crypto/encryption/encryption.service&quot;;
 import { CertService } from &quot;../../crypto/key/cert/cert.service&quot;;
@@ -821,13 +822,19 @@ export class Oid4vpService {
 
             const certHash &#x3D; this.certService.getCertHash(cert);
 
+            // Use transaction_data from session (which may have been overridden) or fall back to config
+            const transaction_data &#x3D;
+                (
+                    session.transaction_data ??
+                    presentationConfig.transaction_data
+                )?.map((td) &#x3D;&gt; base64url.encode(JSON.stringify(td))) ||
+                undefined;
+
             const request &#x3D; {
                 payload: {
                     response_type: &quot;vp_token&quot;,
                     client_id: &quot;x509_hash:&quot; + certHash,
-                    response_uri: session.useDcApi
-                        ? undefined
-                        : &#x60;${host}/${session.id}/oid4vp&#x60;,
+                    response_uri: &#x60;${host}/${session.id}/oid4vp&#x60;,
                     response_mode: session.useDcApi
                         ? &quot;dc_api.jwt&quot;
                         : &quot;direct_post.jwt&quot;,
@@ -853,9 +860,13 @@ export class Oid4vpService {
                                     this.cryptoImplementationService.getSupportedAlgorithms(),
                             },
                         },
-                        encrypted_response_enc_values_supported: [&quot;A128GCM&quot;],
+                        encrypted_response_enc_values_supported: [
+                            &quot;A128GCM&quot;,
+                            &quot;A256GCM&quot;,
+                        ],
                     },
                     state: session.useDcApi ? undefined : session.id,
+                    transaction_data,
                     //TODO: check if this value is correct accroding to https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-aud-of-a-request-object
                     aud: &quot;https://self-issued.me/v2&quot;,
                     exp: Math.floor(Date.now() / 1000) + lifeTime,
@@ -959,6 +970,10 @@ export class Oid4vpService {
                 ? undefined
                 : &#x60;${host}/${values.session}/oid4vp&#x60;;
 
+            // Use transaction_data from options if provided, otherwise fall back to config
+            const transaction_data &#x3D;
+                values.transaction_data ?? presentationConfig.transaction_data;
+
             const session &#x3D; await this.sessionService.create({
                 id: values.session,
                 parsedWebhook: values.webhook,
@@ -973,6 +988,7 @@ export class Oid4vpService {
                 useDcApi,
                 clientId,
                 responseUri,
+                transaction_data,
             });
 
             if (request_uri_method &#x3D;&#x3D;&#x3D; &quot;get&quot;) {

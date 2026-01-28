@@ -781,6 +781,67 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#wallet-attestation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wallet Attestation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Wallet Attestation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trust-lists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trust Lists
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#status-claim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status Claim
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -809,6 +870,8 @@
       
         
           
+        
+      
         
       
         
@@ -884,6 +947,34 @@
     
   
     Presentation Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../presentation/transaction-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Transaction Data
   
 
     
@@ -1923,6 +2014,67 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#wallet-attestation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wallet Attestation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Wallet Attestation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trust-lists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trust Lists
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#status-claim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status Claim
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2061,8 +2213,64 @@
 <li><code>notifyWebhook</code> (object, optional): Webhook to send the result of the notification response. See <a href="../../../architecture/webhooks/#notification-webhook">Webhooks</a>.</li>
 <li><code>batchSize</code> (number, optional): Value to determine the amount of credentials that are issued in a batch. Default is 1.</li>
 <li><code>dPopRequired</code> (boolean, optional): Indicates whether DPoP is required for the issuance process. Default value is true.</li>
+<li><code>walletAttestationRequired</code> (boolean, optional): Indicates whether wallet attestation is required for the token endpoint. Default value is false. See <a href="#wallet-attestation">Wallet Attestation</a> below.</li>
+<li><code>walletProviderTrustLists</code> (array of strings, optional): URLs of trust lists containing trusted wallet providers. Required when <code>walletAttestationRequired</code> is true.</li>
 <li><code>display</code> (array of objects, required): The display information from the <a href="https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-issuer-metadata:~:text=2%20or%20greater.-,display,-%3A%20OPTIONAL.%20A%20non">OID4VCI spec</a>. To host images or logos, you can use the <a href="../../../architecture/storage/">storage</a> system provided by EUDIPLO.</li>
 </ul>
+<hr>
+<h2 id="wallet-attestation">Wallet Attestation<a class="headerlink" href="#wallet-attestation" title="Permanent link">¶</a></h2>
+<p>Wallet attestation allows issuers to verify that credential requests come from trusted wallet applications. When enabled, wallets must provide OAuth Client Attestation headers at the token endpoint, as specified in <a href="https://datatracker.ietf.org/doc/html/rfc9449">RFC 9449</a> and the <a href="https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html">OID4VCI specification</a>.</p>
+<h3 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">¶</a></h3>
+<ol>
+<li>
+<p><strong>Wallet Provider Signs Attestation</strong>: The wallet provider (e.g., the wallet app vendor) signs a JWT attesting to the wallet instance's identity. This JWT includes an X.509 certificate chain in the <code>x5c</code> header.</p>
+</li>
+<li>
+<p><strong>Wallet Sends Attestation</strong>: When requesting an access token, the wallet includes two headers:</p>
+<ul>
+<li><code>OAuth-Client-Attestation</code>: The wallet attestation JWT signed by the wallet provider</li>
+<li><code>OAuth-Client-Attestation-PoP</code>: A proof-of-possession JWT signed by the wallet instance</li>
+</ul>
+</li>
+<li>
+<p><strong>Issuer Validates</strong>: EUDIPLO validates the attestation by:</p>
+<ul>
+<li>Verifying the JWT signature using the X.509 certificate from the <code>x5c</code> header</li>
+<li>Verifying the proof-of-possession (PoP) JWT</li>
+<li>Checking that the wallet provider's certificate is trusted according to the configured trust lists</li>
+</ul>
+</li>
+</ol>
+<h3 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¶</a></h3>
+<p>To enable wallet attestation, set <code>walletAttestationRequired</code> to <code>true</code> and provide at least one trust list URL:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="nt">"walletAttestationRequired"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nt">"walletProviderTrustLists"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"https://trust-list.example.eu/wallet-providers"</span><span class="p">]</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="trust-lists">Trust Lists<a class="headerlink" href="#trust-lists" title="Permanent link">¶</a></h3>
+<p>Trust lists must be in the LoTE (List of Trusted Entities) format as defined by <a href="https://www.etsi.org/deliver/etsi_ts/119600_119699/119612/">ETSI TS 119 612</a>. The trust list should contain entries with the service type <code>http://uri.etsi.org/19602/SvcType/WalletProvider</code>.</p>
+<p>Each trusted entity in the list includes X.509 certificates that identify authorized wallet providers. When a wallet presents an attestation, EUDIPLO verifies that the signing certificate chains to one of these trusted certificates.</p>
+<h3 id="status-claim">Status Claim<a class="headerlink" href="#status-claim" title="Permanent link">¶</a></h3>
+<p>The wallet attestation JWT may optionally contain a <code>status</code> claim that provides a URI for checking the current validity or revocation status of the attestation. According to the <a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth">OAuth Attestation-Based Client Authentication</a> specification, this claim is <strong>optional</strong>.</p>
+<div class="admonition note">
+<p class="admonition-title">Current Behavior</p>
+<p>EUDIPLO currently does <strong>not</strong> check the <code>status</code> claim in wallet attestations. Attestations are validated based on:</p>
+<ul>
+<li>JWT signature verification</li>
+<li>Proof-of-possession verification</li>
+<li>X.509 certificate chain validation against configured trust lists</li>
+</ul>
+<p>If your use case requires status checking (e.g., for revoked wallet instances), this would need to be implemented as an additional validation step.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Important</p>
+<p>If <code>walletAttestationRequired</code> is set to <code>true</code> but no trust lists are configured, <strong>all wallet requests will be rejected</strong>. Always configure at least one trust list when enabling wallet attestation.</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">EUDI Wallet Ecosystem</p>
+<p>In the EUDI Wallet ecosystem, trust lists are typically published by EU member states or the European Commission, containing the certificates of approved wallet providers.</p>
+</div>
 
 
 

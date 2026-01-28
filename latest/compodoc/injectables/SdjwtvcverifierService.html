@@ -187,6 +187,11 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#validateTransactionDataHashes" >validateTransactionDataHashes</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#verify" >verify</a>
                             </li>
                             <li>
@@ -236,7 +241,7 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(resolverService: <a href="../injectables/ResolverService.html" target="_self">ResolverService</a>, cryptoService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, httpService: HttpService, trustStore: <a href="../injectables/TrustStoreService.html" target="_self">TrustStoreService</a>, x509v: <a href="../injectables/X509ValidationService.html" target="_self">X509ValidationService</a>)</code>
+<code>constructor(resolverService: <a href="../injectables/ResolverService.html" target="_self">ResolverService</a>, cryptoService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, trustStore: <a href="../injectables/TrustStoreService.html" target="_self">TrustStoreService</a>, x509v: <a href="../injectables/X509ValidationService.html" target="_self">X509ValidationService</a>, statusListVerifier: <a href="../injectables/StatusListVerifierService.html" target="_self">StatusListVerifierService</a>)</code>
                     </td>
                 </tr>
                         <tr>
@@ -283,18 +288,6 @@
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>httpService</td>
-                                                  
-                                                        <td>
-                                                                    <code>HttpService</code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
                                                         <td>trustStore</td>
                                                   
                                                         <td>
@@ -311,6 +304,18 @@
                                                   
                                                         <td>
                                                                         <code><a href="../injectables/X509ValidationService.html" target="_self" >X509ValidationService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>statusListVerifier</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/StatusListVerifierService.html" target="_self" >StatusListVerifierService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -336,8 +341,110 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="validateTransactionDataHashes"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>validateTransactionDataHashes</b></span>
+                        <a href="#validateTransactionDataHashes"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>validateTransactionDataHashes(result: VerificationResult, transactionData: string[])</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="103"
+                                    class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:103</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Validates that the KB-JWT contains transaction_data_hashes that match
+the SHA-256 hashes of the provided transaction data.</p>
+<p>According to OID4VP spec Appendix B.3.3.1:</p>
+<ul>
+<li>transaction_data_hashes: A non-empty array of strings where each element
+is a base64url-encoded hash calculated over the transaction data string
+(base64url decoding is NOT performed before hashing).</li>
+<li>The hash function defaults to SHA-256 unless transaction_data_hashes_alg
+specifies otherwise.</li>
+</ul>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>result</td>
+                                            <td>
+                                                        <code>VerificationResult</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The verification result containing the KB-JWT payload</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>transactionData</td>
+                                            <td>
+                                                        <code>string[]</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The base64url-encoded transaction data strings from the request</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="verify"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>verify</b></span>
                         <a href="#verify"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -345,15 +452,16 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>verify(cred: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, options: <a href="../miscellaneous/typealiases.html#VerifierOptions" target="_self">VerifierOptions</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>verify(cred: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, options: <a href="../miscellaneous/typealiases.html#VerifierOptions" target="_self">VerifierOptions</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="41"
-                                    class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:41</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="46"
+                                    class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:46</a></div>
                         </td>
                     </tr>
 
@@ -363,6 +471,9 @@
                         <div class="io-description"><p>Verifies an SD-JWT-VC credential.
 Creates a fresh SDJwtVcInstance per verification to safely capture
 the matched TrustedEntity for status list verification.</p>
+<p>If transaction data is provided in options, this method also validates
+that the KB-JWT contains matching transaction_data_hashes.
+See OID4VP spec Appendix B.3.3.1 for details.</p>
 </div>
 
                             <div class="io-description">
@@ -438,8 +549,8 @@ the matched TrustedEntity for status list verification.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="83"
-                                    class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:83</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="180"
+                                    class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:180</a></div>
                         </td>
                     </tr>
 
@@ -537,8 +648,8 @@ signature = &quot;&lt;b64url(signature)&gt;&quot;</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="208"
-                                    class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:208</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="305"
+                                    class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:305</a></div>
                         </td>
                     </tr>
 
@@ -1012,7 +1123,7 @@ Returns null if no trust list source is configured (skip trust validation).</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="363" class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:363</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="458" class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:458</a></div>
                         </td>
                     </tr>
 
@@ -1116,13 +1227,13 @@ Returns null if no trust list source is configured (skip trust validation).</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="348" class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:348</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="445" class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:445</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Fetch the status list from the uri.</p>
+                    <div class="io-description"><p>Fetch the status list from the uri with caching.</p>
 </div>
                 </td>
             </tr>
@@ -1154,22 +1265,22 @@ Returns null if no trust list source is configured (skip trust validation).</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpService } from &quot;@nestjs/axios&quot;;
-import { Injectable, Logger } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash } from &quot;node:crypto&quot;;
+import { BadRequestException, Injectable, Logger } from &quot;@nestjs/common&quot;;
 import * as x509 from &quot;@peculiar/x509&quot;;
 import { digest } from &quot;@sd-jwt/crypto-nodejs&quot;;
 import { SDJwtVcInstance, VerificationResult } from &quot;@sd-jwt/sd-jwt-vc&quot;;
 import { KbVerifier } from &quot;@sd-jwt/types&quot;;
-import { JWK } from &quot;jose&quot;;
-import { firstValueFrom } from &quot;rxjs&quot;;
+import { base64url, JWK } from &quot;jose&quot;;
 import { CryptoImplementationService } from &quot;../../../../crypto/key/crypto-implementation/crypto-implementation.service&quot;;
-import { ResolverService } from &quot;../../../resolver/resolver.service&quot;;
-import { TrustStoreService } from &quot;../../../resolver/trust/trust-store.service&quot;;
-import { VerifierOptions } from &quot;../../../resolver/trust/types&quot;;
+import { StatusListVerifierService } from &quot;../../../../shared/trust/status-list-verifier.service&quot;;
+import { TrustStoreService } from &quot;../../../../shared/trust/trust-store.service&quot;;
+import { VerifierOptions } from &quot;../../../../shared/trust/types&quot;;
 import {
     MatchedTrustedEntity,
     X509ValidationService,
-} from &quot;../../../resolver/trust/x509-validation.service&quot;;
+} from &quot;../../../../shared/trust/x509-validation.service&quot;;
+import { ResolverService } from &quot;../../../resolver/resolver.service&quot;;
 import { BaseVerifierService } from &quot;../base-verifier.service&quot;;
 
 @Injectable()
@@ -1179,9 +1290,9 @@ export class SdjwtvcverifierService extends BaseVerifierService {
     constructor(
         private readonly resolverService: ResolverService,
         private readonly cryptoService: CryptoImplementationService,
-        private readonly httpService: HttpService,
         trustStore: TrustStoreService,
         private readonly x509v: X509ValidationService,
+        private readonly statusListVerifier: StatusListVerifierService,
     ) {
         super(trustStore);
     }
@@ -1190,11 +1301,16 @@ export class SdjwtvcverifierService extends BaseVerifierService {
      * Verifies an SD-JWT-VC credential.
      * Creates a fresh SDJwtVcInstance per verification to safely capture
      * the matched TrustedEntity for status list verification.
+     *
+     * If transaction data is provided in options, this method also validates
+     * that the KB-JWT contains matching transaction_data_hashes.
+     * See OID4VP spec Appendix B.3.3.1 for details.
+     *
      * @param cred
      * @param options
      * @returns
      */
-    verify(
+    async verify(
         cred: string,
         options: VerifierOptions,
     ): Promise&lt;VerificationResult&gt; {
@@ -1226,7 +1342,99 @@ export class SdjwtvcverifierService extends BaseVerifierService {
             },
         });
 
-        return sdjwtInstance.verify(cred, options as any);
+        const result &#x3D; await sdjwtInstance.verify(cred, options as any);
+
+        // Validate transaction data hashes if transaction data was provided
+        if (options.transactionData &amp;&amp; options.transactionData.length &gt; 0) {
+            this.validateTransactionDataHashes(result, options.transactionData);
+        }
+
+        return result;
+    }
+
+    /**
+     * Validates that the KB-JWT contains transaction_data_hashes that match
+     * the SHA-256 hashes of the provided transaction data.
+     *
+     * According to OID4VP spec Appendix B.3.3.1:
+     * - transaction_data_hashes: A non-empty array of strings where each element
+     *   is a base64url-encoded hash calculated over the transaction data string
+     *   (base64url decoding is NOT performed before hashing).
+     * - The hash function defaults to SHA-256 unless transaction_data_hashes_alg
+     *   specifies otherwise.
+     *
+     * @param result The verification result containing the KB-JWT payload
+     * @param transactionData The base64url-encoded transaction data strings from the request
+     * @throws BadRequestException if validation fails
+     */
+    private validateTransactionDataHashes(
+        result: VerificationResult,
+        transactionData: string[],
+    ): void {
+        const kbPayload &#x3D; result.kb?.payload as
+            | (Record&lt;string, unknown&gt; &amp; {
+                  transaction_data_hashes?: string[];
+                  transaction_data_hashes_alg?: string;
+              })
+            | undefined;
+
+        if (!kbPayload) {
+            throw new BadRequestException(
+                &quot;Transaction data was provided but KB-JWT is missing&quot;,
+            );
+        }
+
+        const receivedHashes &#x3D; kbPayload.transaction_data_hashes;
+
+        if (!receivedHashes || !Array.isArray(receivedHashes)) {
+            throw new BadRequestException(
+                &quot;Transaction data was provided but KB-JWT does not contain transaction_data_hashes&quot;,
+            );
+        }
+
+        if (receivedHashes.length !&#x3D;&#x3D; transactionData.length) {
+            throw new BadRequestException(
+                &#x60;Transaction data hash count mismatch: expected ${transactionData.length}, received ${receivedHashes.length}&#x60;,
+            );
+        }
+
+        // Determine hash algorithm - defaults to sha-256 per spec
+        const hashAlg &#x3D; kbPayload.transaction_data_hashes_alg ?? &quot;sha-256&quot;;
+
+        // Map OID4VP hash algorithm names to Node.js crypto names
+        const algoMap: Record&lt;string, string&gt; &#x3D; {
+            &quot;sha-256&quot;: &quot;sha256&quot;,
+            &quot;sha-384&quot;: &quot;sha384&quot;,
+            &quot;sha-512&quot;: &quot;sha512&quot;,
+        };
+
+        const nodeAlgo &#x3D; algoMap[hashAlg];
+        if (!nodeAlgo) {
+            throw new BadRequestException(
+                &#x60;Unsupported transaction_data_hashes_alg: ${hashAlg}&#x60;,
+            );
+        }
+
+        // Compute expected hashes and compare
+        // Per spec: hash is computed over the string as-is (no base64url decoding)
+        for (let i &#x3D; 0; i &lt; transactionData.length; i++) {
+            const expectedHash &#x3D; base64url.encode(
+                createHash(nodeAlgo).update(transactionData[i]).digest(),
+            );
+
+            if (receivedHashes[i] !&#x3D;&#x3D; expectedHash) {
+                this.logger.debug(
+                    &#x60;Transaction data hash mismatch at index ${i}: expected ${expectedHash}, received ${receivedHashes[i]}&#x60;,
+                );
+                throw new BadRequestException(
+                    &#x60;Transaction data hash mismatch at index ${i}&#x60;,
+                );
+            }
+        }
+
+        this.logger.debug(
+            &#x60;Transaction data hashes validated successfully (${transactionData.length} entries)&#x60;,
+        );
     }
 
     /**
@@ -1497,16 +1705,14 @@ export class SdjwtvcverifierService extends BaseVerifierService {
     }
 
     /**
-     * Fetch the status list from the uri.
+     * Fetch the status list from the uri with caching.
      * @param uri
      * @returns
      */
     private readonly statusListFetcher: (uri: string) &#x3D;&gt; Promise&lt;string&gt; &#x3D; (
         uri: string,
     ) &#x3D;&gt; {
-        return firstValueFrom(this.httpService.get&lt;string&gt;(uri)).then(
-            (res) &#x3D;&gt; res.data,
-        );
+        return this.statusListVerifier.getStatusListJwt(uri);
     };
 
     /**

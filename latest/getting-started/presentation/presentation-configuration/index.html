@@ -9,7 +9,7 @@
         <link rel="prev" href="../">
       
       
-        <link rel="next" href="../../registrar/">
+        <link rel="next" href="../transaction-data/">
       
       
         
@@ -746,6 +746,8 @@
       
         
       
+        
+      
     
     
     
@@ -892,6 +894,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../transaction-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Transaction Data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2091,6 +2121,7 @@ be requested from users.</p>
 <li><code>registrationCert</code>: <strong>OPTIONAL</strong> - Registration certificate containing legal and privacy information about the verifier. See <a href="../../registrar/#registration-certificate">Registration Certificate</a> for details.</li>
 <li><code>webhook</code>: <strong>OPTIONAL</strong> - Webhook configuration for receiving verified presentations asynchronously. See <a href="../../../architecture/webhooks/#presentation-webhook">Webhook Integration</a> for details.</li>
 <li><code>redirectUri</code>: <strong>OPTIONAL</strong> - URI to redirect the user to after completing the presentation. This is useful for web applications that need to return the user to a specific page after verification. You can use the <code>{sessionId}</code> placeholder in the URI, which will be replaced with the actual session ID (e.g., <code>https://example.com/callback?session={sessionId}</code>).</li>
+<li><code>transaction_data</code>: <strong>OPTIONAL</strong> - Array of transaction data objects to include in the OID4VP authorization request. See <a href="../transaction-data/">Transaction Data</a> for details.</li>
 </ul>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -2148,13 +2179,13 @@ be requested from users.</p>
         
         
           
-          <a href="../../registrar/" class="md-footer__link md-footer__link--next" aria-label="Next: Registrar">
+          <a href="../transaction-data/" class="md-footer__link md-footer__link--next" aria-label="Next: Transaction Data">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Registrar
+                Transaction Data
               </div>
             </div>
             <div class="md-footer__button md-icon">

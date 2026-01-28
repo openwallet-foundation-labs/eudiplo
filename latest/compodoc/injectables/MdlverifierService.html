@@ -860,8 +860,8 @@ Returns null if no trust list source is configured (skip trust validation).</p>
     Verifier,
 } from &quot;@animo-id/mdoc&quot;;
 import { Injectable, Logger } from &quot;@nestjs/common&quot;;
-import { TrustStoreService } from &quot;../../../resolver/trust/trust-store.service&quot;;
-import { VerifierOptions } from &quot;../../../resolver/trust/types&quot;;
+import { TrustStoreService } from &quot;../../../../shared/trust/trust-store.service&quot;;
+import { VerifierOptions } from &quot;../../../../shared/trust/types&quot;;
 import { mdocContext } from &quot;../../mdl-context&quot;;
 import { BaseVerifierService } from &quot;../base-verifier.service&quot;;
 

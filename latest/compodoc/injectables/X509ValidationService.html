@@ -134,7 +134,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/verifier/resolver/trust/x509-validation.service.ts</code>
+            <code>src/shared/trust/x509-validation.service.ts</code>
         </p>
 
 
@@ -214,8 +214,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="68"
-                                    class="link-to-prism">src/verifier/resolver/trust/x509-validation.service.ts:68</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="69"
+                                    class="link-to-prism">src/shared/trust/x509-validation.service.ts:69</a></div>
                         </td>
                     </tr>
 
@@ -330,8 +330,8 @@ Returns path leaf..anchor if successful.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="82"
-                                    class="link-to-prism">src/verifier/resolver/trust/x509-validation.service.ts:82</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="83"
+                                    class="link-to-prism">src/shared/trust/x509-validation.service.ts:83</a></div>
                         </td>
                     </tr>
 
@@ -399,8 +399,8 @@ Returns path leaf..anchor if successful.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="95"
-                                    class="link-to-prism">src/verifier/resolver/trust/x509-validation.service.ts:95</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="96"
+                                    class="link-to-prism">src/shared/trust/x509-validation.service.ts:96</a></div>
                         </td>
                     </tr>
 
@@ -487,8 +487,8 @@ but keeping it explicit is sometimes useful).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="54"
-                                    class="link-to-prism">src/verifier/resolver/trust/x509-validation.service.ts:54</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="55"
+                                    class="link-to-prism">src/shared/trust/x509-validation.service.ts:55</a></div>
                         </td>
                     </tr>
 
@@ -554,8 +554,8 @@ but keeping it explicit is sometimes useful).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="50"
-                                    class="link-to-prism">src/verifier/resolver/trust/x509-validation.service.ts:50</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="51"
+                                    class="link-to-prism">src/shared/trust/x509-validation.service.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -616,15 +616,15 @@ but keeping it explicit is sometimes useful).</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>pathMatchesTrustedEntities(path: x509.X509Certificate[], entities: <a href="../interfaces/TrustedEntity.html" target="_self">TrustedEntity[]</a>, pinnedMode: "leaf" | "pathEnd")</code>
+                    <code>pathMatchesTrustedEntities(path: x509.X509Certificate[], entities: <a href="../interfaces/TrustedEntity.html" target="_self">TrustedEntity[]</a>, pinnedMode: "leaf" | "pathEnd", serviceType: <a href="../miscellaneous/typealiases.html#ServiceTypeIdentifier" target="_self">ServiceTypeIdentifier</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="112"
-                                    class="link-to-prism">src/verifier/resolver/trust/x509-validation.service.ts:112</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="114"
+                                    class="link-to-prism">src/shared/trust/x509-validation.service.ts:114</a></div>
                         </td>
                     </tr>
 
@@ -635,9 +635,9 @@ but keeping it explicit is sometimes useful).</p>
 Returns the matched entity with its issuance and revocation certificates.</p>
 <p>Policy:</p>
 <ul>
-<li>Looks for issuance certificates (EaaIssuance service type) in each entity</li>
-<li>If issuance cert is CA: require path terminates in that anchor</li>
-<li>If issuance cert is not CA: treat as pin<ul>
+<li>Looks for certificates matching the specified service type in each entity</li>
+<li>If cert is CA: require path terminates in that anchor</li>
+<li>If cert is not CA: treat as pin<ul>
 <li>pinnedMode &quot;leaf&quot;: leaf equals pinned cert</li>
 <li>pinnedMode &quot;pathEnd&quot;: path end equals pinned cert</li>
 </ul>
@@ -655,6 +655,7 @@ Returns the matched entity with its issuance and revocation certificates.</p>
                                                 <td>Type</td>
                                             <td>Optional</td>
                                                 <td>Default value</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -671,6 +672,8 @@ Returns the matched entity with its issuance and revocation certificates.</p>
                                             <td>
                                             </td>
 
+                                            <td>
+                                            </td>
                                         </tr>
                                         <tr>
                                                 <td>entities</td>
@@ -685,6 +688,8 @@ Returns the matched entity with its issuance and revocation certificates.</p>
                                             <td>
                                             </td>
 
+                                            <td>
+                                            </td>
                                         </tr>
                                         <tr>
                                                 <td>pinnedMode</td>
@@ -700,6 +705,27 @@ Returns the matched entity with its issuance and revocation certificates.</p>
                                                     <code>&quot;leaf&quot;</code>
                                             </td>
 
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>serviceType</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#ServiceTypeIdentifier" target="_self" >ServiceTypeIdentifier</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+                                            <td>
+                                                    <code>ServiceTypeIdentifiers.EaaIssuance</code>
+                                            </td>
+
+                                            <td>
+                                                    <p>The service type to match (defaults to EaaIssuance for credential validation)</p>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -726,6 +752,7 @@ Returns the matched entity with its issuance and revocation certificates.</p>
 import * as x509 from &quot;@peculiar/x509&quot;;
 import {
     getRevocationCert,
+    ServiceTypeIdentifier,
     ServiceTypeIdentifiers,
     TrustedEntity,
 } from &quot;./types&quot;;
@@ -825,56 +852,53 @@ export class X509ValidationService {
      * Returns the matched entity with its issuance and revocation certificates.
      *
      * Policy:
-     * - Looks for issuance certificates (EaaIssuance service type) in each entity
-     * - If issuance cert is CA: require path terminates in that anchor
-     * - If issuance cert is not CA: treat as pin
+     * - Looks for certificates matching the specified service type in each entity
+     * - If cert is CA: require path terminates in that anchor
+     * - If cert is not CA: treat as pin
      *   - pinnedMode &quot;leaf&quot;: leaf equals pinned cert
      *   - pinnedMode &quot;pathEnd&quot;: path end equals pinned cert
      *
+     * @param serviceType The service type to match (defaults to EaaIssuance for credential validation)
      * @returns The matched entity info, or null if no match
      */
     async pathMatchesTrustedEntities(
         path: x509.X509Certificate[],
         entities: TrustedEntity[],
         pinnedMode: &quot;leaf&quot; | &quot;pathEnd&quot; &#x3D; &quot;leaf&quot;,
+        serviceType: ServiceTypeIdentifier &#x3D; ServiceTypeIdentifiers.EaaIssuance,
     ): Promise&lt;MatchedTrustedEntity | null&gt; {
         const leaf &#x3D; path[0];
         const end &#x3D; path.at(-1)!;
-        const leafThumb &#x3D; arrayBufferToHex(await leaf.getThumbprint());
-        const endThumb &#x3D; arrayBufferToHex(await end.getThumbprint());
+        const leafThumb &#x3D; arrayBufferToHex(await leaf.getThumbprint(&quot;SHA-256&quot;));
+        const endThumb &#x3D; arrayBufferToHex(await end.getThumbprint(&quot;SHA-256&quot;));
 
         for (const entity of entities) {
-            // Find issuance certificates in this entity
-            const issuanceServices &#x3D; entity.services.filter(
-                (s) &#x3D;&gt;
-                    s.serviceTypeIdentifier &#x3D;&#x3D;&#x3D;
-                    ServiceTypeIdentifiers.EaaIssuance,
+            // Find certificates matching the specified service type in this entity
+            const matchingServices &#x3D; entity.services.filter(
+                (s) &#x3D;&gt; s.serviceTypeIdentifier &#x3D;&#x3D;&#x3D; serviceType,
             );
 
-            for (const issuanceSvc of issuanceServices) {
-                const issuanceCert &#x3D; certFromValue(issuanceSvc.certValue);
-                const issuanceThumb &#x3D; arrayBufferToHex(
-                    await issuanceCert.getThumbprint(),
+            for (const svc of matchingServices) {
+                const matchCert &#x3D; certFromValue(svc.certValue);
+                const matchThumb &#x3D; arrayBufferToHex(
+                    await matchCert.getThumbprint(&quot;SHA-256&quot;),
                 );
-                const issuanceIsCa &#x3D; this.isCaCert(issuanceCert);
+                const matchIsCa &#x3D; this.isCaCert(matchCert);
 
                 let matchMode: &quot;ca&quot; | &quot;leaf-pinned&quot; | &quot;pathEnd-pinned&quot; | null &#x3D;
                     null;
 
-                if (issuanceIsCa) {
+                if (matchIsCa) {
                     // CA cert: path must terminate at this anchor
-                    if (issuanceThumb &#x3D;&#x3D;&#x3D; endThumb) {
+                    if (matchThumb &#x3D;&#x3D;&#x3D; endThumb) {
                         matchMode &#x3D; &quot;ca&quot;;
                     }
-                } else if (
-                    pinnedMode &#x3D;&#x3D;&#x3D; &quot;leaf&quot; &amp;&amp;
-                    issuanceThumb &#x3D;&#x3D;&#x3D; leafThumb
-                ) {
+                } else if (pinnedMode &#x3D;&#x3D;&#x3D; &quot;leaf&quot; &amp;&amp; matchThumb &#x3D;&#x3D;&#x3D; leafThumb) {
                     // Pinned cert (non-CA) - leaf mode
                     matchMode &#x3D; &quot;leaf-pinned&quot;;
                 } else if (
                     pinnedMode &#x3D;&#x3D;&#x3D; &quot;pathEnd&quot; &amp;&amp;
-                    issuanceThumb &#x3D;&#x3D;&#x3D; endThumb
+                    matchThumb &#x3D;&#x3D;&#x3D; endThumb
                 ) {
                     // Pinned cert (non-CA) - pathEnd mode
                     matchMode &#x3D; &quot;pathEnd-pinned&quot;;
@@ -889,15 +913,15 @@ export class X509ValidationService {
                     if (revocationSvc) {
                         revocationCert &#x3D; certFromValue(revocationSvc.certValue);
                         revocationThumbprint &#x3D; arrayBufferToHex(
-                            await revocationCert.getThumbprint(),
+                            await revocationCert.getThumbprint(&quot;SHA-256&quot;),
                         );
                     }
 
                     return {
                         entity,
-                        issuanceCert,
-                        issuanceThumbprint: issuanceThumb,
-                        issuanceIsCa,
+                        issuanceCert: matchCert,
+                        issuanceThumbprint: matchThumb,
+                        issuanceIsCa: matchIsCa,
                         matchMode,
                         revocationCert,
                         revocationThumbprint,

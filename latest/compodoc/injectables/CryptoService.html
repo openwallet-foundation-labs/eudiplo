@@ -282,8 +282,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="104"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:104</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="129"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:129</a></div>
                         </td>
                     </tr>
 
@@ -420,8 +420,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="121"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:121</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="146"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:146</a></div>
                         </td>
                     </tr>
 
@@ -644,7 +644,7 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash, randomBytes } from &quot;node:crypto&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash, randomBytes, X509Certificate } from &quot;node:crypto&quot;;
 import { Inject, Injectable } from &quot;@nestjs/common&quot;;
 import {
     type CallbackContext,
@@ -654,7 +654,7 @@ import {
     type Jwk,
     SignJwtCallback,
 } from &quot;@openid4vc/oauth2&quot;;
-import { importJWK, type JWK, jwtVerify } from &quot;jose&quot;;
+import { exportJWK, importJWK, importX509, type JWK, jwtVerify } from &quot;jose&quot;;
 import { KeyService } from &quot;./key/key.service&quot;;
 
 /**
@@ -720,24 +720,49 @@ export class CryptoService {
             //clientId: &#x27;some-random-client-id&#x27;, // TODO: Replace with your real clientId if necessary
             signJwt: this.getSignJwtCallback(tenantId),
             verifyJwt: async (signer, { compact, payload }) &#x3D;&gt; {
-                if (signer.method !&#x3D;&#x3D; &quot;jwk&quot;) {
-                    throw new Error(&quot;Signer method not supported&quot;);
+                if (signer.method &#x3D;&#x3D;&#x3D; &quot;jwk&quot;) {
+                    const josePublicKey &#x3D; await importJWK(
+                        signer.publicJwk as JWK,
+                        signer.alg,
+                    );
+                    try {
+                        await jwtVerify(compact, josePublicKey, {
+                            currentDate: payload?.exp
+                                ? new Date((payload.exp - 300) * 1000)
+                                : undefined,
+                        });
+                        return { verified: true, signerJwk: signer.publicJwk };
+                    } catch {
+                        return { verified: false };
+                    }
+                } else if (signer.method &#x3D;&#x3D;&#x3D; &quot;x5c&quot;) {
+                    // x5c contains an array of base64-encoded X.509 certificates
+                    // The first certificate (leaf) contains the public key
+                    if (!signer.x5c || signer.x5c.length &#x3D;&#x3D;&#x3D; 0) {
+                        return { verified: false };
+                    }
+                    try {
+                        const leafCertPem &#x3D; &#x60;-----BEGIN CERTIFICATE-----\n${signer.x5c[0]}\n-----END CERTIFICATE-----&#x60;;
+                        const josePublicKey &#x3D; await importX509(
+                            leafCertPem,
+                            signer.alg,
+                        );
+                        await jwtVerify(compact, josePublicKey, {
+                            currentDate: payload?.exp
+                                ? new Date((payload.exp - 300) * 1000)
+                                : undefined,
+                        });
+                        // Extract the public JWK from the certificate for the return value
+                        const signerJwk &#x3D; await exportJWK(josePublicKey);
+                        signerJwk.alg &#x3D; signer.alg;
+                        return { verified: true, signerJwk: signerJwk as Jwk };
+                    } catch {
+                        return { verified: false };
+                    }
                 }
-
-                const josePublicKey &#x3D; await importJWK(
-                    signer.publicJwk as JWK,
-                    signer.alg,
+                throw new Error(
+                    &#x60;Signer method &#x27;${signer.method}&#x27; not supported&#x60;,
                 );
-                try {
-                    await jwtVerify(compact, josePublicKey, {
-                        currentDate: payload?.exp
-                            ? new Date((payload.exp - 300) * 1000)
-                            : undefined,
-                    });
-                    return { verified: true, signerJwk: signer.publicJwk };
-                } catch {
-                    return { verified: false };
-                }
             },
         };
     }
