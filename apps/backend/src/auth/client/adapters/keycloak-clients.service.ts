@@ -6,7 +6,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { decodeJwt } from "jose";
 import { Repository } from "typeorm";
 import { ConfigImportOrchestratorService } from "../../../shared/utils/config-import/config-import-orchestrator.service";
-import { Role } from "../../roles/role.enum";
+import { allRoles, Role } from "../../roles/role.enum";
 import { ClientsProvider } from "../client.provider";
 import { CreateClientDto } from "../dto/create-client.dto";
 import { UpdateClientDto } from "../dto/update-client.dto";
@@ -66,14 +66,7 @@ export class KeycloakClientsProvider
      * Checks if all the roles are available in the realm. If not they will be created.
      */
     private init() {
-        const existingRoles: Role[] = [
-            Role.Tenants,
-            Role.Tenants,
-            Role.IssuanceOffer,
-            Role.Issuances,
-            Role.PresentationOffer,
-            Role.Presentations,
-        ];
+        const existingRoles: Role[] = allRoles;
         return this.kc.roles
             .find()
             .then((roles) => {
