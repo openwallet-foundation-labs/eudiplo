@@ -71,7 +71,7 @@
         <button
           matIconButton
           color="primary"
-          [routerLink]="['/certificates/new']"
+          [routerLink]="['/certificates', 'create']"
           [queryParams]="{ keyId: key.id }"
           matTooltip="Add Certificate"
         >
@@ -85,7 +85,7 @@
             <ng-container matColumnDef="id">
               <th mat-header-cell *matHeaderCellDef>Certificate ID</th>
               <td mat-cell *matCellDef="let cert">
-                <code>{{ cert.id }}</code>
+                {{ cert.id }}
               </td>
             </ng-container>
 
@@ -94,17 +94,8 @@
               <th mat-header-cell *matHeaderCellDef>Usage Types</th>
               <td mat-cell *matCellDef="let cert">
                 <div fxLayout="row" fxLayoutGap="8px">
-                  @if (cert.isSigningCert) {
-                    <mat-chip color="primary">
-                      <mat-icon>edit</mat-icon>
-                      Signing
-                    </mat-chip>
-                  }
-                  @if (cert.isAccessCert) {
-                    <mat-chip color="accent">
-                      <mat-icon>vpn_key</mat-icon>
-                      Access
-                    </mat-chip>
+                  @for (usage of cert.usages; track usage) {
+                    <mat-chip>{{ usage.usage }}</mat-chip>
                   }
                 </div>
               </td>
@@ -145,14 +136,14 @@
               <td mat-cell *matCellDef="let cert">
                 <button
                   matIconButton
-                  [routerLink]="['/key-management', key.id, 'certificate', cert.id]"
+                  [routerLink]="['/certificates', cert.id]"
                   matTooltip="View certificate details"
                 >
                   <mat-icon>visibility</mat-icon>
                 </button>
                 <button
                   matIconButton
-                  [routerLink]="['/key-management', key.id, 'certificate', cert.id, 'edit']"
+                  [routerLink]="['/certificates', cert.id, 'edit']"
                   matTooltip="Edit certificate metadata"
                 >
                   <mat-icon>edit</mat-icon>

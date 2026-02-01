@@ -17,6 +17,7 @@ import { v4 } from "uuid";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { EC_Public } from "../../../issuer/issuance/oid4vci/well-known/dto/jwks-response.dto";
 import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
+import { ConfigImportOrchestratorService } from "../../../shared/utils/config-import/config-import-orchestrator.service";
 import { CryptoImplementation } from "../crypto-implementation/crypto-implementation";
 import { CryptoImplementationService } from "../crypto-implementation/crypto-implementation.service";
 import { KeyImportDto } from "../dto/key-import.dto";
@@ -28,16 +29,17 @@ import { KeyService } from "../key.service";
  * The key service is responsible for managing the keys of the issuer.
  */
 export class DBKeyService extends KeyService {
-    private crypto: CryptoImplementation;
+    private readonly crypto: CryptoImplementation;
 
     constructor(
         configService: ConfigService,
-        private cryptoService: CryptoImplementationService,
+        private readonly cryptoService: CryptoImplementationService,
         keyRepository: Repository<KeyEntity>,
         configImportService: ConfigImportService,
         certRepository: Repository<CertEntity>,
         tenantRepository: Repository<TenantEntity>,
         logger: PinoLogger,
+        configImportOrchestrator: ConfigImportOrchestratorService,
     ) {
         super(
             configService,
@@ -46,6 +48,7 @@ export class DBKeyService extends KeyService {
             certRepository,
             tenantRepository,
             logger,
+            configImportOrchestrator,
         );
         this.crypto = cryptoService.getCrypto();
     }
@@ -59,9 +62,8 @@ export class DBKeyService extends KeyService {
     import(tenantId: string, body: KeyImportDto): Promise<string> {
         return this.keyRepository
             .save({
-                id: body.id,
+                ...body,
                 tenantId,
-                key: body.key,
             })
             .then(() => body.id);
     }

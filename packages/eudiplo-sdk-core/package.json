@@ -1,0 +1,73 @@
+{
+    "name": "@eudiplo/sdk-core",
+    "version": "1.14.0",
+    "description": "Framework-agnostic EUDIPLO SDK for demos and integrations",
+    "main": "dist/index.js",
+    "module": "dist/index.mjs",
+    "types": "dist/index.d.ts",
+    "license": "Apache-2.0",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.js"
+        },
+        "./api": {
+            "types": "./dist/api/index.d.ts",
+            "import": "./dist/api/index.mjs",
+            "require": "./dist/api/index.js"
+        },
+        "./api/*": {
+            "types": "./dist/api/*.d.ts",
+            "import": "./dist/api/*.mjs",
+            "require": "./dist/api/*.js"
+        },
+        "./api/client/*": {
+            "types": "./dist/api/client/*.d.ts",
+            "import": "./dist/api/client/*.mjs",
+            "require": "./dist/api/client/*.js"
+        }
+    },
+    "scripts": {
+        "generate": "openapi-ts",
+        "build": "tsup",
+        "dev": "tsup --watch",
+        "prepublishOnly": "pnpm build"
+    },
+    "devDependencies": {
+        "@hey-api/openapi-ts": "^0.90.8",
+        "@types/node": "^25.0.10",
+        "tsup": "^8.5.1",
+        "typescript": "^5.9.3"
+    },
+    "files": [
+        "dist",
+        "!dist/**/*.map",
+        "README.md"
+    ],
+    "keywords": [
+        "eudiplo",
+        "eudi",
+        "wallet",
+        "oid4vci",
+        "oid4vp",
+        "verifiable-credentials",
+        "sdk"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/openwallet-foundation-labs/eudiplo.git",
+        "directory": "packages/eudiplo-sdk-core"
+    },
+    "homepage": "https://github.com/openwallet-foundation-labs/eudiplo/tree/main/packages/eudiplo-sdk-core#readme",
+    "bugs": {
+        "url": "https://github.com/openwallet-foundation-labs/eudiplo/issues"
+    },
+    "author": "OpenWallet Foundation",
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}

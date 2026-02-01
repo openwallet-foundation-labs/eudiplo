@@ -16,6 +16,7 @@ import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
 import { AuthorizeQueries } from "../../issuer/issuance/oid4vci/authorize/dto/authorize-request.dto";
 import { OfferRequestDto } from "../../issuer/issuance/oid4vci/dto/offer-request.dto";
 import { WebhookConfig } from "../../shared/utils/webhook/webhook.dto";
+import { TransactionData } from "../../verifier/presentations/entities/presentation-config.entity";
 
 export enum SessionStatus {
     Active = "active",
@@ -182,6 +183,18 @@ export class Session {
     vp_nonce?: string;
 
     /**
+     * Client ID used in the OID4VP authorization request.
+     */
+    @Column("varchar", { nullable: true })
+    clientId?: string;
+
+    /**
+     * Response URI used in the OID4VP authorization request.
+     */
+    @Column("varchar", { nullable: true })
+    responseUri?: string;
+
+    /**
      * Redirect URI to which the user-agent should be redirected after the presentation is completed.
      */
     @Column("varchar", { nullable: true })
@@ -192,4 +205,11 @@ export class Session {
      */
     @Column("json", { nullable: true })
     parsedWebhook?: WebhookConfig;
+
+    /**
+     * Transaction data to include in the OID4VP authorization request.
+     * Can be overridden per-request from the presentation configuration.
+     */
+    @Column("json", { nullable: true })
+    transaction_data?: TransactionData[];
 }

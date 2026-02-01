@@ -59,7 +59,8 @@ EUDIPLO:
 ##### Paradym Wallet
 
 - **Version tested**: 1.16.2
-- **Last verified**: November 25, 2025
+- **Last verified**: January 7, 2026
+- **Notes**: Needs to use the same certificate for status list and signed credential. Cannot handle different `trusted_authorities` in the DCQL during presentation yet (which result in no match).
 
 !!! note "Help us expand this list!"
 

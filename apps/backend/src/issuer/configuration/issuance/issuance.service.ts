@@ -1,14 +1,16 @@
-import { Inject, Injectable, OnApplicationBootstrap } from "@nestjs/common";
+import { readFileSync } from "node:fs";
+import { Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
-import { readFileSync } from "fs";
 import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
-import { CertService } from "../../../crypto/key/cert/cert.service";
 import { KeyService } from "../../../crypto/key/key.service";
-import { FilesService } from "../../../storage/files.service";
 import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
-import { CredentialConfigService } from "../credentials/credential-config/credential-config.service";
+import {
+    ConfigImportOrchestratorService,
+    ImportPhase,
+} from "../../../shared/utils/config-import/config-import-orchestrator.service";
+import { FilesService } from "../../../storage/files.service";
 import { DisplayInfo } from "./dto/display.dto";
 import { IssuanceDto } from "./dto/issuance.dto";
 import { IssuanceConfig } from "./entities/issuance-config.entity";
@@ -18,7 +20,7 @@ import { IssuanceConfig } from "./entities/issuance-config.entity";
  * It provides methods to get, store, and delete issuance configurations.
  */
 @Injectable()
-export class IssuanceService implements OnApplicationBootstrap {
+export class IssuanceService {
     /**
      * Constructor for IssuanceService.
      * @param issuanceConfigRepo
@@ -26,60 +28,57 @@ export class IssuanceService implements OnApplicationBootstrap {
      */
     constructor(
         @InjectRepository(IssuanceConfig)
-        private issuanceConfigRepo: Repository<IssuanceConfig>,
-        private credentialsConfigService: CredentialConfigService,
-        private logger: PinoLogger,
-        private filesService: FilesService,
-        private configImportService: ConfigImportService,
-        private certService: CertService,
+        private readonly issuanceConfigRepo: Repository<IssuanceConfig>,
+        private readonly logger: PinoLogger,
+        private readonly filesService: FilesService,
+        private readonly configImportService: ConfigImportService,
+        private readonly configImportOrchestrator: ConfigImportOrchestratorService,
         @Inject("KeyService") public readonly keyService: KeyService,
-    ) {}
-
-    /**
-     * Import issuance configurations and the credential configurations from the configured folder.
-     */
-    async onApplicationBootstrap() {
-        await this.keyService.importKeys();
-        await this.certService.importCerts();
-        // import first the issuance config to make sure it exists when credentials should be imported
-        await this.import();
-        await this.credentialsConfigService.import();
+    ) {
+        this.configImportOrchestrator.register(
+            "issuance",
+            ImportPhase.CONFIGURATION,
+            (tenantId) => this.importForTenant(tenantId),
+        );
     }
 
     /**
-     * Import issuance configurations from the configured folder.
+     * Import issuance configurations for a specific tenant.
      */
-    private async import() {
-        await this.configImportService.importConfigs<IssuanceDto>({
-            subfolder: "issuance",
-            fileExtension: ".json",
-            validationClass: IssuanceDto,
-            resourceType: "issuance config",
-            formatValidationError: (error) =>
-                this.configImportService.formatNestedValidationError(error),
-            checkExists: (tenantId) => {
-                return this.getIssuanceConfiguration(tenantId)
-                    .then(() => true)
-                    .catch(() => false);
-            },
-            deleteExisting: (tenantId) =>
-                this.issuanceConfigRepo
-                    .delete({ tenantId })
-                    .then(() => undefined),
-            loadData: (filePath) => {
-                const payload = JSON.parse(readFileSync(filePath, "utf8"));
-                return plainToClass(IssuanceDto, payload);
-            },
-            processItem: async (tenantId, issuanceDto) => {
-                // Replace relative URIs with public URLs
-                issuanceDto.display = await this.replaceUrl(
-                    issuanceDto.display,
-                    tenantId,
-                );
+    private async importForTenant(tenantId: string) {
+        await this.configImportService.importConfigsForTenant<IssuanceDto>(
+            tenantId,
+            {
+                subfolder: "issuance",
+                fileExtension: ".json",
+                validationClass: IssuanceDto,
+                resourceType: "issuance config",
+                formatValidationError: (error) =>
+                    this.configImportService.formatNestedValidationError(error),
+                checkExists: (tid) => {
+                    return this.getIssuanceConfiguration(tid)
+                        .then(() => true)
+                        .catch(() => false);
+                },
+                deleteExisting: (tid) =>
+                    this.issuanceConfigRepo
+                        .delete({ tenantId: tid })
+                        .then(() => undefined),
+                loadData: (filePath) => {
+                    const payload = JSON.parse(readFileSync(filePath, "utf8"));
+                    return plainToClass(IssuanceDto, payload);
+                },
+                processItem: async (tid, issuanceDto) => {
+                    // Replace relative URIs with public URLs
+                    issuanceDto.display = await this.replaceUrl(
+                        issuanceDto.display,
+                        tid,
+                    );
 
-                await this.storeIssuanceConfiguration(tenantId, issuanceDto);
+                    await this.storeIssuanceConfiguration(tid, issuanceDto);
+                },
             },
-        });
+        );
     }
 
     private replaceUrl(display: DisplayInfo[], tenantId: string) {
@@ -91,11 +90,8 @@ export class IssuanceService implements OnApplicationBootstrap {
                         display.logo.uri.trim(),
                     );
                     if (!uri) {
-                        this.logger.error(
-                            {
-                                event: "Import",
-                            },
-                            `Could not find logo ${display.logo.uri} for ${tenantId}, skipping import`,
+                        this.logger.warn(
+                            `[${tenantId}] Could not find logo ${display.logo.uri}, skipping`,
                         );
                         delete display.logo;
                     } else {

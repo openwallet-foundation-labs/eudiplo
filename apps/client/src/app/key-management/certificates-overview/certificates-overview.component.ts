@@ -1,25 +1,29 @@
 import { CommonModule } from '@angular/common';
 import { Component, type OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { certControllerGetCertificates, type CertEntity } from '@eudiplo/sdk';
+import {
+  certControllerGetCertificates,
+  certControllerExportConfig,
+  type CertEntity,
+} from '@eudiplo/sdk-core';
 
 @Component({
   selector: 'app-certificates-overview',
   imports: [
     CommonModule,
     MatTableModule,
-    MatCardModule,
     MatIconModule,
     MatButtonModule,
     MatChipsModule,
     MatTooltipModule,
+    MatSnackBarModule,
     RouterModule,
     FlexLayoutModule,
   ],
@@ -30,26 +34,37 @@ export class CertificatesOverviewComponent implements OnInit {
   certificates: CertEntity[] = [];
   displayedColumns: string[] = ['id', 'keyId', 'types', 'description', 'actions'];
 
-  constructor(private router: Router) {}
+  constructor(
+    private readonly router: Router,
+    private readonly snackBar: MatSnackBar
+  ) {}
 
-  async ngOnInit(): Promise<void> {
-    try {
-      const response = await certControllerGetCertificates({});
-      this.certificates = response.data;
-    } catch (error) {
-      console.error('Error loading certificates:', error);
-    }
+  ngOnInit() {
+    certControllerGetCertificates({}).then((response) => (this.certificates = response.data));
   }
 
   navigateToKey(keyId: string): void {
-    this.router.navigate(['/key-management', keyId]);
+    this.router.navigate(['/keys', keyId]);
   }
 
-  getTypeLabel(type: string): string {
-    return type === 'signing' ? 'Signing' : 'Access';
-  }
+  async downloadConfig(cert: CertEntity): Promise<void> {
+    try {
+      const config = await certControllerExportConfig({
+        path: { certId: cert.id },
+      }).then((res) => res.data);
 
-  getTypeColor(type: string): 'primary' | 'accent' {
-    return type === 'signing' ? 'primary' : 'accent';
+      const dataStr =
+        'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(config, null, 2));
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute('href', dataStr);
+      downloadAnchorNode.setAttribute('download', `certificate-${cert.id}-config.json`);
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+      this.snackBar.open('Certificate configuration downloaded', 'Close', { duration: 3000 });
+    } catch (error) {
+      console.error('Error downloading config:', error);
+      this.snackBar.open('Failed to download configuration', 'Close', { duration: 3000 });
+    }
   }
 }

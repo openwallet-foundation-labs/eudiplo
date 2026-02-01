@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { clientControllerGetClient, ClientEntity } from '@eudiplo/sdk';
+import { clientControllerGetClient, ClientEntity } from '@eudiplo/sdk-core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { MatCardModule } from '@angular/material/card';
@@ -26,14 +26,14 @@ import { MatChipsModule } from '@angular/material/chips';
 export class ClientShowComponent implements OnInit {
   client?: ClientEntity;
   constructor(
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private router: Router
+    private readonly route: ActivatedRoute,
+    private readonly snackBar: MatSnackBar,
+    private readonly router: Router
   ) {}
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit() {
     const clientId = this.route.snapshot.paramMap.get('id')!;
-    await clientControllerGetClient({ path: { id: clientId } }).then(
+    clientControllerGetClient({ path: { id: clientId } }).then(
       (client) => (this.client = client.data),
       (err) => {
         this.snackBar.open(

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListCreateDto.schema.json",
+  "title": "TrustListCreateDto",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "certId": {
+      "type": "string"
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "description": {
+      "type": "string"
+    },
+    "data": {
+      "type": "object",
+      "description": "The full trust list JSON (generated LoTE structure)"
+    }
+  },
+  "required": [
+    "entities"
+  ]
+}

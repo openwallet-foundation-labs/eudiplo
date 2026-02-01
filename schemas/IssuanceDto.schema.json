@@ -11,14 +11,6 @@
         "type": "string"
       }
     },
-    "notifyWebhook": {
-      "description": "Webhook to send the result of the notification response",
-      "allOf": [
-        {
-          "$ref": "./WebhookConfig.schema.json"
-        }
-      ]
-    },
     "batchSize": {
       "type": "number",
       "description": "Value to determine the amount of credentials that are issued in a batch.\nDefault is 1."

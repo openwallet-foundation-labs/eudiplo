@@ -1,17 +1,27 @@
-export const configs = [
+import { PresentationConfigCreateDto } from '@eudiplo/sdk-core';
+
+export interface PredefinedConfig {
+  name: string;
+  description: string;
+  icon: string;
+  config: PresentationConfigCreateDto;
+}
+
+export const configs: PredefinedConfig[] = [
   {
     name: 'PID (Personal Identity Document)',
     description: 'German Personal Identity Document configuration',
     icon: 'badge',
     config: {
       id: 'pid',
+      description: 'Presentation ID',
       dcql_query: {
         credentials: [
           {
             id: 'pid',
             format: 'dc+sd-jwt',
             meta: {
-              vct_values: ['<PUBLIC_URL>/credentials-metadata/vct/pid'],
+              vct_values: ['<TENANT_URL>/credentials-metadata/vct/pid'],
             },
             claims: [
               {
@@ -20,45 +30,6 @@ export const configs = [
             ],
           },
         ],
-      },
-      registrationCert: {
-        body: {
-          privacy_policy: 'https://example.com/privacy-policy',
-          purpose: [
-            {
-              locale: 'en-US',
-              name: 'To register a new user',
-            },
-          ],
-          contact: {
-            website: 'https://example.com/contact',
-            'e-mail': 'privacy@example.com',
-            phone: '+1234567890',
-          },
-          credentials: [
-            {
-              format: 'dc+sd-jwt',
-              meta: {
-                vct_values: ['<PUBLIC_URL>/credentials-metadata/vct/pid'],
-              },
-              claims: [
-                {
-                  path: ['address', 'locality'],
-                },
-              ],
-            },
-          ],
-        },
-      },
-      webhook: {
-        url: 'http://localhost:8787/consume',
-        auth: {
-          type: 'apiKey',
-          config: {
-            headerName: 'x-api-key',
-            value: 'foo-bar',
-          },
-        },
       },
     },
   },

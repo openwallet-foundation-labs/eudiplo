@@ -1,12 +1,19 @@
 import { BitsPerStatus } from "@sd-jwt/jwt-status-list";
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne } from "typeorm";
 import { TenantEntity } from "../../../../auth/tenant/entitites/tenant.entity";
 
 /**
- * Entity representing the status list for a tenant.
+ * Entity representing a status list for a tenant.
+ * Multiple status lists can exist per tenant, optionally bound to specific credential configurations.
  */
 @Entity()
 export class StatusListEntity {
+    /**
+     * Unique identifier for the status list.
+     */
+    @Column("varchar", { primary: true })
+    id!: string;
+
     /**
      * The ID of the tenant to which the status list belongs.
      */
@@ -18,6 +25,20 @@ export class StatusListEntity {
      */
     @ManyToOne(() => TenantEntity, { cascade: true, onDelete: "CASCADE" })
     tenant!: TenantEntity;
+
+    /**
+     * Optional credential configuration ID that this status list is exclusively bound to.
+     * If null, this is a shared status list available for any credential configuration.
+     */
+    @Column("varchar", { nullable: true })
+    credentialConfigurationId?: string | null;
+
+    /**
+     * Optional certificate ID to use for signing this status list's JWT.
+     * If null, uses the tenant's default StatusList certificate.
+     */
+    @Column("varchar", { nullable: true })
+    certId?: string | null;
 
     /**
      * The elements of the status list.
@@ -42,4 +63,17 @@ export class StatusListEntity {
      */
     @Column("varchar", { nullable: true })
     jwt?: string;
+
+    /**
+     * When the current JWT expires (based on TTL).
+     * Used for lazy regeneration - JWT is regenerated on request when expired.
+     */
+    @Column({ nullable: true })
+    expiresAt?: Date;
+
+    /**
+     * Timestamp when this status list was created.
+     */
+    @CreateDateColumn()
+    createdAt!: Date;
 }

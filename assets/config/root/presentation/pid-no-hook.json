@@ -8,7 +8,7 @@
         "format": "dc+sd-jwt",
         "meta": {
           "vct_values": [
-            "<PUBLIC_URL>/credentials-metadata/vct/pid"
+            "<TENANT_URL>/credentials-metadata/vct/pid"
           ]
         },
         "claims": [
@@ -18,42 +18,16 @@
               "locality"
             ]
           }
+        ],
+        "trusted_authorities": [
+          {
+            "type": "etsi_tl",
+            "values": [
+              "<TENANT_URL>/trust-list/580831bc-ef11-43f4-a3be-a2b6bf1b29a3"
+            ]
+          }
         ]
       }
     ]
-  },
-  "registrationCert": {
-    "body": {
-      "privacy_policy": "https://example.com/privacy-policy",
-      "purpose": [
-        {
-          "locale": "en-US",
-          "name": "To register a new user"
-        }
-      ],
-      "contact": {
-        "website": "https://example.com/contact",
-        "e-mail": "privacy@example.com",
-        "phone": "+1234567890"
-      },
-      "credentials": [
-        {
-          "format": "dc+sd-jwt",
-          "meta": {
-            "vct_values": [
-              "<PUBLIC_URL>/credentials-metadata/vct/pid"
-            ]
-          },
-          "claims": [
-            {
-              "path": [
-                "address",
-                "locality"
-              ]
-            }
-          ]
-        }
-      ]
-    }
   }
 }

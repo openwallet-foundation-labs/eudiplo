@@ -13,7 +13,7 @@ import {
     IsString,
     ValidateNested,
 } from "class-validator";
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { TenantEntity } from "../../../../auth/tenant/entitites/tenant.entity";
 import { CertEntity } from "../../../../crypto/key/entities/cert.entity";
 import { WebhookConfig } from "../../../../shared/utils/webhook/webhook.dto";
@@ -38,13 +38,17 @@ export class Display {
     description!: string;
     @IsString()
     locale!: string;
+    @IsOptional()
     @IsString()
     background_color?: string;
+    @IsOptional()
     @IsString()
     text_color?: string;
+    @IsOptional()
     @ValidateNested()
     @Type(() => DisplayImage)
     background_image?: DisplayImage;
+    @IsOptional()
     @ValidateNested()
     @Type(() => DisplayImage)
     logo?: DisplayImage;
@@ -59,6 +63,37 @@ export class IssuerMetadataCredentialConfig {
     @IsOptional()
     @IsString()
     scope?: string;
+
+    /**
+     * Document type for mDOC credentials (e.g., "org.iso.18013.5.1.mDL").
+     * Only applicable when format is "mso_mdoc".
+     */
+    @IsOptional()
+    @IsString()
+    docType?: string;
+
+    /**
+     * Namespace for mDOC credentials (e.g., "org.iso.18013.5.1").
+     * Only applicable when format is "mso_mdoc".
+     * Used when claims are provided as a flat object.
+     */
+    @IsOptional()
+    @IsString()
+    namespace?: string;
+
+    /**
+     * Claims organized by namespace for mDOC credentials.
+     * Allows specifying claims across multiple namespaces.
+     * Only applicable when format is "mso_mdoc".
+     * Example:
+     * {
+     *   "org.iso.18013.5.1": { "given_name": "John", "family_name": "Doe" },
+     *   "org.iso.18013.5.1.aamva": { "DHS_compliance": "F" }
+     * }
+     */
+    @IsOptional()
+    @IsObject()
+    claimsByNamespace?: Record<string, Record<string, any>>;
 }
 
 @ApiExtraModels(
@@ -66,6 +101,7 @@ export class IssuerMetadataCredentialConfig {
     NoneTrustPolicy,
     AllowListPolicy,
     RootOfTrustPolicy,
+    VCT,
 )
 @Entity()
 export class CredentialConfig {
@@ -75,7 +111,7 @@ export class CredentialConfig {
 
     @IsString()
     @Column("varchar", { nullable: true })
-    description?: string;
+    description?: string | null;
 
     @ApiHideProperty()
     @Column("varchar", { primary: true })
@@ -95,7 +131,7 @@ export class CredentialConfig {
     @Column("json", { nullable: true })
     @IsOptional()
     @IsObject()
-    claims?: Record<string, any>;
+    claims?: Record<string, any> | null;
 
     /**
      * Webhook to receive claims for the issuance process.
@@ -104,7 +140,7 @@ export class CredentialConfig {
     @ValidateNested()
     @Type(() => WebhookConfig)
     @Column("json", { nullable: true })
-    claimsWebhook?: WebhookConfig;
+    claimsWebhook?: WebhookConfig | null;
 
     /**
      * Webhook to receive claims for the issuance process.
@@ -113,31 +149,49 @@ export class CredentialConfig {
     @ValidateNested()
     @Type(() => WebhookConfig)
     @Column("json", { nullable: true })
-    notificationWebhook?: WebhookConfig;
+    notificationWebhook?: WebhookConfig | null;
 
     // has to be optional since there may be credentials that are disclosed without a frame
     @Column("json", { nullable: true })
     @IsOptional()
     @IsObject()
-    disclosureFrame?: Record<string, any>;
+    disclosureFrame?: Record<string, any> | null;
 
     @IsOptional()
-    @ValidateNested()
-    @Type(() => VCT)
+    @ApiProperty({
+        description:
+            "VCT as a URI string (e.g., urn:eudi:pid:de:1) or as an object for EUDIPLO-hosted VCT",
+        nullable: true,
+        oneOf: [
+            { type: "string", description: "VCT URI string" },
+            { $ref: getSchemaPath(VCT) },
+        ],
+    })
     @Column("json", { nullable: true })
-    vct?: VCT;
+    vct?: string | VCT | null;
 
     @IsOptional()
     @Column("boolean", { default: false })
     @IsBoolean()
     keyBinding?: boolean;
 
+    /**
+     * Reference to the certificate used for signing.
+     * Note: No DB-level FK constraint because CertEntity has a composite PK
+     * (id + tenantId) and SET NULL behavior cannot work when tenantId is
+     * part of this entity's own PK.
+     */
     @IsOptional()
     @IsString()
+    @Column("varchar", { nullable: true })
     certId?: string;
 
-    @ManyToOne(() => CertEntity, { onDelete: "SET NULL" })
-    cert!: CertEntity;
+    @ManyToOne(() => CertEntity, { createForeignKeyConstraints: false })
+    @JoinColumn([
+        { name: "certId", referencedColumnName: "id" },
+        { name: "tenantId", referencedColumnName: "tenantId" },
+    ])
+    cert?: CertEntity;
 
     @IsOptional()
     @Column("boolean", { default: false })
@@ -153,7 +207,7 @@ export class CredentialConfig {
     @ValidateNested()
     @Type(() => SchemaResponse)
     @Column("json", { nullable: true })
-    schema?: SchemaResponse;
+    schema?: SchemaResponse | null;
 
     /**
      * Embedded disclosure policy (discriminated union by `policy`).
@@ -186,5 +240,5 @@ export class CredentialConfig {
         keepDiscriminatorProperty: true, // keep `policy` on the instance
     })
     @Column("json", { nullable: true })
-    embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy;
+    embeddedDisclosurePolicy?: EmbeddedDisclosurePolicy | null;
 }

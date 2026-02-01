@@ -27,22 +27,18 @@ build_and_push() {
   local target="$1" image="$2"
   local fullImageBase="${REGISTRY}/${image}"
 
-  log "Building ${image} from target ${target} (version ${DOCKER_RELEASE_VERSION})"
+  log "Building and pushing ${image} from target ${target} (version ${DOCKER_RELEASE_VERSION}) for linux/amd64,linux/arm64"
 
-  docker build \
+  docker buildx build \
     -f "${DOCKERFILE}" \
     --target "${target}" \
+    --platform linux/amd64,linux/arm64 \
     -t "${fullImageBase}:latest" \
     -t "${fullImageBase}:${DOCKER_RELEASE_VERSION}" \
     -t "${fullImageBase}:${MAJOR}" \
     -t "${fullImageBase}:${MAJOR}.${MINOR}" \
+    --push \
     .
-
-  log "Pushing tags for ${image}"
-  docker push "${fullImageBase}:latest"
-  docker push "${fullImageBase}:${DOCKER_RELEASE_VERSION}"
-  docker push "${fullImageBase}:${MAJOR}"
-  docker push "${fullImageBase}:${MAJOR}.${MINOR}"
 }
 
 main() {

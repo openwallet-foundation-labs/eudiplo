@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateStatusListConfigDto.schema.json",
+  "title": "UpdateStatusListConfigDto",
+  "type": "object",
+  "properties": {
+    "capacity": {
+      "type": "number",
+      "nullable": true,
+      "description": "The capacity of the status list. Set to null to reset to global default.",
+      "minimum": 100,
+      "example": 10000
+    },
+    "bits": {
+      "type": "number",
+      "nullable": true,
+      "description": "Bits per status entry. Set to null to reset to global default.",
+      "enum": [
+        1,
+        2,
+        4,
+        8
+      ]
+    },
+    "ttl": {
+      "type": "number",
+      "nullable": true,
+      "description": "TTL in seconds for the status list JWT. Set to null to reset to global default.",
+      "minimum": 60,
+      "example": 3600
+    },
+    "immediateUpdate": {
+      "type": "boolean",
+      "nullable": true,
+      "description": "If true, regenerate JWT on every status change. Set to null to reset to default (false)."
+    },
+    "enableAggregation": {
+      "type": "boolean",
+      "nullable": true,
+      "description": "If true, include aggregation_uri in status list JWTs for pre-fetching support. Set to null to reset to default (true)."
+    }
+  }
+}

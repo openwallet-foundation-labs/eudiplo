@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateRegistrarConfigDto.schema.json",
+  "title": "CreateRegistrarConfigDto",
+  "type": "object",
+  "properties": {
+    "registrarUrl": {
+      "type": "string",
+      "description": "The base URL of the registrar API",
+      "format": "uri",
+      "example": "https://sandbox.eudi-wallet.org/api"
+    },
+    "oidcUrl": {
+      "type": "string",
+      "description": "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
+      "format": "uri",
+      "example": "https://auth.example.com/realms/my-realm"
+    },
+    "clientId": {
+      "type": "string",
+      "description": "The OIDC client ID for the registrar",
+      "example": "registrar-client"
+    },
+    "clientSecret": {
+      "type": "string",
+      "description": "The OIDC client secret (optional, for confidential clients)"
+    },
+    "username": {
+      "type": "string",
+      "description": "The username for OIDC login",
+      "example": "admin@example.com"
+    },
+    "password": {
+      "type": "string",
+      "description": "The password for OIDC login (stored in plaintext)"
+    }
+  },
+  "required": [
+    "registrarUrl",
+    "oidcUrl",
+    "clientId",
+    "username",
+    "password"
+  ]
+}

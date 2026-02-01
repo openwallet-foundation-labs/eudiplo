@@ -1,0 +1,32 @@
+{
+    "id": "kyc",
+    "description": "KYC Presentation Definition with German PID MSO mDoc",
+    "dcql_query": {
+        "credentials": [
+            {
+                "id": "pid-mso-mdoc",
+                "format": "mso_mdoc",
+                "claims": [
+                    {
+                        "path": [
+                            "eu.europa.ec.eudi.pid.1",
+                            "age_over_18"
+                        ]
+                    }
+                ],
+                "meta": {
+                    "doctype_value": "eu.europa.ec.eudi.pid.1"
+                },
+                "trusted_authorities": [
+                    {
+                        "type": "etsi_tl",
+                        "values": [
+                            "https://bmi.usercontent.opencode.de/eudi-wallet/test-trust-lists/pid-provider.jwt"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "lifeTime": 300
+}

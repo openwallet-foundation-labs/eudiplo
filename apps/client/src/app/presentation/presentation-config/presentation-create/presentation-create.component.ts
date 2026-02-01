@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -10,7 +10,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { PresentationConfig } from '@eudiplo/sdk';
+import {
+  presentationManagementControllerUpdateConfiguration,
+  certControllerGetCertificates,
+  CertEntity,
+} from '@eudiplo/sdk-core';
 import { PresentationManagementService } from '../presentation-management.service';
 import { MatDialog } from '@angular/material/dialog';
 import { JsonViewDialogComponent } from '../../../issuance/credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
@@ -24,6 +28,7 @@ import {
   DCQLSchema,
   presentationConfigSchema,
   registrationCertificateRequestSchema,
+  transactionDataArraySchema,
 } from '../../../utils/schemas';
 import { CredentialIdsComponent } from '../../credential-ids/credential-ids.component';
 
@@ -51,30 +56,37 @@ import { CredentialIdsComponent } from '../../credential-ids/credential-ids.comp
   templateUrl: './presentation-create.component.html',
   styleUrls: ['./presentation-create.component.scss'],
 })
-export class PresentationCreateComponent {
+export class PresentationCreateComponent implements OnInit {
   public form: FormGroup;
   public create = true;
+  public copyMode = false;
 
   registrationCertificateRequestSchema = registrationCertificateRequestSchema;
 
   DCQLSchema = DCQLSchema;
 
+  transactionDataArraySchema = transactionDataArraySchema;
+
   public predefinedConfigs = configs;
 
+  public certificates: CertEntity[] = [];
+
   constructor(
-    private presentationService: PresentationManagementService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private readonly presentationService: PresentationManagementService,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly snackBar: MatSnackBar,
+    private readonly dialog: MatDialog
   ) {
     this.form = new FormGroup({
       id: new FormControl(undefined, [Validators.required]),
       description: new FormControl(undefined, [Validators.required]),
       redirectUri: new FormControl(undefined),
+      accessCertId: new FormControl(undefined),
       dcql_query: new FormControl(undefined, [Validators.required]),
       lifeTime: new FormControl(300, [Validators.required, Validators.min(1)]),
       registrationCert: new FormControl(undefined), // Optional field
+      transaction_data: new FormControl(undefined), // Optional transaction data
       attached: new FormArray([]),
       webhook: new FormGroup({
         url: new FormControl(undefined), // Optional, but if filled, should be valid URL
@@ -86,9 +98,27 @@ export class PresentationCreateComponent {
           }),
         }),
       }),
-    } as { [k in keyof Omit<PresentationConfig, 'createdAt'>]: any });
+    });
+  }
+
+  ngOnInit(): void {
+    // Load certificates for the select dropdown
+    certControllerGetCertificates({}).then(
+      (res) =>
+        (this.certificates =
+          res.data.filter((cert) => cert.usages.some((usage) => usage.usage === 'access')) || []),
+      (error) => {
+        console.error('Failed to load certificates:', error);
+        this.snackBar.open('Failed to load certificates', 'Close', {
+          duration: 3000,
+        });
+      }
+    );
 
     if (this.route.snapshot.params['id']) {
+      // Check if this is a copy operation
+      this.copyMode = this.route.snapshot.url.some((segment) => segment.path === 'copy');
+
       this.presentationService
         .getPresentationById(this.route.snapshot.params['id'])
         .then((config) => {
@@ -110,11 +140,23 @@ export class PresentationCreateComponent {
             formData.registrationCert = JSON.stringify(formData.registrationCert, null, 2);
           }
 
+          if (formData.transaction_data && typeof formData.transaction_data === 'object') {
+            formData.transaction_data = JSON.stringify(formData.transaction_data, null, 2);
+          }
+
           (formData.attached || []).forEach(() => this.addAttachment());
 
-          this.form.patchValue(formData);
-          this.form.get('id')?.disable(); // Disable ID field in edit mode
-          this.create = false;
+          if (this.copyMode) {
+            // Copy mode: clear ID and keep it editable, set create mode
+            formData.id = `${config.id}-copy`;
+            this.form.patchValue(formData);
+            this.create = true;
+          } else {
+            // Edit mode: disable ID field
+            this.form.patchValue(formData);
+            this.form.get('id')?.disable();
+            this.create = false;
+          }
         });
     }
   }
@@ -146,47 +188,64 @@ export class PresentationCreateComponent {
   }
 
   createOrUpdatePresentation(): void {
-    if (this.form.valid) {
-      // Parse the JSON string to an object for dcql_query
-      const formValue = { ...this.form.value };
+    // Parse the JSON string to an object for dcql_query
+    const formValue = { ...this.form.value };
 
-      // Convert dcql_query from string to object
-      if (formValue.dcql_query) {
-        try {
-          formValue.dcql_query = extractSchema(formValue.dcql_query);
-          formValue.registrationCert = extractSchema(formValue.registrationCert);
-        } catch (error) {
-          console.error('Error parsing DCQL Query JSON:', error);
-          return;
-        }
+    // Convert dcql_query from string to object
+    if (formValue.dcql_query) {
+      try {
+        formValue.dcql_query = extractSchema(formValue.dcql_query);
+        formValue.registrationCert = extractSchema(formValue.registrationCert);
+        formValue.transaction_data = extractSchema(formValue.transaction_data);
+      } catch (error) {
+        console.error('Error parsing DCQL Query JSON:', error);
+        return;
       }
+    }
 
-      if (!formValue.webhook.url) {
-        formValue.webhook = undefined; // Remove webhook if URL is not provided
-      }
+    if (!formValue.webhook.url) {
+      formValue.webhook = null; // Set to null to clear the webhook
+    }
 
-      if (!formValue.registrationCert) {
-        formValue.registrationCert = undefined; // Remove registrationCert if not provided
-      }
+    if (!formValue.registrationCert) {
+      formValue.registrationCert = null; // Set to null to clear registrationCert
+    }
 
-      formValue.id = this.route.snapshot.params['id'] || formValue.id;
+    if (!formValue.transaction_data) {
+      formValue.transaction_data = null; // Set to null to clear transaction_data
+    }
 
-      // Use the same method for both create and update
+    // In copy mode or new creation, use form ID; in edit mode, use route param ID
+    if (!this.copyMode && this.route.snapshot.params['id']) {
+      formValue.id = this.route.snapshot.params['id'];
+    }
+
+    if (this.create) {
       this.presentationService.createConfiguration(formValue).then(
         (res: any) => {
-          if (this.create) {
-            this.router.navigate(['../', res.id], { relativeTo: this.route });
-            this.snackBar.open('Presentation created successfully', 'Close', {
-              duration: 3000,
-            });
-          } else {
-            this.router.navigate(['../'], { relativeTo: this.route });
-            this.snackBar.open('Presentation updated successfully', 'Close', {
-              duration: 3000,
-            });
-          }
+          // In copy mode, navigate up two levels (past :id/copy), otherwise one level
+          const navigatePath = this.copyMode ? ['../../', res.id] : ['../', res.id];
+          this.router.navigate(navigatePath, { relativeTo: this.route });
+          this.snackBar.open('Presentation created successfully', 'Close', {
+            duration: 3000,
+          });
         },
         (err: any) => this.snackBar.open(err.message, 'Close')
+      );
+    } else {
+      presentationManagementControllerUpdateConfiguration({
+        body: formValue,
+        path: { id: formValue.id },
+      }).then(
+        () => {
+          this.router.navigate(['../'], { relativeTo: this.route });
+          this.snackBar.open('Presentation updated successfully', 'Close', {
+            duration: 3000,
+          });
+        },
+        (err: any) => {
+          this.snackBar.open(err.message, 'Close');
+        }
       );
     }
   }
@@ -199,8 +258,7 @@ export class PresentationCreateComponent {
         const parsed = JSON.parse(dcqlControl.value);
         const formatted = JSON.stringify(parsed, null, 2);
         dcqlControl.setValue(formatted);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
+      } catch {
         // Invalid JSON, don't format
       }
     }
@@ -257,7 +315,7 @@ export class PresentationCreateComponent {
     }
 
     // Clean up empty optional fields
-    if (formValue.attached && formValue.attached.length === 0) {
+    if (formValue.attached?.length === 0) {
       formValue.attached = undefined;
     }
     return formValue;
@@ -267,7 +325,8 @@ export class PresentationCreateComponent {
    * Load a predefined configuration
    */
   loadPredefinedConfig(configTemplate: any): void {
-    const config = JSON.parse(JSON.stringify(configTemplate.config)); // Deep clone
+    console.log(configTemplate);
+    const config = structuredClone(configTemplate.config); // Deep clone
 
     this.loadConfigurationFromJson(config);
 

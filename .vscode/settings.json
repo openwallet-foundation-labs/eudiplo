@@ -34,6 +34,18 @@
   "json.schemas": [
     {
       "fileMatch": [
+        "/assets/config/*/info.json"
+      ],
+      "url": "./schemas/ImportTenantDto.schema.json"
+    },
+    {
+      "fileMatch": [
+        "/assets/config/*/registrar.json"
+      ],
+      "url": "./schemas/CreateRegistrarConfigDto.schema.json"
+    },
+    {
+      "fileMatch": [
         "/assets/config/*/issuance/issuance.json"
       ],
       "url": "./schemas/IssuanceDto.schema.json"
@@ -66,8 +78,20 @@
       "fileMatch": [
         "/assets/config/*/clients/*.json"
       ],
-      "url": "./schemas/ClientEntity.schema.json"
-    }
+      "url": "./schemas/CreateClientDto.schema.json"
+    },
+    {
+      "fileMatch": [
+        "/assets/config/*/trustlists/*.json"
+      ],
+      "url": "./schemas/TrustListCreateDto.schema.json"
+    },
+    {
+      "fileMatch": [
+        "/assets/config/*/issuance/status-lists/*.json"
+      ],
+      "url": "./schemas/StatusListImportDto.schema.json"
+    },
   ],
   "sonarlint.connectedMode.project": {
     "connectionId": "eudiplo",

@@ -7,12 +7,33 @@ import issuanceConfigSchemaObj from '../../../../../schemas/IssuanceDto.schema.j
 import registrationCertificateRequestObj from '../../../../../schemas/RegistrationCertificateRequest.schema.json';
 import DCQLObj from '../../../../../schemas/DCQL.schema.json';
 import presnetationConfigCreateSchemaObj from '../../../../../schemas/PresentationConfigCreateDto.schema.json';
+import transactionDataSchemaObj from '../../../../../schemas/TransactionData.schema.json';
+
+// Create an array schema for TransactionData (URI-based matching allows arrays as root)
+const transactionDataArraySchemaObj = {
+  $schema: 'https://json-schema.org/draft/2020-12/schema',
+  $id: 'https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TransactionDataArray.schema.json',
+  title: 'TransactionDataArray',
+  type: 'array',
+  items: transactionDataSchemaObj,
+};
 
 export class SchemaValidation {
   constructor(private schema: any) {}
 
   getSchemaUrl() {
     return this.schema['$id'];
+  }
+
+  /**
+   * Get the fileMatch URI pattern for Monaco editor model.
+   * This allows Monaco to auto-apply the schema without needing $schema in the content.
+   * Uses format: a://b/{SchemaName}.schema.json to match schemas.json fileMatch patterns.
+   */
+  getFileMatchUri(): string {
+    const schemaId = this.schema['$id'] || '';
+    const fileName = schemaId.split('/').pop() || 'unknown.schema.json';
+    return `a://b/${fileName}`;
   }
 }
 
@@ -32,3 +53,5 @@ export const registrationCertificateRequestSchema = new SchemaValidation(
 );
 
 export const DCQLSchema = new SchemaValidation(DCQLObj);
+
+export const transactionDataArraySchema = new SchemaValidation(transactionDataArraySchemaObj);

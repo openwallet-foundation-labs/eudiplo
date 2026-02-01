@@ -136,6 +136,33 @@ Define verification requirements for credential presentations.
 **Schema Reference**:
 [Presentation Config API](../api/openapi.md#presentationconfig)
 
+### Trust List Configurations
+
+**Location**: `config/{tenant}/trust-lists/*.json`
+
+Define trust lists for credential verification. Trust lists specify which issuers
+and revocation services are trusted when verifying credentials during presentation flows.
+
+**Schema Reference**:
+[Trust List API](../api/openapi.md#trustlist)
+
+For detailed information on trust lists and their role in credential verification, see
+[Trust Framework](./trust-framework.md).
+
+### Status List Configurations
+
+**Location**: `config/{tenant}/status-lists/*.json`
+
+Pre-create status lists for credential revocation and suspension tracking. Status lists
+are used to track the status of issued credentials without revealing which specific
+credential is being checked.
+
+**Schema Reference**:
+[Status List API](../api/openapi.md#statuslist)
+
+For detailed information on status lists and their role in credential lifecycle management,
+see [Status Management](./status-management.md).
+
 ### Client Configurations
 
 **Location**: `config/{tenant}/clients/*.json`
@@ -245,6 +272,41 @@ Non-strict warning example (`CONFIG_VARIABLE_STRICT=ignore` or absent / false):
 
 > Note: Placeholder replacement occurs BEFORE class-validator schema validation so resolved values are validated, not the raw `${...}` tokens.
 
+## Built-in Placeholders
+
+In addition to environment variable placeholders, EUDIPLO provides built-in placeholders that are replaced at runtime when configurations are used.
+
+### `<TENANT_URL>`
+
+The `<TENANT_URL>` placeholder allows configurations to be instance-independent. When a configuration is used, this placeholder is automatically replaced with the full URL including the host and tenant ID.
+
+**Use Case**: This is particularly useful for portable configurations that need to reference URLs within the same tenant but should work across different deployments (e.g., development, staging, production) without modification.
+
+**Common Examples**:
+
+- **Verifiable Credential Type (vct)**: Use `<TENANT_URL>/credentials/pid` as the `vct` value to create instance-independent credential type identifiers
+- **Trust List references**: Point to trust lists hosted on the same instance, e.g., `<TENANT_URL>/trust-lists/eu-trust-list`
+
+**Example**:
+
+```json
+{
+    "vct": "<TENANT_URL>/credentials/pid",
+    "trustList": "<TENANT_URL>/trust-lists/my-trust-list"
+}
+```
+
+When used in a tenant with ID `company-xyz` on host `https://eudiplo.example.com`, the placeholder is replaced with:
+
+```json
+{
+    "vct": "https://eudiplo.example.com/company-xyz/credentials/pid",
+    "trustList": "https://eudiplo.example.com/company-xyz/trust-lists/my-trust-list"
+}
+```
+
+This enables sharing configuration files between environments without hardcoding URLs.
+
 ### Validation and Processing
 
 For each configuration file:
@@ -325,16 +387,25 @@ Import activities are logged with structured information:
 assets/config/
 ├── acme-corp/
 │   ├── keys/
+│   ├── certs/
 │   ├── issuance/
-│   └── presentation/
+│   ├── presentation/
+│   ├── trustlists/
+│   └── status-lists/
 ├── university-x/
 │   ├── keys/
+│   ├── certs/
 │   ├── issuance/
-│   └── presentation/
+│   ├── presentation/
+│   ├── trustlists/
+│   └── status-lists/
 └── government-agency/
     ├── keys/
+    ├── certs/
     ├── issuance/
-    └── presentation/
+    ├── presentation/
+    ├── trustlists/
+    └── status-lists/
 ```
 
 Even when you just have one tenant, use a folder structure to prepare for future

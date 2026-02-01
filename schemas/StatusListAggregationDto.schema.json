@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/StatusListAggregationDto.schema.json",
+  "title": "StatusListAggregationDto",
+  "type": "object",
+  "properties": {
+    "status_lists": {
+      "description": "Array of status list token URIs",
+      "example": [
+        "https://example.com/tenant-123/status-management/status-list/list-1",
+        "https://example.com/tenant-123/status-management/status-list/list-2"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "status_lists"
+  ]
+}

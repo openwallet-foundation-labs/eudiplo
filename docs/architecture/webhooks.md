@@ -189,7 +189,7 @@ Issuing a credential with ID `citizen`:
 ```json
 {
     "citizen": {
-        "town": "Berlin"
+        "town": "BERLIN"
     }
 }
 ```

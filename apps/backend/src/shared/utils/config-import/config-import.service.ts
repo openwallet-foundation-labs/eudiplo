@@ -1,21 +1,125 @@
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { ClassConstructor, plainToClass } from "class-transformer";
 import { ValidationError, validate } from "class-validator";
-import { existsSync, readdirSync, readFileSync } from "fs";
 import { PinoLogger } from "nestjs-pino";
-import { join } from "path";
-import { ImportOptions } from "./import-options";
+import { ImportOptions, TenantImportOptions } from "./import-options";
 
 @Injectable()
 export class ConfigImportService {
     constructor(
-        private configService: ConfigService,
-        private logger: PinoLogger,
+        private readonly configService: ConfigService,
+        private readonly logger: PinoLogger,
     ) {}
 
     /**
-     * Generic import method that handles the common pattern across all services
+     * Import configs for a specific tenant.
+     * This is the preferred method when using the orchestrator's tenant-by-tenant approach.
+     */
+    async importConfigsForTenant<T extends object>(
+        tenantId: string,
+        options: TenantImportOptions<T>,
+    ): Promise<void> {
+        const configPath = this.configService.getOrThrow("CONFIG_FOLDER");
+        const force = this.configService.get<boolean>("CONFIG_IMPORT_FORCE");
+        const strictConfig = this.configService.get<any>(
+            "CONFIG_VARIABLE_STRICT",
+        );
+
+        let counter = 0;
+        const path = join(configPath, tenantId, options.subfolder);
+
+        if (!existsSync(path)) {
+            return;
+        }
+
+        const files = readdirSync(path);
+
+        for (const file of files) {
+            // Filter by extension if provided
+            if (
+                options.fileExtension &&
+                !file.endsWith(options.fileExtension)
+            ) {
+                continue;
+            }
+
+            try {
+                const filePath = join(path, file);
+
+                // Load data using custom loader or default JSON loader
+                let data: T;
+                if (options.loadData) {
+                    data = await Promise.resolve(options.loadData(filePath));
+                } else {
+                    const payload = JSON.parse(readFileSync(filePath, "utf8"));
+                    data = payload as T;
+                }
+
+                // Replace placeholders like ${ENV_VAR} or ${ENV_VAR:default}
+                data = this.replacePlaceholders(data);
+
+                // Validate if validation class is provided
+                if (options.validationClass) {
+                    const validationResult = await this.validateConfig(
+                        file,
+                        data,
+                        options.validationClass,
+                        { name: tenantId },
+                        options.resourceType,
+                        options.formatValidationError,
+                    );
+
+                    if (!validationResult.isValid) {
+                        continue; // Skip invalid config
+                    }
+
+                    data = validationResult.data;
+                }
+
+                // Check if exists
+                const exists = await options
+                    .checkExists(tenantId, data, file)
+                    .catch(() => false);
+
+                if (exists && !force) {
+                    this.logger.debug(
+                        `[${tenantId}] ${options.resourceType} ${file} already exists, skipping`,
+                    );
+                    continue;
+                }
+
+                // Delete existing if force is enabled
+                if (exists && force && options.deleteExisting) {
+                    await options.deleteExisting(tenantId, data, file);
+                }
+
+                // Process and store item
+                await options.processItem(tenantId, data, file);
+                counter++;
+            } catch (error: any) {
+                this.logger.error(
+                    `[${tenantId}] Failed to import ${options.resourceType} ${file}: ${error.message}`,
+                );
+                if (strictConfig === "abort") {
+                    // Abort the entire import process in strict abort mode
+                    throw error;
+                }
+            }
+        }
+
+        if (counter > 0) {
+            this.logger.info(
+                `[${tenantId}] ${counter} ${options.resourceType}(s) imported`,
+            );
+        }
+    }
+
+    /**
+     * Generic import method that handles the common pattern across all services.
+     * @deprecated Use importConfigsForTenant with the orchestrator's tenant-by-tenant approach instead.
      */
     async importConfigs<T extends object>(
         options: ImportOptions<T>,
@@ -97,9 +201,8 @@ export class ConfigImportService {
                         .catch(() => false);
 
                     if (exists && !force) {
-                        this.logger.info(
-                            { event: "Import" },
-                            `${options.resourceType} ${file} already exists for ${tenant.name}, skipping`,
+                        this.logger.debug(
+                            `[${tenant.name}] ${options.resourceType} ${file} already exists, skipping`,
                         );
                         continue;
                     }
@@ -114,13 +217,7 @@ export class ConfigImportService {
                     counter++;
                 } catch (error: any) {
                     this.logger.error(
-                        {
-                            event: "ImportError",
-                            file,
-                            tenant: tenant.name,
-                            error: error.message,
-                        },
-                        `Failed to import ${options.resourceType} ${file} in tenant ${tenant.name}`,
+                        `[${tenant.name}] Failed to import ${options.resourceType} ${file}: ${error.message}`,
                     );
                     if (strictConfig === "abort") {
                         // Abort the entire import process in strict abort mode
@@ -131,8 +228,7 @@ export class ConfigImportService {
 
             if (counter > 0) {
                 this.logger.info(
-                    { event: "Import" },
-                    `${counter} ${options.resourceType}(s) imported for ${tenant.name}`,
+                    `[${tenant.name}] ${counter} ${options.resourceType}(s) imported`,
                 );
             }
         }
@@ -159,7 +255,7 @@ export class ConfigImportService {
 
         const processString = (str: string): string => {
             const pattern = /\$\{([A-Z0-9_]+)(?::([^}]*))?\}/g;
-            return str.replace(
+            return str.replaceAll(
                 pattern,
                 (fullMatch, varName: string, defVal: string) => {
                     const envVal = process.env[varName];
@@ -182,7 +278,6 @@ export class ConfigImportService {
                     }
                     // ignore/false/undefined: keep placeholder and warn
                     this.logger.warn(
-                        { event: "ImportPlaceholder", var: varName },
                         `Environment variable ${varName} not set and no default provided (placeholder kept)`,
                     );
                     return fullMatch; // keep original placeholder
@@ -198,7 +293,7 @@ export class ConfigImportService {
                 if (seen.has(val)) return val; // avoid circular refs
                 seen.add(val);
                 for (const key of Object.keys(val)) {
-                    (val as any)[key] = recurse((val as any)[key]);
+                    val[key] = recurse(val[key]);
                 }
                 return val;
             }
@@ -238,13 +333,8 @@ export class ConfigImportService {
                 }));
 
             this.logger.error(
-                {
-                    event: "ValidationError",
-                    file,
-                    tenant: tenant.name,
-                    errors: validationErrors.map(formatter),
-                },
-                `Validation failed for ${resourceType} ${file} in tenant ${tenant.name}`,
+                { errors: validationErrors.map(formatter) },
+                `[${tenant.name}] Validation failed for ${resourceType} ${file}`,
             );
 
             return { isValid: false, data: config };

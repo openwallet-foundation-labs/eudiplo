@@ -1,4 +1,4 @@
-import { Injectable, OnApplicationBootstrap } from "@nestjs/common";
+import { Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -6,17 +6,23 @@ import { InjectMetric } from "@willsoto/nestjs-prometheus/dist/injector";
 import { Gauge } from "prom-client";
 import { DeepPartial, FindOptionsWhere, LessThan, Repository } from "typeorm";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity.js";
+import { SessionCleanupMode } from "../auth/tenant/entitites/session-storage-config";
+import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
 import { Session, SessionStatus } from "./entities/session.entity";
 
 @Injectable()
 export class SessionService implements OnApplicationBootstrap {
+    private readonly logger = new Logger(SessionService.name);
+
     constructor(
         @InjectRepository(Session)
-        private sessionRepository: Repository<Session>,
+        private readonly sessionRepository: Repository<Session>,
+        @InjectRepository(TenantEntity)
+        private readonly tenantRepository: Repository<TenantEntity>,
         private readonly configService: ConfigService,
         private readonly schedulerRegistry: SchedulerRegistry,
         @InjectMetric("sessions")
-        private sessionsCounter: Gauge<string>,
+        private readonly sessionsCounter: Gauge<string>,
     ) {}
 
     /**
@@ -158,13 +164,86 @@ export class SessionService implements OnApplicationBootstrap {
     }
 
     /**
-     * Tidy up sessions that are older than 1 day.
+     * Tidy up sessions based on per-tenant configuration.
+     * Each tenant can configure their own TTL and cleanup mode.
+     * - 'full' mode: Deletes the entire session record
+     * - 'anonymize' mode: Keeps session metadata but removes personal data
      */
-    tidyUpSessions() {
-        const ttl = this.configService.getOrThrow<number>("SESSION_TTL") * 1000;
-        return this.sessionRepository.delete({
-            createdAt: LessThan(new Date(Date.now() - ttl)),
-        });
+    async tidyUpSessions() {
+        const defaultTtlSeconds =
+            this.configService.getOrThrow<number>("SESSION_TTL");
+        const defaultCleanupMode = this.configService.getOrThrow<string>(
+            "SESSION_CLEANUP_MODE",
+        );
+
+        // Get all tenants to check for custom session configs
+        const tenants = await this.tenantRepository.find();
+
+        // Process each tenant with their specific config
+        for (const tenant of tenants) {
+            const ttlSeconds =
+                tenant.sessionConfig?.ttlSeconds ?? defaultTtlSeconds;
+            const cutoffDate = new Date(Date.now() - ttlSeconds * 1000);
+            const cleanupMode =
+                tenant.sessionConfig?.cleanupMode ?? defaultCleanupMode;
+
+            if (cleanupMode === SessionCleanupMode.Anonymize) {
+                // Anonymize: Keep session metadata (including original status) but remove personal data
+                // We use a raw query to only target sessions that still have personal data
+                const result = await this.sessionRepository
+                    .createQueryBuilder()
+                    .update()
+                    .set({
+                        // Clear personal data fields
+                        credentials: undefined,
+                        credentialPayload: undefined,
+                        auth_queries: undefined,
+                        offer: undefined,
+                        requestObject: undefined,
+                    })
+                    .where("tenantId = :tenantId", { tenantId: tenant.id })
+                    .andWhere("createdAt < :cutoffDate", { cutoffDate })
+                    // Only anonymize sessions that still have personal data
+                    .andWhere(
+                        "(credentials IS NOT NULL OR credentialPayload IS NOT NULL OR auth_queries IS NOT NULL OR offer IS NOT NULL OR requestObject IS NOT NULL)",
+                    )
+                    .execute();
+                if (result.affected && result.affected > 0) {
+                    this.logger.log(
+                        `Anonymized ${result.affected} sessions for tenant ${tenant.id}`,
+                    );
+                }
+            } else {
+                // Full delete (default behavior)
+                const result = await this.sessionRepository.delete({
+                    tenantId: tenant.id,
+                    createdAt: LessThan(cutoffDate),
+                });
+                if (result.affected && result.affected > 0) {
+                    this.logger.log(
+                        `Deleted ${result.affected} sessions for tenant ${tenant.id}`,
+                    );
+                }
+            }
+        }
+
+        // Also clean up sessions for tenants that no longer exist (orphaned sessions)
+        const tenantIds = tenants.map((t) => t.id);
+        if (tenantIds.length > 0) {
+            const orphanedResult = await this.sessionRepository
+                .createQueryBuilder()
+                .delete()
+                .where("tenantId NOT IN (:...tenantIds)", { tenantIds })
+                .andWhere("createdAt < :cutoff", {
+                    cutoff: new Date(Date.now() - defaultTtlSeconds * 1000),
+                })
+                .execute();
+            if (orphanedResult.affected && orphanedResult.affected > 0) {
+                this.logger.log(
+                    `Deleted ${orphanedResult.affected} orphaned sessions`,
+                );
+            }
+        }
     }
 
     /**

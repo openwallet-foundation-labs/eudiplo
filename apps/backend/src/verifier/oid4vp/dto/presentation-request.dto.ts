@@ -1,5 +1,14 @@
-import { IsEnum, IsObject, IsOptional, IsString } from "class-validator";
+import { Type } from "class-transformer";
+import {
+    IsArray,
+    IsEnum,
+    IsObject,
+    IsOptional,
+    IsString,
+    ValidateNested,
+} from "class-validator";
 import { WebhookConfig } from "../../../shared/utils/webhook/webhook.dto";
+import { TransactionData } from "../../presentations/entities/presentation-config.entity";
 
 /**
  * Enum for the type of response expected from the presentation request.
@@ -45,8 +54,20 @@ export class PresentationRequest {
 
     /**
      * Optional redirect URI to which the user-agent should be redirected after the presentation is completed.
+     * You can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.
+     * @example "https://example.com/callback?session={sessionId}"
      */
     @IsOptional()
     @IsString()
     redirectUri?: string;
+
+    /**
+     * Optional transaction data to include in the OID4VP request.
+     * If provided, this will override the transaction_data from the presentation configuration.
+     */
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => TransactionData)
+    transaction_data?: TransactionData[];
 }

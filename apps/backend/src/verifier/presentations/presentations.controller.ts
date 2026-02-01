@@ -1,9 +1,18 @@
-import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Patch,
+    Post,
+} from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { Role } from "../../auth/roles/role.enum";
 import { Secured } from "../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../auth/token.decorator";
 import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dto";
+import { PresentationConfigUpdateDto } from "./dto/presentation-config-update.dto";
 import { PresentationsService } from "./presentations.service";
 
 @ApiTags("Verifier")
@@ -15,7 +24,7 @@ export class PresentationManagementController {
      * Returns the presentation request configurations.
      * @returns
      */
-    @Secured([Role.Presentations])
+    @Secured([Role.Presentations, Role.PresentationOffer])
     @Get()
     configuration(@Token() user: TokenPayload) {
         return this.presentationsService.getPresentationConfigs(
@@ -35,6 +44,42 @@ export class PresentationManagementController {
         @Token() user: TokenPayload,
     ) {
         return this.presentationsService.storePresentationConfig(
+            user.entity!.id,
+            config,
+        );
+    }
+
+    /**
+     * Get a presentation request configuration by its ID.
+     * @param id
+     * @param user
+     * @returns
+     */
+    @Secured([Role.Presentations, Role.PresentationOffer])
+    @Get(":id")
+    getConfiguration(@Param("id") id: string, @Token() user: TokenPayload) {
+        return this.presentationsService.getPresentationConfig(
+            id,
+            user.entity!.id,
+        );
+    }
+
+    /**
+     * Update a presentation request configuration by its ID.
+     * @param id
+     * @param config
+     * @param user
+     * @returns
+     */
+    @Secured([Role.Presentations])
+    @Patch(":id")
+    updateConfiguration(
+        @Param("id") id: string,
+        @Body() config: PresentationConfigUpdateDto,
+        @Token() user: TokenPayload,
+    ) {
+        return this.presentationsService.updatePresentationConfig(
+            id,
             user.entity!.id,
             config,
         );

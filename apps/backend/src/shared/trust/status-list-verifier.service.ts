@@ -1,0 +1,331 @@
+import { HttpService } from "@nestjs/axios";
+import { Injectable, Logger } from "@nestjs/common";
+import {
+    getListFromStatusListJWT,
+    getStatusListFromJWT,
+    StatusList,
+    StatusListEntry,
+} from "@sd-jwt/jwt-status-list";
+import { decodeJwt } from "jose";
+import { firstValueFrom } from "rxjs";
+
+/**
+ * Status values as defined in the Token Status List spec.
+ * @see https://datatracker.ietf.org/doc/html/draft-ietf-oauth-status-list
+ */
+export enum StatusValue {
+    /** The status is valid */
+    VALID = 0x00,
+    /** The status is invalid/revoked */
+    INVALID = 0x01,
+    /** The status is suspended */
+    SUSPENDED = 0x02,
+}
+
+/**
+ * Cached status list with metadata.
+ */
+interface CachedStatusList {
+    /** The parsed status list */
+    statusList: StatusList;
+    /** When the cache entry was fetched */
+    fetchedAt: number;
+    /** TTL from the status list JWT payload (in seconds) */
+    ttl?: number;
+    /** Expiration time from the JWT (exp claim) */
+    exp?: number;
+}
+
+/**
+ * Cached raw JWT with metadata.
+ */
+interface CachedJwt {
+    /** The raw JWT string */
+    jwt: string;
+    /** When the cache entry was fetched */
+    fetchedAt: number;
+    /** TTL from the JWT payload (in seconds) */
+    ttl?: number;
+    /** Expiration time from the JWT (exp claim) */
+    exp?: number;
+}
+
+/**
+ * Result of a status check.
+ */
+export interface StatusCheckResult {
+    /** The raw status value */
+    status: number;
+    /** Whether the status indicates validity (status === 0) */
+    isValid: boolean;
+    /** Human-readable status description */
+    description: string;
+}
+
+/**
+ * Service for verifying status list entries.
+ * Fetches and caches status list JWTs, and checks the status of entries.
+ *
+ * @see https://datatracker.ietf.org/doc/html/draft-ietf-oauth-status-list
+ */
+@Injectable()
+export class StatusListVerifierService {
+    private readonly logger = new Logger(StatusListVerifierService.name);
+
+    /**
+     * Cache of parsed status lists keyed by URI.
+     * Uses a simple in-memory cache with TTL support.
+     */
+    private readonly cache = new Map<string, CachedStatusList>();
+
+    /**
+     * Cache of raw status list JWTs keyed by URI.
+     * Used by statusListFetcher interface for SD-JWT SDK.
+     */
+    private readonly cachedJwts = new Map<string, CachedJwt>();
+
+    /** Default cache TTL in milliseconds (5 minutes) */
+    private readonly defaultCacheTtlMs = 5 * 60 * 1000;
+
+    constructor(private readonly httpService: HttpService) {}
+
+    /**
+     * Get the status entry from a JWT that contains a status claim.
+     * This extracts the status_list reference (uri and idx) from the JWT.
+     *
+     * @param jwt The JWT containing a status claim
+     * @returns The status list entry reference, or undefined if no status claim
+     */
+    getStatusEntryFromJwt(jwt: string): StatusListEntry | undefined {
+        try {
+            return getStatusListFromJWT(jwt);
+        } catch {
+            // No status claim in JWT
+            return undefined;
+        }
+    }
+
+    /**
+     * Check the status of a JWT that contains a status claim.
+     * This will fetch the status list (with caching) and check the status at the specified index.
+     *
+     * @param jwt The JWT containing a status claim (e.g., wallet attestation JWT)
+     * @returns The status check result, or undefined if no status claim in JWT
+     */
+    async checkStatusFromJwt(
+        jwt: string,
+    ): Promise<StatusCheckResult | undefined> {
+        const statusEntry = this.getStatusEntryFromJwt(jwt);
+        if (!statusEntry) {
+            return undefined;
+        }
+
+        return this.checkStatus(statusEntry.uri, statusEntry.idx);
+    }
+
+    /**
+     * Check the status at a specific index in a status list.
+     *
+     * @param statusListUri The URI of the status list JWT
+     * @param index The index in the status list to check
+     * @returns The status check result
+     */
+    async checkStatus(
+        statusListUri: string,
+        index: number,
+    ): Promise<StatusCheckResult> {
+        const statusList = await this.getStatusList(statusListUri);
+        const status = statusList.getStatus(index);
+
+        return {
+            status,
+            isValid: status === StatusValue.VALID,
+            description: this.getStatusDescription(status),
+        };
+    }
+
+    /**
+     * Get a status list from cache or fetch it.
+     *
+     * @param uri The URI of the status list JWT
+     * @returns The parsed StatusList
+     */
+    async getStatusList(uri: string): Promise<StatusList> {
+        // Check cache first
+        const cached = this.cache.get(uri);
+        if (cached && !this.isCacheExpired(cached)) {
+            this.logger.debug(`Using cached status list for ${uri}`);
+            return cached.statusList;
+        }
+
+        // Fetch and cache
+        this.logger.debug(`Fetching status list from ${uri}`);
+        const statusListJwt = await this.fetchStatusListJwt(uri);
+        const statusList = getListFromStatusListJWT(statusListJwt);
+
+        // Extract TTL and exp from the JWT payload
+        const payload = decodeJwt(statusListJwt);
+        const ttl = typeof payload.ttl === "number" ? payload.ttl : undefined;
+        const exp = typeof payload.exp === "number" ? payload.exp : undefined;
+
+        this.cache.set(uri, {
+            statusList,
+            fetchedAt: Date.now(),
+            ttl,
+            exp,
+        });
+
+        return statusList;
+    }
+
+    /**
+     * Fetch a status list JWT from a URI.
+     *
+     * @param uri The URI to fetch
+     * @param timeoutMs Timeout in milliseconds
+     * @returns The raw JWT string
+     */
+    private async fetchStatusListJwt(
+        uri: string,
+        timeoutMs = 10000,
+    ): Promise<string> {
+        const ctrl = new AbortController();
+        const timeout = setTimeout(() => ctrl.abort(), timeoutMs);
+
+        try {
+            const response = await firstValueFrom(
+                this.httpService.get(uri, {
+                    signal: ctrl.signal,
+                    responseType: "text",
+                    headers: {
+                        Accept: "application/statuslist+jwt, application/jwt",
+                    },
+                }),
+            );
+            return response.data;
+        } finally {
+            clearTimeout(timeout);
+        }
+    }
+
+    /**
+     * Check if a cache entry is expired.
+     */
+    private isCacheExpired(cached: CachedStatusList): boolean {
+        const now = Date.now();
+
+        // Check if JWT has expired (exp claim)
+        if (cached.exp && now >= cached.exp * 1000) {
+            return true;
+        }
+
+        // Check TTL from JWT payload
+        if (cached.ttl) {
+            const expiresAt = cached.fetchedAt + cached.ttl * 1000;
+            return now >= expiresAt;
+        }
+
+        // Fall back to default cache TTL
+        return now >= cached.fetchedAt + this.defaultCacheTtlMs;
+    }
+
+    /**
+     * Get a human-readable description for a status value.
+     */
+    private getStatusDescription(status: number): string {
+        switch (status) {
+            case StatusValue.VALID:
+                return "Valid";
+            case StatusValue.INVALID:
+                return "Invalid/Revoked";
+            case StatusValue.SUSPENDED:
+                return "Suspended";
+            default:
+                return `Unknown status (${status})`;
+        }
+    }
+
+    /**
+     * Clear the cache for a specific URI or all URIs.
+     *
+     * @param uri Optional URI to clear. If not provided, clears all.
+     */
+    clearCache(uri?: string): void {
+        if (uri) {
+            this.cache.delete(uri);
+            this.cachedJwts.delete(uri);
+        } else {
+            this.cache.clear();
+            this.cachedJwts.clear();
+        }
+    }
+
+    /**
+     * Get cache statistics for monitoring.
+     */
+    getCacheStats(): { size: number; jwtCacheSize: number; uris: string[] } {
+        return {
+            size: this.cache.size,
+            jwtCacheSize: this.cachedJwts.size,
+            uris: Array.from(
+                new Set([...this.cache.keys(), ...this.cachedJwts.keys()]),
+            ),
+        };
+    }
+
+    /**
+     * Get a status list JWT from cache or fetch it.
+     * This is useful when you need the raw JWT string (e.g., for SDK's statusListFetcher).
+     * The JWT is cached based on its TTL/exp claims.
+     *
+     * @param uri The URI of the status list JWT
+     * @returns The raw JWT string
+     */
+    async getStatusListJwt(uri: string): Promise<string> {
+        // Check if we have a valid cached entry
+        const cached = this.cachedJwts.get(uri);
+        if (cached && !this.isJwtCacheExpired(cached)) {
+            this.logger.debug(`Using cached status list JWT for ${uri}`);
+            return cached.jwt;
+        }
+
+        // Fetch and cache
+        this.logger.debug(`Fetching status list JWT from ${uri}`);
+        const jwt = await this.fetchStatusListJwt(uri);
+
+        // Extract TTL and exp from the JWT payload
+        const payload = decodeJwt(jwt);
+        const ttl = typeof payload.ttl === "number" ? payload.ttl : undefined;
+        const exp = typeof payload.exp === "number" ? payload.exp : undefined;
+
+        this.cachedJwts.set(uri, {
+            jwt,
+            fetchedAt: Date.now(),
+            ttl,
+            exp,
+        });
+
+        return jwt;
+    }
+
+    /**
+     * Check if a JWT cache entry is expired.
+     */
+    private isJwtCacheExpired(cached: CachedJwt): boolean {
+        const now = Date.now();
+
+        // Check if JWT has expired (exp claim)
+        if (cached.exp && now >= cached.exp * 1000) {
+            return true;
+        }
+
+        // Check TTL from JWT payload
+        if (cached.ttl) {
+            const expiresAt = cached.fetchedAt + cached.ttl * 1000;
+            return now >= expiresAt;
+        }
+
+        // Fall back to default cache TTL
+        return now >= cached.fetchedAt + this.defaultCacheTtlMs;
+    }
+}

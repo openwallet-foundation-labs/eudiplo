@@ -11,6 +11,15 @@ export const SESSION_VALIDATION_SCHEMA = Joi.object({
         .meta({ group: "session", order: 10 }),
     SESSION_TTL: Joi.number()
         .default(24 * 60 * 60)
-        .description("Time to live for sessions in seconds")
+        .description(
+            "Default time to live for sessions in seconds. Can be overridden per tenant.",
+        )
         .meta({ group: "session", order: 20 }),
+    SESSION_CLEANUP_MODE: Joi.string()
+        .valid("full", "anonymize")
+        .default("full")
+        .description(
+            "Default cleanup mode when sessions expire. 'full' deletes the entire session, 'anonymize' keeps metadata but removes personal data. Can be overridden per tenant.",
+        )
+        .meta({ group: "session", order: 30 }),
 });

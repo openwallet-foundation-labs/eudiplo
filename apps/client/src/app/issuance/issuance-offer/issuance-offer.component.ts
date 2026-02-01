@@ -18,7 +18,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { CredentialConfig, type OfferRequestDto } from '@eudiplo/sdk';
+import { CredentialConfig, type IssuanceConfig, type OfferRequestDto } from '@eudiplo/sdk-core';
 import { IssuanceConfigService } from '../issuance-config/issuance-config.service';
 import { FormlyJsonschema } from '@ngx-formly/core/json-schema';
 import { CredentialConfigService } from '../credential-config/credential-config.service';
@@ -70,30 +70,41 @@ export class IssuanceOfferComponent implements OnInit {
     claimSource: string; // 'form' or 'webhook'
   }[] = [];
   credentialConfigs: CredentialConfig[] = [];
+  issuanceConfig?: IssuanceConfig;
+  availableAuthServers: string[] = [];
 
   constructor(
-    private issuanceConfigService: IssuanceConfigService,
-    private snackBar: MatSnackBar,
-    private router: Router,
-    private formlyJsonschema: FormlyJsonschema,
-    private credentialConfigService: CredentialConfigService,
-    private dialog: MatDialog,
-    private cdr: ChangeDetectorRef
+    private readonly issuanceConfigService: IssuanceConfigService,
+    private readonly snackBar: MatSnackBar,
+    private readonly router: Router,
+    private readonly formlyJsonschema: FormlyJsonschema,
+    private readonly credentialConfigService: CredentialConfigService,
+    private readonly dialog: MatDialog,
+    private readonly cdr: ChangeDetectorRef
   ) {
     this.form = new FormGroup({
       credentialConfigurationIds: new FormControl([], Validators.required),
       claims: new FormGroup({}),
       flow: new FormControl('authorization_code', Validators.required),
       tx_code: new FormControl(''),
+      authorization_server: new FormControl(''),
     } as { [k in keyof Omit<OfferRequestDto, 'response_type'>]: any });
   }
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit() {
     this.form
       .get('credentialConfigurationIds')
       ?.valueChanges.subscribe((ids) => this.setClaimFormFields(ids));
 
-    this.credentialConfigs = await this.credentialConfigService.loadConfigurations();
+    this.credentialConfigService
+      .loadConfigurations()
+      .then((response) => (this.credentialConfigs = response));
+
+    // Load issuance config to get available auth servers
+    this.issuanceConfigService.getConfig().then((config) => {
+      this.issuanceConfig = config;
+      this.availableAuthServers = config?.authServers || [];
+    });
   }
 
   async setClaimFormFields(credentialConfigIds: string[]) {
@@ -158,11 +169,9 @@ export class IssuanceOfferComponent implements OnInit {
         if (claimsGroup.contains(elementId)) {
           claimsGroup.removeControl(elementId);
         }
-      } else {
         // Add form control when switching to form
-        if (!claimsGroup.contains(elementId)) {
-          claimsGroup.addControl(elementId, new UntypedFormGroup({}));
-        }
+      } else if (!claimsGroup.contains(elementId)) {
+        claimsGroup.addControl(elementId, new UntypedFormGroup({}));
       }
     }
   }
@@ -212,6 +221,9 @@ export class IssuanceOfferComponent implements OnInit {
         credentialClaims: Object.keys(credentialClaims).length > 0 ? credentialClaims : undefined,
         ...(formValue.flow === 'pre_authorized_code' && formValue.tx_code
           ? { tx_code: formValue.tx_code }
+          : {}),
+        ...(formValue.authorization_server
+          ? { authorization_server: formValue.authorization_server }
           : {}),
       };
 

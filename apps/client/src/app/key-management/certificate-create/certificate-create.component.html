@@ -99,49 +99,87 @@
             <div class="section">
               <h3>Generate Self-Signed Certificate</h3>
               <p class="mat-body-1">
-                Select the type of certificate to generate. The certificate will be created
-                automatically and added to your key.
+                Generate a self-signed certificate for development and testing purposes. The
+                certificate will be created automatically and added to your key.
               </p>
+            </div>
 
-              <div fxLayout="column" fxLayoutGap="12px" class="generate-buttons">
+            <form [formGroup]="selfSignedForm" (ngSubmit)="onGenerateSelfSigned()">
+              <!-- Subject Name -->
+              <div class="section">
+                <h3>Subject Name (Optional)</h3>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Subject Name (CN)</mat-label>
+                  <input
+                    matInput
+                    formControlName="subjectName"
+                    placeholder="e.g., My Organization"
+                  />
+                  <mat-hint
+                    >Common Name for the certificate. If empty, the tenant name will be
+                    used.</mat-hint
+                  >
+                </mat-form-field>
+              </div>
+
+              <!-- Usage Types -->
+              <div class="section">
+                <h3>Usage Types</h3>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Certificate Usage</mat-label>
+                  <mat-select formControlName="certUsageTypes" multiple>
+                    <mat-option value="signing">
+                      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                        <mat-icon>edit</mat-icon>
+                        <span>Signing</span>
+                      </div>
+                    </mat-option>
+                    <mat-option value="statuslist">
+                      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                        <mat-icon>checklist</mat-icon>
+                        <span>Status List</span>
+                      </div>
+                    </mat-option>
+                  </mat-select>
+                  @if (
+                    selfSignedForm.get('certUsageTypes')?.hasError('required') &&
+                    selfSignedForm.get('certUsageTypes')?.touched
+                  ) {
+                    <mat-error>Please select at least one usage type</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+
+              <!-- Description -->
+              <div class="section">
+                <h3>Description (Optional)</h3>
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Description</mat-label>
+                  <input
+                    matInput
+                    formControlName="description"
+                    placeholder="e.g., Development signing certificate"
+                  />
+                </mat-form-field>
+              </div>
+
+              <!-- Action Buttons -->
+              <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="end center">
+                <button type="button" mat-button (click)="onCancel()">
+                  <mat-icon>cancel</mat-icon>
+                  Cancel
+                </button>
                 <button
-                  type="button"
+                  type="submit"
                   mat-raised-button
                   color="primary"
-                  (click)="generateSelfSignedCert({ isSigningCert: true, isAccessCert: false })"
+                  [disabled]="selfSignedForm.invalid"
                 >
-                  <mat-icon>edit</mat-icon>
-                  Generate Signing Certificate
-                </button>
-
-                <button
-                  type="button"
-                  mat-raised-button
-                  color="accent"
-                  (click)="generateSelfSignedCert({ isSigningCert: false, isAccessCert: true })"
-                >
-                  <mat-icon>vpn_key</mat-icon>
-                  Generate Access Certificate
-                </button>
-
-                <button
-                  type="button"
-                  mat-raised-button
-                  (click)="generateSelfSignedCert({ isSigningCert: true, isAccessCert: true })"
-                >
-                  <mat-icon>star</mat-icon>
-                  Generate Both (Signing & Access)
+                  <mat-icon>auto_awesome</mat-icon>
+                  Generate Certificate
                 </button>
               </div>
-            </div>
-
-            <!-- Cancel Button for Generate Tab -->
-            <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="end center">
-              <button type="button" mat-button (click)="onCancel()">
-                <mat-icon>cancel</mat-icon>
-                Cancel
-              </button>
-            </div>
+            </form>
           </div>
         </mat-tab>
       </mat-tab-group>

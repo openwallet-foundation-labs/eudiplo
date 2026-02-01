@@ -1,7 +1,10 @@
 import { HttpModule } from "@nestjs/axios";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { TrustModule } from "../../shared/trust/trust.module";
 import { ResolverModule } from "../resolver/resolver.module";
+import { MdlverifierService } from "./credential/mdlverifier/mdlverifier.service";
+import { SdjwtvcverifierService } from "./credential/sdjwtvcverifier/sdjwtvcverifier.service";
 import { PresentationConfig } from "./entities/presentation-config.entity";
 import { PresentationManagementController } from "./presentations.controller";
 import { PresentationsService } from "./presentations.service";
@@ -11,9 +14,14 @@ import { PresentationsService } from "./presentations.service";
         ResolverModule,
         HttpModule,
         TypeOrmModule.forFeature([PresentationConfig]),
+        TrustModule,
     ],
     controllers: [PresentationManagementController],
-    providers: [PresentationsService],
+    providers: [
+        PresentationsService,
+        SdjwtvcverifierService,
+        MdlverifierService,
+    ],
     exports: [PresentationsService],
 })
 export class PresentationsModule {}

@@ -1,0 +1,12 @@
+{
+  "id": "750af17f-0bc4-497f-9d4a-1f0b4c63a5cc",
+  "keyId": "227f1241-9b00-496d-b343-cdada94cc655",
+  "description": "Self-signed certificate (access, signing, statusList) for tenant Playground",
+  "crt": "-----BEGIN CERTIFICATE-----\nMIIBmTCCAT+gAwIBAgIBATAKBggqhkjOPQQDAjAiMQswCQYDVQQGEwJERTETMBEG\nA1UEAxMKUGxheWdyb3VuZDAeFw0yNjAxMTgxNTEzMDNaFw0yNzAxMTgxNTEzMDNa\nMCIxCzAJBgNVBAYTAkRFMRMwEQYDVQQDEwpQbGF5Z3JvdW5kMFkwEwYHKoZIzj0C\nAQYIKoZIzj0DAQcDQgAEbQG/8L9b9jKxvtwhzJQWoAMdAklvwd+RVQPHS/wr+F16\nOXjqscrbFngPH5aio3WutIDO4GEMdSVdAcIwz5kdPqNmMGQwIgYDVR0RBBswGYIX\nc2VydmljZS5ldWRpLXdhbGxldC5kZXYwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8B\nAf8EBAMCAqQwHQYDVR0OBBYEFEyi0mUHTgVaBL4GE/Yy9QCQ/1wGMAoGCCqGSM49\nBAMCA0gAMEUCIHNRgw4yHNi0L/V8Ch+NkNwOWr7bkrNH+DRDgzYjdBz6AiEAkuf3\ngOSCh9oPiyvvTTQm2iDVI5/yUOxTSX2P0YOcWf0=\n-----END CERTIFICATE-----",
+  "certUsageTypes": [
+    "access",
+    "signing",
+    "statusList",
+    "trustList"
+  ]
+}

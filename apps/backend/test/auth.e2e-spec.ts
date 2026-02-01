@@ -77,22 +77,6 @@ describe("Authentication (e2e)", () => {
             });
     });
 
-    test("should reject missing grant_type", async () => {
-        await request(app.getHttpServer())
-            .post("/oauth2/token")
-            .send({
-                client_id: clientId,
-                client_secret: clientSecret,
-                // Missing grant_type
-            })
-            .expect(401)
-            .expect((res) => {
-                expect(res.body.message).toBe(
-                    "Only client_credentials grant type is supported",
-                );
-            });
-    });
-
     test("should reject unsupported grant type", async () => {
         await request(app.getHttpServer())
             .post("/oauth2/token")

@@ -27,7 +27,15 @@
     },
     "redirectUri": {
       "type": "string",
-      "description": "Optional redirect URI to which the user-agent should be redirected after the presentation is completed."
+      "description": "Optional redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.",
+      "example": "https://example.com/callback?session={sessionId}"
+    },
+    "transaction_data": {
+      "description": "Optional transaction data to include in the OID4VP request.\nIf provided, this will override the transaction_data from the presentation configuration.",
+      "type": "array",
+      "items": {
+        "$ref": "./TransactionData.schema.json"
+      }
     }
   },
   "required": [

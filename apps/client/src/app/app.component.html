@@ -3,7 +3,8 @@
     <button matIconButton (click)="toggleSidenav()" fxHide.gt-sm>
       <mat-icon>menu</mat-icon>
     </button>
-    <span>eudiplo client</span>
+    <img src="logo.svg" alt="EUDIPLO" class="toolbar-logo" />
+    <span>eudiplo</span>
 
     <!-- Spacer -->
     <span fxFlex></span>
@@ -58,9 +59,9 @@
 
         <mat-divider></mat-divider>
 
-        @if (hasRole(['presentation:offer', 'issuance:offer'])) {
+        @if (hasRole(['presentation:manage', 'issuance:manage'])) {
           <div mat-subheader>Keys</div>
-          <mat-list-item [routerLink]="['/key-management']" routerLinkActive="active-link">
+          <mat-list-item [routerLink]="['/keys']" routerLinkActive="active-link">
             <span matListItemTitle>Key Management</span>
           </mat-list-item>
 
@@ -68,6 +69,11 @@
             <span matListItemTitle>Certificates</span>
           </mat-list-item>
 
+          @if (hasRole('registrar:manage')) {
+            <mat-list-item [routerLink]="['/registrar']" routerLinkActive="active-link">
+              <span matListItemTitle>Registrar</span>
+            </mat-list-item>
+          }
           <mat-divider></mat-divider>
         }
 
@@ -81,6 +87,14 @@
 
           <mat-list-item [routerLink]="['/credential-config']" routerLinkActive="active-link">
             <span matListItemTitle>Credential Configurations</span>
+          </mat-list-item>
+
+          <mat-list-item [routerLink]="['/trust-list']" routerLinkActive="active-link">
+            <span matListItemTitle>Trust Lists</span>
+          </mat-list-item>
+
+          <mat-list-item [routerLink]="['/status-lists']" routerLinkActive="active-link">
+            <span matListItemTitle>Status Lists</span>
           </mat-list-item>
 
           <mat-divider></mat-divider>
@@ -101,9 +115,22 @@
           <!-- Monitoring -->
           <div mat-subheader>Monitoring & Sessions</div>
 
-          <mat-list-item [routerLink]="['/session-management']" routerLinkActive="active-link">
+          <mat-list-item
+            [routerLink]="['/session-management']"
+            routerLinkActive="active-link"
+            [routerLinkActiveOptions]="{ exact: true }"
+          >
             <span matListItemTitle>Session Management</span>
           </mat-list-item>
+
+          @if (hasRole(['issuance:manage', 'presentation:manage'])) {
+            <mat-list-item
+              [routerLink]="['/session-management/config']"
+              routerLinkActive="active-link"
+            >
+              <span matListItemTitle>Session Config</span>
+            </mat-list-item>
+          }
         }
       </mat-nav-list>
     </mat-sidenav>

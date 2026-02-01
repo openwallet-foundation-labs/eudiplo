@@ -1,10 +1,19 @@
-import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Patch,
+    Post,
+} from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { Role } from "../../../auth/roles/role.enum";
 import { Secured } from "../../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../../auth/token.decorator";
 import { CredentialConfigService } from "./credential-config/credential-config.service";
 import { CredentialConfigCreate } from "./dto/credential-config-create.dto";
+import { CredentialConfigUpdate } from "./dto/credential-config-update.dto";
 
 /**
  * Controller for managing credential configurations.
@@ -47,6 +56,22 @@ export class CredentialConfigController {
         @Token() user: TokenPayload,
     ) {
         return this.credentialsService.store(user.entity!.id, config);
+    }
+
+    /**
+     * Updates a credential configuration by ID.
+     * @param id
+     * @param config
+     * @param user
+     * @returns
+     */
+    @Patch(":id")
+    updateCredentialConfiguration(
+        @Param("id") id: string,
+        @Body() config: CredentialConfigUpdate,
+        @Token() user: TokenPayload,
+    ) {
+        return this.credentialsService.update(user.entity!.id, id, config);
     }
 
     /**

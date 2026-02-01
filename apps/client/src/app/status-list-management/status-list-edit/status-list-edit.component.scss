@@ -1,0 +1,106 @@
+.loading-container {
+  padding: 48px;
+}
+
+.title-icon {
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+// Stats section
+.stats-section {
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.usage-bar {
+  margin-top: 16px;
+
+  .usage-label {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.54);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .usage-percentage {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  mat-progress-bar {
+    margin-top: 4px;
+    height: 8px;
+    border-radius: 4px;
+  }
+}
+
+// JWT Status section
+.jwt-status-section {
+  margin-top: 8px;
+}
+
+.status-valid,
+.status-expiring,
+.status-expired {
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+  }
+}
+
+.status-valid {
+  background-color: #e8f5e9 !important;
+  color: #2e7d32 !important;
+}
+
+.status-expiring {
+  background-color: #fff3e0 !important;
+  color: #bf360c !important;
+}
+
+.status-expired {
+  background-color: #ffebee !important;
+  color: #c62828 !important;
+}
+
+.muted {
+  color: rgba(0, 0, 0, 0.54);
+  font-style: italic;
+}
+
+// Info box
+.info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: #e3f2fd;
+  border-radius: 8px;
+  color: #1565c0;
+
+  mat-icon {
+    flex-shrink: 0;
+  }
+}

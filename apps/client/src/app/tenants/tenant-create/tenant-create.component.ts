@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -14,7 +14,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { tenantControllerInitTenant } from '@eudiplo/sdk';
+import {
+  tenantControllerGetTenant,
+  tenantControllerInitTenant,
+  tenantControllerUpdateTenant,
+} from '@eudiplo/sdk-core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Role, roles } from '../../services/jwt.service';
@@ -36,17 +40,18 @@ import { Role, roles } from '../../services/jwt.service';
   templateUrl: './tenant-create.component.html',
   styleUrl: './tenant-create.component.scss',
 })
-export class TenantCreateComponent {
+export class TenantCreateComponent implements OnInit {
   tenantForm: FormGroup;
   isSubmitting = false;
+  isEditMode = false;
 
   roles = roles;
 
   constructor(
-    private fb: FormBuilder,
-    private snackBar: MatSnackBar,
-    private router: Router,
-    private route: ActivatedRoute
+    private readonly fb: FormBuilder,
+    private readonly snackBar: MatSnackBar,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute
   ) {
     this.tenantForm = this.fb.group({
       id: ['', [Validators.required]],
@@ -54,6 +59,30 @@ export class TenantCreateComponent {
       description: [''],
       roles: new FormControl<Role[]>(['clients:manage'], [Validators.required]),
     });
+  }
+
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.isEditMode = true;
+      this.loadTenant(id);
+    }
+  }
+
+  private async loadTenant(id: string): Promise<void> {
+    try {
+      const tenant = await tenantControllerGetTenant<true>({ path: { id } });
+      this.tenantForm.patchValue({
+        id: tenant.data.id,
+        name: tenant.data.name,
+        description: tenant.data.description,
+      });
+      // Disable ID field in edit mode
+      this.tenantForm.get('id')?.disable();
+    } catch {
+      this.snackBar.open('Failed to load tenant', 'Close', { duration: 3000 });
+      this.router.navigate(['../'], { relativeTo: this.route });
+    }
   }
 
   async onSubmit(): Promise<void> {
@@ -64,12 +93,24 @@ export class TenantCreateComponent {
     this.isSubmitting = true;
 
     try {
-      await tenantControllerInitTenant<true>({ body: this.tenantForm.value });
-      this.snackBar.open('Tenant created successfully', 'Close', { duration: 3000 });
-      await this.router.navigate(['../', this.tenantForm.value.id], { relativeTo: this.route });
+      if (this.isEditMode) {
+        const id = this.route.snapshot.paramMap.get('id')!;
+        await tenantControllerUpdateTenant<true>({
+          path: { id },
+          body: this.tenantForm.value,
+        });
+        this.snackBar.open('Tenant updated successfully', 'Close', { duration: 3000 });
+        await this.router.navigate(['../'], { relativeTo: this.route });
+      } else {
+        await tenantControllerInitTenant<true>({ body: this.tenantForm.value });
+        this.snackBar.open('Tenant created successfully', 'Close', { duration: 3000 });
+        await this.router.navigate(['../', this.tenantForm.value.id], { relativeTo: this.route });
+      }
     } catch (error) {
       this.snackBar.open(
-        error instanceof Error ? error.message : 'Failed to create tenant',
+        error instanceof Error
+          ? error.message
+          : `Failed to ${this.isEditMode ? 'update' : 'create'} tenant`,
         'Close',
         { duration: 5000 }
       );

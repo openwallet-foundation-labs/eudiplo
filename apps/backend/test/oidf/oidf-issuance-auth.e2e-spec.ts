@@ -15,7 +15,11 @@ import {
 } from "../../src/issuer/issuance/oid4vci/dto/offer-request.dto";
 import { ResponseType } from "../../src/verifier/oid4vp/dto/presentation-request.dto";
 import { getDefaultSecret } from "../utils";
+import { useOidfContainers } from "./oidf-setup";
 import { OIDFSuite } from "./oidf-suite";
+
+// Setup OIDF containers for this test file
+useOidfContainers();
 
 /**
  * E2E: OIDF conformance runner integration test

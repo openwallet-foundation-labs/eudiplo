@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/StatusListImportDto.schema.json",
+  "title": "StatusListImportDto",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the status list"
+    },
+    "credentialConfigurationId": {
+      "type": "string",
+      "nullable": true,
+      "description": "Credential configuration ID to bind this list exclusively to. Leave empty for a shared list.",
+      "example": "org.iso.18013.5.1.mDL"
+    },
+    "certId": {
+      "type": "string",
+      "description": "Certificate ID to use for signing. Leave empty to use the tenant's default StatusList certificate.",
+      "example": "my-status-list-cert"
+    },
+    "capacity": {
+      "type": "number",
+      "description": "Capacity of the status list. If not provided, uses tenant or global defaults.",
+      "minimum": 100,
+      "example": 10000
+    },
+    "bits": {
+      "type": "number",
+      "description": "Bits per status value. If not provided, uses tenant or global defaults.",
+      "enum": [
+        1,
+        2,
+        4,
+        8
+      ],
+      "example": 1
+    }
+  },
+  "required": [
+    "id"
+  ]
+}

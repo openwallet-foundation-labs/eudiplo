@@ -19,7 +19,8 @@
           "issuance:manage",
           "issuance:offer",
           "clients:manage",
-          "tenants:manage"
+          "tenants:manage",
+          "registrar:manage"
         ]
       }
     }

@@ -1,0 +1,38 @@
+<div fxLayout="row" fxLayoutAlign="space-between center">
+  <h2>Trust lists</h2>
+  <div fxLayout="row" fxLayoutGap="8px">
+    <button matIconButton [routerLink]="['create']" matTooltip="Create new Trust List">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+</div>
+
+<table mat-table [dataSource]="lists" class="mat-elevation-z8">
+  <ng-container matColumnDef="id">
+    <th mat-header-cell *matHeaderCellDef>Trust List ID</th>
+    <td mat-cell *matCellDef="let list">{{ list.id }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="description">
+    <th mat-header-cell *matHeaderCellDef>Description</th>
+    <td mat-cell *matCellDef="let list">{{ list.description }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef>Actions</th>
+    <td mat-cell *matCellDef="let list">
+      <button matIconButton [routerLink]="[list.id]" matTooltip="View details">
+        <mat-icon>visibility</mat-icon>
+      </button>
+      <button matIconButton [routerLink]="[list.id, 'edit']" matTooltip="Edit">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button matIconButton (click)="downloadConfig(list)" matTooltip="Download configuration">
+        <mat-icon>download</mat-icon>
+      </button>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+</table>

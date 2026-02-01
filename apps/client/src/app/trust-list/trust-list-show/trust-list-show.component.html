@@ -1,0 +1,240 @@
+@if (trustList) {
+  <div fxLayout="column" fxFlex fxLayoutGap="24px">
+    <!-- Header -->
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+      <h2>Trust List Details</h2>
+      <div>
+        <button mat-icon-button [routerLink]="['../']" matTooltip="Back to list">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <button mat-icon-button [routerLink]="['edit']" matTooltip="Edit list">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Download backup" (click)="download()">
+          <mat-icon>download</mat-icon>
+        </button>
+        <button mat-icon-button (click)="delete()" matTooltip="Delete list" color="warn">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Overview Card -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>{{ trustList.description || 'Untitled Trust List' }}</mat-card-title>
+        <mat-card-subtitle>ID: {{ trustList.id }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="metadata-grid">
+          <div class="metadata-item">
+            <span class="label">Version</span>
+            <span class="value">{{ trustList.sequenceNumber }}</span>
+          </div>
+          <div class="metadata-item">
+            <span class="label">Certificate ID</span>
+            <span class="value">{{ trustList.certId }}</span>
+          </div>
+          <div class="metadata-item">
+            <span class="label">Trusted Entities</span>
+            <span class="value">{{ getTrustedEntitiesCount() }}</span>
+          </div>
+          <div class="metadata-item">
+            <span class="label">Created</span>
+            <span class="value">{{ trustList.createdAt | date: 'medium' }}</span>
+          </div>
+          <div class="metadata-item">
+            <span class="label">Last Updated</span>
+            <span class="value">{{ trustList.updatedAt | date: 'medium' }}</span>
+          </div>
+        </div>
+
+        <!-- Public URL Section -->
+        @if (publicUrl) {
+          <div class="public-url-section">
+            <h4>Public URL</h4>
+            <p class="url-description">
+              Use this URL to reference the trust list in external configurations:
+            </p>
+            <mat-form-field appearance="outline" class="url-field">
+              <mat-label>Trust List URL</mat-label>
+              <input matInput [value]="publicUrl" readonly />
+              <button
+                matSuffix
+                mat-icon-button
+                matTooltip="Copy URL"
+                (click)="copyToClipboard(publicUrl, 'Trust List URL')"
+              >
+                <mat-icon>content_copy</mat-icon>
+              </button>
+            </mat-form-field>
+            <p class="url-hint">
+              <mat-icon class="hint-icon">lightbulb</mat-icon>
+              <span
+                >Tip: Use <code>&lt;TENANT_URL&gt;/trust-list/{{ trustList.id }}</code> in your
+                configurations for instance-independent references.</span
+              >
+            </p>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Entities Card -->
+    @if (entities.length > 0) {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Trusted Entities</mat-card-title>
+          <mat-card-subtitle
+            >{{ entities.length }} configured entit{{
+              entities.length === 1 ? 'y' : 'ies'
+            }}</mat-card-subtitle
+          >
+        </mat-card-header>
+        <mat-card-content>
+          <mat-accordion>
+            @for (entity of entities; track $index) {
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    <mat-icon class="entity-icon">{{
+                      isInternalEntity(entity) ? 'key' : 'description'
+                    }}</mat-icon>
+                    {{ entity.info.name }}
+                  </mat-panel-title>
+                  <mat-panel-description>
+                    <mat-chip-set>
+                      <mat-chip [highlighted]="isInternalEntity(entity)">
+                        {{ entity.type }}
+                      </mat-chip>
+                      @if (entity.info.country) {
+                        <mat-chip>{{ entity.info.country }}</mat-chip>
+                      }
+                    </mat-chip-set>
+                  </mat-panel-description>
+                </mat-expansion-panel-header>
+
+                <div class="entity-details">
+                  <!-- Entity Info Section -->
+                  <div class="entity-info-section">
+                    <h4>Entity Information</h4>
+                    <div class="info-grid">
+                      <div class="info-item">
+                        <span class="label">Name</span>
+                        <span class="value">{{ entity.info.name }}</span>
+                      </div>
+                      @if (entity.info.lang) {
+                        <div class="info-item">
+                          <span class="label">Language</span>
+                          <span class="value">{{ entity.info.lang }}</span>
+                        </div>
+                      }
+                      @if (entity.info.country) {
+                        <div class="info-item">
+                          <span class="label">Country</span>
+                          <span class="value">{{ entity.info.country }}</span>
+                        </div>
+                      }
+                      @if (entity.info.locality) {
+                        <div class="info-item">
+                          <span class="label">Locality</span>
+                          <span class="value">{{ entity.info.locality }}</span>
+                        </div>
+                      }
+                      @if (entity.info.postalCode) {
+                        <div class="info-item">
+                          <span class="label">Postal Code</span>
+                          <span class="value">{{ entity.info.postalCode }}</span>
+                        </div>
+                      }
+                      @if (entity.info.streetAddress) {
+                        <div class="info-item">
+                          <span class="label">Street Address</span>
+                          <span class="value">{{ entity.info.streetAddress }}</span>
+                        </div>
+                      }
+                      @if (entity.info.uri) {
+                        <div class="info-item">
+                          <span class="label">URI</span>
+                          <a [href]="entity.info.uri" target="_blank" class="value link">{{
+                            entity.info.uri
+                          }}</a>
+                        </div>
+                      }
+                      @if (entity.info.contactUri) {
+                        <div class="info-item">
+                          <span class="label">Contact URI</span>
+                          <a [href]="entity.info.contactUri" target="_blank" class="value link">{{
+                            entity.info.contactUri
+                          }}</a>
+                        </div>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Certificate References Section -->
+                  <div class="entity-certs-section">
+                    <h4>Certificate References</h4>
+                    @if (isInternalEntity(entity)) {
+                      <div class="info-grid">
+                        <div class="info-item">
+                          <span class="label">Issuer Certificate ID</span>
+                          <span class="value mono">{{ entity.issuerCertId }}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="label">Revocation Certificate ID</span>
+                          <span class="value mono">{{ entity.revocationCertId }}</span>
+                        </div>
+                      </div>
+                    } @else {
+                      <mat-accordion>
+                        <mat-expansion-panel>
+                          <mat-expansion-panel-header>
+                            <mat-panel-title>Issuer Certificate (PEM)</mat-panel-title>
+                          </mat-expansion-panel-header>
+                          <pre class="pem-content">{{ entity.issuerCertPem }}</pre>
+                        </mat-expansion-panel>
+                        <mat-expansion-panel>
+                          <mat-expansion-panel-header>
+                            <mat-panel-title>Revocation Certificate (PEM)</mat-panel-title>
+                          </mat-expansion-panel-header>
+                          <pre class="pem-content">{{ entity.revocationCertPem }}</pre>
+                        </mat-expansion-panel>
+                      </mat-accordion>
+                    }
+                  </div>
+                </div>
+              </mat-expansion-panel>
+            }
+          </mat-accordion>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <!-- Version History Card -->
+    @if (versions.length > 0) {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Version History</mat-card-title>
+          <mat-card-subtitle
+            >{{ versions.length }} previous version{{
+              versions.length === 1 ? '' : 's'
+            }}</mat-card-subtitle
+          >
+        </mat-card-header>
+        <mat-card-content>
+          <div class="version-list">
+            @for (version of versions; track version.id) {
+              <div class="version-item">
+                <div class="version-info">
+                  <span class="version-number">v{{ version.sequenceNumber }}</span>
+                  <span class="version-date">{{ version.createdAt | date: 'medium' }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+}

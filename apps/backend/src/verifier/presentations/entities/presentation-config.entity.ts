@@ -3,7 +3,7 @@ import { Type } from "class-transformer";
 import {
     IsArray,
     IsBoolean,
-    IsIn,
+    IsEnum,
     IsNotEmpty,
     IsNumber,
     IsObject,
@@ -23,6 +23,11 @@ import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { WebhookConfig } from "../../../shared/utils/webhook/webhook.dto";
 import { RegistrationCertificateRequest } from "../dto/vp-request.dto";
 
+export enum TrustedAuthorityType {
+    AKI = "aki",
+    ETSI_TL = "etsi_tl",
+}
+
 /**
  * Attached attestations
  */
@@ -40,8 +45,8 @@ export class PresentationAttachment {
 // TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-trusted-authorities-query
 export class TrustedAuthorityQuery {
     @IsString()
-    @IsIn(["aki", "etsi_tl", "openid_federation"])
-    type!: string;
+    @IsEnum(TrustedAuthorityType)
+    type!: TrustedAuthorityType;
 
     @IsArray()
     @IsString({ each: true })
@@ -54,7 +59,6 @@ export class Claim {
 }
 
 //TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-query
-
 export class CredentialQuery {
     @IsString()
     id!: string;
@@ -118,7 +122,16 @@ export class DCQL {
     @IsOptional()
     @ValidateNested({ each: true })
     @Type(() => CredentialSetQuery)
-    credential_set?: CredentialSetQuery[];
+    credential_sets?: CredentialSetQuery[];
+}
+
+export class TransactionData {
+    @IsString()
+    type: string;
+    @IsArray()
+    @IsString({ each: true })
+    credential_ids: string[];
+    [key: string]: any;
 }
 
 /**
@@ -131,20 +144,20 @@ export class PresentationConfig {
      */
     @Column("varchar", { primary: true })
     @IsString()
-    id!: string;
+    id: string;
 
     /**
      * The tenant ID for which the VP request is made.
      */
     @ApiHideProperty()
     @Column("varchar", { primary: true })
-    tenantId!: string;
+    tenantId: string;
 
     /**
      * The tenant that owns this object.
      */
     @ManyToOne(() => TenantEntity, { cascade: true, onDelete: "CASCADE" })
-    tenant!: TenantEntity;
+    tenant: TenantEntity;
 
     /**
      * Description of the presentation configuration.
@@ -152,7 +165,7 @@ export class PresentationConfig {
     @Column("varchar", { nullable: true })
     @IsOptional()
     @IsString()
-    description?: string;
+    description?: string | null;
 
     /**
      * Lifetime how long the presentation request is valid after creation, in seconds.
@@ -169,6 +182,17 @@ export class PresentationConfig {
     @ValidateNested()
     @Type(() => DCQL)
     dcql_query!: DCQL;
+
+    /**
+     *
+     */
+    @Column("json", { nullable: true })
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => TransactionData)
+    transaction_data?: TransactionData[];
+
     /**
      * The registration certificate request containing the necessary details.
      */
@@ -176,7 +200,8 @@ export class PresentationConfig {
     @ValidateNested()
     @Type(() => RegistrationCertificateRequest)
     @Column("json", { nullable: true })
-    registrationCert?: RegistrationCertificateRequest;
+    registrationCert?: RegistrationCertificateRequest | null;
+
     /**
      * Optional webhook URL to receive the response.
      */
@@ -184,7 +209,7 @@ export class PresentationConfig {
     @IsOptional()
     @Validate(WebhookConfig)
     @Type(() => WebhookConfig)
-    webhook?: WebhookConfig;
+    webhook?: WebhookConfig | null;
 
     /**
      * The timestamp when the VP request was created.
@@ -206,13 +231,29 @@ export class PresentationConfig {
     @ValidateNested()
     @Type(() => PresentationAttachment)
     @Column("json", { nullable: true })
-    attached?: PresentationAttachment[];
+    attached?: PresentationAttachment[] | null;
 
     /**
      * Redirect URI to which the user-agent should be redirected after the presentation is completed.
+     * You can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.
+     * @example "https://example.com/callback?session={sessionId}"
      */
     @IsOptional()
     @IsString()
     @Column("varchar", { nullable: true })
-    redirectUri?: string;
+    redirectUri?: string | null;
+
+    /**
+     * Optional ID of the access certificate to use for signing the presentation request.
+     * If not provided, the default access certificate for the tenant will be used.
+     *
+     * Note: This is intentionally NOT a TypeORM relationship because CertEntity uses
+     * a composite primary key (id + tenantId), and SQLite cannot create foreign keys
+     * that reference only part of a composite primary key. The relationship is handled
+     * at the application level in the service layer.
+     */
+    @IsOptional()
+    @IsString()
+    @Column("varchar", { nullable: true })
+    accessCertId?: string | null;
 }

@@ -1,35 +1,35 @@
-import { HttpService } from "@nestjs/axios";
-import {
-    ConflictException,
-    Injectable,
-    OnApplicationBootstrap,
-} from "@nestjs/common";
+import { readFileSync } from "node:fs";
+import { ConflictException, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
-import { digest } from "@sd-jwt/crypto-nodejs";
-import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
-import { KbVerifier, Verifier } from "@sd-jwt/types";
 import { plainToClass } from "class-transformer";
-import { readFileSync } from "fs";
-import { JWK } from "jose";
-import { firstValueFrom } from "rxjs";
+import { base64url, decodeJwt } from "jose";
 import { Repository } from "typeorm";
-import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
+import { ServiceTypeIdentifier } from "../../issuer/trust-list/trustlist.service";
+import { Session } from "../../session/entities/session.entity";
+import { VerifierOptions } from "../../shared/trust/types";
 import { ConfigImportService } from "../../shared/utils/config-import/config-import.service";
-import { ResolverService } from "../resolver/resolver.service";
+import {
+    ConfigImportOrchestratorService,
+    ImportPhase,
+} from "../../shared/utils/config-import/config-import-orchestrator.service";
+import { MdlverifierService } from "./credential/mdlverifier/mdlverifier.service";
+import { SdjwtvcverifierService } from "./credential/sdjwtvcverifier/sdjwtvcverifier.service";
 import { AuthResponse } from "./dto/auth-response.dto";
 import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dto";
-import { PresentationConfig } from "./entities/presentation-config.entity";
+import { PresentationConfigUpdateDto } from "./dto/presentation-config-update.dto";
+import {
+    PresentationConfig,
+    TrustedAuthorityType,
+} from "./entities/presentation-config.entity";
+
+type CredentialType = "dc+sd-jwt" | "mso_mdoc";
 
 /**
  * Service for managing Verifiable Presentations (VPs) and handling SD-JWT-VCs.
  */
 @Injectable()
-export class PresentationsService implements OnApplicationBootstrap {
-    /**
-     * Instance of SDJwtVcInstance for handling SD-JWT-VCs.
-     */
-    sdjwtInstance!: SDJwtVcInstance;
-
+export class PresentationsService {
     /**
      * Constructor for the PresentationsService.
      * @param httpService - Instance of HttpService for making HTTP requests.
@@ -37,32 +37,29 @@ export class PresentationsService implements OnApplicationBootstrap {
      * @param vpRequestRepository - Repository for managing VP request configurations.
      */
     constructor(
-        private httpService: HttpService,
-        private resolverService: ResolverService,
         @InjectRepository(PresentationConfig)
-        private vpRequestRepository: Repository<PresentationConfig>,
-        private cryptoService: CryptoImplementationService,
-        private configImportService: ConfigImportService,
-    ) {}
-
-    /**
-     * Imports presentation configurations from a predefined directory structure.
-     */
-    async onApplicationBootstrap() {
-        this.sdjwtInstance = new SDJwtVcInstance({
-            hasher: digest,
-            verifier: this.verifier.bind(this),
-            kbVerifier: this.kbVerifier.bind(this),
-            statusListFetcher: this.statusListFetcher.bind(this),
-        });
-        await this.import();
+        private readonly vpRequestRepository: Repository<PresentationConfig>,
+        private readonly configImportService: ConfigImportService,
+        private readonly configImportOrchestrator: ConfigImportOrchestratorService,
+        private readonly sdjwtvcverifierService: SdjwtvcverifierService,
+        private readonly mdlverifierService: MdlverifierService,
+        private readonly configService: ConfigService,
+    ) {
+        // Register presentation config import in REFERENCES phase
+        // This runs after CORE (keys, certs) and CONFIGURATION phases
+        this.configImportOrchestrator.register(
+            "presentation-configs",
+            ImportPhase.REFERENCES,
+            (tenantId) => this.importForTenant(tenantId),
+        );
     }
 
     /**
-     * Imports presentation configurations from a predefined directory structure.
+     * Imports presentation configurations for a specific tenant.
      */
-    private async import() {
-        await this.configImportService.importConfigs<PresentationConfigCreateDto>(
+    private async importForTenant(tenantId: string) {
+        await this.configImportService.importConfigsForTenant<PresentationConfigCreateDto>(
+            tenantId,
             {
                 subfolder: "presentation",
                 fileExtension: ".json",
@@ -77,19 +74,19 @@ export class PresentationsService implements OnApplicationBootstrap {
                     payload.id = id;
                     return plainToClass(PresentationConfigCreateDto, payload);
                 },
-                checkExists: (tenantId, data) => {
-                    return this.getPresentationConfig(data.id, tenantId)
+                checkExists: (tid, data) => {
+                    return this.getPresentationConfig(data.id, tid)
                         .then(() => true)
                         .catch(() => false);
                 },
-                deleteExisting: async (tenantId, data) => {
+                deleteExisting: async (tid, data) => {
                     await this.vpRequestRepository.delete({
                         id: data.id,
-                        tenantId,
+                        tenantId: tid,
                     });
                 },
-                processItem: async (tenantId, config) => {
-                    await this.storePresentationConfig(tenantId, config);
+                processItem: async (tid, config) => {
+                    await this.storePresentationConfig(tid, config);
                 },
             },
         );
@@ -119,6 +116,31 @@ export class PresentationsService implements OnApplicationBootstrap {
     ) {
         return this.vpRequestRepository.save({
             ...vprequest,
+            tenantId,
+        });
+    }
+
+    /**
+     * Updates an existing presentation configuration.
+     * @param id
+     * @param tenantId
+     * @param vprequest
+     * @returns
+     */
+    async updatePresentationConfig(
+        id: string,
+        tenantId: string,
+        vprequest: PresentationConfigUpdateDto,
+    ) {
+        // Verify the config exists
+        const existing = await this.getPresentationConfig(id, tenantId);
+
+        // Merge existing with updates - client must explicitly set fields to null to clear them
+        // Omitted fields keep their existing values
+        return this.vpRequestRepository.save({
+            ...existing,
+            ...vprequest,
+            id,
             tenantId,
         });
     }
@@ -169,60 +191,8 @@ export class PresentationsService implements OnApplicationBootstrap {
             id,
             tenantId,
         });
-        element.registrationCert!.id = registrationCertId;
         await this.vpRequestRepository.save(element);
     }
-
-    /**
-     * Verifier for SD-JWT-VCs. It will verify the signature of the SD-JWT-VC and return true if it is valid.
-     * @param data - The data part of the SD-JWT-VC.
-     * @param signature - The signature of the SD-JWT-VC.
-     * @returns
-     */
-    verifier: Verifier = async (data, signature) => {
-        const instance = new SDJwtVcInstance({
-            hasher: digest,
-        });
-        const decodedVC = await instance.decode(`${data}.${signature}`);
-        const header = decodedVC.jwt?.header as JWK;
-        const publicKey = await this.resolverService.resolvePublicKey(header);
-        const crypto = this.cryptoService.getCryptoFromJwk(publicKey); // just to check if we support the key
-        const verify = await crypto.getVerifier(publicKey);
-        return verify(data, signature).catch((err) => {
-            console.log(err);
-            return false;
-        });
-    };
-
-    /**
-     * Fetch the status list from the uri.
-     * @param uri
-     * @returns
-     */
-    private statusListFetcher: (uri: string) => Promise<string> = (
-        uri: string,
-    ) => {
-        return firstValueFrom(this.httpService.get<string>(uri)).then(
-            (res) => res.data,
-        );
-    };
-
-    /**
-     * Verifier for keybindings. It will verify the signature of the keybinding and return true if it is valid.
-     * @param data
-     * @param signature
-     * @param payload
-     * @returns
-     */
-    private kbVerifier: KbVerifier = async (data, signature, payload) => {
-        if (!payload.cnf) {
-            throw new Error("No cnf found in the payload");
-        }
-        const jwk: JWK = (payload.cnf as any).jwk;
-        const crypto = this.cryptoService.getCryptoFromJwk(jwk);
-        const verifier = await crypto.getVerifier(jwk);
-        return verifier(data, signature);
-    };
 
     /**
      * Parse the response from the wallet. It will verify the SD-JWT-VCs in the vp_token and return the parsed attestations.
@@ -230,38 +200,123 @@ export class PresentationsService implements OnApplicationBootstrap {
      * @param requiredFields
      * @returns
      */
-    parseResponse(
+    async parseResponse(
         res: AuthResponse,
-        requiredFields: string[],
-        keyBindingNonce: string,
+        presentationConfig: PresentationConfig,
+        session: Session,
     ) {
-        const attestations = Object.keys(res.vp_token);
-        const att = attestations.map(async (att) => ({
-            id: att,
-            values: await Promise.all(
-                (res.vp_token[att] as unknown as string[]).map(
-                    (cred) =>
-                        this.sdjwtInstance
-                            .verify(cred, {
-                                requiredClaimKeys: requiredFields,
-                                keyBindingNonce,
-                            })
-                            .then((result) => ({
+        const attestationIds = Object.keys(res.vp_token);
+        const host = this.configService.getOrThrow<string>("PUBLIC_URL");
+        const tenantHost = `${host}/${presentationConfig.tenantId}`;
+
+        // Get transaction data from session (which was base64url-encoded in the request)
+        // We need the encoded strings for hash comparison
+        const transactionDataObjects = session.transaction_data;
+
+        const results = await Promise.all(
+            attestationIds.map(async (attId) => {
+                const credentials = res.vp_token[attId] as unknown as string[];
+                const dcqlCredential =
+                    presentationConfig.dcql_query.credentials.find(
+                        (c) => c.id === attId,
+                    );
+
+                if (!dcqlCredential) {
+                    throw new ConflictException(
+                        `${attId} not found in the presentation config`,
+                    );
+                }
+
+                // Find transaction data entries that reference this credential
+                // According to the spec, each transaction_data object has credential_ids
+                // and the wallet must use one of the referenced credentials
+                const relevantTransactionData = transactionDataObjects
+                    ?.filter((td) => td.credential_ids.includes(attId))
+                    .map((td) => base64url.encode(JSON.stringify(td)));
+
+                const verifyOptions: VerifierOptions = {
+                    trustListSource: {
+                        lotes:
+                            dcqlCredential.trusted_authorities
+                                ?.find(
+                                    (auth) =>
+                                        auth.type ===
+                                        TrustedAuthorityType.ETSI_TL,
+                                )
+                                ?.values.map((url) => ({
+                                    url: url.replaceAll(
+                                        "<TENANT_URL>",
+                                        tenantHost,
+                                    ),
+                                })) || [],
+                        acceptedServiceTypes: [
+                            ServiceTypeIdentifier.EaaIssuance,
+                        ],
+                    },
+                    policy: {
+                        requireX5c: true,
+                    },
+                    // Pass transaction data for hash validation (only for credentials that have it)
+                    transactionData: relevantTransactionData,
+                };
+
+                const type = this.getType(session.requestObject!, attId);
+                const values = await Promise.all(
+                    credentials.map(async (cred) => {
+                        if (type === "mso_mdoc") {
+                            const result = await this.mdlverifierService.verify(
+                                cred,
+                                {
+                                    nonce: session.vp_nonce as string,
+                                    clientId: session.clientId!,
+                                    responseUri: session.responseUri!,
+                                    protocol: "openid4vp",
+                                    responseMode: session.useDcApi
+                                        ? "dc_api.jwt"
+                                        : "direct_post.jwt",
+                                },
+                                verifyOptions,
+                            );
+                            return {
+                                ...result.claims,
+                                payload: result.payload,
+                            };
+                        } else if (type === "dc+sd-jwt") {
+                            const result =
+                                await this.sdjwtvcverifierService.verify(cred, {
+                                    requiredClaimKeys: [],
+                                    keyBindingNonce: session.vp_nonce!,
+                                    ...verifyOptions,
+                                } as any);
+                            return {
                                 ...result.payload,
-                                cnf: undefined, // remove cnf for simplicity
-                                status: undefined, // remove status for simplicity
-                            })),
-                    /* (err) => {
-                        throw new Error
-                        //(console.log(err);
-                        return {
-                            id: att,
-                            error: err.message,
-                        };
-                    }, */
-                ),
-            ),
-        }));
-        return Promise.all(att);
+                                cnf: undefined,
+                                status: undefined,
+                            };
+                        }
+                        throw new ConflictException(
+                            `Unsupported credential type: ${type}`,
+                        );
+                    }),
+                );
+
+                return { id: attId, values };
+            }),
+        );
+
+        return results;
+    }
+
+    /**
+     * Get the credential type based on the configuration id.
+     * @param jwt
+     * @param att
+     * @returns
+     */
+    getType(jwt: string, att: string): CredentialType {
+        const payload = decodeJwt<any>(jwt);
+        return payload.dcql_query.credentials.find(
+            (credential) => credential.id === att,
+        ).format;
     }
 }

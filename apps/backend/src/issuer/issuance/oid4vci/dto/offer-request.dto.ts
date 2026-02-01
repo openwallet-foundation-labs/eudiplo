@@ -121,6 +121,13 @@ export class OfferRequestDto {
     credentialConfigurationIds!: string[];
 
     /**
+     * Optional authorization server to be used for this issuance flow.
+     */
+    @IsString()
+    @IsOptional()
+    authorization_server?: string;
+
+    /**
      * Credential claims configuration per credential.
      * Each credential can have claims provided inline or fetched via webhook.
      * Keys must be a subset of credentialConfigurationIds.

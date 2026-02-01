@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, randomBytes, X509Certificate } from "node:crypto";
 import { Inject, Injectable } from "@nestjs/common";
 import {
     type CallbackContext,
@@ -8,8 +8,7 @@ import {
     type Jwk,
     SignJwtCallback,
 } from "@openid4vc/oauth2";
-import { importJWK, type JWK, jwtVerify } from "jose";
-import { CertService } from "./key/cert/cert.service";
+import { exportJWK, importJWK, importX509, type JWK, jwtVerify } from "jose";
 import { KeyService } from "./key/key.service";
 
 /**
@@ -25,23 +24,8 @@ export class CryptoService {
     /**
      * Constructor for CryptoService.
      * @param keyService
-     * @param certService
-     * @param certRepository
-     * @param logger
-     * @param tenantRepository
-     * @param configImportService
      */
-    constructor(
-        @Inject("KeyService") public readonly keyService: KeyService,
-        @Inject(CertService) private readonly certService: CertService,
-    ) {}
-
-    /**
-     * Store the access certificate.
-     */
-    storeAccessCertificate(crt: string, tenantId: string, id: string) {
-        return this.certService.storeAccessCertificate(crt, tenantId, id);
-    }
+    constructor(@Inject("KeyService") public readonly keyService: KeyService) {}
 
     /**
      * Verify a JWT with the key service.
@@ -90,24 +74,49 @@ export class CryptoService {
             //clientId: 'some-random-client-id', // TODO: Replace with your real clientId if necessary
             signJwt: this.getSignJwtCallback(tenantId),
             verifyJwt: async (signer, { compact, payload }) => {
-                if (signer.method !== "jwk") {
-                    throw new Error("Signer method not supported");
+                if (signer.method === "jwk") {
+                    const josePublicKey = await importJWK(
+                        signer.publicJwk as JWK,
+                        signer.alg,
+                    );
+                    try {
+                        await jwtVerify(compact, josePublicKey, {
+                            currentDate: payload?.exp
+                                ? new Date((payload.exp - 300) * 1000)
+                                : undefined,
+                        });
+                        return { verified: true, signerJwk: signer.publicJwk };
+                    } catch {
+                        return { verified: false };
+                    }
+                } else if (signer.method === "x5c") {
+                    // x5c contains an array of base64-encoded X.509 certificates
+                    // The first certificate (leaf) contains the public key
+                    if (!signer.x5c || signer.x5c.length === 0) {
+                        return { verified: false };
+                    }
+                    try {
+                        const leafCertPem = `-----BEGIN CERTIFICATE-----\n${signer.x5c[0]}\n-----END CERTIFICATE-----`;
+                        const josePublicKey = await importX509(
+                            leafCertPem,
+                            signer.alg,
+                        );
+                        await jwtVerify(compact, josePublicKey, {
+                            currentDate: payload?.exp
+                                ? new Date((payload.exp - 300) * 1000)
+                                : undefined,
+                        });
+                        // Extract the public JWK from the certificate for the return value
+                        const signerJwk = await exportJWK(josePublicKey);
+                        signerJwk.alg = signer.alg;
+                        return { verified: true, signerJwk: signerJwk as Jwk };
+                    } catch {
+                        return { verified: false };
+                    }
                 }
-
-                const josePublicKey = await importJWK(
-                    signer.publicJwk as JWK,
-                    signer.alg,
+                throw new Error(
+                    `Signer method '${signer.method}' not supported`,
                 );
-                try {
-                    await jwtVerify(compact, josePublicKey, {
-                        currentDate: payload?.exp
-                            ? new Date((payload.exp - 300) * 1000)
-                            : undefined,
-                    });
-                    return { verified: true, signerJwk: signer.publicJwk };
-                } catch {
-                    return { verified: false };
-                }
             },
         };
     }

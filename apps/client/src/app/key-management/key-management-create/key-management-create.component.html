@@ -1,7 +1,7 @@
 <div fxLayout="column" fxFlex fxLayoutGap="24px">
   <!-- Header -->
   <div fxLayout="row" fxLayoutAlign="space-between center">
-    <h2>{{ create ? 'Create' : 'Edit' }} Key</h2>
+    <h2>{{ !keyId ? 'Create' : 'Edit' }} Key</h2>
     <button matIconButton [routerLink]="['../']" matTooltip="Back to list">
       <mat-icon>arrow_back</mat-icon>
     </button>
@@ -20,7 +20,7 @@
 
       <mat-card-content>
         <div fxLayout="column" fxLayoutGap="16px">
-          @if (!create) {
+          @if (keyId) {
             <mat-form-field appearance="outline">
               <mat-label>Key ID</mat-label>
               <input matInput [value]="keyId" placeholder="Key identifier" readonly disabled />
@@ -71,7 +71,7 @@
       </mat-card-header>
 
       <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        @if (create) {
+        @if (!keyId) {
           <h4>Private Key (JSON Web Key)</h4>
           <app-editor
             formControlName="privateKey"
@@ -95,7 +95,7 @@
           </mat-card>
         }
       </mat-card-content>
-      @if (create) {
+      @if (!keyId) {
         <mat-card-actions align="end">
           <button
             mat-stroked-button
@@ -116,8 +116,8 @@
     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center">
       <button mat-button type="button" [routerLink]="['../']">Cancel</button>
       <button mat-flat-button type="submit" [disabled]="form.invalid">
-        <mat-icon>{{ create ? 'add' : 'save' }}</mat-icon>
-        {{ create ? 'Create' : 'Save' }} Key
+        <mat-icon>{{ !keyId ? 'add' : 'save' }}</mat-icon>
+        {{ !keyId ? 'Create' : 'Save' }} Key
       </button>
     </div>
   </form>

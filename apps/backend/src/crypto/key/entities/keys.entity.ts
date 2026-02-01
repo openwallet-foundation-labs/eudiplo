@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsUUID } from "class-validator";
+import { IsOptional, IsString } from "class-validator";
 import { JWK } from "jose";
 import {
     Column,
@@ -21,7 +21,7 @@ export class KeyEntity {
     /**
      * Unique identifier for the key.
      */
-    @IsUUID()
+    @IsString()
     @Column("varchar", { primary: true })
     id!: string;
 

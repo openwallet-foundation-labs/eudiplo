@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { KeyEntity } from '@eudiplo/sdk';
+import { KeyEntity } from '@eudiplo/sdk-core';
 import { KeyManagementService } from '../key-management.service';
 
 @Component({
@@ -26,7 +26,7 @@ export class KeyManagementListComponent implements OnInit {
 
   displayedColumns: (keyof KeyEntity | 'actions')[] = ['id', 'description', 'actions'];
 
-  constructor(private keyManagementService: KeyManagementService) {}
+  constructor(private readonly keyManagementService: KeyManagementService) {}
   ngOnInit(): void {
     this.keyManagementService.loadKeys().then(
       (keys) => (this.keys = keys),

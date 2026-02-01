@@ -9,6 +9,8 @@ coverage:
     patch:
       default:
         target: 10%
+        paths:
+          - apps/backend/**
 
 comment:
   layout: "reach,diff,flags,tree"
@@ -24,6 +26,11 @@ ignore:
   - "dist/"
   - "apps/client/**"
   - "apps/dcapi/**"
-  - "apps/webhook/**"
+  - "apps/webhook/**"  
   - "apps/tmp/**"
   - "monitor/**"
+  - "packages/**"
+  - "deployment/**"
+  - "scripts/**"
+  - "schemas/**"
+  - "assets/**"

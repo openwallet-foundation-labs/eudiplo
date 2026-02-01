@@ -10,7 +10,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { X509Certificate, SubjectAlternativeNameExtension } from '@peculiar/x509';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { KeyEntity } from '@eudiplo/sdk';
+import { KeyEntity } from '@eudiplo/sdk-core';
 import { KeyManagementService } from '../key-management.service';
 
 interface CertificateInfo {
@@ -51,10 +51,10 @@ export class KeyManagementShowComponent implements OnInit {
   displayedColumns: string[] = ['id', 'types', 'description', 'status', 'actions'];
 
   constructor(
-    private keyManagementService: KeyManagementService,
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private router: Router
+    private readonly keyManagementService: KeyManagementService,
+    private readonly route: ActivatedRoute,
+    private readonly snackBar: MatSnackBar,
+    private readonly router: Router
   ) {}
 
   ngOnInit(): void {
@@ -73,10 +73,7 @@ export class KeyManagementShowComponent implements OnInit {
           if (key?.certificates && Array.isArray(key.certificates)) {
             key.certificates.forEach((cert) => {
               // Build usages array from boolean fields
-              const usages: string[] = [];
-              if (cert.isSigningCert) usages.push('signing');
-              if (cert.isAccessCert) usages.push('access');
-              this.parseCertificateInfo(cert.id, cert.crt, usages);
+              this.parseCertificateInfo(cert.id, cert.crt, cert.usages?.map((u) => u.usage) || []);
             });
           }
         },
@@ -281,7 +278,7 @@ export class KeyManagementShowComponent implements OnInit {
     const bytes = new Uint8Array(buffer);
     let binary = '';
     for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCharCode(bytes[i]);
+      binary += String.fromCodePoint(bytes[i]);
     }
     return btoa(binary);
   }

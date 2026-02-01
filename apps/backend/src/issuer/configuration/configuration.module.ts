@@ -1,6 +1,7 @@
 import { HttpModule } from "@nestjs/axios";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { ClientModule } from "../../auth/client/client.module";
 import { CryptoModule } from "../../crypto/crypto.module";
 import { SessionModule } from "../../session/session.module";
 import { WebhookService } from "../../shared/utils/webhook/webhook.service";
@@ -9,6 +10,8 @@ import { CredentialConfigService } from "./credentials/credential-config/credent
 import { CredentialConfigController } from "./credentials/credential-config.controller";
 import { CredentialsService } from "./credentials/credentials.service";
 import { CredentialConfig } from "./credentials/entities/credential.entity";
+import { MdocIssuerService } from "./credentials/issuer/mdoc-issuer/mdoc-issuer.service";
+import { SdjwtvcIssuerService } from "./credentials/issuer/sdjwtvc-issuer/sdjwtvc-issuer.service";
 import { IssuanceConfig } from "./issuance/entities/issuance-config.entity";
 import { IssuanceService } from "./issuance/issuance.service";
 import { IssuanceConfigController } from "./issuance/issuance-config.controller";
@@ -35,7 +38,14 @@ import { IssuanceConfigController } from "./issuance/issuance-config.controller"
         CredentialsService,
         CredentialConfigService,
         WebhookService,
+        SdjwtvcIssuerService,
+        MdocIssuerService,
     ],
-    exports: [IssuanceService, CredentialConfigService, CredentialsService],
+    exports: [
+        IssuanceService,
+        CredentialConfigService,
+        CredentialsService,
+        StatusListModule,
+    ],
 })
 export class ConfigurationModule {}

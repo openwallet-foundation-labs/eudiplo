@@ -14,9 +14,7 @@ import { ObjectTypeComponent } from './types/object.type';
 import { ArrayTypeComponent } from './types/array.type';
 import { provideMonacoEditor } from 'ngx-monaco-editor-v2';
 import schemas from './utils/schemas.json';
-import { provideHeyApiClient } from '@eudiplo/sdk/api/client/client.gen';
-import { client } from '@eudiplo/sdk/api/client.gen';
-import { authInterceptor } from '@eudiplo/sdk';
+import { authInterceptor } from './core';
 
 declare let monaco: any;
 
@@ -34,7 +32,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     importProvidersFrom(FlexLayoutModule),
     provideHttpClient(withInterceptors([authInterceptor]), withFetch()),
-    provideHeyApiClient(client),
     provideMonacoEditor({
       baseUrl: window.location.origin + '/assets/monaco/min/vs',
       onMonacoLoad,

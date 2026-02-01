@@ -1,34 +1,39 @@
-export const configs = [
+import { CredentialConfigCreate } from '@eudiplo/sdk-core';
+
+export interface PredefinedConfig {
+  name: string;
+  description: string;
+  icon: string;
+  config: CredentialConfigCreate;
+}
+
+export const configs: PredefinedConfig[] = [
   {
     name: 'PID (Personal Identity Document)',
     description: 'German Personal Identity Document configuration',
     icon: 'badge',
     config: {
-      id: 'pid', // Short, simple identifier
-      description: 'German Personal Identity Document configuration',
+      id: 'pid',
+      description: 'Personal ID',
       config: {
         format: 'dc+sd-jwt',
         scope: 'pid',
         display: [
           {
             name: 'PID',
-            background_color: '#FFFF00',
-            background_image: {
-              uri: '<PUBLIC_URL>/bdr/credential.png',
-            },
             description: 'PID Credential',
             locale: 'en-US',
-            logo: {
-              uri: '<PUBLIC_URL>/issuer.png',
-            },
+            background_color: '#FFFFFF',
             text_color: '#000000',
+            background_image: {
+              uri: 'identity-card.jpg',
+            },
+            logo: {
+              uri: 'logo.jpg',
+            },
           },
         ],
       },
-      keyId: '',
-      lifeTime: 3600,
-      statusManagement: true,
-      keyBinding: true,
       claims: {
         issuing_country: 'DE',
         issuing_authority: 'DE',
@@ -75,41 +80,138 @@ export const configs = [
           _sd: ['locality', 'postal_code', 'street_address'],
         },
       },
-    },
-  },
-  {
-    name: 'Academic Diploma',
-    description: 'University academic diploma credential',
-    icon: 'school',
-    config: {
-      id: 'diploma', // Short, simple identifier
-      description: 'University academic diploma credential',
-      config: {
-        format: 'dc+sd-jwt',
-        display: [
-          {
-            name: 'Academic Diploma',
-            background_color: '#1976D2',
-            description: 'University Academic Diploma',
-            locale: 'en-US',
-            text_color: '#FFFFFF',
-          },
-        ],
+      vct: {
+        name: 'PID',
+        description: 'PID credential',
       },
-      keyId: '',
-      lifeTime: 31536000,
+      keyBinding: true,
+      certId: '139af178-3ca0-48f4-a2e4-7b1209f30374',
       statusManagement: true,
-      keyBinding: false,
-      claims: {
-        degree: 'Bachelor of Science',
-        field_of_study: 'Computer Science',
-        institution: 'Example University',
-        graduation_date: '2024-06-15',
-        gpa: '3.8',
-        honors: 'Magna Cum Laude',
-      },
-      disclosureFrame: {
-        _sd: ['degree', 'field_of_study', 'institution', 'graduation_date', 'gpa', 'honors'],
+      lifeTime: 604800,
+      schema: {
+        $schema: 'https://json-schema.org/draft/2020-12/schema',
+        type: 'object',
+        properties: {
+          issuing_country: {
+            type: 'string',
+            title: 'Issuing Country',
+          },
+          issuing_authority: {
+            type: 'string',
+            title: 'Issuing Authority',
+          },
+          given_name: {
+            type: 'string',
+            title: 'Given Name',
+          },
+          family_name: {
+            type: 'string',
+            title: 'Family Name',
+          },
+          birth_family_name: {
+            type: 'string',
+            title: 'Birth Family Name',
+          },
+          birthdate: {
+            type: 'string',
+            pattern: '^\\d{4}-\\d{2}-\\d{2}$',
+            title: 'Birthdate',
+          },
+          age_birth_year: {
+            type: 'integer',
+            title: 'Birth Year',
+          },
+          age_in_years: {
+            type: 'integer',
+            title: 'Age in Years',
+          },
+          age_equal_or_over: {
+            type: 'object',
+            title: 'Age Equal or Over',
+            properties: {
+              '12': {
+                type: 'boolean',
+                title: '12 or Over',
+              },
+              '14': {
+                type: 'boolean',
+                title: '14 or Over',
+              },
+              '16': {
+                type: 'boolean',
+                title: '16 or Over',
+              },
+              '18': {
+                type: 'boolean',
+                title: '18 or Over',
+              },
+              '21': {
+                type: 'boolean',
+                title: '21 or Over',
+              },
+              '65': {
+                type: 'boolean',
+                title: '65 or Over',
+              },
+            },
+            required: ['12', '14', '16', '18', '21', '65'],
+          },
+          place_of_birth: {
+            type: 'object',
+            title: 'Place of Birth',
+            properties: {
+              locality: {
+                type: 'string',
+                title: 'Locality',
+              },
+            },
+            required: ['locality'],
+          },
+          address: {
+            type: 'object',
+            title: 'Address',
+            properties: {
+              locality: {
+                type: 'string',
+                title: 'Locality',
+              },
+              postal_code: {
+                type: 'string',
+                title: 'Postal Code',
+              },
+              street_address: {
+                type: 'string',
+                title: 'Street Address',
+              },
+            },
+            required: ['locality', 'postal_code', 'street_address'],
+          },
+          nationalities: {
+            type: 'array',
+            title: 'Nationalities',
+            items: {
+              type: 'string',
+              title: 'Nationality',
+            },
+          },
+        },
+        required: [
+          'issuing_country',
+          'issuing_authority',
+          'given_name',
+          'family_name',
+          'birth_family_name',
+          'birthdate',
+          'age_birth_year',
+          'age_in_years',
+          'age_equal_or_over',
+          'place_of_birth',
+          'address',
+          'nationalities',
+        ],
+        title: 'PID Claims',
+        description:
+          'Schema for PID credential claims, describing personal and identity information fields.',
       },
     },
   },

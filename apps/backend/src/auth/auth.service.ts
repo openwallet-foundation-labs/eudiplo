@@ -37,8 +37,9 @@ export class AuthService {
             );
         }
 
-        // Only support client credentials flow
-        if (body.grant_type !== "client_credentials") {
+        // Only support client credentials flow (default if not specified)
+        const grantType = body.grant_type || "client_credentials";
+        if (grantType !== "client_credentials") {
             throw new UnauthorizedException(
                 "Only client_credentials grant type is supported",
             );

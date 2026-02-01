@@ -1,21 +1,27 @@
 import { Component, type OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { CredentialConfig } from '@eudiplo/sdk';
+import { CredentialConfig, StatusListResponseDto } from '@eudiplo/sdk-core';
 import { CredentialConfigService } from '../credential-config.service';
+import { StatusListManagementService } from '../../../status-list-management/status-list-management.service';
 import { WebhookConfigShowComponent } from '../../../utils/webhook-config-show/webhook-config-show.component';
 
 @Component({
   selector: 'app-credential-config-show',
   imports: [
+    CommonModule,
     MatIconModule,
     MatCardModule,
     MatButtonModule,
@@ -23,8 +29,11 @@ import { WebhookConfigShowComponent } from '../../../utils/webhook-config-show/w
     MatExpansionModule,
     MatChipsModule,
     MatDividerModule,
+    MatListModule,
+    MatProgressBarModule,
     FlexLayoutModule,
     RouterModule,
+    ClipboardModule,
     WebhookConfigShowComponent,
   ],
   templateUrl: './credential-config-show.component.html',
@@ -32,13 +41,51 @@ import { WebhookConfigShowComponent } from '../../../utils/webhook-config-show/w
 })
 export class CredentialConfigShowComponent implements OnInit {
   config: CredentialConfig | undefined;
+  statusList: StatusListResponseDto | undefined;
+  statusListLoading = false;
 
   constructor(
-    private credentialConfigService: CredentialConfigService,
-    private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private router: Router
+    private readonly credentialConfigService: CredentialConfigService,
+    private readonly statusListService: StatusListManagementService,
+    private readonly route: ActivatedRoute,
+    private readonly snackBar: MatSnackBar,
+    private readonly router: Router,
+    private readonly clipboard: Clipboard
   ) {}
+
+  get isMdocFormat(): boolean {
+    return this.config?.config?.format === 'mso_mdoc';
+  }
+
+  get isVctString(): boolean {
+    return typeof this.config?.vct === 'string';
+  }
+
+  get vctAsString(): string | null {
+    return typeof this.config?.vct === 'string' ? this.config.vct : null;
+  }
+
+  get vctAsObject(): any {
+    return typeof this.config?.vct === 'object' ? this.config.vct : null;
+  }
+
+  get formatLabel(): string {
+    if (this.config?.config?.format === 'mso_mdoc') {
+      return 'mDOC (mso_mdoc)';
+    }
+    return 'SD-JWT VC (dc+sd-jwt)';
+  }
+
+  get primaryDisplay(): any {
+    return this.config?.config?.display?.[0];
+  }
+
+  copyToClipboard(value: string, label: string): void {
+    this.clipboard.copy(value);
+    this.snackBar.open(`${label} copied to clipboard`, 'Close', {
+      duration: 2000,
+    });
+  }
 
   ngOnInit(): void {
     this.loadConfig();
@@ -50,6 +97,9 @@ export class CredentialConfigShowComponent implements OnInit {
       this.credentialConfigService.getConfig(configId).then(
         (config) => {
           this.config = config;
+          if (config.statusManagement) {
+            this.loadStatusList(config.id);
+          }
         },
         (error) => {
           this.snackBar.open('Failed to load config', 'Close', {
@@ -59,6 +109,26 @@ export class CredentialConfigShowComponent implements OnInit {
         }
       );
     }
+  }
+
+  private async loadStatusList(credentialConfigId: string): Promise<void> {
+    this.statusListLoading = true;
+    try {
+      const lists = await this.statusListService.getLists();
+      // Find status list bound to this credential config, or a shared one
+      this.statusList =
+        lists.find((l) => l.credentialConfigurationId === credentialConfigId) ||
+        lists.find((l) => !l.credentialConfigurationId);
+    } catch (error) {
+      console.error('Failed to load status list:', error);
+    } finally {
+      this.statusListLoading = false;
+    }
+  }
+
+  getStatusListUsagePercentage(): number {
+    if (!this.statusList) return 0;
+    return this.statusListService.getUsagePercentage(this.statusList);
   }
 
   deleteConfig() {
@@ -135,6 +205,6 @@ export class CredentialConfigShowComponent implements OnInit {
   }
 
   asAny(obj: any) {
-    return obj as any;
+    return obj;
   }
 }

@@ -4,6 +4,23 @@
   "title": "CreateTenantDto",
   "type": "object",
   "properties": {
+    "statusListConfig": {
+      "nullable": true,
+      "description": "Status list configuration for this tenant. Only affects newly created status lists.",
+      "allOf": [
+        {
+          "$ref": "./StatusListConfig.schema.json"
+        }
+      ]
+    },
+    "sessionConfig": {
+      "description": "Session storage configuration. Controls TTL and cleanup behavior.",
+      "allOf": [
+        {
+          "$ref": "./SessionStorageConfig.schema.json"
+        }
+      ]
+    },
     "roles": {
       "type": "array",
       "items": {
@@ -14,7 +31,8 @@
           "issuance:manage",
           "issuance:offer",
           "clients:manage",
-          "tenants:manage"
+          "tenants:manage",
+          "registrar:manage"
         ]
       }
     },

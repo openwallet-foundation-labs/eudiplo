@@ -1,10 +1,12 @@
 import { randomUUID } from "node:crypto";
 import { BadRequestException, Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { base64url } from "jose";
 import { v4 } from "uuid";
 import { EncryptionService } from "../../crypto/encryption/encryption.service";
 import { CertService } from "../../crypto/key/cert/cert.service";
 import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
+import { CertUsage } from "../../crypto/key/entities/cert-usage.entity";
 import { KeyService } from "../../crypto/key/key.service";
 import { OfferResponse } from "../../issuer/issuance/oid4vci/dto/offer-request.dto";
 import { RegistrarService } from "../../registrar/registrar.service";
@@ -21,16 +23,16 @@ import { PresentationRequestOptions } from "./dto/presentation-request-options.d
 @Injectable()
 export class Oid4vpService {
     constructor(
-        private certService: CertService,
+        private readonly certService: CertService,
         @Inject("KeyService") public readonly keyService: KeyService,
-        private encryptionService: EncryptionService,
-        private configService: ConfigService,
-        private registrarService: RegistrarService,
-        private presentationsService: PresentationsService,
-        private sessionService: SessionService,
-        private sessionLogger: SessionLoggerService,
-        private webhookService: WebhookService,
-        private cryptoImplementationService: CryptoImplementationService,
+        private readonly encryptionService: EncryptionService,
+        private readonly configService: ConfigService,
+        private readonly registrarService: RegistrarService,
+        private readonly presentationsService: PresentationsService,
+        private readonly sessionService: SessionService,
+        private readonly sessionLogger: SessionLoggerService,
+        private readonly webhookService: WebhookService,
+        private readonly cryptoImplementationService: CryptoImplementationService,
     ) {}
 
     /**
@@ -72,18 +74,25 @@ export class Oid4vpService {
             let regCert: string | undefined = undefined;
 
             const dcql_query = JSON.parse(
-                JSON.stringify(presentationConfig.dcql_query).replace(
-                    /<PUBLIC_URL>/g,
+                JSON.stringify(presentationConfig.dcql_query).replaceAll(
+                    "<TENANT_URL>",
                     tenantHost,
                 ),
             );
 
-            if (this.registrarService.isEnabled()) {
+            //remove trusted_authorities from dcql
+            dcql_query.credentials = dcql_query.credentials.map((cred: any) => {
+                const { trusted_authorities, ...rest } = cred;
+                return rest;
+            });
+
+            /*             if (
+                await this.registrarService.isEnabledForTenant(session.tenantId)
+            ) {
                 const registrationCert = JSON.parse(
-                    JSON.stringify(presentationConfig.registrationCert).replace(
-                        /<PUBLIC_URL>/g,
-                        tenantHost,
-                    ),
+                    JSON.stringify(
+                        presentationConfig.registrationCert,
+                    ).replaceAll("<TENANT_URL>", tenantHost),
                 );
                 regCert =
                     await this.registrarService.addRegistrationCertificate(
@@ -92,7 +101,7 @@ export class Oid4vpService {
                         session.requestId!,
                         session.tenantId,
                     );
-            }
+            } */
             const nonce = randomUUID();
             await this.sessionService.add(session.id, {
                 vp_nonce: nonce,
@@ -111,21 +120,28 @@ export class Oid4vpService {
 
             const cert = await this.certService.find({
                 tenantId: session.tenantId,
-                type: "access",
+                type: CertUsage.Access,
+                id: presentationConfig.accessCertId ?? undefined,
             });
 
-            const certHash = await this.certService.getCertHash(cert);
+            const certHash = this.certService.getCertHash(cert);
+
+            // Use transaction_data from session (which may have been overridden) or fall back to config
+            const transaction_data =
+                (
+                    session.transaction_data ??
+                    presentationConfig.transaction_data
+                )?.map((td) => base64url.encode(JSON.stringify(td))) ||
+                undefined;
 
             const request = {
                 payload: {
                     response_type: "vp_token",
                     client_id: "x509_hash:" + certHash,
-                    response_uri: !session.useDcApi
-                        ? `${host}/${session.id}/oid4vp`
-                        : undefined,
-                    response_mode: !session.useDcApi
-                        ? "direct_post.jwt"
-                        : "dc_api.jwt",
+                    response_uri: `${host}/${session.id}/oid4vp`,
+                    response_mode: session.useDcApi
+                        ? "dc_api.jwt"
+                        : "direct_post.jwt",
                     nonce,
                     expected_origins: session.useDcApi ? [origin] : undefined,
                     dcql_query,
@@ -138,10 +154,9 @@ export class Oid4vpService {
                             ],
                         },
                         vp_formats_supported: {
-                            //MDOC not supported yet
-                            /* mso_mdoc: {
+                            mso_mdoc: {
                                 alg: ["ES256", "Ed25519"],
-                            }, */
+                            },
                             "dc+sd-jwt": {
                                 "kb-jwt_alg_values":
                                     this.cryptoImplementationService.getSupportedAlgorithms(),
@@ -149,13 +164,17 @@ export class Oid4vpService {
                                     this.cryptoImplementationService.getSupportedAlgorithms(),
                             },
                         },
-                        encrypted_response_enc_values_supported: ["A128GCM"],
+                        encrypted_response_enc_values_supported: [
+                            "A128GCM",
+                            "A256GCM",
+                        ],
                     },
-                    state: !session.useDcApi ? session.id : undefined,
+                    state: session.useDcApi ? undefined : session.id,
+                    transaction_data,
                     //TODO: check if this value is correct accroding to https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-aud-of-a-request-object
                     aud: "https://self-issued.me/v2",
                     exp: Math.floor(Date.now() / 1000) + lifeTime,
-                    iat: Math.floor(new Date().getTime() / 1000),
+                    iat: Math.floor(Date.now() / 1000),
                     verifier_attestations: regCert
                         ? [
                               {
@@ -227,10 +246,10 @@ export class Oid4vpService {
 
         const cert = await this.certService.find({
             tenantId: tenantId,
-            type: "access",
+            type: CertUsage.Access,
         });
 
-        const certHash = await this.certService.getCertHash(cert);
+        const certHash = this.certService.getCertHash(cert);
 
         const params = {
             client_id: "x509_hash:" + certHash,
@@ -249,16 +268,31 @@ export class Oid4vpService {
         );
 
         if (fresh) {
+            const host = this.configService.getOrThrow<string>("PUBLIC_URL");
+            const clientId = "x509_hash:" + certHash;
+            const responseUri = useDcApi
+                ? undefined
+                : `${host}/${values.session}/oid4vp`;
+
+            // Use transaction_data from options if provided, otherwise fall back to config
+            const transaction_data =
+                values.transaction_data ?? presentationConfig.transaction_data;
+
             const session = await this.sessionService.create({
                 id: values.session,
                 parsedWebhook: values.webhook,
                 redirectUri:
-                    values.redirectUri ?? presentationConfig.redirectUri,
+                    values.redirectUri ??
+                    presentationConfig.redirectUri ??
+                    undefined,
                 tenantId,
                 requestId,
                 requestUrl: `openid4vp://?${queryString}`,
                 expiresAt,
                 useDcApi,
+                clientId,
+                responseUri,
+                transaction_data,
             });
 
             if (request_uri_method === "get") {
@@ -323,8 +357,8 @@ export class Oid4vpService {
             //TODO: load required fields from the config
             const credentials = await this.presentationsService.parseResponse(
                 res,
-                [],
-                session.vp_nonce as string,
+                presentationConfig,
+                session,
             );
 
             this.sessionLogger.logCredentialVerification(
@@ -344,13 +378,23 @@ export class Oid4vpService {
             });
             // if there a a webhook passed in the session, use it
             if (webhook) {
-                const response = await this.webhookService.sendWebhook({
-                    webhook,
-                    logContext,
-                    session,
-                    credentials,
-                    expectResponse: false,
-                });
+                const response = await this.webhookService
+                    .sendWebhook({
+                        webhook,
+                        logContext,
+                        session,
+                        credentials,
+                        expectResponse: false,
+                    })
+                    .catch((error) => {
+                        this.sessionLogger.logFlowError(
+                            logContext,
+                            error as Error,
+                            {
+                                action: "webhook_callback",
+                            },
+                        );
+                    });
                 //override it when a redirect URI is returned by the webhook
                 if (response?.redirectUri) {
                     session.redirectUri = response.redirectUri;
@@ -364,8 +408,13 @@ export class Oid4vpService {
 
             //check if a redirect URI is defined and return it to the caller. If so, sendResponse is ignored
             if (session.redirectUri) {
+                //TODO: not clear with the brackets are encoded
+                // Replace {sessionId} placeholder with actual session ID
+                const processedRedirectUri = decodeURIComponent(
+                    session.redirectUri,
+                ).replaceAll("{sessionId}", session.id);
                 return {
-                    redirect_uri: session.redirectUri,
+                    redirect_uri: processedRedirectUri,
                 };
             }
 
@@ -375,7 +424,6 @@ export class Oid4vpService {
 
             return {};
         } catch (error: any) {
-            console.log(error);
             this.sessionLogger.logFlowError(logContext, error as Error, {
                 action: "process_presentation_response",
             });

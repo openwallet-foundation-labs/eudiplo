@@ -1,0 +1,244 @@
+:host {
+  display: block;
+}
+
+mat-card {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+mat-card-content {
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 16px;
+}
+
+h3 {
+  margin: 12px 0 6px 0;
+}
+
+h4 {
+  margin: 10px 0 8px 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+// Metadata grid for overview
+.metadata-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.metadata-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .label {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .value {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.87);
+  }
+}
+
+// Entity styling
+.entity-icon {
+  margin-right: 8px;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+}
+
+.entity-details {
+  padding: 8px 0;
+}
+
+.entity-info-section,
+.entity-certs-section {
+  margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  .label {
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.54);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .value {
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.87);
+
+    &.mono {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 12px;
+      background: rgba(0, 0, 0, 0.04);
+      padding: 4px 8px;
+      border-radius: 4px;
+      word-break: break-all;
+    }
+
+    &.link {
+      color: #1976d2;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.pem-content {
+  background: rgba(0, 0, 0, 0.04);
+  padding: 12px;
+  border-radius: 4px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 0;
+}
+
+// Version history
+.version-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.version-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 4px;
+  border-left: 3px solid #1976d2;
+}
+
+.version-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.version-number {
+  font-weight: 500;
+  font-size: 14px;
+  color: #1976d2;
+}
+
+.version-date {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+// Expansion panel improvements
+mat-expansion-panel {
+  margin-bottom: 8px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+mat-panel-title {
+  display: flex;
+  align-items: center;
+}
+
+mat-chip-set {
+  margin-left: auto;
+}
+
+// Public URL section
+.public-url-section {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+
+  .url-description {
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.6);
+    margin: 0 0 12px 0;
+  }
+
+  .url-field {
+    width: 100%;
+
+    input {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 13px;
+    }
+  }
+
+  .url-hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.6);
+
+    .hint-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      color: #ff9800;
+    }
+
+    code {
+      background-color: rgba(0, 0, 0, 0.05);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 11px;
+    }
+  }
+}
+
+/* make long cert strings break instead of forcing horizontal overflow */
+/* certificate value styling */
+.cert {
+  word-break: break-all;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;
+  font-size: 0.85em;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+@media (max-width: 600px) {
+  strong {
+    min-width: 120px;
+  }
+  mat-card-content {
+    padding: 12px;
+  }
+}

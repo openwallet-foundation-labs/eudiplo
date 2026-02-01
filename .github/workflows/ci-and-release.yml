@@ -5,6 +5,13 @@ on:
     branches: ['main']
   pull_request:
     types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      release:
+        description: 'Create a new versioned release (Docker + npm)'
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -27,7 +34,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -47,9 +54,31 @@ jobs:
         working-directory: apps/client
         run: pnpm dlx license-checker --production --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD;ISC"
 
-      - name: Run license check (verifier-app, production)
-        working-directory: apps/verifier-app
-        run: pnpm dlx license-checker --production --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD;ISC"
+  build-sdk-core:
+    name: Build SDK Core
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build SDK Core
+        run: pnpm --filter @eudiplo/sdk-core build
 
   build-backend:
     name: Build Backend
@@ -68,7 +97,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -97,7 +126,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -105,38 +134,12 @@ jobs:
 
       - name: Run linter
         run: pnpm run lint
+
+      - name: Build sdk core
+        run: pnpm --filter @eudiplo/sdk-core build
 
       - name: Build client
         run: pnpm --filter @eudiplo/client build
-
-  build-verifier:
-    name: Build Verifier App
-    permissions:
-      contents: read
-    runs-on: ubuntu-latest
-    needs: [lint]
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
-        with:
-          run_install: false
-
-      - name: Install Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Run linter
-        run: pnpm run lint
-
-      - name: Build verifier
-        run: pnpm --filter verifier-app build
 
   build-webhook:
     name: Build Webhook
@@ -155,7 +158,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -184,7 +187,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -215,13 +218,12 @@ jobs:
       contents: read
     name: E2E Tests
     runs-on: ubuntu-latest
-    needs: [build-backend, build-client, build-verifier, build-webhook]
+    needs: [build-backend, build-client, build-webhook]
     steps:
       - uses: actions/checkout@v6
 
-      #      - name: Add entry to /etc/hosts
-      #        run: echo "127.0.0.1       host.testcontainers.internal" | sudo tee
-      #          -a /etc/hosts
+      - name: Add entry to /etc/hosts
+        run: echo "127.0.0.1       host.testcontainers.internal" | sudo tee -a /etc/hosts
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -231,7 +233,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -246,6 +248,8 @@ jobs:
 
       - name: Run E2E tests
         run: pnpm run --filter @eudiplo/backend test:e2e
+        env:
+          TESTCONTAINERS_HOST_OVERRIDE: host.testcontainers.internal
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
@@ -288,6 +292,7 @@ jobs:
           context: .
           target: eudiplo
           load: true
+          platforms: linux/amd64
           tags: ghcr.io/openwallet-foundation-labs/eudiplo:main
           build-args: VERSION=main
           cache-from: type=gha
@@ -296,7 +301,7 @@ jobs:
       # --- HEALTH TEST ---
       - name: Run container (detached)
         run: |
-          docker run -d --rm \
+          docker run -d \
             --name eudiplo-test \
             -p 8080:8080 \
             ghcr.io/openwallet-foundation-labs/eudiplo:main
@@ -304,8 +309,32 @@ jobs:
       - name: Wait for healthy
         run: |
           set -e
+          # Check if container is running
+          if ! docker ps -q -f name=eudiplo-test | grep -q .; then
+            echo "Container failed to start or exited immediately ❌"
+            echo ""
+            echo "=== Container Status ==="
+            docker ps -a -f name=eudiplo-test
+            echo ""
+            echo "=== Container Logs ==="
+            docker logs eudiplo-test 2>&1 || echo "No logs available"
+            exit 1
+          fi
+
           # wait up to ~90s (45 * 2s) for HEALTHCHECK to pass
           for i in $(seq 1 45); do
+            # Check if container is still running
+            if ! docker ps -q -f name=eudiplo-test | grep -q .; then
+              echo "Container stopped unexpectedly ❌"
+              echo ""
+              echo "=== Container Status ==="
+              docker ps -a -f name=eudiplo-test
+              echo ""
+              echo "=== Container Logs ==="
+              docker logs eudiplo-test 2>&1 || true
+              exit 1
+            fi
+            
             STATUS=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' eudiplo-test)
             if [ "$STATUS" = "healthy" ]; then
               echo "Container is healthy ✅"
@@ -313,6 +342,11 @@ jobs:
             fi
             if [ "$STATUS" = "unhealthy" ]; then
               echo "Container reported unhealthy ❌"
+              echo ""
+              echo "=== Health Check Log ==="
+              docker inspect --format='{{range .State.Health.Log}}{{.Output}}{{end}}' eudiplo-test || true
+              echo ""
+              echo "=== Container Logs ==="
               docker logs eudiplo-test || true
               exit 1
             fi
@@ -320,13 +354,17 @@ jobs:
           done
           echo "Timed out waiting for healthy ❌"
           docker ps
-          docker inspect eudiplo-test || true
+          echo ""
+          echo "=== Health Check Log ==="
+          docker inspect --format='{{range .State.Health.Log}}{{.Output}}{{end}}' eudiplo-test || true
+          echo ""
+          echo "=== Container Logs ==="
           docker logs eudiplo-test || true
           exit 1
 
       - name: Stop test container
         if: always()
-        run: docker stop eudiplo-test || true
+        run: docker rm -f eudiplo-test || true
 
       - name: Log in to GitHub Container Registry
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -343,6 +381,7 @@ jobs:
           context: .
           target: eudiplo
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ghcr.io/openwallet-foundation-labs/eudiplo:main
           build-args: VERSION=main
           cache-from: type=gha
@@ -374,38 +413,156 @@ jobs:
         with:
           context: .
           target: client
+          platforms: linux/amd64,linux/arm64
           push: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
           tags: ghcr.io/openwallet-foundation-labs/eudiplo-client:main
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  docker-verifier:
-    name: Build & Push Verifier Docker Image
-    needs: [build-verifier]
+  # =============================================================================
+  # NPM Pre-release (Main Branch Only)
+  # Publishes @eudiplo/sdk-core with a "main" tag as a pre-release version.
+  # =============================================================================
+  npm-prerelease:
+    name: Publish SDK Pre-release to npm
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [build-sdk-core]
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v6
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to GitHub Container Registry
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: docker/login-action@v3
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          run_install: false
 
-      - name: Build and push Verifier Docker image
-        uses: docker/build-push-action@v6
+      - name: Install Node.js
+        uses: actions/setup-node@v6
         with:
-          context: .
-          target: verifier
-          push: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
-          tags: ghcr.io/openwallet-foundation-labs/eudiplo-verifier:main
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          node-version: 24
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build SDK
+        run: pnpm --filter @eudiplo/sdk-core build
+
+      - name: Set pre-release version
+        working-directory: packages/eudiplo-sdk-core
+        run: |
+          # Get current version and append commit SHA for uniqueness
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          PRE_VERSION="${CURRENT_VERSION}-main.${SHORT_SHA}"
+          echo "Publishing version: ${PRE_VERSION}"
+          npm version "${PRE_VERSION}" --no-git-tag-version
+
+      - name: Publish to npm with main tag
+        working-directory: packages/eudiplo-sdk-core
+        run: npm publish --tag main --access public --provenance
+
+  # =============================================================================
+  # Versioned Release (Manual Trigger Only)
+  # Creates a new semantic version, publishes Docker images with version tags,
+  # publishes npm package, and updates documentation.
+  # =============================================================================
+  release:
+    name: Create Versioned Release
+    if: github.event_name == 'workflow_dispatch' && inputs.release == true
+    needs: [test-e2e, docker-backend, docker-client]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      pull-requests: write
+      actions: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # Fetch full history for mike versioning
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build SDK
+        run: pnpm --filter @eudiplo/sdk-core build
+
+      - name: Run semantic-release
+        id: semantic_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+          DOCKER_REGISTRY_USER: ${{ github.actor }}
+          DOCKER_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Running semantic-release..."
+          npx semantic-release
+
+          # Check if a new release was created by checking if a new tag was created
+          echo "Checking for new tags..."
+          git fetch --tags
+          NEW_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          echo "Latest tag found: $NEW_TAG"
+
+          if [ -n "$NEW_TAG" ]; then
+              echo "New release detected: $NEW_TAG"
+              echo "new_release=true" >> $GITHUB_OUTPUT
+              echo "version=$NEW_TAG" >> $GITHUB_OUTPUT
+          else
+              echo "No new release detected"
+              echo "new_release=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Debug release detection
+        run: |
+          echo "New release: ${{ steps.semantic_release.outputs.new_release }}"
+          echo "Version: ${{ steps.semantic_release.outputs.version }}"
+
+      - name: Set up Python for docs
+        if: steps.semantic_release.outputs.new_release == 'true'
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies for docs
+        if: steps.semantic_release.outputs.new_release == 'true'
+        run: pip install -r requirements.txt
+
+      - name: Copy env file for docs
+        if: steps.semantic_release.outputs.new_release == 'true'
+        run: cp .env.example .env
+
+      - name: Configure git for mike
+        if: steps.semantic_release.outputs.new_release == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Build and deploy release docs
+        if: steps.semantic_release.outputs.new_release == 'true'
+        run: |
+          pnpm run doc:generate
+          pnpm run compodoc
+          # Deploy to latest and set as default
+          mike deploy --push --update-aliases latest
+          mike set-default --push latest
