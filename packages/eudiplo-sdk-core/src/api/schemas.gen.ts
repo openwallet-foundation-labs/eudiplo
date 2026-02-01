@@ -184,6 +184,26 @@ export const TenantEntitySchema = {
 export const ClientEntitySchema = {
   type: "object",
   properties: {
+    allowedPresentationConfigs: {
+      nullable: true,
+      description:
+        "List of presentation config IDs this client can use. If empty/null, all configs are allowed.",
+      example: ["age-verification", "kyc-basic"],
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+    allowedIssuanceConfigs: {
+      nullable: true,
+      description:
+        "List of issuance config IDs this client can use. If empty/null, all configs are allowed.",
+      example: ["pid", "mdl"],
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
     clientId: {
       type: "string",
       description: "The unique identifier for the client.",
@@ -343,6 +363,26 @@ export const ClientSecretResponseDtoSchema = {
 export const UpdateClientDtoSchema = {
   type: "object",
   properties: {
+    allowedPresentationConfigs: {
+      nullable: true,
+      description:
+        "List of presentation config IDs this client can use. If empty/null, all configs are allowed.",
+      example: ["age-verification", "kyc-basic"],
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+    allowedIssuanceConfigs: {
+      nullable: true,
+      description:
+        "List of issuance config IDs this client can use. If empty/null, all configs are allowed.",
+      example: ["pid", "mdl"],
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
     description: {
       type: "string",
       description: "The description of the client.",
@@ -370,6 +410,26 @@ export const UpdateClientDtoSchema = {
 export const CreateClientDtoSchema = {
   type: "object",
   properties: {
+    allowedPresentationConfigs: {
+      nullable: true,
+      description:
+        "List of presentation config IDs this client can use. If empty/null, all configs are allowed.",
+      example: ["age-verification", "kyc-basic"],
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+    allowedIssuanceConfigs: {
+      nullable: true,
+      description:
+        "List of issuance config IDs this client can use. If empty/null, all configs are allowed.",
+      example: ["pid", "mdl"],
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
     clientId: {
       type: "string",
       description: "The unique identifier for the client.",

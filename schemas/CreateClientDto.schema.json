@@ -31,6 +31,20 @@
           "registrar:manage"
         ]
       }
+    },
+    "allowedPresentationConfigs": {
+      "type": "array",
+      "description": "List of presentation config IDs this client is allowed to use. If empty or null, all configs are allowed.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "allowedIssuanceConfigs": {
+      "type": "array",
+      "description": "List of issuance config IDs this client is allowed to use. If empty or null, all configs are allowed.",
+      "items": {
+        "type": "string"
+      }
     }
   },
   "required": [

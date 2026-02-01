@@ -101,6 +101,14 @@ export class KeycloakClientsProvider
         });
     }
 
+    /**
+     * Get a client by its clientId only (without tenant context).
+     * Used for JWT validation to fetch client restrictions.
+     */
+    async getClientById(clientId: string): Promise<ClientEntity | null> {
+        return this.clientRepo.findOne({ where: { clientId } });
+    }
+
     getClientSecret(_sub: string, id: string): Promise<string> {
         return this.kc.clients
             .find({ clientId: id })
@@ -173,6 +181,8 @@ export class KeycloakClientsProvider
             clientId: dto.clientId,
             description: dto.description,
             roles: dto.roles,
+            allowedPresentationConfigs: dto.allowedPresentationConfigs,
+            allowedIssuanceConfigs: dto.allowedIssuanceConfigs,
             tenant: { id: tenantId },
         });
         await this.clientRepo.save(entity);
@@ -182,6 +192,8 @@ export class KeycloakClientsProvider
             description: dto.description,
             tenantId,
             roles: dto.roles,
+            allowedPresentationConfigs: dto.allowedPresentationConfigs,
+            allowedIssuanceConfigs: dto.allowedIssuanceConfigs,
             clientSecret: secret.value,
         };
     }

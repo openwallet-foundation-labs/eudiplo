@@ -130,6 +130,44 @@ The following roles are available:
 
 Each client can have multiple roles assigned, but each client can only be assigned to one tenant at maximum. The client with the tenant manage must not be assigned to any tenant since it is managing the service in general. There could be other roles in the future like limited access to the metrics endpoint.
 
+### Resource-Level Access Control
+
+In addition to role-based access control, clients can be restricted to specific presentation or issuance configurations. This allows for fine-grained control over which configurations a service account can use.
+
+**Configuration Fields:**
+
+- `allowedPresentationConfigs`: Array of presentation config IDs. If empty or null, the client can use any presentation config.
+- `allowedIssuanceConfigs`: Array of issuance config IDs. If empty or null, the client can use any issuance config.
+
+**Example: Creating a Restricted Client**
+
+```bash
+curl -X POST http://localhost:3000/clients \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "clientId": "partner-service",
+    "roles": ["presentation:offer", "issuance:offer"],
+    "allowedPresentationConfigs": ["age-verification", "identity-check"],
+    "allowedIssuanceConfigs": ["partner-credential"]
+  }'
+```
+
+This client can only:
+
+- Create presentation offers for `age-verification` and `identity-check` configs
+- Create issuance offers for `partner-credential` config
+
+If the client attempts to use a config not in their allowed list, a `403 Forbidden` error is returned.
+
+**Use Cases:**
+
+- **Partner Integrations**: Limit external partners to specific credential types
+- **Department Isolation**: Different departments use different credential configurations
+- **Compliance**: Ensure services only access configurations they are authorized to use
+
+**Note:** These restrictions work with both the built-in OAuth2 server and external OIDC providers (e.g., Keycloak). When using an external OIDC provider, the restrictions are stored in EUDIPLO's database and applied during request validation.
+
 ## Troubleshooting
 
 ### Token Validation Errors

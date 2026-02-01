@@ -11,12 +11,14 @@ import {
   clientControllerCreateClient,
   clientControllerGetClient,
   clientControllerUpdateClient,
+  credentialConfigControllerGetConfigs,
 } from '@eudiplo/sdk-core';
 import { ApiService } from '../../../core';
 import { roles } from '../../../services/jwt.service';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { PresentationManagementService } from '../../../presentation/presentation-config/presentation-management.service';
 
 @Component({
   selector: 'app-client-create',
@@ -44,20 +46,30 @@ export class ClientCreateComponent implements OnInit {
   loaded = false;
   id?: string | null;
 
+  // Available configs for selection
+  availablePresentationConfigs: string[] = [];
+  availableIssuanceConfigs: string[] = [];
+
   constructor(
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
     private router: Router,
     private route: ActivatedRoute,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private readonly presentationManagementService: PresentationManagementService
   ) {
     this.clientForm = this.fb.group({
       clientId: ['', [Validators.required, Validators.minLength(1)]],
       description: [''],
       roles: [[], [Validators.required]],
+      allowedPresentationConfigs: [[]],
+      allowedIssuanceConfigs: [[]],
     });
   }
   ngOnInit(): void {
+    // Load available configs for the dropdowns
+    this.loadAvailableConfigs();
+
     this.id = this.route.snapshot.paramMap.get('id');
     if (this.id) {
       this.loaded = true;
@@ -67,9 +79,31 @@ export class ClientCreateComponent implements OnInit {
           this.router.navigate(['../..'], { relativeTo: this.route });
           return;
         }
-        this.clientForm.patchValue(res.data);
+        // Type assertion needed until SDK is regenerated with new fields
+        const clientData = res.data as typeof res.data & {
+          allowedPresentationConfigs?: string[];
+          allowedIssuanceConfigs?: string[];
+        };
+        this.clientForm.patchValue({
+          ...clientData,
+          allowedPresentationConfigs: clientData.allowedPresentationConfigs ?? [],
+          allowedIssuanceConfigs: clientData.allowedIssuanceConfigs ?? [],
+        });
         this.clientForm.get('clientId')?.disable();
       });
+    }
+  }
+
+  private async loadAvailableConfigs(): Promise<void> {
+    try {
+      const [presentationConfigs, credentialConfigs] = await Promise.all([
+        this.presentationManagementService.loadConfigurations(),
+        credentialConfigControllerGetConfigs(),
+      ]);
+      this.availablePresentationConfigs = (presentationConfigs || []).map((c) => c.id);
+      this.availableIssuanceConfigs = (credentialConfigs.data || []).map((c) => c.id);
+    } catch (error) {
+      console.error('Error loading available configs:', error);
     }
   }
 

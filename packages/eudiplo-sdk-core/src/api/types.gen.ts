@@ -109,6 +109,14 @@ export type TenantEntity = {
 
 export type ClientEntity = {
   /**
+   * List of presentation config IDs this client can use. If empty/null, all configs are allowed.
+   */
+  allowedPresentationConfigs?: Array<string>;
+  /**
+   * List of issuance config IDs this client can use. If empty/null, all configs are allowed.
+   */
+  allowedIssuanceConfigs?: Array<string>;
+  /**
    * The unique identifier for the client.
    */
   clientId: string;
@@ -208,6 +216,14 @@ export type ClientSecretResponseDto = {
 
 export type UpdateClientDto = {
   /**
+   * List of presentation config IDs this client can use. If empty/null, all configs are allowed.
+   */
+  allowedPresentationConfigs?: Array<string>;
+  /**
+   * List of issuance config IDs this client can use. If empty/null, all configs are allowed.
+   */
+  allowedIssuanceConfigs?: Array<string>;
+  /**
    * The description of the client.
    */
   description?: string;
@@ -226,6 +242,14 @@ export type UpdateClientDto = {
 };
 
 export type CreateClientDto = {
+  /**
+   * List of presentation config IDs this client can use. If empty/null, all configs are allowed.
+   */
+  allowedPresentationConfigs?: Array<string>;
+  /**
+   * List of issuance config IDs this client can use. If empty/null, all configs are allowed.
+   */
+  allowedIssuanceConfigs?: Array<string>;
   /**
    * The unique identifier for the client.
    */
