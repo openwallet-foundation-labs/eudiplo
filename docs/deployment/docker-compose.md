@@ -400,6 +400,7 @@ Common issues:
     ```
 
 3. **Permission errors:**
+
     ```bash
     # Fix volume permissions
     sudo chown -R $(id -u):$(id -g) ./config
@@ -695,7 +696,7 @@ logging:
 
 ## When to Use Docker Compose vs Kubernetes
 
-### Use Docker Compose When:
+### Use Docker Compose When
 
 ✅ **Local development** and testing  
 ✅ **Single-server deployment** with moderate traffic  
@@ -703,7 +704,7 @@ logging:
 ✅ **Internal tools** with low availability requirements  
 ✅ **Cost-effective** small-scale deployments
 
-### Use Kubernetes When:
+### Use Kubernetes When
 
 ✅ **Production environments** with high availability needs  
 ✅ **Multi-node clusters** for scalability  

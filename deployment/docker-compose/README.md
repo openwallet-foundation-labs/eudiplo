@@ -47,13 +47,13 @@ docker compose --profile full up -d       # Full
 
 After deployment, access the services at:
 
-| Service               | URL                                   |
-| --------------------- | ------------------------------------- |
-| **Backend API**       | http://localhost:3000                 |
-| **Client Web UI**     | http://localhost:4200                 |
-| **API Documentation** | http://localhost:3000/api-docs        |
-| **MinIO Console**     | http://localhost:9001 (standard/full) |
-| **Vault UI**          | http://localhost:8200 (full)          |
+| Service               | URL                                     |
+| --------------------- | --------------------------------------- |
+| **Backend API**       | <http://localhost:3000>                 |
+| **Client Web UI**     | <http://localhost:4200>                 |
+| **API Documentation** | <http://localhost:3000/api-docs>        |
+| **MinIO Console**     | <http://localhost:9001> (standard/full) |
+| **Vault UI**          | <http://localhost:8200> (full)          |
 
 ## Upgrading Between Profiles
 
@@ -69,11 +69,13 @@ After deployment, access the services at:
 
 1. Stop services: `docker compose --profile standard down`
 2. Update `.env` with Vault configuration:
+
    ```
    KM_TYPE=vault
    VAULT_ADDR=http://vault:8200
    VAULT_TOKEN=your-token
    ```
+
 3. Start with `docker compose --profile full up -d`
 
 ## Production Considerations
