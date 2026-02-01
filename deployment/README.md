@@ -1,62 +1,92 @@
 # Deployments
 
-This directory contains multiple deployment configurations for EUDIPLO.
+This directory contains deployment configurations for EUDIPLO with multiple profiles to match your infrastructure needs.
 
-EUDIPLO consists of two main services:
-- **Backend** (`eudiplo`) - NestJS API server
-- **Client** (`eudiplo-client`) - Angular web interface (optional)
-
-Before running any of these deployments, make sure you have the necessary environment variables. You can find the required ones in the respective `example.env` files.
-
-## Quick Start
-
-To start both services with default settings:
-
-```bash
-# From the root directory
-docker compose up -d
-```
-
-This will start:
-- Backend API on port 3000
-- Client UI on port 4200
+**📖 For comprehensive deployment documentation, visit:**  
+**[https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/](https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/)**
 
 ## Deployment Options
 
-### Minimal
+### Docker Compose (Recommended for getting started)
+
+| Profile      | Command                                | Components                   |
+| ------------ | -------------------------------------- | ---------------------------- |
+| **Minimal**  | `docker compose up`                    | EUDIPLO only                 |
+| **Standard** | `docker compose --profile standard up` | + PostgreSQL + MinIO         |
+| **Full**     | `docker compose --profile full up`     | + PostgreSQL + MinIO + Vault |
 
 ```bash
-cd deployment/minimal
-docker compose up -d
+cd deployment/docker-compose
+cp .env.standard.example .env
+docker compose --profile standard up -d
 ```
 
-Starting just the EUDIPLO services with minimal dependencies. This configuration:
-- Uses SQLite for storage 
-- Manages keys in the filesystem
-- Good for development and testing
-- **Not recommended for production**
+### Kubernetes (Production)
 
-### Full
+| Overlay      | Command                              | Components                   |
+| ------------ | ------------------------------------ | ---------------------------- |
+| **Minimal**  | `kubectl apply -k overlays/minimal`  | EUDIPLO only                 |
+| **Standard** | `kubectl apply -k overlays/standard` | + PostgreSQL + MinIO         |
+| **Full**     | `kubectl apply -k overlays/full`     | + PostgreSQL + MinIO + Vault |
 
 ```bash
-cd deployment/full  
-docker compose up -d
+cd deployment/k8s
+cp overlays/standard/.env.example overlays/standard/.env
+kubectl create namespace eudiplo
+kubectl -n eudiplo create secret generic eudiplo-env --from-env-file=overlays/standard/.env
+kubectl apply -k overlays/standard
 ```
 
-This deployment includes:
-- PostgreSQL database
-- HashiCorp Vault for secure key management
-- EUDIPLO Backend and Client services
-- Proper production setup
+## Configuration Matrix
 
-⚠️ **Production Note**: Please check the documentation on how to run Vault in production. These resources may help:
-- https://github.com/ahmetkaftan/docker-vault 
-- https://gist.github.com/Mishco/b47b341f852c5934cf736870f0b5da81
+| Component          | Minimal          | Standard           | Full            |
+| ------------------ | ---------------- | ------------------ | --------------- |
+| **Database**       | SQLite           | PostgreSQL         | PostgreSQL      |
+| **File Storage**   | Local filesystem | MinIO (S3)         | MinIO (S3)      |
+| **Key Management** | DB-backed        | DB-backed          | HashiCorp Vault |
+| **Use Case**       | Dev/Testing      | Staging/Small Prod | Enterprise Prod |
+
+## Directory Structure
+
+```
+deployment/
+├── docker-compose/          # Docker Compose deployments
+│   ├── docker-compose.yml   # Multi-profile compose file
+│   ├── .env.minimal.example
+│   ├── .env.standard.example
+│   └── .env.full.example
+│
+├── k8s/                     # Kubernetes deployments
+│   ├── base/               # Core manifests
+│   ├── components/         # Optional components (postgres, minio, vault)
+│   └── overlays/           # Pre-configured profiles
+│
+├── minimal/                 # [Legacy] Minimal Docker Compose
+└── full/                    # [Legacy] Full Docker Compose
+```
+
+## Quick Reference
+
+| Deployment         | Path                    | Documentation                                                                                                  | Use Case      |
+| ------------------ | ----------------------- | -------------------------------------------------------------------------------------------------------------- | ------------- |
+| **Quick Start**    | `../docker-compose.yml` | [Docker Compose Guide](https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/docker-compose/) | Quick testing |
+| **Docker Compose** | `docker-compose/`       | [Docker Compose Guide](https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/docker-compose/) | Development   |
+| **Kubernetes**     | `k8s/`                  | [Kubernetes Guide](https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/kubernetes/)         | Production    |
 
 ## Service Access
 
 After deployment, access the services at:
 
-- **Backend API**: http://localhost:3000
-- **Client Web UI**: http://localhost:4200 (if enabled)
-- **API Documentation**: http://localhost:3000/api-docs
+| Service               | URL                                   |
+| --------------------- | ------------------------------------- |
+| **Backend API**       | http://localhost:3000                 |
+| **Client Web UI**     | http://localhost:4200                 |
+| **API Documentation** | http://localhost:3000/api-docs        |
+| **MinIO Console**     | http://localhost:9001 (standard/full) |
+| **Vault UI**          | http://localhost:8200 (full)          |
+
+## Support
+
+- **Documentation:** [https://openwallet-foundation-labs.github.io/eudiplo/latest/](https://openwallet-foundation-labs.github.io/eudiplo/latest/)
+- **Issues:** [GitHub Issues](https://github.com/openwallet-foundation-labs/eudiplo/issues)
+- **Community:** [Discord](https://discord.gg/58ys8XfXDu)

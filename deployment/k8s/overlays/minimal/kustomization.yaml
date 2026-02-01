@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Minimal Overlay
+# Use case: Local development, quick testing
+# Components: EUDIPLO only (SQLite, local storage, DB-backed keys)
+
+resources:
+  - ../../base
+
+namespace: eudiplo
+
+# Override default config for minimal setup
+configMapGenerator:
+  - name: eudiplo-config
+    behavior: create
+    literals:
+      - DB_TYPE=sqlite
+      - STORAGE_DRIVER=local
+      - KM_TYPE=file

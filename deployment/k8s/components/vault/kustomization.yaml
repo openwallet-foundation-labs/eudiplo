@@ -1,0 +1,44 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+# HashiCorp Vault Component
+# Adds Vault for secure key management
+
+resources:
+  - vault-deployment.yaml
+  - vault-service.yaml
+
+# Patch EUDIPLO deployment to use Vault for key management
+patches:
+  - target:
+      kind: Deployment
+      name: eudiplo
+    patch: |-
+      - op: add
+        path: /spec/template/spec/initContainers/-
+        value:
+          name: wait-for-vault
+          image: busybox:1.36
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+          command:
+            - sh
+            - -c
+            - |
+              until wget -qO- http://vault:8200/v1/sys/health >/dev/null 2>&1; do
+                echo "waiting for vault..."; sleep 3;
+              done
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: KM_TYPE
+          value: "vault"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: VAULT_ADDR
+          value: "http://vault:8200"

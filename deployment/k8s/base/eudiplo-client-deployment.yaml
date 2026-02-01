@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eudiplo-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eudiplo-client
+  template:
+    metadata:
+      labels:
+        app: eudiplo-client
+    spec:
+      securityContext:
+        runAsUser: 101
+        runAsNonRoot: true
+        fsGroup: 101
+      initContainers:
+        - name: wait-for-eudiplo
+          image: busybox:1.36
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for eudiplo service to be healthy..."
+              until wget -qO- http://eudiplo:3000/health >/dev/null 2>&1; do
+                echo "Still waiting..."; sleep 5;
+              done
+              echo "eudiplo is up."
+      containers:
+        - name: eudiplo-client
+          image: ghcr.io/openwallet-foundation-labs/eudiplo-client:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
