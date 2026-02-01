@@ -20,6 +20,15 @@ export abstract class ClientsProvider {
         tenantId: string,
         clientId: string,
     ): Promise<ClientEntity>;
+
+    /**
+     * Get a client by its clientId only (without tenant context).
+     * Used for JWT validation where we need to fetch the client's restrictions.
+     * @param clientId The client ID (may be namespaced with tenant prefix for Keycloak)
+     * @returns The client entity or null if not found
+     */
+    abstract getClientById(clientId: string): Promise<ClientEntity | null>;
+
     abstract addClient(
         tenantId: string,
         dto: CreateClientDto,

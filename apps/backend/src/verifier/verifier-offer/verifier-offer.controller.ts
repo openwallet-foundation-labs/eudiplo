@@ -1,4 +1,11 @@
-import { Body, Controller, Post, Req, Res } from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    ForbiddenException,
+    Post,
+    Req,
+    Res,
+} from "@nestjs/common";
 import { ApiBody, ApiProduces, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Request, Response } from "express";
 import QRCode from "qrcode";
@@ -71,6 +78,17 @@ export class VerifierOfferController {
         @Body() body: PresentationRequest,
         @Token() user: TokenPayload,
     ) {
+        // Check resource-level authorization
+        if (user.client?.allowedPresentationConfigs?.length) {
+            if (
+                !user.client.allowedPresentationConfigs.includes(body.requestId)
+            ) {
+                throw new ForbiddenException(
+                    `Client is not authorized to use presentation config: ${body.requestId}`,
+                );
+            }
+        }
+
         const values = await this.oid4vpService.createRequest(
             body.requestId,
             {

@@ -84,6 +84,8 @@ export class InternalClientsProvider
                     description: e.description,
                     tenantId,
                     roles: e.roles,
+                    allowedPresentationConfigs: e.allowedPresentationConfigs,
+                    allowedIssuanceConfigs: e.allowedIssuanceConfigs,
                 })),
             );
     }
@@ -96,7 +98,17 @@ export class InternalClientsProvider
                 description: e.description,
                 tenantId,
                 roles: e.roles,
+                allowedPresentationConfigs: e.allowedPresentationConfigs,
+                allowedIssuanceConfigs: e.allowedIssuanceConfigs,
             }));
+    }
+
+    /**
+     * Get a client by its clientId only (without tenant context).
+     * Used for JWT validation to fetch client restrictions.
+     */
+    async getClientById(clientId: string): Promise<ClientEntity | null> {
+        return this.repo.findOne({ where: { clientId } });
     }
 
     getClientSecret(sub: string, id: string): Promise<string> {

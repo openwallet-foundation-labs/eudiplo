@@ -45,6 +45,30 @@
           </mat-select>
           <mat-hint>Select one or more roles for this client</mat-hint>
         </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Allowed Presentation Configs</mat-label>
+          <mat-select formControlName="allowedPresentationConfigs" multiple>
+            @for (config of availablePresentationConfigs; track config) {
+              <mat-option [value]="config">
+                {{ config }}
+              </mat-option>
+            }
+          </mat-select>
+          <mat-hint>Leave empty to allow all presentation configs</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Allowed Issuance Configs</mat-label>
+          <mat-select formControlName="allowedIssuanceConfigs" multiple>
+            @for (config of availableIssuanceConfigs; track config) {
+              <mat-option [value]="config">
+                {{ config }}
+              </mat-option>
+            }
+          </mat-select>
+          <mat-hint>Leave empty to allow all issuance configs</mat-hint>
+        </mat-form-field>
       </mat-card-content>
 
       <mat-card-actions fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">

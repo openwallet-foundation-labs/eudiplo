@@ -1,16 +1,19 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { passportJwtSecret } from "jwks-rsa";
 import { ExtractJwt, Strategy } from "passport-jwt";
+import { CLIENTS_PROVIDER, ClientsProvider } from "./client/client.provider";
 import { TenantService } from "./tenant/tenant.service";
-import { InternalTokenPayload } from "./token.decorator";
+import { InternalTokenPayload, TokenPayload } from "./token.decorator";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
     constructor(
         private configService: ConfigService,
         private tenantService: TenantService,
+        @Inject(CLIENTS_PROVIDER)
+        private readonly clientsProvider: ClientsProvider,
     ) {
         const useExternalOIDC = configService.get<boolean>("OIDC");
 
@@ -77,10 +80,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
 
     /**
      * Validate the JWT payload. It will also check if the client is set up.
+     * Fetches client entity to include resource-level restrictions (allowedPresentationConfigs, etc.)
      * @param payload The JWT payload
-     * @returns The validated payload or an error
+     * @returns The validated payload with tenant and client info
      */
-    async validate(payload: InternalTokenPayload): Promise<any> {
+    async validate(payload: InternalTokenPayload): Promise<TokenPayload> {
         const useExternalOIDC =
             this.configService.get<string>("OIDC") !== undefined;
         let sub = payload.tenant_id;
@@ -93,9 +97,21 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
             .getTenant(sub)
             .catch(() => null);
 
+        // Fetch client to get resource-level restrictions
+        // For internal auth: sub is the client ID
+        // For Keycloak: azp (authorized party) or client_id contains the client ID
+        const clientId =
+            payload.sub || (payload as any).azp || (payload as any).client_id;
+        const client = clientId
+            ? await this.clientsProvider
+                  .getClientById(clientId)
+                  .catch(() => null)
+            : null;
+
         return {
-            entity: tenantEntity,
+            entity: tenantEntity ?? undefined,
             roles: payload.roles || (payload as any).realm_access?.roles || [],
+            client: client ?? undefined,
         };
     }
 }

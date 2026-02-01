@@ -36,6 +36,20 @@
         ]
       }
     },
+    "allowedPresentationConfigs": {
+      "description": "List of presentation config IDs this client is allowed to use. If empty or null, all configs are allowed.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "allowedIssuanceConfigs": {
+      "description": "List of issuance config IDs this client is allowed to use. If empty or null, all configs are allowed.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "tenant": {
       "description": "The tenant that the client belongs to.",
       "allOf": [

@@ -1,4 +1,10 @@
-import { Body, Controller, Post, Res } from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    ForbiddenException,
+    Post,
+    Res,
+} from "@nestjs/common";
 import { ApiBody, ApiProduces, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Response } from "express";
 import * as QRCode from "qrcode";
@@ -62,6 +68,19 @@ export class CredentialOfferController {
         @Body() body: OfferRequestDto,
         @Token() user: TokenPayload,
     ) {
+        // Check if client has restricted issuance configs
+        if (user.client?.allowedIssuanceConfigs?.length) {
+            const unauthorized = body.credentialConfigurationIds.filter(
+                (configId) =>
+                    !user.client!.allowedIssuanceConfigs!.includes(configId),
+            );
+            if (unauthorized.length > 0) {
+                throw new ForbiddenException(
+                    `Client is not authorized to use issuance config(s): ${unauthorized.join(", ")}`,
+                );
+            }
+        }
+
         // For now, we'll just pass the body to the service as before
         // You can modify the service later to accept user information if needed
         const values = await this.oid4vciService.createOffer(
