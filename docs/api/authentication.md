@@ -139,7 +139,7 @@ In addition to role-based access control, clients can be restricted to specific 
 - `allowedPresentationConfigs`: Array of presentation config IDs. If empty or null, the client can use any presentation config.
 - `allowedIssuanceConfigs`: Array of issuance config IDs. If empty or null, the client can use any issuance config.
 
-**Example: Creating a Restricted Client**
+Example: Creating a Restricted Client
 
 ```bash
 curl -X POST http://localhost:3000/clients \
