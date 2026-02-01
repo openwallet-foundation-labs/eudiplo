@@ -1,16 +1,12 @@
 import { join, resolve } from "node:path";
+import { INestApplication } from "@nestjs/common";
 import request from "supertest";
 import { App } from "supertest/types";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import { INestApplication } from "@nestjs/common";
 import { Role } from "../src/auth/roles/role.enum";
 import { ResponseType } from "../src/verifier/oid4vp/dto/presentation-request.dto";
 import { PresentationConfigCreateDto } from "../src/verifier/presentations/dto/presentation-config-create.dto";
-import {
-    IssuanceTestContext,
-    readConfig,
-    setupIssuanceTestApp,
-} from "./utils";
+import { IssuanceTestContext, readConfig, setupIssuanceTestApp } from "./utils";
 
 describe("Client Resource-Level Access Control (e2e)", () => {
     let ctx: IssuanceTestContext;
@@ -253,7 +249,9 @@ describe("Client Resource-Level Access Control (e2e)", () => {
                 .set("Authorization", `Bearer ${adminToken}`)
                 .expect(200);
 
-            expect(res.body.allowedPresentationConfigs).toEqual(["pid-no-hook"]);
+            expect(res.body.allowedPresentationConfigs).toEqual([
+                "pid-no-hook",
+            ]);
             expect(res.body.allowedIssuanceConfigs).toEqual(["pid"]);
         });
 
