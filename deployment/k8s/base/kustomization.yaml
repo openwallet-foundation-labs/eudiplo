@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Base resources - core EUDIPLO services
+resources:
+  - namespace.yaml
+  - eudiplo-deployment.yaml
+  - eudiplo-service.yaml
+  - eudiplo-client-deployment.yaml
+  - eudiplo-client-service.yaml
+  - ingress.yaml
+
+# Common labels applied to all resources
+labels:
+  - pairs:
+      app.kubernetes.io/name: eudiplo
+      app.kubernetes.io/part-of: eudiplo
+
+# Namespace for all resources
+namespace: eudiplo

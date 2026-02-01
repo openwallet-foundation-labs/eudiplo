@@ -1,0 +1,59 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+# PostgreSQL Component
+# Adds PostgreSQL database to the deployment
+
+resources:
+  - postgres-statefulset.yaml
+  - postgres-service.yaml
+
+# Patch EUDIPLO deployment to wait for PostgreSQL and add DB env vars
+patches:
+  - target:
+      kind: Deployment
+      name: eudiplo
+    patch: |-
+      - op: add
+        path: /spec/template/spec/initContainers
+        value:
+          - name: wait-for-postgres
+            image: postgres:16
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                  - ALL
+              readOnlyRootFilesystem: true
+            env:
+              - name: PGUSER
+                valueFrom:
+                  secretKeyRef:
+                    name: eudiplo-env
+                    key: DB_USERNAME
+              - name: PGPASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: eudiplo-env
+                    key: DB_PASSWORD
+              - name: PGDATABASE
+                valueFrom:
+                  secretKeyRef:
+                    name: eudiplo-env
+                    key: DB_DATABASE
+            command:
+              - sh
+              - -c
+              - |
+                until pg_isready -h postgres -p 5432 -U "$PGUSER" -d "$PGDATABASE"; do
+                  echo "waiting for postgres..."; sleep 3;
+                done
+      - op: add
+        path: /spec/template/spec/containers/0/env
+        value:
+          - name: DB_HOST
+            value: "postgres"
+          - name: DB_PORT
+            value: "5432"
+          - name: DB_TYPE
+            value: "postgres"
