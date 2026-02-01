@@ -168,6 +168,13 @@
                             <ul class="index-list">
                                 <li>
                                             <span class="modifier">Optional</span>
+                                        <a href="#client" 
+>
+                                            client
+                                        </a>
+                                </li>
+                                <li>
+                                            <span class="modifier">Optional</span>
                                         <a href="#entity" 
 >
                                             entity
@@ -190,6 +197,50 @@
 
             <section data-compodoc="block-properties">
                 <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="client"></a>
+                                        <span class="name "><b>client</b>
+                                            <a href="#client">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>client:         <code><a href="../entitys/ClientEntity.html" target="_self" >ClientEntity</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="../entitys/ClientEntity.html" target="_self" >ClientEntity</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Client entity (includes resource-level restrictions)</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                     <table class="table table-sm table-bordered">
                         <tbody>
                                 <tr>
@@ -279,6 +330,7 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createParamDecorator, ExecutionContext } from &quot;@nestjs/common&quot;;
+import { ClientEntity } from &quot;./client/entities/client.entity&quot;;
 import { Role } from &quot;./roles/role.enum&quot;;
 import { TenantEntity } from &quot;./tenant/entitites/tenant.entity&quot;;
 
@@ -305,6 +357,11 @@ export interface TokenPayload {
      * Role for the user
      */
     roles: Role[];
+
+    /**
+     * Client entity (includes resource-level restrictions)
+     */
+    client?: ClientEntity;
 }
 
 export interface InternalTokenPayload extends TokenPayload {
@@ -312,6 +369,11 @@ export interface InternalTokenPayload extends TokenPayload {
      * Tenant ID
      */
     tenant_id: string;
+
+    /**
+     * Client ID (subject of the token)
+     */
+    sub?: string;
 }
 </code></pre>
     </div>

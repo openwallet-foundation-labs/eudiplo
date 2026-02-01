@@ -168,6 +168,10 @@
                                 <a href="#getClient" >getClient</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#getClientById" >getClientById</a>
+                            </li>
+                            <li>
                                 <a href="#getClients" >getClients</a>
                             </li>
                             <li>
@@ -321,7 +325,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:108</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:120</a></code>
 </div>
                         </td>
                     </tr>
@@ -426,7 +430,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:91</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:93</a></code>
 </div>
                         </td>
                     </tr>
@@ -476,6 +480,84 @@
                             </div>
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getClientById"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>getClientById</b></span>
+                        <a href="#getClientById"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getClientById(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:110</a></code>
+</div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get a client by its clientId only (without tenant context).
+Used for JWT validation to fetch client restrictions.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>clientId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/ClientEntity.html" target="_self" >Promise&lt;ClientEntity | null&gt;</a></code>
 
                         </div>
                             <div class="io-description">
@@ -584,7 +666,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:102</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:114</a></code>
 </div>
                         </td>
                     </tr>
@@ -785,7 +867,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:138</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:150</a></code>
 </div>
                         </td>
                     </tr>
@@ -870,7 +952,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:127</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:139</a></code>
 </div>
                         </td>
                     </tr>
@@ -967,7 +1049,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:142</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:154</a></code>
 </div>
                         </td>
                     </tr>
@@ -1118,6 +1200,8 @@ export class InternalClientsProvider
                     description: e.description,
                     tenantId,
                     roles: e.roles,
+                    allowedPresentationConfigs: e.allowedPresentationConfigs,
+                    allowedIssuanceConfigs: e.allowedIssuanceConfigs,
                 })),
             );
     }
@@ -1130,7 +1214,17 @@ export class InternalClientsProvider
                 description: e.description,
                 tenantId,
                 roles: e.roles,
+                allowedPresentationConfigs: e.allowedPresentationConfigs,
+                allowedIssuanceConfigs: e.allowedIssuanceConfigs,
             }));
+    }
+
+    /**
+     * Get a client by its clientId only (without tenant context).
+     * Used for JWT validation to fetch client restrictions.
+     */
+    async getClientById(clientId: string): Promise&lt;ClientEntity | null&gt; {
+        return this.repo.findOne({ where: { clientId } });
     }
 
     getClientSecret(sub: string, id: string): Promise&lt;string&gt; {

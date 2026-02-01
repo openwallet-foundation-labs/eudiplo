@@ -1823,6 +1823,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Protected Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resource-level-access-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource-Level Access Control
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2409,6 +2426,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Protected Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resource-level-access-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resource-Level Access Control
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2696,6 +2730,37 @@ variables, see <a href="../../architecture/key-management/">Key Management</a> a
 <a id="__codelineno-5-32" name="__codelineno-5-32" href="#__codelineno-5-32"></a><span class="p">];</span>
 </code></pre></div>
 <p>Each client can have multiple roles assigned, but each client can only be assigned to one tenant at maximum. The client with the tenant manage must not be assigned to any tenant since it is managing the service in general. There could be other roles in the future like limited access to the metrics endpoint.</p>
+<h3 id="resource-level-access-control">Resource-Level Access Control<a class="headerlink" href="#resource-level-access-control" title="Permanent link">¶</a></h3>
+<p>In addition to role-based access control, clients can be restricted to specific presentation or issuance configurations. This allows for fine-grained control over which configurations a service account can use.</p>
+<p><strong>Configuration Fields:</strong></p>
+<ul>
+<li><code>allowedPresentationConfigs</code>: Array of presentation config IDs. If empty or null, the client can use any presentation config.</li>
+<li><code>allowedIssuanceConfigs</code>: Array of issuance config IDs. If empty or null, the client can use any issuance config.</li>
+</ul>
+<p>Example: Creating a Restricted Client</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/clients<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer &lt;token&gt;"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="s1">    "clientId": "partner-service",</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="s1">    "roles": ["presentation:offer", "issuance:offer"],</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="s1">    "allowedPresentationConfigs": ["age-verification", "identity-check"],</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="s1">    "allowedIssuanceConfigs": ["partner-credential"]</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="s1">  }'</span>
+</code></pre></div>
+<p>This client can only:</p>
+<ul>
+<li>Create presentation offers for <code>age-verification</code> and <code>identity-check</code> configs</li>
+<li>Create issuance offers for <code>partner-credential</code> config</li>
+</ul>
+<p>If the client attempts to use a config not in their allowed list, a <code>403 Forbidden</code> error is returned.</p>
+<p><strong>Use Cases:</strong></p>
+<ul>
+<li><strong>Partner Integrations</strong>: Limit external partners to specific credential types</li>
+<li><strong>Department Isolation</strong>: Different departments use different credential configurations</li>
+<li><strong>Compliance</strong>: Ensure services only access configurations they are authorized to use</li>
+</ul>
+<p><strong>Note:</strong> These restrictions work with both the built-in OAuth2 server and external OIDC providers (e.g., Keycloak). When using an external OIDC provider, the restrictions are stored in EUDIPLO's database and applied during request validation.</p>
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">¶</a></h2>
 <h3 id="token-validation-errors">Token Validation Errors<a class="headerlink" href="#token-validation-errors" title="Permanent link">¶</a></h3>
 <ol>

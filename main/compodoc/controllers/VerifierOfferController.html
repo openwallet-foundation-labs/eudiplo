@@ -216,8 +216,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="68"
-                                    class="link-to-prism">src/verifier/verifier-offer/verifier-offer.controller.ts:68</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="75"
+                                    class="link-to-prism">src/verifier/verifier-offer/verifier-offer.controller.ts:75</a></div>
                         </td>
                     </tr>
 
@@ -305,7 +305,14 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Body, Controller, Post, Req, Res } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    Body,
+    Controller,
+    ForbiddenException,
+    Post,
+    Req,
+    Res,
+} from &quot;@nestjs/common&quot;;
 import { ApiBody, ApiProduces, ApiResponse, ApiTags } from &quot;@nestjs/swagger&quot;;
 import { Request, Response } from &quot;express&quot;;
 import QRCode from &quot;qrcode&quot;;
@@ -378,6 +385,17 @@ export class VerifierOfferController {
         @Body() body: PresentationRequest,
         @Token() user: TokenPayload,
     ) {
+        // Check resource-level authorization
+        if (user.client?.allowedPresentationConfigs?.length) {
+            if (
+                !user.client.allowedPresentationConfigs.includes(body.requestId)
+            ) {
+                throw new ForbiddenException(
+                    &#x60;Client is not authorized to use presentation config: ${body.requestId}&#x60;,
+                );
+            }
+        }
+
         const values &#x3D; await this.oid4vpService.createRequest(
             body.requestId,
             {

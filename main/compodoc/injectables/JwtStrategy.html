@@ -195,12 +195,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, tenantService: <a href="../injectables/TenantService.html" target="_self">TenantService</a>)</code>
+<code>constructor(configService: ConfigService, tenantService: <a href="../injectables/TenantService.html" target="_self">TenantService</a>, clientsProvider: <a href="../classes/ClientsProvider.html" target="_self">ClientsProvider</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/auth/jwt.strategy.ts:10</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="11" class="link-to-prism">src/auth/jwt.strategy.ts:11</a></div>
                             </td>
                         </tr>
 
@@ -234,6 +234,18 @@
                                                   
                                                         <td>
                                                                         <code><a href="../injectables/TenantService.html" target="_self" >TenantService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>clientsProvider</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -275,8 +287,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="24"
-                                    class="link-to-prism">src/auth/jwt.strategy.ts:24</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="27"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:27</a></div>
                         </td>
                     </tr>
 
@@ -357,8 +369,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="31"
-                                    class="link-to-prism">src/auth/jwt.strategy.ts:31</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="34"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:34</a></div>
                         </td>
                     </tr>
 
@@ -427,8 +439,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="59"
-                                    class="link-to-prism">src/auth/jwt.strategy.ts:59</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="62"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:62</a></div>
                         </td>
                     </tr>
 
@@ -496,15 +508,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="83"
-                                    class="link-to-prism">src/auth/jwt.strategy.ts:83</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="87"
+                                    class="link-to-prism">src/auth/jwt.strategy.ts:87</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Validate the JWT payload. It will also check if the client is set up.</p>
+                        <div class="io-description"><p>Validate the JWT payload. It will also check if the client is set up.
+Fetches client entity to include resource-level restrictions (allowedPresentationConfigs, etc.)</p>
 </div>
 
                             <div class="io-description">
@@ -540,11 +553,11 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;any&gt;</code>
+                            <b>Returns : </b>        <code><a href="../interfaces/TokenPayload.html" target="_self" >Promise&lt;TokenPayload&gt;</a></code>
 
                         </div>
                             <div class="io-description">
-                                <p>The validated payload or an error</p>
+                                <p>The validated payload with tenant and client info</p>
 
                             </div>
                 </td>
@@ -557,19 +570,22 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Inject, Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { PassportStrategy } from &quot;@nestjs/passport&quot;;
 import { passportJwtSecret } from &quot;jwks-rsa&quot;;
 import { ExtractJwt, Strategy } from &quot;passport-jwt&quot;;
+import { CLIENTS_PROVIDER, ClientsProvider } from &quot;./client/client.provider&quot;;
 import { TenantService } from &quot;./tenant/tenant.service&quot;;
-import { InternalTokenPayload } from &quot;./token.decorator&quot;;
+import { InternalTokenPayload, TokenPayload } from &quot;./token.decorator&quot;;
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, &quot;jwt&quot;) {
     constructor(
         private configService: ConfigService,
         private tenantService: TenantService,
+        @Inject(CLIENTS_PROVIDER)
+        private readonly clientsProvider: ClientsProvider,
     ) {
         const useExternalOIDC &#x3D; configService.get&lt;boolean&gt;(&quot;OIDC&quot;);
 
@@ -636,10 +652,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, &quot;jwt&quot;) {
 
     /**
      * Validate the JWT payload. It will also check if the client is set up.
+     * Fetches client entity to include resource-level restrictions (allowedPresentationConfigs, etc.)
      * @param payload The JWT payload
-     * @returns The validated payload or an error
+     * @returns The validated payload with tenant and client info
      */
-    async validate(payload: InternalTokenPayload): Promise&lt;any&gt; {
+    async validate(payload: InternalTokenPayload): Promise&lt;TokenPayload&gt; {
         const useExternalOIDC &#x3D;
             this.configService.get&lt;string&gt;(&quot;OIDC&quot;) !&#x3D;&#x3D; undefined;
         let sub &#x3D; payload.tenant_id;
@@ -652,9 +669,21 @@ export class JwtStrategy extends PassportStrategy(Strategy, &quot;jwt&quot;) {
             .getTenant(sub)
             .catch(() &#x3D;&gt; null);
 
+        // Fetch client to get resource-level restrictions
+        // For internal auth: sub is the client ID
+        // For Keycloak: azp (authorized party) or client_id contains the client ID
+        const clientId &#x3D;
+            payload.sub || (payload as any).azp || (payload as any).client_id;
+        const client &#x3D; clientId
+            ? await this.clientsProvider
+                  .getClientById(clientId)
+                  .catch(() &#x3D;&gt; null)
+            : null;
+
         return {
-            entity: tenantEntity,
+            entity: tenantEntity ?? undefined,
             roles: payload.roles || (payload as any).realm_access?.roles || [],
+            client: client ?? undefined,
         };
     }
 }
