@@ -56,7 +56,7 @@ export const mdocContext: MdocContext = {
             const digest = "sha256";
             const result = await hkdf(digest, ikm, salt, infoAsBytes, 32);
 
-            return new CoseKey({
+            return CoseKey.create({
                 keyOps: [KeyOps.Sign, KeyOps.Verify],
                 keyType: KeyType.Oct,
                 k: result,
@@ -68,8 +68,8 @@ export const mdocContext: MdocContext = {
     cose: {
         mac0: {
             sign: (input) => {
-                const { key, mac0 } = input;
-                return hmac(sha256, key.privateKey, mac0.toBeAuthenticated);
+                const { key, toBeAuthenticated } = input;
+                return hmac(sha256, key.privateKey, toBeAuthenticated);
             },
             verify: (input) => {
                 const { mac0, key } = input;
@@ -86,8 +86,8 @@ export const mdocContext: MdocContext = {
         },
         sign1: {
             sign: (input) => {
-                const { key, sign1 } = input;
-                return p256.sign(sign1.toBeSigned, key.privateKey, {
+                const { key, toBeSigned } = input;
+                return p256.sign(toBeSigned, key.privateKey, {
                     format: "compact",
                 });
             },

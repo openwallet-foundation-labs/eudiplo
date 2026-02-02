@@ -87,10 +87,10 @@ export async function prepareMdocPresentation(
 
     const credential = IssuerSigned.fromEncodedForOid4Vci(encodedIssuerSigned);
 
-    const deviceRequest = new DeviceRequest({
+    const deviceRequest = DeviceRequest.create({
         docRequests: [
-            new DocRequest({
-                itemsRequest: new ItemsRequest({
+            DocRequest.create({
+                itemsRequest: ItemsRequest.create({
                     docType: "org.iso.18013.5.1",
                     namespaces: {
                         "org.iso.18013.5.1.mDL": {
