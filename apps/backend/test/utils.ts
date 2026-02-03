@@ -3,6 +3,7 @@ import { readFileSync, rmSync } from "node:fs";
 import { join, resolve } from "node:path";
 import {
     CoseKey,
+    DeviceKey,
     DeviceRequest,
     DocRequest,
     Holder,
@@ -77,7 +78,7 @@ export async function prepareMdocPresentation(
         certificate: new Uint8Array(new X509Certificate(issuerCert).rawData),
         algorithm: SignatureAlgorithm.ES256,
         digestAlgorithm: "SHA-256",
-        deviceKeyInfo: { deviceKey: CoseKey.fromJwk(DEVICE_JWK) },
+        deviceKeyInfo: { deviceKey: DeviceKey.fromJwk(DEVICE_JWK) },
         validityInfo: { signed, validFrom, validUntil },
     });
 
