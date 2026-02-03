@@ -12,6 +12,7 @@ spec:
       labels:
         app: vault
     spec:
+      automountServiceAccountToken: false
       securityContext:
         runAsUser: 100
         runAsNonRoot: true
@@ -72,4 +73,5 @@ spec:
               mountPath: /vault/data
       volumes:
         - name: vault-data
-          emptyDir: {}
+          emptyDir:
+            sizeLimit: 1Gi

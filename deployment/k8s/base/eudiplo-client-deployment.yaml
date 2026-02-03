@@ -12,6 +12,7 @@ spec:
       labels:
         app: eudiplo-client
     spec:
+      automountServiceAccountToken: false
       securityContext:
         runAsUser: 101
         runAsNonRoot: true
