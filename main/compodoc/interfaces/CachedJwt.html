@@ -579,6 +579,18 @@ export class StatusListVerifierService {
                 }),
             );
             return response.data;
+        } catch (error: any) {
+            if (
+                error?.name &#x3D;&#x3D;&#x3D; &quot;CanceledError&quot; ||
+                error?.code &#x3D;&#x3D;&#x3D; &quot;ERR_CANCELED&quot;
+            ) {
+                throw new Error(
+                    &#x60;Status list fetch timed out after ${timeoutMs}ms for URI: ${uri}&#x60;,
+                );
+            }
+            throw new Error(
+                &#x60;Failed to fetch status list from ${uri}: ${error?.message || error}&#x60;,
+            );
         } finally {
             clearTimeout(timeout);
         }

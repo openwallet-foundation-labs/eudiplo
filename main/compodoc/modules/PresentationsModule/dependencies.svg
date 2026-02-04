@@ -24,95 +24,95 @@
 <title>cluster_PresentationsModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="8,-70 8,-268 870,-268 870,-70 8,-70"/>
 </g>
-<g id="clust6" class="cluster">
-<title>cluster_PresentationsModule_providers</title>
-<polygon fill="none" stroke="black" points="257,-78 257,-130 862,-130 862,-78 257,-78"/>
-</g>
 <g id="clust3" class="cluster">
 <title>cluster_PresentationsModule_imports</title>
-<polygon fill="none" stroke="black" points="16,-78 16,-130 249,-130 249,-78 16,-78"/>
+<polygon fill="none" stroke="black" points="629,-78 629,-130 862,-130 862,-78 629,-78"/>
 </g>
 <g id="clust4" class="cluster">
 <title>cluster_PresentationsModule_exports</title>
-<polygon fill="none" stroke="black" points="289,-208 289,-260 441,-260 441,-208 289,-208"/>
+<polygon fill="none" stroke="black" points="452,-208 452,-260 604,-260 604,-208 452,-208"/>
+</g>
+<g id="clust6" class="cluster">
+<title>cluster_PresentationsModule_providers</title>
+<polygon fill="none" stroke="black" points="16,-78 16,-130 621,-130 621,-78 16,-78"/>
 </g>
 <!-- ResolverModule -->
 <g id="node1" class="node">
 <title>ResolverModule</title>
-<polygon fill="#8dd3c7" stroke="black" points="240.81,-122 237.81,-126 216.81,-126 213.81,-122 131.19,-122 131.19,-86 240.81,-86 240.81,-122"/>
-<text text-anchor="middle" x="186" y="-99.8" font-family="Times,serif" font-size="14.00">ResolverModule</text>
+<polygon fill="#8dd3c7" stroke="black" points="853.81,-122 850.81,-126 829.81,-126 826.81,-122 744.19,-122 744.19,-86 853.81,-86 853.81,-122"/>
+<text text-anchor="middle" x="799" y="-99.8" font-family="Times,serif" font-size="14.00">ResolverModule</text>
 </g>
 <!-- PresentationsModule -->
 <g id="node3" class="node">
 <title>PresentationsModule</title>
-<polygon fill="#8dd3c7" stroke="black" points="432.2,-187 429.2,-191 408.2,-191 405.2,-187 297.8,-187 297.8,-151 432.2,-151 432.2,-187"/>
-<text text-anchor="middle" x="365" y="-164.8" font-family="Times,serif" font-size="14.00">PresentationsModule</text>
+<polygon fill="#8dd3c7" stroke="black" points="595.2,-187 592.2,-191 571.2,-191 568.2,-187 460.8,-187 460.8,-151 595.2,-151 595.2,-187"/>
+<text text-anchor="middle" x="528" y="-164.8" font-family="Times,serif" font-size="14.00">PresentationsModule</text>
 </g>
 <!-- ResolverModule&#45;&gt;PresentationsModule -->
 <g id="edge1" class="edge">
 <title>ResolverModule&#45;&gt;PresentationsModule</title>
-<path fill="none" stroke="black" d="M186,-122.02C186,-139.37 186,-163 186,-163 186,-163 287.84,-163 287.84,-163"/>
-<polygon fill="black" stroke="black" points="287.84,-166.5 297.84,-163 287.84,-159.5 287.84,-166.5"/>
+<path fill="none" stroke="black" d="M799,-122.28C799,-143.32 799,-175 799,-175 799,-175 605.34,-175 605.34,-175"/>
+<polygon fill="black" stroke="black" points="605.34,-171.5 595.34,-175 605.34,-178.5 605.34,-171.5"/>
 </g>
 <!-- TrustModule -->
 <g id="node2" class="node">
 <title>TrustModule</title>
-<polygon fill="#8dd3c7" stroke="black" points="113.6,-122 110.6,-126 89.6,-126 86.6,-122 24.4,-122 24.4,-86 113.6,-86 113.6,-122"/>
-<text text-anchor="middle" x="69" y="-99.8" font-family="Times,serif" font-size="14.00">TrustModule</text>
+<polygon fill="#8dd3c7" stroke="black" points="726.6,-122 723.6,-126 702.6,-126 699.6,-122 637.4,-122 637.4,-86 726.6,-86 726.6,-122"/>
+<text text-anchor="middle" x="682" y="-99.8" font-family="Times,serif" font-size="14.00">TrustModule</text>
 </g>
 <!-- TrustModule&#45;&gt;PresentationsModule -->
 <g id="edge2" class="edge">
 <title>TrustModule&#45;&gt;PresentationsModule</title>
-<path fill="none" stroke="black" d="M69,-122.28C69,-143.32 69,-175 69,-175 69,-175 287.83,-175 287.83,-175"/>
-<polygon fill="black" stroke="black" points="287.83,-178.5 297.83,-175 287.83,-171.5 287.83,-178.5"/>
+<path fill="none" stroke="black" d="M682,-122.02C682,-139.37 682,-163 682,-163 682,-163 605.55,-163 605.55,-163"/>
+<polygon fill="black" stroke="black" points="605.55,-159.5 595.55,-163 605.55,-166.5 605.55,-159.5"/>
 </g>
 <!-- PresentationsService  -->
 <g id="node4" class="node">
 <title>PresentationsService </title>
-<polygon fill="#fb8072" stroke="black" points="433.13,-252 296.87,-252 296.87,-216 433.13,-216 433.13,-252"/>
-<text text-anchor="middle" x="365" y="-229.8" font-family="Times,serif" font-size="14.00">PresentationsService </text>
+<polygon fill="#fb8072" stroke="black" points="596.13,-252 459.87,-252 459.87,-216 596.13,-216 596.13,-252"/>
+<text text-anchor="middle" x="528" y="-229.8" font-family="Times,serif" font-size="14.00">PresentationsService </text>
 </g>
 <!-- PresentationsModule&#45;&gt;PresentationsService  -->
 <g id="edge3" class="edge">
 <title>PresentationsModule&#45;&gt;PresentationsService </title>
-<path fill="none" stroke="black" stroke-dasharray="5,2" d="M365,-187.11C365,-187.11 365,-205.99 365,-205.99"/>
-<polygon fill="black" stroke="black" points="361.5,-205.99 365,-215.99 368.5,-205.99 361.5,-205.99"/>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M528,-187.11C528,-187.11 528,-205.99 528,-205.99"/>
+<polygon fill="black" stroke="black" points="524.5,-205.99 528,-215.99 531.5,-205.99 524.5,-205.99"/>
 </g>
 <!-- MdlverifierService -->
 <g id="node5" class="node">
 <title>MdlverifierService</title>
-<ellipse fill="#fdb462" stroke="black" cx="769" cy="-104" rx="84.5" ry="18"/>
-<text text-anchor="middle" x="769" y="-99.8" font-family="Times,serif" font-size="14.00">MdlverifierService</text>
+<ellipse fill="#fdb462" stroke="black" cx="528" cy="-104" rx="84.5" ry="18"/>
+<text text-anchor="middle" x="528" y="-99.8" font-family="Times,serif" font-size="14.00">MdlverifierService</text>
 </g>
 <!-- MdlverifierService&#45;&gt;PresentationsModule -->
 <g id="edge4" class="edge">
 <title>MdlverifierService&#45;&gt;PresentationsModule</title>
-<path fill="none" stroke="black" d="M769,-122.28C769,-143.32 769,-175 769,-175 769,-175 442.17,-175 442.17,-175"/>
-<polygon fill="black" stroke="black" points="442.17,-171.5 432.17,-175 442.17,-178.5 442.17,-171.5"/>
+<path fill="none" stroke="black" d="M528,-122.11C528,-122.11 528,-140.99 528,-140.99"/>
+<polygon fill="black" stroke="black" points="524.5,-140.99 528,-150.99 531.5,-140.99 524.5,-140.99"/>
 </g>
 <!-- PresentationsService -->
 <g id="node6" class="node">
 <title>PresentationsService</title>
-<ellipse fill="#fdb462" stroke="black" cx="575" cy="-104" rx="91.47" ry="18"/>
-<text text-anchor="middle" x="575" y="-99.8" font-family="Times,serif" font-size="14.00">PresentationsService</text>
+<ellipse fill="#fdb462" stroke="black" cx="334" cy="-104" rx="91.47" ry="18"/>
+<text text-anchor="middle" x="334" y="-99.8" font-family="Times,serif" font-size="14.00">PresentationsService</text>
 </g>
 <!-- PresentationsService&#45;&gt;PresentationsModule -->
 <g id="edge5" class="edge">
 <title>PresentationsService&#45;&gt;PresentationsModule</title>
-<path fill="none" stroke="black" d="M575,-122.02C575,-139.37 575,-163 575,-163 575,-163 442.31,-163 442.31,-163"/>
-<polygon fill="black" stroke="black" points="442.31,-159.5 432.31,-163 442.31,-166.5 442.31,-159.5"/>
+<path fill="none" stroke="black" d="M334,-122.02C334,-139.37 334,-163 334,-163 334,-163 450.69,-163 450.69,-163"/>
+<polygon fill="black" stroke="black" points="450.69,-166.5 460.69,-163 450.69,-159.5 450.69,-166.5"/>
 </g>
 <!-- SdjwtvcverifierService -->
 <g id="node7" class="node">
 <title>SdjwtvcverifierService</title>
-<ellipse fill="#fdb462" stroke="black" cx="365" cy="-104" rx="100.11" ry="18"/>
-<text text-anchor="middle" x="365" y="-99.8" font-family="Times,serif" font-size="14.00">SdjwtvcverifierService</text>
+<ellipse fill="#fdb462" stroke="black" cx="124" cy="-104" rx="100.11" ry="18"/>
+<text text-anchor="middle" x="124" y="-99.8" font-family="Times,serif" font-size="14.00">SdjwtvcverifierService</text>
 </g>
 <!-- SdjwtvcverifierService&#45;&gt;PresentationsModule -->
 <g id="edge6" class="edge">
 <title>SdjwtvcverifierService&#45;&gt;PresentationsModule</title>
-<path fill="none" stroke="black" d="M365,-122.11C365,-122.11 365,-140.99 365,-140.99"/>
-<polygon fill="black" stroke="black" points="361.5,-140.99 365,-150.99 368.5,-140.99 361.5,-140.99"/>
+<path fill="none" stroke="black" d="M124,-122.28C124,-143.32 124,-175 124,-175 124,-175 450.83,-175 450.83,-175"/>
+<polygon fill="black" stroke="black" points="450.83,-178.5 460.83,-175 450.83,-171.5 450.83,-178.5"/>
 </g>
 </g>
 </svg>

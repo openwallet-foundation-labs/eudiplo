@@ -155,6 +155,7 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#fetchJwt" >fetchJwt</a>
                             </li>
                             <li>
@@ -232,6 +233,7 @@
                 <td class="col-md-4">
                     <a name="fetchJwt"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>fetchJwt</b></span>
                         <a href="#fetchJwt"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -239,7 +241,8 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>fetchJwt(url: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, timeoutMs: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>fetchJwt(url: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, timeoutMs: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
                 </td>
             </tr>
 
@@ -331,8 +334,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="28"
-                                    class="link-to-prism">src/shared/trust/trustlist-jwt.service.ts:28</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="43"
+                                    class="link-to-prism">src/shared/trust/trustlist-jwt.service.ts:43</a></div>
                         </td>
                     </tr>
 
@@ -409,17 +412,32 @@ export type DecodedJwt &#x3D; { header: any; payload: any; signature: string };
 export class TrustListJwtService {
     constructor(private readonly httpService: HttpService) {}
 
-    fetchJwt(url: string, timeoutMs &#x3D; 4000): Promise&lt;string&gt; {
+    async fetchJwt(url: string, timeoutMs &#x3D; 4000): Promise&lt;string&gt; {
         const ctrl &#x3D; new AbortController();
         const t &#x3D; setTimeout(() &#x3D;&gt; ctrl.abort(), timeoutMs);
-        return firstValueFrom(
-            this.httpService.get(url, {
-                signal: ctrl.signal,
-                responseType: &quot;text&quot;,
-            }),
-        )
-            .then((res) &#x3D;&gt; res.data)
-            .finally(() &#x3D;&gt; clearTimeout(t));
+        try {
+            const res &#x3D; await firstValueFrom(
+                this.httpService.get(url, {
+                    signal: ctrl.signal,
+                    responseType: &quot;text&quot;,
+                }),
+            );
+            return res.data;
+        } catch (error: any) {
+            if (
+                error?.name &#x3D;&#x3D;&#x3D; &quot;CanceledError&quot; ||
+                error?.code &#x3D;&#x3D;&#x3D; &quot;ERR_CANCELED&quot;
+            ) {
+                throw new Error(
+                    &#x60;Trust list fetch timed out after ${timeoutMs}ms for URL: ${url}&#x60;,
+                );
+            }
+            throw new Error(
+                &#x60;Failed to fetch trust list from ${url}: ${error?.message || error}&#x60;,
+            );
+        } finally {
+            clearTimeout(t);
+        }
     }
 
     /**
