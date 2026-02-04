@@ -4,8 +4,9 @@ EUDIPLO supports webhook endpoints that let external services actively participa
 
 While webhooks are optional, they make the overall process more dynamic—for example:
 
-- requesting credential data from your backend service only when needed, or
-- notifying your system when a wallet has completed a flow.
+- requesting credential data from your backend service only when needed,
+- notifying your system when a wallet has completed a flow, or
+- **deferring credential issuance** when your backend needs time to process (e.g., KYC verification, approval workflows).
 
 ---
 
@@ -14,6 +15,7 @@ While webhooks are optional, they make the overall process more dynamic—for ex
 | Flow                             | Purpose                                                                  |
 | -------------------------------- | ------------------------------------------------------------------------ |
 | **Credential Issuance Webhook**  | Dynamically provides claims during the credential request process.       |
+| **Deferred Issuance Webhook**    | Signals that credential issuance should be deferred for later retrieval. |
 | **Presentation Webhook**         | Receives verified claims from the wallet.                                |
 | **Presentation During Issuance** | Supplies verified claims required to issue a credential (mandatory).     |
 | **Notification Webhook**         | Receives status updates (e.g., accepted or denied) about issuance flows. |
@@ -85,6 +87,126 @@ The **claims webhook** allows EUDIPLO to fetch attributes dynamically instead of
     }
 }
 ```
+
+---
+
+## Deferred Credential Issuance
+
+**Deferred issuance** allows your backend to signal that the credential cannot be issued immediately. This is useful when:
+
+- Background verification is required (e.g., KYC, identity proofing)
+- An approval workflow must be completed
+- External data sources need time to respond
+- The credential requires asynchronous processing
+
+### How It Works
+
+When the claims webhook returns a **deferred response**, EUDIPLO:
+
+1. Stores the pending request with a `transaction_id`
+2. Returns HTTP 202 (Accepted) to the wallet with the `transaction_id`
+3. The wallet polls the **deferred credential endpoint** until the credential is ready
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Wallet as EUDI Wallet
+    participant EUDIPLO as Middleware
+    participant Service as Your Backend
+
+    Wallet->>EUDIPLO: Credential Request
+    EUDIPLO->>Service: Claims Webhook
+    Service-->>EUDIPLO: { "deferred": true, "interval": 5 }
+    EUDIPLO-->>Wallet: HTTP 202 + transaction_id
+
+    loop Polling (every interval seconds)
+        Wallet->>EUDIPLO: GET /deferred_credential
+        alt Credential not ready
+            EUDIPLO-->>Wallet: { "error": "issuance_pending", "interval": 5 }
+        else Credential ready
+            EUDIPLO-->>Wallet: { "credential": "..." }
+        end
+    end
+```
+
+### Webhook Response for Deferred Issuance
+
+To trigger deferred issuance, your webhook should return:
+
+```json
+{
+    "deferred": true,
+    "interval": 5
+}
+```
+
+| Field      | Type    | Description                                          |
+| ---------- | ------- | ---------------------------------------------------- |
+| `deferred` | boolean | Set to `true` to defer the credential issuance       |
+| `interval` | number  | Recommended polling interval in seconds (default: 5) |
+
+### Completing Deferred Issuance
+
+Once your backend has completed processing, you need to call EUDIPLO's API to provide the credential:
+
+```bash
+# Complete the deferred transaction with the credential
+POST /issuer/deferred/{transactionId}/complete
+Content-Type: application/json
+Authorization: Bearer <your-token>
+
+{
+    "credential": "<the-issued-credential-string>"
+}
+```
+
+Or, if the issuance failed:
+
+```bash
+# Mark the deferred transaction as failed
+POST /issuer/deferred/{transactionId}/fail
+Content-Type: application/json
+Authorization: Bearer <your-token>
+
+{
+    "errorMessage": "KYC verification failed"
+}
+```
+
+### Deferred Credential Errors
+
+When the wallet polls the deferred credential endpoint, it may receive:
+
+| Error Code               | HTTP Status | Description                                           |
+| ------------------------ | ----------- | ----------------------------------------------------- |
+| `issuance_pending`       | 400         | Credential is still being processed. Retry later.     |
+| `invalid_transaction_id` | 400         | Transaction not found, expired, or already retrieved. |
+
+The `issuance_pending` error includes an `interval` field indicating when to retry:
+
+```json
+{
+    "error": "issuance_pending",
+    "error_description": "The credential issuance is still pending",
+    "interval": 5
+}
+```
+
+### Transaction Lifecycle
+
+Deferred transactions have the following states:
+
+| Status      | Description                                      |
+| ----------- | ------------------------------------------------ |
+| `pending`   | Waiting for your backend to complete processing  |
+| `ready`     | Credential is ready for wallet retrieval         |
+| `retrieved` | Wallet has successfully retrieved the credential |
+| `expired`   | Transaction expired (default: 24 hours)          |
+| `failed`    | Issuance failed due to an error                  |
+
+!!! info "Transaction Expiry"
+
+    Deferred transactions expire after 24 hours by default. Expired transactions are automatically cleaned up hourly.
 
 ---
 

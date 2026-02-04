@@ -5,7 +5,6 @@ import {
     Logger,
     UnauthorizedException,
 } from "@nestjs/common";
-import { TokenErrorException } from "../exceptions";
 import { ConfigService } from "@nestjs/config";
 import {
     type AuthorizationCodeGrantIdentifier,
@@ -42,6 +41,7 @@ import {
 } from "../../../../shared/trust/x509-validation.service";
 import { WebhookConfig } from "../../../../shared/utils/webhook/webhook.dto";
 import { IssuanceService } from "../../../configuration/issuance/issuance.service";
+import { TokenErrorException } from "../exceptions";
 import { getHeadersFromRequest } from "../util";
 import { AuthorizeQueries } from "./dto/authorize-request.dto";
 
@@ -680,9 +680,7 @@ export class AuthorizeService {
             authorizationCodeGrantIdentifier
         ) {
             //TODO: handle response
-            const { dpop } = await this.getAuthorizationServer(
-                tenantId,
-            )
+            const { dpop } = await this.getAuthorizationServer(tenantId)
                 .verifyAuthorizationCodeAccessTokenRequest({
                     grant: parsedAccessTokenRequest.grant as ParsedAccessTokenAuthorizationCodeRequestGrant,
                     accessTokenRequest:

@@ -8,11 +8,33 @@ import { Repository } from "typeorm";
 import { CryptoImplementationService } from "../../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { Session } from "../../../session/entities/session.entity";
 import { SessionLogContext } from "../../../shared/utils/logger/session-logger-context";
-import { WebhookService } from "../../../shared/utils/webhook/webhook.service";
+import {
+    WebhookResponse,
+    WebhookService,
+} from "../../../shared/utils/webhook/webhook.service";
 import { VCT } from "../../issuance/oid4vci/metadata/dto/vct.dto";
 import { CredentialConfig } from "./entities/credential.entity";
 import { MdocIssuerService } from "./issuer/mdoc-issuer/mdoc-issuer.service";
 import { SdjwtvcIssuerService } from "./issuer/sdjwtvc-issuer/sdjwtvc-issuer.service";
+
+/**
+ * Result of fetching claims from webhook.
+ * Either contains claims for immediate issuance or indicates deferred issuance.
+ */
+export interface ClaimsWebhookResult {
+    /**
+     * Claims data for the credential (when not deferred).
+     */
+    claims?: Record<string, any>;
+    /**
+     * Whether the issuance should be deferred.
+     */
+    deferred: boolean;
+    /**
+     * Recommended polling interval in seconds for deferred issuance.
+     */
+    interval?: number;
+}
 
 /**
  * Service for managing credentials and their configurations.
@@ -154,12 +176,12 @@ export class CredentialsService {
      * This should be called once before batch processing to avoid redundant webhook calls.
      * @param credentialConfigurationId
      * @param session
-     * @returns The fetched claims or undefined if no webhook is configured
+     * @returns The fetched claims result including deferred flag, or undefined if no webhook is configured
      */
     getClaimsFromWebhook(
         credentialConfigurationId: string,
         session: Session,
-    ): Promise<Record<string, any> | undefined> {
+    ): Promise<ClaimsWebhookResult | undefined> {
         const claimsSource =
             session.credentialPayload?.credentialClaims?.[
                 credentialConfigurationId
@@ -179,7 +201,20 @@ export class CredentialsService {
                     session,
                     expectResponse: true,
                 })
-                .then((response) => response[credentialConfigurationId]);
+                .then((response: WebhookResponse) => {
+                    // Check if the webhook response indicates deferred issuance
+                    if (response.deferred) {
+                        return {
+                            deferred: true,
+                            interval: response.interval ?? 5,
+                        };
+                    }
+                    // Return claims for immediate issuance
+                    return {
+                        deferred: false,
+                        claims: response.data?.[credentialConfigurationId],
+                    };
+                });
         }
 
         return Promise.resolve(undefined);
@@ -239,16 +274,16 @@ export class CredentialsService {
                     flowType: "OID4VCI",
                     stage: "fetching-claims-webhook",
                 };
-                usedClaims = await this.webhookService
-                    .sendWebhook({
-                        webhook: credentialConfiguration.claimsWebhook,
-                        logContext,
-                        session,
-                        expectResponse: true,
-                    })
-                    .then(
-                        (response) => response?.data[credentialConfigurationId],
-                    );
+                const webhookResponse = await this.webhookService.sendWebhook({
+                    webhook: credentialConfiguration.claimsWebhook,
+                    logContext,
+                    session,
+                    expectResponse: true,
+                });
+                if (webhookResponse?.data?.[credentialConfigurationId]) {
+                    usedClaims =
+                        webhookResponse.data[credentialConfigurationId];
+                }
             }
         }
 

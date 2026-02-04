@@ -7,13 +7,15 @@ import {
     Param,
     Post,
     Req,
+    Res,
     UseInterceptors,
 } from "@nestjs/common";
 import { ApiExcludeController, ApiParam, ApiTags } from "@nestjs/swagger";
 import type { CredentialResponse } from "@openid4vc/openid4vci";
-import type { Request } from "express";
+import type { Request, Response } from "express";
 import { SessionLogger } from "../../../shared/utils/logger/session-logger.decorator";
 import { SessionLoggerInterceptor } from "../../../shared/utils/logger/session-logger.interceptor";
+import { DeferredCredentialRequestDto } from "./dto/deferred-credential-request.dto";
 import { NotificationRequestDto } from "./dto/notification-request.dto";
 import { Oid4vciService } from "./oid4vci.service";
 
@@ -31,16 +33,47 @@ export class Oid4vciController {
     /**
      * Endpoint to issue credentials
      * @param req
+     * @param res
+     * @param tenantId
      * @returns
      */
     @Post("credential")
     @SessionLogger("session", "OID4VCI")
-    @HttpCode(HttpStatus.OK)
-    credential(
+    async credential(
         @Req() req: Request,
+        @Res({ passthrough: true }) res: Response,
+        @Param("tenantId") tenantId: string,
+    ): Promise<
+        CredentialResponse | { transaction_id: string; interval?: number }
+    > {
+        const result = await this.oid4vciService.getCredential(req, tenantId);
+        // Check if this is a deferred response (has transaction_id)
+        if ("transaction_id" in result) {
+            res.status(HttpStatus.ACCEPTED);
+        }
+        return result;
+    }
+
+    /**
+     * Deferred Credential Endpoint
+     *
+     * According to OID4VCI Section 9, this endpoint is used by the wallet to poll
+     * for credentials that were not immediately available.
+     *
+     * @param req The request
+     * @param body The deferred credential request containing transaction_id
+     * @param tenantId The tenant ID
+     * @returns The credential response if ready, or issuance_pending error
+     */
+    @Post("deferred_credential")
+    @SessionLogger("transaction_id", "OID4VCI")
+    @HttpCode(HttpStatus.OK)
+    deferredCredential(
+        @Req() req: Request,
+        @Body() body: DeferredCredentialRequestDto,
         @Param("tenantId") tenantId: string,
     ): Promise<CredentialResponse> {
-        return this.oid4vciService.getCredential(req, tenantId);
+        return this.oid4vciService.getDeferredCredential(req, body, tenantId);
     }
 
     /**

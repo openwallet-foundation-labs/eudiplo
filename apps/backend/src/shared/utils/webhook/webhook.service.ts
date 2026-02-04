@@ -12,9 +12,28 @@ import { WebhookConfig } from "./webhook.dto";
 
 /**
  * Response from a webhook to receive credentials.
+ * Can include claims data for immediate issuance or a deferred flag for deferred issuance.
  */
-export class WebhookResponse {
-    [key: string]: Record<string, any>;
+export interface WebhookResponse {
+    /**
+     * Claims data keyed by credential configuration ID.
+     * When present, the credential will be issued immediately.
+     */
+    data?: Record<string, Record<string, any>>;
+    /**
+     * Redirect URI for OAuth-style redirects.
+     */
+    redirectUri?: string;
+    /**
+     * When true, indicates that the credential issuance should be deferred.
+     * The wallet will receive a transaction_id to poll later.
+     */
+    deferred?: boolean;
+    /**
+     * Recommended polling interval in seconds for deferred issuance.
+     * Defaults to 5 seconds if not specified.
+     */
+    interval?: number;
 }
 
 /**
@@ -36,6 +55,7 @@ export class WebhookService {
 
     /**
      * Sends a webhook with the optional provided credentials, return the response data.
+     * @returns WebhookResponse containing claims data or deferred issuance indicator
      */
     sendWebhook(values: {
         webhook: WebhookConfig;
@@ -43,7 +63,7 @@ export class WebhookService {
         session: Session;
         credentials?: any[];
         expectResponse: boolean;
-    }) {
+    }): Promise<WebhookResponse> {
         const headers: Record<string, string> = {};
 
         if (values.webhook.auth && values.webhook.auth.type === "apiKey") {

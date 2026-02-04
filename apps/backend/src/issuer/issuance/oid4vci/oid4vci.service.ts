@@ -7,6 +7,7 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { InjectRepository } from "@nestjs/typeorm";
+import type { Jwk } from "@openid4vc/oauth2";
 import {
     AuthorizationServerMetadata,
     authorizationCodeGrantIdentifier,
@@ -34,18 +35,29 @@ import { SessionService } from "../../../session/session.service";
 import { SessionLoggerService } from "../../../shared/utils/logger/session-logger.service";
 import { SessionLogContext } from "../../../shared/utils/logger/session-logger-context";
 import { WebhookService } from "../../../shared/utils/webhook/webhook.service";
-import { CredentialsService } from "../../configuration/credentials/credentials.service";
+import {
+    ClaimsWebhookResult,
+    CredentialsService,
+} from "../../configuration/credentials/credentials.service";
 import { IssuanceService } from "../../configuration/issuance/issuance.service";
 import { StatusListConfigService } from "../../lifecycle/status/status-list-config.service";
 import { AuthorizeService } from "./authorize/authorize.service";
+import { DeferredCredentialRequestDto } from "./dto/deferred-credential-request.dto";
 import { NotificationRequestDto } from "./dto/notification-request.dto";
 import {
     FlowType,
     OfferRequestDto,
     OfferResponse,
 } from "./dto/offer-request.dto";
+import {
+    DeferredTransactionEntity,
+    DeferredTransactionStatus,
+} from "./entities/deferred-transaction.entity";
 import { NonceEntity } from "./entities/nonces.entity";
-import { CredentialRequestException } from "./exceptions";
+import {
+    CredentialRequestException,
+    DeferredCredentialException,
+} from "./exceptions";
 import { getHeadersFromRequest } from "./util";
 
 /**
@@ -66,6 +78,8 @@ export class Oid4vciService {
         private readonly statusListConfigService: StatusListConfigService,
         @InjectRepository(NonceEntity)
         private readonly nonceRepository: Repository<NonceEntity>,
+        @InjectRepository(DeferredTransactionEntity)
+        private readonly deferredTransactionRepository: Repository<DeferredTransactionEntity>,
     ) {}
 
     /**
@@ -156,6 +170,7 @@ export class Oid4vciService {
                     tenantId,
                 ),
             credential_endpoint: `${credential_issuer}/vci/credential`,
+            deferred_credential_endpoint: `${credential_issuer}/vci/deferred_credential`,
             authorization_servers: authServers,
             notification_endpoint: `${credential_issuer}/vci/notification`,
             nonce_endpoint: `${credential_issuer}/vci/nonce`,
@@ -403,10 +418,22 @@ export class Oid4vciService {
             const credentials: { credential: string }[] = [];
 
             //get the claims from webhook if configured
-            const claims = await this.credentialsService.getClaimsFromWebhook(
-                parsedCredentialRequest.credentialConfigurationId as string,
-                session,
-            );
+            const claimsResult =
+                await this.credentialsService.getClaimsFromWebhook(
+                    parsedCredentialRequest.credentialConfigurationId as string,
+                    session,
+                );
+
+            // Check if the webhook indicated deferred issuance
+            if (claimsResult?.deferred) {
+                return this.handleDeferredIssuance(
+                    parsedCredentialRequest,
+                    session,
+                    tenantId,
+                    claimsResult,
+                    logContext,
+                );
+            }
 
             for (const jwt of parsedCredentialRequest.proofs.jwt) {
                 // check if the nonce was requested before and delete it
@@ -444,7 +471,7 @@ export class Oid4vciService {
                     parsedCredentialRequest.credentialConfigurationId as string,
                     cnf as any,
                     session,
-                    claims,
+                    claimsResult?.claims,
                 );
                 credentials.push({
                     credential: cred,
@@ -630,5 +657,350 @@ export class Oid4vciService {
             );
             throw error;
         }
+    }
+
+    /**
+     * Handle deferred credential issuance.
+     * Creates a deferred transaction and returns HTTP 202 with transaction_id.
+     * @param parsedCredentialRequest The parsed credential request
+     * @param session The session
+     * @param tenantId The tenant ID
+     * @param claimsResult The claims webhook result indicating deferral
+     * @param logContext The logging context
+     * @returns A deferred credential response
+     */
+    private async handleDeferredIssuance(
+        parsedCredentialRequest: any,
+        session: any,
+        tenantId: string,
+        claimsResult: ClaimsWebhookResult,
+        logContext: SessionLogContext,
+    ): Promise<{
+        transaction_id: string;
+        interval?: number;
+    }> {
+        // For deferred issuance, we need to store the holder's proof(s) for later verification
+        // We'll verify the first proof and store the CNF for when the credential is ready
+        const issuer = this.getIssuer(tenantId);
+
+        // Verify the first proof to get the holder's public key
+        const jwt = parsedCredentialRequest.proofs.jwt[0];
+        const payload = decodeJwt(jwt);
+        const expectedNonce = payload.nonce! as string;
+
+        // Delete the nonce to prevent reuse
+        const nonceResult = await this.nonceRepository.delete({
+            nonce: expectedNonce,
+            tenantId,
+        });
+        if (nonceResult.affected === 0) {
+            throw new CredentialRequestException(
+                "invalid_nonce",
+                "The nonce in the key proof is invalid or has already been used",
+            );
+        }
+
+        const verifiedProof = await issuer.verifyCredentialRequestJwtProof({
+            expectedNonce,
+            issuerMetadata: await this.issuerMetadata(session.tenantId),
+            jwt,
+        });
+
+        const transactionId = v4();
+        const interval = claimsResult.interval ?? 5;
+
+        // Calculate expiration (default 24 hours)
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + 24);
+
+        // Create deferred transaction record
+        const deferredTransaction = this.deferredTransactionRepository.create({
+            transactionId,
+            tenantId,
+            sessionId: session.id,
+            credentialConfigurationId:
+                parsedCredentialRequest.credentialConfigurationId as string,
+            holderCnf: verifiedProof.signer.publicJwk as Record<
+                string,
+                unknown
+            >,
+            status: DeferredTransactionStatus.Pending,
+            interval,
+            expiresAt,
+        });
+
+        await this.deferredTransactionRepository.save(deferredTransaction);
+
+        this.sessionLogger.logSession(
+            logContext,
+            "Deferred credential issuance initiated",
+            {
+                transactionId,
+                credentialConfigurationId:
+                    parsedCredentialRequest.credentialConfigurationId,
+                interval,
+                expiresAt: expiresAt.toISOString(),
+            },
+        );
+
+        // Return response with HTTP 202 (handled by controller)
+        return {
+            transaction_id: transactionId,
+            interval,
+        };
+    }
+
+    /**
+     * Handle deferred credential request.
+     * Called when wallet polls with transaction_id.
+     * @param req The request
+     * @param body The deferred credential request DTO
+     * @param tenantId The tenant ID
+     * @returns Credential response or issuance_pending error
+     */
+    async getDeferredCredential(
+        req: Request,
+        body: DeferredCredentialRequestDto,
+        tenantId: string,
+    ): Promise<CredentialResponse> {
+        const issuer = this.getIssuer(tenantId);
+        const resourceServer = this.getResourceServer(tenantId);
+        const issuerMetadata = await this.issuerMetadata(tenantId, issuer);
+        const issuanceConfig =
+            await this.issuanceService.getIssuanceConfiguration(tenantId);
+        const headers = getHeadersFromRequest(req);
+
+        const allowedAuthenticationSchemes = [
+            SupportedAuthenticationScheme.DPoP,
+        ];
+
+        if (!issuanceConfig.dPopRequired) {
+            allowedAuthenticationSchemes.push(
+                SupportedAuthenticationScheme.Bearer,
+            );
+        }
+
+        // Verify the access token
+        await resourceServer.verifyResourceRequest({
+            authorizationServers: issuerMetadata.authorizationServers,
+            request: {
+                url: `${this.configService.getOrThrow<string>("PUBLIC_URL")}${req.url}`,
+                method: req.method as HttpMethod,
+                headers,
+            },
+            resourceServer: issuerMetadata.credentialIssuer.credential_issuer,
+            allowedAuthenticationSchemes,
+        });
+
+        // Find the deferred transaction
+        const deferredTransaction =
+            await this.deferredTransactionRepository.findOneBy({
+                transactionId: body.transaction_id,
+                tenantId,
+            });
+
+        if (!deferredTransaction) {
+            throw new DeferredCredentialException(
+                "invalid_transaction_id",
+                "The transaction_id is invalid or has expired",
+            );
+        }
+
+        // Check if transaction has expired
+        if (new Date() > deferredTransaction.expiresAt) {
+            await this.deferredTransactionRepository.update(
+                { transactionId: body.transaction_id },
+                { status: DeferredTransactionStatus.Expired },
+            );
+            throw new DeferredCredentialException(
+                "invalid_transaction_id",
+                "The transaction has expired",
+            );
+        }
+
+        // Create logging context
+        const logContext: SessionLogContext = {
+            sessionId: deferredTransaction.sessionId,
+            tenantId,
+            flowType: "OID4VCI",
+            stage: "deferred_credential",
+        };
+
+        // Check the status of the deferred transaction
+        switch (deferredTransaction.status) {
+            case DeferredTransactionStatus.Pending:
+                // Credential is still being processed
+                this.sessionLogger.logSession(
+                    logContext,
+                    "Deferred credential still pending",
+                    {
+                        transactionId: body.transaction_id,
+                        interval: deferredTransaction.interval,
+                    },
+                );
+                throw new DeferredCredentialException(
+                    "issuance_pending",
+                    "The credential issuance is still pending",
+                    deferredTransaction.interval,
+                );
+
+            case DeferredTransactionStatus.Failed:
+                throw new DeferredCredentialException(
+                    "invalid_transaction_id",
+                    deferredTransaction.errorMessage ||
+                        "The credential issuance has failed",
+                );
+
+            case DeferredTransactionStatus.Expired:
+                throw new DeferredCredentialException(
+                    "invalid_transaction_id",
+                    "The transaction has expired",
+                );
+
+            case DeferredTransactionStatus.Retrieved:
+                throw new DeferredCredentialException(
+                    "invalid_transaction_id",
+                    "The credential has already been retrieved",
+                );
+
+            case DeferredTransactionStatus.Ready:
+                // Credential is ready - return it
+                if (!deferredTransaction.credential) {
+                    throw new DeferredCredentialException(
+                        "invalid_transaction_id",
+                        "Credential is marked as ready but not available",
+                    );
+                }
+
+                // Mark as retrieved
+                await this.deferredTransactionRepository.update(
+                    { transactionId: body.transaction_id },
+                    { status: DeferredTransactionStatus.Retrieved },
+                );
+
+                this.sessionLogger.logSession(
+                    logContext,
+                    "Deferred credential retrieved",
+                    {
+                        transactionId: body.transaction_id,
+                        credentialConfigurationId:
+                            deferredTransaction.credentialConfigurationId,
+                    },
+                );
+
+                // Return the credential response directly
+                // Per OID4VCI Section 9.2, the response has the same format as the Credential Response
+                return {
+                    credential: deferredTransaction.credential,
+                } as CredentialResponse;
+
+            default:
+                throw new DeferredCredentialException(
+                    "invalid_transaction_id",
+                    "Unknown transaction status",
+                );
+        }
+    }
+
+    /**
+     * Mark a deferred transaction as ready with the issued credential.
+     * This method is called when the external system completes processing.
+     * @param tenantId The tenant ID
+     * @param transactionId The transaction ID
+     * @param claims The claims to include in the credential
+     * @returns The updated deferred transaction
+     */
+    async completeDeferredTransaction(
+        tenantId: string,
+        transactionId: string,
+        claims: Record<string, unknown>,
+    ): Promise<DeferredTransactionEntity | null> {
+        // Find the deferred transaction
+        const transaction = await this.deferredTransactionRepository.findOneBy({
+            transactionId,
+            tenantId,
+            status: DeferredTransactionStatus.Pending,
+        });
+
+        if (!transaction) {
+            return null;
+        }
+
+        // Get the session to issue the credential
+        const session = await this.sessionService.get(transaction.sessionId);
+        if (!session) {
+            throw new ConflictException(
+                `Session ${transaction.sessionId} not found for deferred transaction ${transactionId}`,
+            );
+        }
+
+        // Issue the credential
+        const credential = await this.credentialsService.getCredential(
+            transaction.credentialConfigurationId,
+            transaction.holderCnf as Jwk,
+            session,
+            claims as Record<string, any>,
+        );
+
+        // Update the transaction
+        await this.deferredTransactionRepository.update(
+            { transactionId, tenantId },
+            {
+                status: DeferredTransactionStatus.Ready,
+                credential,
+            },
+        );
+
+        transaction.status = DeferredTransactionStatus.Ready;
+        transaction.credential = credential;
+
+        return transaction;
+    }
+
+    /**
+     * Mark a deferred transaction as failed.
+     * @param tenantId The tenant ID
+     * @param transactionId The transaction ID
+     * @param errorMessage Optional error message
+     * @returns The updated deferred transaction
+     */
+    async failDeferredTransaction(
+        tenantId: string,
+        transactionId: string,
+        errorMessage?: string,
+    ): Promise<DeferredTransactionEntity | null> {
+        // Find the deferred transaction
+        const transaction = await this.deferredTransactionRepository.findOneBy({
+            transactionId,
+            tenantId,
+        });
+
+        if (!transaction) {
+            return null;
+        }
+
+        await this.deferredTransactionRepository.update(
+            { transactionId, tenantId },
+            {
+                status: DeferredTransactionStatus.Failed,
+                errorMessage: errorMessage ?? "Transaction marked as failed",
+            },
+        );
+
+        transaction.status = DeferredTransactionStatus.Failed;
+        transaction.errorMessage =
+            errorMessage ?? "Transaction marked as failed";
+
+        return transaction;
+    }
+
+    /**
+     * Cleanup expired deferred transactions.
+     */
+    @Cron(CronExpression.EVERY_HOUR)
+    async cleanupExpiredDeferredTransactions() {
+        await this.deferredTransactionRepository.delete({
+            expiresAt: LessThan(new Date()),
+        });
     }
 }

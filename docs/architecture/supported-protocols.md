@@ -19,6 +19,20 @@ technical framework.
 | [Mobile Driving License (mDOC/mDL)](https://www.iso.org/standard/69084.html)                                                     | ISO 18013-5 standard for mobile driving licenses and other mobile documents.               |
 | [OAuth Token Status List](https://drafts.oauth.net/draft-ietf-oauth-status-list/draft-ietf-oauth-status-list.html)               | Mechanism for determining revocation or suspension status of issued credentials.           |
 
+### OID4VCI Features
+
+EUDIPLO implements the following OID4VCI features:
+
+| Feature                                  | Status | Description                                                      |
+| ---------------------------------------- | ------ | ---------------------------------------------------------------- |
+| Pre-Authorized Code Flow                 | ✅     | Issue credentials without user authentication at the issuer      |
+| Authorization Code Flow                  | ✅     | Issue credentials with user authentication                       |
+| Batch Credential Issuance                | ✅     | Issue multiple credentials in a single request                   |
+| **Deferred Credential Endpoint**         | ✅     | Support for credentials that cannot be issued immediately        |
+| Notification Endpoint                    | ✅     | Receive wallet acknowledgment of credential acceptance/rejection |
+| DPoP (Demonstrating Proof-of-Possession) | ✅     | Enhanced security with proof-of-possession tokens                |
+| Wallet Attestation                       | ✅     | Verify wallet provider trustworthiness                           |
+
 These standards are evolving in coordination with EU-level pilot projects and
 working groups. EUDIPLO tracks these developments closely to provide early,
 stable support as specifications mature.
