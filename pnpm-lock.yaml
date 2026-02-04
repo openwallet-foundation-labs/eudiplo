@@ -360,7 +360,7 @@ importers:
         version: 7.0.1(@angular/forms@21.1.2(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0))(@angular/platform-browser@21.1.2(@angular/animations@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0)))(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0)))(rxjs@7.8.2))(rxjs@7.8.2)
       '@ngx-formly/material':
         specifier: ^7.0.1
-        version: 7.0.1(@angular/material@21.1.2(1e32b508546eaa30e3213c6dfe771430))(@ngx-formly/core@7.0.1(@angular/forms@21.1.2(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0))(@angular/platform-browser@21.1.2(@angular/animations@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0)))(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0)))(rxjs@7.8.2))(rxjs@7.8.2))
+        version: 7.1.0(@angular/material@21.1.2(1e32b508546eaa30e3213c6dfe771430))(@ngx-formly/core@7.0.1(@angular/forms@21.1.2(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0))(@angular/platform-browser@21.1.2(@angular/animations@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0)))(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0)))(rxjs@7.8.2))(rxjs@7.8.2))
       '@peculiar/x509':
         specifier: ^1.14.3
         version: 1.14.3
@@ -2927,11 +2927,11 @@ packages:
       '@angular/forms': '>=13.2.0'
       rxjs: ^6.5.3 || ^7.0.0
 
-  '@ngx-formly/material@7.0.1':
-    resolution: {integrity: sha512-aNv0C6/EhQzkUOn5hnzDbisecb8c1etwdsOBO73sW1ceMHya8bZG1lAl6+JWTO7/jqxmtccH0pZ9EBVARhw7HQ==}
+  '@ngx-formly/material@7.1.0':
+    resolution: {integrity: sha512-mrTvPyogIHDX/VRDVZjBSs88JHQm7KWQo2bvgNj8YDL9cn00VroAb+HWZa8LaX15kqaGj30PSDFTHqlGKBb9+w==}
     peerDependencies:
       '@angular/material': '>=16.0.0'
-      '@ngx-formly/core': 7.0.1
+      '@ngx-formly/core': 7.1.0
 
   '@noble/curves@2.0.1':
     resolution: {integrity: sha512-vs1Az2OOTBiP4q0pwjW5aF0xp9n4MxVrmkFBxc6EKZc6ddYx5gaZiAsZoq0uRRXWbi3AT/sBqn05eRPtn1JCPw==}
@@ -6307,6 +6307,7 @@ packages:
 
   glob@10.5.0:
     resolution: {integrity: sha512-DfXN8DfhJ7NH3Oe7cFmu3NCu1wKbkReJ8TorzSAFbSKrlNaQSKfIzqYqVY8zlbs2NLBbWpRiU52GX2PbaBVNkg==}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   glob@13.0.0:
@@ -6315,7 +6316,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   globals@14.0.0:
     resolution: {integrity: sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ==}
@@ -9080,7 +9081,7 @@ packages:
   tar@6.2.1:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
-    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exhorbitant rates) by contacting i@izs.me
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   tar@7.5.7:
     resolution: {integrity: sha512-fov56fJiRuThVFXD6o6/Q354S7pnWMJIVlDBYijsTNx6jKSE4pvrDTs6lUnmGvNyfJwFQQwWy3owKz1ucIhveQ==}
@@ -13032,7 +13033,7 @@ snapshots:
       rxjs: 7.8.2
       tslib: 2.8.1
 
-  '@ngx-formly/material@7.0.1(@angular/material@21.1.2(1e32b508546eaa30e3213c6dfe771430))(@ngx-formly/core@7.0.1(@angular/forms@21.1.2(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0))(@angular/platform-browser@21.1.2(@angular/animations@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0)))(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0)))(rxjs@7.8.2))(rxjs@7.8.2))':
+  '@ngx-formly/material@7.1.0(@angular/material@21.1.2(1e32b508546eaa30e3213c6dfe771430))(@ngx-formly/core@7.0.1(@angular/forms@21.1.2(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0))(@angular/platform-browser@21.1.2(@angular/animations@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0)))(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0)))(rxjs@7.8.2))(rxjs@7.8.2))':
     dependencies:
       '@angular/material': 21.1.2(1e32b508546eaa30e3213c6dfe771430)
       '@ngx-formly/core': 7.0.1(@angular/forms@21.1.2(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0))(@angular/platform-browser@21.1.2(@angular/animations@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0)))(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.16.0)))(rxjs@7.8.2))(rxjs@7.8.2)
