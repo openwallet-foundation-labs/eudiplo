@@ -121,17 +121,17 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1
       '@openid4vc/oauth2':
-        specifier: 0.4.4
-        version: 0.4.4
+        specifier: 0.4.5
+        version: 0.4.5
       '@openid4vc/openid4vci':
-        specifier: 0.4.4
-        version: 0.4.4
+        specifier: 0.4.5
+        version: 0.4.5
       '@openid4vc/openid4vp':
-        specifier: 0.4.4
-        version: 0.4.4
+        specifier: 0.4.5
+        version: 0.4.5
       '@openid4vc/utils':
-        specifier: 0.4.4
-        version: 0.4.4
+        specifier: 0.4.5
+        version: 0.4.5
       '@panva/hkdf':
         specifier: ^1.2.1
         version: 1.2.1
@@ -3119,17 +3119,17 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  '@openid4vc/oauth2@0.4.4':
-    resolution: {integrity: sha512-MsZnIU8RWCNYgmdGH9uelFOh7ZzE38B0FZA2wsGeOf6XW2bHATi+1nVOLkEgMDCT5KFEGohGlCl0OKYtPUSnzA==}
+  '@openid4vc/oauth2@0.4.5':
+    resolution: {integrity: sha512-lqiQPuSPlx6Nxyi3KeLGnQAur/QV8e/eEWmpFwBKnhVFUPSdCN1GurULhkPXRBj+KmN0kNak2DrE+rzNxd4/Jw==}
 
-  '@openid4vc/openid4vci@0.4.4':
-    resolution: {integrity: sha512-BLa5A5F/IwgZax1cnxhLrg2YxxqkMhJMeUe1N+H8TyQBFJLBD7WpPoE7omdCKzSkHYH1rNInsbYMMFpPQuowfg==}
+  '@openid4vc/openid4vci@0.4.5':
+    resolution: {integrity: sha512-rOc6LhcJV6UcE9KmNHgDDT68fEuaTxZurBkd/OROQXNpv8rXmWh3gw/avI+tK+zLDaGPYIOcyWonZkk41Y/gPQ==}
 
-  '@openid4vc/openid4vp@0.4.4':
-    resolution: {integrity: sha512-29kFNc6QIkdOYZz83y+M+XgvqsDGHcJr194IPLzoVrH9sgh8rIft9Jrf2aU+MZSTYwvc5ftm9ukxlvl2ccMIZg==}
+  '@openid4vc/openid4vp@0.4.5':
+    resolution: {integrity: sha512-CO6zLPXjVe1C1Jy/bdWQaVc3/mqqdRhEFboctccH6SMLNYY+lG0CGsoc4JVpyREGe4m2WUSxnWlsrGlGjZ0QvQ==}
 
-  '@openid4vc/utils@0.4.4':
-    resolution: {integrity: sha512-ctXOmvejB34C3ZcBbtU4N7ukpIzeVzxmNjlQ1Oxf03jKDn5pngq7h39HUg1ggjFJgTSn9jVlQUON/DG6oovh5w==}
+  '@openid4vc/utils@0.4.5':
+    resolution: {integrity: sha512-9F5CPdWnBKlPz/z8CtfSnp+XjaMso6qvcFFihjQp3vWSxyFAAQiTjJUvtwXZKKx4ZX0g9O28QVoYmJF/5jQmjA==}
 
   '@opentelemetry/api@1.9.0':
     resolution: {integrity: sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==}
@@ -13275,24 +13275,24 @@ snapshots:
       openapi-typescript: 5.4.2
       yargs: 17.7.2
 
-  '@openid4vc/oauth2@0.4.4':
+  '@openid4vc/oauth2@0.4.5':
     dependencies:
-      '@openid4vc/utils': 0.4.4
+      '@openid4vc/utils': 0.4.5
       zod: 4.3.6
 
-  '@openid4vc/openid4vci@0.4.4':
+  '@openid4vc/openid4vci@0.4.5':
     dependencies:
-      '@openid4vc/oauth2': 0.4.4
-      '@openid4vc/utils': 0.4.4
+      '@openid4vc/oauth2': 0.4.5
+      '@openid4vc/utils': 0.4.5
       zod: 4.3.6
 
-  '@openid4vc/openid4vp@0.4.4':
+  '@openid4vc/openid4vp@0.4.5':
     dependencies:
-      '@openid4vc/oauth2': 0.4.4
-      '@openid4vc/utils': 0.4.4
+      '@openid4vc/oauth2': 0.4.5
+      '@openid4vc/utils': 0.4.5
       zod: 4.3.6
 
-  '@openid4vc/utils@0.4.4':
+  '@openid4vc/utils@0.4.5':
     dependencies:
       buffer: 6.0.3
       zod: 4.3.6
