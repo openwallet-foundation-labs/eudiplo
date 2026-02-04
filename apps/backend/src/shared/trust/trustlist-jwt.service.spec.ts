@@ -1,4 +1,5 @@
 import { HttpService } from "@nestjs/axios";
+import { exportJWK, generateKeyPair, SignJWT } from "jose";
 import { of, throwError } from "rxjs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { TrustListJwtService } from "./trustlist-jwt.service";
@@ -127,12 +128,115 @@ describe("TrustListJwtService", () => {
     });
 
     describe("verifyTrustListJwt", () => {
-        it("should resolve without verification (placeholder)", async () => {
-            const mockRef = { url: "https://example.com", x5c: [] };
+        it("should skip verification when no verifier key is provided", async () => {
+            const mockRef = { url: "https://example.com/trust-list" };
             const mockJwt = "eyJ...";
 
             await expect(
                 service.verifyTrustListJwt(mockRef, mockJwt),
+            ).resolves.toBeUndefined();
+        });
+
+        it("should verify valid JWT with correct key", async () => {
+            const { privateKey, publicKey } = await generateKeyPair("ES256");
+            const publicJwk = await exportJWK(publicKey);
+            publicJwk.alg = "ES256";
+
+            const jwt = await new SignJWT({ sub: "test", iss: "test-issuer" })
+                .setProtectedHeader({ alg: "ES256" })
+                .setIssuedAt()
+                .setExpirationTime("1h")
+                .sign(privateKey);
+
+            const mockRef = {
+                url: "https://example.com/trust-list",
+                verifierKey: publicJwk,
+            };
+
+            await expect(
+                service.verifyTrustListJwt(mockRef, jwt),
+            ).resolves.toBeUndefined();
+        });
+
+        it("should throw error when JWT signature is invalid", async () => {
+            const { publicKey } = await generateKeyPair("ES256");
+            const { privateKey: differentKey } = await generateKeyPair("ES256");
+            const publicJwk = await exportJWK(publicKey);
+            publicJwk.alg = "ES256";
+
+            // Sign with a different key
+            const jwt = await new SignJWT({ sub: "test" })
+                .setProtectedHeader({ alg: "ES256" })
+                .setIssuedAt()
+                .setExpirationTime("1h")
+                .sign(differentKey);
+
+            const mockRef = {
+                url: "https://example.com/trust-list",
+                verifierKey: publicJwk,
+            };
+
+            await expect(
+                service.verifyTrustListJwt(mockRef, jwt),
+            ).rejects.toThrow("Trust list JWT verification failed");
+        });
+
+        it("should throw error when JWT is expired", async () => {
+            const { privateKey, publicKey } = await generateKeyPair("ES256");
+            const publicJwk = await exportJWK(publicKey);
+            publicJwk.alg = "ES256";
+
+            // Create an expired JWT
+            const jwt = await new SignJWT({ sub: "test" })
+                .setProtectedHeader({ alg: "ES256" })
+                .setIssuedAt(Math.floor(Date.now() / 1000) - 7200) // 2 hours ago
+                .setExpirationTime(Math.floor(Date.now() / 1000) - 3600) // 1 hour ago
+                .sign(privateKey);
+
+            const mockRef = {
+                url: "https://example.com/trust-list",
+                verifierKey: publicJwk,
+            };
+
+            await expect(
+                service.verifyTrustListJwt(mockRef, jwt),
+            ).rejects.toThrow("Trust list JWT verification failed");
+        });
+
+        it("should include URL in error message for debugging", async () => {
+            const { publicKey } = await generateKeyPair("ES256");
+            const publicJwk = await exportJWK(publicKey);
+            publicJwk.alg = "ES256";
+
+            const uniqueUrl = "https://unique-trust-anchor.example.com/lote";
+            const mockRef = {
+                url: uniqueUrl,
+                verifierKey: publicJwk,
+            };
+
+            await expect(
+                service.verifyTrustListJwt(mockRef, "invalid.jwt.token"),
+            ).rejects.toThrow(uniqueUrl);
+        });
+
+        it("should use default ES256 algorithm when not specified in key", async () => {
+            const { privateKey, publicKey } = await generateKeyPair("ES256");
+            const publicJwk = await exportJWK(publicKey);
+            // Don't set alg - should default to ES256
+
+            const jwt = await new SignJWT({ sub: "test" })
+                .setProtectedHeader({ alg: "ES256" })
+                .setIssuedAt()
+                .setExpirationTime("1h")
+                .sign(privateKey);
+
+            const mockRef = {
+                url: "https://example.com/trust-list",
+                verifierKey: publicJwk,
+            };
+
+            await expect(
+                service.verifyTrustListJwt(mockRef, jwt),
             ).resolves.toBeUndefined();
         });
     });
