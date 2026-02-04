@@ -24,13 +24,7 @@ export const configs: PredefinedConfig[] = [
             description: 'PID Credential',
             locale: 'en-US',
             background_color: '#FFFFFF',
-            text_color: '#000000',
-            background_image: {
-              uri: 'identity-card.jpg',
-            },
-            logo: {
-              uri: 'logo.jpg',
-            },
+            text_color: '#000000'
           },
         ],
       },
