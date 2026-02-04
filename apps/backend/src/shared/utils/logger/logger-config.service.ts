@@ -27,27 +27,19 @@ export class LoggerConfigService {
             level: this.parseLogLevel(
                 this.configService.get<string>("LOG_LEVEL", "info"),
             ),
-            enableSessionLogger: this.configService.get<boolean>(
+            enableSessionLogger: this.configService.getOrThrow<boolean>(
                 "LOG_ENABLE_SESSION_LOGGER",
-                false,
             ),
-            enableHttpLogger: this.configService.get<boolean>(
+            enableHttpLogger: this.configService.getOrThrow<boolean>(
                 "LOG_ENABLE_HTTP_LOGGER",
-                false,
             ),
-            enableDebugMode: this.configService.get<boolean>(
-                "LOG_DEBUG_MODE",
-                false,
-            ),
-            logFormat: this.configService.get<"json" | "pretty">(
+            enableDebugMode:
+                this.configService.getOrThrow<boolean>("LOG_DEBUG_MODE"),
+            logFormat: this.configService.getOrThrow<"json" | "pretty">(
                 "LOG_FORMAT",
-                "pretty",
             ),
-            logToFile: this.configService.get<boolean>("LOG_TO_FILE", false),
-            logFilePath: this.configService.get<string>(
-                "LOG_FILE_PATH",
-                "./logs/session.log",
-            ),
+            logToFile: this.configService.getOrThrow<boolean>("LOG_TO_FILE"),
+            logFilePath: this.configService.getOrThrow<string>("LOG_FILE_PATH"),
         };
     }
 
