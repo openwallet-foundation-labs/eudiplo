@@ -14,15 +14,29 @@ import { ObjectTypeComponent } from './types/object.type';
 import { ArrayTypeComponent } from './types/array.type';
 import { provideMonacoEditor } from 'ngx-monaco-editor-v2';
 import schemas from './utils/schemas.json';
+import transactionDataSchemaObj from '../../../../schemas/TransactionData.schema.json';
 import { authInterceptor } from './core';
 
 declare let monaco: any;
+
+// Dynamic schemas not generated from OpenAPI
+const transactionDataArraySchema = {
+  uri: 'https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TransactionDataArray.schema.json',
+  fileMatch: ['a://b/TransactionDataArray*.schema.json'],
+  schema: {
+    $schema: 'https://json-schema.org/draft/2020-12/schema',
+    $id: 'https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TransactionDataArray.schema.json',
+    title: 'TransactionDataArray',
+    type: 'array',
+    items: transactionDataSchemaObj,
+  },
+};
 
 export function onMonacoLoad() {
   monaco.languages.json.jsonDefaults.diagnosticsOptions.enableSchemaRequest = true;
   monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
     validate: true,
-    schemas,
+    schemas: [...schemas, transactionDataArraySchema],
   });
 }
 
