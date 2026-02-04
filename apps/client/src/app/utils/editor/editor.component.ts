@@ -10,11 +10,13 @@ import {
 import { MonacoEditorModule, NgxEditorModel } from 'ngx-monaco-editor-v2';
 import Ajv, { ValidateFunction } from 'ajv/dist/2020';
 import addFormats from 'ajv-formats';
-import { Component, forwardRef, OnChanges, Input, SimpleChanges, OnInit } from '@angular/core';
+import { Component, forwardRef, OnChanges, Input, SimpleChanges } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { SchemaValidation } from '../schemas';
 import schemas from '../schemas.json';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
+
+let editorInstanceCounter = 0;
 
 /**
  * extact the schema that got added by the editor
@@ -40,7 +42,7 @@ export function extractSchema(obj: any) {
     { provide: NG_VALIDATORS, useExisting: forwardRef(() => EditorComponent), multi: true },
   ],
 })
-export class EditorComponent implements ControlValueAccessor, Validator, OnChanges, OnInit {
+export class EditorComponent implements ControlValueAccessor, Validator, OnChanges {
   @Input() schema?: SchemaValidation;
   @Input() editorOptions: any = { language: 'json', automaticLayout: true };
   @Input() errors?: ValidationErrors | null = null;
@@ -52,6 +54,8 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
 
   private readonly ajv = new Ajv();
   private validateFn?: ValidateFunction;
+  private readonly instanceId = ++editorInstanceCounter;
+  private modelVersion = 0;
 
   constructor() {
     addFormats(this.ajv);
@@ -64,23 +68,19 @@ export class EditorComponent implements ControlValueAccessor, Validator, OnChang
       }
     }
   }
-  ngOnInit(): void {
-    this.model = {
-      value: this.value,
-      language: 'json',
-      uri: this.schema?.getFileMatchUri(),
-    };
-  }
 
   // CVA
   writeValue(obj: any): void {
     // No longer inject $schema - Monaco uses URI-based schema matching via fileMatch
     this.value = obj == null ? '' : typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2);
 
+    // Use unique URI per instance and version to ensure Monaco creates a fresh model
+    // This prevents stale cached models when navigating between pages
+    this.modelVersion++;
     this.model = {
       value: this.value,
       language: this.editorOptions.language,
-      uri: this.schema?.getFileMatchUri(),
+      uri: this.schema?.getFileMatchUri(this.instanceId, this.modelVersion),
     };
   }
   registerOnChange = (fn: any) => (this._onChange = fn);

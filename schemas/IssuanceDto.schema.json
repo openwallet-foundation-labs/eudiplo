@@ -19,6 +19,17 @@
       "type": "boolean",
       "description": "Indicates whether DPoP is required for the issuance process. Default value is true."
     },
+    "walletAttestationRequired": {
+      "type": "boolean",
+      "description": "Indicates whether wallet attestation is required for the token endpoint.\nWhen enabled, wallets must provide OAuth-Client-Attestation headers.\nDefault value is false."
+    },
+    "walletProviderTrustLists": {
+      "description": "URLs of trust lists containing trusted wallet providers.\nThe wallet attestation's X.509 certificate will be validated against these trust lists.\nIf empty and walletAttestationRequired is true, all wallet providers are rejected.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "display": {
       "type": "array",
       "items": {

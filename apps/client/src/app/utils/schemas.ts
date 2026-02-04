@@ -28,12 +28,17 @@ export class SchemaValidation {
   /**
    * Get the fileMatch URI pattern for Monaco editor model.
    * This allows Monaco to auto-apply the schema without needing $schema in the content.
-   * Uses format: a://b/{SchemaName}.schema.json to match schemas.json fileMatch patterns.
+   * Uses format: a://b/{SchemaName}-{instanceId}-{version}.schema.json to match schemas.json fileMatch patterns.
+   * The instanceId and version ensure each editor instance gets a unique model URI,
+   * preventing Monaco from reusing cached models with stale values.
    */
-  getFileMatchUri(): string {
+  getFileMatchUri(instanceId?: number, version?: number): string {
     const schemaId = this.schema['$id'] || '';
     const fileName = schemaId.split('/').pop() || 'unknown.schema.json';
-    return `a://b/${fileName}`;
+    // Include instanceId and version in the URI to ensure unique models
+    const baseName = fileName.replace('.schema.json', '');
+    const suffix = instanceId != null && version != null ? `-${instanceId}-${version}` : '';
+    return `a://b/${baseName}${suffix}.schema.json`;
   }
 }
 

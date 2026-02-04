@@ -134,7 +134,7 @@ async function emitComponentSchemas(doc: AnyObj, isOAS31: boolean) {
 
     schemas.push({
       uri: finalSchema['$id'],
-      fileMatch: [`a://b/${sanitize(name)}.schema.json`],
+      fileMatch: [`a://b/${sanitize(name)}*.schema.json`],
       schema: finalSchema,
     });
 
