@@ -204,7 +204,10 @@ export class StatusListVerifierService {
             );
             return response.data;
         } catch (error: any) {
-            if (error?.name === "CanceledError" || error?.code === "ERR_CANCELED") {
+            if (
+                error?.name === "CanceledError" ||
+                error?.code === "ERR_CANCELED"
+            ) {
                 throw new Error(
                     `Status list fetch timed out after ${timeoutMs}ms for URI: ${uri}`,
                 );
