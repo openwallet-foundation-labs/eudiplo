@@ -45,6 +45,7 @@ import {
     OfferResponse,
 } from "./dto/offer-request.dto";
 import { NonceEntity } from "./entities/nonces.entity";
+import { CredentialRequestException } from "./exceptions";
 import { getHeadersFromRequest } from "./util";
 
 /**
@@ -327,12 +328,22 @@ export class Oid4vciService {
                 issuerMetadata,
                 credentialRequest: req.body as Record<string, unknown>,
             });
-        } catch {
-            throw new ConflictException("Invalid credential request");
+        } catch (err) {
+            // OID4VCI spec Section 8.3.1.2: invalid_credential_request
+            throw new CredentialRequestException(
+                "invalid_credential_request",
+                err instanceof Error
+                    ? err.message
+                    : "The Credential Request is malformed or missing required parameters",
+            );
         }
 
         if (parsedCredentialRequest?.proofs?.jwt === undefined) {
-            throw new Error("Invalid credential request");
+            // OID4VCI spec Section 8.3.1.2: invalid_proof
+            throw new CredentialRequestException(
+                "invalid_proof",
+                "The proofs parameter is missing or does not contain required JWT proofs",
+            );
         }
 
         const protocol = new URL(
@@ -367,7 +378,11 @@ export class Oid4vciService {
         });
 
         if (tokenPayload.sub !== session.id) {
-            throw new BadRequestException("Session not found");
+            // OID4VCI spec Section 8.3.1.2: credential_request_denied
+            throw new CredentialRequestException(
+                "credential_request_denied",
+                "The access token is not associated with a valid session",
+            );
         }
 
         // Create session logging context
@@ -403,16 +418,16 @@ export class Oid4vciService {
                     tenantId,
                 });
                 if (nonceResult.affected === 0) {
-                    this.sessionLogger.logFlowError(
-                        logContext,
-                        new ConflictException(
-                            "Nonce not found or already deleted",
-                        ),
-                        {
-                            credentialConfigurationId:
-                                parsedCredentialRequest.credentialConfigurationId,
-                        },
+                    // OID4VCI spec Section 8.3.1.2: invalid_nonce
+                    const nonceError = new CredentialRequestException(
+                        "invalid_nonce",
+                        "The nonce in the key proof is invalid or has already been used",
                     );
+                    this.sessionLogger.logFlowError(logContext, nonceError, {
+                        credentialConfigurationId:
+                            parsedCredentialRequest.credentialConfigurationId,
+                    });
+                    throw nonceError;
                 }
 
                 const verifiedProof =
@@ -473,7 +488,44 @@ export class Oid4vciService {
                 credentialConfigurationId:
                     parsedCredentialRequest.credentialConfigurationId,
             });
-            throw error;
+
+            // If it's already a CredentialRequestException, re-throw it
+            if (error instanceof CredentialRequestException) {
+                throw error;
+            }
+
+            // Check for credential configuration not found
+            if (
+                error instanceof ConflictException &&
+                (error.message?.includes("not found") ||
+                    error.message?.includes("Credential configuration"))
+            ) {
+                throw new CredentialRequestException(
+                    "unknown_credential_configuration",
+                    error.message,
+                );
+            }
+
+            // Check for proof verification errors
+            if (
+                error instanceof Error &&
+                (error.message?.toLowerCase().includes("proof") ||
+                    error.message?.toLowerCase().includes("signature") ||
+                    error.message?.toLowerCase().includes("jwt"))
+            ) {
+                throw new CredentialRequestException(
+                    "invalid_proof",
+                    error.message,
+                );
+            }
+
+            // Default: credential_request_denied for unrecoverable errors
+            throw new CredentialRequestException(
+                "credential_request_denied",
+                error instanceof Error
+                    ? error.message
+                    : "An unexpected error occurred",
+            );
         }
     }
 

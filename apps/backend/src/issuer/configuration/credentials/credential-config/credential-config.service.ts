@@ -12,7 +12,6 @@ import {
     ImportPhase,
 } from "../../../../shared/utils/config-import/config-import-orchestrator.service";
 import { FilesService } from "../../../../storage/files.service";
-import { StatusListService } from "../../../lifecycle/status/status-list.service";
 import { CredentialConfigCreate } from "../dto/credential-config-create.dto";
 import { CredentialConfigUpdate } from "../dto/credential-config-update.dto";
 import { CredentialConfig } from "../entities/credential.entity";
@@ -33,7 +32,6 @@ export class CredentialConfigService {
         private readonly certService: CertService,
         private readonly filesService: FilesService,
         private readonly configImportService: ConfigImportService,
-        private readonly statusListService: StatusListService,
         private readonly configImportOrchestrator: ConfigImportOrchestratorService,
     ) {
         this.configImportOrchestrator.register(
