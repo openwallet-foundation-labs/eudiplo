@@ -8,17 +8,32 @@ export type DecodedJwt = { header: any; payload: any; signature: string };
 export class TrustListJwtService {
     constructor(private readonly httpService: HttpService) {}
 
-    fetchJwt(url: string, timeoutMs = 4000): Promise<string> {
+    async fetchJwt(url: string, timeoutMs = 4000): Promise<string> {
         const ctrl = new AbortController();
         const t = setTimeout(() => ctrl.abort(), timeoutMs);
-        return firstValueFrom(
-            this.httpService.get(url, {
-                signal: ctrl.signal,
-                responseType: "text",
-            }),
-        )
-            .then((res) => res.data)
-            .finally(() => clearTimeout(t));
+        try {
+            const res = await firstValueFrom(
+                this.httpService.get(url, {
+                    signal: ctrl.signal,
+                    responseType: "text",
+                }),
+            );
+            return res.data;
+        } catch (error: any) {
+            if (
+                error?.name === "CanceledError" ||
+                error?.code === "ERR_CANCELED"
+            ) {
+                throw new Error(
+                    `Trust list fetch timed out after ${timeoutMs}ms for URL: ${url}`,
+                );
+            }
+            throw new Error(
+                `Failed to fetch trust list from ${url}: ${error?.message || error}`,
+            );
+        } finally {
+            clearTimeout(t);
+        }
     }
 
     /**
