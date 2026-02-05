@@ -198,7 +198,7 @@ export class Session {
      * Redirect URI to which the user-agent should be redirected after the presentation is completed.
      */
     @Column("varchar", { nullable: true })
-    redirectUri?: string;
+    redirectUri?: string | null;
 
     /**
      * Where to send the claims webhook response.

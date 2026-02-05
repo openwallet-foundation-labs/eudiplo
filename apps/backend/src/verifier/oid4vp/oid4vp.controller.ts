@@ -48,6 +48,26 @@ export class Oid4vpController {
     }
 
     /**
+     * Returns the authorization request for a given requestId and session, but does not redirect in the end.
+     * @param sessionId
+     * @param req
+     * @returns
+     */
+    @Get("request/no-redirect")
+    @SessionLogger("session", "OID4VP")
+    getRequestNoRedirectWithSession(
+        @Param("session") sessionId: string,
+        @Req() req: Request,
+    ) {
+        const origin = req.get("origin") as string;
+        return this.oid4vpService.createAuthorizationRequest(
+            sessionId,
+            origin,
+            true,
+        );
+    }
+
+    /**
      * Returns the authorization request for a given requestId and session.
      * @param sessionId
      * @param req

@@ -9,7 +9,6 @@ import { CryptoImplementationService } from "../../crypto/key/crypto-implementat
 import { CertUsage } from "../../crypto/key/entities/cert-usage.entity";
 import { KeyService } from "../../crypto/key/key.service";
 import { OfferResponse } from "../../issuer/issuance/oid4vci/dto/offer-request.dto";
-import { RegistrarService } from "../../registrar/registrar.service";
 import { SessionStatus } from "../../session/entities/session.entity";
 import { SessionService } from "../../session/session.service";
 import { SessionLoggerService } from "../../shared/utils/logger/session-logger.service";
@@ -27,7 +26,6 @@ export class Oid4vpService {
         @Inject("KeyService") public readonly keyService: KeyService,
         private readonly encryptionService: EncryptionService,
         private readonly configService: ConfigService,
-        private readonly registrarService: RegistrarService,
         private readonly presentationsService: PresentationsService,
         private readonly sessionService: SessionService,
         private readonly sessionLogger: SessionLoggerService,
@@ -41,13 +39,22 @@ export class Oid4vpService {
      * It initializes the session logging context and logs the start of the flow.
      * @param session
      * @param origin
+     * @param noRedirect
      * @returns
      */
     async createAuthorizationRequest(
         sessionId: string,
         origin: string,
+        noRedirect = false,
     ): Promise<string> {
         const session = await this.sessionService.get(sessionId);
+
+        // if noRedirect is true, we want to keep the redirectUri undefined in the session, as it will be used by the client to decide whether to redirect or not after receiving the response. If it's defined, the client will always redirect, even if it was instructed not to.
+        if (noRedirect) {
+            await this.sessionService.add(session.id, {
+                redirectUri: null,
+            });
+        }
 
         // Create session logging context
         const logContext: SessionLogContext = {
@@ -263,6 +270,18 @@ export class Oid4vpService {
             )
             .join("&");
 
+        // Create cross-device params with /no-redirect appended to request_uri
+        const crossDeviceParams = {
+            ...params,
+            request_uri: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${values.session}/oid4vp/request/no-redirect`,
+        };
+        const crossDeviceQueryString = Object.entries(crossDeviceParams)
+            .map(
+                ([key, value]) =>
+                    `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
+            )
+            .join("&");
+
         const expiresAt = new Date(
             Date.now() + (presentationConfig.lifeTime ?? 300) * 1000,
         );
@@ -315,6 +334,7 @@ export class Oid4vpService {
 
         return {
             uri: queryString,
+            crossDeviceUri: crossDeviceQueryString,
             session: values.session,
         };
     }
