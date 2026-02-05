@@ -13,6 +13,7 @@ spec:
       labels:
         app: minio
     spec:
+      automountServiceAccountToken: false
       securityContext:
         fsGroup: 1000
         runAsUser: 1000
@@ -74,4 +75,6 @@ spec:
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
+            storage: 10Gi
+          limits:
             storage: 10Gi

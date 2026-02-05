@@ -12,6 +12,7 @@ spec:
       labels:
         app: eudiplo
     spec:
+      automountServiceAccountToken: false
       securityContext:
         runAsUser: 1000
         runAsNonRoot: true
@@ -65,4 +66,5 @@ spec:
               mountPath: /app/uploads
       volumes:
         - name: uploads
-          emptyDir: {}
+          emptyDir:
+            sizeLimit: 1Gi

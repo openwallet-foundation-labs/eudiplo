@@ -60,9 +60,6 @@ deployment/
 │   ├── base/               # Core manifests
 │   ├── components/         # Optional components (postgres, minio, vault)
 │   └── overlays/           # Pre-configured profiles
-│
-├── minimal/                 # [Legacy] Minimal Docker Compose
-└── full/                    # [Legacy] Full Docker Compose
 ```
 
 ## Quick Reference
@@ -77,13 +74,13 @@ deployment/
 
 After deployment, access the services at:
 
-| Service               | URL                                   |
-| --------------------- | ------------------------------------- |
-| **Backend API**       | http://localhost:3000                 |
-| **Client Web UI**     | http://localhost:4200                 |
-| **API Documentation** | http://localhost:3000/api-docs        |
-| **MinIO Console**     | http://localhost:9001 (standard/full) |
-| **Vault UI**          | http://localhost:8200 (full)          |
+| Service               | URL                                     |
+| --------------------- | --------------------------------------- |
+| **Backend API**       | <http://localhost:3000>                 |
+| **Client Web UI**     | <http://localhost:4200>                 |
+| **API Documentation** | <http://localhost:3000/api-docs>        |
+| **MinIO Console**     | <http://localhost:9001> (standard/full) |
+| **Vault UI**          | <http://localhost:8200> (full)          |
 
 ## Support
 

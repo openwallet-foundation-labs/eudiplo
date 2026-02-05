@@ -165,10 +165,10 @@ export class MdlverifierService extends BaseVerifierService {
             }
         }
 
-        return new DeviceRequest({
+        return DeviceRequest.create({
             docRequests: [
-                new DocRequest({
-                    itemsRequest: new ItemsRequest({
+                DocRequest.create({
+                    itemsRequest: ItemsRequest.create({
                         docType,
                         namespaces,
                     }),

@@ -1,4 +1,4 @@
-import { CoseKey, Issuer, SignatureAlgorithm } from "@animo-id/mdoc";
+import { CoseKey, DeviceKey, Issuer, SignatureAlgorithm } from "@animo-id/mdoc";
 import { Injectable, Logger } from "@nestjs/common";
 import type { Jwk } from "@openid4vc/oauth2";
 import { X509Certificate } from "@peculiar/x509";
@@ -109,7 +109,7 @@ export class MdocIssuerService {
             certificate: new Uint8Array(x509Cert.rawData),
             algorithm: SignatureAlgorithm.ES256,
             digestAlgorithm: "SHA-256",
-            deviceKeyInfo: { deviceKey: CoseKey.fromJwk(deviceKey) },
+            deviceKeyInfo: { deviceKey: DeviceKey.fromJwk(deviceKey) },
             validityInfo: { signed, validFrom, validUntil },
         });
 

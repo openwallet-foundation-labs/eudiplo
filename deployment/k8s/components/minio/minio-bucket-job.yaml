@@ -9,10 +9,18 @@ spec:
       labels:
         app: minio-mc-bootstrap
     spec:
+      automountServiceAccountToken: false
       restartPolicy: Never
       containers:
         - name: mc
           image: quay.io/minio/mc:RELEASE.2025-02-28T09-52-04Z
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
           env:
             - name: MINIO_ROOT_USER
               valueFrom:

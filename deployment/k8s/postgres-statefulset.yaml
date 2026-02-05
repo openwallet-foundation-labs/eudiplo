@@ -14,6 +14,7 @@ spec:
       labels:
         app: postgres
     spec:
+      automountServiceAccountToken: false
       securityContext:
         fsGroup: 999
         runAsUser: 999
@@ -82,4 +83,6 @@ spec:
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
+            storage: 10Gi
+          limits:
             storage: 10Gi

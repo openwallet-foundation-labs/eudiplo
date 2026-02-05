@@ -3,6 +3,7 @@
 	"version": "0.0.0",
 	"license": "Apache-2.0",
 	"scripts": {
+		"build": "tsc --noEmit",
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev",
 		"start": "wrangler dev",
@@ -11,6 +12,6 @@
 	},
 	"devDependencies": {
 		"typescript": "^5.9.3",
-		"wrangler": "^4.60.0"
+		"wrangler": "^4.63.0"
 	}
 }
