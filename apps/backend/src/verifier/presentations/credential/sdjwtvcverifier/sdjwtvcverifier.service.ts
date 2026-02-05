@@ -274,12 +274,10 @@ export class SdjwtvcverifierService extends BaseVerifierService {
                 );
             }
 
-            // 6) OPTIONAL: revocation checks
-            // Hook this up to your own CRL/OCSP implementation/policy.
-            if (options.policy.revocation?.enabled) {
-                // TODO: call your revocation service here
-                // If failClosed and revocation info unavailable -> return false
-            }
+            // Note: Revocation checks are handled by the SD-JWT SDK via:
+            // - statusListFetcher: fetches and caches the status list JWT
+            // - statusVerifier: verifies the status list JWT signature
+            // The SDK automatically checks the status value during verify()
 
             return { verified: true, matchedEntity };
         } catch (e: any) {
