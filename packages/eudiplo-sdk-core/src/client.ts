@@ -139,15 +139,18 @@ export interface OfferResult {
   /**
    * URI for same-device flow.
    * Use when the wallet is on the same device as the browser.
-   * After presentation, the wallet will redirect the user back to the verifier.
+   * For presentation requests: After presentation, the wallet will redirect the user back to the verifier.
+   * For issuance offers: The wallet opens and receives the credential.
    */
   uri: string;
   /**
    * URI for cross-device flow (e.g., QR code scanned by another device).
    * Use when the wallet is on a different device than the browser.
    * No redirect happens after presentation - poll the session for status updates.
+   *
+   * Only available for presentation requests. For issuance, use `uri` for both flows.
    */
-  crossDeviceUri: string;
+  crossDeviceUri?: string;
   /** Session ID for polling status updates */
   sessionId: string;
 }
