@@ -126,6 +126,6 @@ export class DeferredTransactionEntity {
      * The timestamp when the transaction expires.
      * After this time, the transaction_id is no longer valid.
      */
-    @Column("datetime")
+    @Column()
     expiresAt!: Date;
 }
