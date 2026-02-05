@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { Inject, Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable, Logger, Optional } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import * as x509 from "@peculiar/x509";
@@ -20,6 +20,7 @@ import { UpdateKeyDto } from "../dto/key-update.dto";
 import { CertEntity } from "../entities/cert.entity";
 import { CertUsage, CertUsageEntity } from "../entities/cert-usage.entity";
 import { KeyService } from "../key.service";
+import { CrlValidationService } from "./crl-validation.service";
 
 const ECDSA_P256 = {
     name: "ECDSA",
@@ -31,6 +32,29 @@ export interface FindCertOptions {
     tenantId: string;
     type: CertUsage;
     id?: string;
+    /**
+     * Skip certificate validation (expiry and CRL check).
+     * Default: false
+     */
+    skipValidation?: boolean;
+}
+
+/**
+ * Result of certificate validation.
+ */
+export interface CertValidationResult {
+    /** Whether the certificate passed all validations */
+    isValid: boolean;
+    /** Error message if validation failed */
+    error?: string;
+    /** Whether the certificate is expired */
+    isExpired?: boolean;
+    /** Whether the certificate is revoked */
+    isRevoked?: boolean;
+    /** Certificate expiry date */
+    expiresAt?: Date;
+    /** Certificate validity start date */
+    validFrom?: Date;
 }
 
 /**
@@ -51,6 +75,8 @@ export class CertService {
         private readonly tenantRepository: Repository<TenantEntity>,
         private readonly configImportService: ConfigImportService,
         configImportOrchestrator: ConfigImportOrchestratorService,
+        @Optional()
+        private readonly crlValidationService?: CrlValidationService,
     ) {
         configImportOrchestrator.register(
             "certificates",
@@ -293,17 +319,148 @@ export class CertService {
     /**
      * Find a certificate by tenantId and usage type.
      */
-    find(value: FindCertOptions): Promise<CertEntity> {
-        return this.certUsageRepository
-            .findOneOrFail({
-                where: {
-                    tenantId: value.tenantId,
-                    usage: value.type,
-                    certId: value.id || undefined,
-                },
-                relations: ["cert"],
-            })
-            .then((certUsage) => certUsage.cert);
+    async find(value: FindCertOptions): Promise<CertEntity> {
+        const certUsage = await this.certUsageRepository.findOneOrFail({
+            where: {
+                tenantId: value.tenantId,
+                usage: value.type,
+                certId: value.id || undefined,
+            },
+            relations: ["cert"],
+        });
+
+        const cert = certUsage.cert;
+
+        // Validate the certificate unless explicitly skipped
+        if (!value.skipValidation) {
+            const validationResult = await this.validateCertificate(cert);
+            if (!validationResult.isValid) {
+                throw new Error(
+                    `Certificate ${cert.id} validation failed: ${validationResult.error}`,
+                );
+            }
+        }
+
+        return cert;
+    }
+
+    /**
+     * Validate a certificate for expiry and revocation status.
+     *
+     * @param cert - The certificate entity to validate
+     * @returns Validation result with details
+     */
+    async validateCertificate(cert: CertEntity): Promise<CertValidationResult> {
+        try {
+            const x509Cert = new x509.X509Certificate(cert.crt);
+
+            // Check time validity
+            const now = new Date();
+            const validFrom = x509Cert.notBefore;
+            const expiresAt = x509Cert.notAfter;
+
+            if (now < validFrom) {
+                return {
+                    isValid: false,
+                    error: `Certificate is not yet valid (valid from: ${validFrom.toISOString()})`,
+                    isExpired: false,
+                    validFrom,
+                    expiresAt,
+                };
+            }
+
+            if (now > expiresAt) {
+                this.logger.warn(
+                    `Certificate ${cert.id} has expired at ${expiresAt.toISOString()}`,
+                );
+                return {
+                    isValid: false,
+                    error: `Certificate expired at ${expiresAt.toISOString()}`,
+                    isExpired: true,
+                    validFrom,
+                    expiresAt,
+                };
+            }
+
+            // Check CRL if the service is available
+            if (this.crlValidationService) {
+                const crlResult =
+                    await this.crlValidationService.checkCertificateRevocation(
+                        cert.crt,
+                    );
+
+                if (
+                    !crlResult.isValid &&
+                    !crlResult.error?.includes("No CRL")
+                ) {
+                    this.logger.warn(
+                        `Certificate ${cert.id} revocation check failed: ${crlResult.error || "revoked"}`,
+                    );
+                    return {
+                        isValid: false,
+                        error:
+                            crlResult.error ||
+                            `Certificate revoked at ${crlResult.revokedAt?.toISOString()}`,
+                        isRevoked: true,
+                        validFrom,
+                        expiresAt,
+                    };
+                }
+
+                // Log if CRL couldn't be checked but don't fail
+                if (crlResult.error?.includes("No CRL")) {
+                    this.logger.debug(
+                        `Certificate ${cert.id} has no CRL Distribution Points, skipping revocation check`,
+                    );
+                }
+            }
+
+            return {
+                isValid: true,
+                validFrom,
+                expiresAt,
+            };
+        } catch (error: any) {
+            this.logger.error(
+                `Failed to validate certificate ${cert.id}: ${error.message}`,
+            );
+            return {
+                isValid: false,
+                error: `Certificate validation error: ${error.message}`,
+            };
+        }
+    }
+
+    /**
+     * Check if a certificate is expired.
+     *
+     * @param cert - The certificate entity to check
+     * @returns True if the certificate is expired
+     */
+    isCertificateExpired(cert: CertEntity): boolean {
+        try {
+            const x509Cert = new x509.X509Certificate(cert.crt);
+            return new Date() > x509Cert.notAfter;
+        } catch {
+            return true; // Assume expired if we can't parse
+        }
+    }
+
+    /**
+     * Get certificate validity information.
+     *
+     * @param cert - The certificate entity
+     * @returns Object with validFrom and expiresAt dates
+     */
+    getCertificateValidity(cert: CertEntity): {
+        validFrom: Date;
+        expiresAt: Date;
+    } {
+        const x509Cert = new x509.X509Certificate(cert.crt);
+        return {
+            validFrom: x509Cert.notBefore,
+            expiresAt: x509Cert.notAfter,
+        };
     }
 
     /**

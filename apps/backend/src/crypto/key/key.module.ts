@@ -10,6 +10,7 @@ import { ConfigImportOrchestratorService } from "../../shared/utils/config-impor
 import { DBKeyService } from "./adapters/db-key.service";
 import { VaultKeyService } from "./adapters/vault-key.service";
 import { CertService } from "./cert/cert.service";
+import { CrlValidationService } from "./cert/crl-validation.service";
 import { CryptoImplementatationModule } from "./crypto-implementation/crypto-implementation.module";
 import { CryptoImplementationService } from "./crypto-implementation/crypto-implementation.service";
 import { CertEntity } from "./entities/cert.entity";
@@ -35,6 +36,7 @@ export class KeyModule {
             ],
             providers: [
                 CertService,
+                CrlValidationService,
                 {
                     provide: "KeyService",
                     useFactory: (
@@ -89,7 +91,7 @@ export class KeyModule {
                     ],
                 },
             ],
-            exports: ["KeyService", CertService],
+            exports: ["KeyService", CertService, CrlValidationService],
         };
     }
 }
