@@ -35,8 +35,8 @@
         "prepublishOnly": "pnpm build"
     },
     "devDependencies": {
-        "@hey-api/openapi-ts": "^0.91.1",
-        "@types/node": "^25.2.0",
+        "@hey-api/openapi-ts": "^0.92.3",
+        "@types/node": "^25.2.1",
         "tsup": "^8.5.1",
         "typescript": "^5.9.3"
     },
