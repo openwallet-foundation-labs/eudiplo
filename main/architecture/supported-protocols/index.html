@@ -1324,6 +1324,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Protocols Supported">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#oid4vci-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OID4VCI Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2120,6 +2137,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Protocols Supported">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#oid4vci-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OID4VCI Features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2236,6 +2270,54 @@ technical framework.</p>
 <tr>
 <td><a href="https://drafts.oauth.net/draft-ietf-oauth-status-list/draft-ietf-oauth-status-list.html">OAuth Token Status List</a></td>
 <td>Mechanism for determining revocation or suspension status of issued credentials.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="oid4vci-features">OID4VCI Features<a class="headerlink" href="#oid4vci-features" title="Permanent link">¶</a></h3>
+<p>EUDIPLO implements the following OID4VCI features:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Status</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pre-Authorized Code Flow</td>
+<td>✅</td>
+<td>Issue credentials without user authentication at the issuer</td>
+</tr>
+<tr>
+<td>Authorization Code Flow</td>
+<td>✅</td>
+<td>Issue credentials with user authentication</td>
+</tr>
+<tr>
+<td>Batch Credential Issuance</td>
+<td>✅</td>
+<td>Issue multiple credentials in a single request</td>
+</tr>
+<tr>
+<td><strong>Deferred Credential Endpoint</strong></td>
+<td>✅</td>
+<td>Support for credentials that cannot be issued immediately</td>
+</tr>
+<tr>
+<td>Notification Endpoint</td>
+<td>✅</td>
+<td>Receive wallet acknowledgment of credential acceptance/rejection</td>
+</tr>
+<tr>
+<td>DPoP (Demonstrating Proof-of-Possession)</td>
+<td>✅</td>
+<td>Enhanced security with proof-of-possession tokens</td>
+</tr>
+<tr>
+<td>Wallet Attestation</td>
+<td>✅</td>
+<td>Verify wallet provider trustworthiness</td>
 </tr>
 </tbody>
 </table>

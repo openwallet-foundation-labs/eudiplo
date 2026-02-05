@@ -2082,6 +2082,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#deferred-credential-issuance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deferred Credential Issuance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#documentation-structure" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2305,13 +2316,27 @@ with the wallet. It also shows the interactions with <a href="../../architecture
 
     alt Claims webhook configured
         EUDIPLO-&gt;&gt;Service: Fetch claims dynamically (claims webhook)
-        Service--&gt;&gt;EUDIPLO: Claims response (JSON)
+        alt Immediate issuance
+            Service--&gt;&gt;EUDIPLO: Claims response (JSON)
+            EUDIPLO-&gt;&gt;EUDIPLO: Create credential with claims
+            EUDIPLO--&gt;&gt;Wallet: Return issued credential
+        else Deferred issuance
+            Service--&gt;&gt;EUDIPLO: { "deferred": true, "interval": 5 }
+            EUDIPLO--&gt;&gt;Wallet: HTTP 202 + transaction_id
+            loop Wallet polls deferred endpoint
+                Wallet-&gt;&gt;EUDIPLO: GET /deferred_credential
+                alt Not ready
+                    EUDIPLO--&gt;&gt;Wallet: { "error": "issuance_pending" }
+                else Ready
+                    EUDIPLO--&gt;&gt;Wallet: Return issued credential
+                end
+            end
+        end
     else No webhook
         note over EUDIPLO: Use claims from Offer or static configuration
+        EUDIPLO-&gt;&gt;EUDIPLO: Create credential with claims
+        EUDIPLO--&gt;&gt;Wallet: Return issued credential
     end
-
-    EUDIPLO-&gt;&gt;EUDIPLO: Create credential with claims
-    EUDIPLO--&gt;&gt;Wallet: Return issued credential
 
     Wallet-&gt;&gt;EUDIPLO: Sending notification
 
@@ -2320,6 +2345,17 @@ with the wallet. It also shows the interactions with <a href="../../architecture
         Service--&gt;&gt;EUDIPLO: 2xx ACK
     end</code></pre>
 <p>The response with the credential offer link will also provide the session ID. It is included in the requests from the optional webhooks to identify the specific issuance flow. You can also use the id to query the issuance status at the API.</p>
+<hr>
+<h2 id="deferred-credential-issuance">Deferred Credential Issuance<a class="headerlink" href="#deferred-credential-issuance" title="Permanent link">¶</a></h2>
+<p>EUDIPLO supports <strong>deferred credential issuance</strong> for scenarios where credentials cannot be issued immediately. This is useful when:</p>
+<ul>
+<li><strong>Background verification</strong> is required (e.g., KYC, identity proofing)</li>
+<li><strong>Approval workflows</strong> must be completed before issuance</li>
+<li><strong>External data sources</strong> need time to respond</li>
+<li><strong>Asynchronous processing</strong> is required</li>
+</ul>
+<p>When your claims webhook returns <code>{ "deferred": true }</code>, EUDIPLO returns a <code>transaction_id</code> to the wallet. The wallet then polls the <code>/deferred_credential</code> endpoint until the credential is ready.</p>
+<p>For detailed information on implementing deferred issuance, see the <a href="../../architecture/webhooks/#deferred-credential-issuance">Deferred Credential Issuance</a> section in the Webhooks documentation.</p>
 <hr>
 <h2 id="documentation-structure">Documentation Structure<a class="headerlink" href="#documentation-structure" title="Permanent link">¶</a></h2>
 <p>This issuance documentation is organized into the following sections:</p>

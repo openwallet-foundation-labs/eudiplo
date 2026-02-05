@@ -134,6 +134,9 @@
                             <a href="#BuiltTrustStore" title="src/shared/trust/trust-store.service.ts" ><b>BuiltTrustStore</b>&nbsp;&nbsp;&nbsp;(src/.../trust-store.service.ts)</a>
                         </li>
                         <li>
+                            <a href="#CredentialRequestErrorCode" title="src/issuer/issuance/oid4vci/exceptions/credential-request.exception.ts" ><b>CredentialRequestErrorCode</b>&nbsp;&nbsp;&nbsp;(src/.../credential-request.exception.ts)</a>
+                        </li>
+                        <li>
                             <a href="#CredentialType" title="src/verifier/presentations/presentations.service.ts" ><b>CredentialType</b>&nbsp;&nbsp;&nbsp;(src/.../presentations.service.ts)</a>
                         </li>
                         <li>
@@ -141,6 +144,9 @@
                         </li>
                         <li>
                             <a href="#DecodedJwt" title="src/shared/trust/trustlist-jwt.service.ts" ><b>DecodedJwt</b>&nbsp;&nbsp;&nbsp;(src/.../trustlist-jwt.service.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#DeferredCredentialErrorCode" title="src/issuer/issuance/oid4vci/exceptions/deferred-credential.exception.ts" ><b>DeferredCredentialErrorCode</b>&nbsp;&nbsp;&nbsp;(src/.../deferred-credential.exception.ts)</a>
                         </li>
                         <li>
                             <a href="#DistributionPoints" title="src/issuer/trust-list/dto/types.ts" ><b>DistributionPoints</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
@@ -302,6 +308,9 @@
                             <a href="#TETradeName" title="src/issuer/trust-list/dto/types.ts" ><b>TETradeName</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
                         </li>
                         <li>
+                            <a href="#TokenErrorCode" title="src/issuer/issuance/oid4vci/exceptions/token-error.exception.ts" ><b>TokenErrorCode</b>&nbsp;&nbsp;&nbsp;(src/.../token-error.exception.ts)</a>
+                        </li>
+                        <li>
                             <a href="#TrustedEntitiesList" title="src/issuer/trust-list/dto/types.ts" ><b>TrustedEntitiesList</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
                         </li>
                         <li>
@@ -368,6 +377,31 @@
             </tr>
         </tbody>
     </table>
+</section>    <h3>src/issuer/issuance/oid4vci/exceptions/credential-request.exception.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="CredentialRequestErrorCode"></a>
+                    <span class="name "><b>CredentialRequestErrorCode</b><a href="#CredentialRequestErrorCode"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>OID4VCI Credential Request Error Codes as defined in:
+<a href="https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-request-errors">https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-request-errors</a></p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;invalid_credential_request&quot; | &quot;unknown_credential_configuration&quot; | &quot;unknown_credential_identifier&quot; | &quot;invalid_proof&quot; | &quot;invalid_nonce&quot; | &quot;invalid_encryption_parameters&quot; | &quot;credential_request_denied&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>    <h3>src/verifier/presentations/presentations.service.ts</h3>
     <section data-compodoc="block-typealias">
     <table class="table table-sm table-bordered">
@@ -417,6 +451,31 @@
             <tr>
                 <td class="col-md-4">
                     <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/issuer/issuance/oid4vci/exceptions/deferred-credential.exception.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="DeferredCredentialErrorCode"></a>
+                    <span class="name "><b>DeferredCredentialErrorCode</b><a href="#DeferredCredentialErrorCode"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>OID4VCI Deferred Credential Error Codes as defined in:
+<a href="https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-deferred-credential-error-r">https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-deferred-credential-error-r</a></p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;issuance_pending&quot; | &quot;invalid_transaction_id&quot;</code>
 </code>
                 </td>
             </tr>
@@ -1629,6 +1688,51 @@ Used with importConfigsForTenant where tenantId is passed separately.</p>
             <tr>
                 <td class="col-md-4">
                     <code>    <code>unknown</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/issuer/issuance/oid4vci/exceptions/token-error.exception.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="TokenErrorCode"></a>
+                    <span class="name "><b>TokenErrorCode</b><a href="#TokenErrorCode"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>OAuth 2.0 Token Error Codes as defined in:</p>
+<ul>
+<li>RFC 6749 Section 5.2 (<a href="https://www.rfc-editor.org/rfc/rfc6749#section-5.2">https://www.rfc-editor.org/rfc/rfc6749#section-5.2</a>)</li>
+<li>OID4VCI Section 6.3 (<a href="https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-token-error-response">https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-token-error-response</a>)</li>
+</ul>
+<p>OID4VCI specific clarifications:</p>
+<ul>
+<li><code>invalid_request</code>:<ul>
+<li>The Authorization Server does not expect a Transaction Code in the Pre-Authorized Code Flow but the Client provides one.</li>
+<li>The Authorization Server expects a Transaction Code in the Pre-Authorized Code Flow but the Client does not provide one.</li>
+</ul>
+</li>
+<li><code>invalid_grant</code>:<ul>
+<li>The Authorization Server expects a Transaction Code in the Pre-Authorized Code Flow but the Client provides the wrong Transaction Code.</li>
+<li>The End-User provides the wrong Pre-Authorized Code or the Pre-Authorized Code has expired.</li>
+</ul>
+</li>
+<li><code>invalid_client</code>:<ul>
+<li>The Client tried to send a Token Request with a Pre-Authorized Code without a Client ID but the Authorization Server does not support anonymous access.</li>
+</ul>
+</li>
+</ul>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;invalid_request&quot; | &quot;invalid_client&quot; | &quot;invalid_grant&quot; | &quot;unauthorized_client&quot; | &quot;unsupported_grant_type&quot; | &quot;invalid_scope&quot;</code>
 </code>
                 </td>
             </tr>
