@@ -331,7 +331,7 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { CoseKey, Issuer, SignatureAlgorithm } from &quot;@animo-id/mdoc&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { CoseKey, DeviceKey, Issuer, SignatureAlgorithm } from &quot;@animo-id/mdoc&quot;;
 import { Injectable, Logger } from &quot;@nestjs/common&quot;;
 import type { Jwk } from &quot;@openid4vc/oauth2&quot;;
 import { X509Certificate } from &quot;@peculiar/x509&quot;;
@@ -442,7 +442,7 @@ export class MdocIssuerService {
             certificate: new Uint8Array(x509Cert.rawData),
             algorithm: SignatureAlgorithm.ES256,
             digestAlgorithm: &quot;SHA-256&quot;,
-            deviceKeyInfo: { deviceKey: CoseKey.fromJwk(deviceKey) },
+            deviceKeyInfo: { deviceKey: DeviceKey.fromJwk(deviceKey) },
             validityInfo: { signed, validFrom, validUntil },
         });
 

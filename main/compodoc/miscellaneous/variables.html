@@ -1328,7 +1328,7 @@ This decorator can be used to determine the media type of the request.</p>
             const digest &#x3D; &quot;sha256&quot;;
             const result &#x3D; await hkdf(digest, ikm, salt, infoAsBytes, 32);
 
-            return new CoseKey({
+            return CoseKey.create({
                 keyOps: [KeyOps.Sign, KeyOps.Verify],
                 keyType: KeyType.Oct,
                 k: result,
@@ -1340,8 +1340,8 @@ This decorator can be used to determine the media type of the request.</p>
     cose: {
         mac0: {
             sign: (input) &#x3D;&gt; {
-                const { key, mac0 } &#x3D; input;
-                return hmac(sha256, key.privateKey, mac0.toBeAuthenticated);
+                const { key, toBeAuthenticated } &#x3D; input;
+                return hmac(sha256, key.privateKey, toBeAuthenticated);
             },
             verify: (input) &#x3D;&gt; {
                 const { mac0, key } &#x3D; input;
@@ -1358,8 +1358,8 @@ This decorator can be used to determine the media type of the request.</p>
         },
         sign1: {
             sign: (input) &#x3D;&gt; {
-                const { key, sign1 } &#x3D; input;
-                return p256.sign(sign1.toBeSigned, key.privateKey, {
+                const { key, toBeSigned } &#x3D; input;
+                return p256.sign(toBeSigned, key.privateKey, {
                     format: &quot;compact&quot;,
                 });
             },
