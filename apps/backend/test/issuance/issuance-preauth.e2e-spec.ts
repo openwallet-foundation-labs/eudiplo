@@ -12,7 +12,15 @@ import nock from "nock";
 import request from "supertest";
 import { App } from "supertest/types";
 import { Agent, setGlobalDispatcher } from "undici";
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import {
+    afterAll,
+    afterEach,
+    beforeAll,
+    beforeEach,
+    describe,
+    expect,
+    test,
+} from "vitest";
 import {
     callbacks,
     getSignJwtCallback,
@@ -44,6 +52,10 @@ describe("Issuance - Pre-authorized Code Flow", () => {
         app = ctx.app;
         authToken = ctx.authToken;
         clientId = ctx.clientId;
+    });
+
+    afterEach(() => {
+        nock.cleanAll();
     });
 
     afterAll(async () => {

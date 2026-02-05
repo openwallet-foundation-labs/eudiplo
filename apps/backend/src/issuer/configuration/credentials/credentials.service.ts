@@ -212,7 +212,7 @@ export class CredentialsService {
                     // Return claims for immediate issuance
                     return {
                         deferred: false,
-                        claims: response.data?.[credentialConfigurationId],
+                        claims: response[credentialConfigurationId],
                     };
                 });
         }
@@ -280,9 +280,10 @@ export class CredentialsService {
                     session,
                     expectResponse: true,
                 });
-                if (webhookResponse?.data?.[credentialConfigurationId]) {
-                    usedClaims =
-                        webhookResponse.data[credentialConfigurationId];
+                if (webhookResponse?.[credentialConfigurationId]) {
+                    usedClaims = webhookResponse[
+                        credentialConfigurationId
+                    ] as Record<string, any>;
                 }
             }
         }

@@ -16,11 +16,6 @@ import { WebhookConfig } from "./webhook.dto";
  */
 export interface WebhookResponse {
     /**
-     * Claims data keyed by credential configuration ID.
-     * When present, the credential will be issued immediately.
-     */
-    data?: Record<string, Record<string, any>>;
-    /**
      * Redirect URI for OAuth-style redirects.
      */
     redirectUri?: string;
@@ -34,6 +29,16 @@ export interface WebhookResponse {
      * Defaults to 5 seconds if not specified.
      */
     interval?: number;
+    /**
+     * Claims data keyed by credential configuration ID.
+     * Allows dynamic keys for credential configuration IDs.
+     */
+    [credentialConfigurationId: string]:
+        | Record<string, any>
+        | string
+        | boolean
+        | number
+        | undefined;
 }
 
 /**
