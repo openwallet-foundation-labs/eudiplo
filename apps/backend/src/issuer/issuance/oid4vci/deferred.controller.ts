@@ -1,0 +1,191 @@
+import {
+    Body,
+    Controller,
+    HttpCode,
+    HttpStatus,
+    NotFoundException,
+    Param,
+    Post,
+} from "@nestjs/common";
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Role } from "../../../auth/roles/role.enum";
+import { Secured } from "../../../auth/secure.decorator";
+import { Token, TokenPayload } from "../../../auth/token.decorator";
+import { DeferredTransactionStatus } from "./entities/deferred-transaction.entity";
+import { Oid4vciService } from "./oid4vci.service";
+
+/**
+ * DTO for completing a deferred transaction
+ */
+export class CompleteDeferredDto {
+    /**
+     * Claims to include in the credential.
+     * The structure should match the credential configuration's expected claims.
+     */
+    claims: Record<string, unknown>;
+}
+
+/**
+ * DTO for failing a deferred transaction
+ */
+export class FailDeferredDto {
+    /**
+     * Optional error message explaining why the issuance failed
+     */
+    error?: string;
+}
+
+/**
+ * Response for deferred transaction operations
+ */
+export class DeferredOperationResponse {
+    /**
+     * The transaction ID
+     */
+    transactionId: string;
+
+    /**
+     * The new status of the transaction
+     */
+    status: DeferredTransactionStatus;
+
+    /**
+     * Optional message
+     */
+    message?: string;
+}
+
+@ApiTags("Issuer")
+@Secured([Role.IssuanceOffer])
+@Controller("issuer/deferred")
+export class DeferredController {
+    constructor(private readonly oid4vciService: Oid4vciService) {}
+
+    /**
+     * Complete a deferred credential transaction by providing the claims.
+     * This will generate the credential and mark it as ready for retrieval.
+     *
+     * @param transactionId The transaction ID returned when issuance was deferred
+     * @param body The claims to include in the credential
+     * @param user The authenticated user
+     * @returns The updated transaction status
+     */
+    @ApiOperation({
+        summary: "Complete a deferred credential transaction",
+        description:
+            "Completes a pending deferred credential transaction by providing the claims. " +
+            "The credential will be generated and marked as ready for wallet retrieval.",
+    })
+    @ApiBody({
+        type: CompleteDeferredDto,
+        examples: {
+            example: {
+                summary: "Complete with claims",
+                value: {
+                    claims: {
+                        given_name: "John",
+                        family_name: "Doe",
+                        birthdate: "1990-01-15",
+                    },
+                },
+            },
+        },
+    })
+    @ApiResponse({
+        status: 200,
+        description: "Transaction completed successfully",
+        type: DeferredOperationResponse,
+    })
+    @ApiResponse({
+        status: 404,
+        description: "Transaction not found",
+    })
+    @HttpCode(HttpStatus.OK)
+    @Post(":transactionId/complete")
+    async completeDeferred(
+        @Param("transactionId") transactionId: string,
+        @Body() body: CompleteDeferredDto,
+        @Token() user: TokenPayload,
+    ): Promise<DeferredOperationResponse> {
+        const transaction =
+            await this.oid4vciService.completeDeferredTransaction(
+                user.entity!.id,
+                transactionId,
+                body.claims,
+            );
+
+        if (!transaction) {
+            throw new NotFoundException(
+                `Deferred transaction not found: ${transactionId}`,
+            );
+        }
+
+        return {
+            transactionId: transaction.transactionId,
+            status: transaction.status,
+            message: "Credential generated and ready for retrieval",
+        };
+    }
+
+    /**
+     * Fail a deferred credential transaction.
+     * The wallet will receive an error when it tries to retrieve the credential.
+     *
+     * @param transactionId The transaction ID returned when issuance was deferred
+     * @param body Optional error message
+     * @param user The authenticated user
+     * @returns The updated transaction status
+     */
+    @ApiOperation({
+        summary: "Fail a deferred credential transaction",
+        description:
+            "Marks a deferred credential transaction as failed. " +
+            "The wallet will receive an invalid_transaction_id error when attempting retrieval.",
+    })
+    @ApiBody({
+        type: FailDeferredDto,
+        required: false,
+        examples: {
+            example: {
+                summary: "Fail with error message",
+                value: {
+                    error: "Identity verification failed",
+                },
+            },
+        },
+    })
+    @ApiResponse({
+        status: 200,
+        description: "Transaction marked as failed",
+        type: DeferredOperationResponse,
+    })
+    @ApiResponse({
+        status: 404,
+        description: "Transaction not found",
+    })
+    @HttpCode(HttpStatus.OK)
+    @Post(":transactionId/fail")
+    async failDeferred(
+        @Param("transactionId") transactionId: string,
+        @Body() body: FailDeferredDto,
+        @Token() user: TokenPayload,
+    ): Promise<DeferredOperationResponse> {
+        const transaction = await this.oid4vciService.failDeferredTransaction(
+            user.entity!.id,
+            transactionId,
+            body.error,
+        );
+
+        if (!transaction) {
+            throw new NotFoundException(
+                `Deferred transaction not found: ${transactionId}`,
+            );
+        }
+
+        return {
+            transactionId: transaction.transactionId,
+            status: transaction.status,
+            message: body.error || "Transaction marked as failed",
+        };
+    }
+}

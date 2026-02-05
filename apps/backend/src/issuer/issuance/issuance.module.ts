@@ -10,6 +10,8 @@ import { ConfigurationModule } from "../configuration/configuration.module";
 import { CredentialOfferController } from "./offer/credential-offer.controller";
 import { AuthorizeController } from "./oid4vci/authorize/authorize.controller";
 import { AuthorizeService } from "./oid4vci/authorize/authorize.service";
+import { DeferredController } from "./oid4vci/deferred.controller";
+import { DeferredTransactionEntity } from "./oid4vci/entities/deferred-transaction.entity";
 import { NonceEntity } from "./oid4vci/entities/nonces.entity";
 import { Oid4vciMetadataController } from "./oid4vci/metadata/oid4vci-metadata.controller";
 import { Oid4vciController } from "./oid4vci/oid4vci.controller";
@@ -34,12 +36,13 @@ import { WellKnownService } from "./oid4vci/well-known/well-known.service";
         SessionModule,
         HttpModule,
         TrustModule,
-        TypeOrmModule.forFeature([NonceEntity]),
+        TypeOrmModule.forFeature([NonceEntity, DeferredTransactionEntity]),
     ],
     controllers: [
         Oid4vciController,
         AuthorizeController,
         CredentialOfferController,
+        DeferredController,
         Oid4vciMetadataController,
         WellKnownController,
     ],

@@ -1,6 +1,5 @@
 import { randomUUID, X509Certificate } from "node:crypto";
 import {
-    BadRequestException,
     ConflictException,
     Injectable,
     Logger,
@@ -42,6 +41,7 @@ import {
 } from "../../../../shared/trust/x509-validation.service";
 import { WebhookConfig } from "../../../../shared/utils/webhook/webhook.dto";
 import { IssuanceService } from "../../../configuration/issuance/issuance.service";
+import { TokenErrorException } from "../exceptions";
 import { getHeadersFromRequest } from "../util";
 import { AuthorizeQueries } from "./dto/authorize-request.dto";
 
@@ -476,6 +476,44 @@ export class AuthorizeService {
         });
     }
 
+    /**
+     * Map error codes from the OAuth library to OAuth 2.0 Token Error codes.
+     * According to OID4VCI Section 6.3:
+     * - invalid_request: Transaction code provided but not expected, or expected but not provided
+     * - invalid_grant: Wrong transaction code, wrong pre-authorized code, or expired code
+     * - invalid_client: Anonymous access with pre-authorized code but not supported
+     * @param errorCode The error code from the OAuth library
+     * @returns The appropriate OAuth 2.0 token error code
+     */
+    private mapToTokenErrorCode(
+        errorCode: string | undefined,
+    ): "invalid_request" | "invalid_client" | "invalid_grant" {
+        if (!errorCode) {
+            return "invalid_request";
+        }
+        // The OAuth library may return these error codes directly
+        if (
+            errorCode === "invalid_grant" ||
+            errorCode === "invalid_client" ||
+            errorCode === "invalid_request"
+        ) {
+            return errorCode;
+        }
+        // Map specific error scenarios
+        // Wrong or expired pre-authorized code = invalid_grant
+        // Wrong tx_code = invalid_grant
+        if (
+            errorCode.includes("pre-authorized") ||
+            errorCode.includes("pre_authorized") ||
+            errorCode.includes("tx_code") ||
+            errorCode.includes("transaction")
+        ) {
+            return "invalid_grant";
+        }
+        // Default to invalid_request for malformed requests
+        return "invalid_request";
+    }
+
     getAuthzIssuer(tenantId: string) {
         return `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${tenantId}`;
     }
@@ -537,6 +575,7 @@ export class AuthorizeService {
     /**
      * Validate the token request.
      * This endpoint is used to exchange the authorization code for an access token.
+     * Returns errors according to OID4VCI Section 6.3 Token Error Response.
      * @param body
      * @param req
      * @returns
@@ -546,18 +585,29 @@ export class AuthorizeService {
         req: Request,
         tenantId: string,
     ): Promise<any> {
-        //TODO: check if all the error cases are covered: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-token-error-response
         const url = `${this.configService.getOrThrow<string>("PUBLIC_URL")}${req.url}`;
-        const parsedAccessTokenRequest = this.getAuthorizationServer(
-            tenantId,
-        ).parseAccessTokenRequest({
-            accessTokenRequest: body,
-            request: {
-                method: req.method as HttpMethod,
-                url,
-                headers: getHeadersFromRequest(req),
-            },
-        });
+
+        // Parse the access token request - malformed requests return invalid_request
+        let parsedAccessTokenRequest;
+        try {
+            parsedAccessTokenRequest = this.getAuthorizationServer(
+                tenantId,
+            ).parseAccessTokenRequest({
+                accessTokenRequest: body,
+                request: {
+                    method: req.method as HttpMethod,
+                    url,
+                    headers: getHeadersFromRequest(req),
+                },
+            });
+        } catch (err: any) {
+            // Malformed token request
+            throw new TokenErrorException(
+                "invalid_request",
+                err?.message ?? "The token request is malformed",
+            );
+        }
+
         const authorization_code =
             parsedAccessTokenRequest.accessTokenRequest[
                 "pre-authorized_code"
@@ -567,7 +617,10 @@ export class AuthorizeService {
                 authorization_code,
             })
             .catch(() => {
-                throw new ConflictException("Invalid authorization code");
+                throw new TokenErrorException(
+                    "invalid_grant",
+                    "The provided authorization code is invalid or expired",
+                );
             });
         const issuanceConfig =
             await this.issuanceService.getIssuanceConfiguration(tenantId);
@@ -612,10 +665,12 @@ export class AuthorizeService {
                     expectedTxCode: session.credentialPayload?.tx_code,
                 })
                 .catch((err) => {
-                    throw new BadRequestException(err.error, {
-                        cause: err,
-                        description: err.error_description,
-                    });
+                    // Map verification errors to OAuth 2.0 error codes
+                    const errorCode = this.mapToTokenErrorCode(err.error);
+                    throw new TokenErrorException(
+                        errorCode,
+                        err.error_description,
+                    );
                 });
             dpopValue = dpop;
         }
@@ -625,25 +680,33 @@ export class AuthorizeService {
             authorizationCodeGrantIdentifier
         ) {
             //TODO: handle response
-            const { dpop } = await this.getAuthorizationServer(
-                tenantId,
-            ).verifyAuthorizationCodeAccessTokenRequest({
-                grant: parsedAccessTokenRequest.grant as ParsedAccessTokenAuthorizationCodeRequestGrant,
-                accessTokenRequest: parsedAccessTokenRequest.accessTokenRequest,
-                expectedCode: session.authorization_code as string,
-                request: {
-                    method: req.method as HttpMethod,
-                    url,
-                    headers: getHeadersFromRequest(req),
-                },
-                dpop: {
-                    required: issuanceConfig.dPopRequired,
-                    allowedSigningAlgs:
-                        authorizationServerMetadata.dpop_signing_alg_values_supported,
-                    jwt: parsedAccessTokenRequest.dpop?.jwt,
-                },
-                authorizationServerMetadata,
-            });
+            const { dpop } = await this.getAuthorizationServer(tenantId)
+                .verifyAuthorizationCodeAccessTokenRequest({
+                    grant: parsedAccessTokenRequest.grant as ParsedAccessTokenAuthorizationCodeRequestGrant,
+                    accessTokenRequest:
+                        parsedAccessTokenRequest.accessTokenRequest,
+                    expectedCode: session.authorization_code as string,
+                    request: {
+                        method: req.method as HttpMethod,
+                        url,
+                        headers: getHeadersFromRequest(req),
+                    },
+                    dpop: {
+                        required: issuanceConfig.dPopRequired,
+                        allowedSigningAlgs:
+                            authorizationServerMetadata.dpop_signing_alg_values_supported,
+                        jwt: parsedAccessTokenRequest.dpop?.jwt,
+                    },
+                    authorizationServerMetadata,
+                })
+                .catch((err) => {
+                    // Map verification errors to OAuth 2.0 error codes
+                    const errorCode = this.mapToTokenErrorCode(err.error);
+                    throw new TokenErrorException(
+                        errorCode,
+                        err.error_description,
+                    );
+                });
             dpopValue = dpop;
         }
 
@@ -669,8 +732,12 @@ export class AuthorizeService {
                 dpop: dpopValue,
             })
             .catch((err) => {
-                console.error("Error creating access token response:", err);
-                throw err;
+                this.logger.error("Error creating access token response:", err);
+                // Internal errors during token response creation
+                throw new TokenErrorException(
+                    "invalid_request",
+                    "Failed to create access token response",
+                );
             });
     }
 

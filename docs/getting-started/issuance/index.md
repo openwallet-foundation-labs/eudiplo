@@ -67,13 +67,27 @@ sequenceDiagram
 
     alt Claims webhook configured
         EUDIPLO->>Service: Fetch claims dynamically (claims webhook)
-        Service-->>EUDIPLO: Claims response (JSON)
+        alt Immediate issuance
+            Service-->>EUDIPLO: Claims response (JSON)
+            EUDIPLO->>EUDIPLO: Create credential with claims
+            EUDIPLO-->>Wallet: Return issued credential
+        else Deferred issuance
+            Service-->>EUDIPLO: { "deferred": true, "interval": 5 }
+            EUDIPLO-->>Wallet: HTTP 202 + transaction_id
+            loop Wallet polls deferred endpoint
+                Wallet->>EUDIPLO: GET /deferred_credential
+                alt Not ready
+                    EUDIPLO-->>Wallet: { "error": "issuance_pending" }
+                else Ready
+                    EUDIPLO-->>Wallet: Return issued credential
+                end
+            end
+        end
     else No webhook
         note over EUDIPLO: Use claims from Offer or static configuration
+        EUDIPLO->>EUDIPLO: Create credential with claims
+        EUDIPLO-->>Wallet: Return issued credential
     end
-
-    EUDIPLO->>EUDIPLO: Create credential with claims
-    EUDIPLO-->>Wallet: Return issued credential
 
     Wallet->>EUDIPLO: Sending notification
 
@@ -84,6 +98,21 @@ sequenceDiagram
 ```
 
 The response with the credential offer link will also provide the session ID. It is included in the requests from the optional webhooks to identify the specific issuance flow. You can also use the id to query the issuance status at the API.
+
+---
+
+## Deferred Credential Issuance
+
+EUDIPLO supports **deferred credential issuance** for scenarios where credentials cannot be issued immediately. This is useful when:
+
+- **Background verification** is required (e.g., KYC, identity proofing)
+- **Approval workflows** must be completed before issuance
+- **External data sources** need time to respond
+- **Asynchronous processing** is required
+
+When your claims webhook returns `{ "deferred": true }`, EUDIPLO returns a `transaction_id` to the wallet. The wallet then polls the `/deferred_credential` endpoint until the credential is ready.
+
+For detailed information on implementing deferred issuance, see the [Deferred Credential Issuance](../../architecture/webhooks.md#deferred-credential-issuance) section in the Webhooks documentation.
 
 ---
 
