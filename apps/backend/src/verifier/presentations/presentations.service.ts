@@ -209,9 +209,15 @@ export class PresentationsService {
         const host = this.configService.getOrThrow<string>("PUBLIC_URL");
         const tenantHost = `${host}/${presentationConfig.tenantId}`;
 
-        // Get transaction data from session (which was base64url-encoded in the request)
-        // We need the encoded strings for hash comparison
-        const transactionDataObjects = session.transaction_data;
+        // Get transaction_data from the request object JWT payload
+        // This ensures we use the exact same encoded strings that were sent to the wallet
+        let transactionDataStrings: string[] | undefined;
+        if (session.requestObject) {
+            const requestPayload = decodeJwt(session.requestObject) as {
+                transaction_data?: string[];
+            };
+            transactionDataStrings = requestPayload.transaction_data;
+        }
 
         const results = await Promise.all(
             attestationIds.map(async (attId) => {
@@ -228,11 +234,20 @@ export class PresentationsService {
                 }
 
                 // Find transaction data entries that reference this credential
-                // According to the spec, each transaction_data object has credential_ids
-                // and the wallet must use one of the referenced credentials
-                const relevantTransactionData = transactionDataObjects
-                    ?.filter((td) => td.credential_ids.includes(attId))
-                    .map((td) => base64url.encode(JSON.stringify(td)));
+                // The strings are already base64url-encoded from the request object
+                // We need to decode them to check credential_ids, then use the original encoded string for hash validation
+                const relevantTransactionData = transactionDataStrings?.filter(
+                    (tdStr) => {
+                        try {
+                            const td = JSON.parse(
+                                Buffer.from(base64url.decode(tdStr)).toString(),
+                            ) as { credential_ids?: string[] };
+                            return td.credential_ids?.includes(attId);
+                        } catch {
+                            return false;
+                        }
+                    },
+                );
 
                 const verifyOptions: VerifierOptions = {
                     trustListSource: {

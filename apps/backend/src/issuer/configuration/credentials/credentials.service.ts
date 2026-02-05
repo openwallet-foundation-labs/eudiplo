@@ -212,7 +212,10 @@ export class CredentialsService {
                     // Return claims for immediate issuance
                     return {
                         deferred: false,
-                        claims: response[credentialConfigurationId],
+                        claims: response[credentialConfigurationId] as Record<
+                            string,
+                            any
+                        >,
                     };
                 });
         }

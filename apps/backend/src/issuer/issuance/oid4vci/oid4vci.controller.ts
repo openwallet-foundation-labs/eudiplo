@@ -38,6 +38,7 @@ export class Oid4vciController {
      * @returns
      */
     @Post("credential")
+    @HttpCode(HttpStatus.OK)
     @SessionLogger("session", "OID4VCI")
     async credential(
         @Req() req: Request,
@@ -47,8 +48,10 @@ export class Oid4vciController {
         CredentialResponse | { transaction_id: string; interval?: number }
     > {
         const result = await this.oid4vciService.getCredential(req, tenantId);
-        // Check if this is a deferred response (has transaction_id)
-        if ("transaction_id" in result) {
+        // Check if this is a deferred response (has non-null transaction_id)
+        // Note: Using truthiness check because CredentialResponse type may include
+        // transaction_id as optional property with undefined value
+        if ("transaction_id" in result && result.transaction_id) {
             res.status(HttpStatus.ACCEPTED);
         }
         return result;
