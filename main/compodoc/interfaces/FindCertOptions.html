@@ -167,6 +167,13 @@
                                         </a>
                                 </li>
                                 <li>
+                                            <span class="modifier">Optional</span>
+                                        <a href="#skipValidation" 
+>
+                                            skipValidation
+                                        </a>
+                                </li>
+                                <li>
                                         <a href="#tenantId" 
 >
                                             tenantId
@@ -225,6 +232,51 @@
 
 
 
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="skipValidation"></a>
+                                        <span class="name "><b>skipValidation</b>
+                                            <a href="#skipValidation">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>skipValidation:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Skip certificate validation (expiry and CRL check).
+Default: false</p>
+</div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <table class="table table-sm table-bordered">
@@ -300,7 +352,7 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash } from &quot;node:crypto&quot;;
 import { readFileSync } from &quot;node:fs&quot;;
-import { Inject, Injectable, Logger } from &quot;@nestjs/common&quot;;
+import { Inject, Injectable, Logger, Optional } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import * as x509 from &quot;@peculiar/x509&quot;;
@@ -320,6 +372,7 @@ import { UpdateKeyDto } from &quot;../dto/key-update.dto&quot;;
 import { CertEntity } from &quot;../entities/cert.entity&quot;;
 import { CertUsage, CertUsageEntity } from &quot;../entities/cert-usage.entity&quot;;
 import { KeyService } from &quot;../key.service&quot;;
+import { CrlValidationService } from &quot;./crl-validation.service&quot;;
 
 const ECDSA_P256 &#x3D; {
     name: &quot;ECDSA&quot;,
@@ -331,6 +384,29 @@ export interface FindCertOptions {
     tenantId: string;
     type: CertUsage;
     id?: string;
+    /**
+     * Skip certificate validation (expiry and CRL check).
+     * Default: false
+     */
+    skipValidation?: boolean;
+}
+
+/**
+ * Result of certificate validation.
+ */
+export interface CertValidationResult {
+    /** Whether the certificate passed all validations */
+    isValid: boolean;
+    /** Error message if validation failed */
+    error?: string;
+    /** Whether the certificate is expired */
+    isExpired?: boolean;
+    /** Whether the certificate is revoked */
+    isRevoked?: boolean;
+    /** Certificate expiry date */
+    expiresAt?: Date;
+    /** Certificate validity start date */
+    validFrom?: Date;
 }
 
 /**
@@ -351,6 +427,8 @@ export class CertService {
         private readonly tenantRepository: Repository&lt;TenantEntity&gt;,
         private readonly configImportService: ConfigImportService,
         configImportOrchestrator: ConfigImportOrchestratorService,
+        @Optional()
+        private readonly crlValidationService?: CrlValidationService,
     ) {
         configImportOrchestrator.register(
             &quot;certificates&quot;,
@@ -593,17 +671,148 @@ export class CertService {
     /**
      * Find a certificate by tenantId and usage type.
      */
-    find(value: FindCertOptions): Promise&lt;CertEntity&gt; {
-        return this.certUsageRepository
-            .findOneOrFail({
-                where: {
-                    tenantId: value.tenantId,
-                    usage: value.type,
-                    certId: value.id || undefined,
-                },
-                relations: [&quot;cert&quot;],
-            })
-            .then((certUsage) &#x3D;&gt; certUsage.cert);
+    async find(value: FindCertOptions): Promise&lt;CertEntity&gt; {
+        const certUsage &#x3D; await this.certUsageRepository.findOneOrFail({
+            where: {
+                tenantId: value.tenantId,
+                usage: value.type,
+                certId: value.id || undefined,
+            },
+            relations: [&quot;cert&quot;],
+        });
+
+        const cert &#x3D; certUsage.cert;
+
+        // Validate the certificate unless explicitly skipped
+        if (!value.skipValidation) {
+            const validationResult &#x3D; await this.validateCertificate(cert);
+            if (!validationResult.isValid) {
+                throw new Error(
+                    &#x60;Certificate ${cert.id} validation failed: ${validationResult.error}&#x60;,
+                );
+            }
+        }
+
+        return cert;
+    }
+
+    /**
+     * Validate a certificate for expiry and revocation status.
+     *
+     * @param cert - The certificate entity to validate
+     * @returns Validation result with details
+     */
+    async validateCertificate(cert: CertEntity): Promise&lt;CertValidationResult&gt; {
+        try {
+            const x509Cert &#x3D; new x509.X509Certificate(cert.crt);
+
+            // Check time validity
+            const now &#x3D; new Date();
+            const validFrom &#x3D; x509Cert.notBefore;
+            const expiresAt &#x3D; x509Cert.notAfter;
+
+            if (now &lt; validFrom) {
+                return {
+                    isValid: false,
+                    error: &#x60;Certificate is not yet valid (valid from: ${validFrom.toISOString()})&#x60;,
+                    isExpired: false,
+                    validFrom,
+                    expiresAt,
+                };
+            }
+
+            if (now &gt; expiresAt) {
+                this.logger.warn(
+                    &#x60;Certificate ${cert.id} has expired at ${expiresAt.toISOString()}&#x60;,
+                );
+                return {
+                    isValid: false,
+                    error: &#x60;Certificate expired at ${expiresAt.toISOString()}&#x60;,
+                    isExpired: true,
+                    validFrom,
+                    expiresAt,
+                };
+            }
+
+            // Check CRL if the service is available
+            if (this.crlValidationService) {
+                const crlResult &#x3D;
+                    await this.crlValidationService.checkCertificateRevocation(
+                        cert.crt,
+                    );
+
+                if (
+                    !crlResult.isValid &amp;&amp;
+                    !crlResult.error?.includes(&quot;No CRL&quot;)
+                ) {
+                    this.logger.warn(
+                        &#x60;Certificate ${cert.id} revocation check failed: ${crlResult.error || &quot;revoked&quot;}&#x60;,
+                    );
+                    return {
+                        isValid: false,
+                        error:
+                            crlResult.error ||
+                            &#x60;Certificate revoked at ${crlResult.revokedAt?.toISOString()}&#x60;,
+                        isRevoked: true,
+                        validFrom,
+                        expiresAt,
+                    };
+                }
+
+                // Log if CRL couldn&#x27;t be checked but don&#x27;t fail
+                if (crlResult.error?.includes(&quot;No CRL&quot;)) {
+                    this.logger.debug(
+                        &#x60;Certificate ${cert.id} has no CRL Distribution Points, skipping revocation check&#x60;,
+                    );
+                }
+            }
+
+            return {
+                isValid: true,
+                validFrom,
+                expiresAt,
+            };
+        } catch (error: any) {
+            this.logger.error(
+                &#x60;Failed to validate certificate ${cert.id}: ${error.message}&#x60;,
+            );
+            return {
+                isValid: false,
+                error: &#x60;Certificate validation error: ${error.message}&#x60;,
+            };
+        }
+    }
+
+    /**
+     * Check if a certificate is expired.
+     *
+     * @param cert - The certificate entity to check
+     * @returns True if the certificate is expired
+     */
+    isCertificateExpired(cert: CertEntity): boolean {
+        try {
+            const x509Cert &#x3D; new x509.X509Certificate(cert.crt);
+            return new Date() &gt; x509Cert.notAfter;
+        } catch {
+            return true; // Assume expired if we can&#x27;t parse
+        }
+    }
+
+    /**
+     * Get certificate validity information.
+     *
+     * @param cert - The certificate entity
+     * @returns Object with validFrom and expiresAt dates
+     */
+    getCertificateValidity(cert: CertEntity): {
+        validFrom: Date;
+        expiresAt: Date;
+    } {
+        const x509Cert &#x3D; new x509.X509Certificate(cert.crt);
+        return {
+            validFrom: x509Cert.notBefore,
+            expiresAt: x509Cert.notAfter,
+        };
     }
 
     /**

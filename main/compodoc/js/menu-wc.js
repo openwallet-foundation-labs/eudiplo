@@ -1064,6 +1064,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                     <a href="injectables/CertService.html" data-type="entity-link" >CertService</a>
                                 </li>
                                 <li class="link">
+                                    <a href="injectables/CrlValidationService.html" data-type="entity-link" >CrlValidationService</a>
+                                </li>
+                                <li class="link">
                                     <a href="injectables/FilesService.html" data-type="entity-link" >FilesService</a>
                                 </li>
                                 <li class="link">
@@ -1111,6 +1114,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="interfaces/AuthResponse.html" data-type="entity-link" >AuthResponse</a>
                             </li>
                             <li class="link">
+                                <a href="interfaces/CachedCrl.html" data-type="entity-link" >CachedCrl</a>
+                            </li>
+                            <li class="link">
                                 <a href="interfaces/CachedJwt.html" data-type="entity-link" >CachedJwt</a>
                             </li>
                             <li class="link">
@@ -1118,6 +1124,12 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="interfaces/CachedToken.html" data-type="entity-link" >CachedToken</a>
+                            </li>
+                            <li class="link">
+                                <a href="interfaces/CertValidationResult.html" data-type="entity-link" >CertValidationResult</a>
+                            </li>
+                            <li class="link">
+                                <a href="interfaces/CrlValidationResult.html" data-type="entity-link" >CrlValidationResult</a>
                             </li>
                             <li class="link">
                                 <a href="interfaces/CryptoImplementation.html" data-type="entity-link" >CryptoImplementation</a>

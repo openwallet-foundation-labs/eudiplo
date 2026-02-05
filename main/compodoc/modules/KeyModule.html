@@ -170,8 +170,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="22"
-                                    class="link-to-prism">src/crypto/key/key.module.ts:22</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="23"
+                                    class="link-to-prism">src/crypto/key/key.module.ts:23</a></div>
                         </td>
                     </tr>
 
@@ -204,6 +204,7 @@ import { ConfigImportOrchestratorService } from &quot;../../shared/utils/config-
 import { DBKeyService } from &quot;./adapters/db-key.service&quot;;
 import { VaultKeyService } from &quot;./adapters/vault-key.service&quot;;
 import { CertService } from &quot;./cert/cert.service&quot;;
+import { CrlValidationService } from &quot;./cert/crl-validation.service&quot;;
 import { CryptoImplementatationModule } from &quot;./crypto-implementation/crypto-implementation.module&quot;;
 import { CryptoImplementationService } from &quot;./crypto-implementation/crypto-implementation.service&quot;;
 import { CertEntity } from &quot;./entities/cert.entity&quot;;
@@ -229,6 +230,7 @@ export class KeyModule {
             ],
             providers: [
                 CertService,
+                CrlValidationService,
                 {
                     provide: &quot;KeyService&quot;,
                     useFactory: (
@@ -283,7 +285,7 @@ export class KeyModule {
                     ],
                 },
             ],
-            exports: [&quot;KeyService&quot;, CertService],
+            exports: [&quot;KeyService&quot;, CertService, CrlValidationService],
         };
     }
 }
