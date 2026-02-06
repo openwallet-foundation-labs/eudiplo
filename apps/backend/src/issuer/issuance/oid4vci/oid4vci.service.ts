@@ -435,13 +435,22 @@ export class Oid4vciService {
                 );
             }
 
+            // OID4VCI spec Section 13.8: A Wallet can continue using a given nonce until
+            // it is rejected by the Credential Issuer.
+            // For batch issuance (multiple proofs), all proofs typically use the same nonce.
+            // We collect unique nonces and validate/consume them once before processing proofs.
+            const uniqueNonces = new Set<string>();
             for (const jwt of parsedCredentialRequest.proofs.jwt) {
-                // check if the nonce was requested before and delete it
                 const payload = decodeJwt(jwt);
-                const expectedNonce = payload.nonce! as string;
-                //check if nonce was requested before and delete it
+                if (payload.nonce) {
+                    uniqueNonces.add(payload.nonce as string);
+                }
+            }
+
+            // Validate and consume all unique nonces upfront
+            for (const nonce of uniqueNonces) {
                 const nonceResult = await this.nonceRepository.delete({
-                    nonce: expectedNonce,
+                    nonce,
                     tenantId,
                 });
                 if (nonceResult.affected === 0) {
@@ -456,10 +465,14 @@ export class Oid4vciService {
                     });
                     throw nonceError;
                 }
+            }
+
+            for (const jwt of parsedCredentialRequest.proofs.jwt) {
+                const payload = decodeJwt(jwt);
+                const expectedNonce = payload.nonce! as string;
 
                 const verifiedProof =
                     await issuer.verifyCredentialRequestJwtProof({
-                        //check if this is correct or if the passed nonce is validated.
                         expectedNonce,
                         issuerMetadata: await this.issuerMetadata(
                             session.tenantId,

@@ -6,7 +6,7 @@ import { exportJWK } from "jose";
 import { CertService } from "../../../../../crypto/key/cert/cert.service";
 import { CertUsage } from "../../../../../crypto/key/entities/cert-usage.entity";
 import { Session } from "../../../../../session/entities/session.entity";
-import { mdocContext } from "../../../../../verifier/presentations/mdl-context";
+import { mdocContext } from "../../../../../verifier/presentations/mdoc-context";
 import { CredentialConfig } from "../../entities/credential.entity";
 
 export interface MdocIssueOptions {
@@ -17,7 +17,7 @@ export interface MdocIssueOptions {
 }
 
 /**
- * Service for issuing mDOC/mDL credentials following ISO 18013-5.
+ * Service for issuing mDOC credentials following ISO 18013-5.
  */
 @Injectable()
 export class MdocIssuerService {

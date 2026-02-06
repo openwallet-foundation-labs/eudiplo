@@ -269,8 +269,74 @@ export class SdjwtvcverifierService extends BaseVerifierService {
             );
 
             if (!matchedEntity) {
+                // Collect debugging info for the error message
+                const leafCert = path[0];
+                const endCert = path.at(-1)!;
+                const leafSubject = leafCert.subject;
+                const leafIssuer = leafCert.issuer;
+                const endSubject = endCert.subject;
+
+                // Get full thumbprints for comparison
+                const leafThumbprint = Buffer.from(
+                    await leafCert.getThumbprint("SHA-256"),
+                ).toString("hex");
+                const endThumbprint = Buffer.from(
+                    await endCert.getThumbprint("SHA-256"),
+                ).toString("hex");
+
+                // Show which trust lists were configured
+                const configuredTrustLists =
+                    options.trustListSource?.lotes
+                        ?.map((l) => l.url)
+                        .join(", ") || "none configured";
+
+                // Collect thumbprints of allowed certificates from trust list (matches any /Issuance service type)
+                const allowedThumbprints: string[] = [];
+                for (const entity of store.entities) {
+                    for (const svc of entity.services) {
+                        if (svc.serviceTypeIdentifier?.endsWith("/Issuance")) {
+                            try {
+                                const cert = new x509.X509Certificate(
+                                    svc.certValue,
+                                );
+                                const thumb = Buffer.from(
+                                    await cert.getThumbprint("SHA-256"),
+                                ).toString("hex");
+                                allowedThumbprints.push(
+                                    `${entity.entityId || "unknown"}: ${thumb}`,
+                                );
+                            } catch {
+                                allowedThumbprints.push(
+                                    `${entity.entityId || "unknown"}: (parse error)`,
+                                );
+                            }
+                        }
+                    }
+                }
+
+                // Summarize trusted entities
+                const trustedSummary = store.entities
+                    .map((e, idx) => {
+                        const certs = e.services.filter((s) =>
+                            s.serviceTypeIdentifier?.endsWith("/Issuance"),
+                        );
+                        return `${e.entityId || `entity-${idx}`}: ${certs.length} cert(s)`;
+                    })
+                    .join("; ");
+
+                const errorDetails = [
+                    `Presented leaf: subject="${leafSubject}", issuer="${leafIssuer}", thumbprint=${leafThumbprint}`,
+                    `Presented path end: subject="${endSubject}", thumbprint=${endThumbprint}`,
+                    `Pinned mode: ${pinnedMode}`,
+                    `Configured trust lists: ${configuredTrustLists}`,
+                    `Loaded entities (${store.entities.length}): ${trustedSummary || "none"}`,
+                    `Allowed cert thumbprints: ${allowedThumbprints.length > 0 ? allowedThumbprints.join("; ") : "none"}`,
+                ].join(" | ");
+
+                this.logger.warn(`No trusted entity match: ${errorDetails}`);
+
                 throw new Error(
-                    "No trusted entity match found for presented certificate chain",
+                    `No trusted entity match found for presented certificate chain. ${errorDetails}`,
                 );
             }
 

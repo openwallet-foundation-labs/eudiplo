@@ -36,15 +36,31 @@ export class TrustStoreService {
         let nextUpdate: string | undefined;
 
         for (const ref of source.lotes) {
+            this.logger.debug(`Fetching trust list from: ${ref.url}`);
             const jwt = await this.trustListJwt.fetchJwt(ref.url);
             await this.trustListJwt.verifyTrustListJwt(ref, jwt); // hook
             const decoded = decodeJwt<LoTE>(jwt);
 
+            this.logger.debug(
+                `Decoded LoTE from ${ref.url}: TrustedEntitiesList has ${decoded.TrustedEntitiesList?.length ?? 0} raw entries`,
+            );
+
             let parsed = this.loteParser.parse(decoded);
+            this.logger.debug(
+                `Parsed ${parsed.entities.length} entities from ${ref.url}`,
+            );
+
             if (source.acceptedServiceTypes) {
+                this.logger.debug(
+                    `Filtering by accepted service types: ${source.acceptedServiceTypes.join(", ")}`,
+                );
+                const beforeFilter = parsed.entities.length;
                 parsed = this.loteParser.filterByServiceTypes(
                     parsed,
                     source.acceptedServiceTypes,
+                );
+                this.logger.debug(
+                    `After filtering: ${parsed.entities.length} entities (was ${beforeFilter})`,
                 );
             }
 

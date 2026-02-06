@@ -146,6 +146,21 @@ export class CredentialConfigCreateComponent implements OnInit {
       this.form.get('vctString')?.updateValueAndValidity();
     }
 
+    // Listen for format changes to update validators
+    this.form.get('format')?.valueChanges.subscribe((format) => {
+      const vctStringControl = this.form.get('vctString');
+      if (format === 'mso_mdoc') {
+        // mDOC doesn't need vctString - clear validators
+        vctStringControl?.clearValidators();
+      } else {
+        // SD-JWT needs vctString when in string mode
+        if (this.vctMode === 'string') {
+          vctStringControl?.setValidators([Validators.required]);
+        }
+      }
+      vctStringControl?.updateValueAndValidity();
+    });
+
     if (this.route.snapshot.params['id']) {
       this.create = false;
     }
@@ -191,6 +206,11 @@ export class CredentialConfigCreateComponent implements OnInit {
   onSubmit() {
     if (this.form.invalid) {
       this.markFormGroupTouched();
+      const invalidFields = this.getInvalidFields();
+      this.snackBar.open(`Please fix invalid fields: ${invalidFields.join(', ')}`, 'Close', {
+        duration: 5000,
+      });
+      console.log('Invalid fields:', invalidFields);
       return;
     }
 
@@ -374,22 +394,6 @@ export class CredentialConfigCreateComponent implements OnInit {
   }
 
   /**
-   * Generate ID from description (slug format)
-   */
-  generateIdFromDescription(): void {
-    const description = this.form.get('description')?.value;
-    if (description) {
-      const slug = description
-        .toLowerCase()
-        .replaceAll(/[^a-z0-9\s-]/g, '')
-        .replaceAll(/\s+/g, '-')
-        .replaceAll(/-+/g, '-')
-        .trim();
-      this.form.get('id')?.setValue(slug);
-    }
-  }
-
-  /**
    * Format lifetime value for display
    */
   formatLifetime(seconds: number): string {
@@ -407,6 +411,33 @@ export class CredentialConfigCreateComponent implements OnInit {
       const control = this.form.get(key);
       control?.markAsTouched();
     });
+  }
+
+  /**
+   * Get list of invalid field names for debugging
+   */
+  private getInvalidFields(): string[] {
+    const invalidFields: string[] = [];
+    Object.keys(this.form.controls).forEach((key) => {
+      const control = this.form.get(key);
+      if (control?.invalid) {
+        // Check if it's a FormArray (like displayConfigs)
+        if (control instanceof FormArray) {
+          control.controls.forEach((group, index) => {
+            if (group instanceof FormGroup) {
+              Object.keys(group.controls).forEach((childKey) => {
+                if (group.get(childKey)?.invalid) {
+                  invalidFields.push(`${key}[${index}].${childKey}`);
+                }
+              });
+            }
+          });
+        } else {
+          invalidFields.push(key);
+        }
+      }
+    });
+    return invalidFields;
   }
 
   // Display Configuration Management

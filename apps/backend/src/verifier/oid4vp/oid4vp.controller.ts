@@ -95,10 +95,6 @@ export class Oid4vpController {
         @Body() body: AuthorizationResponse,
         @Param("session") sessionId: string,
     ) {
-        return this.oid4vpService.getResponse(body, sessionId).catch((err) => {
-            console.log("Error in OID4VP response handling:");
-            console.error(err);
-            throw err;
-        });
+        return this.oid4vpService.getResponse(body, sessionId);
     }
 }

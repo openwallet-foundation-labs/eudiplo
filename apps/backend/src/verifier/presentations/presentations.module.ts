@@ -3,7 +3,7 @@ import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { TrustModule } from "../../shared/trust/trust.module";
 import { ResolverModule } from "../resolver/resolver.module";
-import { MdlverifierService } from "./credential/mdlverifier/mdlverifier.service";
+import { MdocverifierService } from "./credential/mdocverifier/mdocverifier.service";
 import { SdjwtvcverifierService } from "./credential/sdjwtvcverifier/sdjwtvcverifier.service";
 import { PresentationConfig } from "./entities/presentation-config.entity";
 import { PresentationManagementController } from "./presentations.controller";
@@ -20,7 +20,7 @@ import { PresentationsService } from "./presentations.service";
     providers: [
         PresentationsService,
         SdjwtvcverifierService,
-        MdlverifierService,
+        MdocverifierService,
     ],
     exports: [PresentationsService],
 })

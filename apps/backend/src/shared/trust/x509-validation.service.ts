@@ -1,11 +1,6 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import * as x509 from "@peculiar/x509";
-import {
-    getRevocationCert,
-    ServiceTypeIdentifier,
-    ServiceTypeIdentifiers,
-    TrustedEntity,
-} from "./types";
+import { getRevocationCert, TrustedEntity } from "./types";
 
 type X5cInput = string[]; // base64 DER entries
 
@@ -15,13 +10,17 @@ function arrayBufferToHex(buffer: ArrayBuffer): string {
         .join("");
 }
 
-function isPem(s: string): boolean {
-    return s.includes("-----BEGIN CERTIFICATE-----");
-}
-
-function certFromValue(val: string | ArrayBuffer): x509.X509Certificate {
-    // @peculiar/x509 accepts PEM string, base64 DER string, ArrayBuffer
-    return new x509.X509Certificate(val as any);
+/**
+ * Parse a certificate from a Base64-encoded DER string (as used in LoTE trust lists).
+ * Converts to PEM format which is more reliably parsed by @peculiar/x509.
+ */
+function certFromBase64Der(val: string): x509.X509Certificate {
+    // Convert to PEM format - this is more reliably parsed
+    const pem =
+        "-----BEGIN CERTIFICATE-----\n" +
+        val.match(/.{1,64}/g)!.join("\n") +
+        "\n-----END CERTIFICATE-----";
+    return new x509.X509Certificate(pem);
 }
 
 /**
@@ -48,6 +47,8 @@ export type MatchedTrustedEntity = {
 
 @Injectable()
 export class X509ValidationService {
+    private readonly logger = new Logger(X509ValidationService.name);
+
     parseX5c(x5c: X5cInput): x509.X509Certificate[] {
         return x5c.map((b64) => new x509.X509Certificate(b64));
     }
@@ -55,11 +56,27 @@ export class X509ValidationService {
     parseTrustAnchors(
         values: Array<{ certValue: string }>,
     ): x509.X509Certificate[] {
-        return values.map(({ certValue }) => {
-            if (isPem(certValue)) return certFromValue(certValue);
-            // could be base64 DER or something; try as-is
-            return certFromValue(certValue);
-        });
+        const certs: x509.X509Certificate[] = [];
+        for (const { certValue } of values) {
+            try {
+                const cert = certFromBase64Der(certValue);
+                this.logger.debug(
+                    `Parsed trust anchor: subject="${cert.subject}", issuer="${cert.issuer}"`,
+                );
+                certs.push(cert);
+            } catch (e: any) {
+                // More detailed error logging
+                const cleanedVal = certValue.replace(/[\s\r\n]/g, "");
+                const der = Buffer.from(cleanedVal, "base64");
+                this.logger.warn(
+                    `Failed to parse trust anchor certificate: ${e?.message ?? e}. ` +
+                        `certValue length: ${certValue.length}, cleaned length: ${cleanedVal.length}, ` +
+                        `DER buffer size: ${der.length} bytes. ` +
+                        `certValue starts with: ${cleanedVal.substring(0, 50)}...`,
+                );
+            }
+        }
+        return certs;
     }
 
     /**
@@ -108,14 +125,17 @@ export class X509ValidationService {
      *   - pinnedMode "leaf": leaf equals pinned cert
      *   - pinnedMode "pathEnd": path end equals pinned cert
      *
-     * @param serviceType The service type to match (defaults to EaaIssuance for credential validation)
+     * @param serviceTypeFilter The service type filter to match. If it starts with "/", uses suffix matching
+     *                          (e.g., "/Issuance" matches both PID/Issuance and EAA/Issuance).
+     *                          Otherwise uses exact matching (e.g., full WalletProvider URI).
+     *                          Defaults to "/Issuance" to match both PID and EAA issuance.
      * @returns The matched entity info, or null if no match
      */
     async pathMatchesTrustedEntities(
         path: x509.X509Certificate[],
         entities: TrustedEntity[],
         pinnedMode: "leaf" | "pathEnd" = "leaf",
-        serviceType: ServiceTypeIdentifier = ServiceTypeIdentifiers.EaaIssuance,
+        serviceTypeFilter: string = "/Issuance",
     ): Promise<MatchedTrustedEntity | null> {
         const leaf = path[0];
         const end = path.at(-1)!;
@@ -124,12 +144,16 @@ export class X509ValidationService {
 
         for (const entity of entities) {
             // Find certificates matching the specified service type in this entity
-            const matchingServices = entity.services.filter(
-                (s) => s.serviceTypeIdentifier === serviceType,
+            // If filter starts with "/", use suffix matching (e.g., "/Issuance" matches PID/Issuance and EAA/Issuance)
+            // Otherwise use exact matching (e.g., full WalletProvider URI)
+            const matchingServices = entity.services.filter((s) =>
+                serviceTypeFilter.startsWith("/")
+                    ? s.serviceTypeIdentifier.endsWith(serviceTypeFilter)
+                    : s.serviceTypeIdentifier === serviceTypeFilter,
             );
 
             for (const svc of matchingServices) {
-                const matchCert = certFromValue(svc.certValue);
+                const matchCert = certFromBase64Der(svc.certValue);
                 const matchThumb = arrayBufferToHex(
                     await matchCert.getThumbprint("SHA-256"),
                 );
@@ -161,7 +185,9 @@ export class X509ValidationService {
                     let revocationThumbprint: string | undefined;
 
                     if (revocationSvc) {
-                        revocationCert = certFromValue(revocationSvc.certValue);
+                        revocationCert = certFromBase64Der(
+                            revocationSvc.certValue,
+                        );
                         revocationThumbprint = arrayBufferToHex(
                             await revocationCert.getThumbprint("SHA-256"),
                         );

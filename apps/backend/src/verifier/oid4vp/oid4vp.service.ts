@@ -1,6 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { BadRequestException, Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { plainToInstance } from "class-transformer";
+import { validateOrReject } from "class-validator";
 import { base64url } from "jose";
 import { v4 } from "uuid";
 import { EncryptionService } from "../../crypto/encryption/encryption.service";
@@ -346,10 +348,20 @@ export class Oid4vpService {
      */
     async getResponse(body: AuthorizationResponse, sessionId: string) {
         const session = await this.sessionService.get(sessionId);
-        const res = await this.encryptionService.decryptJwe<AuthResponse>(
+        const decrypted = await this.encryptionService.decryptJwe<AuthResponse>(
             body.response,
             session.tenantId,
         );
+
+        // Validate decrypted response against AuthResponse class
+        const res = plainToInstance(AuthResponse, decrypted);
+        try {
+            await validateOrReject(res);
+        } catch (errors) {
+            throw new BadRequestException(
+                `Invalid authorization response: ${JSON.stringify(errors)}`,
+            );
+        }
 
         //for dc api the state is no longer included in the res, see: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-request
 
@@ -390,8 +402,19 @@ export class Oid4vpService {
                 },
             );
 
+            // For DC API, state is not included in the response (per OID4VP spec).
+            // Use sessionId from URL path as fallback.
+            const effectiveSessionId = res.state ?? sessionId;
+
+            // Validate state matches sessionId when provided (prevents session hijacking)
+            if (res.state && res.state !== sessionId) {
+                throw new BadRequestException(
+                    "State mismatch: response state does not match session ID",
+                );
+            }
+
             //tell the auth server the result of the session.
-            await this.sessionService.add(res.state, {
+            await this.sessionService.add(effectiveSessionId, {
                 //TODO: not clear why it has to be any
                 credentials: credentials as any,
                 status: SessionStatus.Completed,

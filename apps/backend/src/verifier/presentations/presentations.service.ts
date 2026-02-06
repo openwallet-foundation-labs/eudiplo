@@ -13,7 +13,7 @@ import {
     ConfigImportOrchestratorService,
     ImportPhase,
 } from "../../shared/utils/config-import/config-import-orchestrator.service";
-import { MdlverifierService } from "./credential/mdlverifier/mdlverifier.service";
+import { MdocverifierService } from "./credential/mdocverifier/mdocverifier.service";
 import { SdjwtvcverifierService } from "./credential/sdjwtvcverifier/sdjwtvcverifier.service";
 import { AuthResponse } from "./dto/auth-response.dto";
 import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dto";
@@ -42,7 +42,7 @@ export class PresentationsService {
         private readonly configImportService: ConfigImportService,
         private readonly configImportOrchestrator: ConfigImportOrchestratorService,
         private readonly sdjwtvcverifierService: SdjwtvcverifierService,
-        private readonly mdlverifierService: MdlverifierService,
+        private readonly mdocverifierService: MdocverifierService,
         private readonly configService: ConfigService,
     ) {
         // Register presentation config import in REFERENCES phase
@@ -266,6 +266,7 @@ export class PresentationsService {
                                 })) || [],
                         acceptedServiceTypes: [
                             ServiceTypeIdentifier.EaaIssuance,
+                            ServiceTypeIdentifier.PIDIssuance,
                         ],
                     },
                     policy: {
@@ -279,19 +280,20 @@ export class PresentationsService {
                 const values = await Promise.all(
                     credentials.map(async (cred) => {
                         if (type === "mso_mdoc") {
-                            const result = await this.mdlverifierService.verify(
-                                cred,
-                                {
-                                    nonce: session.vp_nonce as string,
-                                    clientId: session.clientId!,
-                                    responseUri: session.responseUri!,
-                                    protocol: "openid4vp",
-                                    responseMode: session.useDcApi
-                                        ? "dc_api.jwt"
-                                        : "direct_post.jwt",
-                                },
-                                verifyOptions,
-                            );
+                            const result =
+                                await this.mdocverifierService.verify(
+                                    cred,
+                                    {
+                                        nonce: session.vp_nonce as string,
+                                        clientId: session.clientId!,
+                                        responseUri: session.responseUri!,
+                                        protocol: "openid4vp",
+                                        responseMode: session.useDcApi
+                                            ? "dc_api.jwt"
+                                            : "direct_post.jwt",
+                                    },
+                                    verifyOptions,
+                                );
                             return {
                                 ...result.claims,
                                 payload: result.payload,

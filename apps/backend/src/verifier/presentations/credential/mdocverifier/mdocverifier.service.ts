@@ -28,8 +28,8 @@ export type MdocVerificationResult = {
 };
 
 @Injectable()
-export class MdocVerifierService extends BaseVerifierService {
-    protected readonly logger = new Logger(MdocVerifierService.name);
+export class MdocverifierService extends BaseVerifierService {
+    protected readonly logger = new Logger(MdocverifierService.name);
 
     constructor(trustStore: TrustStoreService) {
         super(trustStore);
@@ -161,7 +161,7 @@ export class MdocVerifierService extends BaseVerifierService {
                 `Configured trust lists: ${configuredTrustLists}`,
             ].join(" | ");
 
-            this.logger.error(`Mdoc verification failed: ${errorDetails}`);
+            this.logger.error(`MDL verification failed: ${errorDetails}`);
             return {
                 verified: false,
                 claims: {},
