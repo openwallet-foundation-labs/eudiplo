@@ -14,19 +14,10 @@ import { hkdf } from "@panva/hkdf";
 import * as x509 from "@peculiar/x509";
 import { X509Certificate } from "@peculiar/x509";
 import { exportJWK, importX509 } from "jose";
+import { toBuffer } from "../../shared/utils/buffer.util";
 
 // Use global Web Crypto API (available in Node.js 19+)
 const webCrypto = globalThis.crypto;
-
-/**
- * Helper to convert Uint8Array<ArrayBufferLike> to Uint8Array<ArrayBuffer>
- * This is needed due to TypeScript version differences where newer TS versions
- * use Uint8Array<ArrayBufferLike> which is not assignable to BufferSource
- */
-const toBuffer = (bytes: Uint8Array): Uint8Array<ArrayBuffer> => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return new Uint8Array(bytes) as unknown as Uint8Array<ArrayBuffer>;
-};
 
 export const mdocContext: MdocContext = {
     crypto: {

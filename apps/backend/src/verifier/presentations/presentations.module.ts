@@ -3,6 +3,7 @@ import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { TrustModule } from "../../shared/trust/trust.module";
 import { ResolverModule } from "../resolver/resolver.module";
+import { CredentialChainValidationService } from "./credential/credential-chain-validation.service";
 import { MdocverifierService } from "./credential/mdocverifier/mdocverifier.service";
 import { SdjwtvcverifierService } from "./credential/sdjwtvcverifier/sdjwtvcverifier.service";
 import { PresentationConfig } from "./entities/presentation-config.entity";
@@ -21,7 +22,8 @@ import { PresentationsService } from "./presentations.service";
         PresentationsService,
         SdjwtvcverifierService,
         MdocverifierService,
+        CredentialChainValidationService,
     ],
-    exports: [PresentationsService],
+    exports: [PresentationsService, CredentialChainValidationService],
 })
 export class PresentationsModule {}

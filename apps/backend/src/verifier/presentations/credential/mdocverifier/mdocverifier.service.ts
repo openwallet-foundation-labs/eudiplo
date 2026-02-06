@@ -2,15 +2,16 @@ import {
     DeviceRequest,
     DeviceResponse,
     DocRequest,
+    hex,
     ItemsRequest,
     SessionTranscript,
     Verifier,
 } from "@animo-id/mdoc";
 import { Injectable, Logger } from "@nestjs/common";
-import { TrustStoreService } from "../../../../shared/trust/trust-store.service";
+import * as x509 from "@peculiar/x509";
 import { VerifierOptions } from "../../../../shared/trust/types";
 import { mdocContext } from "../../mdoc-context";
-import { BaseVerifierService } from "../base-verifier.service";
+import { CredentialChainValidationService } from "../credential-chain-validation.service";
 
 export type MdocSessionData = {
     protocol: "openid4vp";
@@ -27,13 +28,24 @@ export type MdocVerificationResult = {
     docType?: string;
 };
 
-@Injectable()
-export class MdocverifierService extends BaseVerifierService {
-    protected readonly logger = new Logger(MdocverifierService.name);
+/**
+ * Error details extracted from an mDOC document for debugging.
+ */
+interface MdocErrorDetails {
+    docType: string;
+    issuerCertInfo: string;
+    issuerThumbprint: string;
+    issuerValidity: string;
+    trustedCertsSummary: string;
+}
 
-    constructor(trustStore: TrustStoreService) {
-        super(trustStore);
-    }
+@Injectable()
+export class MdocverifierService {
+    private readonly logger = new Logger(MdocverifierService.name);
+
+    constructor(
+        private readonly chainValidation: CredentialChainValidationService,
+    ) {}
 
     /**
      * Verifies an mDOC credential.
@@ -69,40 +81,13 @@ export class MdocverifierService extends BaseVerifierService {
             const claims = issuerSigned.getPrettyClaims(namespace) || {};
 
             // 3) Build the trusted certificates from trust store
-            const trustedCertificates = await this.getTrustedCertificateBuffers(
-                options.trustListSource,
-            );
+            const trustedCertificates =
+                await this.chainValidation.getTrustedCertificateBuffers(
+                    options.trustListSource,
+                );
 
             if (trustedCertificates.length === 0) {
-                // No trust list configured or empty - skip trust validation
-                // but still return verified: true with claims
-                if (!options.trustListSource) {
-                    this.logger.debug(
-                        "No trust list source configured, returning claims without trust validation",
-                    );
-                    return {
-                        verified: true,
-                        claims,
-                        payload: vp,
-                        docType,
-                    };
-                }
-
-                // Build error details for debugging
-                const configuredTrustLists =
-                    options.trustListSource?.lotes
-                        ?.map((l) => l.url)
-                        .join(", ") || "none configured";
-
-                this.logger.warn(
-                    `No trusted certificates found in trust store. Configured trust lists: ${configuredTrustLists}`,
-                );
-                return {
-                    verified: false,
-                    claims,
-                    payload: vp,
-                    docType,
-                };
+                return this.handleEmptyTrustStore(vp, claims, docType, options);
             }
 
             // 4) Build the session transcript for verification
@@ -112,7 +97,6 @@ export class MdocverifierService extends BaseVerifierService {
             );
 
             // 5) Build a device request (currently requesting all claims that were received)
-            // In a real implementation, you might want to pass the expected claims
             const deviceRequest = this.buildDeviceRequest(docType, claims);
 
             // 6) Verify the device response
@@ -137,37 +121,174 @@ export class MdocverifierService extends BaseVerifierService {
                 docType,
             };
         } catch (error: any) {
-            // Build detailed error info for debugging
-            const configuredTrustLists =
-                options.trustListSource?.lotes?.map((l) => l.url).join(", ") ||
-                "none configured";
+            return this.handleVerificationError(vp, error, options);
+        }
+    }
 
-            // Try to get docType from the document if available
-            let docTypeInfo = "unknown";
-            try {
-                const uint8Array = Buffer.from(vp, "base64url");
-                const deviceResponse = DeviceResponse.decode(uint8Array);
-                const mdlDoc = deviceResponse.documents?.[0];
-                if (mdlDoc?.docType) {
-                    docTypeInfo = mdlDoc.docType;
-                }
-            } catch {
-                // Ignore parsing errors for debug info
+    /**
+     * Handle case when trust store is empty or not configured.
+     */
+    private handleEmptyTrustStore(
+        vp: string,
+        claims: Record<string, unknown>,
+        docType: string,
+        options: VerifierOptions,
+    ): MdocVerificationResult {
+        if (!options.trustListSource) {
+            this.logger.debug(
+                "No trust list source configured, returning claims without trust validation",
+            );
+            return { verified: true, claims, payload: vp, docType };
+        }
+
+        const configuredTrustLists =
+            options.trustListSource?.lotes?.map((l) => l.url).join(", ") ||
+            "none configured";
+
+        this.logger.warn(
+            `No trusted certificates found in trust store. Configured trust lists: ${configuredTrustLists}`,
+        );
+        return { verified: false, claims, payload: vp, docType };
+    }
+
+    /**
+     * Handle verification errors with detailed logging.
+     */
+    private async handleVerificationError(
+        vp: string,
+        error: any,
+        options: VerifierOptions,
+    ): Promise<MdocVerificationResult> {
+        const configuredTrustLists =
+            options.trustListSource?.lotes?.map((l) => l.url).join(", ") ||
+            "none configured";
+
+        const details = await this.extractErrorDetails(vp, options);
+
+        const errorDetails = [
+            `Error: ${error?.message ?? error}`,
+            `DocType: ${details.docType}`,
+            `Issuer cert: ${details.issuerCertInfo}`,
+            `Issuer thumbprint: ${details.issuerThumbprint}`,
+            `Issuer validity: ${details.issuerValidity}`,
+            `Configured trust lists: ${configuredTrustLists}`,
+            `Trusted certs: ${details.trustedCertsSummary}`,
+        ].join(" | ");
+
+        this.logger.error(`mDOC verification failed: ${errorDetails}`);
+
+        return {
+            verified: false,
+            claims: {},
+            payload: vp,
+            docType:
+                details.docType === "unknown" ? undefined : details.docType,
+        };
+    }
+
+    /**
+     * Extract error details from the mDOC document for debugging.
+     */
+    private async extractErrorDetails(
+        vp: string,
+        options: VerifierOptions,
+    ): Promise<MdocErrorDetails> {
+        const details: MdocErrorDetails = {
+            docType: "unknown",
+            issuerCertInfo: "unknown",
+            issuerThumbprint: "unknown",
+            issuerValidity: "unknown",
+            trustedCertsSummary: "unknown",
+        };
+
+        try {
+            const uint8Array = Buffer.from(vp, "base64url");
+            const deviceResponse = DeviceResponse.decode(uint8Array);
+            const mdocDoc = deviceResponse.documents?.[0];
+
+            if (mdocDoc?.docType) {
+                details.docType = mdocDoc.docType;
             }
 
-            const errorDetails = [
-                `Error: ${error?.message ?? error}`,
-                `DocType: ${docTypeInfo}`,
-                `Configured trust lists: ${configuredTrustLists}`,
-            ].join(" | ");
+            // Extract issuer certificate info from the MSO
+            await this.extractIssuerCertInfo(mdocDoc, details);
 
-            this.logger.error(`MDL verification failed: ${errorDetails}`);
-            return {
-                verified: false,
-                claims: {},
-                payload: vp,
-            };
+            // Summarize trusted certificates
+            details.trustedCertsSummary = await this.summarizeTrustedCerts(
+                options.trustListSource,
+            );
+        } catch (parseError: any) {
+            this.logger.debug(
+                `Could not extract additional debug info: ${parseError?.message ?? parseError}`,
+            );
         }
+
+        return details;
+    }
+
+    /**
+     * Extract issuer certificate information from the mDOC document.
+     */
+    private async extractIssuerCertInfo(
+        mdocDoc: any,
+        details: MdocErrorDetails,
+    ): Promise<void> {
+        const issuerAuth = mdocDoc?.issuerSigned?.issuerAuth;
+        if (!issuerAuth) return;
+
+        const x5chain = issuerAuth?.x5chain;
+        if (!x5chain?.length) return;
+
+        try {
+            const leafCertBytes = x5chain[0];
+            const leafCert = new x509.X509Certificate(leafCertBytes);
+            const thumbprint = await leafCert.getThumbprint("SHA-256");
+
+            details.issuerThumbprint = hex.encode(new Uint8Array(thumbprint));
+            details.issuerValidity = `${leafCert.notBefore.toISOString()} - ${leafCert.notAfter.toISOString()}`;
+            details.issuerCertInfo = `subject="${leafCert.subject}", issuer="${leafCert.issuer}"`;
+        } catch {
+            // Ignore certificate parsing errors
+        }
+    }
+
+    /**
+     * Summarize trusted certificates for error logging.
+     */
+    private async summarizeTrustedCerts(
+        trustListSource: VerifierOptions["trustListSource"],
+    ): Promise<string> {
+        const trustedCerts =
+            await this.chainValidation.getTrustedCertificateBuffers(
+                trustListSource,
+            );
+
+        if (trustedCerts.length === 0) {
+            return "none loaded";
+        }
+
+        const certSummaries: string[] = [];
+        for (const certBuf of trustedCerts.slice(0, 5)) {
+            try {
+                const cert = new x509.X509Certificate(new Uint8Array(certBuf));
+                const thumb = hex.encode(
+                    new Uint8Array(await cert.getThumbprint("SHA-256")),
+                );
+                certSummaries.push(
+                    `${cert.subject} (${thumb.substring(0, 16)}...)`,
+                );
+            } catch {
+                // Skip invalid certs
+            }
+        }
+
+        let summary =
+            certSummaries.length > 0 ? certSummaries.join("; ") : "none valid";
+        if (trustedCerts.length > 5) {
+            summary += ` ...and ${trustedCerts.length - 5} more`;
+        }
+
+        return summary;
     }
 
     /**
