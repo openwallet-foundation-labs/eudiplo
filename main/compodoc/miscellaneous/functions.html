@@ -137,7 +137,7 @@
                             <a href="#bootstrap" title="src/main.ts" ><b>bootstrap</b>&nbsp;&nbsp;&nbsp;(src/.../main.ts)</a>
                         </li>
                         <li>
-                            <a href="#certFromValue" title="src/shared/trust/x509-validation.service.ts" ><b>certFromValue</b>&nbsp;&nbsp;&nbsp;(src/.../x509-validation.service.ts)</a>
+                            <a href="#certFromBase64Der" title="src/shared/trust/x509-validation.service.ts" ><b>certFromBase64Der</b>&nbsp;&nbsp;&nbsp;(src/.../x509-validation.service.ts)</a>
                         </li>
                         <li>
                             <a href="#extractConditionsFromKeyDesc" title="src/shared/utils/config-printer/helpers.ts" ><b>extractConditionsFromKeyDesc</b>&nbsp;&nbsp;&nbsp;(src/.../helpers.ts)</a>
@@ -159,9 +159,6 @@
                         </li>
                         <li>
                             <a href="#isEffectivelyRequired" title="src/shared/utils/config-printer/helpers.ts" ><b>isEffectivelyRequired</b>&nbsp;&nbsp;&nbsp;(src/.../helpers.ts)</a>
-                        </li>
-                        <li>
-                            <a href="#isPem" title="src/shared/trust/x509-validation.service.ts" ><b>isPem</b>&nbsp;&nbsp;&nbsp;(src/.../x509-validation.service.ts)</a>
                         </li>
                         <li>
                             <a href="#Secured" title="src/auth/secure.decorator.ts" ><b>Secured</b>&nbsp;&nbsp;&nbsp;(src/.../secure.decorator.ts)</a>
@@ -249,16 +246,16 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="certFromValue"></a>
+                    <a name="certFromBase64Der"></a>
                     <span class="name">
-                        <span ><b>certFromValue</b></span>
-                        <a href="#certFromValue"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>certFromBase64Der</b></span>
+                        <a href="#certFromBase64Der"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>certFromValue(val)</code>
+<code>certFromBase64Der(val: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -267,63 +264,9 @@
 
             <tr>
                 <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>val</td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>x509.X509Certificate</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="isPem"></a>
-                    <span class="name">
-                        <span ><b>isPem</b></span>
-                        <a href="#isPem"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>isPem(s: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-
-
-            <tr>
-                <td class="col-md-4">
+                        <div class="io-description"><p>Parse a certificate from a Base64-encoded DER string (as used in LoTE trust lists).
+Converts to PEM format which is more reliably parsed by</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -338,7 +281,7 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>s</td>
+                                                <td>val</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -353,7 +296,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                            <b>Returns : </b>    <code>x509.X509Certificate</code>
 
                         </div>
                             <div class="io-description">

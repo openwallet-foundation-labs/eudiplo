@@ -142,7 +142,7 @@
                 <h3>Description</h3>
             </p>
             <p class="comment">
-                <p>Service for issuing mDOC/mDL credentials following ISO 18013-5.</p>
+                <p>Service for issuing mDOC credentials following ISO 18013-5.</p>
 
             </p>
 
@@ -454,7 +454,7 @@ import { exportJWK } from &quot;jose&quot;;
 import { CertService } from &quot;../../../../../crypto/key/cert/cert.service&quot;;
 import { CertUsage } from &quot;../../../../../crypto/key/entities/cert-usage.entity&quot;;
 import { Session } from &quot;../../../../../session/entities/session.entity&quot;;
-import { mdocContext } from &quot;../../../../../verifier/presentations/mdl-context&quot;;
+import { mdocContext } from &quot;../../../../../verifier/presentations/mdoc-context&quot;;
 import { CredentialConfig } from &quot;../../entities/credential.entity&quot;;
 
 export interface MdocIssueOptions {
@@ -465,7 +465,7 @@ export interface MdocIssueOptions {
 }
 
 /**
- * Service for issuing mDOC/mDL credentials following ISO 18013-5.
+ * Service for issuing mDOC credentials following ISO 18013-5.
  */
 @Injectable()
 export class MdocIssuerService {

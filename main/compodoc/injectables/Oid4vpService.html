@@ -206,7 +206,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:23</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:25</a></div>
                             </td>
                         </tr>
 
@@ -367,8 +367,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="45"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:45</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="47"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:47</a></div>
                         </td>
                     </tr>
 
@@ -472,8 +472,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="237"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:237</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="239"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:239</a></div>
                         </td>
                     </tr>
 
@@ -591,8 +591,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="347"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:347</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="349"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:349</a></div>
                         </td>
                     </tr>
 
@@ -689,7 +689,7 @@ It initializes the session logging context and logs the start of the flow.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:26</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="28" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:28</a></div>
                         </td>
                     </tr>
 
@@ -705,6 +705,8 @@ It initializes the session logging context and logs the start of the flow.</p>
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &quot;node:crypto&quot;;
 import { BadRequestException, Inject, Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
+import { plainToInstance } from &quot;class-transformer&quot;;
+import { validateOrReject } from &quot;class-validator&quot;;
 import { base64url } from &quot;jose&quot;;
 import { v4 } from &quot;uuid&quot;;
 import { EncryptionService } from &quot;../../crypto/encryption/encryption.service&quot;;
@@ -1050,10 +1052,20 @@ export class Oid4vpService {
      */
     async getResponse(body: AuthorizationResponse, sessionId: string) {
         const session &#x3D; await this.sessionService.get(sessionId);
-        const res &#x3D; await this.encryptionService.decryptJwe&lt;AuthResponse&gt;(
+        const decrypted &#x3D; await this.encryptionService.decryptJwe&lt;AuthResponse&gt;(
             body.response,
             session.tenantId,
         );
+
+        // Validate decrypted response against AuthResponse class
+        const res &#x3D; plainToInstance(AuthResponse, decrypted);
+        try {
+            await validateOrReject(res);
+        } catch (errors) {
+            throw new BadRequestException(
+                &#x60;Invalid authorization response: ${JSON.stringify(errors)}&#x60;,
+            );
+        }
 
         //for dc api the state is no longer included in the res, see: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-request
 
@@ -1094,8 +1106,19 @@ export class Oid4vpService {
                 },
             );
 
+            // For DC API, state is not included in the response (per OID4VP spec).
+            // Use sessionId from URL path as fallback.
+            const effectiveSessionId &#x3D; res.state ?? sessionId;
+
+            // Validate state matches sessionId when provided (prevents session hijacking)
+            if (res.state &amp;&amp; res.state !&#x3D;&#x3D; sessionId) {
+                throw new BadRequestException(
+                    &quot;State mismatch: response state does not match session ID&quot;,
+                );
+            }
+
             //tell the auth server the result of the session.
-            await this.sessionService.add(res.state, {
+            await this.sessionService.add(effectiveSessionId, {
                 //TODO: not clear why it has to be any
                 credentials: credentials as any,
                 status: SessionStatus.Completed,

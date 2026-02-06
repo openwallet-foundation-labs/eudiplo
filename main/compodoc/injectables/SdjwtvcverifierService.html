@@ -648,8 +648,8 @@ signature = &quot;&lt;b64url(signature)&gt;&quot;</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="303"
-                                    class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:303</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="369"
+                                    class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:369</a></div>
                         </td>
                     </tr>
 
@@ -783,7 +783,7 @@ service of the same entity that issued the credential.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:128</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:123</a></code>
 </div>
                         </td>
                     </tr>
@@ -867,7 +867,7 @@ service of the same entity that issued the credential.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:74</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:71</a></code>
 </div>
                         </td>
                     </tr>
@@ -952,7 +952,7 @@ Used primarily for mDOC verification.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:35</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:32</a></code>
 </div>
                         </td>
                     </tr>
@@ -1036,7 +1036,7 @@ Returns null if no trust list source is configured (skip trust validation).</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:119</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:114</a></code>
 </div>
                         </td>
                     </tr>
@@ -1123,7 +1123,7 @@ Returns null if no trust list source is configured (skip trust validation).</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="456" class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:456</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="522" class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:522</a></div>
                         </td>
                     </tr>
 
@@ -1227,7 +1227,7 @@ Returns null if no trust list source is configured (skip trust validation).</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="443" class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:443</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="509" class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:509</a></div>
                         </td>
                     </tr>
 
@@ -1536,8 +1536,74 @@ export class SdjwtvcverifierService extends BaseVerifierService {
             );
 
             if (!matchedEntity) {
+                // Collect debugging info for the error message
+                const leafCert &#x3D; path[0];
+                const endCert &#x3D; path.at(-1)!;
+                const leafSubject &#x3D; leafCert.subject;
+                const leafIssuer &#x3D; leafCert.issuer;
+                const endSubject &#x3D; endCert.subject;
+
+                // Get full thumbprints for comparison
+                const leafThumbprint &#x3D; Buffer.from(
+                    await leafCert.getThumbprint(&quot;SHA-256&quot;),
+                ).toString(&quot;hex&quot;);
+                const endThumbprint &#x3D; Buffer.from(
+                    await endCert.getThumbprint(&quot;SHA-256&quot;),
+                ).toString(&quot;hex&quot;);
+
+                // Show which trust lists were configured
+                const configuredTrustLists &#x3D;
+                    options.trustListSource?.lotes
+                        ?.map((l) &#x3D;&gt; l.url)
+                        .join(&quot;, &quot;) || &quot;none configured&quot;;
+
+                // Collect thumbprints of allowed certificates from trust list (matches any /Issuance service type)
+                const allowedThumbprints: string[] &#x3D; [];
+                for (const entity of store.entities) {
+                    for (const svc of entity.services) {
+                        if (svc.serviceTypeIdentifier?.endsWith(&quot;/Issuance&quot;)) {
+                            try {
+                                const cert &#x3D; new x509.X509Certificate(
+                                    svc.certValue,
+                                );
+                                const thumb &#x3D; Buffer.from(
+                                    await cert.getThumbprint(&quot;SHA-256&quot;),
+                                ).toString(&quot;hex&quot;);
+                                allowedThumbprints.push(
+                                    &#x60;${entity.entityId || &quot;unknown&quot;}: ${thumb}&#x60;,
+                                );
+                            } catch {
+                                allowedThumbprints.push(
+                                    &#x60;${entity.entityId || &quot;unknown&quot;}: (parse error)&#x60;,
+                                );
+                            }
+                        }
+                    }
+                }
+
+                // Summarize trusted entities
+                const trustedSummary &#x3D; store.entities
+                    .map((e, idx) &#x3D;&gt; {
+                        const certs &#x3D; e.services.filter((s) &#x3D;&gt;
+                            s.serviceTypeIdentifier?.endsWith(&quot;/Issuance&quot;),
+                        );
+                        return &#x60;${e.entityId || &#x60;entity-${idx}&#x60;}: ${certs.length} cert(s)&#x60;;
+                    })
+                    .join(&quot;; &quot;);
+
+                const errorDetails &#x3D; [
+                    &#x60;Presented leaf: subject&#x3D;&quot;${leafSubject}&quot;, issuer&#x3D;&quot;${leafIssuer}&quot;, thumbprint&#x3D;${leafThumbprint}&#x60;,
+                    &#x60;Presented path end: subject&#x3D;&quot;${endSubject}&quot;, thumbprint&#x3D;${endThumbprint}&#x60;,
+                    &#x60;Pinned mode: ${pinnedMode}&#x60;,
+                    &#x60;Configured trust lists: ${configuredTrustLists}&#x60;,
+                    &#x60;Loaded entities (${store.entities.length}): ${trustedSummary || &quot;none&quot;}&#x60;,
+                    &#x60;Allowed cert thumbprints: ${allowedThumbprints.length &gt; 0 ? allowedThumbprints.join(&quot;; &quot;) : &quot;none&quot;}&#x60;,
+                ].join(&quot; | &quot;);
+
+                this.logger.warn(&#x60;No trusted entity match: ${errorDetails}&#x60;);
+
                 throw new Error(
-                    &quot;No trusted entity match found for presented certificate chain&quot;,
+                    &#x60;No trusted entity match found for presented certificate chain. ${errorDetails}&#x60;,
                 );
             }
 

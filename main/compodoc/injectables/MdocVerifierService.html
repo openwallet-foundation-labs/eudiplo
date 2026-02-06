@@ -110,7 +110,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Injectables</li>
-  <li class="breadcrumb-item" >MdlverifierService</li>
+  <li class="breadcrumb-item" >MdocVerifierService</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -291,8 +291,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="150"
-                                    class="link-to-prism">src/verifier/presentations/credential/mdlverifier/mdlverifier.service.ts:150</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="177"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdlverifier/mdlverifier.service.ts:177</a></div>
                         </td>
                     </tr>
 
@@ -368,7 +368,7 @@ This creates a request that matches what was received for verification.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>verify(vp: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, sessionData: <a href="../miscellaneous/typealiases.html#MdlSessionData" target="_self">MdlSessionData</a>, options: <a href="../miscellaneous/typealiases.html#VerifierOptions" target="_self">VerifierOptions</a>)</code>
+                    <code>verify(vp: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, sessionData: <a href="../miscellaneous/typealiases.html#MdocSessionData" target="_self">MdocSessionData</a>, options: <a href="../miscellaneous/typealiases.html#VerifierOptions" target="_self">VerifierOptions</a>)</code>
                 </td>
             </tr>
 
@@ -383,7 +383,7 @@ This creates a request that matches what was received for verification.</p>
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Verifies an MDL/mDOC credential.</p>
+                        <div class="io-description"><p>Verifies an mDOC credential.</p>
 </div>
 
                             <div class="io-description">
@@ -418,7 +418,7 @@ This creates a request that matches what was received for verification.</p>
                                         <tr>
                                                 <td>sessionData</td>
                                             <td>
-                                                            <code><a href="../miscellaneous/typealiases.html#MdlSessionData" target="_self" >MdlSessionData</a></code>
+                                                            <code><a href="../miscellaneous/typealiases.html#MdocSessionData" target="_self" >MdocSessionData</a></code>
                                             </td>
 
                                             <td>
@@ -451,7 +451,7 @@ This creates a request that matches what was received for verification.</p>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#MdlVerificationResult" target="_self" >Promise&lt;MdlVerificationResult&gt;</a></code>
+                            <b>Returns : </b>    <code>Promise&lt;MdocVerificationResult&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -491,7 +491,7 @@ This creates a request that matches what was received for verification.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:128</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:123</a></code>
 </div>
                         </td>
                     </tr>
@@ -575,7 +575,7 @@ This creates a request that matches what was received for verification.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:74</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:71</a></code>
 </div>
                         </td>
                     </tr>
@@ -660,7 +660,7 @@ Used primarily for mDOC verification.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:35</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:32</a></code>
 </div>
                         </td>
                     </tr>
@@ -744,7 +744,7 @@ Returns null if no trust list source is configured (skip trust validation).</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:119</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:114</a></code>
 </div>
                         </td>
                     </tr>
@@ -826,7 +826,7 @@ Returns null if no trust list source is configured (skip trust validation).</p>
                 </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Default value : </i><code>new Logger(MdlverifierService.name)</code>
+                        <i>Default value : </i><code>new Logger(MdocVerifierService.name)</code>
                     </td>
                 </tr>
                         <tr>
@@ -862,10 +862,10 @@ Returns null if no trust list source is configured (skip trust validation).</p>
 import { Injectable, Logger } from &quot;@nestjs/common&quot;;
 import { TrustStoreService } from &quot;../../../../shared/trust/trust-store.service&quot;;
 import { VerifierOptions } from &quot;../../../../shared/trust/types&quot;;
-import { mdocContext } from &quot;../../mdl-context&quot;;
+import { mdocContext } from &quot;../../mdoc-context&quot;;
 import { BaseVerifierService } from &quot;../base-verifier.service&quot;;
 
-export type MdlSessionData &#x3D; {
+export type MdocSessionData &#x3D; {
     protocol: &quot;openid4vp&quot;;
     nonce: string;
     responseMode: string;
@@ -873,7 +873,7 @@ export type MdlSessionData &#x3D; {
     responseUri: string;
 };
 
-export type MdlVerificationResult &#x3D; {
+export type MdocVerificationResult &#x3D; {
     verified: boolean;
     claims: Record&lt;string, unknown&gt;;
     payload: string;
@@ -881,15 +881,15 @@ export type MdlVerificationResult &#x3D; {
 };
 
 @Injectable()
-export class MdlverifierService extends BaseVerifierService {
-    protected readonly logger &#x3D; new Logger(MdlverifierService.name);
+export class MdocVerifierService extends BaseVerifierService {
+    protected readonly logger &#x3D; new Logger(MdocVerifierService.name);
 
     constructor(trustStore: TrustStoreService) {
         super(trustStore);
     }
 
     /**
-     * Verifies an MDL/mDOC credential.
+     * Verifies an mDOC credential.
      * @param vp The base64url encoded device response
      * @param sessionData Session data for transcript generation
      * @param options Verification options including trust list
@@ -897,22 +897,22 @@ export class MdlverifierService extends BaseVerifierService {
      */
     async verify(
         vp: string,
-        sessionData: MdlSessionData,
+        sessionData: MdocSessionData,
         options: VerifierOptions,
-    ): Promise&lt;MdlVerificationResult&gt; {
+    ): Promise&lt;MdocVerificationResult&gt; {
         try {
             // 1) Decode the device response
             const uint8Array &#x3D; Buffer.from(vp, &quot;base64url&quot;);
             const deviceResponse &#x3D; DeviceResponse.decode(uint8Array);
-            const mdlDocument &#x3D; deviceResponse.documents?.[0];
+            const mdocDocument &#x3D; deviceResponse.documents?.[0];
 
-            if (!mdlDocument) {
-                throw new Error(&quot;MDL document not found in device response&quot;);
+            if (!mdocDocument) {
+                throw new Error(&quot;mDOC document not found in device response&quot;);
             }
 
             // 2) Extract claims from the issuer signed data
-            const issuerSigned &#x3D; mdlDocument.issuerSigned;
-            const docType &#x3D; mdlDocument.docType;
+            const issuerSigned &#x3D; mdocDocument.issuerSigned;
+            const docType &#x3D; mdocDocument.docType;
 
             // Get claims from the appropriate namespace
             const namespace &#x3D;
@@ -941,8 +941,14 @@ export class MdlverifierService extends BaseVerifierService {
                     };
                 }
 
+                // Build error details for debugging
+                const configuredTrustLists &#x3D;
+                    options.trustListSource?.lotes
+                        ?.map((l) &#x3D;&gt; l.url)
+                        .join(&quot;, &quot;) || &quot;none configured&quot;;
+
                 this.logger.warn(
-                    &quot;No trusted certificates found in trust store&quot;,
+                    &#x60;No trusted certificates found in trust store. Configured trust lists: ${configuredTrustLists}&#x60;,
                 );
                 return {
                     verified: false,
@@ -984,10 +990,31 @@ export class MdlverifierService extends BaseVerifierService {
                 docType,
             };
         } catch (error: any) {
-            console.log(&quot;MDL verification error:&quot;, error);
-            this.logger.error(
-                &#x60;MDL verification failed: ${error?.message ?? error}&#x60;,
-            );
+            // Build detailed error info for debugging
+            const configuredTrustLists &#x3D;
+                options.trustListSource?.lotes?.map((l) &#x3D;&gt; l.url).join(&quot;, &quot;) ||
+                &quot;none configured&quot;;
+
+            // Try to get docType from the document if available
+            let docTypeInfo &#x3D; &quot;unknown&quot;;
+            try {
+                const uint8Array &#x3D; Buffer.from(vp, &quot;base64url&quot;);
+                const deviceResponse &#x3D; DeviceResponse.decode(uint8Array);
+                const mdlDoc &#x3D; deviceResponse.documents?.[0];
+                if (mdlDoc?.docType) {
+                    docTypeInfo &#x3D; mdlDoc.docType;
+                }
+            } catch {
+                // Ignore parsing errors for debug info
+            }
+
+            const errorDetails &#x3D; [
+                &#x60;Error: ${error?.message ?? error}&#x60;,
+                &#x60;DocType: ${docTypeInfo}&#x60;,
+                &#x60;Configured trust lists: ${configuredTrustLists}&#x60;,
+            ].join(&quot; | &quot;);
+
+            this.logger.error(&#x60;Mdoc verification failed: ${errorDetails}&#x60;);
             return {
                 verified: false,
                 claims: {},
@@ -1073,7 +1100,7 @@ export class MdlverifierService extends BaseVerifierService {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
-            var COMPODOC_CURRENT_PAGE_URL = 'MdlverifierService.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'MdocVerifierService.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

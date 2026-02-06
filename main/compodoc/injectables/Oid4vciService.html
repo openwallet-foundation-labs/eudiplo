@@ -457,8 +457,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1001"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:1001</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1014"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:1014</a></div>
                         </td>
                     </tr>
 
@@ -498,8 +498,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="913"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:913</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="926"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:926</a></div>
                         </td>
                     </tr>
 
@@ -717,8 +717,8 @@ This method is called when the external system completes processing.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="967"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:967</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="980"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:980</a></div>
                         </td>
                     </tr>
 
@@ -909,8 +909,8 @@ This method is called when the external system completes processing.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="761"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:761</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="774"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:774</a></div>
                         </td>
                     </tr>
 
@@ -1170,8 +1170,8 @@ Called when wallet polls with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="672"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:672</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="685"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:685</a></div>
                         </td>
                     </tr>
 
@@ -1312,8 +1312,8 @@ Creates a deferred transaction and returns HTTP 202 with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="564"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:564</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="577"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:577</a></div>
                         </td>
                     </tr>
 
@@ -2065,13 +2065,22 @@ export class Oid4vciService {
                 );
             }
 
+            // OID4VCI spec Section 13.8: A Wallet can continue using a given nonce until
+            // it is rejected by the Credential Issuer.
+            // For batch issuance (multiple proofs), all proofs typically use the same nonce.
+            // We collect unique nonces and validate/consume them once before processing proofs.
+            const uniqueNonces &#x3D; new Set&lt;string&gt;();
             for (const jwt of parsedCredentialRequest.proofs.jwt) {
-                // check if the nonce was requested before and delete it
                 const payload &#x3D; decodeJwt(jwt);
-                const expectedNonce &#x3D; payload.nonce! as string;
-                //check if nonce was requested before and delete it
+                if (payload.nonce) {
+                    uniqueNonces.add(payload.nonce as string);
+                }
+            }
+
+            // Validate and consume all unique nonces upfront
+            for (const nonce of uniqueNonces) {
                 const nonceResult &#x3D; await this.nonceRepository.delete({
-                    nonce: expectedNonce,
+                    nonce,
                     tenantId,
                 });
                 if (nonceResult.affected &#x3D;&#x3D;&#x3D; 0) {
@@ -2086,10 +2095,14 @@ export class Oid4vciService {
                     });
                     throw nonceError;
                 }
+            }
+
+            for (const jwt of parsedCredentialRequest.proofs.jwt) {
+                const payload &#x3D; decodeJwt(jwt);
+                const expectedNonce &#x3D; payload.nonce! as string;
 
                 const verifiedProof &#x3D;
                     await issuer.verifyCredentialRequestJwtProof({
-                        //check if this is correct or if the passed nonce is validated.
                         expectedNonce,
                         issuerMetadata: await this.issuerMetadata(
                             session.tenantId,

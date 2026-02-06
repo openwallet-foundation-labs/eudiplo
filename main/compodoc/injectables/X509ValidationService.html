@@ -145,6 +145,22 @@
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#logger" >logger</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
 
                 <tr>
                     <td class="col-md-4">
@@ -214,8 +230,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="69"
-                                    class="link-to-prism">src/shared/trust/x509-validation.service.ts:69</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="86"
+                                    class="link-to-prism">src/shared/trust/x509-validation.service.ts:86</a></div>
                         </td>
                     </tr>
 
@@ -330,8 +346,8 @@ Returns path leaf..anchor if successful.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="83"
-                                    class="link-to-prism">src/shared/trust/x509-validation.service.ts:83</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="100"
+                                    class="link-to-prism">src/shared/trust/x509-validation.service.ts:100</a></div>
                         </td>
                     </tr>
 
@@ -399,8 +415,8 @@ Returns path leaf..anchor if successful.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="96"
-                                    class="link-to-prism">src/shared/trust/x509-validation.service.ts:96</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="113"
+                                    class="link-to-prism">src/shared/trust/x509-validation.service.ts:113</a></div>
                         </td>
                     </tr>
 
@@ -487,8 +503,8 @@ but keeping it explicit is sometimes useful).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="55"
-                                    class="link-to-prism">src/shared/trust/x509-validation.service.ts:55</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="56"
+                                    class="link-to-prism">src/shared/trust/x509-validation.service.ts:56</a></div>
                         </td>
                     </tr>
 
@@ -554,8 +570,8 @@ but keeping it explicit is sometimes useful).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/shared/trust/x509-validation.service.ts:51</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="52"
+                                    class="link-to-prism">src/shared/trust/x509-validation.service.ts:52</a></div>
                         </td>
                     </tr>
 
@@ -616,15 +632,15 @@ but keeping it explicit is sometimes useful).</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>pathMatchesTrustedEntities(path: x509.X509Certificate[], entities: <a href="../interfaces/TrustedEntity.html" target="_self">TrustedEntity[]</a>, pinnedMode: "leaf" | "pathEnd", serviceType: <a href="../miscellaneous/typealiases.html#ServiceTypeIdentifier" target="_self">ServiceTypeIdentifier</a>)</code>
+                    <code>pathMatchesTrustedEntities(path: x509.X509Certificate[], entities: <a href="../interfaces/TrustedEntity.html" target="_self">TrustedEntity[]</a>, pinnedMode: "leaf" | "pathEnd", serviceTypeFilter: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="114"
-                                    class="link-to-prism">src/shared/trust/x509-validation.service.ts:114</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="134"
+                                    class="link-to-prism">src/shared/trust/x509-validation.service.ts:134</a></div>
                         </td>
                     </tr>
 
@@ -638,8 +654,12 @@ Returns the matched entity with its issuance and revocation certificates.</p>
 <li>Looks for certificates matching the specified service type in each entity</li>
 <li>If cert is CA: require path terminates in that anchor</li>
 <li>If cert is not CA: treat as pin<ul>
-<li>pinnedMode &quot;leaf&quot;: leaf equals pinned cert</li>
-<li>pinnedMode &quot;pathEnd&quot;: path end equals pinned cert</li>
+<li><p>pinnedMode &quot;leaf&quot;: leaf equals pinned cert</p>
+</li>
+<li><p>pinnedMode &quot;pathEnd&quot;: path end equals pinned cert</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-none">                 (e.g., &quot;/Issuance&quot; matches both PID/Issuance and EAA/Issuance).
+                 Otherwise uses exact matching (e.g., full WalletProvider URI).
+                 Defaults to &quot;/Issuance&quot; to match both PID and EAA issuance.</code></pre></div></li>
 </ul>
 </li>
 </ul>
@@ -709,9 +729,9 @@ Returns the matched entity with its issuance and revocation certificates.</p>
                                             </td>
                                         </tr>
                                         <tr>
-                                                <td>serviceType</td>
+                                                <td>serviceTypeFilter</td>
                                             <td>
-                                                            <code><a href="../miscellaneous/typealiases.html#ServiceTypeIdentifier" target="_self" >ServiceTypeIdentifier</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -719,11 +739,14 @@ Returns the matched entity with its issuance and revocation certificates.</p>
                                             </td>
 
                                             <td>
-                                                    <code>ServiceTypeIdentifiers.EaaIssuance</code>
+                                                    <code>&quot;/Issuance&quot;</code>
                                             </td>
 
                                             <td>
-                                                    <p>The service type to match (defaults to EaaIssuance for credential validation)</p>
+                                                    <p>The service type filter to match. If it starts with &quot;/&quot;, uses suffix matching
+(e.g., &quot;/Issuance&quot; matches both PID/Issuance and EAA/Issuance).
+Otherwise uses exact matching (e.g., full WalletProvider URI).
+Defaults to &quot;/Issuance&quot; to match both PID and EAA issuance.</p>
 
                                             </td>
                                         </tr>
@@ -743,19 +766,53 @@ Returns the matched entity with its issuance and revocation certificates.</p>
         </tbody>
     </table>
 </section>
+            <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="logger"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Readonly</span>
+                        <span ><b>logger</b></span>
+                        <a href="#logger"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new Logger(X509ValidationService.name)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">src/shared/trust/x509-validation.service.ts:50</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
 
     </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, Logger } from &quot;@nestjs/common&quot;;
 import * as x509 from &quot;@peculiar/x509&quot;;
-import {
-    getRevocationCert,
-    ServiceTypeIdentifier,
-    ServiceTypeIdentifiers,
-    TrustedEntity,
-} from &quot;./types&quot;;
+import { getRevocationCert, TrustedEntity } from &quot;./types&quot;;
 
 type X5cInput &#x3D; string[]; // base64 DER entries
 
@@ -765,13 +822,17 @@ function arrayBufferToHex(buffer: ArrayBuffer): string {
         .join(&quot;&quot;);
 }
 
-function isPem(s: string): boolean {
-    return s.includes(&quot;-----BEGIN CERTIFICATE-----&quot;);
-}
-
-function certFromValue(val: string | ArrayBuffer): x509.X509Certificate {
-    // @peculiar/x509 accepts PEM string, base64 DER string, ArrayBuffer
-    return new x509.X509Certificate(val as any);
+/**
+ * Parse a certificate from a Base64-encoded DER string (as used in LoTE trust lists).
+ * Converts to PEM format which is more reliably parsed by @peculiar/x509.
+ */
+function certFromBase64Der(val: string): x509.X509Certificate {
+    // Convert to PEM format - this is more reliably parsed
+    const pem &#x3D;
+        &quot;-----BEGIN CERTIFICATE-----\n&quot; +
+        val.match(/.{1,64}/g)!.join(&quot;\n&quot;) +
+        &quot;\n-----END CERTIFICATE-----&quot;;
+    return new x509.X509Certificate(pem);
 }
 
 /**
@@ -798,6 +859,8 @@ export type MatchedTrustedEntity &#x3D; {
 
 @Injectable()
 export class X509ValidationService {
+    private readonly logger &#x3D; new Logger(X509ValidationService.name);
+
     parseX5c(x5c: X5cInput): x509.X509Certificate[] {
         return x5c.map((b64) &#x3D;&gt; new x509.X509Certificate(b64));
     }
@@ -805,11 +868,27 @@ export class X509ValidationService {
     parseTrustAnchors(
         values: Array&lt;{ certValue: string }&gt;,
     ): x509.X509Certificate[] {
-        return values.map(({ certValue }) &#x3D;&gt; {
-            if (isPem(certValue)) return certFromValue(certValue);
-            // could be base64 DER or something; try as-is
-            return certFromValue(certValue);
-        });
+        const certs: x509.X509Certificate[] &#x3D; [];
+        for (const { certValue } of values) {
+            try {
+                const cert &#x3D; certFromBase64Der(certValue);
+                this.logger.debug(
+                    &#x60;Parsed trust anchor: subject&#x3D;&quot;${cert.subject}&quot;, issuer&#x3D;&quot;${cert.issuer}&quot;&#x60;,
+                );
+                certs.push(cert);
+            } catch (e: any) {
+                // More detailed error logging
+                const cleanedVal &#x3D; certValue.replace(/[\s\r\n]/g, &quot;&quot;);
+                const der &#x3D; Buffer.from(cleanedVal, &quot;base64&quot;);
+                this.logger.warn(
+                    &#x60;Failed to parse trust anchor certificate: ${e?.message ?? e}. &#x60; +
+                        &#x60;certValue length: ${certValue.length}, cleaned length: ${cleanedVal.length}, &#x60; +
+                        &#x60;DER buffer size: ${der.length} bytes. &#x60; +
+                        &#x60;certValue starts with: ${cleanedVal.substring(0, 50)}...&#x60;,
+                );
+            }
+        }
+        return certs;
     }
 
     /**
@@ -858,14 +937,17 @@ export class X509ValidationService {
      *   - pinnedMode &quot;leaf&quot;: leaf equals pinned cert
      *   - pinnedMode &quot;pathEnd&quot;: path end equals pinned cert
      *
-     * @param serviceType The service type to match (defaults to EaaIssuance for credential validation)
+     * @param serviceTypeFilter The service type filter to match. If it starts with &quot;/&quot;, uses suffix matching
+     *                          (e.g., &quot;/Issuance&quot; matches both PID/Issuance and EAA/Issuance).
+     *                          Otherwise uses exact matching (e.g., full WalletProvider URI).
+     *                          Defaults to &quot;/Issuance&quot; to match both PID and EAA issuance.
      * @returns The matched entity info, or null if no match
      */
     async pathMatchesTrustedEntities(
         path: x509.X509Certificate[],
         entities: TrustedEntity[],
         pinnedMode: &quot;leaf&quot; | &quot;pathEnd&quot; &#x3D; &quot;leaf&quot;,
-        serviceType: ServiceTypeIdentifier &#x3D; ServiceTypeIdentifiers.EaaIssuance,
+        serviceTypeFilter: string &#x3D; &quot;/Issuance&quot;,
     ): Promise&lt;MatchedTrustedEntity | null&gt; {
         const leaf &#x3D; path[0];
         const end &#x3D; path.at(-1)!;
@@ -874,12 +956,16 @@ export class X509ValidationService {
 
         for (const entity of entities) {
             // Find certificates matching the specified service type in this entity
-            const matchingServices &#x3D; entity.services.filter(
-                (s) &#x3D;&gt; s.serviceTypeIdentifier &#x3D;&#x3D;&#x3D; serviceType,
+            // If filter starts with &quot;/&quot;, use suffix matching (e.g., &quot;/Issuance&quot; matches PID/Issuance and EAA/Issuance)
+            // Otherwise use exact matching (e.g., full WalletProvider URI)
+            const matchingServices &#x3D; entity.services.filter((s) &#x3D;&gt;
+                serviceTypeFilter.startsWith(&quot;/&quot;)
+                    ? s.serviceTypeIdentifier.endsWith(serviceTypeFilter)
+                    : s.serviceTypeIdentifier &#x3D;&#x3D;&#x3D; serviceTypeFilter,
             );
 
             for (const svc of matchingServices) {
-                const matchCert &#x3D; certFromValue(svc.certValue);
+                const matchCert &#x3D; certFromBase64Der(svc.certValue);
                 const matchThumb &#x3D; arrayBufferToHex(
                     await matchCert.getThumbprint(&quot;SHA-256&quot;),
                 );
@@ -911,7 +997,9 @@ export class X509ValidationService {
                     let revocationThumbprint: string | undefined;
 
                     if (revocationSvc) {
-                        revocationCert &#x3D; certFromValue(revocationSvc.certValue);
+                        revocationCert &#x3D; certFromBase64Der(
+                            revocationSvc.certValue,
+                        );
                         revocationThumbprint &#x3D; arrayBufferToHex(
                             await revocationCert.getThumbprint(&quot;SHA-256&quot;),
                         );

@@ -669,11 +669,7 @@ export class Oid4vpController {
         @Body() body: AuthorizationResponse,
         @Param(&quot;session&quot;) sessionId: string,
     ) {
-        return this.oid4vpService.getResponse(body, sessionId).catch((err) &#x3D;&gt; {
-            console.log(&quot;Error in OID4VP response handling:&quot;);
-            console.error(err);
-            throw err;
-        });
+        return this.oid4vpService.getResponse(body, sessionId);
     }
 }
 </code></pre>
