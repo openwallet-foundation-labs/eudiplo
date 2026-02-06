@@ -1,4 +1,5 @@
 import {
+    base64,
     DeviceRequest,
     DeviceResponse,
     DocRequest,
@@ -11,7 +12,10 @@ import { Injectable, Logger } from "@nestjs/common";
 import * as x509 from "@peculiar/x509";
 import { VerifierOptions } from "../../../../shared/trust/types";
 import { mdocContext } from "../../mdoc-context";
-import { CredentialChainValidationService } from "../credential-chain-validation.service";
+import {
+    ChainValidationResult,
+    CredentialChainValidationService,
+} from "../credential-chain-validation.service";
 
 export type MdocSessionData = {
     protocol: "openid4vp";
@@ -80,35 +84,48 @@ export class MdocverifierService {
                     : docType;
             const claims = issuerSigned.getPrettyClaims(namespace) || {};
 
-            // 3) Build the trusted certificates from trust store
-            const trustedCertificates =
-                await this.chainValidation.getTrustedCertificateBuffers(
-                    options.trustListSource,
-                );
-
-            if (trustedCertificates.length === 0) {
-                return this.handleEmptyTrustStore(vp, claims, docType, options);
-            }
-
-            // 4) Build the session transcript for verification
+            // 3) Build the session transcript for verification
             const sessionTranscript = await SessionTranscript.forOid4Vp(
                 sessionData,
                 mdocContext,
             );
 
-            // 5) Build a device request (currently requesting all claims that were received)
+            // 4) Build a device request (currently requesting all claims that were received)
             const deviceRequest = this.buildDeviceRequest(docType, claims);
 
-            // 6) Verify the device response
+            // 5) Verify the device response (signature, device binding, etc.)
+            // Certificate chain validation is disabled here - we do it separately via CredentialChainValidationService
             await Verifier.verifyDeviceResponse(
                 {
                     deviceRequest,
                     deviceResponse,
                     sessionTranscript,
-                    trustedCertificates,
+                    trustedCertificates: [],
+                    disableCertificateChainValidation: true,
                 },
                 mdocContext,
             );
+
+            // 6) Validate certificate chain using shared CredentialChainValidationService
+            // This ensures consistent trust validation with SD-JWT-VC and other formats
+            const chainResult = await this.validateIssuerCertificateChain(
+                mdocDocument,
+                options,
+            );
+
+            if (!chainResult.verified) {
+                if (chainResult.errorDetails) {
+                    this.logger.warn(
+                        `Certificate chain validation failed: ${chainResult.errorDetails}`,
+                    );
+                }
+                return {
+                    verified: false,
+                    claims,
+                    payload: vp,
+                    docType,
+                };
+            }
 
             this.logger.debug(
                 `MDL device response verified successfully for docType: ${docType}`,
@@ -126,29 +143,45 @@ export class MdocverifierService {
     }
 
     /**
-     * Handle case when trust store is empty or not configured.
+     * Validates the issuer certificate chain from the mDOC's IssuerAuth.
+     * Extracts x5chain from the COSE Sign1 structure and validates it using
+     * the shared CredentialChainValidationService.
      */
-    private handleEmptyTrustStore(
-        vp: string,
-        claims: Record<string, unknown>,
-        docType: string,
+    private async validateIssuerCertificateChain(
+        mdocDocument: any,
         options: VerifierOptions,
-    ): MdocVerificationResult {
-        if (!options.trustListSource) {
-            this.logger.debug(
-                "No trust list source configured, returning claims without trust validation",
-            );
-            return { verified: true, claims, payload: vp, docType };
+    ): Promise<ChainValidationResult> {
+        // Extract x5chain from IssuerAuth (COSE Sign1 unprotected headers)
+        const issuerAuth = mdocDocument?.issuerSigned?.issuerAuth;
+        const x5chain: Uint8Array[] | undefined = issuerAuth?.x5chain;
+
+        if (!x5chain || x5chain.length === 0) {
+            // No x5c in the credential
+            if (options.policy?.requireX5c) {
+                return {
+                    verified: false,
+                    matchedEntity: null,
+                    error: "x5c_required",
+                    errorDetails:
+                        "Policy requires x5c but none was found in IssuerAuth",
+                };
+            }
+            // If x5c not required, skip trust validation
+            return { verified: true, matchedEntity: null };
         }
 
-        const configuredTrustLists =
-            options.trustListSource?.lotes?.map((l) => l.url).join(", ") ||
-            "none configured";
+        // Convert Uint8Array[] to base64 string[] for CredentialChainValidationService
+        const x5cBase64 = x5chain.map((cert) => base64.encode(cert));
 
-        this.logger.warn(
-            `No trusted certificates found in trust store. Configured trust lists: ${configuredTrustLists}`,
+        return this.chainValidation.validateChain(
+            x5cBase64,
+            options.trustListSource,
+            {
+                requireX5c: options.policy?.requireX5c,
+                pinnedCertMode: options.policy?.pinnedCertMode ?? "leaf",
+                serviceTypeFilter: "/Issuance",
+            },
         );
-        return { verified: false, claims, payload: vp, docType };
     }
 
     /**

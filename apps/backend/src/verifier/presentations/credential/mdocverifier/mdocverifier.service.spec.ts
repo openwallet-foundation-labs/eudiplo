@@ -25,12 +25,16 @@ vi.mock("@animo-id/mdoc", () => ({
     hex: {
         encode: vi.fn().mockReturnValue("mockhex"),
     },
+    base64: {
+        encode: vi.fn().mockReturnValue("mockbase64"),
+    },
 }));
 
 describe("MdocverifierService", () => {
     let service: MdocverifierService;
     let mockChainValidation: {
         getTrustedCertificateBuffers: ReturnType<typeof vi.fn>;
+        validateChain: ReturnType<typeof vi.fn>;
     };
 
     const mockSessionData: MdocSessionData = {
@@ -44,6 +48,7 @@ describe("MdocverifierService", () => {
     beforeEach(() => {
         mockChainValidation = {
             getTrustedCertificateBuffers: vi.fn(),
+            validateChain: vi.fn(),
         };
 
         service = new MdocverifierService(
@@ -60,8 +65,8 @@ describe("MdocverifierService", () => {
     });
 
     describe("verify", () => {
-        it("should return verified: true with claims when no trust list is configured", async () => {
-            const { DeviceResponse } = await import("@animo-id/mdoc");
+        it("should return verified: true with claims when no x5chain in issuerAuth", async () => {
+            const { DeviceResponse, Verifier } = await import("@animo-id/mdoc");
             const mockDocument = {
                 docType: "org.iso.18013.5.1.mDL",
                 issuerSigned: {
@@ -69,6 +74,9 @@ describe("MdocverifierService", () => {
                         given_name: "John",
                         family_name: "Doe",
                     }),
+                    issuerAuth: {
+                        // No x5chain
+                    },
                 },
             };
             (DeviceResponse.decode as ReturnType<typeof vi.fn>).mockReturnValue(
@@ -76,10 +84,15 @@ describe("MdocverifierService", () => {
                     documents: [mockDocument],
                 },
             );
+            (
+                Verifier.verifyDeviceResponse as ReturnType<typeof vi.fn>
+            ).mockResolvedValue(undefined);
 
-            mockChainValidation.getTrustedCertificateBuffers.mockResolvedValue(
-                [],
-            );
+            // validateChain returns verified: true when no x5c and not required
+            mockChainValidation.validateChain.mockResolvedValue({
+                verified: true,
+                matchedEntity: null,
+            });
 
             const result = await service.verify(
                 Buffer.from("test").toString("base64url"),
@@ -98,14 +111,17 @@ describe("MdocverifierService", () => {
             expect(result.docType).toBe("org.iso.18013.5.1.mDL");
         });
 
-        it("should return verified: false when trust list is configured but empty", async () => {
-            const { DeviceResponse } = await import("@animo-id/mdoc");
+        it("should return verified: false when chain validation fails", async () => {
+            const { DeviceResponse, Verifier } = await import("@animo-id/mdoc");
             const mockDocument = {
                 docType: "org.iso.18013.5.1.mDL",
                 issuerSigned: {
                     getPrettyClaims: vi.fn().mockReturnValue({
                         given_name: "John",
                     }),
+                    issuerAuth: {
+                        x5chain: [new Uint8Array([1, 2, 3])],
+                    },
                 },
             };
             (DeviceResponse.decode as ReturnType<typeof vi.fn>).mockReturnValue(
@@ -113,10 +129,17 @@ describe("MdocverifierService", () => {
                     documents: [mockDocument],
                 },
             );
+            (
+                Verifier.verifyDeviceResponse as ReturnType<typeof vi.fn>
+            ).mockResolvedValue(undefined);
 
-            mockChainValidation.getTrustedCertificateBuffers.mockResolvedValue(
-                [],
-            );
+            // validateChain returns verified: false
+            mockChainValidation.validateChain.mockResolvedValue({
+                verified: false,
+                matchedEntity: null,
+                error: "no_trusted_entity_match",
+                errorDetails: "No trusted certificate found",
+            });
 
             const result = await service.verify(
                 Buffer.from("test").toString("base64url"),
@@ -140,10 +163,6 @@ describe("MdocverifierService", () => {
                 },
             );
 
-            mockChainValidation.getTrustedCertificateBuffers.mockResolvedValue(
-                [],
-            );
-
             const result = await service.verify(
                 Buffer.from("test").toString("base64url"),
                 mockSessionData,
@@ -154,7 +173,7 @@ describe("MdocverifierService", () => {
             expect(result.claims).toEqual({});
         });
 
-        it("should verify successfully when trusted certificates are found", async () => {
+        it("should verify successfully when chain validation passes", async () => {
             const { DeviceResponse, Verifier } = await import("@animo-id/mdoc");
             const mockDocument = {
                 docType: "org.iso.18013.5.1.mDL",
@@ -163,6 +182,9 @@ describe("MdocverifierService", () => {
                         given_name: "John",
                         family_name: "Doe",
                     }),
+                    issuerAuth: {
+                        x5chain: [new Uint8Array([1, 2, 3])],
+                    },
                 },
             };
             (DeviceResponse.decode as ReturnType<typeof vi.fn>).mockReturnValue(
@@ -174,10 +196,11 @@ describe("MdocverifierService", () => {
                 Verifier.verifyDeviceResponse as ReturnType<typeof vi.fn>
             ).mockResolvedValue(undefined);
 
-            // Return a mock trusted certificate
-            mockChainValidation.getTrustedCertificateBuffers.mockResolvedValue([
-                new Uint8Array([1, 2, 3]),
-            ]);
+            // validateChain returns verified: true with matched entity
+            mockChainValidation.validateChain.mockResolvedValue({
+                verified: true,
+                matchedEntity: { entity: { entityId: "test-entity" } },
+            });
 
             const result = await service.verify(
                 Buffer.from("test").toString("base64url"),
@@ -195,7 +218,12 @@ describe("MdocverifierService", () => {
                 given_name: "John",
                 family_name: "Doe",
             });
-            expect(Verifier.verifyDeviceResponse).toHaveBeenCalled();
+            expect(Verifier.verifyDeviceResponse).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    disableCertificateChainValidation: true,
+                }),
+                expect.anything(),
+            );
         });
 
         it("should return verified: false when verification throws", async () => {
@@ -225,6 +253,42 @@ describe("MdocverifierService", () => {
                 mockSessionData,
                 {
                     policy: {},
+                    trustListSource: {
+                        lotes: [{ url: "https://example.com/trust-list" }],
+                    },
+                },
+            );
+
+            expect(result.verified).toBe(false);
+        });
+
+        it("should return verified: false when x5c is required but not present", async () => {
+            const { DeviceResponse, Verifier } = await import("@animo-id/mdoc");
+            const mockDocument = {
+                docType: "org.iso.18013.5.1.mDL",
+                issuerSigned: {
+                    getPrettyClaims: vi.fn().mockReturnValue({
+                        given_name: "John",
+                    }),
+                    issuerAuth: {
+                        // No x5chain
+                    },
+                },
+            };
+            (DeviceResponse.decode as ReturnType<typeof vi.fn>).mockReturnValue(
+                {
+                    documents: [mockDocument],
+                },
+            );
+            (
+                Verifier.verifyDeviceResponse as ReturnType<typeof vi.fn>
+            ).mockResolvedValue(undefined);
+
+            const result = await service.verify(
+                Buffer.from("test").toString("base64url"),
+                mockSessionData,
+                {
+                    policy: { requireX5c: true },
                     trustListSource: {
                         lotes: [{ url: "https://example.com/trust-list" }],
                     },
