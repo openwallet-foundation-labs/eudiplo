@@ -207,11 +207,9 @@ export class CredentialConfigCreateComponent implements OnInit {
     if (this.form.invalid) {
       this.markFormGroupTouched();
       const invalidFields = this.getInvalidFields();
-      this.snackBar.open(
-        `Please fix invalid fields: ${invalidFields.join(', ')}`,
-        'Close',
-        { duration: 5000 }
-      );
+      this.snackBar.open(`Please fix invalid fields: ${invalidFields.join(', ')}`, 'Close', {
+        duration: 5000,
+      });
       console.log('Invalid fields:', invalidFields);
       return;
     }
