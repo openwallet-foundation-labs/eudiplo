@@ -30,6 +30,8 @@ import { TrustList } from "./entities/trust-list.entity";
 import { TrustListVersion } from "./entities/trust-list-version.entity";
 
 export enum ServiceTypeIdentifier {
+    PIDIssuance = "http://uri.etsi.org/19602/SvcType/PID/Issuance",
+    PIDRevocation = "http://uri.etsi.org/19602/SvcType/PID/Revocation",
     EaaIssuance = "http://uri.etsi.org/19602/SvcType/EAA/Issuance",
     EaaRevocation = "http://uri.etsi.org/19602/SvcType/EAA/Revocation",
 }

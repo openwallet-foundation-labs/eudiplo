@@ -4,10 +4,7 @@ import {
     BuiltTrustStore,
     TrustStoreService,
 } from "../../../shared/trust/trust-store.service";
-import {
-    ServiceTypeIdentifiers,
-    TrustListSource,
-} from "../../../shared/trust/types";
+import { TrustListSource } from "../../../shared/trust/types";
 
 /**
  * Helper to convert Uint8Array<ArrayBufferLike> to Uint8Array<ArrayBuffer>
@@ -82,11 +79,9 @@ export abstract class BaseVerifierService {
         const trustedCertificates: Uint8Array[] = [];
 
         for (const entity of store.entities) {
-            // Find issuance certificates
-            const issuanceServices = entity.services.filter(
-                (s) =>
-                    s.serviceTypeIdentifier ===
-                    ServiceTypeIdentifiers.EaaIssuance,
+            // Find issuance certificates - use suffix matching to support both PID/Issuance and EAA/Issuance
+            const issuanceServices = entity.services.filter((s) =>
+                s.serviceTypeIdentifier.endsWith("/Issuance"),
             );
 
             for (const svc of issuanceServices) {

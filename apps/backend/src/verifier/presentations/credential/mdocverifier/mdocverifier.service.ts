@@ -12,7 +12,7 @@ import { VerifierOptions } from "../../../../shared/trust/types";
 import { mdocContext } from "../../mdl-context";
 import { BaseVerifierService } from "../base-verifier.service";
 
-export type MdlSessionData = {
+export type MdocSessionData = {
     protocol: "openid4vp";
     nonce: string;
     responseMode: string;
@@ -20,7 +20,7 @@ export type MdlSessionData = {
     responseUri: string;
 };
 
-export type MdlVerificationResult = {
+export type MdocVerificationResult = {
     verified: boolean;
     claims: Record<string, unknown>;
     payload: string;
@@ -28,8 +28,8 @@ export type MdlVerificationResult = {
 };
 
 @Injectable()
-export class MdlverifierService extends BaseVerifierService {
-    protected readonly logger = new Logger(MdlverifierService.name);
+export class MdocverifierService extends BaseVerifierService {
+    protected readonly logger = new Logger(MdocverifierService.name);
 
     constructor(trustStore: TrustStoreService) {
         super(trustStore);
@@ -44,9 +44,9 @@ export class MdlverifierService extends BaseVerifierService {
      */
     async verify(
         vp: string,
-        sessionData: MdlSessionData,
+        sessionData: MdocSessionData,
         options: VerifierOptions,
-    ): Promise<MdlVerificationResult> {
+    ): Promise<MdocVerificationResult> {
         try {
             // 1) Decode the device response
             const uint8Array = Buffer.from(vp, "base64url");

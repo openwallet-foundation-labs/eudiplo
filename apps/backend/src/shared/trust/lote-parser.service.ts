@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { LoTE } from "../../issuer/trust-list/dto/types";
 import {
     ServiceTypeIdentifier,
@@ -24,6 +24,8 @@ export type ParsedLoTE = {
 
 @Injectable()
 export class LoteParserService {
+    private readonly logger = new Logger(LoteParserService.name);
+
     /**
      * Parse a LoTE payload preserving TrustedEntity groupings.
      * This allows pairing issuance and revocation certificates from the same entity.
@@ -40,20 +42,45 @@ export class LoteParserService {
         const rawEntities = root.TrustedEntitiesList ?? [];
         const entities: TrustedEntity[] = [];
 
+        this.logger.debug(
+            `Parsing LoTE with ${rawEntities.length} raw TrustedEntities`,
+        );
+
         for (const te of rawEntities) {
             // Extract entity ID from TrustedEntityInformation.TEName (array of MultiLangString)
             // Use the first name's value as the entity identifier
-            const teName = te.TrustedEntityInformation.TEName;
-            const entityId = teName[0]?.value;
+            const teName = te.TrustedEntityInformation?.TEName;
+            const entityId = teName?.[0]?.value;
 
-            const teServices = te.TrustedEntityServices;
+            this.logger.debug(`Processing entity: ${entityId || "(no id)"}`);
+
+            const teServices = te.TrustedEntityServices ?? [];
             const entityServices: TrustedEntityServiceCert[] = [];
+
+            this.logger.debug(`  Entity has ${teServices.length} services`);
 
             for (const svc of teServices) {
                 const svcInfo = svc.ServiceInformation;
-                const serviceTypeIdentifier = svcInfo.ServiceTypeIdentifier!;
+                const serviceTypeIdentifier = svcInfo?.ServiceTypeIdentifier;
+
+                this.logger.debug(
+                    `    Service type: ${serviceTypeIdentifier || "(none)"}`,
+                );
+
+                if (!serviceTypeIdentifier) {
+                    this.logger.debug(
+                        `    Skipping service without type identifier`,
+                    );
+                    continue;
+                }
+
                 const x509s =
-                    svcInfo.ServiceDigitalIdentity.X509Certificates ?? [];
+                    svcInfo.ServiceDigitalIdentity?.X509Certificates ?? [];
+
+                this.logger.debug(
+                    `    Service has ${x509s.length} X509 certificates`,
+                );
+
                 for (const x of x509s) {
                     if (x.val) {
                         const serviceCert: TrustedEntityServiceCert = {
@@ -61,6 +88,8 @@ export class LoteParserService {
                             certValue: x.val,
                         };
                         entityServices.push(serviceCert);
+                    } else {
+                        this.logger.debug(`    X509 cert has no val property`);
                     }
                 }
             }
@@ -70,6 +99,13 @@ export class LoteParserService {
                     entityId,
                     services: entityServices,
                 });
+                this.logger.debug(
+                    `  Added entity ${entityId} with ${entityServices.length} service certs`,
+                );
+            } else {
+                this.logger.debug(
+                    `  Skipping entity ${entityId || "(no id)"} - no service certs found`,
+                );
             }
         }
 
