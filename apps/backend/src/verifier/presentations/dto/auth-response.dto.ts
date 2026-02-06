@@ -1,10 +1,13 @@
+import { IsObject, IsOptional, IsString } from "class-validator";
+
 /**
  * AuthResponse DTO
  */
-export interface AuthResponse {
+export class AuthResponse {
     /**
      * The VP token containing the presentation data.
      */
+    @IsObject()
     vp_token: {
         /**
          * Key-value pairs representing the VP token data.
@@ -14,5 +17,7 @@ export interface AuthResponse {
     /**
      * The state parameter to maintain state between the request and callback.
      */
-    state: string;
+    @IsString()
+    @IsOptional()
+    state?: string;
 }
