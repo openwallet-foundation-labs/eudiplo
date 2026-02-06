@@ -9,10 +9,10 @@ import {
 import { Injectable, Logger } from "@nestjs/common";
 import { TrustStoreService } from "../../../../shared/trust/trust-store.service";
 import { VerifierOptions } from "../../../../shared/trust/types";
-import { mdocContext } from "../../mdl-context";
+import { mdocContext } from "../../mdoc-context";
 import { BaseVerifierService } from "../base-verifier.service";
 
-export type MdlSessionData = {
+export type MdocSessionData = {
     protocol: "openid4vp";
     nonce: string;
     responseMode: string;
@@ -20,7 +20,7 @@ export type MdlSessionData = {
     responseUri: string;
 };
 
-export type MdlVerificationResult = {
+export type MdocVerificationResult = {
     verified: boolean;
     claims: Record<string, unknown>;
     payload: string;
@@ -28,15 +28,15 @@ export type MdlVerificationResult = {
 };
 
 @Injectable()
-export class MdlverifierService extends BaseVerifierService {
-    protected readonly logger = new Logger(MdlverifierService.name);
+export class MdocVerifierService extends BaseVerifierService {
+    protected readonly logger = new Logger(MdocVerifierService.name);
 
     constructor(trustStore: TrustStoreService) {
         super(trustStore);
     }
 
     /**
-     * Verifies an MDL/mDOC credential.
+     * Verifies an mDOC credential.
      * @param vp The base64url encoded device response
      * @param sessionData Session data for transcript generation
      * @param options Verification options including trust list
@@ -44,22 +44,22 @@ export class MdlverifierService extends BaseVerifierService {
      */
     async verify(
         vp: string,
-        sessionData: MdlSessionData,
+        sessionData: MdocSessionData,
         options: VerifierOptions,
-    ): Promise<MdlVerificationResult> {
+    ): Promise<MdocVerificationResult> {
         try {
             // 1) Decode the device response
             const uint8Array = Buffer.from(vp, "base64url");
             const deviceResponse = DeviceResponse.decode(uint8Array);
-            const mdlDocument = deviceResponse.documents?.[0];
+            const mdocDocument = deviceResponse.documents?.[0];
 
-            if (!mdlDocument) {
-                throw new Error("MDL document not found in device response");
+            if (!mdocDocument) {
+                throw new Error("mDOC document not found in device response");
             }
 
             // 2) Extract claims from the issuer signed data
-            const issuerSigned = mdlDocument.issuerSigned;
-            const docType = mdlDocument.docType;
+            const issuerSigned = mdocDocument.issuerSigned;
+            const docType = mdocDocument.docType;
 
             // Get claims from the appropriate namespace
             const namespace =
@@ -161,7 +161,7 @@ export class MdlverifierService extends BaseVerifierService {
                 `Configured trust lists: ${configuredTrustLists}`,
             ].join(" | ");
 
-            this.logger.error(`MDL verification failed: ${errorDetails}`);
+            this.logger.error(`Mdoc verification failed: ${errorDetails}`);
             return {
                 verified: false,
                 claims: {},

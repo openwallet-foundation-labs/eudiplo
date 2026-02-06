@@ -15,7 +15,7 @@ export const toBuffer = (bytes: Uint8Array): Uint8Array<ArrayBuffer> => {
 };
 
 /**
- * Base class for credential verifiers (MDL/mDOC and SD-JWT-VC).
+ * Base class for credential verifiers (mDOC and SD-JWT-VC).
  * Provides common functionality for trust store operations and certificate handling.
  */
 export abstract class BaseVerifierService {

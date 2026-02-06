@@ -9,7 +9,7 @@ import {
 import { Injectable, Logger } from "@nestjs/common";
 import { TrustStoreService } from "../../../../shared/trust/trust-store.service";
 import { VerifierOptions } from "../../../../shared/trust/types";
-import { mdocContext } from "../../mdl-context";
+import { mdocContext } from "../../mdoc-context";
 import { BaseVerifierService } from "../base-verifier.service";
 
 export type MdocSessionData = {
@@ -36,7 +36,7 @@ export class MdocverifierService extends BaseVerifierService {
     }
 
     /**
-     * Verifies an MDL/mDOC credential.
+     * Verifies an mDOC credential.
      * @param vp The base64url encoded device response
      * @param sessionData Session data for transcript generation
      * @param options Verification options including trust list
@@ -51,15 +51,15 @@ export class MdocverifierService extends BaseVerifierService {
             // 1) Decode the device response
             const uint8Array = Buffer.from(vp, "base64url");
             const deviceResponse = DeviceResponse.decode(uint8Array);
-            const mdlDocument = deviceResponse.documents?.[0];
+            const mdocDocument = deviceResponse.documents?.[0];
 
-            if (!mdlDocument) {
-                throw new Error("MDL document not found in device response");
+            if (!mdocDocument) {
+                throw new Error("mDOC document not found in device response");
             }
 
             // 2) Extract claims from the issuer signed data
-            const issuerSigned = mdlDocument.issuerSigned;
-            const docType = mdlDocument.docType;
+            const issuerSigned = mdocDocument.issuerSigned;
+            const docType = mdocDocument.docType;
 
             // Get claims from the appropriate namespace
             const namespace =
