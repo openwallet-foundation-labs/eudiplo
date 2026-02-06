@@ -136,9 +136,22 @@ export interface PresentationRequestOptions {
  * Result of creating an offer or request
  */
 export interface OfferResult {
-  /** The URI to encode in a QR code or use directly */
+  /**
+   * URI for same-device flow.
+   * Use when the wallet is on the same device as the browser.
+   * For presentation requests: After presentation, the wallet will redirect the user back to the verifier.
+   * For issuance offers: The wallet opens and receives the credential.
+   */
   uri: string;
-  /** Session ID for polling */
+  /**
+   * URI for cross-device flow (e.g., QR code scanned by another device).
+   * Use when the wallet is on a different device than the browser.
+   * No redirect happens after presentation - poll the session for status updates.
+   *
+   * Only available for presentation requests. For issuance, use `uri` for both flows.
+   */
+  crossDeviceUri?: string;
+  /** Session ID for polling status updates */
   sessionId: string;
 }
 
@@ -166,7 +179,7 @@ export interface OfferResult {
  * ```
  */
 export class EudiploClient {
-  private config: EudiploClientConfig;
+  private readonly config: EudiploClientConfig;
   private accessToken?: string;
   private tokenExpiresAt?: number;
   private refreshPromise?: Promise<void>;
@@ -301,14 +314,26 @@ export class EudiploClient {
   /**
    * Create a presentation request (for verification).
    *
-   * @example
+   * Returns two URIs:
+   * - `uri`: For same-device flow (wallet on same device, redirect after completion)
+   * - `crossDeviceUri`: For cross-device flow (QR code, no redirect, poll for status)
+   *
+   * @example Same-device flow (wallet app on user's device)
    * ```typescript
-   * // Age verification
    * const { uri, sessionId } = await client.createPresentationRequest({
+   *   configId: 'age-over-18',
+   *   redirectUri: 'https://example.com/callback'
+   * });
+   * // Redirect user to uri - wallet will redirect back after completion
+   * window.location.href = uri;
+   * ```
+   *
+   * @example Cross-device flow (QR code scanned by separate device)
+   * ```typescript
+   * const { crossDeviceUri, sessionId } = await client.createPresentationRequest({
    *   configId: 'age-over-18'
    * });
-   *
-   * // Show QR code, wait for wallet to respond
+   * // Display crossDeviceUri as QR code, then poll for completion
    * const session = await client.waitForSession(sessionId);
    * ```
    */
@@ -331,6 +356,7 @@ export class EudiploClient {
 
     return {
       uri: response.data.uri,
+      crossDeviceUri: response.data.crossDeviceUri ?? response.data.uri,
       sessionId: response.data.session,
     };
   }
@@ -686,6 +712,10 @@ export async function verify(options: VerifyOptions): Promise<FlowResult> {
     configId: options.configId,
     redirectUri: options.redirectUri,
   });
+
+  // same device uri
+  const sameDeviceUri = uri;
+  const crossDeviceUri = `${uri}`;
 
   return {
     uri,

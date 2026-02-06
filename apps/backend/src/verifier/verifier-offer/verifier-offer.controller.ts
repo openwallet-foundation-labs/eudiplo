@@ -101,6 +101,7 @@ export class VerifierOfferController {
             req.get("origin") || req.get("host") || "",
         );
         values.uri = `openid4vp://?${values.uri}`;
+        values.crossDeviceUri = `openid4vp://?${values.crossDeviceUri}`;
         if (body.response_type === ResponseType.QRCode) {
             // Generate QR code as a PNG buffer.
             const qrCodeBuffer = await QRCode.toBuffer(values.uri);

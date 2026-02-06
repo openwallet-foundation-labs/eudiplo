@@ -1184,6 +1184,13 @@ export type CredentialConfigUpdate = {
   schema?: SchemaResponse;
 };
 
+export type DeferredCredentialRequestDto = {
+  /**
+   * The transaction identifier previously returned by the Credential Endpoint
+   */
+  transaction_id: string;
+};
+
 export type NotificationRequestDto = {
   notification_id: string;
   event: {
@@ -1204,7 +1211,23 @@ export type ParResponseDto = {
 
 export type OfferResponse = {
   uri: string;
+  /**
+   * URI for cross-device flows (no redirect after completion)
+   */
+  crossDeviceUri?: string;
   session: string;
+};
+
+export type CompleteDeferredDto = {
+  [key: string]: unknown;
+};
+
+export type DeferredOperationResponse = {
+  [key: string]: unknown;
+};
+
+export type FailDeferredDto = {
+  [key: string]: unknown;
 };
 
 export type EcPublic = {
@@ -2494,6 +2517,24 @@ export type Oid4VciControllerCredentialData = {
 };
 
 export type Oid4VciControllerCredentialResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type Oid4VciControllerCredentialResponse =
+  Oid4VciControllerCredentialResponses[keyof Oid4VciControllerCredentialResponses];
+
+export type Oid4VciControllerDeferredCredentialData = {
+  body: DeferredCredentialRequestDto;
+  path: {
+    tenantId: string;
+  };
+  query?: never;
+  url: "/{tenantId}/vci/deferred_credential";
+};
+
+export type Oid4VciControllerDeferredCredentialResponses = {
   200: unknown;
 };
 
@@ -2613,6 +2654,58 @@ export type CredentialOfferControllerGetOfferResponses = {
 
 export type CredentialOfferControllerGetOfferResponse =
   CredentialOfferControllerGetOfferResponses[keyof CredentialOfferControllerGetOfferResponses];
+
+export type DeferredControllerCompleteDeferredData = {
+  body: CompleteDeferredDto;
+  path: {
+    transactionId: string;
+  };
+  query?: never;
+  url: "/issuer/deferred/{transactionId}/complete";
+};
+
+export type DeferredControllerCompleteDeferredErrors = {
+  /**
+   * Transaction not found
+   */
+  404: unknown;
+};
+
+export type DeferredControllerCompleteDeferredResponses = {
+  /**
+   * Transaction completed successfully
+   */
+  200: DeferredOperationResponse;
+};
+
+export type DeferredControllerCompleteDeferredResponse =
+  DeferredControllerCompleteDeferredResponses[keyof DeferredControllerCompleteDeferredResponses];
+
+export type DeferredControllerFailDeferredData = {
+  body?: FailDeferredDto;
+  path: {
+    transactionId: string;
+  };
+  query?: never;
+  url: "/issuer/deferred/{transactionId}/fail";
+};
+
+export type DeferredControllerFailDeferredErrors = {
+  /**
+   * Transaction not found
+   */
+  404: unknown;
+};
+
+export type DeferredControllerFailDeferredResponses = {
+  /**
+   * Transaction marked as failed
+   */
+  200: DeferredOperationResponse;
+};
+
+export type DeferredControllerFailDeferredResponse =
+  DeferredControllerFailDeferredResponses[keyof DeferredControllerFailDeferredResponses];
 
 export type Oid4VciMetadataControllerVctData = {
   body?: never;
@@ -2756,6 +2849,22 @@ export type Oid4VpControllerGetPostRequestWithSessionResponses = {
 
 export type Oid4VpControllerGetPostRequestWithSessionResponse =
   Oid4VpControllerGetPostRequestWithSessionResponses[keyof Oid4VpControllerGetPostRequestWithSessionResponses];
+
+export type Oid4VpControllerGetRequestNoRedirectWithSessionData = {
+  body?: never;
+  path: {
+    session: string;
+  };
+  query?: never;
+  url: "/{session}/oid4vp/request/no-redirect";
+};
+
+export type Oid4VpControllerGetRequestNoRedirectWithSessionResponses = {
+  200: string;
+};
+
+export type Oid4VpControllerGetRequestNoRedirectWithSessionResponse =
+  Oid4VpControllerGetRequestNoRedirectWithSessionResponses[keyof Oid4VpControllerGetRequestNoRedirectWithSessionResponses];
 
 export type Oid4VpControllerGetResponseData = {
   body: AuthorizationResponse;

@@ -61,6 +61,12 @@ import type {
   CredentialConfigControllerUpdateCredentialConfigurationResponses,
   CredentialOfferControllerGetOfferData,
   CredentialOfferControllerGetOfferResponses,
+  DeferredControllerCompleteDeferredData,
+  DeferredControllerCompleteDeferredErrors,
+  DeferredControllerCompleteDeferredResponses,
+  DeferredControllerFailDeferredData,
+  DeferredControllerFailDeferredErrors,
+  DeferredControllerFailDeferredResponses,
   HealthControllerCheckData,
   HealthControllerCheckErrors,
   HealthControllerCheckResponses,
@@ -80,6 +86,8 @@ import type {
   KeyControllerUpdateKeyResponses,
   Oid4VciControllerCredentialData,
   Oid4VciControllerCredentialResponses,
+  Oid4VciControllerDeferredCredentialData,
+  Oid4VciControllerDeferredCredentialResponses,
   Oid4VciControllerNonceData,
   Oid4VciControllerNonceResponses,
   Oid4VciControllerNotificationsData,
@@ -88,6 +96,8 @@ import type {
   Oid4VciMetadataControllerVctResponses,
   Oid4VpControllerGetPostRequestWithSessionData,
   Oid4VpControllerGetPostRequestWithSessionResponses,
+  Oid4VpControllerGetRequestNoRedirectWithSessionData,
+  Oid4VpControllerGetRequestNoRedirectWithSessionResponses,
   Oid4VpControllerGetRequestWithSessionData,
   Oid4VpControllerGetRequestWithSessionResponses,
   Oid4VpControllerGetResponseData,
@@ -1225,6 +1235,30 @@ export const oid4VciControllerCredential = <
   >({ url: "/{tenantId}/vci/credential", ...options });
 
 /**
+ * Deferred Credential Endpoint
+ *
+ * According to OID4VCI Section 9, this endpoint is used by the wallet to poll
+ * for credentials that were not immediately available.
+ */
+export const oid4VciControllerDeferredCredential = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<Oid4VciControllerDeferredCredentialData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    Oid4VciControllerDeferredCredentialResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/{tenantId}/vci/deferred_credential",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Notification endpoint
  */
 export const oid4VciControllerNotifications = <
@@ -1339,6 +1373,54 @@ export const credentialOfferControllerGetOffer = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/issuer/offer",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Complete a deferred credential transaction
+ *
+ * Completes a pending deferred credential transaction by providing the claims. The credential will be generated and marked as ready for wallet retrieval.
+ */
+export const deferredControllerCompleteDeferred = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<DeferredControllerCompleteDeferredData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    DeferredControllerCompleteDeferredResponses,
+    DeferredControllerCompleteDeferredErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/issuer/deferred/{transactionId}/complete",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Fail a deferred credential transaction
+ *
+ * Marks a deferred credential transaction as failed. The wallet will receive an invalid_transaction_id error when attempting retrieval.
+ */
+export const deferredControllerFailDeferred = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<DeferredControllerFailDeferredData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    DeferredControllerFailDeferredResponses,
+    DeferredControllerFailDeferredErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/issuer/deferred/{transactionId}/fail",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1475,6 +1557,23 @@ export const oid4VpControllerGetPostRequestWithSession = <
     unknown,
     ThrowOnError
   >({ url: "/{session}/oid4vp/request", ...options });
+
+/**
+ * Returns the authorization request for a given requestId and session, but does not redirect in the end.
+ */
+export const oid4VpControllerGetRequestNoRedirectWithSession = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    Oid4VpControllerGetRequestNoRedirectWithSessionData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).get<
+    Oid4VpControllerGetRequestNoRedirectWithSessionResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/{session}/oid4vp/request/no-redirect", ...options });
 
 /**
  * Endpoint to receive the response from the wallet.

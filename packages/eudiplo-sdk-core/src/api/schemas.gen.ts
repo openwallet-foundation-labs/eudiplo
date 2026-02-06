@@ -1322,6 +1322,7 @@ export const SessionSchema = {
     },
     redirectUri: {
       type: "string",
+      nullable: true,
       description:
         "Redirect URI to which the user-agent should be redirected after the presentation is completed.",
     },
@@ -2242,6 +2243,19 @@ export const CredentialConfigUpdateSchema = {
   },
 } as const;
 
+export const DeferredCredentialRequestDtoSchema = {
+  type: "object",
+  properties: {
+    transaction_id: {
+      type: "string",
+      description:
+        "The transaction identifier previously returned by the Credential Endpoint",
+      example: "8xLOxBtZp8",
+    },
+  },
+  required: ["transaction_id"],
+} as const;
+
 export const NotificationRequestDtoSchema = {
   type: "object",
   properties: {
@@ -2276,11 +2290,30 @@ export const OfferResponseSchema = {
     uri: {
       type: "string",
     },
+    crossDeviceUri: {
+      type: "string",
+      description: "URI for cross-device flows (no redirect after completion)",
+    },
     session: {
       type: "string",
     },
   },
   required: ["uri", "session"],
+} as const;
+
+export const CompleteDeferredDtoSchema = {
+  type: "object",
+  properties: {},
+} as const;
+
+export const DeferredOperationResponseSchema = {
+  type: "object",
+  properties: {},
+} as const;
+
+export const FailDeferredDtoSchema = {
+  type: "object",
+  properties: {},
 } as const;
 
 export const EC_PublicSchema = {

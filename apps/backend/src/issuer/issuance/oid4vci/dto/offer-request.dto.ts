@@ -203,5 +203,7 @@ export class OfferRequestDto {
 
 export class OfferResponse {
     uri!: string;
+    /** URI for cross-device flows (no redirect after completion) */
+    crossDeviceUri?: string;
     session!: string;
 }
