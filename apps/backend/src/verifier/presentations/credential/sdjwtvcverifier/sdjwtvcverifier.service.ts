@@ -1,34 +1,24 @@
 import { createHash } from "node:crypto";
 import { BadRequestException, Injectable, Logger } from "@nestjs/common";
-import * as x509 from "@peculiar/x509";
 import { digest } from "@sd-jwt/crypto-nodejs";
 import { SDJwtVcInstance, VerificationResult } from "@sd-jwt/sd-jwt-vc";
 import { KbVerifier } from "@sd-jwt/types";
 import { base64url, JWK } from "jose";
 import { CryptoImplementationService } from "../../../../crypto/key/crypto-implementation/crypto-implementation.service";
-import { StatusListVerifierService } from "../../../../shared/trust/status-list-verifier.service";
-import { TrustStoreService } from "../../../../shared/trust/trust-store.service";
 import { VerifierOptions } from "../../../../shared/trust/types";
-import {
-    MatchedTrustedEntity,
-    X509ValidationService,
-} from "../../../../shared/trust/x509-validation.service";
+import { MatchedTrustedEntity } from "../../../../shared/trust/x509-validation.service";
 import { ResolverService } from "../../../resolver/resolver.service";
-import { BaseVerifierService } from "../base-verifier.service";
+import { CredentialChainValidationService } from "../credential-chain-validation.service";
 
 @Injectable()
-export class SdjwtvcverifierService extends BaseVerifierService {
-    protected readonly logger = new Logger(SdjwtvcverifierService.name);
+export class SdjwtvcverifierService {
+    private readonly logger = new Logger(SdjwtvcverifierService.name);
 
     constructor(
         private readonly resolverService: ResolverService,
         private readonly cryptoService: CryptoImplementationService,
-        trustStore: TrustStoreService,
-        private readonly x509v: X509ValidationService,
-        private readonly statusListVerifier: StatusListVerifierService,
-    ) {
-        super(trustStore);
-    }
+        private readonly chainValidation: CredentialChainValidationService,
+    ) {}
 
     /**
      * Verifies an SD-JWT-VC credential.
@@ -63,7 +53,8 @@ export class SdjwtvcverifierService extends BaseVerifierService {
                 return result.verified;
             },
             kbVerifier: this.kbVerifier.bind(this),
-            statusListFetcher: this.statusListFetcher.bind(this),
+            statusListFetcher: (uri: string) =>
+                this.chainValidation.fetchStatusListJwt(uri),
             statusVerifier: (data: string, signature: string) => {
                 // Verify status list JWT using the revocation cert from the same entity
                 return this.verifyStatusList(
@@ -208,146 +199,29 @@ export class SdjwtvcverifierService extends BaseVerifierService {
                 });
             if (!sigOk) return { verified: false, matchedEntity: null };
 
-            // 2) Require x5c if policy says so
+            // 2) Validate certificate chain using shared service
             const x5c: string[] | undefined = header?.x5c;
-            if (
-                options?.policy.requireX5c &&
-                (!Array.isArray(x5c) || x5c.length === 0)
-            )
-                return { verified: false, matchedEntity: null };
-
-            if (!x5c?.length) {
-                // If you support non-x5c trust models, branch here.
-                return { verified: true, matchedEntity: null };
-            }
-
-            // 3) Build trust store with TrustedEntities from LoTE
-            // If no trust list source is configured, skip trust validation (like mDOC)
-            const store = await this.getTrustStoreIfConfigured(
+            const chainResult = await this.chainValidation.validateChain(
+                x5c ?? [],
                 options.trustListSource,
+                {
+                    requireX5c: options?.policy.requireX5c,
+                    pinnedCertMode: options?.policy.pinnedCertMode ?? "leaf",
+                    serviceTypeFilter: "/Issuance",
+                },
             );
-            if (!store) {
-                // No trust list configured - signature is valid, skip trust validation
-                this.logger.debug(
-                    "No trust list source configured, returning verified without trust validation",
-                );
-                return { verified: true, matchedEntity: null };
-            }
 
-            // 4) Build a validated path
-            const presented = this.x509v.parseX5c(x5c);
-            const leaf = presented[0];
-
-            // Get all issuance certs from entities for path building
-            const allCerts = store.entities.flatMap((e) =>
-                e.services.map((s) => ({ certValue: s.certValue })),
-            );
-            const anchors = this.x509v.parseTrustAnchors(allCerts);
-
-            let path: x509.X509Certificate[];
-            try {
-                path = await this.x509v.buildPath(leaf, presented, anchors, []);
-            } catch (e: any) {
-                this.logger.debug(`Chain build failed: ${e?.message ?? e}`);
+            if (!chainResult.verified) {
+                if (chainResult.errorDetails) {
+                    this.logger.warn(
+                        `Certificate chain validation failed: ${chainResult.errorDetails}`,
+                    );
+                }
                 return { verified: false, matchedEntity: null };
             }
 
-            // optional explicit time check on the built path
-            const now = new Date();
-            for (const c of path) {
-                if (!this.x509v.isTimeValid(c, now))
-                    return { verified: false, matchedEntity: null };
-            }
-
-            // 5) Match against TrustedEntities (not flat anchors)
-            const pinnedMode = options.policy.pinnedCertMode ?? "leaf";
-
-            const matchedEntity = await this.x509v.pathMatchesTrustedEntities(
-                path,
-                store.entities,
-                pinnedMode,
-            );
-
-            if (!matchedEntity) {
-                // Collect debugging info for the error message
-                const leafCert = path[0];
-                const endCert = path.at(-1)!;
-                const leafSubject = leafCert.subject;
-                const leafIssuer = leafCert.issuer;
-                const endSubject = endCert.subject;
-
-                // Get full thumbprints for comparison
-                const leafThumbprint = Buffer.from(
-                    await leafCert.getThumbprint("SHA-256"),
-                ).toString("hex");
-                const endThumbprint = Buffer.from(
-                    await endCert.getThumbprint("SHA-256"),
-                ).toString("hex");
-
-                // Show which trust lists were configured
-                const configuredTrustLists =
-                    options.trustListSource?.lotes
-                        ?.map((l) => l.url)
-                        .join(", ") || "none configured";
-
-                // Collect thumbprints of allowed certificates from trust list (matches any /Issuance service type)
-                const allowedThumbprints: string[] = [];
-                for (const entity of store.entities) {
-                    for (const svc of entity.services) {
-                        if (svc.serviceTypeIdentifier?.endsWith("/Issuance")) {
-                            try {
-                                const cert = new x509.X509Certificate(
-                                    svc.certValue,
-                                );
-                                const thumb = Buffer.from(
-                                    await cert.getThumbprint("SHA-256"),
-                                ).toString("hex");
-                                allowedThumbprints.push(
-                                    `${entity.entityId || "unknown"}: ${thumb}`,
-                                );
-                            } catch {
-                                allowedThumbprints.push(
-                                    `${entity.entityId || "unknown"}: (parse error)`,
-                                );
-                            }
-                        }
-                    }
-                }
-
-                // Summarize trusted entities
-                const trustedSummary = store.entities
-                    .map((e, idx) => {
-                        const certs = e.services.filter((s) =>
-                            s.serviceTypeIdentifier?.endsWith("/Issuance"),
-                        );
-                        return `${e.entityId || `entity-${idx}`}: ${certs.length} cert(s)`;
-                    })
-                    .join("; ");
-
-                const errorDetails = [
-                    `Presented leaf: subject="${leafSubject}", issuer="${leafIssuer}", thumbprint=${leafThumbprint}`,
-                    `Presented path end: subject="${endSubject}", thumbprint=${endThumbprint}`,
-                    `Pinned mode: ${pinnedMode}`,
-                    `Configured trust lists: ${configuredTrustLists}`,
-                    `Loaded entities (${store.entities.length}): ${trustedSummary || "none"}`,
-                    `Allowed cert thumbprints: ${allowedThumbprints.length > 0 ? allowedThumbprints.join("; ") : "none"}`,
-                ].join(" | ");
-
-                this.logger.warn(`No trusted entity match: ${errorDetails}`);
-
-                throw new Error(
-                    `No trusted entity match found for presented certificate chain. ${errorDetails}`,
-                );
-            }
-
-            // Note: Revocation checks are handled by the SD-JWT SDK via:
-            // - statusListFetcher: fetches and caches the status list JWT
-            // - statusVerifier: verifies the status list JWT signature
-            // The SDK automatically checks the status value during verify()
-
-            return { verified: true, matchedEntity };
+            return { verified: true, matchedEntity: chainResult.matchedEntity };
         } catch (e: any) {
-            console.log(e);
             this.logger.error(`Error in verifier: ${e?.message ?? e}`);
             return { verified: false, matchedEntity: null };
         }
@@ -395,104 +269,16 @@ export class SdjwtvcverifierService extends BaseVerifierService {
                 });
             if (!sigOk) return false;
 
-            // 2) If no entity was matched (no x5c in original credential),
-            //    just accept the signature verification
-            if (!matchedEntity) {
-                return true;
-            }
-
-            // 3) Check if the matched entity has a revocation certificate
-            if (!matchedEntity.revocationCert) {
-                // Entity doesn't have a revocation cert, but credential had x5c
-                // Depending on policy, you might want to reject this
-                this.logger.warn(
-                    `TrustedEntity ${matchedEntity.entity.entityId ?? "unknown"} ` +
-                        `has no revocation certificate configured`,
-                );
-                // For now, accept if entity doesn't define a revocation cert
-                return true;
-            }
-
-            // 4) Verify that status list is signed by the entity's revocation cert
+            // 2) Verify status list certificate chain using shared service
             const x5c: string[] | undefined = header?.x5c;
-            if (!x5c?.length) {
-                // Status list doesn't have x5c, but credential did
-                this.logger.warn(
-                    "Status list JWT missing x5c, but credential had x5c trust chain",
-                );
-                return false;
-            }
-
-            // 5) Build and verify the status list's certificate chain
-            const store = await this.getTrustStoreIfConfigured(
+            return await this.chainValidation.verifyStatusListSignature(
+                x5c,
+                matchedEntity,
                 options.trustListSource,
+                {
+                    pinnedCertMode: options.policy.pinnedCertMode ?? "leaf",
+                },
             );
-            if (!store) {
-                // No trust list configured - accept if signature is valid
-                return true;
-            }
-
-            const presented = this.x509v.parseX5c(x5c);
-            const leaf = presented[0];
-
-            // Get all certs for path building
-            const allCerts = store.entities.flatMap((e) =>
-                e.services.map((s) => ({ certValue: s.certValue })),
-            );
-            const anchors = this.x509v.parseTrustAnchors(allCerts);
-
-            let path: x509.X509Certificate[];
-            try {
-                path = await this.x509v.buildPath(leaf, presented, anchors, []);
-            } catch (e: any) {
-                this.logger.debug(
-                    `Status list chain build failed: ${e?.message ?? e}`,
-                );
-                return false;
-            }
-
-            // 6) Get the leaf or end cert thumbprint from status list chain
-            const statusLeafThumb = await this.getThumbprint(presented[0]);
-            const statusEndThumb = await this.getThumbprint(path.at(-1)!);
-
-            // 7) Check if the status list is signed by the revocation cert from the same entity
-            const revocationThumb = matchedEntity.revocationThumbprint!;
-            const revocationIsCa = this.x509v.isCaCert(
-                matchedEntity.revocationCert,
-            );
-
-            const pinnedMode = options.policy.pinnedCertMode ?? "leaf";
-            let statusMatchesRevocation = false;
-
-            if (revocationIsCa) {
-                // Revocation cert is CA: path must terminate at this cert
-                statusMatchesRevocation = revocationThumb === statusEndThumb;
-            } else {
-                // Revocation cert is pinned (non-CA)
-                if (pinnedMode === "leaf") {
-                    statusMatchesRevocation =
-                        revocationThumb === statusLeafThumb;
-                } else if (pinnedMode === "pathEnd") {
-                    statusMatchesRevocation =
-                        revocationThumb === statusEndThumb;
-                }
-            }
-
-            if (!statusMatchesRevocation) {
-                this.logger.warn(
-                    `Status list is NOT signed by the revocation certificate from the same TrustedEntity. ` +
-                        `Entity: ${matchedEntity.entity.entityId ?? "unknown"}, ` +
-                        `Expected revocation cert: ${revocationThumb}, ` +
-                        `Status list leaf cert: ${statusLeafThumb}, ` +
-                        `Status list end cert: ${statusEndThumb}`,
-                );
-                return false;
-            }
-
-            this.logger.debug(
-                `Status list verified against revocation cert from entity: ${matchedEntity.entity.entityId ?? "unknown"}`,
-            );
-            return true;
         } catch (e: any) {
             this.logger.error(
                 `Error verifying status list: ${e?.message ?? e}`,
@@ -500,17 +286,6 @@ export class SdjwtvcverifierService extends BaseVerifierService {
             return false;
         }
     }
-
-    /**
-     * Fetch the status list from the uri with caching.
-     * @param uri
-     * @returns
-     */
-    private readonly statusListFetcher: (uri: string) => Promise<string> = (
-        uri: string,
-    ) => {
-        return this.statusListVerifier.getStatusListJwt(uri);
-    };
 
     /**
      * Verifier for keybindings. It will verify the signature of the keybinding and return true if it is valid.

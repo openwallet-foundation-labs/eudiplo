@@ -15,6 +15,7 @@ import { hkdf } from "@panva/hkdf";
 import * as x509 from "@peculiar/x509";
 import { X509Certificate } from "@peculiar/x509";
 import { exportJWK, importX509 } from "jose";
+import { toBuffer } from "../src/shared/utils/buffer.util";
 
 export const DEVICE_JWK = {
     kty: "EC",
@@ -22,16 +23,6 @@ export const DEVICE_JWK = {
     y: "oxS1OAORJ7XNUHNfVFGeM8E0RQVFxWA62fJj-sxW03c",
     crv: "P-256",
     d: "eRpAZr3eV5xMMnPG3kWjg90Y-bBff9LqmlQuk49HUtA",
-};
-
-/**
- * Helper to convert Uint8Array<ArrayBufferLike> to Uint8Array<ArrayBuffer>
- * This is needed due to TypeScript version differences where newer TS versions
- * use Uint8Array<ArrayBufferLike> which is not assignable to BufferSource
- */
-const toBuffer = (bytes: Uint8Array): Uint8Array<ArrayBuffer> => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return new Uint8Array(bytes) as unknown as Uint8Array<ArrayBuffer>;
 };
 
 export const mdocContext: MdocContext = {
