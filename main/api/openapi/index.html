@@ -2678,6 +2678,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#cache-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Management
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cache Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-cachestats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /cache/stats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /cache
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-cachetrust-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /cache/trust-list
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-cachestatus-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /cache/status-list
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#storage" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4956,6 +5017,67 @@
     <span class="md-ellipsis">
       
         POST /verifier/offer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cache-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Management
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cache Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-cachestats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /cache/stats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /cache
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-cachetrust-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /cache/trust-list
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-cachestatus-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /cache/status-list
       
     </span>
   </a>
@@ -14066,6 +14188,153 @@ updated.</p>
 </div>
 </div>
 </div>
+<h2 id="cache-management"><span class="api-tag">Cache Management</span><a class="headerlink" href="#cache-management" title="Permanent link">¶</a></h2>
+<hr class="operation-separator">
+
+<h3 id="get-cachestats"><span class="http-get">GET</span> /cache/stats<a class="headerlink" href="#get-cachestats" title="Permanent link">¶</a></h3>
+<p>Get cache statistics</p>
+<details class="note">
+<summary>Description</summary>
+<p>Returns statistics about the trust list and status list caches.</p>
+</details>
+<p><strong>Input parameters</strong></p>
+<table>
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>In</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Nullable</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="parameter-name"><code>oauth2</code></td>
+            <td>header</td>
+            <td>string</td>
+            <td>N/A</td>
+            <td>No</td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+
+<p class="response-title">
+    <strong>Response <span class="response-code code-200">200</span>&nbsp;<span class="status-phrase">OK</span></strong>
+</p>
+
+<hr class="operation-separator">
+
+<h3 id="delete-cache"><span class="http-delete">DELETE</span> /cache<a class="headerlink" href="#delete-cache" title="Permanent link">¶</a></h3>
+<p>Clear all caches</p>
+<details class="note">
+<summary>Description</summary>
+<p>Clears both trust list and status list caches. Next verification will fetch
+fresh data.</p>
+</details>
+<p><strong>Input parameters</strong></p>
+<table>
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>In</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Nullable</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="parameter-name"><code>oauth2</code></td>
+            <td>header</td>
+            <td>string</td>
+            <td>N/A</td>
+            <td>No</td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+
+<p class="response-title">
+    <strong>Response <span class="response-code code-204">204</span>&nbsp;<span class="status-phrase">No Content</span></strong>
+</p>
+
+<hr class="operation-separator">
+
+<h3 id="delete-cachetrust-list"><span class="http-delete">DELETE</span> /cache/trust-list<a class="headerlink" href="#delete-cachetrust-list" title="Permanent link">¶</a></h3>
+<p>Clear trust list cache</p>
+<details class="note">
+<summary>Description</summary>
+<p>Clears the trust list cache. Next verification will fetch fresh trust lists.</p>
+</details>
+<p><strong>Input parameters</strong></p>
+<table>
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>In</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Nullable</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="parameter-name"><code>oauth2</code></td>
+            <td>header</td>
+            <td>string</td>
+            <td>N/A</td>
+            <td>No</td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+
+<p class="response-title">
+    <strong>Response <span class="response-code code-204">204</span>&nbsp;<span class="status-phrase">No Content</span></strong>
+</p>
+
+<hr class="operation-separator">
+
+<h3 id="delete-cachestatus-list"><span class="http-delete">DELETE</span> /cache/status-list<a class="headerlink" href="#delete-cachestatus-list" title="Permanent link">¶</a></h3>
+<p>Clear status list cache</p>
+<details class="note">
+<summary>Description</summary>
+<p>Clears the status list (revocation) cache. Next status check will fetch
+fresh status lists.</p>
+</details>
+<p><strong>Input parameters</strong></p>
+<table>
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>In</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Nullable</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="parameter-name"><code>oauth2</code></td>
+            <td>header</td>
+            <td>string</td>
+            <td>N/A</td>
+            <td>No</td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+
+<p class="response-title">
+    <strong>Response <span class="response-code code-204">204</span>&nbsp;<span class="status-phrase">No Content</span></strong>
+</p>
+
 <h2 id="storage"><span class="api-tag">Storage</span><a class="headerlink" href="#storage" title="Permanent link">¶</a></h2>
 <hr class="operation-separator">
 

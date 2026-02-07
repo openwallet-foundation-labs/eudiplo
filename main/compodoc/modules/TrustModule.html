@@ -136,13 +136,13 @@
 <title>cluster_TrustModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="8,-70 8,-268 1038,-268 1038,-70 8,-70"/>
 </g>
-<g id="clust6" class="cluster">
-<title>cluster_TrustModule_providers</title>
-<polygon fill="none" stroke="black" points="16,-78 16,-130 1030,-130 1030,-78 16,-78"/>
-</g>
 <g id="clust4" class="cluster">
 <title>cluster_TrustModule_exports</title>
 <polygon fill="none" stroke="black" points="277,-208 277,-260 763,-260 763,-208 277,-208"/>
+</g>
+<g id="clust6" class="cluster">
+<title>cluster_TrustModule_providers</title>
+<polygon fill="none" stroke="black" points="16,-78 16,-130 1030,-130 1030,-78 16,-78"/>
 </g>
 <!-- StatusListVerifierService  -->
 <g id="node1" class="node">
@@ -313,6 +313,16 @@
                     </ul>
                 </div>
                 <div class="col-sm-3">
+                    <h3>Controllers<a href="https://docs.nestjs.com/controllers" target="_blank" rel="noopener noreferrer"
+                            title="Official documentation about module controllers"><span
+                                class="icon ion-ios-information-circle-outline"></a></h3>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <a href="../controllers/CacheController.html">CacheController</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-sm-3">
                     <h3>Exports<a href="https://angular.io/api/core/NgModule#exports" target="_blank" rel="noopener noreferrer"
                             title="Official documentation about module exports"><span
                                 class="icon ion-ios-information-circle-outline"></a></h3>
@@ -339,6 +349,7 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import * as https from &quot;node:https&quot;;
 import { HttpModule } from &quot;@nestjs/axios&quot;;
 import { Module } from &quot;@nestjs/common&quot;;
+import { CacheController } from &quot;./cache.controller&quot;;
 import { LoteParserService } from &quot;./lote-parser.service&quot;;
 import { StatusListVerifierService } from &quot;./status-list-verifier.service&quot;;
 import { TrustStoreService } from &quot;./trust-store.service&quot;;
@@ -353,6 +364,7 @@ import { X509ValidationService } from &quot;./x509-validation.service&quot;;
             }),
         }),
     ],
+    controllers: [CacheController],
     providers: [
         TrustListJwtService,
         LoteParserService,
