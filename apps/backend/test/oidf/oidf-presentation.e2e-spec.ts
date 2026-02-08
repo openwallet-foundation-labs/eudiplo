@@ -6,6 +6,7 @@ import { ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { Test, TestingModule } from "@nestjs/testing";
 import * as axios from "axios";
+import { Logger } from "nestjs-pino";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module";
 import { CertImportDto } from "../../src/crypto/key/dto/cert-import.dto";
@@ -50,8 +51,7 @@ describe("OIDF", () => {
 
         const issuerCert = readConfig<CertImportDto>(
             resolve(
-                __dirname +
-                    "/../../../../assets/config/root/certs/certificate-b6db7c84-776e-4998-9d40-ac599a4ea1fc-config.json",
+                __dirname + "/../../../../assets/config/root/certs/cert.json",
             ),
         ).crt!;
 
@@ -69,12 +69,12 @@ describe("OIDF", () => {
                 signing_jwk: {
                     ...key.key,
                     use: "sig",
-                    x5c: [
-                        issuerCert
+                    x5c: issuerCert.map((cert) =>
+                        cert
                             .replaceAll("-----BEGIN CERTIFICATE-----", "")
                             .replaceAll("-----END CERTIFICATE-----", "")
                             .replaceAll(/\r?\n|\r/g, ""),
-                    ],
+                    ),
                     alg: "ES256",
                 },
             },
@@ -96,19 +96,23 @@ describe("OIDF", () => {
         app = moduleFixture.createNestApplication<NestExpressApplication>({
             httpsOptions,
         });
+
+        // Use Pino logger for all NestJS logging (same as main.ts)
+        app.useLogger(app.get(Logger));
         app.useGlobalPipes(new ValidationPipe());
 
         const configService = app.get(ConfigService);
         const configFolder = resolve(__dirname + "/../../../../assets/config");
+        const tmpFolder = resolve(__dirname, "../../../../tmp");
+        configService.set("FOLDER", tmpFolder);
         configService.set("CONFIG_FOLDER", configFolder);
         configService.set("PUBLIC_URL", `https://${PUBLIC_DOMAIN}`);
         configService.set("CONFIG_IMPORT", true);
         configService.set("CONFIG_IMPORT_FORCE", true);
+        configService.set("LOG_LEVEL", "debug");
 
         await app.init();
         await app.listen(3000, "0.0.0.0");
-
-        console.log("Backend application started for OIDF E2E tests");
 
         // Get client credentials
         const client = JSON.parse(
@@ -138,7 +142,10 @@ describe("OIDF", () => {
     });
 
     afterAll(async () => {
-        const outputDir = resolve(__dirname, `../../logs/${PLAN_ID}`);
+        const outputDir = resolve(
+            __dirname,
+            `../../../../tmp/oidf-logs/${PLAN_ID}`,
+        );
         await oidfSuite.storeLog(PLAN_ID, outputDir);
 
         if (app) {

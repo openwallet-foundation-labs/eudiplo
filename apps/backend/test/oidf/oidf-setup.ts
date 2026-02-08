@@ -13,6 +13,8 @@
  * (not in globalSetup), which is why we use beforeAll/afterAll hooks.
  */
 
+import { existsSync, rmSync } from "node:fs";
+import { resolve } from "node:path";
 import {
     GenericContainer,
     Network,
@@ -22,6 +24,8 @@ import {
     Wait,
 } from "testcontainers";
 import { afterAll, beforeAll } from "vitest";
+
+const TEST_DB_PATH = resolve(__dirname, "../../../tmp/service.db");
 
 let network: StartedNetwork | undefined;
 let mongoDb: StartedTestContainer | undefined;
@@ -159,10 +163,24 @@ async function teardownOidfContainers(): Promise<void> {
 }
 
 /**
+ * Delete the test database to ensure a fresh start
+ */
+export function deleteTestDatabase(): void {
+    try {
+        rmSync(TEST_DB_PATH, { force: true });
+        console.log("Deleted test database for fresh start");
+    } catch (error) {
+        console.error("Error deleting test database:", error);
+    }
+}
+
+/**
  * Setup hook for OIDF tests - starts required containers
  */
 export async function setupOidfTest(): Promise<void> {
     console.log("Setting up OIDF test containers...");
+    // Delete database to ensure fresh start for each test file
+    deleteTestDatabase();
     try {
         await setupOidfContainers();
     } catch (error) {

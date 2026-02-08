@@ -1,10 +1,32 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { ES256 } from "@sd-jwt/crypto-nodejs";
+import { CredentialFormat } from "../../../issuer/configuration/credentials/entities/credential.entity";
 import { CryptoImplementation } from "./crypto-implementation";
 import { ED25519 } from "./ed25519";
 
 export type CryptoType = "ES256" | "Ed25519";
+
+/**
+ * JOSE algorithm names used for SD-JWT VC
+ */
+export type JoseAlgorithm = "ES256" | "ES384" | "ES512" | "EdDSA";
+
+/**
+ * COSE algorithm identifiers used for mDOC (ISO 18013-5)
+ * @see https://www.iana.org/assignments/cose/cose.xhtml#algorithms
+ */
+export type CoseAlgorithm = -7 | -35 | -36 | -8;
+
+/**
+ * Mapping from JOSE to COSE algorithm identifiers
+ */
+const JOSE_TO_COSE: Record<JoseAlgorithm, CoseAlgorithm> = {
+    ES256: -7, // ECDSA w/ SHA-256
+    ES384: -35, // ECDSA w/ SHA-384
+    ES512: -36, // ECDSA w/ SHA-512
+    EdDSA: -8, // EdDSA
+};
 
 @Injectable()
 export class CryptoImplementationService {
@@ -26,6 +48,42 @@ export class CryptoImplementationService {
      */
     getSupportedAlgorithms(): CryptoType[] {
         return [...this.supportedAlgorithms];
+    }
+
+    /**
+     * Returns the supported algorithms based on the credential format.
+     * - For SD-JWT VC: Returns JOSE algorithm names (ES256, EdDSA)
+     * - For mDOC: Returns COSE algorithm identifiers (-7, -8)
+     * @param credentialFormat The credential format
+     * @returns Array of algorithm identifiers appropriate for the format
+     */
+    getAlgs(
+        credentialFormat: CredentialFormat,
+    ): (JoseAlgorithm | CoseAlgorithm)[] {
+        // Map internal crypto types to JOSE algorithms
+        const joseAlgs: JoseAlgorithm[] = this.supportedAlgorithms.map(
+            (alg) => {
+                switch (alg) {
+                    case "ES256":
+                        return "ES256";
+                    case "Ed25519":
+                        return "EdDSA";
+                    default:
+                        return "ES256";
+                }
+            },
+        );
+
+        if (credentialFormat === CredentialFormat.SD_JWT) {
+            return joseAlgs;
+        }
+
+        if (credentialFormat === CredentialFormat.MSO_MDOC) {
+            return joseAlgs.map((alg) => JOSE_TO_COSE[alg]);
+        }
+
+        // Default to JOSE algorithms
+        return joseAlgs;
     }
 
     /**

@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsOptional, IsString, IsUUID } from "class-validator";
+import { IsOptional, IsString } from "class-validator";
 import {
     Column,
     CreateDateColumn,
@@ -38,11 +38,11 @@ export class CertEntity {
     tenant!: TenantEntity;
 
     /**
-     * Certificate in PEM format.
+     * Certificate chain in PEM format (leaf first, then intermediates/CA).
      */
-    @IsString()
-    @Column("varchar")
-    crt!: string;
+    @IsString({ each: true })
+    @Column("simple-json")
+    crt!: string[];
 
     @OneToMany(
         () => CertUsageEntity,

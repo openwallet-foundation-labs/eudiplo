@@ -4,6 +4,7 @@ import {
     forwardRef,
     Inject,
     Injectable,
+    Logger,
     NotFoundException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
@@ -16,7 +17,6 @@ import {
     StatusListJWTHeaderParameters,
 } from "@sd-jwt/jwt-status-list";
 import { JwtPayload } from "@sd-jwt/types";
-import { PinoLogger } from "nestjs-pino";
 import { IsNull, Repository } from "typeorm";
 import { v4 } from "uuid";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
@@ -37,6 +37,8 @@ import { StatusListConfigService } from "./status-list-config.service";
 
 @Injectable()
 export class StatusListService {
+    private readonly logger = new Logger(StatusListService.name);
+
     constructor(
         private readonly configService: ConfigService,
         private readonly certService: CertService,
@@ -48,7 +50,6 @@ export class StatusListService {
         @InjectRepository(TenantEntity)
         private readonly tenantRepository: Repository<TenantEntity>,
         private readonly configImportService: ConfigImportService,
-        private readonly logger: PinoLogger,
         @Inject(forwardRef(() => StatusListConfigService))
         private readonly statusListConfigService: StatusListConfigService,
         readonly configImportOrchestrator: ConfigImportOrchestratorService,

@@ -4,12 +4,12 @@ import { OAuth2Client, OAuth2Token } from "@badgateway/oauth2-client";
 import {
     BadRequestException,
     Injectable,
+    Logger,
     NotFoundException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
-import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
 import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
 import { CryptoService } from "../crypto/crypto.service";
@@ -49,6 +49,8 @@ interface CachedToken {
  */
 @Injectable()
 export class RegistrarService {
+    private readonly logger = new Logger(RegistrarService.name);
+
     /**
      * Cache of OAuth2 tokens per tenant.
      */
@@ -57,7 +59,6 @@ export class RegistrarService {
     constructor(
         private readonly configService: ConfigService,
         private readonly cryptoService: CryptoService,
-        private readonly logger: PinoLogger,
         configImportOrchestrator: ConfigImportOrchestratorService,
         @InjectRepository(RegistrarConfigEntity)
         private readonly configRepository: Repository<RegistrarConfigEntity>,
@@ -112,7 +113,7 @@ export class RegistrarService {
                 ...config,
             });
 
-            this.logger.info(`[${tenantId}] Registrar config imported`);
+            this.logger.log(`[${tenantId}] Registrar config imported`);
         } catch (error: any) {
             this.logger.error(
                 `[${tenantId}] Failed to import registrar config: ${error.message}`,
@@ -173,7 +174,7 @@ export class RegistrarService {
         // Clear any cached token for this tenant
         this.tokenCache.delete(tenantId);
 
-        this.logger.info(`[${tenantId}] Registrar configuration saved`);
+        this.logger.log(`[${tenantId}] Registrar configuration saved`);
         return config;
     }
 
@@ -231,7 +232,7 @@ export class RegistrarService {
     async deleteConfig(tenantId: string): Promise<void> {
         await this.configRepository.delete({ tenantId });
         this.tokenCache.delete(tenantId);
-        this.logger.info(`[${tenantId}] Registrar configuration deleted`);
+        this.logger.log(`[${tenantId}] Registrar configuration deleted`);
     }
 
     /**
@@ -258,7 +259,7 @@ export class RegistrarService {
                 username: config.username,
                 password: config.password,
             });
-            this.logger.info("Registrar credentials validated successfully");
+            this.logger.log("Registrar credentials validated successfully");
         } catch (error: any) {
             this.logger.warn(`Credential validation failed: ${error.message}`);
             throw new BadRequestException(
@@ -432,13 +433,13 @@ export class RegistrarService {
 
         // Store the certificate in EUDIPLO
         const certId = await this.certService.addCertificate(tenantId, {
-            crt,
+            crt: [crt],
             keyId: dto.keyId,
             certUsageTypes: [CertUsage.Access],
             description: `Access certificate from registrar (ID: ${id})`,
         });
 
-        this.logger.info(
+        this.logger.log(
             `[${tenantId}] Created access certificate with ID: ${id}, stored as ${certId}`,
         );
 

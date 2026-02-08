@@ -2,7 +2,6 @@ import { HttpModule, HttpService } from "@nestjs/axios";
 import { DynamicModule, Global, Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
-import { PinoLogger } from "nestjs-pino/PinoLogger";
 import { Repository } from "typeorm";
 import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
 import { ConfigImportService } from "../../shared/utils/config-import/config-import.service";
@@ -47,7 +46,6 @@ export class KeyModule {
                         configImportService: ConfigImportService,
                         certRepository: Repository<CertEntity>,
                         tenantRepository: Repository<TenantEntity>,
-                        logger: PinoLogger,
                         configImportOrchestrator: ConfigImportOrchestratorService,
                     ) => {
                         const kmType = configService.get<"vault" | "file">(
@@ -62,7 +60,6 @@ export class KeyModule {
                                 configImportService,
                                 certRepository,
                                 tenantRepository,
-                                logger,
                                 configImportOrchestrator,
                             );
                         }
@@ -74,7 +71,6 @@ export class KeyModule {
                             configImportService,
                             certRepository,
                             tenantRepository,
-                            logger,
                             configImportOrchestrator,
                         );
                     },
@@ -86,7 +82,6 @@ export class KeyModule {
                         ConfigImportService,
                         getRepositoryToken(CertEntity),
                         getRepositoryToken(TenantEntity),
-                        PinoLogger,
                         ConfigImportOrchestratorService,
                     ],
                 },

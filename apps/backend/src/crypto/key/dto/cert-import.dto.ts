@@ -33,11 +33,12 @@ export class CertImportDto extends OmitType(CertEntity, [
     certUsageTypes: CertUsage[];
 
     /**
-     * Certificate in PEM format, if not provided, a self-signed certificate will be generated.
+     * Certificate chain in PEM format (leaf first, then intermediates/CA).
+     * If not provided, a self-signed certificate will be generated.
      */
-    @IsString()
+    @IsString({ each: true })
     @IsOptional()
-    crt?: string;
+    crt?: string[];
 
     /**
      * Subject name (CN) for self-signed certificate generation.

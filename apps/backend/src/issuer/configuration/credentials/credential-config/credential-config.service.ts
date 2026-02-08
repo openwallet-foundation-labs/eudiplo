@@ -1,8 +1,7 @@
 import { readFileSync } from "node:fs";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
-import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
 import { CertService } from "../../../../crypto/key/cert/cert.service";
 import { CertUsage } from "../../../../crypto/key/entities/cert-usage.entity";
@@ -21,6 +20,8 @@ import { CredentialConfig } from "../entities/credential.entity";
  */
 @Injectable()
 export class CredentialConfigService {
+    private readonly logger = new Logger(CredentialConfigService.name);
+
     /**
      * Constructor for CredentialConfigService.
      * @param credentialConfigRepository - Repository for CredentialConfig entity.
@@ -28,7 +29,6 @@ export class CredentialConfigService {
     constructor(
         @InjectRepository(CredentialConfig)
         private readonly credentialConfigRepository: Repository<CredentialConfig>,
-        private readonly logger: PinoLogger,
         private readonly certService: CertService,
         private readonly filesService: FilesService,
         private readonly configImportService: ConfigImportService,

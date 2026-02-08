@@ -1,9 +1,9 @@
 import { readFileSync } from "node:fs";
+import { Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Signer } from "@sd-jwt/types";
 import { plainToClass } from "class-transformer";
 import { JWK, JWSHeaderParameters, JWTPayload } from "jose";
-import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
 import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
 import { ConfigImportService } from "../../shared/utils/config-import/config-import.service";
@@ -20,13 +20,14 @@ import { KeyEntity, KeyUsage } from "./entities/keys.entity";
  * Generic interface for a key service
  */
 export abstract class KeyService {
+    protected readonly logger = new Logger(KeyService.name);
+
     constructor(
         protected configService: ConfigService,
         protected keyRepository: Repository<KeyEntity>,
         protected configImportService: ConfigImportService,
         private readonly certRepository: Repository<CertEntity>,
         private readonly tenantRepository: Repository<TenantEntity>,
-        private readonly logger: PinoLogger,
         configImportOrchestrator: ConfigImportOrchestratorService,
     ) {
         configImportOrchestrator.register(
@@ -166,7 +167,7 @@ export abstract class KeyService {
                             id: tid,
                         });
                     await this.import(tenantEntity.id, config).catch((err) => {
-                        this.logger.info(err.message);
+                        this.logger.log(err.message);
                     });
                 },
             },

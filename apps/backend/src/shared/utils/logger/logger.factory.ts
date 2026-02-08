@@ -30,7 +30,8 @@ export const createLoggerOptions = (configService: ConfigService) => {
                         colorize: true,
                         singleLine: false,
                         translateTime: "yyyy-mm-dd HH:MM:ss",
-                        ignore: "pid,hostname",
+                        ignore: "pid,hostname,req,res,responseTime,context",
+                        messageFormat: "{if context}[{context}] {end}{msg}",
                     },
                 },
                 // File logging - ensure order is maintained with sync: true
@@ -53,7 +54,8 @@ export const createLoggerOptions = (configService: ConfigService) => {
                 colorize: true,
                 singleLine: false,
                 translateTime: "yyyy-mm-dd HH:MM:ss",
-                ignore: "pid,hostname",
+                ignore: "pid,hostname,req,res,responseTime,context",
+                messageFormat: "{if context}[{context}] {end}{msg}",
             },
         };
     }

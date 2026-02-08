@@ -1,7 +1,6 @@
 import { existsSync, readdirSync } from "node:fs";
-import { Injectable, OnApplicationBootstrap } from "@nestjs/common";
+import { Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { PinoLogger } from "nestjs-pino";
 
 /**
  * Interface for services that can be registered with the import orchestrator.
@@ -66,11 +65,9 @@ export class ConfigImportOrchestratorService implements OnApplicationBootstrap {
     private tenantSetup: TenantSetupFn | null = null;
     private hasRun = false;
     private runPromise: Promise<void> | null = null;
+    private readonly logger = new Logger(ConfigImportOrchestratorService.name);
 
-    constructor(
-        private readonly logger: PinoLogger,
-        private readonly configService: ConfigService,
-    ) {}
+    constructor(private readonly configService: ConfigService) {}
 
     /**
      * Lifecycle hook - automatically triggers import orchestration.
@@ -150,7 +147,7 @@ export class ConfigImportOrchestratorService implements OnApplicationBootstrap {
     private async executeImports(): Promise<void> {
         if (!this.configService.get<boolean>("CONFIG_IMPORT")) {
             this.hasRun = true;
-            this.logger.info("Config import is disabled");
+            this.logger.log("Config import is disabled");
             return;
         }
 
@@ -162,7 +159,7 @@ export class ConfigImportOrchestratorService implements OnApplicationBootstrap {
         // Discover tenants
         const tenants = this.discoverTenants();
 
-        this.logger.info(
+        this.logger.log(
             `Starting config import for ${tenants.length} tenant(s)`,
         );
 
@@ -199,7 +196,7 @@ export class ConfigImportOrchestratorService implements OnApplicationBootstrap {
                     }
                 }
 
-                this.logger.info(`[${tenantId}] Import completed`);
+                this.logger.log(`[${tenantId}] Import completed`);
             } catch (error: any) {
                 this.logger.error(
                     { error: error.message },
@@ -217,7 +214,7 @@ export class ConfigImportOrchestratorService implements OnApplicationBootstrap {
                 `Config import completed with ${failedTenants.length} failed tenant(s): ${failedTenants.join(", ")}`,
             );
         } else {
-            this.logger.info(
+            this.logger.log(
                 `Config import completed for ${tenants.length} tenant(s)`,
             );
         }

@@ -1,8 +1,7 @@
 import { readFileSync } from "node:fs";
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
-import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
 import { KeyService } from "../../../crypto/key/key.service";
 import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
@@ -21,6 +20,8 @@ import { IssuanceConfig } from "./entities/issuance-config.entity";
  */
 @Injectable()
 export class IssuanceService {
+    private readonly logger = new Logger(IssuanceService.name);
+
     /**
      * Constructor for IssuanceService.
      * @param issuanceConfigRepo
@@ -29,7 +30,6 @@ export class IssuanceService {
     constructor(
         @InjectRepository(IssuanceConfig)
         private readonly issuanceConfigRepo: Repository<IssuanceConfig>,
-        private readonly logger: PinoLogger,
         private readonly filesService: FilesService,
         private readonly configImportService: ConfigImportService,
         private readonly configImportOrchestrator: ConfigImportOrchestratorService,

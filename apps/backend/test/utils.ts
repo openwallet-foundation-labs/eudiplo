@@ -626,12 +626,9 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
     );
 
     const cert = readConfig<CertImportDto>(
-        join(
-            configFolder,
-            "root/certs/certificate-b6db7c84-776e-4998-9d40-ac599a4ea1fc-config.json",
-        ),
+        join(configFolder, "root/certs/cert.json"),
     );
-    const issuerCert = cert.crt!;
+    const issuerCert = cert.crt![0];
     await expectRequest(
         request(app.getHttpServer())
             .post("/certs")
@@ -668,10 +665,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
     );
 
     const statusListCert = readConfig<CertImportDto>(
-        join(
-            configFolder,
-            "root/certs/certificate-b6db7c84-776e-4998-9d40-ac599a4ea1fc-config.json",
-        ),
+        join(configFolder, "root/certs/cert.json"),
     );
 
     await expectRequest(
