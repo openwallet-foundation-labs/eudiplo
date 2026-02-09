@@ -16,7 +16,12 @@ import {
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
-import { CallbackContext, Jwk, SignJwtCallback } from "@openid4vc/oauth2";
+import {
+    CallbackContext,
+    Jwk,
+    JwtHeader,
+    SignJwtCallback,
+} from "@openid4vc/oauth2";
 import { ResolvedOpenid4vpAuthorizationRequest } from "@openid4vc/openid4vp";
 import { X509Certificate } from "@peculiar/x509";
 import { digest, ES256 } from "@sd-jwt/crypto-nodejs";
@@ -239,10 +244,13 @@ export const callbacks: any = {
             publicKey = (await importJWK(jwk as JWK, signer.alg)) as CryptoKey;
         } else if (signer.method === "x5c") {
             const headerB64 = compact.split(".")[0];
-            const header = JSON.parse(
+            const header: JwtHeader = JSON.parse(
                 Buffer.from(headerB64, "base64url").toString(),
             );
-            const certPem = `-----BEGIN CERTIFICATE-----\n${header.x5c}\n-----END CERTIFICATE-----`;
+            if (!header.x5c || header.x5c.length === 0) {
+                throw new Error("x5c header parameter is missing or empty");
+            }
+            const certPem = `-----BEGIN CERTIFICATE-----\n${header.x5c[0]}\n-----END CERTIFICATE-----`;
             publicKey = await importX509(certPem, signer.alg);
             jwk = (await exportJWK(publicKey)) as Jwk;
         } else {
@@ -698,10 +706,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
             .set("Authorization", `Bearer ${authToken}`)
             .send(
                 readConfig<CertImportDto>(
-                    join(
-                        configFolder,
-                        "root/certs/certificate-fb139025-05f8-47af-be11-326c41098263-config.json",
-                    ),
+                    join(configFolder, "root/certs/cert.json"),
                 ),
             ),
         201,
