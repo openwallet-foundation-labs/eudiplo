@@ -8,7 +8,6 @@ import {
 } from "@nestjs/common";
 import { ApiBody, ApiProduces, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Request, Response } from "express";
-import QRCode from "qrcode";
 import { Role } from "../../auth/roles/role.enum";
 import { Secured } from "../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../auth/token.decorator";
@@ -48,13 +47,6 @@ export class VerifierOfferController {
     @ApiBody({
         type: PresentationRequest,
         examples: {
-            qrcode: {
-                summary: "QR-Code Example",
-                value: {
-                    response_type: ResponseType.QRCode,
-                    requestId: "pid",
-                },
-            },
             uri: {
                 summary: "URI",
                 value: {
@@ -102,17 +94,6 @@ export class VerifierOfferController {
         );
         values.uri = `openid4vp://?${values.uri}`;
         values.crossDeviceUri = `openid4vp://?${values.crossDeviceUri}`;
-        if (body.response_type === ResponseType.QRCode) {
-            // Generate QR code as a PNG buffer.
-            const qrCodeBuffer = await QRCode.toBuffer(values.uri);
-
-            // Set the response content type to image/png
-            res.setHeader("Content-Type", "image/png");
-
-            // Send the QR code image as the response
-            res.send(qrCodeBuffer);
-        } else {
-            res.send(values);
-        }
+        res.send(values);
     }
 }

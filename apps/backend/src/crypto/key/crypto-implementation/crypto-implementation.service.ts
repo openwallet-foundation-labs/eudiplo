@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { jwaSignatureAlgorithmToFullySpecifiedCoseAlgorithm } from "@openid4vc/oauth2";
 import { ES256 } from "@sd-jwt/crypto-nodejs";
 import { CredentialFormat } from "../../../issuer/configuration/credentials/entities/credential.entity";
 import { CryptoImplementation } from "./crypto-implementation";
@@ -14,19 +15,10 @@ export type JoseAlgorithm = "ES256" | "ES384" | "ES512" | "EdDSA";
 
 /**
  * COSE algorithm identifiers used for mDOC (ISO 18013-5)
- * @see https://www.iana.org/assignments/cose/cose.xhtml#algorithms
+ * Uses RFC 9864 fully-specified algorithm identifiers
+ * @see https://www.rfc-editor.org/rfc/rfc9864.html
  */
-export type CoseAlgorithm = -7 | -35 | -36 | -8;
-
-/**
- * Mapping from JOSE to COSE algorithm identifiers
- */
-const JOSE_TO_COSE: Record<JoseAlgorithm, CoseAlgorithm> = {
-    ES256: -7, // ECDSA w/ SHA-256
-    ES384: -35, // ECDSA w/ SHA-384
-    ES512: -36, // ECDSA w/ SHA-512
-    EdDSA: -8, // EdDSA
-};
+export type CoseAlgorithm = number;
 
 @Injectable()
 export class CryptoImplementationService {
@@ -79,7 +71,11 @@ export class CryptoImplementationService {
         }
 
         if (credentialFormat === CredentialFormat.MSO_MDOC) {
-            return joseAlgs.map((alg) => JOSE_TO_COSE[alg]);
+            return joseAlgs
+                .map((alg) =>
+                    jwaSignatureAlgorithmToFullySpecifiedCoseAlgorithm(alg),
+                )
+                .filter((alg) => alg !== undefined);
         }
 
         // Default to JOSE algorithms

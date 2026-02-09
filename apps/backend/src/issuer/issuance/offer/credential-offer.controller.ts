@@ -7,7 +7,6 @@ import {
 } from "@nestjs/common";
 import { ApiBody, ApiProduces, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Response } from "express";
-import * as QRCode from "qrcode";
 import { Role } from "../../../auth/roles/role.enum";
 import { Secured } from "../../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../../auth/token.decorator";
@@ -44,14 +43,6 @@ export class CredentialOfferController {
     @ApiBody({
         type: OfferRequestDto,
         examples: {
-            qrcode: {
-                summary: "QR-Code Example",
-                value: {
-                    response_type: ResponseType.QRCode,
-                    credentialConfigurationIds: ["pid"],
-                    flow: FlowType.PRE_AUTH_CODE,
-                } as OfferRequestDto,
-            },
             uri: {
                 summary: "URI",
                 value: {
@@ -89,17 +80,6 @@ export class CredentialOfferController {
             user.entity!.id,
         );
 
-        if (body.response_type === ResponseType.QRCode) {
-            // Generate QR code as a PNG buffer
-            const qrCodeBuffer = await QRCode.toBuffer(values.uri);
-
-            // Set the response content type to image/png
-            res.setHeader("Content-Type", "image/png");
-
-            // Send the QR code image as the response
-            res.send(qrCodeBuffer);
-        } else {
-            res.send(values);
-        }
+        res.send(values);
     }
 }

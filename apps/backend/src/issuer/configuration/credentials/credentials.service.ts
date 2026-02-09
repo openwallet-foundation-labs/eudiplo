@@ -13,7 +13,10 @@ import {
     WebhookService,
 } from "../../../shared/utils/webhook/webhook.service";
 import { VCT } from "../../issuance/oid4vci/metadata/dto/vct.dto";
-import { CredentialConfig } from "./entities/credential.entity";
+import {
+    CredentialConfig,
+    CredentialFormat,
+} from "./entities/credential.entity";
 import { MdocIssuerService } from "./issuer/mdoc-issuer/mdoc-issuer.service";
 import { SdjwtvcIssuerService } from "./issuer/sdjwtvc-issuer/sdjwtvc-issuer.service";
 import {
@@ -146,8 +149,11 @@ export class CredentialsService {
                 signingAlgorithms: algs,
                 bindingMethods: ["cose_key"],
                 proofTypesSupported: {
-                    cose_key: {
-                        proof_signing_alg_values_supported: algs.map(String),
+                    jwt: {
+                        proof_signing_alg_values_supported:
+                            this.cryptoImplementationService.getAlgs(
+                                CredentialFormat.SD_JWT,
+                            ) as string[],
                     },
                 },
             },

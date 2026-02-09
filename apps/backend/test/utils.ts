@@ -435,6 +435,7 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
     const configService = app.get(ConfigService);
     configService.set("CONFIG_IMPORT", false);
     configService.set("CONFIG_IMPORT_FORCE", true);
+    configService.set("LOG_LEVEL", "debug");
     const clientId = configService.getOrThrow<string>("AUTH_CLIENT_ID");
     const clientSecret = configService.getOrThrow<string>("AUTH_CLIENT_SECRET");
 
