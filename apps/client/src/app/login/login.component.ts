@@ -149,7 +149,8 @@ export class LoginComponent implements OnInit {
         // Provide specific error messages based on the error type
         let errorMessage = 'Login failed. ';
         if (error?.message?.includes('fetch') || error?.name === 'TypeError') {
-          errorMessage += 'Could not connect to EUDIPLO. Check if the instance URL is correct and the server is running.';
+          errorMessage +=
+            'Could not connect to EUDIPLO. Check if the instance URL is correct and the server is running.';
         } else if (error?.status === 401 || error?.message?.includes('401')) {
           errorMessage += 'Invalid credentials. Please check your Client ID and Client Secret.';
         } else if (error?.status === 404 || error?.message?.includes('404')) {

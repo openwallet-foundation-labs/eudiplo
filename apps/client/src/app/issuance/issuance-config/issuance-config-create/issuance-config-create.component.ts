@@ -70,7 +70,7 @@ export class IssuanceConfigCreateComponent implements OnInit {
       display: this.fb.array([]),
       authServers: this.fb.array([]),
       batchSize: new FormControl(1, [Validators.min(1)]),
-      dPopRequired: new FormControl(true),
+      dPopRequired: new FormControl(false),
       walletAttestationRequired: new FormControl(false),
       walletProviderTrustLists: this.fb.array([]),
     } as { [k in keyof IssuanceDto]: any });
