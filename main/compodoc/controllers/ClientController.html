@@ -183,7 +183,12 @@
                             </li>
                             <li>
                                     <span class="modifier"></span>
-                                <a href="#getClientSecret" >getClientSecret</a>
+                                <a href="#getClientSecret" class="deprecated-name">getClientSecret</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#rotateClientSecret" >rotateClientSecret</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
@@ -235,8 +240,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="101"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:101</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="130"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:130</a></div>
                         </td>
                     </tr>
 
@@ -325,8 +330,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="124"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:124</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="153"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:153</a></div>
                         </td>
                     </tr>
 
@@ -415,8 +420,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="49"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:49</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="51"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -505,8 +510,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="38"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:38</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="40"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:40</a></div>
                         </td>
                     </tr>
 
@@ -561,9 +566,16 @@
                     <a name="getClientSecret"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                        <span ><b>getClientSecret</b></span>
+                        <span class="deprecated-name"><b>getClientSecret</b></span>
                         <a href="#getClientSecret"><span class="icon ion-ios-link"></span></a>
                     </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4 deprecated">
+                    <p>Client secrets are now hashed and cannot be retrieved.
+Use POST /client/:id/rotate-secret to generate a new secret.</p>
+
                 </td>
             </tr>
             <tr>
@@ -583,15 +595,15 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="60"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:60</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="63"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:63</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Get a client&#39;s secret by its id</p>
+                        <div class="io-description"><p>Use POST /client/:id/rotate-secret to generate a new secret.</p>
 </div>
 
                             <div class="io-description">
@@ -648,6 +660,101 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="rotateClientSecret"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>rotateClientSecret</b></span>
+                        <a href="#rotateClientSecret"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>rotateClientSecret(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Post(&#x27;:id/rotate-secret&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="85"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:85</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Rotate (regenerate) a client&#39;s secret.
+Returns the new secret for one-time display - save it immediately!</p>
+<p>Users with <code>tenants:manage</code> role can rotate secrets for any client.
+Users with <code>clients:manage</code> role can only rotate secrets for clients in their tenant.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/ClientSecretResponseDto.html" target="_self" >Promise&lt;ClientSecretResponseDto&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>The new client secret (displayed only once)</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="updateClient"></a>
                     <span class="name">
                             <span class="modifier"></span>
@@ -673,8 +780,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="77"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:77</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="106"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:106</a></div>
                         </td>
                     </tr>
 
@@ -756,6 +863,8 @@
     Delete,
     ForbiddenException,
     Get,
+    HttpException,
+    HttpStatus,
     Inject,
     Param,
     Patch,
@@ -803,7 +912,8 @@ export class ClientController {
     }
 
     /**
-     * Get a client&#x27;s secret by its id
+     * @deprecated Client secrets are now hashed and cannot be retrieved.
+     * Use POST /client/:id/rotate-secret to generate a new secret.
      * @param id
      * @param user
      * @returns
@@ -813,9 +923,35 @@ export class ClientController {
         @Param(&quot;id&quot;) id: string,
         @Token() user: TokenPayload,
     ): Promise&lt;ClientSecretResponseDto&gt; {
-        return this.clients
-            .getClientSecret(user.entity!.id, id)
-            .then((secret) &#x3D;&gt; ({ secret }));
+        throw new HttpException(
+            &quot;Client secrets are hashed and cannot be retrieved. Use POST /client/:id/rotate-secret to generate a new secret.&quot;,
+            HttpStatus.GONE,
+        );
+    }
+
+    /**
+     * Rotate (regenerate) a client&#x27;s secret.
+     * Returns the new secret for one-time display - save it immediately!
+     *
+     * Users with &#x60;tenants:manage&#x60; role can rotate secrets for any client.
+     * Users with &#x60;clients:manage&#x60; role can only rotate secrets for clients in their tenant.
+     *
+     * @param id
+     * @param user
+     * @returns The new client secret (displayed only once)
+     */
+    @Post(&quot;:id/rotate-secret&quot;)
+    async rotateClientSecret(
+        @Param(&quot;id&quot;) id: string,
+        @Token() user: TokenPayload,
+    ): Promise&lt;ClientSecretResponseDto&gt; {
+        // Tenant managers can rotate any client&#x27;s secret (tenantId &#x3D; null)
+        // Regular client managers can only rotate their own tenant&#x27;s clients
+        const tenantId &#x3D; user.roles.includes(Role.Tenants)
+            ? null
+            : user.entity!.id;
+        const secret &#x3D; await this.clients.rotateClientSecret(tenantId, id);
+        return { secret };
     }
 
     /**

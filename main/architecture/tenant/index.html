@@ -408,6 +408,8 @@
       
         
       
+        
+      
     
     
     
@@ -479,6 +481,34 @@
     
   
     Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/first-steps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    First Steps
   
 
     
@@ -576,10 +606,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_5">
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_6">
         
           
-          <label class="md-nav__link" for="__nav_1_5" id="__nav_1_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_6" id="__nav_1_6_label" tabindex="0">
             
   
   
@@ -597,8 +627,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_5">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_6">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -640,7 +670,7 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_5_1">
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_6_1">
         
           
           <div class="md-nav__link md-nav__container">
@@ -662,14 +692,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_1_5_1" id="__nav_1_5_1_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_1_6_1" id="__nav_1_6_1_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_5_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_5_1">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_6_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_6_1">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -777,7 +807,7 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_5_2">
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_6_2">
         
           
           <div class="md-nav__link md-nav__container">
@@ -799,14 +829,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_1_5_2" id="__nav_1_5_2_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_1_6_2" id="__nav_1_6_2_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_5_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_5_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_1_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_6_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -918,10 +948,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_6">
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1_7">
         
           
-          <label class="md-nav__link" for="__nav_1_6" id="__nav_1_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_1_7" id="__nav_1_7_label" tabindex="0">
             
   
   
@@ -939,8 +969,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_1_6">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_7">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2300,7 +2330,7 @@ Future improvements may include <strong>per-tenant databases</strong> or <strong
 <p>When a protected endpoint is called, EUDIPLO enforces tenant isolation and role-based access control by extracting the tenant ID and user roles from the provided JWT access token. Each endpoint requires specific roles; see the <a href="../../api/authentication/#protected-endpoints">Protected Endpoints</a> section in the <a href="../../api/authentication/">Authentication</a> documentation for details.</p>
 <h3 id="client-management-via-web-client">Client Management via Web Client<a class="headerlink" href="#client-management-via-web-client" title="Permanent link">¶</a></h3>
 <ul>
-<li>Clients can be either managed by EUDIPLO by storing the clientSecrets in the database or by using an external OIDC provider like Keycloak.</li>
+<li>Clients can be either managed by EUDIPLO by storing the client secrets (securely hashed with bcrypt) in the database or by using an external OIDC provider like Keycloak.</li>
 <li>The web client authenticates against the OIDC provider and interacts with EUDIPLO using the provided access token.</li>
 </ul>
 <p>From the UI you can:</p>
@@ -2309,6 +2339,12 @@ Future improvements may include <strong>per-tenant databases</strong> or <strong
 <li>Manage the tenants' clients</li>
 <li>Manage the issuance and presentation configs of the tenants.</li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Client secrets are hashed</p>
+<p>Client secrets are securely hashed before storage and cannot be retrieved later.
+When creating a new tenant or client, save the displayed secret immediately—it won't
+be shown again. If lost, use the <strong>Rotate Secret</strong> button to generate a new one.</p>
+</div>
 <blockquote>
 <p>Even with tenant management privileges, users will <strong>only see tenant-scoped data</strong>.<br>
 EUDIPLO enforces tenant context based on the access token.</p>

@@ -175,9 +175,6 @@
                                 <a href="#getClients" >getClients</a>
                             </li>
                             <li>
-                                <a href="#getClientSecret" >getClientSecret</a>
-                            </li>
-                            <li>
                                     <span class="modifier">Async</span>
                                 <a href="#importForTenant" >importForTenant</a>
                             </li>
@@ -190,9 +187,14 @@
                                 <a href="#removeClient" >removeClient</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#rotateClientSecret" >rotateClientSecret</a>
+                            </li>
+                            <li>
                                 <a href="#updateClient" >updateClient</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#validateClientCredentials" >validateClientCredentials</a>
                             </li>
                         </ul>
@@ -218,7 +220,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:20</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:23</a></div>
                             </td>
                         </tr>
 
@@ -325,7 +327,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:120</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:128</a></code>
 </div>
                         </td>
                     </tr>
@@ -430,7 +432,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:93</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:107</a></code>
 </div>
                         </td>
                     </tr>
@@ -517,7 +519,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:110</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:124</a></code>
 </div>
                         </td>
                     </tr>
@@ -593,7 +595,7 @@ Used for JWT validation to fetch client restrictions.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:78</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:92</a></code>
 </div>
                         </td>
                     </tr>
@@ -644,91 +646,6 @@ Used for JWT validation to fetch client restrictions.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getClientSecret"></a>
-                    <span class="name">
-                        <span ><b>getClientSecret</b></span>
-                        <a href="#getClientSecret"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getClientSecret(sub: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
-</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:114</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>sub</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>id</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="importForTenant"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -753,7 +670,7 @@ Used for JWT validation to fetch client restrictions.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:46</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:51</a></code>
 </div>
                         </td>
                     </tr>
@@ -822,8 +739,8 @@ Used for JWT validation to fetch client restrictions.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="31"
-                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:31</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="34"
+                                    class="link-to-prism">src/auth/client/adapters/internal-clients.service.ts:34</a></div>
                         </td>
                     </tr>
 
@@ -867,7 +784,7 @@ Used for JWT validation to fetch client restrictions.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:150</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:186</a></code>
 </div>
                         </td>
                     </tr>
@@ -930,6 +847,109 @@ Used for JWT validation to fetch client restrictions.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="rotateClientSecret"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>rotateClientSecret</b></span>
+                        <a href="#rotateClientSecret"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>rotateClientSecret(tenantId: string | null, clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:156</a></code>
+</div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Rotate (regenerate) a client&#39;s secret.
+Returns the new plain secret for one-time display.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                        <code>string | null</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The tenant ID (null for tenant managers who can rotate any client&#39;s secret)</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>clientId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The client ID to rotate the secret for</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="updateClient"></a>
                     <span class="name">
                         <span ><b>updateClient</b></span>
@@ -952,7 +972,7 @@ Used for JWT validation to fetch client restrictions.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:139</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:175</a></code>
 </div>
                         </td>
                     </tr>
@@ -1029,6 +1049,7 @@ Used for JWT validation to fetch client restrictions.</p>
                 <td class="col-md-4">
                     <a name="validateClientCredentials"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>validateClientCredentials</b></span>
                         <a href="#validateClientCredentials"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -1036,7 +1057,8 @@ Used for JWT validation to fetch client restrictions.</p>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>validateClientCredentials(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientSecret: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>validateClientCredentials(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientSecret: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -1049,7 +1071,7 @@ Used for JWT validation to fetch client restrictions.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:154</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:190</a></code>
 </div>
                         </td>
                     </tr>
@@ -1098,7 +1120,7 @@ Used for JWT validation to fetch client restrictions.</p>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>unknown</code>
 
                         </div>
                             <div class="io-description">
@@ -1119,6 +1141,7 @@ import { readFileSync } from &quot;node:fs&quot;;
 import { Injectable, OnApplicationBootstrap } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
+import * as bcrypt from &quot;bcrypt&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { ConfigImportService } from &quot;../../../shared/utils/config-import/config-import.service&quot;;
@@ -1128,6 +1151,8 @@ import { ClientsProvider } from &quot;../client.provider&quot;;
 import { CreateClientDto } from &quot;../dto/create-client.dto&quot;;
 import { UpdateClientDto } from &quot;../dto/update-client.dto&quot;;
 import { ClientEntity } from &quot;../entities/client.entity&quot;;
+
+const BCRYPT_ROUNDS &#x3D; 10;
 
 @Injectable()
 export class InternalClientsProvider
@@ -1149,10 +1174,12 @@ export class InternalClientsProvider
         const clientId &#x3D; this.configService.getOrThrow(&quot;AUTH_CLIENT_ID&quot;);
         const clientSecret &#x3D;
             this.configService.getOrThrow(&quot;AUTH_CLIENT_SECRET&quot;);
-        await this.getClient(&quot;root&quot;, clientId).catch(() &#x3D;&gt; {
+        await this.getClient(&quot;root&quot;, clientId).catch(async () &#x3D;&gt; {
+            // Hash the root client secret before storing
+            const hashedSecret &#x3D; await bcrypt.hash(clientSecret, BCRYPT_ROUNDS);
             return this.repo.save({
                 clientId,
-                secret: clientSecret,
+                secret: hashedSecret,
                 description: &quot;Internal client&quot;,
                 roles: [Role.Tenants],
             });
@@ -1185,7 +1212,16 @@ export class InternalClientsProvider
                 processItem: async (tenantId, data, file) &#x3D;&gt; {
                     const secret &#x3D;
                         (data as any).secret ?? randomBytes(32).toString(&quot;hex&quot;);
-                    await this.addClient(tenantId, data as any, secret);
+                    // Hash the secret before storing
+                    const hashedSecret &#x3D; await bcrypt.hash(
+                        secret,
+                        BCRYPT_ROUNDS,
+                    );
+                    await this.repo.save({
+                        ...(data as any),
+                        secret: hashedSecret,
+                        tenant: { id: tenantId },
+                    });
                 },
             },
         );
@@ -1227,20 +1263,16 @@ export class InternalClientsProvider
         return this.repo.findOne({ where: { clientId } });
     }
 
-    getClientSecret(sub: string, id: string): Promise&lt;string&gt; {
-        return this.repo
-            .findOneByOrFail({ clientId: id, tenant: { id: sub } })
-            .then((e) &#x3D;&gt; e.secret!);
-    }
-
     async addClient(
         tenantId: string,
         dto: CreateClientDto,
         secret &#x3D; randomBytes(32).toString(&quot;hex&quot;),
     ) {
+        // Hash the secret before storing
+        const hashedSecret &#x3D; await bcrypt.hash(secret, BCRYPT_ROUNDS);
         const entity &#x3D; await this.repo.save({
             ...dto,
-            secret,
+            secret: hashedSecret,
             tenant: { id: tenantId },
         });
         return {
@@ -1248,8 +1280,34 @@ export class InternalClientsProvider
             description: entity.description,
             tenantId,
             roles: entity.roles,
+            // Return the plain secret only during creation (one-time view)
             clientSecret: secret,
         };
+    }
+
+    /**
+     * Rotate (regenerate) a client&#x27;s secret.
+     * Returns the new plain secret for one-time display.
+     * @param tenantId - The tenant ID (null for tenant managers who can rotate any client&#x27;s secret)
+     * @param clientId - The client ID to rotate the secret for
+     */
+    async rotateClientSecret(
+        tenantId: string | null,
+        clientId: string,
+    ): Promise&lt;string&gt; {
+        // Build query - if tenantId is null, allow cross-tenant access (for tenant managers)
+        const whereClause: { clientId: string; tenant?: { id: string } } &#x3D; {
+            clientId,
+        };
+        if (tenantId) {
+            whereClause.tenant &#x3D; { id: tenantId };
+        }
+
+        await this.repo.findOneByOrFail(whereClause);
+        const newSecret &#x3D; randomBytes(32).toString(&quot;hex&quot;);
+        const hashedSecret &#x3D; await bcrypt.hash(newSecret, BCRYPT_ROUNDS);
+        await this.repo.update({ clientId }, { secret: hashedSecret });
+        return newSecret;
     }
 
     updateClient(
@@ -1267,8 +1325,13 @@ export class InternalClientsProvider
         await this.repo.delete({ clientId, tenant: { id: tenantId } });
     }
 
-    validateClientCredentials(clientId: string, clientSecret: string) {
-        return this.repo.findOne({ where: { clientId, secret: clientSecret } });
+    async validateClientCredentials(clientId: string, clientSecret: string) {
+        const client &#x3D; await this.repo.findOne({ where: { clientId } });
+        if (!client?.secret) {
+            return null;
+        }
+        const isValid &#x3D; await bcrypt.compare(clientSecret, client.secret);
+        return isValid ? client : null;
     }
 }
 </code></pre>

@@ -192,9 +192,6 @@
                                 <a href="#getClients" >getClients</a>
                             </li>
                             <li>
-                                <a href="#getClientSecret" >getClientSecret</a>
-                            </li>
-                            <li>
                                 <a href="#importForTenant" >importForTenant</a>
                             </li>
                             <li>
@@ -208,6 +205,10 @@
                             <li>
                                     <span class="modifier">Async</span>
                                 <a href="#removeClient" >removeClient</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#rotateClientSecret" >rotateClientSecret</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
@@ -335,7 +336,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:118</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:132</a></code>
 </div>
                         </td>
                     </tr>
@@ -638,91 +639,6 @@ Used for JWT validation to fetch client restrictions.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getClientSecret"></a>
-                    <span class="name">
-                        <span ><b>getClientSecret</b></span>
-                        <a href="#getClientSecret"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getClientSecret(_sub: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
-</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:112</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>_sub</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>id</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="importForTenant"></a>
                     <span class="name">
                         <span ><b>importForTenant</b></span>
@@ -902,7 +818,7 @@ Used for JWT validation to fetch client restrictions.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:266</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:280</a></code>
 </div>
                         </td>
                     </tr>
@@ -965,6 +881,109 @@ Used for JWT validation to fetch client restrictions.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="rotateClientSecret"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>rotateClientSecret</b></span>
+                        <a href="#rotateClientSecret"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>rotateClientSecret(_tenantId: string | null, clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:118</a></code>
+</div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Rotate (regenerate) a client&#39;s secret in Keycloak.
+Returns the new plain secret for one-time display.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>_tenantId</td>
+                                            <td>
+                                                        <code>string | null</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>Ignored for Keycloak (clients are global)</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>clientId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The client ID to rotate the secret for</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="updateClient"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -989,7 +1008,7 @@ Used for JWT validation to fetch client restrictions.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:201</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:215</a></code>
 </div>
                         </td>
                     </tr>
@@ -1087,7 +1106,7 @@ Used for JWT validation to fetch client restrictions.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:40</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:51</a></code>
 </div>
                         </td>
                     </tr>
@@ -1296,10 +1315,24 @@ export class KeycloakClientsProvider
         return this.clientRepo.findOne({ where: { clientId } });
     }
 
-    getClientSecret(_sub: string, id: string): Promise&lt;string&gt; {
-        return this.kc.clients
-            .find({ clientId: id })
-            .then((clients) &#x3D;&gt; clients[0].secret!);
+    /**
+     * Rotate (regenerate) a client&#x27;s secret in Keycloak.
+     * Returns the new plain secret for one-time display.
+     * @param _tenantId - Ignored for Keycloak (clients are global)
+     * @param clientId - The client ID to rotate the secret for
+     */
+    async rotateClientSecret(
+        _tenantId: string | null,
+        clientId: string,
+    ): Promise&lt;string&gt; {
+        const kcClient &#x3D; (await this.kc.clients.find({ clientId }))[0];
+        if (!kcClient?.id) {
+            throw new Error(&#x60;Client ${clientId} not found in Keycloak&#x60;);
+        }
+        const secret &#x3D; await this.kc.clients.generateNewClientSecret({
+            id: kcClient.id,
+        });
+        return secret.value!;
     }
 
     async addClient(tenantId: string, dto: CreateClientDto) {

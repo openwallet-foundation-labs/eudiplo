@@ -411,11 +411,12 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>unknown</code>
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>The created tenant with optional client credentials (if roles were specified)</p>
+
                             </div>
                 </td>
             </tr>
@@ -443,8 +444,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="201"
-                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:201</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="215"
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:215</a></div>
                         </td>
                     </tr>
 
@@ -560,8 +561,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="163"
-                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:163</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="177"
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:177</a></div>
                         </td>
                     </tr>
 
@@ -749,8 +750,8 @@ Creates the tenant from info.json if it doesn&#39;t exist.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="174"
-                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:174</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="188"
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:188</a></div>
                         </td>
                     </tr>
 
@@ -820,8 +821,8 @@ Creates the tenant from info.json if it doesn&#39;t exist.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="189"
-                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:189</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="203"
+                                    class="link-to-prism">src/auth/tenant/tenant.service.ts:203</a></div>
                         </td>
                     </tr>
 
@@ -1075,14 +1076,18 @@ export class TenantService implements OnApplicationBootstrap {
     /**
      * Create a new tenant.
      * @param data
-     * @returns
+     * @returns The created tenant with optional client credentials (if roles were specified)
      */
     async createTenant(data: ImportTenantDto | CreateTenantDto) {
         const tenant &#x3D; await this.tenantRepository.save(data);
         await this.setUpTenant(tenant);
 
+        let clientCredentials:
+            | { clientId: string; clientSecret: string }
+            | undefined;
+
         if ((data as CreateTenantDto).roles) {
-            await this.clients.addClient(tenant.id, {
+            const client &#x3D; await this.clients.addClient(tenant.id, {
                 clientId: &#x60;${tenant.id}-admin&#x60;,
                 description: &#x60;auto generated admin client for tenant ${tenant.id}&#x60;,
                 roles: [
@@ -1090,7 +1095,17 @@ export class TenantService implements OnApplicationBootstrap {
                     ...((data as CreateTenantDto).roles || []),
                 ],
             });
+            // Return the client credentials for one-time display
+            clientCredentials &#x3D; {
+                clientId: client.clientId,
+                clientSecret: (client as any).clientSecret,
+            };
         }
+
+        return {
+            ...tenant,
+            client: clientCredentials,
+        };
     }
 
     /**
