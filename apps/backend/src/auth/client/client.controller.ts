@@ -4,6 +4,8 @@ import {
     Delete,
     ForbiddenException,
     Get,
+    HttpException,
+    HttpStatus,
     Inject,
     Param,
     Patch,
@@ -51,7 +53,8 @@ export class ClientController {
     }
 
     /**
-     * Get a client's secret by its id
+     * @deprecated Client secrets are now hashed and cannot be retrieved.
+     * Use POST /client/:id/rotate-secret to generate a new secret.
      * @param id
      * @param user
      * @returns
@@ -61,9 +64,35 @@ export class ClientController {
         @Param("id") id: string,
         @Token() user: TokenPayload,
     ): Promise<ClientSecretResponseDto> {
-        return this.clients
-            .getClientSecret(user.entity!.id, id)
-            .then((secret) => ({ secret }));
+        throw new HttpException(
+            "Client secrets are hashed and cannot be retrieved. Use POST /client/:id/rotate-secret to generate a new secret.",
+            HttpStatus.GONE,
+        );
+    }
+
+    /**
+     * Rotate (regenerate) a client's secret.
+     * Returns the new secret for one-time display - save it immediately!
+     *
+     * Users with `tenants:manage` role can rotate secrets for any client.
+     * Users with `clients:manage` role can only rotate secrets for clients in their tenant.
+     *
+     * @param id
+     * @param user
+     * @returns The new client secret (displayed only once)
+     */
+    @Post(":id/rotate-secret")
+    async rotateClientSecret(
+        @Param("id") id: string,
+        @Token() user: TokenPayload,
+    ): Promise<ClientSecretResponseDto> {
+        // Tenant managers can rotate any client's secret (tenantId = null)
+        // Regular client managers can only rotate their own tenant's clients
+        const tenantId = user.roles.includes(Role.Tenants)
+            ? null
+            : user.entity!.id;
+        const secret = await this.clients.rotateClientSecret(tenantId, id);
+        return { secret };
     }
 
     /**

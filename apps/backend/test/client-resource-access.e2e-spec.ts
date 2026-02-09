@@ -12,6 +12,7 @@ describe("Client Resource-Level Access Control (e2e)", () => {
     let ctx: IssuanceTestContext;
     let adminToken: string;
     let restrictedClientToken: string;
+    let restrictedClientSecret: string;
     let unrestrictedClientToken: string;
 
     beforeAll(async () => {
@@ -58,7 +59,7 @@ describe("Client Resource-Level Access Control (e2e)", () => {
 
     async function createRestrictedClient(app: INestApplication<App>) {
         // Create a client that can only use specific configs
-        await request(app.getHttpServer())
+        const client = await request(app.getHttpServer())
             .post("/client")
             .set("Authorization", `Bearer ${adminToken}`)
             .send({
@@ -67,19 +68,14 @@ describe("Client Resource-Level Access Control (e2e)", () => {
                 allowedPresentationConfigs: ["pid-no-hook"], // Can only use pid-no-hook
                 allowedIssuanceConfigs: ["pid"], // Can only use pid
             })
-            .expect(201);
+            .then((res) => res.body);
 
-        // Get the client secret first
-        const clientRes = await request(app.getHttpServer())
-            .get("/client/restricted-client/secret")
-            .set("Authorization", `Bearer ${adminToken}`)
-            .expect(200);
-
+        restrictedClientSecret = client.clientSecret;
         const restrictedTokenRes = await request(app.getHttpServer())
             .post("/oauth2/token")
             .send({
-                client_id: "restricted-client",
-                client_secret: clientRes.body.secret,
+                client_id: client.clientId,
+                client_secret: client.clientSecret,
                 grant_type: "client_credentials",
             })
             .expect(201);
@@ -89,7 +85,7 @@ describe("Client Resource-Level Access Control (e2e)", () => {
 
     async function createUnrestrictedClient(app: INestApplication<App>) {
         // Create a client without config restrictions
-        await request(app.getHttpServer())
+        const client = await request(app.getHttpServer())
             .post("/client")
             .set("Authorization", `Bearer ${adminToken}`)
             .send({
@@ -97,19 +93,13 @@ describe("Client Resource-Level Access Control (e2e)", () => {
                 roles: [Role.PresentationOffer, Role.IssuanceOffer],
                 // No allowedPresentationConfigs or allowedIssuanceConfigs
             })
-            .expect(201);
-
-        // Get the client secret
-        const clientRes = await request(app.getHttpServer())
-            .get("/client/unrestricted-client/secret")
-            .set("Authorization", `Bearer ${adminToken}`)
-            .expect(200);
+            .then((res) => res.body);
 
         const unrestrictedTokenRes = await request(app.getHttpServer())
             .post("/oauth2/token")
             .send({
-                client_id: "unrestricted-client",
-                client_secret: clientRes.body.secret,
+                client_id: client.clientId,
+                client_secret: client.clientSecret,
                 grant_type: "client_credentials",
             })
             .expect(201);
@@ -265,19 +255,13 @@ describe("Client Resource-Level Access Control (e2e)", () => {
                     allowedPresentationConfigs: ["pid", "pid-no-hook"], // Add pid
                     allowedIssuanceConfigs: ["pid", "citizen"], // Add citizen
                 })
-                .expect(200);
-
-            // Get new token for updated client
-            const clientRes = await request(ctx.app.getHttpServer())
-                .get("/client/restricted-client/secret")
-                .set("Authorization", `Bearer ${adminToken}`)
-                .expect(200);
+                .then((res) => res.body);
 
             const newTokenRes = await request(ctx.app.getHttpServer())
                 .post("/oauth2/token")
                 .send({
                     client_id: "restricted-client",
-                    client_secret: clientRes.body.secret,
+                    client_secret: restrictedClientSecret,
                     grant_type: "client_credentials",
                 })
                 .expect(201);
@@ -310,7 +294,7 @@ describe("Client Resource-Level Access Control (e2e)", () => {
 
         test("empty allowed configs array means all configs are allowed", async () => {
             // Create client with empty arrays
-            await request(ctx.app.getHttpServer())
+            const client = await request(ctx.app.getHttpServer())
                 .post("/client")
                 .set("Authorization", `Bearer ${adminToken}`)
                 .send({
@@ -319,18 +303,13 @@ describe("Client Resource-Level Access Control (e2e)", () => {
                     allowedPresentationConfigs: [], // Empty = all allowed
                     allowedIssuanceConfigs: [], // Empty = all allowed
                 })
-                .expect(201);
-
-            const clientRes = await request(ctx.app.getHttpServer())
-                .get("/client/empty-arrays-client/secret")
-                .set("Authorization", `Bearer ${adminToken}`)
-                .expect(200);
+                .then((res) => res.body);
 
             const tokenRes = await request(ctx.app.getHttpServer())
                 .post("/oauth2/token")
                 .send({
-                    client_id: "empty-arrays-client",
-                    client_secret: clientRes.body.secret,
+                    client_id: client.clientId,
+                    client_secret: client.clientSecret,
                     grant_type: "client_credentials",
                 })
                 .expect(201);

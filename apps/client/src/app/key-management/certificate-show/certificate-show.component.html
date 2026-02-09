@@ -139,12 +139,12 @@
             <button
               matIconButton
               class="copy-button"
-              (click)="copyToClipboard(certificate.crt, 'PEM')"
+              (click)="copyToClipboard(certificate.crt.join('\n'), 'PEM')"
               matTooltip="Copy to clipboard"
             >
               <mat-icon>content_copy</mat-icon>
             </button>
-            <pre class="pem-certificate">{{ certificate.crt }}</pre>
+            <pre class="pem-certificate">{{ certificate.crt.join('\n') }}</pre>
           </div>
         </div>
       </div>

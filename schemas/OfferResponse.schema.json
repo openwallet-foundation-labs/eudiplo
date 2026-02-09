@@ -7,6 +7,10 @@
     "uri": {
       "type": "string"
     },
+    "crossDeviceUri": {
+      "type": "string",
+      "description": "URI for cross-device flows (no redirect after completion)"
+    },
     "session": {
       "type": "string"
     }

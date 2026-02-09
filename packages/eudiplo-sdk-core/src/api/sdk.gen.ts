@@ -25,6 +25,14 @@ import type {
   AuthorizeControllerParResponses,
   AuthorizeControllerTokenData,
   AuthorizeControllerTokenResponses,
+  CacheControllerClearAllCachesData,
+  CacheControllerClearAllCachesResponses,
+  CacheControllerClearStatusListCacheData,
+  CacheControllerClearStatusListCacheResponses,
+  CacheControllerClearTrustListCacheData,
+  CacheControllerClearTrustListCacheResponses,
+  CacheControllerGetStatsData,
+  CacheControllerGetStatsResponses,
   CertControllerAddCertificateData,
   CertControllerAddCertificateResponses,
   CertControllerDeleteCertificateData,
@@ -47,6 +55,8 @@ import type {
   ClientControllerGetClientSecretData,
   ClientControllerGetClientSecretResponses,
   ClientControllerGetClientsResponses,
+  ClientControllerRotateClientSecretData,
+  ClientControllerRotateClientSecretResponses,
   ClientControllerUpdateClientData,
   ClientControllerUpdateClientResponses,
   CredentialConfigControllerDeleteIssuanceConfigurationData,
@@ -500,9 +510,6 @@ export const clientControllerUpdateClient = <
     },
   });
 
-/**
- * Get a client's secret by its id
- */
 export const clientControllerGetClientSecret = <
   ThrowOnError extends boolean = true,
 >(
@@ -515,6 +522,25 @@ export const clientControllerGetClientSecret = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/client/{id}/secret",
+    ...options,
+  });
+
+/**
+ * Rotate (regenerate) a client's secret.
+ * Returns the new secret for one-time display - save it immediately!
+ */
+export const clientControllerRotateClientSecret = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<ClientControllerRotateClientSecretData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    ClientControllerRotateClientSecretResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/client/{id}/rotate-secret",
     ...options,
   });
 
@@ -1814,6 +1840,84 @@ export const presentationManagementControllerUpdateConfiguration = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Get cache statistics
+ *
+ * Returns statistics about the trust list and status list caches.
+ */
+export const cacheControllerGetStats = <ThrowOnError extends boolean = true>(
+  options?: Options<CacheControllerGetStatsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    CacheControllerGetStatsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/cache/stats",
+    ...options,
+  });
+
+/**
+ * Clear all caches
+ *
+ * Clears both trust list and status list caches. Next verification will fetch fresh data.
+ */
+export const cacheControllerClearAllCaches = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<CacheControllerClearAllCachesData, ThrowOnError>,
+) =>
+  (options?.client ?? client).delete<
+    CacheControllerClearAllCachesResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/cache",
+    ...options,
+  });
+
+/**
+ * Clear trust list cache
+ *
+ * Clears the trust list cache. Next verification will fetch fresh trust lists.
+ */
+export const cacheControllerClearTrustListCache = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<CacheControllerClearTrustListCacheData, ThrowOnError>,
+) =>
+  (options?.client ?? client).delete<
+    CacheControllerClearTrustListCacheResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/cache/trust-list",
+    ...options,
+  });
+
+/**
+ * Clear status list cache
+ *
+ * Clears the status list (revocation) cache. Next status check will fetch fresh status lists.
+ */
+export const cacheControllerClearStatusListCache = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<CacheControllerClearStatusListCacheData, ThrowOnError>,
+) =>
+  (options?.client ?? client).delete<
+    CacheControllerClearStatusListCacheResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/cache/status-list",
+    ...options,
   });
 
 /**

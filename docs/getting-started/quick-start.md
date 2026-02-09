@@ -160,19 +160,28 @@ EUDIPLO is now running and ready for credential issuance and verification.
 
 ### What's Next?
 
+!!! tip "New to EUDIPLO? Start here!"
+
+    Follow the **[First Steps Guide](./first-steps.md)** for a complete walkthrough:
+
+    1. Create your first tenant
+    2. Set up credential configurations
+    3. Issue your first credential
+    4. Troubleshoot common issues
+
 === "🖥️ Web Client Users"
 
+- 📚 **[First Steps Guide](./first-steps.md)** - Complete setup walkthrough (recommended)
 - 🎫 **Issue Your First Credential** - Use the web interface to create and send credentials to wallets
 - 🔍 **Verify Credentials** - Set up verification flows through the web UI
 - 📋 **Manage Templates** - Create custom credential templates for your use case
-- 📊 **Monitor Activity** - Track credential issuance and verification through the dashboard
 
 === "🔧 API Users"
 
+- 📚 **[First Steps Guide](./first-steps.md)** - Complete setup walkthrough (recommended)
 - 🎫 **[Issue Your First Credential](./issuance/index.md)** - Learn credential issuance flows
 - 🔍 **[Verify Credentials](./presentation/index.md)** - Set up credential verification
 - 🔌 **[API Integration](../api/index.md)** - Integrate EUDIPLO into your applications
-- 📖 **[API Authentication](../api/authentication.md)** - External OIDC, multi-tenant setup
 
 ### Common Next Steps
 

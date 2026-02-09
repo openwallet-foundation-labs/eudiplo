@@ -97,7 +97,11 @@ export class CertificateShowComponent implements OnInit {
         }
 
         if (this.certificate?.crt) {
-          await this.parseCertificateInfo(this.certificate.crt);
+          // crt is an array of PEM certificates, parse the first one (leaf certificate)
+          const leafCert = Array.isArray(this.certificate.crt)
+            ? this.certificate.crt[0]
+            : this.certificate.crt;
+          await this.parseCertificateInfo(leafCert);
         }
       } catch (error) {
         console.error('Error loading certificate:', error);

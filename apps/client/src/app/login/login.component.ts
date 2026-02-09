@@ -127,8 +127,11 @@ export class LoginComponent implements OnInit {
       try {
         const formValue = this.loginForm.value;
 
+        // Normalize the URL: remove trailing slashes
+        const normalizedUrl = formValue.apiUrl.replace(/\/+$/, '');
+
         // Initialize the API service with OIDC credentials and base URL
-        await this.apiService.login(formValue.clientId, formValue.clientSecret, formValue.apiUrl);
+        await this.apiService.login(formValue.clientId, formValue.clientSecret, normalizedUrl);
 
         // Attempt to refresh/get access token
         await this.apiService.refreshAccessToken();
@@ -140,10 +143,24 @@ export class LoginComponent implements OnInit {
 
         // Navigate to dashboard
         this.router.navigate(['/dashboard']);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Login failed:', error);
-        this.snackBar.open('Login failed. Please check your credentials.', 'Close', {
-          duration: 5000,
+
+        // Provide specific error messages based on the error type
+        let errorMessage = 'Login failed. ';
+        if (error?.message?.includes('fetch') || error?.name === 'TypeError') {
+          errorMessage +=
+            'Could not connect to EUDIPLO. Check if the instance URL is correct and the server is running.';
+        } else if (error?.status === 401 || error?.message?.includes('401')) {
+          errorMessage += 'Invalid credentials. Please check your Client ID and Client Secret.';
+        } else if (error?.status === 404 || error?.message?.includes('404')) {
+          errorMessage += 'Endpoint not found. Please verify the EUDIPLO instance URL.';
+        } else {
+          errorMessage += 'Please check your credentials and instance URL.';
+        }
+
+        this.snackBar.open(errorMessage, 'Close', {
+          duration: 8000,
           panelClass: ['error-snackbar'],
         });
       } finally {

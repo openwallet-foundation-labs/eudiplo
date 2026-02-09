@@ -14,7 +14,18 @@ export abstract class ClientsProvider {
         clientId: string,
         updateClientDto: UpdateClientDto,
     ): unknown;
-    abstract getClientSecret(sub: string, id: string): Promise<string>;
+
+    /**
+     * Rotate (regenerate) a client's secret.
+     * Returns the new plain secret for one-time display.
+     * @param tenantId - The tenant ID (optional for tenant managers who can rotate any client's secret)
+     * @param clientId - The client ID to rotate the secret for
+     */
+    abstract rotateClientSecret(
+        tenantId: string | null,
+        clientId: string,
+    ): Promise<string>;
+
     abstract getClients(tenantId: string): Promise<ClientEntity[]>;
     abstract getClient(
         tenantId: string,

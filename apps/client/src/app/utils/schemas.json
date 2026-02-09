@@ -643,8 +643,11 @@
           ]
         },
         "crt": {
-          "type": "string",
-          "description": "Certificate in PEM format."
+          "description": "Certificate chain in PEM format (leaf first, then intermediates/CA).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "usages": {
           "type": "array",
@@ -790,8 +793,11 @@
           }
         },
         "crt": {
-          "type": "string",
-          "description": "Certificate in PEM format, if not provided, a self-signed certificate will be generated."
+          "description": "Certificate chain in PEM format (leaf first, then intermediates/CA).\nIf not provided, a self-signed certificate will be generated.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "subjectName": {
           "type": "string",
@@ -1251,7 +1257,7 @@
       "type": "object",
       "properties": {
         "response_type": {
-          "enum": ["qrcode", "uri", "dc-api"],
+          "enum": ["uri", "dc-api"],
           "type": "string",
           "examples": [
             {
@@ -1487,6 +1493,7 @@
         },
         "redirectUri": {
           "type": "string",
+          "nullable": true,
           "description": "Redirect URI to which the user-agent should be redirected after the presentation is completed."
         },
         "parsedWebhook": {
@@ -2169,7 +2176,8 @@
       "type": "object",
       "properties": {
         "format": {
-          "type": "string"
+          "type": "string",
+          "enum": ["mso_mdoc", "dc+sd-jwt"]
         },
         "display": {
           "type": "array",
@@ -2559,6 +2567,24 @@
     }
   },
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DeferredCredentialRequestDto.schema.json",
+    "fileMatch": ["a://b/DeferredCredentialRequestDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DeferredCredentialRequestDto.schema.json",
+      "title": "DeferredCredentialRequestDto",
+      "type": "object",
+      "properties": {
+        "transaction_id": {
+          "type": "string",
+          "description": "The transaction identifier previously returned by the Credential Endpoint",
+          "example": "8xLOxBtZp8"
+        }
+      },
+      "required": ["transaction_id"]
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/NotificationRequestDto.schema.json",
     "fileMatch": ["a://b/NotificationRequestDto*.schema.json"],
     "schema": {
@@ -2610,11 +2636,48 @@
         "uri": {
           "type": "string"
         },
+        "crossDeviceUri": {
+          "type": "string",
+          "description": "URI for cross-device flows (no redirect after completion)"
+        },
         "session": {
           "type": "string"
         }
       },
       "required": ["uri", "session"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CompleteDeferredDto.schema.json",
+    "fileMatch": ["a://b/CompleteDeferredDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CompleteDeferredDto.schema.json",
+      "title": "CompleteDeferredDto",
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DeferredOperationResponse.schema.json",
+    "fileMatch": ["a://b/DeferredOperationResponse*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DeferredOperationResponse.schema.json",
+      "title": "DeferredOperationResponse",
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/FailDeferredDto.schema.json",
+    "fileMatch": ["a://b/FailDeferredDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/FailDeferredDto.schema.json",
+      "title": "FailDeferredDto",
+      "type": "object",
+      "properties": {}
     }
   },
   {
@@ -3341,7 +3404,7 @@
         "response_type": {
           "type": "string",
           "description": "The type of response expected from the presentation request.",
-          "enum": ["qrcode", "uri", "dc-api"]
+          "enum": ["uri", "dc-api"]
         },
         "requestId": {
           "type": "string",

@@ -114,6 +114,12 @@ AUTH_CLIENT_ID=root
 AUTH_CLIENT_SECRET=root
 ```
 
+!!! tip "Security: Secrets are hashed"
+
+    Client secrets are securely hashed (bcrypt) before storage. They cannot be
+    retrieved after creation. Use the **Rotate Secret** API endpoint or Web Client
+    button to generate a new secret if needed.
+
 **Configuration Reference:** For complete configuration options and environment
 variables, see [Key Management](../architecture/key-management.md) and
 [Database Configuration](../architecture/database.md).

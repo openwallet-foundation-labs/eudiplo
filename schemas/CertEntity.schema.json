@@ -26,11 +26,11 @@
       ]
     },
     "crt": {
+      "description": "Certificate chain in PEM format (leaf first, then intermediates/CA).",
       "type": "array",
       "items": {
         "type": "string"
-      },
-      "description": "Certificate chain in PEM format (leaf first, then intermediates/CA)."
+      }
     },
     "usages": {
       "type": "array",

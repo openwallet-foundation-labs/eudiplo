@@ -568,8 +568,12 @@ export const CertEntitySchema = {
       ],
     },
     crt: {
-      type: "string",
-      description: "Certificate in PEM format.",
+      description:
+        "Certificate chain in PEM format (leaf first, then intermediates/CA).",
+      type: "array",
+      items: {
+        type: "string",
+      },
     },
     usages: {
       type: "array",
@@ -691,9 +695,12 @@ export const CertImportDtoSchema = {
       },
     },
     crt: {
-      type: "string",
       description:
-        "Certificate in PEM format, if not provided, a self-signed certificate will be generated.",
+        "Certificate chain in PEM format (leaf first, then intermediates/CA).\nIf not provided, a self-signed certificate will be generated.",
+      type: "array",
+      items: {
+        type: "string",
+      },
     },
     subjectName: {
       type: "string",
@@ -1091,7 +1098,7 @@ export const OfferRequestDtoSchema = {
   type: "object",
   properties: {
     response_type: {
-      enum: ["qrcode", "uri", "dc-api"],
+      enum: ["uri", "dc-api"],
       type: "string",
       examples: [
         {
@@ -1867,6 +1874,7 @@ export const IssuerMetadataCredentialConfigSchema = {
   properties: {
     format: {
       type: "string",
+      enum: ["mso_mdoc", "dc+sd-jwt"],
     },
     display: {
       type: "array",
@@ -2963,7 +2971,7 @@ export const PresentationRequestSchema = {
       type: "string",
       description:
         "The type of response expected from the presentation request.",
-      enum: ["qrcode", "uri", "dc-api"],
+      enum: ["uri", "dc-api"],
     },
     requestId: {
       type: "string",

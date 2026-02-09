@@ -12,6 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import {
@@ -22,6 +23,8 @@ import {
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Role, roles } from '../../services/jwt.service';
+import { SecretDialogComponent } from '../client/secret-dialog/secret-dialog.component';
+import { ApiService } from '../../core';
 
 @Component({
   selector: 'app-tenant-create',
@@ -36,6 +39,7 @@ import { Role, roles } from '../../services/jwt.service';
     RouterModule,
     MatIconModule,
     MatTooltipModule,
+    MatDialogModule,
   ],
   templateUrl: './tenant-create.component.html',
   styleUrl: './tenant-create.component.scss',
@@ -51,7 +55,9 @@ export class TenantCreateComponent implements OnInit {
     private readonly fb: FormBuilder,
     private readonly snackBar: MatSnackBar,
     private readonly router: Router,
-    private readonly route: ActivatedRoute
+    private readonly route: ActivatedRoute,
+    private readonly dialog: MatDialog,
+    private readonly apiService: ApiService
   ) {
     this.tenantForm = this.fb.group({
       id: ['', [Validators.required]],
@@ -102,9 +108,34 @@ export class TenantCreateComponent implements OnInit {
         this.snackBar.open('Tenant updated successfully', 'Close', { duration: 3000 });
         await this.router.navigate(['../'], { relativeTo: this.route });
       } else {
-        await tenantControllerInitTenant<true>({ body: this.tenantForm.value });
-        this.snackBar.open('Tenant created successfully', 'Close', { duration: 3000 });
-        await this.router.navigate(['../', this.tenantForm.value.id], { relativeTo: this.route });
+        const result = await tenantControllerInitTenant<true>({ body: this.tenantForm.value });
+
+        // Cast to expected type since SDK returns generic response
+        // The backend returns { ...tenant, client: { clientId, clientSecret } } on creation
+        const tenantData = result.data as typeof result.data & {
+          client?: { clientId: string; clientSecret: string };
+        };
+
+        // Show secret dialog if client credentials were created
+        if (tenantData?.client?.clientId && tenantData?.client?.clientSecret) {
+          const dialogRef = this.dialog.open(SecretDialogComponent, {
+            data: {
+              clientId: tenantData.client.clientId,
+              secret: tenantData.client.clientSecret,
+              apiUrl: this.apiService.getBaseUrl(),
+            },
+            width: '500px',
+            disableClose: true,
+          });
+
+          // Wait for dialog to close before navigating
+          dialogRef.afterClosed().subscribe(() => {
+            this.router.navigate(['../', this.tenantForm.value.id], { relativeTo: this.route });
+          });
+        } else {
+          this.snackBar.open('Tenant created successfully', 'Close', { duration: 3000 });
+          await this.router.navigate(['../', this.tenantForm.value.id], { relativeTo: this.route });
+        }
       }
     } catch (error) {
       this.snackBar.open(

@@ -137,14 +137,18 @@ export class TenantService implements OnApplicationBootstrap {
     /**
      * Create a new tenant.
      * @param data
-     * @returns
+     * @returns The created tenant with optional client credentials (if roles were specified)
      */
     async createTenant(data: ImportTenantDto | CreateTenantDto) {
         const tenant = await this.tenantRepository.save(data);
         await this.setUpTenant(tenant);
 
+        let clientCredentials:
+            | { clientId: string; clientSecret: string }
+            | undefined;
+
         if ((data as CreateTenantDto).roles) {
-            await this.clients.addClient(tenant.id, {
+            const client = await this.clients.addClient(tenant.id, {
                 clientId: `${tenant.id}-admin`,
                 description: `auto generated admin client for tenant ${tenant.id}`,
                 roles: [
@@ -152,7 +156,17 @@ export class TenantService implements OnApplicationBootstrap {
                     ...((data as CreateTenantDto).roles || []),
                 ],
             });
+            // Return the client credentials for one-time display
+            clientCredentials = {
+                clientId: client.clientId,
+                clientSecret: (client as any).clientSecret,
+            };
         }
+
+        return {
+            ...tenant,
+            client: clientCredentials,
+        };
     }
 
     /**
