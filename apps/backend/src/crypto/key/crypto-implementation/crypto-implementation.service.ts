@@ -1,10 +1,24 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { jwaSignatureAlgorithmToFullySpecifiedCoseAlgorithm } from "@openid4vc/oauth2";
 import { ES256 } from "@sd-jwt/crypto-nodejs";
+import { CredentialFormat } from "../../../issuer/configuration/credentials/entities/credential.entity";
 import { CryptoImplementation } from "./crypto-implementation";
 import { ED25519 } from "./ed25519";
 
 export type CryptoType = "ES256" | "Ed25519";
+
+/**
+ * JOSE algorithm names used for SD-JWT VC
+ */
+export type JoseAlgorithm = "ES256" | "ES384" | "ES512" | "EdDSA";
+
+/**
+ * COSE algorithm identifiers used for mDOC (ISO 18013-5)
+ * Uses RFC 9864 fully-specified algorithm identifiers
+ * @see https://www.rfc-editor.org/rfc/rfc9864.html
+ */
+export type CoseAlgorithm = number;
 
 @Injectable()
 export class CryptoImplementationService {
@@ -26,6 +40,46 @@ export class CryptoImplementationService {
      */
     getSupportedAlgorithms(): CryptoType[] {
         return [...this.supportedAlgorithms];
+    }
+
+    /**
+     * Returns the supported algorithms based on the credential format.
+     * - For SD-JWT VC: Returns JOSE algorithm names (ES256, EdDSA)
+     * - For mDOC: Returns COSE algorithm identifiers (-7, -8)
+     * @param credentialFormat The credential format
+     * @returns Array of algorithm identifiers appropriate for the format
+     */
+    getAlgs(
+        credentialFormat: CredentialFormat,
+    ): (JoseAlgorithm | CoseAlgorithm)[] {
+        // Map internal crypto types to JOSE algorithms
+        const joseAlgs: JoseAlgorithm[] = this.supportedAlgorithms.map(
+            (alg) => {
+                switch (alg) {
+                    case "ES256":
+                        return "ES256";
+                    case "Ed25519":
+                        return "EdDSA";
+                    default:
+                        return "ES256";
+                }
+            },
+        );
+
+        if (credentialFormat === CredentialFormat.SD_JWT) {
+            return joseAlgs;
+        }
+
+        if (credentialFormat === CredentialFormat.MSO_MDOC) {
+            return joseAlgs
+                .map((alg) =>
+                    jwaSignatureAlgorithmToFullySpecifiedCoseAlgorithm(alg),
+                )
+                .filter((alg) => alg !== undefined);
+        }
+
+        // Default to JOSE algorithms
+        return joseAlgs;
     }
 
     /**

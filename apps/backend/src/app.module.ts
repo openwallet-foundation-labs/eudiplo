@@ -41,7 +41,6 @@ import { VerifierModule } from "./verifier/verifier.module";
         VerifierModule,
         RegistrarModule,
         ScheduleModule.forRoot(),
-        DatabaseModule,
         SessionModule,
         DatabaseModule,
         StorageModule.forRoot(),

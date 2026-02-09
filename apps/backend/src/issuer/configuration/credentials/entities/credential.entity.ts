@@ -7,6 +7,7 @@ import {
 import { Type } from "class-transformer";
 import {
     IsBoolean,
+    IsEnum,
     IsNumber,
     IsObject,
     IsOptional,
@@ -54,9 +55,14 @@ export class Display {
     logo?: DisplayImage;
 }
 
+export enum CredentialFormat {
+    MSO_MDOC = "mso_mdoc",
+    SD_JWT = "dc+sd-jwt",
+}
+
 export class IssuerMetadataCredentialConfig {
-    @IsString()
-    format!: string;
+    @IsEnum(CredentialFormat)
+    format!: CredentialFormat;
     @ValidateNested()
     @Type(() => Display)
     display!: Display[];

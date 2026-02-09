@@ -1,3 +1,4 @@
+import { Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Signer } from "@sd-jwt/types";
 import {
@@ -11,7 +12,6 @@ import {
     JWTPayload,
     SignJWT,
 } from "jose";
-import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
 import { v4 } from "uuid";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
@@ -38,7 +38,6 @@ export class DBKeyService extends KeyService {
         configImportService: ConfigImportService,
         certRepository: Repository<CertEntity>,
         tenantRepository: Repository<TenantEntity>,
-        logger: PinoLogger,
         configImportOrchestrator: ConfigImportOrchestratorService,
     ) {
         super(
@@ -47,7 +46,6 @@ export class DBKeyService extends KeyService {
             configImportService,
             certRepository,
             tenantRepository,
-            logger,
             configImportOrchestrator,
         );
         this.crypto = cryptoService.getCrypto();

@@ -1,18 +1,16 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { ClassConstructor, plainToClass } from "class-transformer";
 import { ValidationError, validate } from "class-validator";
-import { PinoLogger } from "nestjs-pino";
 import { ImportOptions, TenantImportOptions } from "./import-options";
 
 @Injectable()
 export class ConfigImportService {
-    constructor(
-        private readonly configService: ConfigService,
-        private readonly logger: PinoLogger,
-    ) {}
+    private readonly logger = new Logger(ConfigImportService.name);
+
+    constructor(private readonly configService: ConfigService) {}
 
     /**
      * Import configs for a specific tenant.
@@ -111,7 +109,7 @@ export class ConfigImportService {
         }
 
         if (counter > 0) {
-            this.logger.info(
+            this.logger.log(
                 `[${tenantId}] ${counter} ${options.resourceType}(s) imported`,
             );
         }
@@ -227,7 +225,7 @@ export class ConfigImportService {
             }
 
             if (counter > 0) {
-                this.logger.info(
+                this.logger.log(
                     `[${tenant.name}] ${counter} ${options.resourceType}(s) imported`,
                 );
             }

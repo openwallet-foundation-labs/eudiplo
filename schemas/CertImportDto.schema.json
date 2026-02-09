@@ -26,8 +26,11 @@
       }
     },
     "crt": {
-      "type": "string",
-      "description": "Certificate in PEM format, if not provided, a self-signed certificate will be generated."
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Certificate chain in PEM format (leaf first, then intermediates/CA). If not provided, a self-signed certificate will be generated."
     },
     "subjectName": {
       "type": "string",

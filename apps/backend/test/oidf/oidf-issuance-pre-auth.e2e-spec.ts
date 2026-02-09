@@ -6,6 +6,7 @@ import { ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { Test, TestingModule } from "@nestjs/testing";
 import * as axios from "axios";
+import { Logger } from "nestjs-pino";
 import { beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module";
 import {
@@ -55,6 +56,7 @@ describe("OIDF - issuance - pre auth", () => {
             vci_profile: "haip",
             fapi_request_method: "unsigned",
             vci_grant_type: "pre_authorization_code",
+            credential_format: "sd_jwt_vc",
         };
         const body = {
             description:
@@ -155,14 +157,20 @@ describe("OIDF - issuance - pre auth", () => {
         app = moduleFixture.createNestApplication<NestExpressApplication>({
             httpsOptions,
         });
+
+        // Use Pino logger for all NestJS logging (same as main.ts)
+        app.useLogger(app.get(Logger));
         app.useGlobalPipes(new ValidationPipe());
 
         const configService = app.get(ConfigService);
         const configFolder = resolve(__dirname + "/../../../../assets/config");
-        configService.set("PUBLIC_URL", `https://${PUBLIC_DOMAIN}`);
+        const tmpFolder = resolve(__dirname, "../../../../tmp");
+        configService.set("FOLDER", tmpFolder);
         configService.set("CONFIG_FOLDER", configFolder);
+        configService.set("PUBLIC_URL", `https://${PUBLIC_DOMAIN}`);
         configService.set("CONFIG_IMPORT", true);
         configService.set("CONFIG_IMPORT_FORCE", true);
+        configService.set("LOG_LEVEL", "debug");
 
         await app.init();
         await app.listen(3000, "0.0.0.0");
@@ -188,7 +196,10 @@ describe("OIDF - issuance - pre auth", () => {
     });
 
     afterAll(async () => {
-        const outputDir = resolve(__dirname, `../../logs/${PLAN_ID}`);
+        const outputDir = resolve(
+            __dirname,
+            `../../../../tmp/oidf-logs/${PLAN_ID}`,
+        );
         await oidfSuite.storeLog(PLAN_ID, outputDir);
         console.log(`Test log extracted to: ${outputDir}`);
 

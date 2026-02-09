@@ -5,6 +5,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import * as axios from "axios";
 import { readFileSync } from "fs";
 import * as https from "https";
+import { Logger } from "nestjs-pino";
 import { join, resolve } from "path";
 import { beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module";
@@ -53,6 +54,7 @@ describe("OIDF - issuance - auth code flow", () => {
             vci_profile: "haip",
             fapi_request_method: "unsigned",
             vci_grant_type: "authorization_code",
+            credential_format: "sd_jwt_vc",
         };
         const body = {
             description:
@@ -171,6 +173,8 @@ describe("OIDF - issuance - auth code flow", () => {
             imports: [AppModule],
         }).compile();
 
+        console.log("compiled");
+
         // Enable HTTPS with self-signed certificate
         const httpsOptions = {
             key: readFileSync(resolve(__dirname, "../key.pem")),
@@ -180,17 +184,24 @@ describe("OIDF - issuance - auth code flow", () => {
         app = moduleFixture.createNestApplication<NestExpressApplication>({
             httpsOptions,
         });
+
+        // Use Pino logger for all NestJS logging (same as main.ts)
+        app.useLogger(app.get(Logger));
         app.useGlobalPipes(new ValidationPipe());
 
         const configService = app.get(ConfigService);
         const configFolder = resolve(__dirname + "/../../../../assets/config");
-        configService.set("PUBLIC_URL", `https://${PUBLIC_DOMAIN}`);
+        const tmpFolder = resolve(__dirname, "../../../../tmp");
+        console.log("Folder:", tmpFolder);
+        configService.set("FOLDER", tmpFolder);
         configService.set("CONFIG_FOLDER", configFolder);
+        configService.set("PUBLIC_URL", `https://${PUBLIC_DOMAIN}`);
         configService.set("CONFIG_IMPORT", true);
         configService.set("CONFIG_IMPORT_FORCE", true);
+        configService.set("LOG_LEVEL", "debug");
 
         await app.init();
-        await app.listen(3000);
+        await app.listen(3000, "0.0.0.0");
 
         // Get client credentials
         const client = JSON.parse(
@@ -215,7 +226,10 @@ describe("OIDF - issuance - auth code flow", () => {
     });
 
     afterAll(async () => {
-        const outputDir = resolve(__dirname, `../../logs/${PLAN_ID}`);
+        const outputDir = resolve(
+            __dirname,
+            `../../../../tmp/oidf-logs/${PLAN_ID}`,
+        );
         await oidfSuite.storeLog(PLAN_ID, outputDir);
         console.log(`Test log extracted to: ${outputDir}`);
 

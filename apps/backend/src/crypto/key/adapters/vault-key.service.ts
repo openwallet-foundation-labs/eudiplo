@@ -1,8 +1,8 @@
 import { HttpService } from "@nestjs/axios";
+import { Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtPayload, Signer } from "@sd-jwt/types";
 import { exportJWK, importSPKI, JWK, JWTHeaderParameters } from "jose";
-import { PinoLogger } from "nestjs-pino/PinoLogger";
 import { firstValueFrom } from "rxjs";
 import { Repository } from "typeorm";
 import { v4 } from "uuid";
@@ -32,7 +32,6 @@ export class VaultKeyService extends KeyService {
         configImportService: ConfigImportService,
         certRepository: Repository<CertEntity>,
         tenantRepository: Repository<TenantEntity>,
-        logger: PinoLogger,
         configImportOrchestrator: ConfigImportOrchestratorService,
     ) {
         super(
@@ -41,7 +40,6 @@ export class VaultKeyService extends KeyService {
             configImportService,
             certRepository,
             tenantRepository,
-            logger,
             configImportOrchestrator,
         );
         this.vaultUrl = this.configService.get<string>("VAULT_URL") as string;

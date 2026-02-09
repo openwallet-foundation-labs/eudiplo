@@ -529,11 +529,12 @@ export class TrustListService {
 
     /**
      * Format CertEntity to base64 DER without PEM headers
+     * Uses the first certificate (leaf) from the chain.
      * @param cert
      * @returns
      */
     formatCertEntity(cert: CertEntity): string {
-        return this.formatPem(cert.crt);
+        return this.formatPem(cert.crt[0]);
     }
 
     /**

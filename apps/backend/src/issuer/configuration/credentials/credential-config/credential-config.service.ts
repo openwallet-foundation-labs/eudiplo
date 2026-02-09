@@ -1,8 +1,7 @@
 import { readFileSync } from "node:fs";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
-import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
 import { CertService } from "../../../../crypto/key/cert/cert.service";
 import { CertUsage } from "../../../../crypto/key/entities/cert-usage.entity";
@@ -21,6 +20,8 @@ import { CredentialConfig } from "../entities/credential.entity";
  */
 @Injectable()
 export class CredentialConfigService {
+    private readonly logger = new Logger(CredentialConfigService.name);
+
     /**
      * Constructor for CredentialConfigService.
      * @param credentialConfigRepository - Repository for CredentialConfig entity.
@@ -28,7 +29,6 @@ export class CredentialConfigService {
     constructor(
         @InjectRepository(CredentialConfig)
         private readonly credentialConfigRepository: Repository<CredentialConfig>,
-        private readonly logger: PinoLogger,
         private readonly certService: CertService,
         private readonly filesService: FilesService,
         private readonly configImportService: ConfigImportService,
@@ -82,37 +82,7 @@ export class CredentialConfigService {
         config: CredentialConfigCreate,
     ) {
         // Replace image references with actual URLs
-        config.config.display = await Promise.all(
-            config.config.display.map(async (display) => {
-                if (display.background_image?.uri) {
-                    const url = await this.filesService.replaceUriWithPublicUrl(
-                        tenantId,
-                        display.background_image.uri,
-                    );
-                    if (url) {
-                        display.background_image.uri = url;
-                    } else {
-                        this.logger.warn(
-                            `[${tenantId}] Could not find image ${display.background_image.uri} for credentials config`,
-                        );
-                    }
-                }
-                if (display.logo?.uri) {
-                    const url = await this.filesService.replaceUriWithPublicUrl(
-                        tenantId,
-                        display.logo.uri,
-                    );
-                    if (url) {
-                        display.logo.uri = url;
-                    } else {
-                        this.logger.warn(
-                            `[${tenantId}] Could not find image ${display.logo.uri} for credentials config`,
-                        );
-                    }
-                }
-                return display;
-            }),
-        );
+        await this.replaceImageReferences(tenantId, config);
 
         // Check if cetId is provided and if the certificate exists.
         if (config.certId) {
@@ -130,6 +100,55 @@ export class CredentialConfigService {
         }
 
         await this.store(tenantId, config);
+    }
+
+    /**
+     * Replaces image references (logo, background_image) with actual public URLs.
+     * This is used both during file import and API calls.
+     * @param tenantId - The ID of the tenant.
+     * @param config - The credential config to process.
+     */
+    private async replaceImageReferences(
+        tenantId: string,
+        config: CredentialConfigCreate | CredentialConfigUpdate,
+    ): Promise<void> {
+        if (!config.config?.display) {
+            return;
+        }
+
+        config.config.display = await Promise.all(
+            config.config.display.map(async (display) => {
+                if (display.background_image?.uri) {
+                    const url = await this.filesService.replaceUriWithPublicUrl(
+                        tenantId,
+                        display.background_image.uri,
+                    );
+                    if (url) {
+                        display.background_image.uri = url;
+                    } else {
+                        this.logger.warn(
+                            `[${tenantId}] Could not find image ${display.background_image.uri} for credentials config`,
+                        );
+                        delete display?.background_image; // Remove the URI if the file is not found to avoid confusion
+                    }
+                }
+                if (display.logo?.uri) {
+                    const url = await this.filesService.replaceUriWithPublicUrl(
+                        tenantId,
+                        display.logo.uri,
+                    );
+                    if (url) {
+                        display.logo.uri = url;
+                    } else {
+                        this.logger.warn(
+                            `[${tenantId}] Could not find image ${display.logo.uri} for credentials config`,
+                        );
+                        delete display?.logo; // Remove the URI if the file is not found to avoid confusion
+                    }
+                }
+                return display;
+            }),
+        );
     }
 
     /**
@@ -159,11 +178,13 @@ export class CredentialConfigService {
     /**
      * Stores a credential configuration for a given tenant.
      * If the configuration already exists, it will be overwritten.
+     * Automatically replaces image references with public URLs.
      * @param tenantId - The ID of the tenant.
      * @param config - The CredentialConfig entity to store.
      * @returns A promise that resolves to the stored CredentialConfig entity.
      */
-    store(tenantId: string, config: CredentialConfigCreate) {
+    async store(tenantId: string, config: CredentialConfigCreate) {
+        await this.replaceImageReferences(tenantId, config);
         return this.credentialConfigRepository.save({
             ...config,
             tenantId,
@@ -174,12 +195,14 @@ export class CredentialConfigService {
      * Updates a credential configuration for a given tenant.
      * Only updates fields that are provided in the config.
      * Set fields to null to clear them.
+     * Automatically replaces image references with public URLs.
      * @param tenantId - The ID of the tenant.
      * @param id - The ID of the CredentialConfig entity to update.
      * @param config - The partial CredentialConfig to update.
      * @returns A promise that resolves to the updated CredentialConfig entity.
      */
     async update(tenantId: string, id: string, config: CredentialConfigUpdate) {
+        await this.replaceImageReferences(tenantId, config);
         const existing = await this.getById(tenantId, id);
         return this.credentialConfigRepository.save({
             ...existing,

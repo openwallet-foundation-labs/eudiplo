@@ -246,7 +246,7 @@ export class CertService {
         const crtPem = selfSignedCert.toString("pem"); // PEM-encoded certificate
 
         return this.addCertificate(tenant.id, {
-            crt: crtPem,
+            crt: [crtPem],
             certUsageTypes: dto.certUsageTypes,
             description:
                 dto.description ??
@@ -352,7 +352,8 @@ export class CertService {
      */
     async validateCertificate(cert: CertEntity): Promise<CertValidationResult> {
         try {
-            const x509Cert = new x509.X509Certificate(cert.crt);
+            // Use the first certificate (leaf) for validation
+            const x509Cert = new x509.X509Certificate(cert.crt[0]);
 
             // Check time validity
             const now = new Date();
@@ -386,7 +387,7 @@ export class CertService {
             if (this.crlValidationService) {
                 const crlResult =
                     await this.crlValidationService.checkCertificateRevocation(
-                        cert.crt,
+                        cert.crt[0],
                     );
 
                 if (
@@ -439,7 +440,8 @@ export class CertService {
      */
     isCertificateExpired(cert: CertEntity): boolean {
         try {
-            const x509Cert = new x509.X509Certificate(cert.crt);
+            // Use the first certificate (leaf) for expiry check
+            const x509Cert = new x509.X509Certificate(cert.crt[0]);
             return new Date() > x509Cert.notAfter;
         } catch {
             return true; // Assume expired if we can't parse
@@ -456,7 +458,8 @@ export class CertService {
         validFrom: Date;
         expiresAt: Date;
     } {
-        const x509Cert = new x509.X509Certificate(cert.crt);
+        // Use the first certificate (leaf) for validity
+        const x509Cert = new x509.X509Certificate(cert.crt[0]);
         return {
             validFrom: x509Cert.notBefore,
             expiresAt: x509Cert.notAfter,
@@ -520,25 +523,27 @@ export class CertService {
     /**
      * Get the certificate chain to be included in the JWS header.
      * @param cert - The certificate entity
-     * @returns Array with base64-encoded certificate
+     * @returns Array with base64-encoded certificates (leaf first, then intermediates/root)
      */
     getCertChain(cert: CertEntity): string[] {
-        const chain = cert.crt
-            .replace("-----BEGIN CERTIFICATE-----", "")
-            .replace("-----END CERTIFICATE-----", "")
-            .replaceAll(/\r?\n|\r/g, "");
-        return [chain];
+        return cert.crt.map((pem) =>
+            pem
+                .replace("-----BEGIN CERTIFICATE-----", "")
+                .replace("-----END CERTIFICATE-----", "")
+                .replaceAll(/\s/g, ""),
+        );
     }
 
     /**
-     * Get the base64 url encoded SHA-256 hash of the certificate.
+     * Get the base64 url encoded SHA-256 hash of the leaf certificate.
      * @param cert - The certificate entity
      * @returns The certificate hash as base64url encoded string
      */
     getCertHash(cert: CertEntity): string {
         // Extract DER from PEM (PEM is base64 encoded, not base64url)
+        // Use the first certificate (leaf) for the hash
         const der = Buffer.from(
-            cert.crt
+            cert.crt[0]
                 .replace("-----BEGIN CERTIFICATE-----", "")
                 .replace("-----END CERTIFICATE-----", "")
                 .replaceAll(/\r?\n|\r/g, ""),

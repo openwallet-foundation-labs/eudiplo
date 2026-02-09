@@ -4,6 +4,7 @@ import { NestFactory } from "@nestjs/core";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { writeFileSync } from "fs";
+import { Logger } from "nestjs-pino";
 import { cleanupOpenApiDoc } from "nestjs-zod";
 import { AllExceptionsFilter } from "./all-exceptions.filter";
 import { AppModule } from "./app.module";
@@ -17,6 +18,10 @@ async function bootstrap() {
         bufferLogs: true,
         snapshot: true,
     });
+
+    // Use Pino logger for all NestJS logging (including built-in Logger instances)
+    // This ensures LOG_LEVEL env var is respected across all services
+    app.useLogger(app.get(Logger));
 
     // Set explicit body size limits (security best practice)
     app.useBodyParser("json", { limit: "10mb" });

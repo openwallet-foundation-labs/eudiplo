@@ -1,11 +1,15 @@
 import { existsSync, readFileSync } from "node:fs";
-import { Inject, Injectable, OnApplicationBootstrap } from "@nestjs/common";
+import {
+    Inject,
+    Injectable,
+    Logger,
+    OnApplicationBootstrap,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { plainToClass } from "class-transformer";
 import { validate } from "class-validator";
-import { PinoLogger } from "nestjs-pino";
 import { Gauge } from "prom-client";
 import { Repository } from "typeorm";
 import { EncryptionService } from "../../crypto/encryption/encryption.service";
@@ -26,6 +30,8 @@ export interface Tenants {
 
 @Injectable()
 export class TenantService implements OnApplicationBootstrap {
+    private readonly logger = new Logger(TenantService.name);
+
     constructor(
         @Inject(CLIENTS_PROVIDER) private readonly clients: ClientsProvider,
         private readonly configService: ConfigService,
@@ -36,7 +42,6 @@ export class TenantService implements OnApplicationBootstrap {
         @InjectMetric("tenant_total")
         private readonly tenantTotal: Gauge<string>,
         private readonly filesService: FilesService,
-        private readonly logger: PinoLogger,
         private readonly configImportOrchestrator: ConfigImportOrchestratorService,
     ) {
         // Register tenant setup - this runs first for each tenant before other imports

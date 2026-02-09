@@ -15,10 +15,6 @@ import { TransactionData } from "../../presentations/entities/presentation-confi
  */
 export enum ResponseType {
     /**
-     * Response type indicating a QR code will be returned.
-     */
-    QRCode = "qrcode",
-    /**
      * Response type indicating a URI will be returned.
      */
     URI = "uri",

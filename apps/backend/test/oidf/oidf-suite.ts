@@ -36,7 +36,16 @@ export class OIDFSuite {
             .post("/api/plan", body, {
                 params: { planName: planId, variant: JSON.stringify(variant) },
             })
-            .then((res) => res.data.id);
+            .then(
+                (res) => res.data.id,
+                (err) => {
+                    console.error(
+                        "Error creating plan:",
+                        err.response?.data || err,
+                    );
+                    throw err;
+                },
+            );
     }
 
     deletePlan(PLAN_ID: string) {

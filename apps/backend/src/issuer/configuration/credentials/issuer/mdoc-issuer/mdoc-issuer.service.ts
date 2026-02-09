@@ -85,8 +85,8 @@ export class MdocIssuerService {
             ),
         );
 
-        // Get certificate raw data
-        const certPem = certificate.crt;
+        // Get certificate raw data (use leaf certificate for signing)
+        const certPem = certificate.crt[0];
         const x509Cert = new X509Certificate(certPem);
 
         // Set validity dates

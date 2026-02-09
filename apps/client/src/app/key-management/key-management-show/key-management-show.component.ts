@@ -73,7 +73,9 @@ export class KeyManagementShowComponent implements OnInit {
           if (key?.certificates && Array.isArray(key.certificates)) {
             key.certificates.forEach((cert) => {
               // Build usages array from boolean fields
-              this.parseCertificateInfo(cert.id, cert.crt, cert.usages?.map((u) => u.usage) || []);
+              // Use the first certificate (leaf) for display
+              const leafCert = Array.isArray(cert.crt) ? cert.crt[0] : cert.crt;
+              this.parseCertificateInfo(cert.id, leafCert, cert.usages?.map((u) => u.usage) || []);
             });
           }
         },

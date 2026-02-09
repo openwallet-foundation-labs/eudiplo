@@ -93,6 +93,7 @@ describe("Issuance - mDOC Credentials", () => {
         const nonceResponse = await client.requestNonce({ issuerMetadata });
         expect(nonceResponse.c_nonce).toBeDefined();
 
+        //TODO: check if jwt or cose has to be
         // Create JWT proof for credential request
         const { jwt: proofJwt } = await client.createCredentialRequestJwtProof({
             issuerMetadata,

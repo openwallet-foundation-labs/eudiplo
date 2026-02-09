@@ -1,9 +1,0 @@
-{
-  "id": "fb139025-05f8-47af-be11-326c41098263",
-  "keyId": "570852d7-7e7f-40af-a0e3-a6ebffd75ed0",
-  "description": "Self-signed certificate (trustList) for tenant Root Tenant",
-  "crt": "-----BEGIN CERTIFICATE-----\nMIIBcDCCARagAwIBAgIBATAKBggqhkjOPQQDAjAWMRQwEgYDVQQDEwtSb290IFRl\nbmFudDAeFw0yNjAxMDIwODI5MTlaFw0yNzAxMDIwODI5MTlaMBYxFDASBgNVBAMT\nC1Jvb3QgVGVuYW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEMhpvX9dEM8Ns\nXM+c6474d2uHrPRWrVD4WZGtVvxfQhmr+5Li1BlIq7bb9iBOUQWO413P57640fNb\nX7H9UuJxyqNVMFMwIgYDVR0RBBswGYIXc2VydmljZS5ldWRpLXdhbGxldC5kZXYw\nDgYDVR0PAQH/BAQDAgWgMB0GA1UdDgQWBBTJRRLqmUCoWFn+sA9XYt0pJaAgUDAK\nBggqhkjOPQQDAgNIADBFAiEAsXQ9hlhdZo1Yai/E9dWCXyZRpYk4GkhNtvQswtj3\ntisCIB7DpVDHGAzTDu3hGxBAulVEHk3/Du2KHdNkKi1rGKNX\n-----END CERTIFICATE-----",
-  "certUsageTypes": [
-    "trustList"
-  ]
-}
