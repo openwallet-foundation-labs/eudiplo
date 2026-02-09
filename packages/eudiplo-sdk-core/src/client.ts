@@ -112,8 +112,8 @@ export interface IssuanceOfferOptions {
   credentialConfigurationIds: string[];
   /** Claims to include in the credentials (keyed by config ID) */
   claims?: Record<string, Record<string, unknown>>;
-  /** Response type: 'qrcode' returns a data URL, 'uri' returns the offer URI */
-  responseType?: 'qrcode' | 'uri' | 'dc-api';
+  /** Response type: 'uri' returns the offer URI, 'dc-api' for Digital Credentials API */
+  responseType?: 'uri' | 'dc-api';
   /** Transaction code for pre-authorized flow */
   txCode?: string;
   /** Flow type (default: 'pre_authorized_code') */
@@ -126,8 +126,8 @@ export interface IssuanceOfferOptions {
 export interface PresentationRequestOptions {
   /** ID of the presentation configuration */
   configId: string;
-  /** Response type: 'qrcode' returns a data URL, 'uri' returns the request URI */
-  responseType?: 'qrcode' | 'uri' | 'dc-api';
+  /** Response type: 'uri' returns the request URI, 'dc-api' for Digital Credentials API */
+  responseType?: 'uri' | 'dc-api';
   /** Optional redirect URI after presentation completes */
   redirectUri?: string;
 }

@@ -344,9 +344,9 @@ export type CertEntity = {
    */
   tenant: TenantEntity;
   /**
-   * Certificate in PEM format.
+   * Certificate chain in PEM format (leaf first, then intermediates/CA).
    */
-  crt: string;
+  crt: Array<string>;
   usages: Array<CertUsageEntity>;
   /**
    * Description of the key.
@@ -409,9 +409,10 @@ export type CertImportDto = {
    */
   certUsageTypes: Array<"access" | "signing" | "trustList" | "statusList">;
   /**
-   * Certificate in PEM format, if not provided, a self-signed certificate will be generated.
+   * Certificate chain in PEM format (leaf first, then intermediates/CA).
+   * If not provided, a self-signed certificate will be generated.
    */
-  crt?: string;
+  crt?: Array<string>;
   /**
    * Subject name (CN) for self-signed certificate generation.
    * If not provided, the tenant name will be used.
@@ -633,7 +634,7 @@ export type OfferRequestDto = {
   /**
    * The type of response expected for the offer request.
    */
-  response_type: "qrcode" | "uri" | "dc-api";
+  response_type: "uri" | "dc-api";
   /**
    * Credential claims configuration per credential. Keys must match credentialConfigurationIds.
    */
@@ -1016,7 +1017,7 @@ export type Display = {
 };
 
 export type IssuerMetadataCredentialConfig = {
-  format: string;
+  format: "mso_mdoc" | "dc+sd-jwt";
   display: Array<Display>;
   scope?: string;
   /**
@@ -1624,7 +1625,7 @@ export type PresentationRequest = {
   /**
    * The type of response expected from the presentation request.
    */
-  response_type: "qrcode" | "uri" | "dc-api";
+  response_type: "uri" | "dc-api";
   /**
    * Identifier of the presentation configuration
    */
@@ -1814,8 +1815,13 @@ export type TenantControllerInitTenantData = {
 };
 
 export type TenantControllerInitTenantResponses = {
-  201: unknown;
+  201: {
+    [key: string]: unknown;
+  };
 };
+
+export type TenantControllerInitTenantResponse =
+  TenantControllerInitTenantResponses[keyof TenantControllerInitTenantResponses];
 
 export type TenantControllerDeleteTenantData = {
   body?: never;
@@ -1952,6 +1958,22 @@ export type ClientControllerGetClientSecretResponses = {
 
 export type ClientControllerGetClientSecretResponse =
   ClientControllerGetClientSecretResponses[keyof ClientControllerGetClientSecretResponses];
+
+export type ClientControllerRotateClientSecretData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/client/{id}/rotate-secret";
+};
+
+export type ClientControllerRotateClientSecretResponses = {
+  201: ClientSecretResponseDto;
+};
+
+export type ClientControllerRotateClientSecretResponse =
+  ClientControllerRotateClientSecretResponses[keyof ClientControllerRotateClientSecretResponses];
 
 export type KeyControllerGetKeysData = {
   body?: never;
@@ -3090,6 +3112,71 @@ export type PresentationManagementControllerUpdateConfigurationResponses = {
 
 export type PresentationManagementControllerUpdateConfigurationResponse =
   PresentationManagementControllerUpdateConfigurationResponses[keyof PresentationManagementControllerUpdateConfigurationResponses];
+
+export type CacheControllerGetStatsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/cache/stats";
+};
+
+export type CacheControllerGetStatsResponses = {
+  /**
+   * Cache statistics
+   */
+  200: unknown;
+};
+
+export type CacheControllerClearAllCachesData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/cache";
+};
+
+export type CacheControllerClearAllCachesResponses = {
+  /**
+   * All caches cleared successfully
+   */
+  204: void;
+};
+
+export type CacheControllerClearAllCachesResponse =
+  CacheControllerClearAllCachesResponses[keyof CacheControllerClearAllCachesResponses];
+
+export type CacheControllerClearTrustListCacheData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/cache/trust-list";
+};
+
+export type CacheControllerClearTrustListCacheResponses = {
+  /**
+   * Trust list cache cleared successfully
+   */
+  204: void;
+};
+
+export type CacheControllerClearTrustListCacheResponse =
+  CacheControllerClearTrustListCacheResponses[keyof CacheControllerClearTrustListCacheResponses];
+
+export type CacheControllerClearStatusListCacheData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/cache/status-list";
+};
+
+export type CacheControllerClearStatusListCacheResponses = {
+  /**
+   * Status list cache cleared successfully
+   */
+  204: void;
+};
+
+export type CacheControllerClearStatusListCacheResponse =
+  CacheControllerClearStatusListCacheResponses[keyof CacheControllerClearStatusListCacheResponses];
 
 export type TrustListControllerGetAllTrustListsData = {
   body?: never;

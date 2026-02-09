@@ -5,6 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import {
@@ -19,6 +20,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PresentationManagementService } from '../../../presentation/presentation-config/presentation-management.service';
+import { SecretDialogComponent } from '../secret-dialog/secret-dialog.component';
 
 @Component({
   selector: 'app-client-create',
@@ -33,6 +35,7 @@ import { PresentationManagementService } from '../../../presentation/presentatio
     MatSelectModule,
     RouterModule,
     MatTooltipModule,
+    MatDialogModule,
   ],
   templateUrl: './client-create.component.html',
   styleUrl: './client-create.component.scss',
@@ -56,7 +59,8 @@ export class ClientCreateComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private apiService: ApiService,
-    private readonly presentationManagementService: PresentationManagementService
+    private readonly presentationManagementService: PresentationManagementService,
+    private readonly dialog: MatDialog
   ) {
     this.clientForm = this.fb.group({
       clientId: ['', [Validators.required, Validators.minLength(1)]],
@@ -116,19 +120,45 @@ export class ClientCreateComponent implements OnInit {
           path: { id: this.id! },
           body: this.clientForm.value,
         });
+        this.snackBar.open('Client updated successfully', 'Close', {
+          duration: 3000,
+        });
+        await this.router.navigate(['..'], { relativeTo: this.route });
+
+        //in case user updated its own client, refresh the token
+        if (this.apiService.getClientId() === this.id) {
+          this.apiService.refreshAccessToken();
+        }
       } else {
-        await clientControllerCreateClient({
+        const result = await clientControllerCreateClient({
           body: this.clientForm.value,
         });
-      }
-      this.snackBar.open(`Client ${this.loaded ? 'updated' : 'created'} successfully`, 'Close', {
-        duration: 3000,
-      });
-      await this.router.navigate(['..'], { relativeTo: this.route });
 
-      //in case user updated its own client, refresh the token
-      if (this.apiService.getClientId() === this.id) {
-        this.apiService.refreshAccessToken();
+        // Cast to expected type since SDK returns generic response
+        const clientData = result.data as (typeof result.data & { clientSecret?: string });
+
+        // Show secret dialog for new clients
+        if (clientData?.clientSecret) {
+          const dialogRef = this.dialog.open(SecretDialogComponent, {
+            data: {
+              clientId: clientData.clientId,
+              secret: clientData.clientSecret,
+              apiUrl: this.apiService.getBaseUrl(),
+            },
+            width: '500px',
+            disableClose: true,
+          });
+
+          // Wait for dialog to close before navigating
+          dialogRef.afterClosed().subscribe(() => {
+            this.router.navigate(['..'], { relativeTo: this.route });
+          });
+        } else {
+          this.snackBar.open('Client created successfully', 'Close', {
+            duration: 3000,
+          });
+          await this.router.navigate(['..'], { relativeTo: this.route });
+        }
       }
     } catch (error) {
       this.snackBar.open(

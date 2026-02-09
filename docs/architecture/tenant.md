@@ -42,7 +42,7 @@ When a protected endpoint is called, EUDIPLO enforces tenant isolation and role-
 
 ### Client Management via Web Client
 
-- Clients can be either managed by EUDIPLO by storing the clientSecrets in the database or by using an external OIDC provider like Keycloak.
+- Clients can be either managed by EUDIPLO by storing the client secrets (securely hashed with bcrypt) in the database or by using an external OIDC provider like Keycloak.
 - The web client authenticates against the OIDC provider and interacts with EUDIPLO using the provided access token.
 
 From the UI you can:
@@ -50,6 +50,12 @@ From the UI you can:
 - Create and delete tenants
 - Manage the tenants' clients
 - Manage the issuance and presentation configs of the tenants.
+
+!!! note "Client secrets are hashed"
+
+    Client secrets are securely hashed before storage and cannot be retrieved later.
+    When creating a new tenant or client, save the displayed secret immediately—it won't
+    be shown again. If lost, use the **Rotate Secret** button to generate a new one.
 
 > Even with tenant management privileges, users will **only see tenant-scoped data**.  
 > EUDIPLO enforces tenant context based on the access token.

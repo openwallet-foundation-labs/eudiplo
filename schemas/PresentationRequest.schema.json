@@ -8,7 +8,6 @@
       "type": "string",
       "description": "The type of response expected from the presentation request.",
       "enum": [
-        "qrcode",
         "uri",
         "dc-api"
       ]

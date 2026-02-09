@@ -109,10 +109,34 @@ export class KeycloakClientsProvider
         return this.clientRepo.findOne({ where: { clientId } });
     }
 
+    /**
+     * @deprecated For Keycloak, secrets should be managed through Keycloak UI.
+     * Use rotateClientSecret to generate a new secret.
+     */
     getClientSecret(_sub: string, id: string): Promise<string> {
-        return this.kc.clients
-            .find({ clientId: id })
-            .then((clients) => clients[0].secret!);
+        throw new Error(
+            "Client secrets cannot be retrieved. Use rotateClientSecret to generate a new secret.",
+        );
+    }
+
+    /**
+     * Rotate (regenerate) a client's secret in Keycloak.
+     * Returns the new plain secret for one-time display.
+     * @param _tenantId - Ignored for Keycloak (clients are global)
+     * @param clientId - The client ID to rotate the secret for
+     */
+    async rotateClientSecret(
+        _tenantId: string | null,
+        clientId: string,
+    ): Promise<string> {
+        const kcClient = (await this.kc.clients.find({ clientId }))[0];
+        if (!kcClient?.id) {
+            throw new Error(`Client ${clientId} not found in Keycloak`);
+        }
+        const secret = await this.kc.clients.generateNewClientSecret({
+            id: kcClient.id,
+        });
+        return secret.value!;
     }
 
     async addClient(tenantId: string, dto: CreateClientDto) {

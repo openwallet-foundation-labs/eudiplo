@@ -4,16 +4,19 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import {
   clientControllerGetClients,
   ClientEntity,
   clientControllerDeleteClient,
+  clientControllerRotateClientSecret,
 } from '@eudiplo/sdk-core';
 import { ApiService } from '../../../core';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { SecretDialogComponent } from '../secret-dialog/secret-dialog.component';
 
 @Component({
   selector: 'app-client-list',
@@ -26,6 +29,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     FlexLayoutModule,
     MatChipsModule,
     MatTooltipModule,
+    MatDialogModule,
   ],
   templateUrl: './client-list.component.html',
   styleUrl: './client-list.component.scss',
@@ -47,7 +51,8 @@ export class ClientListComponent implements OnInit {
   constructor(
     private readonly snackBar: MatSnackBar,
     private readonly apiService: ApiService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly dialog: MatDialog
   ) {}
   ngOnInit(): void {
     if (this.loadedClients) {
@@ -88,46 +93,53 @@ export class ClientListComponent implements OnInit {
   }
 
   async copyLoginUrl(client: ClientEntity) {
-    //TODO: the secret is only included when managed by eudiplo. Because for keycloak it's stored externally
-    const apiUrl = this.apiService.getBaseUrl() as string;
-    const loginUrl = await this.apiService.createConfigUrl(client, apiUrl);
-    navigator.clipboard.writeText(loginUrl).then(() => {
-      this.snackBar.open('Login URL copied to clipboard', 'Close', { duration: 3000 });
-    });
+    this.snackBar.open(
+      'Login URLs are no longer available. Client secrets are now hashed for security. Use "Rotate Secret" to generate a new secret.',
+      'Close',
+      { duration: 5000 }
+    );
+  }
+
+  /**
+   * Rotate (regenerate) a client's secret.
+   * Shows the new secret in a dialog for one-time viewing.
+   */
+  async rotateSecret(client: ClientEntity): Promise<void> {
+    if (
+      !confirm(
+        `Are you sure you want to rotate the secret for "${client.clientId}"?\n\nThe current secret will be invalidated immediately. Make sure to save the new secret - you won't be able to see it again!`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const result = await clientControllerRotateClientSecret({
+        path: { id: client.clientId },
+      });
+
+      if (result.data?.secret) {
+        this.dialog.open(SecretDialogComponent, {
+          data: {
+            clientId: client.clientId,
+            secret: result.data.secret,
+            apiUrl: this.apiService.getBaseUrl(),
+          },
+          width: '500px',
+          disableClose: true,
+        });
+      }
+    } catch (error) {
+      console.error('Error rotating secret:', error);
+      this.snackBar.open('Failed to rotate client secret', 'Close', { duration: 3000 });
+    }
   }
 
   async loginAsClient(client: ClientEntity): Promise<void> {
-    try {
-      const apiUrl = this.apiService.getBaseUrl() as string;
-
-      // Fetch the client secret if not available
-      let clientSecret = client.secret;
-      if (!clientSecret) {
-        const secretResponse = await import('@eudiplo/sdk-core').then((m) =>
-          m.clientControllerGetClientSecret({ path: { id: client.clientId } })
-        );
-        clientSecret = secretResponse.data?.secret;
-      }
-
-      if (!clientSecret) {
-        this.snackBar.open('Could not retrieve client secret', 'Close', { duration: 3000 });
-        return;
-      }
-
-      // Logout current user
-      this.apiService.logout();
-
-      // Navigate to login with pre-filled credentials
-      this.router.navigate(['/login'], {
-        queryParams: {
-          clientId: client.clientId,
-          clientSecret: clientSecret,
-          apiUrl: apiUrl,
-        },
-      });
-    } catch (error) {
-      console.error('Error logging in as client:', error);
-      this.snackBar.open('Failed to login as client', 'Close', { duration: 3000 });
-    }
+    this.snackBar.open(
+      'Direct login is no longer available. Client secrets are now hashed for security. Use "Rotate Secret" to generate a new secret, then log in manually.',
+      'Close',
+      { duration: 5000 }
+    );
   }
 }
