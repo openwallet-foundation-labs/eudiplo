@@ -16,12 +16,6 @@ export abstract class ClientsProvider {
     ): unknown;
 
     /**
-     * @deprecated Client secrets are now hashed and cannot be retrieved.
-     * Use rotateClientSecret to generate a new secret.
-     */
-    abstract getClientSecret(sub: string, id: string): Promise<string>;
-
-    /**
      * Rotate (regenerate) a client's secret.
      * Returns the new plain secret for one-time display.
      * @param tenantId - The tenant ID (optional for tenant managers who can rotate any client's secret)

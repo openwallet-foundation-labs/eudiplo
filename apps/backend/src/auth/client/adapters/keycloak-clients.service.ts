@@ -110,16 +110,6 @@ export class KeycloakClientsProvider
     }
 
     /**
-     * @deprecated For Keycloak, secrets should be managed through Keycloak UI.
-     * Use rotateClientSecret to generate a new secret.
-     */
-    getClientSecret(_sub: string, id: string): Promise<string> {
-        throw new Error(
-            "Client secrets cannot be retrieved. Use rotateClientSecret to generate a new secret.",
-        );
-    }
-
-    /**
      * Rotate (regenerate) a client's secret in Keycloak.
      * Returns the new plain secret for one-time display.
      * @param _tenantId - Ignored for Keycloak (clients are global)

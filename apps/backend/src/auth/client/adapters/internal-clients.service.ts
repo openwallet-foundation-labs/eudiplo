@@ -125,16 +125,6 @@ export class InternalClientsProvider
         return this.repo.findOne({ where: { clientId } });
     }
 
-    /**
-     * @deprecated Client secrets are now hashed and cannot be retrieved.
-     * Use rotateClientSecret to generate a new secret.
-     */
-    getClientSecret(_sub: string, _id: string): Promise<string> {
-        throw new Error(
-            "Client secrets are hashed and cannot be retrieved. Use rotateClientSecret to generate a new secret.",
-        );
-    }
-
     async addClient(
         tenantId: string,
         dto: CreateClientDto,
@@ -175,7 +165,7 @@ export class InternalClientsProvider
             whereClause.tenant = { id: tenantId };
         }
 
-        const client = await this.repo.findOneByOrFail(whereClause);
+        await this.repo.findOneByOrFail(whereClause);
         const newSecret = randomBytes(32).toString("hex");
         const hashedSecret = await bcrypt.hash(newSecret, BCRYPT_ROUNDS);
         await this.repo.update({ clientId }, { secret: hashedSecret });
@@ -199,7 +189,7 @@ export class InternalClientsProvider
 
     async validateClientCredentials(clientId: string, clientSecret: string) {
         const client = await this.repo.findOne({ where: { clientId } });
-        if (!client || !client.secret) {
+        if (!client?.secret) {
             return null;
         }
         const isValid = await bcrypt.compare(clientSecret, client.secret);

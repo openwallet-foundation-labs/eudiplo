@@ -364,7 +364,7 @@ export async function getToken(
     expect(authToken).toBeDefined();
 
     // create tenant
-    await request(app.getHttpServer())
+    const client = await request(app.getHttpServer())
         .post("/tenant")
         .trustLocalhost()
         .set("Authorization", `Bearer ${authToken}`)
@@ -379,29 +379,16 @@ export async function getToken(
                 Role.Presentations,
             ],
         })
-        .expect(201);
-
-    // get the admin of the tenant
-    const client = await request(app.getHttpServer())
-        .get("/tenant/root")
-        .trustLocalhost()
-        .set("Authorization", `Bearer ${authToken}`)
-        .send()
-        .then((res) =>
-            res.body.clients.find((client) =>
-                client.clientId.includes("admin"),
-            ),
-        );
+        .then((res) => res.body.client);
 
     return request(app.getHttpServer())
         .post("/oauth2/token")
         .trustLocalhost()
         .send({
             client_id: client.clientId,
-            client_secret: client.secret,
+            client_secret: client.clientSecret,
             grant_type: "client_credentials",
         })
-        .expect(201)
         .then((res) => res.body.access_token);
 }
 
