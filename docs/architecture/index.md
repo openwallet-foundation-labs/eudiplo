@@ -13,6 +13,64 @@ underlying protocols.
 
 ---
 
+## What EUDIPLO Is (and Isn't)
+
+Understanding EUDIPLO's role helps you integrate it correctly:
+
+### EUDIPLO is a **Protocol Adapter / Middleware**
+
+| ✅ What EUDIPLO **IS**                                                        | ❌ What EUDIPLO **IS NOT**                                                        |
+| ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| A **protocol translator** – converts simple API calls to OID4VCI/OID4VP       | A **Backend-for-Frontend (BFF)** – it doesn't serve your UI or aggregate APIs     |
+| A **credential factory** – signs and packages credentials in standard formats | A **proxy** – it doesn't forward requests transparently                           |
+| A **session manager** – tracks issuance and verification flows                | A **wallet** – it issues TO wallets, it doesn't store credentials for users       |
+| A **key manager** – securely stores and uses cryptographic keys               | An **identity provider** – it doesn't authenticate end users (use Keycloak, etc.) |
+
+### Typical Integration Pattern
+
+For a visual overview, see the [system diagram](../index.md#how-it-works) on the home page.
+
+```mermaid
+flowchart LR
+    subgraph Your System
+        A[Your Backend]
+    end
+
+    subgraph EUDIPLO
+        B[REST API]
+        C[Protocol Engine]
+    end
+
+    subgraph Wallet
+        D[EUDI Wallet]
+    end
+
+    A -->|Simple JSON API| B
+    B --> C
+    C <-->|OID4VCI / OID4VP| D
+    C -.->|Webhooks| A
+```
+
+**Issuance Flow:**
+Your backend calls EUDIPLO's simple REST API → EUDIPLO handles OID4VCI protocol → Wallet receives credential
+
+**Verification Flow:**
+Your backend requests verification → EUDIPLO creates OID4VP request → Wallet presents credential → EUDIPLO validates and notifies your backend via webhook
+
+### When to Use EUDIPLO
+
+- You want to issue or verify EUDI Wallet credentials without implementing OID4VCI/OID4VP yourself
+- You need a protocol-agnostic layer between your existing systems and wallets
+- You want to experiment with EUDI protocols in a sandbox environment
+
+### When NOT to Use EUDIPLO
+
+- You need a user-facing authentication service (use Keycloak + EUDIPLO instead)
+- You want to build a wallet application (EUDIPLO is for issuers/verifiers)
+- You need a simple API gateway or reverse proxy
+
+---
+
 ## Structure
 
 EUDIPLO is built on a modular architecture, where each module is a plug-and-play component responsible for a specific system function. This design promotes separation of concerns, maintainability, and easy integration of new features.
