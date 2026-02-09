@@ -1200,15 +1200,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="535"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:535</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="536"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:536</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Format CertEntity to base64 DER without PEM headers</p>
+                        <div class="io-description"><p>Format CertEntity to base64 DER without PEM headers
+Uses the first certificate (leaf) from the chain.</p>
 </div>
 
                             <div class="io-description">
@@ -1269,8 +1270,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="544"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:544</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="545"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:545</a></div>
                         </td>
                     </tr>
 
@@ -2638,11 +2639,12 @@ export class TrustListService {
 
     /**
      * Format CertEntity to base64 DER without PEM headers
+     * Uses the first certificate (leaf) from the chain.
      * @param cert
      * @returns
      */
     formatCertEntity(cert: CertEntity): string {
-        return this.formatPem(cert.crt);
+        return this.formatPem(cert.crt[0]);
     }
 
     /**

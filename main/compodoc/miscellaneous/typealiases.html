@@ -134,6 +134,9 @@
                             <a href="#BuiltTrustStore" title="src/shared/trust/trust-store.service.ts" ><b>BuiltTrustStore</b>&nbsp;&nbsp;&nbsp;(src/.../trust-store.service.ts)</a>
                         </li>
                         <li>
+                            <a href="#CoseAlgorithm" title="src/crypto/key/crypto-implementation/crypto-implementation.service.ts" ><b>CoseAlgorithm</b>&nbsp;&nbsp;&nbsp;(src/.../crypto-implementation.service.ts)</a>
+                        </li>
+                        <li>
                             <a href="#CredentialRequestErrorCode" title="src/issuer/issuance/oid4vci/exceptions/credential-request.exception.ts" ><b>CredentialRequestErrorCode</b>&nbsp;&nbsp;&nbsp;(src/.../credential-request.exception.ts)</a>
                         </li>
                         <li>
@@ -159,6 +162,9 @@
                         </li>
                         <li>
                             <a href="#HistoricalInformationPeriod" title="src/issuer/trust-list/dto/types.ts" ><b>HistoricalInformationPeriod</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#JoseAlgorithm" title="src/crypto/key/crypto-implementation/crypto-implementation.service.ts" ><b>JoseAlgorithm</b>&nbsp;&nbsp;&nbsp;(src/.../crypto-implementation.service.ts)</a>
                         </li>
                         <li>
                             <a href="#KeyPair" title="src/crypto/key/crypto-implementation/crypto-implementation.ts" ><b>KeyPair</b>&nbsp;&nbsp;&nbsp;(src/.../crypto-implementation.ts)</a>
@@ -192,6 +198,9 @@
                         </li>
                         <li>
                             <a href="#MimeType" title="src/issuer/trust-list/dto/types.ts" ><b>MimeType</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#MsoMdocCredentialConfig" title="src/issuer/configuration/credentials/types/credential-config-types.ts" ><b>MsoMdocCredentialConfig</b>&nbsp;&nbsp;&nbsp;(src/.../credential-config-types.ts)</a>
                         </li>
                         <li>
                             <a href="#NextUpdate" title="src/issuer/trust-list/dto/types.ts" ><b>NextUpdate</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
@@ -249,6 +258,12 @@
                         </li>
                         <li>
                             <a href="#SchemeTypeCommunityRules" title="src/issuer/trust-list/dto/types.ts" ><b>SchemeTypeCommunityRules</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#SdJwtDcCredentialConfig" title="src/issuer/configuration/credentials/types/credential-config-types.ts" ><b>SdJwtDcCredentialConfig</b>&nbsp;&nbsp;&nbsp;(src/.../credential-config-types.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#SdJwtDcFormatIdentifier" title="src/issuer/configuration/credentials/types/credential-config-types.ts" ><b>SdJwtDcFormatIdentifier</b>&nbsp;&nbsp;&nbsp;(src/.../credential-config-types.ts)</a>
                         </li>
                         <li>
                             <a href="#ServiceDefinitionURI" title="src/issuer/trust-list/dto/types.ts" ><b>ServiceDefinitionURI</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
@@ -329,6 +344,9 @@
                             <a href="#TrustListSource" title="src/shared/trust/types.ts" ><b>TrustListSource</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
                         </li>
                         <li>
+                            <a href="#TypedCredentialConfig" title="src/issuer/configuration/credentials/types/credential-config-types.ts" ><b>TypedCredentialConfig</b>&nbsp;&nbsp;&nbsp;(src/.../credential-config-types.ts)</a>
+                        </li>
+                        <li>
                             <a href="#Verifier" title="src/crypto/key/crypto-implementation/crypto-implementation.ts" ><b>Verifier</b>&nbsp;&nbsp;&nbsp;(src/.../crypto-implementation.ts)</a>
                         </li>
                         <li>
@@ -377,6 +395,69 @@
             </tr>
         </tbody>
     </table>
+</section>    <h3>src/crypto/key/crypto-implementation/crypto-implementation.service.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="CoseAlgorithm"></a>
+                    <span class="name "><b>CoseAlgorithm</b><a href="#CoseAlgorithm"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>COSE algorithm identifiers used for mDOC (ISO 18013-5)
+Uses RFC 9864 fully-specified algorithm identifiers</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="CryptoType"></a>
+                    <span class="name "><b>CryptoType</b><a href="#CryptoType"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;ES256&quot; | &quot;Ed25519&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="JoseAlgorithm"></a>
+                    <span class="name "><b>JoseAlgorithm</b><a href="#JoseAlgorithm"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>JOSE algorithm names used for SD-JWT VC</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;ES256&quot; | &quot;ES384&quot; | &quot;ES512&quot; | &quot;EdDSA&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>    <h3>src/issuer/issuance/oid4vci/exceptions/credential-request.exception.ts</h3>
     <section data-compodoc="block-typealias">
     <table class="table table-sm table-bordered">
@@ -415,24 +496,6 @@
             <tr>
                 <td class="col-md-4">
                     <code>    <code>&quot;dc+sd-jwt&quot; | &quot;mso_mdoc&quot;</code>
-</code>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</section>    <h3>src/crypto/key/crypto-implementation/crypto-implementation.service.ts</h3>
-    <section data-compodoc="block-typealias">
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="CryptoType"></a>
-                    <span class="name "><b>CryptoType</b><a href="#CryptoType"><span class="icon ion-ios-link"></span></a></span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <code>    <code>&quot;ES256&quot; | &quot;Ed25519&quot;</code>
 </code>
                 </td>
             </tr>
@@ -1416,6 +1479,90 @@ from the same entity.</p>
             <tr>
                 <td class="col-md-4">
                     <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/issuer/configuration/credentials/types/credential-config-types.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="MsoMdocCredentialConfig"></a>
+                    <span class="name "><b>MsoMdocCredentialConfig</b><a href="#MsoMdocCredentialConfig"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Extract mso_mdoc specific configuration from the SDK union type</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>        <code><a href="../classes/CredentialConfig.html" target="_self" >Extract&lt;CredentialConfigurationSupportedWithFormats | literal type&gt;</a></code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="SdJwtDcCredentialConfig"></a>
+                    <span class="name "><b>SdJwtDcCredentialConfig</b><a href="#SdJwtDcCredentialConfig"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Extract dc+sd-jwt specific configuration from the SDK union type</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>        <code><a href="../classes/CredentialConfig.html" target="_self" >Extract&lt;CredentialConfigurationSupportedWithFormats | literal type&gt;</a></code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="SdJwtDcFormatIdentifier"></a>
+                    <span class="name "><b>SdJwtDcFormatIdentifier</b><a href="#SdJwtDcFormatIdentifier"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>unknown</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="TypedCredentialConfig"></a>
+                    <span class="name "><b>TypedCredentialConfig</b><a href="#TypedCredentialConfig"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Union of the credential configs we actively support</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>        <code><a href="../classes/CredentialConfig.html" target="_self" >SdJwtDcCredentialConfig | MsoMdocCredentialConfig</a></code>
 </code>
                 </td>
             </tr>

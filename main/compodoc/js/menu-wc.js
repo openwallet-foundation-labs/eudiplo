@@ -1152,6 +1152,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="interfaces/AuthenticationMethodInterface.html" data-type="entity-link" >AuthenticationMethodInterface</a>
                             </li>
                             <li class="link">
+                                <a href="interfaces/BuildCredentialConfigOptions.html" data-type="entity-link" >BuildCredentialConfigOptions</a>
+                            </li>
+                            <li class="link">
                                 <a href="interfaces/CachedCrl.html" data-type="entity-link" >CachedCrl</a>
                             </li>
                             <li class="link">
@@ -1177,6 +1180,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="interfaces/ClaimsWebhookResult.html" data-type="entity-link" >ClaimsWebhookResult</a>
+                            </li>
+                            <li class="link">
+                                <a href="interfaces/CredentialMetadataInput.html" data-type="entity-link" >CredentialMetadataInput</a>
                             </li>
                             <li class="link">
                                 <a href="interfaces/CrlValidationResult.html" data-type="entity-link" >CrlValidationResult</a>

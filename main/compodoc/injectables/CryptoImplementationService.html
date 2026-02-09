@@ -183,6 +183,9 @@
                                 <a href="#getAlg" >getAlg</a>
                             </li>
                             <li>
+                                <a href="#getAlgs" >getAlgs</a>
+                            </li>
+                            <li>
                                 <a href="#getCrypto" >getCrypto</a>
                             </li>
                             <li>
@@ -214,7 +217,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/crypto/key/crypto-implementation/crypto-implementation.service.ts:13</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/crypto/key/crypto-implementation/crypto-implementation.service.ts:27</a></div>
                             </td>
                         </tr>
 
@@ -277,8 +280,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="35"
-                                    class="link-to-prism">src/crypto/key/crypto-implementation/crypto-implementation.service.ts:35</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="89"
+                                    class="link-to-prism">src/crypto/key/crypto-implementation/crypto-implementation.service.ts:89</a></div>
                         </td>
                     </tr>
 
@@ -294,6 +297,85 @@
                         </div>
                             <div class="io-description">
                                 <p>The configured algorithm type</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getAlgs"></a>
+                    <span class="name">
+                        <span ><b>getAlgs</b></span>
+                        <a href="#getAlgs"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getAlgs(credentialFormat: <a href="../miscellaneous/enumerations.html#CredentialFormat" target="_self">CredentialFormat</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="52"
+                                    class="link-to-prism">src/crypto/key/crypto-implementation/crypto-implementation.service.ts:52</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Returns the supported algorithms based on the credential format.</p>
+<ul>
+<li>For SD-JWT VC: Returns JOSE algorithm names (ES256, EdDSA)</li>
+<li>For mDOC: Returns COSE algorithm identifiers (-7, -8)</li>
+</ul>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>credentialFormat</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/enumerations.html#CredentialFormat" target="_self" >CredentialFormat</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The credential format</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown[]</code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>Array of algorithm identifiers appropriate for the format</p>
 
                             </div>
                 </td>
@@ -320,8 +402,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="85"
-                                    class="link-to-prism">src/crypto/key/crypto-implementation/crypto-implementation.service.ts:85</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="139"
+                                    class="link-to-prism">src/crypto/key/crypto-implementation/crypto-implementation.service.ts:139</a></div>
                         </td>
                     </tr>
 
@@ -397,8 +479,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="59"
-                                    class="link-to-prism">src/crypto/key/crypto-implementation/crypto-implementation.service.ts:59</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="113"
+                                    class="link-to-prism">src/crypto/key/crypto-implementation/crypto-implementation.service.ts:113</a></div>
                         </td>
                     </tr>
 
@@ -475,8 +557,8 @@ Currently supports Ed25519 and ES256 (P-256 curve).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="27"
-                                    class="link-to-prism">src/crypto/key/crypto-implementation/crypto-implementation.service.ts:27</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="41"
+                                    class="link-to-prism">src/crypto/key/crypto-implementation/crypto-implementation.service.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -529,7 +611,7 @@ Currently supports Ed25519 and ES256 (P-256 curve).</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/crypto/key/crypto-implementation/crypto-implementation.service.ts:13</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/crypto/key/crypto-implementation/crypto-implementation.service.ts:27</a></div>
                         </td>
                     </tr>
 
@@ -557,7 +639,7 @@ Currently supports Ed25519 and ES256 (P-256 curve).</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/crypto/key/crypto-implementation/crypto-implementation.service.ts:12</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/crypto/key/crypto-implementation/crypto-implementation.service.ts:26</a></div>
                         </td>
                     </tr>
 
@@ -590,7 +672,7 @@ Currently supports Ed25519 and ES256 (P-256 curve).</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="11" class="link-to-prism">src/crypto/key/crypto-implementation/crypto-implementation.service.ts:11</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/crypto/key/crypto-implementation/crypto-implementation.service.ts:25</a></div>
                         </td>
                     </tr>
 
@@ -605,11 +687,25 @@ Currently supports Ed25519 and ES256 (P-256 curve).</p>
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
+import { jwaSignatureAlgorithmToFullySpecifiedCoseAlgorithm } from &quot;@openid4vc/oauth2&quot;;
 import { ES256 } from &quot;@sd-jwt/crypto-nodejs&quot;;
+import { CredentialFormat } from &quot;../../../issuer/configuration/credentials/entities/credential.entity&quot;;
 import { CryptoImplementation } from &quot;./crypto-implementation&quot;;
 import { ED25519 } from &quot;./ed25519&quot;;
 
 export type CryptoType &#x3D; &quot;ES256&quot; | &quot;Ed25519&quot;;
+
+/**
+ * JOSE algorithm names used for SD-JWT VC
+ */
+export type JoseAlgorithm &#x3D; &quot;ES256&quot; | &quot;ES384&quot; | &quot;ES512&quot; | &quot;EdDSA&quot;;
+
+/**
+ * COSE algorithm identifiers used for mDOC (ISO 18013-5)
+ * Uses RFC 9864 fully-specified algorithm identifiers
+ * @see https://www.rfc-editor.org/rfc/rfc9864.html
+ */
+export type CoseAlgorithm &#x3D; number;
 
 @Injectable()
 export class CryptoImplementationService {
@@ -631,6 +727,46 @@ export class CryptoImplementationService {
      */
     getSupportedAlgorithms(): CryptoType[] {
         return [...this.supportedAlgorithms];
+    }
+
+    /**
+     * Returns the supported algorithms based on the credential format.
+     * - For SD-JWT VC: Returns JOSE algorithm names (ES256, EdDSA)
+     * - For mDOC: Returns COSE algorithm identifiers (-7, -8)
+     * @param credentialFormat The credential format
+     * @returns Array of algorithm identifiers appropriate for the format
+     */
+    getAlgs(
+        credentialFormat: CredentialFormat,
+    ): (JoseAlgorithm | CoseAlgorithm)[] {
+        // Map internal crypto types to JOSE algorithms
+        const joseAlgs: JoseAlgorithm[] &#x3D; this.supportedAlgorithms.map(
+            (alg) &#x3D;&gt; {
+                switch (alg) {
+                    case &quot;ES256&quot;:
+                        return &quot;ES256&quot;;
+                    case &quot;Ed25519&quot;:
+                        return &quot;EdDSA&quot;;
+                    default:
+                        return &quot;ES256&quot;;
+                }
+            },
+        );
+
+        if (credentialFormat &#x3D;&#x3D;&#x3D; CredentialFormat.SD_JWT) {
+            return joseAlgs;
+        }
+
+        if (credentialFormat &#x3D;&#x3D;&#x3D; CredentialFormat.MSO_MDOC) {
+            return joseAlgs
+                .map((alg) &#x3D;&gt;
+                    jwaSignatureAlgorithmToFullySpecifiedCoseAlgorithm(alg),
+                )
+                .filter((alg) &#x3D;&gt; alg !&#x3D;&#x3D; undefined);
+        }
+
+        // Default to JOSE algorithms
+        return joseAlgs;
     }
 
     /**

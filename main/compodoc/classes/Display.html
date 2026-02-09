@@ -246,7 +246,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="43" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:43</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:44</a></div>
                         </td>
                     </tr>
 
@@ -285,7 +285,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:50</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="51" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -321,7 +321,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="38" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:38</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="39" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:39</a></div>
                         </td>
                     </tr>
 
@@ -357,7 +357,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="40" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:40</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -396,7 +396,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:54</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="55" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:55</a></div>
                         </td>
                     </tr>
 
@@ -432,7 +432,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:36</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:37</a></div>
                         </td>
                     </tr>
 
@@ -470,7 +470,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="46" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:46</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:47</a></div>
                         </td>
                     </tr>
 
@@ -498,6 +498,7 @@
 import { Type } from &quot;class-transformer&quot;;
 import {
     IsBoolean,
+    IsEnum,
     IsNumber,
     IsObject,
     IsOptional,
@@ -545,9 +546,14 @@ export class Display {
     logo?: DisplayImage;
 }
 
+export enum CredentialFormat {
+    MSO_MDOC &#x3D; &quot;mso_mdoc&quot;,
+    SD_JWT &#x3D; &quot;dc+sd-jwt&quot;,
+}
+
 export class IssuerMetadataCredentialConfig {
-    @IsString()
-    format!: string;
+    @IsEnum(CredentialFormat)
+    format!: CredentialFormat;
     @ValidateNested()
     @Type(() &#x3D;&gt; Display)
     display!: Display[];

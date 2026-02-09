@@ -170,8 +170,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="23"
-                                    class="link-to-prism">src/crypto/key/key.module.ts:23</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="22"
+                                    class="link-to-prism">src/crypto/key/key.module.ts:22</a></div>
                         </td>
                     </tr>
 
@@ -196,7 +196,6 @@
 import { DynamicModule, Global, Module } from &quot;@nestjs/common&quot;;
 import { ConfigModule, ConfigService } from &quot;@nestjs/config&quot;;
 import { getRepositoryToken, TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
-import { PinoLogger } from &quot;nestjs-pino/PinoLogger&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { TenantEntity } from &quot;../../auth/tenant/entitites/tenant.entity&quot;;
 import { ConfigImportService } from &quot;../../shared/utils/config-import/config-import.service&quot;;
@@ -241,7 +240,6 @@ export class KeyModule {
                         configImportService: ConfigImportService,
                         certRepository: Repository&lt;CertEntity&gt;,
                         tenantRepository: Repository&lt;TenantEntity&gt;,
-                        logger: PinoLogger,
                         configImportOrchestrator: ConfigImportOrchestratorService,
                     ) &#x3D;&gt; {
                         const kmType &#x3D; configService.get&lt;&quot;vault&quot; | &quot;file&quot;&gt;(
@@ -256,7 +254,6 @@ export class KeyModule {
                                 configImportService,
                                 certRepository,
                                 tenantRepository,
-                                logger,
                                 configImportOrchestrator,
                             );
                         }
@@ -268,7 +265,6 @@ export class KeyModule {
                             configImportService,
                             certRepository,
                             tenantRepository,
-                            logger,
                             configImportOrchestrator,
                         );
                     },
@@ -280,7 +276,6 @@ export class KeyModule {
                         ConfigImportService,
                         getRepositoryToken(CertEntity),
                         getRepositoryToken(TenantEntity),
-                        PinoLogger,
                         ConfigImportOrchestratorService,
                     ],
                 },

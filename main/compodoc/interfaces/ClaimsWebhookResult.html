@@ -334,7 +334,7 @@ Either contains claims for immediate issuance or indicates deferred issuance.</p
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import type { Jwk } from &quot;@openid4vc/oauth2&quot;;
-import { CredentialConfigurationSupported } from &quot;@openid4vc/openid4vci&quot;;
+import type { CredentialConfigurationSupported } from &quot;@openid4vc/openid4vci&quot;;
 import Ajv from &quot;ajv/dist/2020&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { CryptoImplementationService } from &quot;../../../crypto/key/crypto-implementation/crypto-implementation.service&quot;;
@@ -345,9 +345,19 @@ import {
     WebhookService,
 } from &quot;../../../shared/utils/webhook/webhook.service&quot;;
 import { VCT } from &quot;../../issuance/oid4vci/metadata/dto/vct.dto&quot;;
-import { CredentialConfig } from &quot;./entities/credential.entity&quot;;
+import {
+    CredentialConfig,
+    CredentialFormat,
+} from &quot;./entities/credential.entity&quot;;
 import { MdocIssuerService } from &quot;./issuer/mdoc-issuer/mdoc-issuer.service&quot;;
 import { SdjwtvcIssuerService } from &quot;./issuer/sdjwtvc-issuer/sdjwtvc-issuer.service&quot;;
+import {
+    buildMsoMdocConfig,
+    buildSdJwtDcConfig,
+    MSO_MDOC_FORMAT,
+    type TypedCredentialConfig,
+    toCredentialConfigurationSupported,
+} from &quot;./types/credential-config-types&quot;;
 
 /**
  * Result of fetching claims from webhook.
@@ -401,7 +411,7 @@ export class CredentialsService {
     async getCredentialConfigurationSupported(
         tenantId: string,
     ): Promise&lt;Record&lt;string, CredentialConfigurationSupported&gt;&gt; {
-        const credential_configurations_supported: Record&lt;
+        const credentialConfigurationsSupported: Record&lt;
             string,
             CredentialConfigurationSupported
         &gt; &#x3D; {};
@@ -410,58 +420,138 @@ export class CredentialsService {
             tenantId,
         });
 
-        //add key binding when required:
-        const kb &#x3D; {
-            proof_types_supported: {
-                jwt: {
-                    proof_signing_alg_values_supported: [
-                        this.cryptoImplementationService.getAlg(),
-                    ],
+        for (const entity of configs) {
+            const builtConfig &#x3D; this.buildCredentialConfiguration(
+                entity,
+                tenantId,
+            );
+            credentialConfigurationsSupported[entity.id] &#x3D;
+                toCredentialConfigurationSupported(
+                    builtConfig,
+                ) as CredentialConfigurationSupported;
+        }
+        return credentialConfigurationsSupported;
+    }
+
+    /**
+     * Builds a typed credential configuration from the stored entity.
+     * Uses format-specific builders for proper type safety.
+     * @param entity The credential config entity from the database
+     * @param tenantId The tenant ID for generating URLs
+     * @returns A properly typed credential configuration
+     */
+    private buildCredentialConfiguration(
+        entity: CredentialConfig,
+        tenantId: string,
+    ): TypedCredentialConfig &amp; { disclosure_policy?: unknown } {
+        const format &#x3D; entity.config.format;
+
+        if (format &#x3D;&#x3D;&#x3D; MSO_MDOC_FORMAT) {
+            // For mDOC, algorithms are COSE numbers
+            const algs &#x3D; this.cryptoImplementationService.getAlgs(
+                format,
+            ) as number[];
+            return this.buildMdocConfiguration(entity, algs);
+        } else {
+            // For SD-JWT, algorithms are JOSE strings
+            const algs &#x3D; this.cryptoImplementationService.getAlgs(
+                format,
+            ) as string[];
+            return this.buildSdJwtConfiguration(entity, tenantId, algs);
+        }
+    }
+
+    /**
+     * Builds an mDOC credential configuration
+     */
+    private buildMdocConfiguration(
+        entity: CredentialConfig,
+        algs: number[],
+    ): TypedCredentialConfig &amp; { disclosure_policy?: unknown } {
+        const doctype &#x3D; entity.config.docType;
+        if (!doctype) {
+            throw new ConflictException(
+                &#x60;mDOC credential configuration ${entity.id} missing required docType&#x60;,
+            );
+        }
+
+        const config &#x3D; buildMsoMdocConfig(
+            doctype,
+            {
+                signingAlgorithms: algs,
+                bindingMethods: [&quot;cose_key&quot;],
+                proofTypesSupported: {
+                    jwt: {
+                        proof_signing_alg_values_supported:
+                            this.cryptoImplementationService.getAlgs(
+                                CredentialFormat.SD_JWT,
+                            ) as string[],
+                    },
                 },
             },
-            credential_signing_alg_values_supported: [
-                this.cryptoImplementationService.getAlg(),
-            ],
-            cryptographic_binding_methods_supported: [&quot;jwk&quot;],
-        };
+            entity.config.display
+                ? { display: entity.config.display }
+                : undefined,
+            entity.config.scope,
+        );
 
-        for (const value of configs) {
-            // vct can be a string URI, an object, or null (for mDOC)
-            if (value.vct &amp;&amp; typeof value.vct &#x3D;&#x3D;&#x3D; &quot;object&quot;) {
-                // Generate URL for object-based vct
-                (
-                    value.config as unknown as CredentialConfigurationSupported
-                ).vct &#x3D;
-                    &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${tenantId}/credentials-metadata/vct/${value.id}&#x60;;
-            } else if (typeof value.vct &#x3D;&#x3D;&#x3D; &quot;string&quot;) {
-                // Use the string URI directly
-                (
-                    value.config as unknown as CredentialConfigurationSupported
-                ).vct &#x3D; value.vct;
-            }
-
-            if (value.embeddedDisclosurePolicy) {
-                delete (value.embeddedDisclosurePolicy as any).$schema;
-                (
-                    value.config as unknown as CredentialConfigurationSupported
-                ).disclosure_policy &#x3D; value.embeddedDisclosurePolicy;
-            }
-
-            // For mso_mdoc format, map docType to doctype (OID4VCI spec uses lowercase)
-            if (value.config.format &#x3D;&#x3D;&#x3D; &quot;mso_mdoc&quot; &amp;&amp; value.config.docType) {
-                (value.config as any).doctype &#x3D; value.config.docType;
-                delete (value.config as any).docType;
-            }
-
-            value.config &#x3D; {
-                ...value.config,
-                ...kb,
-            };
-            (
-                credential_configurations_supported as CredentialConfigurationSupported
-            )[value.id] &#x3D; value.config;
+        // Add disclosure policy if present
+        if (entity.embeddedDisclosurePolicy) {
+            const policy &#x3D; { ...entity.embeddedDisclosurePolicy };
+            delete (policy as Record&lt;string, unknown&gt;)[&quot;$schema&quot;];
+            return { ...config, disclosure_policy: policy };
         }
-        return credential_configurations_supported;
+
+        return config;
+    }
+
+    /**
+     * Builds an SD-JWT (dc+sd-jwt) credential configuration
+     */
+    private buildSdJwtConfiguration(
+        entity: CredentialConfig,
+        tenantId: string,
+        algs: string[],
+    ): TypedCredentialConfig &amp; { disclosure_policy?: unknown } {
+        // Resolve VCT - can be a string URI, an object (hosted by EUDIPLO), or null
+        let vct: string;
+        if (entity.vct &amp;&amp; typeof entity.vct &#x3D;&#x3D;&#x3D; &quot;object&quot;) {
+            // Generate URL for object-based vct hosted by EUDIPLO
+            vct &#x3D; &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${tenantId}/credentials-metadata/vct/${entity.id}&#x60;;
+        } else if (typeof entity.vct &#x3D;&#x3D;&#x3D; &quot;string&quot;) {
+            // Use the string URI directly
+            vct &#x3D; entity.vct;
+        } else {
+            throw new ConflictException(
+                &#x60;SD-JWT credential configuration ${entity.id} missing required vct&#x60;,
+            );
+        }
+
+        const config &#x3D; buildSdJwtDcConfig(
+            vct,
+            {
+                signingAlgorithms: algs,
+                bindingMethods: [&quot;jwk&quot;],
+                proofTypesSupported: {
+                    jwt: {
+                        proof_signing_alg_values_supported: algs,
+                    },
+                },
+            },
+            entity.config.display
+                ? { display: entity.config.display }
+                : undefined,
+            entity.config.scope,
+        );
+
+        // Add disclosure policy if present
+        if (entity.embeddedDisclosurePolicy) {
+            const policy &#x3D; { ...entity.embeddedDisclosurePolicy };
+            delete (policy as Record&lt;string, unknown&gt;)[&quot;$schema&quot;];
+            return { ...config, disclosure_policy: policy };
+        }
+
+        return config;
     }
 
     /**

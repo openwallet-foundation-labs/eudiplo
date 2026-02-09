@@ -24,6 +24,10 @@
 <title>cluster_PresentationsModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="8,-70 8,-268 1188,-268 1188,-70 8,-70"/>
 </g>
+<g id="clust4" class="cluster">
+<title>cluster_PresentationsModule_exports</title>
+<polygon fill="none" stroke="black" points="298,-208 298,-260 680,-260 680,-208 298,-208"/>
+</g>
 <g id="clust6" class="cluster">
 <title>cluster_PresentationsModule_providers</title>
 <polygon fill="none" stroke="black" points="257,-78 257,-130 1180,-130 1180,-78 257,-78"/>
@@ -31,10 +35,6 @@
 <g id="clust3" class="cluster">
 <title>cluster_PresentationsModule_imports</title>
 <polygon fill="none" stroke="black" points="16,-78 16,-130 249,-130 249,-78 16,-78"/>
-</g>
-<g id="clust4" class="cluster">
-<title>cluster_PresentationsModule_exports</title>
-<polygon fill="none" stroke="black" points="298,-208 298,-260 680,-260 680,-208 298,-208"/>
 </g>
 <!-- ResolverModule -->
 <g id="node1" class="node">

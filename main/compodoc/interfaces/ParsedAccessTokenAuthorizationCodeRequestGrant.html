@@ -794,10 +794,9 @@ export class AuthorizeService {
             client_attestation_pop_nonce_required: true,
             authorization_details_types_supported: [&quot;openid_credential&quot;],
             token_endpoint_auth_methods_supported: [&quot;attest_jwt_client_auth&quot;],
-            /*         token_endpoint_auth_methods_supported: [
-          SupportedAuthenticationScheme.ClientAttestationJwt,          
-        ], */
-        });
+            client_attestation_signing_alg_values_supported: [&quot;ES256&quot;],
+            client_attestation_pop_signing_alg_values_supported: [&quot;ES256&quot;],
+        } as AuthorizationServerMetadata);
     }
 
     sendAuthorizationResponse(values: AuthorizeQueries, tenantId) {
