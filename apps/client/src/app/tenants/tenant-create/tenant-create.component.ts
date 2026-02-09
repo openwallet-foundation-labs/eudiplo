@@ -112,9 +112,9 @@ export class TenantCreateComponent implements OnInit {
 
         // Cast to expected type since SDK returns generic response
         // The backend returns { ...tenant, client: { clientId, clientSecret } } on creation
-        const tenantData = result.data as (typeof result.data & {
+        const tenantData = result.data as typeof result.data & {
           client?: { clientId: string; clientSecret: string };
-        });
+        };
 
         // Show secret dialog if client credentials were created
         if (tenantData?.client?.clientId && tenantData?.client?.clientSecret) {

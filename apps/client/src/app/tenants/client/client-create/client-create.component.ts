@@ -135,7 +135,7 @@ export class ClientCreateComponent implements OnInit {
         });
 
         // Cast to expected type since SDK returns generic response
-        const clientData = result.data as (typeof result.data & { clientSecret?: string });
+        const clientData = result.data as typeof result.data & { clientSecret?: string };
 
         // Show secret dialog for new clients
         if (clientData?.clientSecret) {
