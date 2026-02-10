@@ -57,6 +57,12 @@ docker run -d \
 !!! warning "External Dependencies Required"
 Single container mode requires external PostgreSQL and S3-compatible storage (MinIO/AWS S3) configured via environment variables.
 
+## TLS/HTTPS Configuration
+
+EUDIPLO supports built-in TLS termination for serving HTTPS directly without a reverse proxy. This is useful for simple deployments or development environments.
+
+See: [TLS Configuration Guide](tls.md)
+
 ## Production Checklist
 
 Before deploying to production, ensure you:
