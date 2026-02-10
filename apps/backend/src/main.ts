@@ -3,7 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import { writeFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import { Logger } from "nestjs-pino";
 import { cleanupOpenApiDoc } from "nestjs-zod";
 import { AllExceptionsFilter } from "./all-exceptions.filter";
@@ -11,12 +11,81 @@ import { AppModule } from "./app.module";
 import { ValidationErrorFilter } from "./shared/common/filters/validation-error.filter";
 
 /**
+ * TLS configuration options for HTTPS server.
+ */
+interface TlsOptions {
+    cert: Buffer;
+    key: Buffer;
+    ca?: Buffer;
+    passphrase?: string;
+}
+
+/**
+ * Load TLS options from certificate and key files.
+ * Returns undefined if TLS is not enabled or files are not found.
+ */
+function loadTlsOptions(): TlsOptions | undefined {
+    const tlsEnabled = process.env.TLS_ENABLED?.toLowerCase() === "true";
+    if (!tlsEnabled) {
+        return undefined;
+    }
+
+    const certPath = process.env.TLS_CERT_PATH;
+    const keyPath = process.env.TLS_KEY_PATH;
+    const caPath = process.env.TLS_CA_PATH;
+
+    if (!certPath || !keyPath) {
+        console.warn(
+            "⚠️ TLS_ENABLED is true but TLS_CERT_PATH or TLS_KEY_PATH is not set. Falling back to HTTP.",
+        );
+        return undefined;
+    }
+
+    if (!existsSync(certPath)) {
+        console.warn(
+            `⚠️ TLS certificate file not found: ${certPath}. Falling back to HTTP.`,
+        );
+        return undefined;
+    }
+
+    if (!existsSync(keyPath)) {
+        console.warn(
+            `⚠️ TLS key file not found: ${keyPath}. Falling back to HTTP.`,
+        );
+        return undefined;
+    }
+
+    const options: TlsOptions = {
+        cert: readFileSync(certPath),
+        key: readFileSync(keyPath),
+    };
+
+    // Optional: Load CA certificate chain for client verification
+    if (caPath && existsSync(caPath)) {
+        options.ca = readFileSync(caPath);
+    }
+
+    // Optional: Passphrase for encrypted key files
+    const passphrase = process.env.TLS_KEY_PASSPHRASE;
+    if (passphrase) {
+        options.passphrase = passphrase;
+    }
+
+    return options;
+}
+
+/**
  * Bootstrap function to initialize the NestJS application.
  */
 async function bootstrap() {
+    // Load TLS options if configured
+    const tlsOptions = loadTlsOptions();
+    const isTlsEnabled = tlsOptions !== undefined;
+
     const app = await NestFactory.create<NestExpressApplication>(AppModule, {
         bufferLogs: true,
         snapshot: true,
+        httpsOptions: tlsOptions,
     });
 
     // Use Pino logger for all NestJS logging (including built-in Logger instances)
@@ -185,6 +254,8 @@ async function bootstrap() {
             const publicUrl = configService.get<string>("PUBLIC_URL");
             const version = process.env.VERSION ?? "main";
             const nodeEnv = process.env.NODE_ENV ?? "development";
+            const protocol = isTlsEnabled ? "https" : "http";
+            const baseUrl = publicUrl || `${protocol}://localhost:${port}`;
 
             logger.log("");
             logger.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
@@ -193,20 +264,19 @@ async function bootstrap() {
             logger.log(`📦 Version:        ${version}`);
             logger.log(`🌍 Environment:    ${nodeEnv}`);
             logger.log(`🔌 Port:           ${port}`);
+            logger.log(
+                `🔒 TLS:            ${isTlsEnabled ? "Enabled" : "Disabled (use reverse proxy for HTTPS)"}`,
+            );
             logger.log(`🌐 Public URL:     ${publicUrl || "Not configured"}`);
             logger.log("");
             logger.log("📚 API Documentation:");
-            logger.log(
-                `   → Swagger UI:   ${publicUrl || `http://localhost:${port}`}/api`,
-            );
+            logger.log(`   → Swagger UI:   ${baseUrl}/api`);
             logger.log(
                 `   → Full Docs:    https://openwallet-foundation-labs.github.io/eudiplo/latest/`,
             );
             logger.log("");
             logger.log("🏥 Health Check:");
-            logger.log(
-                `   → Endpoint:     ${publicUrl || `http://localhost:${port}`}/health`,
-            );
+            logger.log(`   → Endpoint:     ${baseUrl}/health`);
             logger.log("");
             logger.log("🔐 Authentication:");
             if (oidc) {
