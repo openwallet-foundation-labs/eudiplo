@@ -1,4 +1,4 @@
-import { createHash, randomBytes, X509Certificate } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { Inject, Injectable } from "@nestjs/common";
 import {
     type CallbackContext,
