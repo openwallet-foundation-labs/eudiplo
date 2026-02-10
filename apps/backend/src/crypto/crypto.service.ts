@@ -1,4 +1,4 @@
-import { createHash, randomBytes, X509Certificate } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { Inject, Injectable } from "@nestjs/common";
 import {
     type CallbackContext,
@@ -70,7 +70,6 @@ export class CryptoService {
             clientAuthentication: clientAuthenticationNone({
                 clientId: "some-random",
             }),
-            fetch: this.fetchFunction(tenantId).bind(this),
             //clientId: 'some-random-client-id', // TODO: Replace with your real clientId if necessary
             signJwt: this.getSignJwtCallback(tenantId),
             verifyJwt: async (signer, { compact, payload }) => {
@@ -118,27 +117,6 @@ export class CryptoService {
                     `Signer method '${signer.method}' not supported`,
                 );
             },
-        };
-    }
-
-    /**
-     * Override the fetch function since key can be passed
-     * @param tenantId
-     * @returns
-     */
-    fetchFunction(tenantId: string) {
-        return (): Promise<Response> => {
-            return Promise.resolve({
-                json: async () => {
-                    return {
-                        keys: [
-                            await this.keyService.getPublicKey("jwk", tenantId),
-                        ],
-                    };
-                },
-                ok: true,
-                headers: new Headers({ "Content-Type": "application/json" }),
-            }) as Promise<Response>;
         };
     }
 

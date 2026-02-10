@@ -22,6 +22,8 @@ import { OIDFSuite } from "./oidf-suite";
 // Setup OIDF containers for this test file
 useOidfContainers();
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; // Disable TLS verification for testing purposes
+
 /**
  * E2E: OIDF conformance runner integration test
  */
