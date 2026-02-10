@@ -1070,6 +1070,8 @@
       
         
       
+        
+      
     
     
     
@@ -1170,6 +1172,34 @@
     
   
     Kubernetes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="tls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLS/HTTPS
   
 
     
@@ -2106,6 +2136,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#tlshttps-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TLS/HTTPS Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#production-checklist" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2236,6 +2277,9 @@
 <p class="admonition-title">External Dependencies Required</p>
 </div>
 <p>Single container mode requires external PostgreSQL and S3-compatible storage (MinIO/AWS S3) configured via environment variables.</p>
+<h2 id="tlshttps-configuration">TLS/HTTPS Configuration<a class="headerlink" href="#tlshttps-configuration" title="Permanent link">¶</a></h2>
+<p>EUDIPLO supports built-in TLS termination for serving HTTPS directly without a reverse proxy. This is useful for simple deployments or development environments.</p>
+<p>See: <a href="tls/">TLS Configuration Guide</a></p>
 <h2 id="production-checklist">Production Checklist<a class="headerlink" href="#production-checklist" title="Permanent link">¶</a></h2>
 <p>Before deploying to production, ensure you:</p>
 <ul class="task-list">

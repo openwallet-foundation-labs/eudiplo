@@ -1305,6 +1305,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="interfaces/TenantSetupFn.html" data-type="entity-link" >TenantSetupFn</a>
                             </li>
                             <li class="link">
+                                <a href="interfaces/TlsOptions.html" data-type="entity-link" >TlsOptions</a>
+                            </li>
+                            <li class="link">
                                 <a href="interfaces/TokenPayload.html" data-type="entity-link" >TokenPayload</a>
                             </li>
                             <li class="link">
