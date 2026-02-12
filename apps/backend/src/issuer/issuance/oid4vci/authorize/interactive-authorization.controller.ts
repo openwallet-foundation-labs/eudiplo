@@ -1,0 +1,177 @@
+import {
+    Body,
+    Controller,
+    Headers,
+    HttpCode,
+    HttpStatus,
+    Param,
+    Post,
+    Req,
+    Res,
+} from "@nestjs/common";
+import {
+    ApiBody,
+    ApiExcludeController,
+    ApiOperation,
+    ApiResponse,
+    ApiTags,
+} from "@nestjs/swagger";
+import type { Request, Response } from "express";
+import {
+    InteractiveAuthorizationCodeResponseDto,
+    InteractiveAuthorizationErrorResponseDto,
+    InteractiveAuthorizationOpenid4vpResponseDto,
+    InteractiveAuthorizationRedirectToWebResponseDto,
+    InteractiveAuthorizationRequestDto,
+} from "./dto/interactive-authorization.dto";
+import { InteractiveAuthorizationService } from "./interactive-authorization.service";
+
+/**
+ * Controller for the Interactive Authorization Endpoint (IAE).
+ *
+ * The IAE enables an interactive authorization flow during credential issuance,
+ * allowing the issuer to request verifiable presentations from the wallet
+ * before issuing credentials.
+ *
+ * This implements the OID4VCI 1.1 Interactive Authorization Endpoint specification.
+ *
+ * @see https://openid.net/specs/openid-4-verifiable-credential-issuance-1_1.html
+ */
+@ApiTags("OID4VCI", "Interactive Authorization")
+@ApiExcludeController(process.env.SWAGGER_ALL !== "true")
+@Controller(":tenantId/authorize/interactive")
+export class InteractiveAuthorizationController {
+    constructor(
+        private readonly interactiveAuthorizationService: InteractiveAuthorizationService,
+    ) {}
+
+    /**
+     * Interactive Authorization Endpoint.
+     *
+     * Handles both initial and follow-up interactive authorization requests.
+     *
+     * Initial requests include `interaction_types_supported` to indicate which
+     * interaction methods the wallet supports (e.g., openid4vp_presentation, redirect_to_web).
+     *
+     * Follow-up requests include `auth_session` and either `openid4vp_response` or `code_verifier`
+     * depending on the interaction type used.
+     *
+     * @param body The interactive authorization request body
+     * @param req The Express request
+     * @param res The Express response
+     * @param tenantId The tenant identifier
+     * @param origin The request origin header
+     * @returns Interactive authorization response (interaction request or authorization code)
+     */
+    @Post()
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({
+        summary: "Interactive Authorization Endpoint",
+        description: `
+Handles interactive authorization requests during credential issuance.
+
+**Initial Request:**
+- Contains \`interaction_types_supported\` (e.g., "openid4vp_presentation,redirect_to_web")
+- Response will indicate required interaction (OpenID4VP presentation or web redirect)
+
+**Follow-up Request:**
+- Contains \`auth_session\` from previous response
+- Contains \`openid4vp_response\` (for presentation flow) or \`code_verifier\` (for web flow)
+- Response will contain authorization code on success
+        `,
+    })
+    @ApiBody({
+        description: "Interactive authorization request",
+        type: InteractiveAuthorizationRequestDto,
+    })
+    @ApiResponse({
+        status: 200,
+        description: "Authorization code response (successful completion)",
+        type: InteractiveAuthorizationCodeResponseDto,
+    })
+    @ApiResponse({
+        status: 200,
+        description: "OpenID4VP interaction required",
+        type: InteractiveAuthorizationOpenid4vpResponseDto,
+    })
+    @ApiResponse({
+        status: 200,
+        description: "Web redirect interaction required",
+        type: InteractiveAuthorizationRedirectToWebResponseDto,
+    })
+    @ApiResponse({
+        status: 400,
+        description: "Error response",
+        type: InteractiveAuthorizationErrorResponseDto,
+    })
+    async interactiveAuthorization(
+        @Body() body: InteractiveAuthorizationRequestDto,
+        @Req() req: Request,
+        @Res({ passthrough: true }) res: Response,
+        @Param("tenantId") tenantId: string,
+        @Headers("origin") origin?: string,
+    ) {
+        const requestOrigin = origin || req.headers.referer || "";
+
+        const response =
+            await this.interactiveAuthorizationService.handleRequest(
+                body,
+                req,
+                tenantId,
+                requestOrigin,
+            );
+
+        // If the response contains an error, set the status to 400
+        if ("error" in response) {
+            res.status(HttpStatus.BAD_REQUEST);
+        }
+
+        return response;
+    }
+
+    /**
+     * Complete web authorization.
+     *
+     * Called after the user completes web-based authorization to mark
+     * the session as ready for code exchange.
+     *
+     * @param authSession The auth session identifier
+     * @param tenantId The tenant identifier
+     * @returns Success indicator
+     */
+    @Post("complete-web-auth/:authSession")
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({
+        summary: "Complete web authorization",
+        description:
+            "Mark a web authorization session as completed after user interaction",
+    })
+    @ApiResponse({
+        status: 200,
+        description: "Web authorization marked as completed",
+    })
+    @ApiResponse({
+        status: 404,
+        description: "Auth session not found",
+    })
+    async completeWebAuth(
+        @Param("authSession") authSession: string,
+        @Param("tenantId") tenantId: string,
+    ) {
+        const success =
+            await this.interactiveAuthorizationService.completeWebAuthorization(
+                authSession,
+                tenantId,
+            );
+
+        if (!success) {
+            return {
+                error: "not_found",
+                error_description:
+                    "Auth session not found or already completed",
+            };
+        }
+
+        return { success: true };
+    }
+}

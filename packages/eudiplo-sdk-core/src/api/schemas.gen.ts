@@ -1821,6 +1821,67 @@ export const VCTSchema = {
   },
 } as const;
 
+export const IaeActionOpenid4vpPresentationSchema = {
+  type: "object",
+  properties: {
+    type: {
+      enum: ["openid4vp_presentation"],
+      type: "string",
+      description: "Action type discriminator",
+      example: "openid4vp_presentation",
+    },
+    label: {
+      type: "string",
+      description: "Optional label for this step (for display purposes)",
+      example: "Identity Verification",
+    },
+    presentationConfigId: {
+      type: "string",
+      description: "ID of the presentation configuration to use for this step",
+      example: "pid-presentation-config",
+    },
+  },
+  required: ["type", "presentationConfigId"],
+} as const;
+
+export const IaeActionRedirectToWebSchema = {
+  type: "object",
+  properties: {
+    type: {
+      enum: ["redirect_to_web"],
+      type: "string",
+      description: "Action type discriminator",
+      example: "redirect_to_web",
+    },
+    label: {
+      type: "string",
+      description: "Optional label for this step (for display purposes)",
+      example: "Identity Verification",
+    },
+    url: {
+      type: "string",
+      format: "uri",
+      description: "URL to redirect the user to for web-based interaction",
+      example: "https://example.com/verify?session={auth_session}",
+    },
+    callbackUrl: {
+      type: "string",
+      format: "uri",
+      description:
+        "URL where the external service should redirect back after completion. If not provided, the service must call back to the IAE endpoint.",
+      example:
+        "https://issuer.example.com/{tenantId}/authorize/interactive/callback",
+    },
+    description: {
+      type: "string",
+      description:
+        "Description of what the user should do on the web page (for wallet display)",
+      example: "Please complete the identity verification form",
+    },
+  },
+  required: ["type", "url"],
+} as const;
+
 export const EmbeddedDisclosurePolicySchema = {
   type: "object",
   properties: {
@@ -1949,6 +2010,22 @@ export const CredentialConfigSchema = {
         },
       ],
     },
+    iaeActions: {
+      type: "array",
+      nullable: true,
+      description: "List of IAE actions to execute before credential issuance",
+      example: "",
+      items: {
+        oneOf: [
+          {
+            $ref: "#/components/schemas/IaeActionOpenid4vpPresentation",
+          },
+          {
+            $ref: "#/components/schemas/IaeActionRedirectToWeb",
+          },
+        ],
+      },
+    },
     embeddedDisclosurePolicy: {
       nullable: true,
       description:
@@ -2063,6 +2140,22 @@ export const CredentialConfigCreateSchema = {
         },
       ],
     },
+    iaeActions: {
+      type: "array",
+      nullable: true,
+      description: "List of IAE actions to execute before credential issuance",
+      example: "",
+      items: {
+        oneOf: [
+          {
+            $ref: "#/components/schemas/IaeActionOpenid4vpPresentation",
+          },
+          {
+            $ref: "#/components/schemas/IaeActionRedirectToWeb",
+          },
+        ],
+      },
+    },
     embeddedDisclosurePolicy: {
       nullable: true,
       description:
@@ -2165,6 +2258,22 @@ export const CredentialConfigUpdateSchema = {
           $ref: "#/components/schemas/VCT",
         },
       ],
+    },
+    iaeActions: {
+      type: "array",
+      nullable: true,
+      description: "List of IAE actions to execute before credential issuance",
+      example: "",
+      items: {
+        oneOf: [
+          {
+            $ref: "#/components/schemas/IaeActionOpenid4vpPresentation",
+          },
+          {
+            $ref: "#/components/schemas/IaeActionRedirectToWeb",
+          },
+        ],
+      },
     },
     embeddedDisclosurePolicy: {
       nullable: true,
@@ -2290,6 +2399,107 @@ export const ParResponseDtoSchema = {
     },
   },
   required: ["request_uri", "expires_in"],
+} as const;
+
+export const InteractiveAuthorizationRequestDtoSchema = {
+  type: "object",
+  properties: {
+    response_type: {
+      type: "string",
+      description: "Response type (for initial request)",
+    },
+    client_id: {
+      type: "string",
+      description: "Client identifier (for initial request)",
+    },
+    interaction_types_supported: {
+      type: "string",
+      description:
+        "Comma-separated list of supported interaction types (for initial request)",
+    },
+    redirect_uri: {
+      type: "string",
+      description: "Redirect URI (for initial request)",
+    },
+    scope: {
+      type: "string",
+      description: "OAuth scope",
+    },
+    code_challenge: {
+      type: "string",
+      description: "PKCE code challenge",
+    },
+    code_challenge_method: {
+      type: "string",
+      description: "PKCE code challenge method",
+    },
+    authorization_details: {
+      type: "object",
+      description: "Authorization details",
+    },
+    state: {
+      type: "string",
+      description: "State parameter",
+    },
+    issuer_state: {
+      type: "string",
+      description: "Issuer state from credential offer",
+    },
+    auth_session: {
+      type: "string",
+      description: "Auth session identifier (for follow-up request)",
+    },
+    openid4vp_response: {
+      type: "string",
+      description: "OpenID4VP response (for follow-up request)",
+    },
+    code_verifier: {
+      type: "string",
+      description: "PKCE code verifier (for follow-up request)",
+    },
+    request: {
+      type: "string",
+      description: "JAR request JWT (by value)",
+    },
+    request_uri: {
+      type: "string",
+      description: "JAR request URI (by reference)",
+    },
+  },
+} as const;
+
+export const InteractiveAuthorizationCodeResponseDtoSchema = {
+  type: "object",
+  properties: {
+    status: {
+      type: "string",
+      description: "Response status",
+      example: "ok",
+    },
+    code: {
+      type: "string",
+      description: "Authorization code",
+      example: "auth-code-123",
+    },
+  },
+  required: ["status", "code"],
+} as const;
+
+export const InteractiveAuthorizationErrorResponseDtoSchema = {
+  type: "object",
+  properties: {
+    error: {
+      type: "string",
+      description: "OAuth error code",
+      example: "invalid_request",
+    },
+    error_description: {
+      type: "string",
+      description: "Human-readable error description",
+      example: "Missing required parameter: interaction_types_supported",
+    },
+  },
+  required: ["error"],
 } as const;
 
 export const OfferResponseSchema = {

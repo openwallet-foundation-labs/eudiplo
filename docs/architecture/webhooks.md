@@ -12,13 +12,16 @@ While webhooks are optional, they make the overall process more dynamic—for ex
 
 ## Supported Webhook Scenarios
 
-| Flow                             | Purpose                                                                  |
-| -------------------------------- | ------------------------------------------------------------------------ |
-| **Credential Issuance Webhook**  | Dynamically provides claims during the credential request process.       |
-| **Deferred Issuance Webhook**    | Signals that credential issuance should be deferred for later retrieval. |
-| **Presentation Webhook**         | Receives verified claims from the wallet.                                |
-| **Presentation During Issuance** | Supplies verified claims required to issue a credential (mandatory).     |
-| **Notification Webhook**         | Receives status updates (e.g., accepted or denied) about issuance flows. |
+| Flow                            | Purpose                                                                  |
+| ------------------------------- | ------------------------------------------------------------------------ |
+| **Credential Issuance Webhook** | Dynamically provides claims during the credential request process.       |
+| **Deferred Issuance Webhook**   | Signals that credential issuance should be deferred for later retrieval. |
+| **Presentation Webhook**        | Receives verified claims from the wallet.                                |
+| **Notification Webhook**        | Receives status updates (e.g., accepted or denied) about issuance flows. |
+
+!!! tip "Interactive Authorization (IAE)"
+
+    For user interactions during issuance (e.g., verifiable presentations, web-based verification), see [Interactive Authorization Endpoint](./iae.md).
 
 ---
 
@@ -68,10 +71,11 @@ The **claims webhook** allows EUDIPLO to fetch attributes dynamically instead of
   Called during the **credential request**.  
   If no webhook is configured, EUDIPLO falls back to claims provided in the credential offer or defined in the credential configuration.
 
-- **Presentation during issuance (mandatory):**  
-  Called during the **auth request**.  
+- **Interactive Authorization (IAE) with presentation:**  
+  When using IAE with an `openid4vp_presentation` action, the webhook is called after the wallet completes the presentation.  
   EUDIPLO sends verified claims to your service, which must respond with the claims to persist in the credential.  
-  This avoids your service needing to manage state between the authentication and issuance phases.
+  This avoids your service needing to manage state between the authentication and issuance phases.  
+  See [Interactive Authorization Endpoint](./iae.md) for details.
 
 ```json
 {
@@ -299,7 +303,7 @@ EUDIPLO sends an HTTP `POST` request with the following structure:
 
 A response is required for:
 
-- **presentation during issuance** webhooks, and
+- **IAE with presentation** webhooks, and
 - **issuance** webhooks.
 
 The response must be a JSON object keyed by the credential configuration ID. Each entry contains the **claims** to issue.

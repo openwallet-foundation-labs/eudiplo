@@ -1,5 +1,6 @@
 import { Component, type OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
@@ -17,7 +18,14 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { CredentialConfigCreate, certControllerGetCertificates } from '@eudiplo/sdk-core';
+import {
+  CredentialConfigCreate,
+  certControllerGetCertificates,
+  PresentationConfig,
+  IaeActionOpenid4VpPresentation,
+  IaeActionRedirectToWeb,
+} from '@eudiplo/sdk-core';
+import { PresentationManagementService } from '../../../presentation/presentation-config/presentation-management.service';
 import { CredentialConfigService } from '../credential-config.service';
 import { JsonViewDialogComponent } from './json-view-dialog/json-view-dialog.component';
 import { configs } from './pre-config';
@@ -59,6 +67,7 @@ import {
     EditorComponent,
     ImageFieldComponent,
     WebhookConfigEditComponent,
+    DragDropModule,
   ],
   templateUrl: './credential-config-create.component.html',
   styleUrl: './credential-config-create.component.scss',
@@ -68,6 +77,7 @@ export class CredentialConfigCreateComponent implements OnInit {
   public create = true;
   public loading = false;
   certificates: any[] = [];
+  presentationConfigs: PresentationConfig[] = [];
 
   predefinedConfigs = configs;
 
@@ -112,7 +122,8 @@ export class CredentialConfigCreateComponent implements OnInit {
     private readonly router: Router,
     private readonly route: ActivatedRoute,
     private readonly snackBar: MatSnackBar,
-    private readonly dialog: MatDialog
+    private readonly dialog: MatDialog,
+    private readonly presentationManagementService: PresentationManagementService
   ) {
     this.form = new FormGroup({
       id: new FormControl('', [Validators.required]),
@@ -138,6 +149,7 @@ export class CredentialConfigCreateComponent implements OnInit {
       embeddedDisclosurePolicy: new FormControl(''),
       claimsWebhook: createWebhookFormGroup(),
       notificationWebhook: createWebhookFormGroup(),
+      iaeActions: new FormArray([]),
     } as { [k in keyof Omit<CredentialConfigCreate, 'config'>]: any });
 
     // Set initial validator for vctString based on default mode
@@ -174,6 +186,14 @@ export class CredentialConfigCreateComponent implements OnInit {
         this.snackBar.open('Failed to load certificates', 'Close', {
           duration: 3000,
         });
+      }
+    );
+
+    // Load presentation configurations for IAE
+    this.presentationManagementService.loadConfigurations().then(
+      (configs) => (this.presentationConfigs = configs || []),
+      (error) => {
+        console.error('Failed to load presentation configs:', error);
       }
     );
 
@@ -321,6 +341,12 @@ export class CredentialConfigCreateComponent implements OnInit {
       displayConfigs: config.config?.display || [],
       embeddedDisclosurePolicy: this.stringifyField(config.embeddedDisclosurePolicy),
     } as { [k in keyof Omit<CredentialConfigCreate, 'config'>]: any });
+
+    // Handle IAE actions
+    this.iaeActions.clear();
+    if (config.iaeActions?.length) {
+      config.iaeActions.forEach((action) => this.iaeActions.push(this.createIaeActionGroup(action)));
+    }
 
     // Update lifetime preset selection
     this.updateLifetimePresetFromValue(config.lifeTime || 3600);
@@ -472,6 +498,77 @@ export class CredentialConfigCreateComponent implements OnInit {
     }
   }
 
+  // IAE Actions Management
+  iaeActionTypes = [
+    { value: 'openid4vp_presentation', label: 'OID4VP Presentation', icon: 'verified_user' },
+    { value: 'redirect_to_web', label: 'Redirect to Web', icon: 'open_in_browser' },
+  ];
+
+  createIaeActionGroup(
+    action?: IaeActionOpenid4VpPresentation | IaeActionRedirectToWeb
+  ): FormGroup {
+    if (action?.type === 'redirect_to_web') {
+      return new FormGroup({
+        type: new FormControl('redirect_to_web', [Validators.required]),
+        label: new FormControl(action.label || ''),
+        url: new FormControl(action.url || '', [Validators.required]),
+        callbackUrl: new FormControl(action.callbackUrl || ''),
+        description: new FormControl(action.description || ''),
+      });
+    }
+    // Default to openid4vp_presentation
+    return new FormGroup({
+      type: new FormControl('openid4vp_presentation', [Validators.required]),
+      label: new FormControl((action as IaeActionOpenid4VpPresentation)?.label || ''),
+      presentationConfigId: new FormControl(
+        (action as IaeActionOpenid4VpPresentation)?.presentationConfigId || '',
+        [Validators.required]
+      ),
+    });
+  }
+
+  get iaeActions(): FormArray {
+    return this.form.get('iaeActions') as FormArray;
+  }
+
+  addIaeAction(type: 'openid4vp_presentation' | 'redirect_to_web' = 'openid4vp_presentation'): void {
+    const action =
+      type === 'redirect_to_web'
+        ? { type: 'redirect_to_web' as const, url: '', label: '' }
+        : { type: 'openid4vp_presentation' as const, presentationConfigId: '', label: '' };
+    this.iaeActions.push(this.createIaeActionGroup(action));
+  }
+
+  removeIaeAction(index: number): void {
+    this.iaeActions.removeAt(index);
+  }
+
+  moveIaeAction(index: number, direction: 'up' | 'down'): void {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= this.iaeActions.length) return;
+
+    const action = this.iaeActions.at(index);
+    this.iaeActions.removeAt(index);
+    this.iaeActions.insert(newIndex, action);
+  }
+
+  onIaeActionTypeChange(index: number, newType: string): void {
+    const currentAction = this.iaeActions.at(index) as FormGroup;
+    const currentLabel = currentAction.get('label')?.value || '';
+
+    this.iaeActions.removeAt(index);
+    const newAction =
+      newType === 'redirect_to_web'
+        ? { type: 'redirect_to_web' as const, url: '', label: currentLabel }
+        : { type: 'openid4vp_presentation' as const, presentationConfigId: '', label: currentLabel };
+    this.iaeActions.insert(index, this.createIaeActionGroup(newAction));
+  }
+
+  dropIaeAction(event: CdkDragDrop<FormGroup[]>): void {
+    moveItemInArray(this.iaeActions.controls, event.previousIndex, event.currentIndex);
+    this.iaeActions.updateValueAndValidity();
+  }
+
   /**
    * Open JSON view dialog to show/edit the complete configuration
    */
@@ -554,6 +651,28 @@ export class CredentialConfigCreateComponent implements OnInit {
     formValue.notificationWebhook = formValue.notificationWebhook?.url
       ? formValue.notificationWebhook
       : null;
+
+    // Handle iaeActions - use null to clear, or transform to proper format
+    if (formValue.iaeActions?.length) {
+      formValue.iaeActions = formValue.iaeActions.map((action: any) => {
+        if (action.type === 'redirect_to_web') {
+          return {
+            type: action.type,
+            label: action.label || undefined,
+            url: action.url,
+            callbackUrl: action.callbackUrl || undefined,
+            description: action.description || undefined,
+          };
+        }
+        return {
+          type: action.type,
+          label: action.label || undefined,
+          presentationConfigId: action.presentationConfigId,
+        };
+      });
+    } else {
+      formValue.iaeActions = null;
+    }
 
     // Clean up form-only fields
     delete formValue.displayConfigs;

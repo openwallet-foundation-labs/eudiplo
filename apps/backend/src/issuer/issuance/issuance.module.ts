@@ -6,12 +6,16 @@ import { SessionModule } from "../../session/session.module";
 import { TrustModule } from "../../shared/trust/trust.module";
 import { WebhookService } from "../../shared/utils/webhook/webhook.service";
 import { Oid4vpModule } from "../../verifier/oid4vp/oid4vp.module";
+import { PresentationsModule } from "../../verifier/presentations/presentations.module";
 import { ConfigurationModule } from "../configuration/configuration.module";
 import { CredentialOfferController } from "./offer/credential-offer.controller";
 import { AuthorizeController } from "./oid4vci/authorize/authorize.controller";
 import { AuthorizeService } from "./oid4vci/authorize/authorize.service";
+import { InteractiveAuthorizationController } from "./oid4vci/authorize/interactive-authorization.controller";
+import { InteractiveAuthorizationService } from "./oid4vci/authorize/interactive-authorization.service";
 import { DeferredController } from "./oid4vci/deferred.controller";
 import { DeferredTransactionEntity } from "./oid4vci/entities/deferred-transaction.entity";
+import { InteractiveAuthSessionEntity } from "./oid4vci/entities/interactive-auth-session.entity";
 import { NonceEntity } from "./oid4vci/entities/nonces.entity";
 import { Oid4vciMetadataController } from "./oid4vci/metadata/oid4vci-metadata.controller";
 import { Oid4vciController } from "./oid4vci/oid4vci.controller";
@@ -33,14 +37,20 @@ import { WellKnownService } from "./oid4vci/well-known/well-known.service";
         CryptoModule,
         ConfigurationModule,
         Oid4vpModule,
+        PresentationsModule,
         SessionModule,
         HttpModule,
         TrustModule,
-        TypeOrmModule.forFeature([NonceEntity, DeferredTransactionEntity]),
+        TypeOrmModule.forFeature([
+            NonceEntity,
+            DeferredTransactionEntity,
+            InteractiveAuthSessionEntity,
+        ]),
     ],
     controllers: [
         Oid4vciController,
         AuthorizeController,
+        InteractiveAuthorizationController,
         CredentialOfferController,
         DeferredController,
         Oid4vciMetadataController,
@@ -48,10 +58,15 @@ import { WellKnownService } from "./oid4vci/well-known/well-known.service";
     ],
     providers: [
         AuthorizeService,
+        InteractiveAuthorizationService,
         Oid4vciService,
         WellKnownService,
         WebhookService,
     ],
-    exports: [AuthorizeService, Oid4vciService],
+    exports: [
+        AuthorizeService,
+        InteractiveAuthorizationService,
+        Oid4vciService,
+    ],
 })
 export class IssuanceModule {}
