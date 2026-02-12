@@ -70,7 +70,6 @@ export class CryptoService {
             clientAuthentication: clientAuthenticationNone({
                 clientId: "some-random",
             }),
-            //clientId: 'some-random-client-id', // TODO: Replace with your real clientId if necessary
             signJwt: this.getSignJwtCallback(tenantId),
             verifyJwt: async (signer, { compact, payload }) => {
                 if (signer.method === "jwk") {

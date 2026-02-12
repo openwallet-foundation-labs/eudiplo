@@ -998,6 +998,44 @@ export type Vct = {
   "schema_uri#integrity"?: string;
 };
 
+export type IaeActionOpenid4VpPresentation = {
+  /**
+   * Action type discriminator
+   */
+  type: "openid4vp_presentation";
+  /**
+   * Optional label for this step (for display purposes)
+   */
+  label?: string;
+  /**
+   * ID of the presentation configuration to use for this step
+   */
+  presentationConfigId: string;
+};
+
+export type IaeActionRedirectToWeb = {
+  /**
+   * Action type discriminator
+   */
+  type: "redirect_to_web";
+  /**
+   * Optional label for this step (for display purposes)
+   */
+  label?: string;
+  /**
+   * URL to redirect the user to for web-based interaction
+   */
+  url: string;
+  /**
+   * URL where the external service should redirect back after completion. If not provided, the service must call back to the IAE endpoint.
+   */
+  callbackUrl?: string;
+  /**
+   * Description of what the user should do on the web page (for wallet display)
+   */
+  description?: string;
+};
+
 export type EmbeddedDisclosurePolicy = {
   policy: string;
 };
@@ -1063,6 +1101,10 @@ export type CredentialConfig = {
    */
   vct?: string | Vct;
   /**
+   * List of IAE actions to execute before credential issuance
+   */
+  iaeActions?: Array<IaeActionOpenid4VpPresentation | IaeActionRedirectToWeb>;
+  /**
    * Embedded disclosure policy (discriminated union by `policy`).
    * The discriminator makes class-transformer instantiate the right subclass,
    * and then class-validator runs that subclass’s rules.
@@ -1109,6 +1151,10 @@ export type CredentialConfigCreate = {
    */
   vct?: string | Vct;
   /**
+   * List of IAE actions to execute before credential issuance
+   */
+  iaeActions?: Array<IaeActionOpenid4VpPresentation | IaeActionRedirectToWeb>;
+  /**
    * Embedded disclosure policy (discriminated union by `policy`).
    * The discriminator makes class-transformer instantiate the right subclass,
    * and then class-validator runs that subclass’s rules.
@@ -1149,6 +1195,10 @@ export type CredentialConfigUpdate = {
    * VCT as a URI string (e.g., urn:eudi:pid:de:1) or as an object for EUDIPLO-hosted VCT
    */
   vct?: string | Vct;
+  /**
+   * List of IAE actions to execute before credential issuance
+   */
+  iaeActions?: Array<IaeActionOpenid4VpPresentation | IaeActionRedirectToWeb>;
   /**
    * Embedded disclosure policy (discriminated union by `policy`).
    * The discriminator makes class-transformer instantiate the right subclass,
@@ -1208,6 +1258,93 @@ export type ParResponseDto = {
    * The expiration time for the request URI in seconds.
    */
   expires_in: number;
+};
+
+export type InteractiveAuthorizationRequestDto = {
+  /**
+   * Response type (for initial request)
+   */
+  response_type?: string;
+  /**
+   * Client identifier (for initial request)
+   */
+  client_id?: string;
+  /**
+   * Comma-separated list of supported interaction types (for initial request)
+   */
+  interaction_types_supported?: string;
+  /**
+   * Redirect URI (for initial request)
+   */
+  redirect_uri?: string;
+  /**
+   * OAuth scope
+   */
+  scope?: string;
+  /**
+   * PKCE code challenge
+   */
+  code_challenge?: string;
+  /**
+   * PKCE code challenge method
+   */
+  code_challenge_method?: string;
+  /**
+   * Authorization details
+   */
+  authorization_details?: {
+    [key: string]: unknown;
+  };
+  /**
+   * State parameter
+   */
+  state?: string;
+  /**
+   * Issuer state from credential offer
+   */
+  issuer_state?: string;
+  /**
+   * Auth session identifier (for follow-up request)
+   */
+  auth_session?: string;
+  /**
+   * OpenID4VP response (for follow-up request)
+   */
+  openid4vp_response?: string;
+  /**
+   * PKCE code verifier (for follow-up request)
+   */
+  code_verifier?: string;
+  /**
+   * JAR request JWT (by value)
+   */
+  request?: string;
+  /**
+   * JAR request URI (by reference)
+   */
+  request_uri?: string;
+};
+
+export type InteractiveAuthorizationCodeResponseDto = {
+  /**
+   * Response status
+   */
+  status: string;
+  /**
+   * Authorization code
+   */
+  code: string;
+};
+
+export type InteractiveAuthorizationErrorResponseDto = {
+  /**
+   * OAuth error code
+   */
+  error: string;
+  /**
+   * Human-readable error description
+   */
+  error_description?: string;
 };
 
 export type OfferResponse = {
@@ -2658,6 +2795,66 @@ export type AuthorizeControllerAuthorizationChallengeEndpointData = {
 
 export type AuthorizeControllerAuthorizationChallengeEndpointResponses = {
   201: unknown;
+};
+
+export type InteractiveAuthorizationControllerInteractiveAuthorizationData = {
+  /**
+   * Interactive authorization request
+   */
+  body: InteractiveAuthorizationRequestDto;
+  headers: {
+    origin: string;
+  };
+  path: {
+    tenantId: string;
+  };
+  query?: never;
+  url: "/{tenantId}/authorize/interactive";
+};
+
+export type InteractiveAuthorizationControllerInteractiveAuthorizationErrors = {
+  /**
+   * Error response
+   */
+  400: InteractiveAuthorizationErrorResponseDto;
+};
+
+export type InteractiveAuthorizationControllerInteractiveAuthorizationError =
+  InteractiveAuthorizationControllerInteractiveAuthorizationErrors[keyof InteractiveAuthorizationControllerInteractiveAuthorizationErrors];
+
+export type InteractiveAuthorizationControllerInteractiveAuthorizationResponses =
+  {
+    /**
+     * Authorization code response (successful completion)
+     */
+    200: InteractiveAuthorizationCodeResponseDto;
+  };
+
+export type InteractiveAuthorizationControllerInteractiveAuthorizationResponse =
+  InteractiveAuthorizationControllerInteractiveAuthorizationResponses[keyof InteractiveAuthorizationControllerInteractiveAuthorizationResponses];
+
+export type InteractiveAuthorizationControllerCompleteWebAuthData = {
+  body?: never;
+  path: {
+    authSession: string;
+    tenantId: string;
+  };
+  query?: never;
+  url: "/{tenantId}/authorize/interactive/complete-web-auth/{authSession}";
+};
+
+export type InteractiveAuthorizationControllerCompleteWebAuthErrors = {
+  /**
+   * Auth session not found
+   */
+  404: unknown;
+};
+
+export type InteractiveAuthorizationControllerCompleteWebAuthResponses = {
+  /**
+   * Web authorization marked as completed
+   */
+  200: unknown;
 };
 
 export type CredentialOfferControllerGetOfferData = {

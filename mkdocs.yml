@@ -134,6 +134,7 @@ nav:
       - Sessions: architecture/sessions.md
       - Status Management: architecture/status-management.md
       - Webhooks: architecture/webhooks.md
+      - Interactive Authorization (IAE): architecture/iae.md
       - Config Import: architecture/configuration-import.md
       - Key Management: architecture/key-management.md
       - Database: architecture/database.md

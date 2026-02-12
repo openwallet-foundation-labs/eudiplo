@@ -104,11 +104,9 @@ export class WebhookService {
 
                 //check if a redirect URI is passed, we either expect a redirect or claims, but never both.
                 if (webhookResponse.data?.redirectUri) {
-                    //TODO: do we need to do something with it?
+                    // redirectUri is returned but no special handling needed here
                 } else if (webhookResponse.data && values.expectResponse) {
-                    //TODO: update this for presentation during issuance
-                    //session.credentialPayload!.credentialClaims!["id"].claims = webhookResponse.data;
-                    //store received webhook response
+                    // Store received webhook response
                     await this.sessionService.add(values.session.id, {
                         credentialPayload: values.session.credentialPayload,
                     });

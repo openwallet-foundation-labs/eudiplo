@@ -72,6 +72,19 @@ export class CredentialsService {
     ) {}
 
     /**
+     * Returns a single credential configuration by ID.
+     * @param id The credential configuration ID
+     * @param tenantId The tenant ID
+     * @returns The credential configuration or null if not found
+     */
+    async getCredentialConfig(
+        id: string,
+        tenantId: string,
+    ): Promise<CredentialConfig | null> {
+        return this.credentialConfigRepo.findOneBy({ id, tenantId });
+    }
+
+    /**
      * Returns the credential configuration that is required for oid4vci
      * @param tenantId
      * @returns

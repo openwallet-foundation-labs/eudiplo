@@ -80,6 +80,12 @@ import type {
   HealthControllerCheckData,
   HealthControllerCheckErrors,
   HealthControllerCheckResponses,
+  InteractiveAuthorizationControllerCompleteWebAuthData,
+  InteractiveAuthorizationControllerCompleteWebAuthErrors,
+  InteractiveAuthorizationControllerCompleteWebAuthResponses,
+  InteractiveAuthorizationControllerInteractiveAuthorizationData,
+  InteractiveAuthorizationControllerInteractiveAuthorizationErrors,
+  InteractiveAuthorizationControllerInteractiveAuthorizationResponses,
   IssuanceConfigControllerGetIssuanceConfigurationsData,
   IssuanceConfigControllerGetIssuanceConfigurationsResponses,
   IssuanceConfigControllerStoreIssuanceConfigurationData,
@@ -528,6 +534,9 @@ export const clientControllerGetClientSecret = <
 /**
  * Rotate (regenerate) a client's secret.
  * Returns the new secret for one-time display - save it immediately!
+ *
+ * Users with `tenants:manage` role can rotate secrets for any client.
+ * Users with `clients:manage` role can only rotate secrets for clients in their tenant.
  */
 export const clientControllerRotateClientSecret = <
   ThrowOnError extends boolean = true,
@@ -1382,6 +1391,65 @@ export const authorizeControllerAuthorizationChallengeEndpoint = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Interactive Authorization Endpoint
+ *
+ *
+ * Handles interactive authorization requests during credential issuance.
+ *
+ * **Initial Request:**
+ * - Contains `interaction_types_supported` (e.g., "openid4vp_presentation,redirect_to_web")
+ * - Response will indicate required interaction (OpenID4VP presentation or web redirect)
+ *
+ * **Follow-up Request:**
+ * - Contains `auth_session` from previous response
+ * - Contains `openid4vp_response` (for presentation flow) or `code_verifier` (for web flow)
+ * - Response will contain authorization code on success
+ *
+ */
+export const interactiveAuthorizationControllerInteractiveAuthorization = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    InteractiveAuthorizationControllerInteractiveAuthorizationData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    InteractiveAuthorizationControllerInteractiveAuthorizationResponses,
+    InteractiveAuthorizationControllerInteractiveAuthorizationErrors,
+    ThrowOnError
+  >({
+    url: "/{tenantId}/authorize/interactive",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Complete web authorization
+ *
+ * Mark a web authorization session as completed after user interaction
+ */
+export const interactiveAuthorizationControllerCompleteWebAuth = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    InteractiveAuthorizationControllerCompleteWebAuthData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    InteractiveAuthorizationControllerCompleteWebAuthResponses,
+    InteractiveAuthorizationControllerCompleteWebAuthErrors,
+    ThrowOnError
+  >({
+    url: "/{tenantId}/authorize/interactive/complete-web-auth/{authSession}",
+    ...options,
   });
 
 /**

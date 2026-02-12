@@ -1,10 +1,10 @@
 import { HttpModule } from "@nestjs/axios";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { ClientModule } from "../../auth/client/client.module";
 import { CryptoModule } from "../../crypto/crypto.module";
 import { SessionModule } from "../../session/session.module";
 import { WebhookService } from "../../shared/utils/webhook/webhook.service";
+import { PresentationsModule } from "../../verifier/presentations/presentations.module";
 import { StatusListModule } from "../lifecycle/status/status-list.module";
 import { CredentialConfigService } from "./credentials/credential-config/credential-config.service";
 import { CredentialConfigController } from "./credentials/credential-config.controller";
@@ -30,6 +30,7 @@ import { IssuanceConfigController } from "./issuance/issuance-config.controller"
         StatusListModule,
         HttpModule,
         SessionModule,
+        PresentationsModule,
         TypeOrmModule.forFeature([IssuanceConfig, CredentialConfig]),
     ],
     controllers: [IssuanceConfigController, CredentialConfigController],

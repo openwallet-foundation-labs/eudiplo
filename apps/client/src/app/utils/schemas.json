@@ -2101,6 +2101,76 @@
     }
   },
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/IaeActionOpenid4vpPresentation.schema.json",
+    "fileMatch": ["a://b/IaeActionOpenid4vpPresentation*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/IaeActionOpenid4vpPresentation.schema.json",
+      "title": "IaeActionOpenid4vpPresentation",
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["openid4vp_presentation"],
+          "type": "string",
+          "description": "Action type discriminator",
+          "example": "openid4vp_presentation"
+        },
+        "label": {
+          "type": "string",
+          "description": "Optional label for this step (for display purposes)",
+          "example": "Identity Verification"
+        },
+        "presentationConfigId": {
+          "type": "string",
+          "description": "ID of the presentation configuration to use for this step",
+          "example": "pid-presentation-config"
+        }
+      },
+      "required": ["type", "presentationConfigId"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/IaeActionRedirectToWeb.schema.json",
+    "fileMatch": ["a://b/IaeActionRedirectToWeb*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/IaeActionRedirectToWeb.schema.json",
+      "title": "IaeActionRedirectToWeb",
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": ["redirect_to_web"],
+          "type": "string",
+          "description": "Action type discriminator",
+          "example": "redirect_to_web"
+        },
+        "label": {
+          "type": "string",
+          "description": "Optional label for this step (for display purposes)",
+          "example": "Identity Verification"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to redirect the user to for web-based interaction",
+          "example": "https://example.com/verify?session={auth_session}"
+        },
+        "callbackUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL where the external service should redirect back after completion. If not provided, the service must call back to the IAE endpoint.",
+          "example": "https://issuer.example.com/{tenantId}/authorize/interactive/callback"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of what the user should do on the web page (for wallet display)",
+          "example": "Please complete the identity verification form"
+        }
+      },
+      "required": ["type", "url"]
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/EmbeddedDisclosurePolicy.schema.json",
     "fileMatch": ["a://b/EmbeddedDisclosurePolicy*.schema.json"],
     "schema": {
@@ -2260,6 +2330,22 @@
             }
           ]
         },
+        "iaeActions": {
+          "type": "array",
+          "nullable": true,
+          "description": "List of IAE actions to execute before credential issuance",
+          "example": "",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "./IaeActionOpenid4vpPresentation.schema.json"
+              },
+              {
+                "$ref": "./IaeActionRedirectToWeb.schema.json"
+              }
+            ]
+          }
+        },
         "embeddedDisclosurePolicy": {
           "nullable": true,
           "description": "Embedded disclosure policy (discriminated union by `policy`).\nThe discriminator makes class-transformer instantiate the right subclass,\nand then class-validator runs that subclass’s rules.",
@@ -2377,6 +2463,22 @@
             }
           ]
         },
+        "iaeActions": {
+          "type": "array",
+          "nullable": true,
+          "description": "List of IAE actions to execute before credential issuance",
+          "example": "",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "./IaeActionOpenid4vpPresentation.schema.json"
+              },
+              {
+                "$ref": "./IaeActionRedirectToWeb.schema.json"
+              }
+            ]
+          }
+        },
         "embeddedDisclosurePolicy": {
           "nullable": true,
           "description": "Embedded disclosure policy (discriminated union by `policy`).\nThe discriminator makes class-transformer instantiate the right subclass,\nand then class-validator runs that subclass’s rules.",
@@ -2482,6 +2584,22 @@
               "$ref": "./VCT.schema.json"
             }
           ]
+        },
+        "iaeActions": {
+          "type": "array",
+          "nullable": true,
+          "description": "List of IAE actions to execute before credential issuance",
+          "example": "",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "./IaeActionOpenid4vpPresentation.schema.json"
+              },
+              {
+                "$ref": "./IaeActionRedirectToWeb.schema.json"
+              }
+            ]
+          }
         },
         "embeddedDisclosurePolicy": {
           "nullable": true,
@@ -2622,6 +2740,124 @@
         }
       },
       "required": ["request_uri", "expires_in"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InteractiveAuthorizationRequestDto.schema.json",
+    "fileMatch": ["a://b/InteractiveAuthorizationRequestDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InteractiveAuthorizationRequestDto.schema.json",
+      "title": "InteractiveAuthorizationRequestDto",
+      "type": "object",
+      "properties": {
+        "response_type": {
+          "type": "string",
+          "description": "Response type (for initial request)"
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Client identifier (for initial request)"
+        },
+        "interaction_types_supported": {
+          "type": "string",
+          "description": "Comma-separated list of supported interaction types (for initial request)"
+        },
+        "redirect_uri": {
+          "type": "string",
+          "description": "Redirect URI (for initial request)"
+        },
+        "scope": {
+          "type": "string",
+          "description": "OAuth scope"
+        },
+        "code_challenge": {
+          "type": "string",
+          "description": "PKCE code challenge"
+        },
+        "code_challenge_method": {
+          "type": "string",
+          "description": "PKCE code challenge method"
+        },
+        "authorization_details": {
+          "type": "object",
+          "description": "Authorization details"
+        },
+        "state": {
+          "type": "string",
+          "description": "State parameter"
+        },
+        "issuer_state": {
+          "type": "string",
+          "description": "Issuer state from credential offer"
+        },
+        "auth_session": {
+          "type": "string",
+          "description": "Auth session identifier (for follow-up request)"
+        },
+        "openid4vp_response": {
+          "type": "string",
+          "description": "OpenID4VP response (for follow-up request)"
+        },
+        "code_verifier": {
+          "type": "string",
+          "description": "PKCE code verifier (for follow-up request)"
+        },
+        "request": {
+          "type": "string",
+          "description": "JAR request JWT (by value)"
+        },
+        "request_uri": {
+          "type": "string",
+          "description": "JAR request URI (by reference)"
+        }
+      }
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InteractiveAuthorizationCodeResponseDto.schema.json",
+    "fileMatch": ["a://b/InteractiveAuthorizationCodeResponseDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InteractiveAuthorizationCodeResponseDto.schema.json",
+      "title": "InteractiveAuthorizationCodeResponseDto",
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "Response status",
+          "example": "ok"
+        },
+        "code": {
+          "type": "string",
+          "description": "Authorization code",
+          "example": "auth-code-123"
+        }
+      },
+      "required": ["status", "code"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InteractiveAuthorizationErrorResponseDto.schema.json",
+    "fileMatch": ["a://b/InteractiveAuthorizationErrorResponseDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InteractiveAuthorizationErrorResponseDto.schema.json",
+      "title": "InteractiveAuthorizationErrorResponseDto",
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "description": "OAuth error code",
+          "example": "invalid_request"
+        },
+        "error_description": {
+          "type": "string",
+          "description": "Human-readable error description",
+          "example": "Missing required parameter: interaction_types_supported"
+        }
+      },
+      "required": ["error"]
     }
   },
   {
