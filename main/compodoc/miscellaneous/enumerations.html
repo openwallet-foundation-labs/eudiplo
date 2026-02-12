@@ -149,7 +149,19 @@
                             <a href="#FlowType" title="src/issuer/issuance/oid4vci/dto/offer-request.dto.ts" ><b>FlowType</b>&nbsp;&nbsp;&nbsp;(src/.../offer-request.dto.ts)</a>
                         </li>
                         <li>
+                            <a href="#IaeActionType" title="src/issuer/configuration/credentials/entities/iae-action.dto.ts" ><b>IaeActionType</b>&nbsp;&nbsp;&nbsp;(src/.../iae-action.dto.ts)</a>
+                        </li>
+                        <li>
                             <a href="#ImportPhase" title="src/shared/utils/config-import/config-import-orchestrator.service.ts" ><b>ImportPhase</b>&nbsp;&nbsp;&nbsp;(src/.../config-import-orchestrator.service.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#InteractionType" title="src/issuer/issuance/oid4vci/authorize/dto/interactive-authorization.dto.ts" ><b>InteractionType</b>&nbsp;&nbsp;&nbsp;(src/.../interactive-authorization.dto.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#InteractiveAuthorizationRequestType" title="src/issuer/issuance/oid4vci/authorize/dto/interactive-authorization.dto.ts" ><b>InteractiveAuthorizationRequestType</b>&nbsp;&nbsp;&nbsp;(src/.../interactive-authorization.dto.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#InteractiveAuthSessionStatus" title="src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts" ><b>InteractiveAuthSessionStatus</b>&nbsp;&nbsp;&nbsp;(src/.../interactive-auth-session.entity.ts)</a>
                         </li>
                         <li>
                             <a href="#MediaType" title="src/shared/utils/mediaType/media-type.enum.ts" ><b>MediaType</b>&nbsp;&nbsp;&nbsp;(src/.../media-type.enum.ts)</a>
@@ -452,6 +464,45 @@
             </tbody>
         </table>
 </section>
+    <h3>src/issuer/configuration/credentials/entities/iae-action.dto.ts</h3>
+    <section data-compodoc="block-enums">
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="IaeActionType"></a>
+                        <span class="name "><b>IaeActionType</b><a href="#IaeActionType"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-description"><p>Discriminator for IAE action types.</p>
+</div>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;OPENID4VP_PRESENTATION
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>openid4vp_presentation</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;REDIRECT_TO_WEB
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>redirect_to_web</code>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
     <h3>src/shared/utils/config-import/config-import-orchestrator.service.ts</h3>
     <section data-compodoc="block-enums">
         <table class="table table-sm table-bordered">
@@ -507,6 +558,170 @@ Lower numbers run first.</p>
                         <tr>
                             <td class="col-md-4">
                                 <i>Value : </i><code>40</code>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
+    <h3>src/issuer/issuance/oid4vci/authorize/dto/interactive-authorization.dto.ts</h3>
+    <section data-compodoc="block-enums">
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="InteractionType"></a>
+                        <span class="name "><b>InteractionType</b><a href="#InteractionType"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-description"><p>Interaction type enum.</p>
+</div>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;OPENID4VP_PRESENTATION
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>openid4vp_presentation</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;REDIRECT_TO_WEB
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>redirect_to_web</code>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="InteractiveAuthorizationRequestType"></a>
+                        <span class="name "><b>InteractiveAuthorizationRequestType</b><a href="#InteractiveAuthorizationRequestType"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-description"><p>Request type enum for internal use.</p>
+</div>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;INITIAL
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>initial</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;FOLLOW_UP
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>follow_up</code>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
+    <h3>src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts</h3>
+    <section data-compodoc="block-enums">
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="InteractiveAuthSessionStatus"></a>
+                        <span class="name "><b>InteractiveAuthSessionStatus</b><a href="#InteractiveAuthSessionStatus"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-description"><p>Status of an interactive authorization session.</p>
+</div>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;Pending
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>pending</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;PresentationReceived
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>presentation_received</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;WebAuthCompleted
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>web_auth_completed</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;AllStepsCompleted
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>all_steps_completed</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;CodeIssued
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>code_issued</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;Expired
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>expired</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;Failed
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>failed</code>
                             </td>
                         </tr>
             </tbody>

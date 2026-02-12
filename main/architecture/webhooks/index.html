@@ -9,7 +9,7 @@
         <link rel="prev" href="../status-management/">
       
       
-        <link rel="next" href="../configuration-import/">
+        <link rel="next" href="../iae/">
       
       
         
@@ -1252,6 +1252,8 @@
       
         
       
+        
+      
     
     
     
@@ -1713,6 +1715,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../iae/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Interactive Authorization (IAE)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2579,15 +2609,15 @@
 <td>Receives verified claims from the wallet.</td>
 </tr>
 <tr>
-<td><strong>Presentation During Issuance</strong></td>
-<td>Supplies verified claims required to issue a credential (mandatory).</td>
-</tr>
-<tr>
 <td><strong>Notification Webhook</strong></td>
 <td>Receives status updates (e.g., accepted or denied) about issuance flows.</td>
 </tr>
 </tbody>
 </table>
+<div class="admonition tip">
+<p class="admonition-title">Interactive Authorization (IAE)</p>
+<p>For user interactions during issuance (e.g., verifiable presentations, web-based verification), see <a href="../iae/">Interactive Authorization Endpoint</a>.</p>
+</div>
 <hr>
 <h2 id="example-webhook-service">Example Webhook Service<a class="headerlink" href="#example-webhook-service" title="Permanent link">¶</a></h2>
 <p>A simple webhook simulator is available in the <a href="https://github.com/openwallet-foundation-labs/eudiplo/tree/main/test/webhook">test/webhook</a><br>
@@ -2632,10 +2662,11 @@ directory. It can be run locally or deployed to a Cloudflare Worker, and is a go
   If no webhook is configured, EUDIPLO falls back to claims provided in the credential offer or defined in the credential configuration.</p>
 </li>
 <li>
-<p><strong>Presentation during issuance (mandatory):</strong><br>
-  Called during the <strong>auth request</strong>.<br>
+<p><strong>Interactive Authorization (IAE) with presentation:</strong><br>
+  When using IAE with an <code>openid4vp_presentation</code> action, the webhook is called after the wallet completes the presentation.<br>
   EUDIPLO sends verified claims to your service, which must respond with the claims to persist in the credential.<br>
-  This avoids your service needing to manage state between the authentication and issuance phases.</p>
+  This avoids your service needing to manage state between the authentication and issuance phases.<br>
+  See <a href="../iae/">Interactive Authorization Endpoint</a> for details.</p>
 </li>
 </ul>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
@@ -2880,7 +2911,7 @@ This confirms that the wallet has received and accepted the credential.</p>
 <h3 id="webhook-response-format">Webhook Response Format<a class="headerlink" href="#webhook-response-format" title="Permanent link">¶</a></h3>
 <p>A response is required for:</p>
 <ul>
-<li><strong>presentation during issuance</strong> webhooks, and</li>
+<li><strong>IAE with presentation</strong> webhooks, and</li>
 <li><strong>issuance</strong> webhooks.</li>
 </ul>
 <p>The response must be a JSON object keyed by the credential configuration ID. Each entry contains the <strong>claims</strong> to issue.</p>
@@ -2945,13 +2976,13 @@ This confirms that the wallet has received and accepted the credential.</p>
         
         
           
-          <a href="../configuration-import/" class="md-footer__link md-footer__link--next" aria-label="Next: Config Import">
+          <a href="../iae/" class="md-footer__link md-footer__link--next" aria-label="Next: Interactive Authorization (IAE)">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Config Import
+                Interactive Authorization (IAE)
               </div>
             </div>
             <div class="md-footer__button md-icon">

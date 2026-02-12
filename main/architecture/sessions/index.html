@@ -1252,6 +1252,8 @@
       
         
       
+        
+      
     
     
     
@@ -1578,6 +1580,34 @@
     
   
     Webhooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../iae/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Interactive Authorization (IAE)
   
 
     
@@ -2295,9 +2325,10 @@
 
 
 <h1 id="sessions-management">Sessions Management<a class="headerlink" href="#sessions-management" title="Permanent link">¶</a></h1>
-<p>EUDIPLO manages sessions for credential issuance and verification and are bound
-to each tenant. In case for a presentation during issuance, both actions are
-handled in the same session. Sessions are stored in the database and can be
+<p>EUDIPLO manages sessions for credential issuance and verification, bound
+to each tenant. When using the <a href="../iae/">Interactive Authorization Endpoint (IAE)</a>,
+the session tracks the multi-step authorization flow, including completed steps
+and collected data. Sessions are stored in the database and can be
 managed via the <code>/sessions</code> endpoint. You can retrieve a specific session via
 <code>/sessions/{id}</code>.</p>
 <h2 id="session-cleanup">Session Cleanup<a class="headerlink" href="#session-cleanup" title="Permanent link">¶</a></h2>

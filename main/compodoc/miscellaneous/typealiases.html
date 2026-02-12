@@ -164,6 +164,12 @@
                             <a href="#HistoricalInformationPeriod" title="src/issuer/trust-list/dto/types.ts" ><b>HistoricalInformationPeriod</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
                         </li>
                         <li>
+                            <a href="#IaeAction" title="src/issuer/configuration/credentials/entities/iae-action.dto.ts" ><b>IaeAction</b>&nbsp;&nbsp;&nbsp;(src/.../iae-action.dto.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#InteractiveAuthorizationResponse" title="src/issuer/issuance/oid4vci/authorize/dto/interactive-authorization.dto.ts" ><b>InteractiveAuthorizationResponse</b>&nbsp;&nbsp;&nbsp;(src/.../interactive-authorization.dto.ts)</a>
+                        </li>
+                        <li>
                             <a href="#JoseAlgorithm" title="src/crypto/key/crypto-implementation/crypto-implementation.service.ts" ><b>JoseAlgorithm</b>&nbsp;&nbsp;&nbsp;(src/.../crypto-implementation.service.ts)</a>
                         </li>
                         <li>
@@ -1288,6 +1294,55 @@ via the <code>definition</code> &quot;X509SubjectName&quot;.</p>
             <tr>
                 <td class="col-md-4">
                     <code>    <code>&quot;local&quot; | &quot;s3&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/issuer/configuration/credentials/entities/iae-action.dto.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="IaeAction"></a>
+                    <span class="name "><b>IaeAction</b><a href="#IaeAction"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Union type for all IAE actions.
+This is a discriminated union based on the <code>type</code> field.</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>        <code><a href="../miscellaneous/typealiases.html#IaeAction" target="_self" >IaeActionOpenid4vpPresentation | IaeActionRedirectToWeb</a></code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/issuer/issuance/oid4vci/authorize/dto/interactive-authorization.dto.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="InteractiveAuthorizationResponse"></a>
+                    <span class="name "><b>InteractiveAuthorizationResponse</b><a href="#InteractiveAuthorizationResponse"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Union type for all possible interactive authorization responses.</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>InteractiveAuthorizationCodeResponseDto | InteractiveAuthorizationOpenid4vpResponseDto | InteractiveAuthorizationRedirectToWebResponseDto | InteractiveAuthorizationErrorResponseDto</code>
 </code>
                 </td>
             </tr>

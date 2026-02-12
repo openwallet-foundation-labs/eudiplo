@@ -784,6 +784,7 @@ export class AuthorizeService {
             issuer: authServer,
             token_endpoint: &#x60;${authServer}/authorize/token&#x60;,
             authorization_endpoint: &#x60;${authServer}/authorize&#x60;,
+            interactive_authorization_endpoint: &#x60;${authServer}/authorize/interactive&#x60;,
             jwks_uri: &#x60;${authServer}/.well-known/jwks.json&#x60;,
             dpop_signing_alg_values_supported: useDpop ? [&quot;ES256&quot;] : undefined,
             // TODO: verify this on the server
