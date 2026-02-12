@@ -345,7 +345,9 @@ export class CredentialConfigCreateComponent implements OnInit {
     // Handle IAE actions
     this.iaeActions.clear();
     if (config.iaeActions?.length) {
-      config.iaeActions.forEach((action) => this.iaeActions.push(this.createIaeActionGroup(action)));
+      config.iaeActions.forEach((action) =>
+        this.iaeActions.push(this.createIaeActionGroup(action))
+      );
     }
 
     // Update lifetime preset selection
@@ -531,7 +533,9 @@ export class CredentialConfigCreateComponent implements OnInit {
     return this.form.get('iaeActions') as FormArray;
   }
 
-  addIaeAction(type: 'openid4vp_presentation' | 'redirect_to_web' = 'openid4vp_presentation'): void {
+  addIaeAction(
+    type: 'openid4vp_presentation' | 'redirect_to_web' = 'openid4vp_presentation'
+  ): void {
     const action =
       type === 'redirect_to_web'
         ? { type: 'redirect_to_web' as const, url: '', label: '' }
@@ -560,7 +564,11 @@ export class CredentialConfigCreateComponent implements OnInit {
     const newAction =
       newType === 'redirect_to_web'
         ? { type: 'redirect_to_web' as const, url: '', label: currentLabel }
-        : { type: 'openid4vp_presentation' as const, presentationConfigId: '', label: currentLabel };
+        : {
+            type: 'openid4vp_presentation' as const,
+            presentationConfigId: '',
+            label: currentLabel,
+          };
     this.iaeActions.insert(index, this.createIaeActionGroup(newAction));
   }
 
