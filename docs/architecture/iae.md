@@ -109,7 +109,7 @@ Requests a verifiable presentation from the wallet.
 | `label`                | string | No       | Display label for this step                 |
 | `presentationConfigId` | string | Yes      | ID of the presentation configuration to use |
 
-The presentation configuration defines which credentials and claims to request. See [Presentation Configuration](./presentations.md) for details.
+The presentation configuration defines which credentials and claims to request. See [Presentation Configuration](../getting-started/presentation/presentation-configuration.md) for details.
 
 ### Redirect to Web
 
