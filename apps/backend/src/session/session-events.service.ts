@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { OnEvent } from "@nestjs/event-emitter";
-import { Observable, Subject, filter, map } from "rxjs";
+import { filter, map, Observable, Subject } from "rxjs";
 import { Session, SessionStatus } from "./entities/session.entity";
 
 /**

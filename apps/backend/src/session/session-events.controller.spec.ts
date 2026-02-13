@@ -4,9 +4,9 @@ import { firstValueFrom, take, toArray } from "rxjs";
 import { Mock, describe, it, expect, beforeEach, vi } from "vitest";
 import { JwtService as AuthJwtService } from "../auth/jwt.service";
 import { Session, SessionStatus } from "./entities/session.entity";
+import { SessionService } from "./session.service";
 import { SessionEventsController } from "./session-events.controller";
 import { SessionEventsService } from "./session-events.service";
-import { SessionService } from "./session.service";
 
 describe("SessionEventsController", () => {
     let controller: SessionEventsController;
@@ -95,16 +95,14 @@ describe("SessionEventsController", () => {
             (mockJwtService.verifyToken as Mock).mockResolvedValue({
                 sub: "test-user",
             });
-            (mockSessionService.get as Mock).mockResolvedValue(
-                mockSession,
-            );
+            (mockSessionService.get as Mock).mockResolvedValue(mockSession);
 
             // Create a mock observable that just completes
             const { Subject } = await import("rxjs");
             const mockSubject = new Subject<MessageEvent>();
-            (
-                mockSessionEventsService.getSessionEvents as Mock
-            ).mockReturnValue(mockSubject.asObservable());
+            (mockSessionEventsService.getSessionEvents as Mock).mockReturnValue(
+                mockSubject.asObservable(),
+            );
 
             const observable = await controller.subscribeToSessionEvents(
                 mockSession.id as string,
@@ -130,24 +128,22 @@ describe("SessionEventsController", () => {
             (mockJwtService.verifyToken as Mock).mockResolvedValue({
                 sub: "test-user",
             });
-            (mockSessionService.get as Mock).mockResolvedValue(
-                mockSession,
-            );
+            (mockSessionService.get as Mock).mockResolvedValue(mockSession);
 
             const { Subject } = await import("rxjs");
             const mockSubject = new Subject<MessageEvent>();
-            (
-                mockSessionEventsService.getSessionEvents as Mock
-            ).mockReturnValue(mockSubject.asObservable());
+            (mockSessionEventsService.getSessionEvents as Mock).mockReturnValue(
+                mockSubject.asObservable(),
+            );
 
             await controller.subscribeToSessionEvents(
                 mockSession.id as string,
                 "valid-token",
             );
 
-            expect(mockSessionEventsService.getSessionEvents).toHaveBeenCalledWith(
-                mockSession.id,
-            );
+            expect(
+                mockSessionEventsService.getSessionEvents,
+            ).toHaveBeenCalledWith(mockSession.id);
 
             mockSubject.complete();
         });

@@ -1,11 +1,10 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { firstValueFrom, take, timeout, toArray } from "rxjs";
-import { describe, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { SessionStatus } from "./entities/session.entity";
 import {
     SESSION_STATUS_CHANGED,
     SessionEventsService,
-    SessionStatusChangedEvent,
 } from "./session-events.service";
 
 describe("SessionEventsService", () => {
