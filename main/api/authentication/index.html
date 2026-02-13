@@ -2668,9 +2668,9 @@ for service-to-service communication without user interaction.</p>
 <td>Expected JWT alg [when OIDC is set → then default="RS256"]</td>
 </tr>
 <tr>
-<td><code>JWT_SECRET</code></td>
+<td><code>MASTER_SECRET</code></td>
 <td><code>any</code></td>
-<td>Local JWT secret (when OIDC is off) - required, minimum 32 characters [when OIDC is set → otherwise required]</td>
+<td>Master secret for JWT signing and encryption key derivation - required, minimum 32 characters [when OIDC is set → otherwise required]</td>
 </tr>
 <tr>
 <td><code>JWT_ISSUER</code></td>
@@ -2777,7 +2777,7 @@ integrate with external OIDC providers like Keycloak, Auth0, or Azure AD.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Leave OIDC undefined for integrated OAuth2 server</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="c1"># All three values below are REQUIRED</span>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nv">PUBLIC_URL</span><span class="o">=</span>https://your-api.example.com
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="nv">JWT_SECRET</span><span class="o">=</span>your-secret-key-here-minimum-32-characters
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="nv">MASTER_SECRET</span><span class="o">=</span>your-secret-key-here-minimum-32-characters
 <a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="nv">AUTH_CLIENT_ID</span><span class="o">=</span>your-client-id
 <a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="nv">AUTH_CLIENT_SECRET</span><span class="o">=</span>your-client-secret
 </code></pre></div>
@@ -2867,7 +2867,7 @@ variables, see <a href="../../architecture/key-management/">Key Management</a> a
 </ol>
 <h3 id="integrated-oauth2-server-issues">Integrated OAuth2 Server Issues<a class="headerlink" href="#integrated-oauth2-server-issues" title="Permanent link">¶</a></h3>
 <ol>
-<li>Verify <code>JWT_SECRET</code> is at least 32 characters</li>
+<li>Verify <code>MASTER_SECRET</code> is at least 32 characters</li>
 <li>Ensure client credentials (<code>AUTH_CLIENT_ID</code>/<code>AUTH_CLIENT_SECRET</code>) are
    configured correctly</li>
 <li>Check that <code>PUBLIC_URL</code> is accessible for OAuth2 flows</li>

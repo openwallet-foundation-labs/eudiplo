@@ -635,7 +635,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, &quot;jwt&quot;) {
         configService: ConfigService,
     ): any {
         const config &#x3D; {
-            secretOrKey: configService.get(&quot;JWT_SECRET&quot;),
+            secretOrKey: configService.get(&quot;MASTER_SECRET&quot;),
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             algorithms: [&quot;HS256&quot;], // Using symmetric key for integrated OAuth2
             ignoreExpiration: false, // Ensure tokens expire

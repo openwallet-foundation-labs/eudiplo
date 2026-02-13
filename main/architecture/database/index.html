@@ -2624,7 +2624,7 @@ the service.</p>
 <tbody>
 <tr>
 <td><code>env</code></td>
-<td>Derived from <code>JWT_SECRET</code> via HKDF</td>
+<td>Derived from <code>MASTER_SECRET</code> via HKDF</td>
 <td>Development</td>
 <td>Local dev, testing</td>
 </tr>
@@ -2654,7 +2654,7 @@ the service.</p>
 <p>When using <code>vault</code>, <code>aws</code>, or <code>azure</code>, the encryption key is <strong>only in RAM</strong> — it's never stored in environment variables. This means a compromised container cannot retrieve the key via <code>env</code> or <code>/proc/*/environ</code> commands.</p>
 <h4 id="environment-based-key-development">Environment-based Key (Development)<a class="headerlink" href="#environment-based-key-development" title="Permanent link">¶</a></h4>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">ENCRYPTION_KEY_SOURCE</span><span class="o">=</span>env<span class="w">  </span><span class="c1"># default</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nv">JWT_SECRET</span><span class="o">=</span>your-jwt-secret<span class="w">  </span><span class="c1"># key derived via HKDF</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nv">MASTER_SECRET</span><span class="o">=</span>your-jwt-secret<span class="w">  </span><span class="c1"># key derived via HKDF</span>
 </code></pre></div>
 <h4 id="hashicorp-vault">HashiCorp Vault<a class="headerlink" href="#hashicorp-vault" title="Permanent link">¶</a></h4>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nv">ENCRYPTION_KEY_SOURCE</span><span class="o">=</span>vault

@@ -3492,7 +3492,7 @@
 <a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="nv">MINIO_BUCKET</span><span class="o">=</span>uploads
 <a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
 <a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="c1"># Application Secrets (ALL REQUIRED when not using external OIDC)</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="nv">JWT_SECRET</span><span class="o">=</span>your-secret-jwt-key-change-in-production
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="nv">MASTER_SECRET</span><span class="o">=</span>your-secret-jwt-key-change-in-production
 <a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="nv">AUTH_CLIENT_ID</span><span class="o">=</span>your-client-id
 <a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="nv">AUTH_CLIENT_SECRET</span><span class="o">=</span>your-client-secret
 <a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>
@@ -3745,7 +3745,7 @@
 <p>Before deploying to production, address these critical areas:</p>
 <h3 id="1-security">1. Security<a class="headerlink" href="#1-security" title="Permanent link">¶</a></h3>
 <ul>
-<li><strong>Change all default secrets</strong> (JWT_SECRET, database passwords, MinIO credentials)</li>
+<li><strong>Change all default secrets</strong> (MASTER_SECRET, database passwords, MinIO credentials)</li>
 <li><strong>Enable TLS/HTTPS</strong> using cert-manager or LoadBalancer with TLS termination</li>
 <li><strong>Implement network policies</strong> to restrict pod-to-pod communication</li>
 <li><strong>Apply Pod Security Standards</strong> (restricted PSS to namespace)</li>
@@ -3770,7 +3770,7 @@
 <td>External Secrets Operator / Vault Agent</td>
 </tr>
 <tr>
-<td><code>JWT_SECRET</code></td>
+<td><code>MASTER_SECRET</code></td>
 <td>Critical</td>
 <td>External Secrets Operator / Vault Agent</td>
 </tr>
@@ -3832,10 +3832,10 @@
 <a id="__codelineno-41-31" name="__codelineno-41-31" href="#__codelineno-41-31"></a><span class="w">          </span><span class="nt">remoteRef</span><span class="p">:</span>
 <a id="__codelineno-41-32" name="__codelineno-41-32" href="#__codelineno-41-32"></a><span class="w">              </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eudiplo/production</span>
 <a id="__codelineno-41-33" name="__codelineno-41-33" href="#__codelineno-41-33"></a><span class="w">              </span><span class="nt">property</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">db_password</span>
-<a id="__codelineno-41-34" name="__codelineno-41-34" href="#__codelineno-41-34"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">secretKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">JWT_SECRET</span>
+<a id="__codelineno-41-34" name="__codelineno-41-34" href="#__codelineno-41-34"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">secretKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MASTER_SECRET</span>
 <a id="__codelineno-41-35" name="__codelineno-41-35" href="#__codelineno-41-35"></a><span class="w">          </span><span class="nt">remoteRef</span><span class="p">:</span>
 <a id="__codelineno-41-36" name="__codelineno-41-36" href="#__codelineno-41-36"></a><span class="w">              </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eudiplo/production</span>
-<a id="__codelineno-41-37" name="__codelineno-41-37" href="#__codelineno-41-37"></a><span class="w">              </span><span class="nt">property</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jwt_secret</span>
+<a id="__codelineno-41-37" name="__codelineno-41-37" href="#__codelineno-41-37"></a><span class="w">              </span><span class="nt">property</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">master_secret</span>
 <a id="__codelineno-41-38" name="__codelineno-41-38" href="#__codelineno-41-38"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">secretKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AUTH_CLIENT_SECRET</span>
 <a id="__codelineno-41-39" name="__codelineno-41-39" href="#__codelineno-41-39"></a><span class="w">          </span><span class="nt">remoteRef</span><span class="p">:</span>
 <a id="__codelineno-41-40" name="__codelineno-41-40" href="#__codelineno-41-40"></a><span class="w">              </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eudiplo/production</span>
@@ -3875,10 +3875,10 @@
 <a id="__codelineno-42-31" name="__codelineno-42-31" href="#__codelineno-42-31"></a><span class="w">          </span><span class="nt">remoteRef</span><span class="p">:</span>
 <a id="__codelineno-42-32" name="__codelineno-42-32" href="#__codelineno-42-32"></a><span class="w">              </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eudiplo/credentials</span>
 <a id="__codelineno-42-33" name="__codelineno-42-33" href="#__codelineno-42-33"></a><span class="w">              </span><span class="nt">property</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">db_password</span>
-<a id="__codelineno-42-34" name="__codelineno-42-34" href="#__codelineno-42-34"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">secretKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">JWT_SECRET</span>
+<a id="__codelineno-42-34" name="__codelineno-42-34" href="#__codelineno-42-34"></a><span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">secretKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MASTER_SECRET</span>
 <a id="__codelineno-42-35" name="__codelineno-42-35" href="#__codelineno-42-35"></a><span class="w">          </span><span class="nt">remoteRef</span><span class="p">:</span>
 <a id="__codelineno-42-36" name="__codelineno-42-36" href="#__codelineno-42-36"></a><span class="w">              </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eudiplo/credentials</span>
-<a id="__codelineno-42-37" name="__codelineno-42-37" href="#__codelineno-42-37"></a><span class="w">              </span><span class="nt">property</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jwt_secret</span>
+<a id="__codelineno-42-37" name="__codelineno-42-37" href="#__codelineno-42-37"></a><span class="w">              </span><span class="nt">property</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">master_secret</span>
 </code></pre></div>
 <h4 id="option-2-vault-agent-sidecar">Option 2: Vault Agent Sidecar<a class="headerlink" href="#option-2-vault-agent-sidecar" title="Permanent link">¶</a></h4>
 <p>Use the <a href="https://developer.hashicorp.com/vault/docs/platform/k8s/injector">Vault Agent Injector</a> to inject secrets directly into pods:</p>
@@ -3896,7 +3896,7 @@
 <a id="__codelineno-43-12" name="__codelineno-43-12" href="#__codelineno-43-12"></a><span class="w">                </span><span class="nt">vault.hashicorp.com/agent-inject-template-config</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <a id="__codelineno-43-13" name="__codelineno-43-13" href="#__codelineno-43-13"></a><span class="w">                    </span><span class="no">{{- with secret "secret/eudiplo/credentials" -}}</span>
 <a id="__codelineno-43-14" name="__codelineno-43-14" href="#__codelineno-43-14"></a><span class="w">                    </span><span class="no">export DB_PASSWORD="{{ .Data.data.db_password }}"</span>
-<a id="__codelineno-43-15" name="__codelineno-43-15" href="#__codelineno-43-15"></a><span class="w">                    </span><span class="no">export JWT_SECRET="{{ .Data.data.jwt_secret }}"</span>
+<a id="__codelineno-43-15" name="__codelineno-43-15" href="#__codelineno-43-15"></a><span class="w">                    </span><span class="no">export MASTER_SECRET="{{ .Data.data.master_secret }}"</span>
 <a id="__codelineno-43-16" name="__codelineno-43-16" href="#__codelineno-43-16"></a><span class="w">                    </span><span class="no">export AUTH_CLIENT_SECRET="{{ .Data.data.auth_client_secret }}"</span>
 <a id="__codelineno-43-17" name="__codelineno-43-17" href="#__codelineno-43-17"></a><span class="w">                    </span><span class="no">{{- end -}}</span>
 </code></pre></div>

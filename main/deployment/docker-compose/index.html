@@ -4003,7 +4003,7 @@
 <a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a><span class="nv">MINIO_ROOT_PASSWORD</span><span class="o">=</span>minioadmin-secure-password
 <a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a>
 <a id="__codelineno-13-23" name="__codelineno-13-23" href="#__codelineno-13-23"></a><span class="c1"># Application Secrets</span>
-<a id="__codelineno-13-24" name="__codelineno-13-24" href="#__codelineno-13-24"></a><span class="nv">JWT_SECRET</span><span class="o">=</span>your-secret-jwt-key-change-in-production
+<a id="__codelineno-13-24" name="__codelineno-13-24" href="#__codelineno-13-24"></a><span class="nv">MASTER_SECRET</span><span class="o">=</span>your-secret-jwt-key-change-in-production
 <a id="__codelineno-13-25" name="__codelineno-13-25" href="#__codelineno-13-25"></a><span class="nv">AUTH_CLIENT_ID</span><span class="o">=</span>your-client-id
 <a id="__codelineno-13-26" name="__codelineno-13-26" href="#__codelineno-13-26"></a><span class="nv">AUTH_CLIENT_SECRET</span><span class="o">=</span>your-client-secret
 <a id="__codelineno-13-27" name="__codelineno-13-27" href="#__codelineno-13-27"></a>
@@ -4229,8 +4229,8 @@
 <td><code>http://vault:8200</code></td>
 </tr>
 <tr>
-<td><code>JWT_SECRET</code></td>
-<td>JWT signing secret</td>
+<td><code>MASTER_SECRET</code></td>
+<td>Master secret for JWT and encryption</td>
 <td>-</td>
 </tr>
 <tr>
@@ -4373,7 +4373,7 @@
 <td>Docker Secrets / Vault Agent</td>
 </tr>
 <tr>
-<td><code>JWT_SECRET</code></td>
+<td><code>MASTER_SECRET</code></td>
 <td>Critical</td>
 <td><code>.env</code> file</td>
 <td>Docker Secrets / Vault Agent</td>
@@ -4402,7 +4402,7 @@
 <p>Docker Secrets provide encrypted secret storage for Swarm mode:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a><span class="c1"># Create secrets</span>
 <a id="__codelineno-50-2" name="__codelineno-50-2" href="#__codelineno-50-2"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">"your-db-password"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>docker<span class="w"> </span>secret<span class="w"> </span>create<span class="w"> </span>db_password<span class="w"> </span>-
-<a id="__codelineno-50-3" name="__codelineno-50-3" href="#__codelineno-50-3"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">"your-jwt-secret"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>docker<span class="w"> </span>secret<span class="w"> </span>create<span class="w"> </span>jwt_secret<span class="w"> </span>-
+<a id="__codelineno-50-3" name="__codelineno-50-3" href="#__codelineno-50-3"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">"your-jwt-secret"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>docker<span class="w"> </span>secret<span class="w"> </span>create<span class="w"> </span>master_secret<span class="w"> </span>-
 <a id="__codelineno-50-4" name="__codelineno-50-4" href="#__codelineno-50-4"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">"your-auth-client-secret"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>docker<span class="w"> </span>secret<span class="w"> </span>create<span class="w"> </span>auth_client_secret<span class="w"> </span>-
 </code></pre></div>
 <p>Reference in <code>docker-compose.yml</code>:</p>
@@ -4412,17 +4412,17 @@
 <a id="__codelineno-51-4" name="__codelineno-51-4" href="#__codelineno-51-4"></a><span class="w">        </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eudiplo/backend:latest</span>
 <a id="__codelineno-51-5" name="__codelineno-51-5" href="#__codelineno-51-5"></a><span class="w">        </span><span class="nt">secrets</span><span class="p">:</span>
 <a id="__codelineno-51-6" name="__codelineno-51-6" href="#__codelineno-51-6"></a><span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">db_password</span>
-<a id="__codelineno-51-7" name="__codelineno-51-7" href="#__codelineno-51-7"></a><span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jwt_secret</span>
+<a id="__codelineno-51-7" name="__codelineno-51-7" href="#__codelineno-51-7"></a><span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">master_secret</span>
 <a id="__codelineno-51-8" name="__codelineno-51-8" href="#__codelineno-51-8"></a><span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">auth_client_secret</span>
 <a id="__codelineno-51-9" name="__codelineno-51-9" href="#__codelineno-51-9"></a><span class="w">        </span><span class="nt">environment</span><span class="p">:</span>
 <a id="__codelineno-51-10" name="__codelineno-51-10" href="#__codelineno-51-10"></a><span class="w">            </span><span class="nt">DB_PASSWORD_FILE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/run/secrets/db_password</span>
-<a id="__codelineno-51-11" name="__codelineno-51-11" href="#__codelineno-51-11"></a><span class="w">            </span><span class="nt">JWT_SECRET_FILE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/run/secrets/jwt_secret</span>
+<a id="__codelineno-51-11" name="__codelineno-51-11" href="#__codelineno-51-11"></a><span class="w">            </span><span class="nt">MASTER_SECRET_FILE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/run/secrets/master_secret</span>
 <a id="__codelineno-51-12" name="__codelineno-51-12" href="#__codelineno-51-12"></a><span class="w">            </span><span class="nt">AUTH_CLIENT_SECRET_FILE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/run/secrets/auth_client_secret</span>
 <a id="__codelineno-51-13" name="__codelineno-51-13" href="#__codelineno-51-13"></a>
 <a id="__codelineno-51-14" name="__codelineno-51-14" href="#__codelineno-51-14"></a><span class="nt">secrets</span><span class="p">:</span>
 <a id="__codelineno-51-15" name="__codelineno-51-15" href="#__codelineno-51-15"></a><span class="w">    </span><span class="nt">db_password</span><span class="p">:</span>
 <a id="__codelineno-51-16" name="__codelineno-51-16" href="#__codelineno-51-16"></a><span class="w">        </span><span class="nt">external</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<a id="__codelineno-51-17" name="__codelineno-51-17" href="#__codelineno-51-17"></a><span class="w">    </span><span class="nt">jwt_secret</span><span class="p">:</span>
+<a id="__codelineno-51-17" name="__codelineno-51-17" href="#__codelineno-51-17"></a><span class="w">    </span><span class="nt">master_secret</span><span class="p">:</span>
 <a id="__codelineno-51-18" name="__codelineno-51-18" href="#__codelineno-51-18"></a><span class="w">        </span><span class="nt">external</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <a id="__codelineno-51-19" name="__codelineno-51-19" href="#__codelineno-51-19"></a><span class="w">    </span><span class="nt">auth_client_secret</span><span class="p">:</span>
 <a id="__codelineno-51-20" name="__codelineno-51-20" href="#__codelineno-51-20"></a><span class="w">        </span><span class="nt">external</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
@@ -4449,7 +4449,7 @@
 <a id="__codelineno-52-14" name="__codelineno-52-14" href="#__codelineno-52-14"></a><span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vault-secrets:/vault/secrets:ro</span>
 <a id="__codelineno-52-15" name="__codelineno-52-15" href="#__codelineno-52-15"></a><span class="w">        </span><span class="nt">environment</span><span class="p">:</span>
 <a id="__codelineno-52-16" name="__codelineno-52-16" href="#__codelineno-52-16"></a><span class="w">            </span><span class="nt">DB_PASSWORD_FILE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/vault/secrets/db_password</span>
-<a id="__codelineno-52-17" name="__codelineno-52-17" href="#__codelineno-52-17"></a><span class="w">            </span><span class="nt">JWT_SECRET_FILE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/vault/secrets/jwt_secret</span>
+<a id="__codelineno-52-17" name="__codelineno-52-17" href="#__codelineno-52-17"></a><span class="w">            </span><span class="nt">MASTER_SECRET_FILE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/vault/secrets/master_secret</span>
 <a id="__codelineno-52-18" name="__codelineno-52-18" href="#__codelineno-52-18"></a>
 <a id="__codelineno-52-19" name="__codelineno-52-19" href="#__codelineno-52-19"></a><span class="nt">volumes</span><span class="p">:</span>
 <a id="__codelineno-52-20" name="__codelineno-52-20" href="#__codelineno-52-20"></a><span class="w">    </span><span class="nt">vault-secrets</span><span class="p">:</span>

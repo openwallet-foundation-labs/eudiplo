@@ -332,7 +332,7 @@ export class JwtService {
             );
         }
 
-        const secret &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;JWT_SECRET&quot;);
+        const secret &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;MASTER_SECRET&quot;);
         const issuer &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;JWT_ISSUER&quot;);
         const expiresIn &#x3D;
             options.expiresIn ||
@@ -366,7 +366,7 @@ export class JwtService {
             );
         }
 
-        const secret &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;JWT_SECRET&quot;);
+        const secret &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;MASTER_SECRET&quot;);
         const issuer &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;JWT_ISSUER&quot;);
 
         const secretKey &#x3D; new TextEncoder().encode(secret);

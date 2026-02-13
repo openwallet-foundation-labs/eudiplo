@@ -143,7 +143,7 @@
             </p>
             <p class="comment">
                 <p>Environment-based encryption key provider.
-Derives the encryption key from JWT_SECRET using HKDF.</p>
+Derives the encryption key from MASTER_SECRET using HKDF.</p>
 <p>WARNING: This provider is intended for development only.
 In production, use &#39;vault&#39;, &#39;aws&#39;, or &#39;azure&#39; to fetch keys at runtime.</p>
 <p>Security consideration: The key is derived from an environment variable,
@@ -379,7 +379,7 @@ import { EncryptionKeyProvider } from &quot;./encryption-key-provider.interface&
 
 /**
  * Environment-based encryption key provider.
- * Derives the encryption key from JWT_SECRET using HKDF.
+ * Derives the encryption key from MASTER_SECRET using HKDF.
  *
  * WARNING: This provider is intended for development only.
  * In production, use &#x27;vault&#x27;, &#x27;aws&#x27;, or &#x27;azure&#x27; to fetch keys at runtime.
@@ -395,10 +395,10 @@ export class EnvEncryptionKeyProvider implements EncryptionKeyProvider {
     constructor(private readonly configService: ConfigService) {}
 
     async getKey(): Promise&lt;Buffer&gt; {
-        const jwtSecret &#x3D; this.configService.get&lt;string&gt;(&quot;JWT_SECRET&quot;);
-        if (!jwtSecret) {
+        const masterSecret &#x3D; this.configService.get&lt;string&gt;(&quot;MASTER_SECRET&quot;);
+        if (!masterSecret) {
             throw new Error(
-                &quot;JWT_SECRET is required when using env encryption key source&quot;,
+                &quot;MASTER_SECRET is required when using env encryption key source&quot;,
             );
         }
 
@@ -408,11 +408,11 @@ export class EnvEncryptionKeyProvider implements EncryptionKeyProvider {
                 &quot;to fetch keys at runtime (keys only in RAM, not env vars).&quot;,
         );
 
-        // Derive a 256-bit encryption key from JWT_SECRET using HKDF
+        // Derive a 256-bit encryption key from MASTER_SECRET using HKDF
         return Buffer.from(
             hkdfSync(
                 &quot;sha256&quot;,
-                jwtSecret,
+                masterSecret,
                 &quot;&quot;, // salt - empty for simplicity
                 &quot;eudiplo-encryption-at-rest&quot;, // info - context string
                 32, // 256 bits
