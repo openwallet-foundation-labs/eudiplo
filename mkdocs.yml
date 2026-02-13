@@ -142,6 +142,7 @@ nav:
   - API:
     - Overview: api/index.md
     - Authentication: api/authentication.md
+    - Session Events (SSE): api/session-events.md
     - OpenApi: api/openapi.md
   - Development:
       - development/index.md

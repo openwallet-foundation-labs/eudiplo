@@ -1,6 +1,12 @@
 // Main client export
 export { EudiploClient } from './client';
-export type { EudiploClientConfig, SessionPollingOptions } from './client';
+export type {
+  EudiploClientConfig,
+  SessionPollingOptions,
+  SessionStatusEvent,
+  SessionSubscriptionOptions,
+  SessionSubscription,
+} from './client';
 
 // Simple factory functions for easiest integration
 export { verify, issue, verifyAndWait, issueAndWait } from './client';

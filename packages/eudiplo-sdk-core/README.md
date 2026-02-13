@@ -325,6 +325,43 @@ const session = await client.waitForSession(sessionId, {
 });
 ```
 
+### `subscribeToSession(sessionId, options)`
+
+Subscribe to real-time session status updates via Server-Sent Events (SSE).
+This is more efficient than polling and provides instant updates.
+
+```typescript
+const subscription = await client.subscribeToSession(sessionId, {
+  onStatusChange: (event) => {
+    console.log(`Status: ${event.status}`);
+    if (['completed', 'expired', 'failed'].includes(event.status)) {
+      subscription.close();
+    }
+  },
+  onError: (error) => console.error('SSE error:', error),
+  onOpen: () => console.log('Connected'),
+});
+
+// Later, to close the connection:
+subscription.close();
+```
+
+### `waitForSessionWithSse(sessionId, options)`
+
+Wait for session completion using SSE instead of polling. Returns a Promise
+that resolves when the session completes.
+
+```typescript
+try {
+  const finalStatus = await client.waitForSessionWithSse(sessionId, {
+    onStatusChange: (event) => console.log('Status:', event.status),
+  });
+  console.log('Session completed:', finalStatus);
+} catch (error) {
+  console.error('Session failed:', error);
+}
+```
+
 ## Examples
 
 ### Age Verification in a Web Shop

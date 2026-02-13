@@ -105,6 +105,39 @@ export interface SessionPollingOptions {
 }
 
 /**
+ * Event payload received from SSE subscription
+ */
+export interface SessionStatusEvent {
+  /** Session ID */
+  id: string;
+  /** Current session status */
+  status: 'active' | 'fetched' | 'completed' | 'expired' | 'failed';
+  /** Timestamp of the status update */
+  updatedAt: string;
+}
+
+/**
+ * Options for SSE session subscription
+ */
+export interface SessionSubscriptionOptions {
+  /** Callback invoked when session status changes */
+  onStatusChange?: (event: SessionStatusEvent) => void;
+  /** Callback invoked when an error occurs */
+  onError?: (error: Error) => void;
+  /** Callback invoked when connection is established */
+  onOpen?: () => void;
+}
+
+/**
+ * Subscription handle returned by subscribeToSession.
+ * Use to close the SSE connection.
+ */
+export interface SessionSubscription {
+  /** Close the SSE connection */
+  close: () => void;
+}
+
+/**
  * Simplified options for creating an issuance offer
  */
 export interface IssuanceOfferOptions {
@@ -446,6 +479,119 @@ export class EudiploClient {
           clearTimeout(timeoutId);
           reject(new Error('Aborted'));
         }, { once: true });
+      }
+    });
+  }
+
+  /**
+   * Subscribe to real-time session status updates via Server-Sent Events.
+   *
+   * This is more efficient than polling and provides instant updates.
+   * The connection remains open until closed or the session reaches a terminal state.
+   *
+   * @example
+   * ```typescript
+   * const subscription = await client.subscribeToSession(sessionId, {
+   *   onStatusChange: (event) => {
+   *     console.log(`Status: ${event.status}`);
+   *     if (['completed', 'expired', 'failed'].includes(event.status)) {
+   *       subscription.close();
+   *     }
+   *   },
+   *   onError: (error) => console.error('SSE error:', error)
+   * });
+   *
+   * // Later, to close the connection:
+   * subscription.close();
+   * ```
+   */
+  async subscribeToSession(
+    sessionId: string,
+    options: SessionSubscriptionOptions = {}
+  ): Promise<SessionSubscription> {
+    await this.ensureAuthenticated();
+
+    const token = this.accessToken;
+    if (!token) {
+      throw new Error('No access token available');
+    }
+
+    // Check if EventSource is available (browser environment)
+    if (typeof EventSource === 'undefined') {
+      throw new Error(
+        'EventSource is not available in this environment. ' +
+        'Use polling with waitForSession() instead, or provide a polyfill.'
+      );
+    }
+
+    const url = `${this.config.baseUrl}/session/${sessionId}/events?token=${encodeURIComponent(token)}`;
+    const eventSource = new EventSource(url);
+
+    eventSource.onopen = () => {
+      options.onOpen?.();
+    };
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data) as SessionStatusEvent;
+        options.onStatusChange?.(data);
+      } catch (error) {
+        options.onError?.(new Error(`Failed to parse SSE event: ${error}`));
+      }
+    };
+
+    eventSource.onerror = () => {
+      // EventSource automatically reconnects, but we report the error
+      options.onError?.(new Error('SSE connection error'));
+    };
+
+    return {
+      close: () => eventSource.close(),
+    };
+  }
+
+  /**
+   * Subscribe to session and wait for completion via SSE.
+   *
+   * Returns a Promise that resolves when the session completes,
+   * or rejects if it fails/expires.
+   *
+   * @example
+   * ```typescript
+   * try {
+   *   const finalStatus = await client.waitForSessionWithSse(sessionId);
+   *   console.log('Session completed:', finalStatus);
+   * } catch (error) {
+   *   console.error('Session failed:', error);
+   * }
+   * ```
+   */
+  async waitForSessionWithSse(
+    sessionId: string,
+    options: Pick<SessionSubscriptionOptions, 'onStatusChange'> = {}
+  ): Promise<SessionStatusEvent> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const subscription = await this.subscribeToSession(sessionId, {
+          onStatusChange: (event) => {
+            options.onStatusChange?.(event);
+
+            if (event.status === 'completed') {
+              subscription.close();
+              resolve(event);
+            } else if (event.status === 'expired' || event.status === 'failed') {
+              subscription.close();
+              reject(new Error(`Session ${event.status}: ${sessionId}`));
+            }
+          },
+          onError: (error) => {
+            // Don't reject on SSE errors as EventSource reconnects automatically
+            // Only log or pass to caller's handler
+            console.warn('SSE connection error, reconnecting...', error);
+          },
+        });
+      } catch (error) {
+        reject(error);
       }
     });
   }
