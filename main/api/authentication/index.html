@@ -2670,7 +2670,7 @@ for service-to-service communication without user interaction.</p>
 <tr>
 <td><code>JWT_SECRET</code></td>
 <td><code>any</code></td>
-<td>Local JWT secret (when OIDC is off) [when OIDC is set → otherwise default="supersecret"]</td>
+<td>Local JWT secret (when OIDC is off) - required, minimum 32 characters [when OIDC is set → otherwise required]</td>
 </tr>
 <tr>
 <td><code>JWT_ISSUER</code></td>
@@ -2685,12 +2685,12 @@ for service-to-service communication without user interaction.</p>
 <tr>
 <td><code>AUTH_CLIENT_SECRET</code></td>
 <td><code>any</code></td>
-<td>Client secret (local auth) [when OIDC is set → otherwise default="root"]</td>
+<td>Client secret (local auth) - required when OIDC is not enabled [when OIDC is set → otherwise required]</td>
 </tr>
 <tr>
 <td><code>AUTH_CLIENT_ID</code></td>
 <td><code>any</code></td>
-<td>Client ID (local auth) [when OIDC is set → otherwise default="root"]</td>
+<td>Client ID (local auth) - required when OIDC is not enabled [when OIDC is set → otherwise required]</td>
 </tr>
 </tbody>
 </table>
@@ -2775,10 +2775,11 @@ integrate with external OIDC providers like Keycloak, Auth0, or Azure AD.</p>
 </code></pre></div>
 <h3 id="integrated-oauth2-server">Integrated OAuth2 Server<a class="headerlink" href="#integrated-oauth2-server" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Leave OIDC undefined for integrated OAuth2 server</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nv">PUBLIC_URL</span><span class="o">=</span>https://your-api.example.com
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nv">JWT_SECRET</span><span class="o">=</span>your-secret-key-here-minimum-32-characters
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="nv">AUTH_CLIENT_ID</span><span class="o">=</span>root
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="nv">AUTH_CLIENT_SECRET</span><span class="o">=</span>root
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="c1"># All three values below are REQUIRED</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nv">PUBLIC_URL</span><span class="o">=</span>https://your-api.example.com
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="nv">JWT_SECRET</span><span class="o">=</span>your-secret-key-here-minimum-32-characters
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="nv">AUTH_CLIENT_ID</span><span class="o">=</span>your-client-id
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="nv">AUTH_CLIENT_SECRET</span><span class="o">=</span>your-client-secret
 </code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Security: Secrets are hashed</p>
@@ -2846,7 +2847,7 @@ variables, see <a href="../../architecture/key-management/">Key Management</a> a
 </code></pre></div>
 <p>This client can only:</p>
 <ul>
-<li>Create presentation offers for <code>age-verification</code> and <code>identity-check</code> configs</li>
+<li>Create presentation requests for <code>age-verification</code> and <code>identity-check</code> configs</li>
 <li>Create issuance offers for <code>partner-credential</code> config</li>
 </ul>
 <p>If the client attempts to use a config not in their allowed list, a <code>403 Forbidden</code> error is returned.</p>

@@ -188,7 +188,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">src/auth/jwt.service.ts:14</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/auth/jwt.service.ts:13</a></div>
                             </td>
                         </tr>
 
@@ -253,8 +253,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="28"
-                                    class="link-to-prism">src/auth/jwt.service.ts:28</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="19"
+                                    class="link-to-prism">src/auth/jwt.service.ts:19</a></div>
                         </td>
                     </tr>
 
@@ -334,8 +334,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="91"
-                                    class="link-to-prism">src/auth/jwt.service.ts:91</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="82"
+                                    class="link-to-prism">src/auth/jwt.service.ts:82</a></div>
                         </td>
                     </tr>
 
@@ -375,8 +375,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="65"
-                                    class="link-to-prism">src/auth/jwt.service.ts:65</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="56"
+                                    class="link-to-prism">src/auth/jwt.service.ts:56</a></div>
                         </td>
                     </tr>
 
@@ -433,7 +433,6 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { jwtVerify, SignJWT } from &quot;jose&quot;;
-import { DEFAULT_JWT_SECRET } from &quot;./auth-validation.schema&quot;;
 import { InternalTokenPayload, TokenPayload } from &quot;./token.decorator&quot;;
 
 export interface GenerateTokenOptions {
@@ -444,15 +443,7 @@ export interface GenerateTokenOptions {
 
 @Injectable()
 export class JwtService {
-    constructor(private configService: ConfigService) {
-        if (
-            this.configService.get&lt;string&gt;(&quot;JWT_SECRET&quot;) &#x3D;&#x3D;&#x3D; DEFAULT_JWT_SECRET
-        ) {
-            console.warn(
-                &quot;Using default JWT secret. This is not secure for production environments.&quot;,
-            );
-        }
-    }
+    constructor(private configService: ConfigService) {}
 
     /**
      * Generate a JWT token for integrated OAuth2 server

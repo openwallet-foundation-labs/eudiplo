@@ -558,48 +558,9 @@ async function bootstrap() {
 
         SwaggerModule.setup(&quot;/api&quot;, app, documentFactory, swaggerOptions);
 
-        // Security warnings for default credentials
         const logger &#x3D;
             app.getHttpAdapter().getInstance().locals?.logger || console;
-        const warnSecurityDefaults &#x3D; () &#x3D;&gt; {
-            const usingDefaults: string[] &#x3D; [];
-
-            // Check for default JWT secret
-            const jwtSecret &#x3D; configService.get&lt;string&gt;(&quot;JWT_SECRET&quot;);
-            if (jwtSecret &#x3D;&#x3D;&#x3D; &quot;supersecret&quot;) {
-                usingDefaults.push(&quot;JWT_SECRET&quot;);
-            }
-
-            // Check for default auth credentials
-            const clientId &#x3D; configService.get&lt;string&gt;(&quot;AUTH_CLIENT_ID&quot;);
-            const clientSecret &#x3D;
-                configService.get&lt;string&gt;(&quot;AUTH_CLIENT_SECRET&quot;);
-            if (clientId &#x3D;&#x3D;&#x3D; &quot;root&quot;) {
-                usingDefaults.push(&quot;AUTH_CLIENT_ID&quot;);
-            }
-            if (clientSecret &#x3D;&#x3D;&#x3D; &quot;root&quot;) {
-                usingDefaults.push(&quot;AUTH_CLIENT_SECRET&quot;);
-            }
-
-            if (usingDefaults.length &gt; 0) {
-                logger.warn(
-                    &quot;🚨 SECURITY WARNING: Using default credentials for demo purposes!&quot;,
-                );
-                logger.warn(
-                    &#x60;   Default values detected for: ${usingDefaults.join(&quot;, &quot;)}&#x60;,
-                );
-                logger.warn(
-                    &quot;   🔧 Please set custom values in production environments&quot;,
-                );
-                logger.warn(
-                    &quot;   📖 See .env.example for configuration guidance&quot;,
-                );
-            }
-        };
         const oidc &#x3D; configService.get&lt;string&gt;(&quot;OIDC&quot;);
-        if (!oidc) {
-            warnSecurityDefaults();
-        }
 
         await app.listen(process.env.PORT ?? 3000).then(() &#x3D;&gt; {
             const port &#x3D; process.env.PORT ?? 3000;

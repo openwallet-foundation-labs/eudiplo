@@ -307,7 +307,6 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { jwtVerify, SignJWT } from &quot;jose&quot;;
-import { DEFAULT_JWT_SECRET } from &quot;./auth-validation.schema&quot;;
 import { InternalTokenPayload, TokenPayload } from &quot;./token.decorator&quot;;
 
 export interface GenerateTokenOptions {
@@ -318,15 +317,7 @@ export interface GenerateTokenOptions {
 
 @Injectable()
 export class JwtService {
-    constructor(private configService: ConfigService) {
-        if (
-            this.configService.get&lt;string&gt;(&quot;JWT_SECRET&quot;) &#x3D;&#x3D;&#x3D; DEFAULT_JWT_SECRET
-        ) {
-            console.warn(
-                &quot;Using default JWT secret. This is not secure for production environments.&quot;,
-            );
-        }
-    }
+    constructor(private configService: ConfigService) {}
 
     /**
      * Generate a JWT token for integrated OAuth2 server

@@ -161,15 +161,6 @@
                             <a href="#DB_VALIDATION_SCHEMA" title="src/database/database-validation.schema.ts" ><b>DB_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../database-validation.schema.ts)</a>
                         </li>
                         <li>
-                            <a href="#DEFAULT_AUTH_CLIENT_ID" title="src/auth/auth-validation.schema.ts" ><b>DEFAULT_AUTH_CLIENT_ID</b>&nbsp;&nbsp;&nbsp;(src/.../auth-validation.schema.ts)</a>
-                        </li>
-                        <li>
-                            <a href="#DEFAULT_AUTH_CLIENT_SECRET" title="src/auth/auth-validation.schema.ts" ><b>DEFAULT_AUTH_CLIENT_SECRET</b>&nbsp;&nbsp;&nbsp;(src/.../auth-validation.schema.ts)</a>
-                        </li>
-                        <li>
-                            <a href="#DEFAULT_JWT_SECRET" title="src/auth/auth-validation.schema.ts" ><b>DEFAULT_JWT_SECRET</b>&nbsp;&nbsp;&nbsp;(src/.../auth-validation.schema.ts)</a>
-                        </li>
-                        <li>
                             <a href="#DEFAULT_LANG" title="src/issuer/trust-list/trustlist.service.ts" ><b>DEFAULT_LANG</b>&nbsp;&nbsp;&nbsp;(src/.../trustlist.service.ts)</a>
                         </li>
                         <li>
@@ -177,6 +168,21 @@
                         </li>
                         <li>
                             <a href="#ED25519" title="src/crypto/key/crypto-implementation/ed25519.ts" ><b>ED25519</b>&nbsp;&nbsp;&nbsp;(src/.../ed25519.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#EncryptedJsonTransformer" title="src/shared/utils/encryption/encrypted-column.transformer.ts" ><b>EncryptedJsonTransformer</b>&nbsp;&nbsp;&nbsp;(src/.../encrypted-column.transformer.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#EncryptedStringTransformer" title="src/shared/utils/encryption/encrypted-column.transformer.ts" ><b>EncryptedStringTransformer</b>&nbsp;&nbsp;&nbsp;(src/.../encrypted-column.transformer.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#ENCRYPTION_KEY_PROVIDER" title="src/shared/utils/encryption/providers/encryption-key-provider.interface.ts" ><b>ENCRYPTION_KEY_PROVIDER</b>&nbsp;&nbsp;&nbsp;(src/.../encryption-key-provider.interface.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#ENCRYPTION_VALIDATION_SCHEMA" title="src/shared/utils/encryption/encryption-validation.schema.ts" ><b>ENCRYPTION_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../encryption-validation.schema.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#encryptionServiceInstance" title="src/shared/utils/encryption/encrypted-column.transformer.ts" ><b>encryptionServiceInstance</b>&nbsp;&nbsp;&nbsp;(src/.../encrypted-column.transformer.ts)</a>
                         </li>
                         <li>
                             <a href="#FILE_STORAGE" title="src/storage/storage.types.ts" ><b>FILE_STORAGE</b>&nbsp;&nbsp;&nbsp;(src/.../storage.types.ts)</a>
@@ -365,9 +371,11 @@
     JWT_SECRET: Joi.when(&quot;OIDC&quot;, {
         is: Joi.exist(),
         then: Joi.string().optional(),
-        otherwise: Joi.string().min(32).default(DEFAULT_JWT_SECRET),
+        otherwise: Joi.string().min(32).required(),
     })
-        .description(&quot;Local JWT secret (when OIDC is off)&quot;)
+        .description(
+            &quot;Local JWT secret (when OIDC is off) - required, minimum 32 characters&quot;,
+        )
         .meta({ group: &quot;auth&quot;, order: 50 }),
 
     JWT_ISSUER: Joi.when(&quot;OIDC&quot;, {
@@ -389,97 +397,23 @@
     AUTH_CLIENT_SECRET: Joi.when(&quot;OIDC&quot;, {
         is: Joi.exist(),
         then: Joi.string().optional(),
-        otherwise: Joi.string().default(DEFAULT_AUTH_CLIENT_SECRET),
+        otherwise: Joi.string().required(),
     })
-        .description(&quot;Client secret (local auth)&quot;)
+        .description(
+            &quot;Client secret (local auth) - required when OIDC is not enabled&quot;,
+        )
         .meta({ group: &quot;auth&quot;, order: 80 }),
 
     AUTH_CLIENT_ID: Joi.when(&quot;OIDC&quot;, {
         is: Joi.exist(),
         then: Joi.string().optional(),
-        otherwise: Joi.string().default(DEFAULT_AUTH_CLIENT_ID),
+        otherwise: Joi.string().required(),
     })
-        .description(&quot;Client ID (local auth)&quot;)
+        .description(
+            &quot;Client ID (local auth) - required when OIDC is not enabled&quot;,
+        )
         .meta({ group: &quot;auth&quot;, order: 90 }),
 }).unknown(true)</code>
-                    </td>
-                </tr>
-
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="DEFAULT_AUTH_CLIENT_ID"></a>
-                    <span class="name">
-                        <span ><b>DEFAULT_AUTH_CLIENT_ID</b></span>
-                        <a href="#DEFAULT_AUTH_CLIENT_ID"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>&quot;root&quot;</code>
-                    </td>
-                </tr>
-
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="DEFAULT_AUTH_CLIENT_SECRET"></a>
-                    <span class="name">
-                        <span ><b>DEFAULT_AUTH_CLIENT_SECRET</b></span>
-                        <a href="#DEFAULT_AUTH_CLIENT_SECRET"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>&quot;root&quot;</code>
-                    </td>
-                </tr>
-
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="DEFAULT_JWT_SECRET"></a>
-                    <span class="name">
-                        <span ><b>DEFAULT_JWT_SECRET</b></span>
-                        <a href="#DEFAULT_JWT_SECRET"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>&quot;supersecret&quot;</code>
                     </td>
                 </tr>
 
@@ -1074,6 +1008,308 @@ This decorator can be used to determine the media type of the request.</p>
                     </td>
                 </tr>
 
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/shared/utils/encryption/encrypted-column.transformer.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="EncryptedJsonTransformer"></a>
+                    <span class="name">
+                        <span ><b>EncryptedJsonTransformer</b></span>
+                        <a href="#EncryptedJsonTransformer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>ValueTransformer</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    /**
+     * Transform value when writing to database.
+     * Encrypts the JSON value.
+     */
+    to(value: unknown): string | null {
+        if (value &#x3D;&#x3D;&#x3D; null || value &#x3D;&#x3D;&#x3D; undefined) {
+            return null;
+        }
+        return getEncryptionService().encryptJson(value);
+    },
+
+    /**
+     * Transform value when reading from database.
+     * Decrypts the encrypted value back to JSON.
+     */
+    from(value: string | null): unknown {
+        if (value &#x3D;&#x3D;&#x3D; null || value &#x3D;&#x3D;&#x3D; undefined) {
+            return null;
+        }
+
+        const service &#x3D; getEncryptionService();
+
+        // Handle migration: if value is not encrypted, return as-is (parsed JSON)
+        // This allows existing unencrypted data to be read during migration
+        if (!service.isEncrypted(value)) {
+            // Try to parse as JSON (for existing unencrypted data)
+            try {
+                return typeof value &#x3D;&#x3D;&#x3D; &quot;string&quot; ? JSON.parse(value) : value;
+            } catch {
+                return value;
+            }
+        }
+
+        return service.decryptJson(value);
+    },
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>TypeORM column transformer for encrypting JSON data at rest.
+Encrypts on write (to database) and decrypts on read (from database).</p>
+<p>Usage:</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="EncryptedStringTransformer"></a>
+                    <span class="name">
+                        <span ><b>EncryptedStringTransformer</b></span>
+                        <a href="#EncryptedStringTransformer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>ValueTransformer</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    /**
+     * Transform value when writing to database.
+     */
+    to(value: string | null): string | null {
+        if (value &#x3D;&#x3D;&#x3D; null || value &#x3D;&#x3D;&#x3D; undefined) {
+            return null;
+        }
+        return getEncryptionService().encrypt(value);
+    },
+
+    /**
+     * Transform value when reading from database.
+     */
+    from(value: string | null): string | null {
+        if (value &#x3D;&#x3D;&#x3D; null || value &#x3D;&#x3D;&#x3D; undefined) {
+            return null;
+        }
+
+        const service &#x3D; getEncryptionService();
+
+        // Handle migration: if value is not encrypted, return as-is
+        if (!service.isEncrypted(value)) {
+            return value;
+        }
+
+        return service.decrypt(value);
+    },
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>TypeORM column transformer for encrypting string data at rest.
+Use for non-JSON string values.</p>
+<p>Usage:</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="encryptionServiceInstance"></a>
+                    <span class="name">
+                        <span ><b>encryptionServiceInstance</b></span>
+                        <a href="#encryptionServiceInstance"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>EncryptionService | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>null</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Singleton holder for the encryption service instance.
+This is necessary because TypeORM transformers don&#39;t support dependency injection.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/shared/utils/encryption/providers/encryption-key-provider.interface.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ENCRYPTION_KEY_PROVIDER"></a>
+                    <span class="name">
+                        <span ><b>ENCRYPTION_KEY_PROVIDER</b></span>
+                        <a href="#ENCRYPTION_KEY_PROVIDER"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&quot;ENCRYPTION_KEY_PROVIDER&quot;</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Injection token for the encryption key provider.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/shared/utils/encryption/encryption-validation.schema.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ENCRYPTION_VALIDATION_SCHEMA"></a>
+                    <span class="name">
+                        <span ><b>ENCRYPTION_VALIDATION_SCHEMA</b></span>
+                        <a href="#ENCRYPTION_VALIDATION_SCHEMA"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>Joi.object({
+    ENCRYPTION_KEY_SOURCE: Joi.string()
+        .valid(&quot;env&quot;, &quot;vault&quot;, &quot;aws&quot;, &quot;azure&quot;)
+        .default(&quot;env&quot;)
+        .description(
+            &quot;Source for encryption key: env (dev), vault/aws/azure (prod - key only in RAM)&quot;,
+        )
+        .meta({ group: &quot;encryption&quot;, order: 10 }),
+
+    // Vault-related config (reuses VAULT_ADDR from key-validation.schema.ts)
+    VAULT_ENCRYPTION_KEY_PATH: Joi.string()
+        .when(&quot;ENCRYPTION_KEY_SOURCE&quot;, {
+            is: &quot;vault&quot;,
+            then: Joi.optional().default(&quot;secret/data/eudiplo/encryption-key&quot;),
+            otherwise: Joi.optional(),
+        })
+        .description(&quot;Path to encryption key in Vault KV secrets engine&quot;)
+        .meta({ group: &quot;encryption&quot;, order: 20 }),
+
+    // AWS Secrets Manager config
+    AWS_ENCRYPTION_SECRET_NAME: Joi.string()
+        .when(&quot;ENCRYPTION_KEY_SOURCE&quot;, {
+            is: &quot;aws&quot;,
+            then: Joi.required(),
+            otherwise: Joi.optional(),
+        })
+        .description(&quot;Name of the encryption key secret in AWS Secrets Manager&quot;)
+        .meta({ group: &quot;encryption&quot;, order: 30 }),
+    AWS_ENCRYPTION_SECRET_KEY: Joi.string()
+        .when(&quot;ENCRYPTION_KEY_SOURCE&quot;, {
+            is: &quot;aws&quot;,
+            then: Joi.optional().default(&quot;key&quot;),
+            otherwise: Joi.optional(),
+        })
+        .description(&quot;JSON key within the AWS secret (if secret is JSON)&quot;)
+        .meta({ group: &quot;encryption&quot;, order: 40 }),
+
+    // Azure Key Vault config
+    AZURE_KEYVAULT_URL: Joi.string()
+        .uri()
+        .when(&quot;ENCRYPTION_KEY_SOURCE&quot;, {
+            is: &quot;azure&quot;,
+            then: Joi.required(),
+            otherwise: Joi.optional(),
+        })
+        .description(
+            &quot;Azure Key Vault URL (e.g., https://myvault.vault.azure.net)&quot;,
+        )
+        .meta({ group: &quot;encryption&quot;, order: 50 }),
+    AZURE_ENCRYPTION_SECRET_NAME: Joi.string()
+        .when(&quot;ENCRYPTION_KEY_SOURCE&quot;, {
+            is: &quot;azure&quot;,
+            then: Joi.required(),
+            otherwise: Joi.optional(),
+        })
+        .description(&quot;Name of the encryption key secret in Azure Key Vault&quot;)
+        .meta({ group: &quot;encryption&quot;, order: 60 }),
+})</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Validation schema for encryption key source configuration.</p>
+<p>Configures where the encryption key for data at rest is fetched from:</p>
+<ul>
+<li>env (default): Derived from JWT_SECRET (development only)</li>
+<li>vault: Fetched from HashiCorp Vault (production)</li>
+<li>aws: Fetched from AWS Secrets Manager (production)</li>
+<li>azure: Fetched from Azure Key Vault (production)</li>
+</ul>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -2117,7 +2353,8 @@ use Uint8Array<ArrayBufferLike> which is not assignable to BufferSource.</p>
     .concat(ISSUER_VALIDATION_SCHEMA)
     .concat(SESSION_VALIDATION_SCHEMA)
     .concat(STORAGE_VALIDATION_SCHEMA)
-    .concat(STATUS_LIST_VALIDATION_SCHEMA)</code>
+    .concat(STATUS_LIST_VALIDATION_SCHEMA)
+    .concat(ENCRYPTION_VALIDATION_SCHEMA)</code>
                     </td>
                 </tr>
 

@@ -324,7 +324,7 @@ This entity stores the session state between the initial request and follow-up.<
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="195" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:195</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="199" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:199</a></div>
                         </td>
                     </tr>
 
@@ -361,19 +361,20 @@ This entity stores the session state between the initial request and follow-up.<
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column(&#x27;text&#x27;, {nullable: true})<br />
+                            @Column(&#x27;text&#x27;, {nullable: true, transformer: EncryptedStringTransformer})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="129" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:129</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="131" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:131</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Authorization details as JSON string.</p>
+                    <div class="io-description"><p>Authorization details as JSON string.
+Encrypted at rest.</p>
 </div>
                 </td>
             </tr>
@@ -410,7 +411,7 @@ This entity stores the session state between the initial request and follow-up.<
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="67" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:67</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="68" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:68</a></div>
                         </td>
                     </tr>
 
@@ -453,7 +454,7 @@ Used to correlate follow-up requests.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="86" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:86</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="87" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:87</a></div>
                         </td>
                     </tr>
 
@@ -496,7 +497,7 @@ Used to correlate follow-up requests.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="104" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:104</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="105" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:105</a></div>
                         </td>
                     </tr>
 
@@ -539,7 +540,7 @@ Used to correlate follow-up requests.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="110" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:110</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="111" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:111</a></div>
                         </td>
                     </tr>
 
@@ -576,20 +577,21 @@ Used to correlate follow-up requests.</p>
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column(&#x27;text&#x27;, {nullable: true})<br />
+                            @Column(&#x27;text&#x27;, {nullable: true, transformer: EncryptedStringTransformer})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="189" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:189</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="193" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:193</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>Completed steps data as JSON string.
-Contains results from each completed step (presentations, web auth results).</p>
+Contains results from each completed step (presentations, web auth results).
+Encrypted at rest - may contain personal information.</p>
 </div>
                 </td>
             </tr>
@@ -625,7 +627,7 @@ Contains results from each completed step (presentations, web auth results).</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="207" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:207</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="211" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:211</a></div>
                         </td>
                     </tr>
 
@@ -667,7 +669,7 @@ Contains results from each completed step (presentations, web auth results).</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="182" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:182</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="185" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:185</a></div>
                         </td>
                     </tr>
 
@@ -711,7 +713,7 @@ Incremented after each step completes successfully.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="141" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:141</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="143" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:143</a></div>
                         </td>
                     </tr>
 
@@ -753,7 +755,7 @@ Incremented after each step completes successfully.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="201" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:201</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="205" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:205</a></div>
                         </td>
                     </tr>
 
@@ -796,7 +798,7 @@ Incremented after each step completes successfully.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="175" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:175</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="178" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:178</a></div>
                         </td>
                     </tr>
 
@@ -839,7 +841,7 @@ Stores the list of actions to execute for this session.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="59" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:59</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="60" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:60</a></div>
                         </td>
                     </tr>
 
@@ -881,7 +883,7 @@ Stores the list of actions to execute for this session.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="135" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:135</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="137" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:137</a></div>
                         </td>
                     </tr>
 
@@ -924,7 +926,7 @@ Stores the list of actions to execute for this session.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="117" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:117</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="118" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:118</a></div>
                         </td>
                     </tr>
 
@@ -968,7 +970,7 @@ Links this IAE session to a credential offer session.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="162" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:162</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="164" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:164</a></div>
                         </td>
                     </tr>
 
@@ -1005,19 +1007,20 @@ Links this IAE session to a credential offer session.</p>
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column(&#x27;text&#x27;, {nullable: true})<br />
+                            @Column(&#x27;text&#x27;, {nullable: true, transformer: EncryptedStringTransformer})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="168" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:168</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="171" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:171</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>OpenID4VP presentation data as JSON string.</p>
+                    <div class="io-description"><p>OpenID4VP presentation data as JSON string.
+Encrypted at rest - contains personal information.</p>
 </div>
                 </td>
             </tr>
@@ -1054,7 +1057,7 @@ Links this IAE session to a credential offer session.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="92" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:92</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="93" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:93</a></div>
                         </td>
                     </tr>
 
@@ -1097,7 +1100,7 @@ Links this IAE session to a credential offer session.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="156" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:156</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="158" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:158</a></div>
                         </td>
                     </tr>
 
@@ -1140,7 +1143,7 @@ Links this IAE session to a credential offer session.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="98" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:98</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="99" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:99</a></div>
                         </td>
                     </tr>
 
@@ -1183,7 +1186,7 @@ Links this IAE session to a credential offer session.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="123" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:123</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="124" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:124</a></div>
                         </td>
                     </tr>
 
@@ -1225,7 +1228,7 @@ Links this IAE session to a credential offer session.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="150" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:150</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="152" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:152</a></div>
                         </td>
                     </tr>
 
@@ -1267,7 +1270,7 @@ Links this IAE session to a credential offer session.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="80" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:80</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="81" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:81</a></div>
                         </td>
                     </tr>
 
@@ -1310,7 +1313,7 @@ Links this IAE session to a credential offer session.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="74" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:74</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="75" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:75</a></div>
                         </td>
                     </tr>
 
@@ -1352,7 +1355,7 @@ Links this IAE session to a credential offer session.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="213" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:213</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="217" class="link-to-prism">src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts:217</a></div>
                         </td>
                     </tr>
 
@@ -1380,6 +1383,7 @@ Links this IAE session to a credential offer session.</p>
     UpdateDateColumn,
 } from &quot;typeorm&quot;;
 import { TenantEntity } from &quot;../../../../auth/tenant/entitites/tenant.entity&quot;;
+import { EncryptedStringTransformer } from &quot;../../../../shared/utils/encryption&quot;;
 
 /**
  * Status of an interactive authorization session.
@@ -1496,8 +1500,9 @@ export class InteractiveAuthSessionEntity {
 
     /**
      * Authorization details as JSON string.
+     * Encrypted at rest.
      */
-    @Column(&quot;text&quot;, { nullable: true })
+    @Column(&quot;text&quot;, { nullable: true, transformer: EncryptedStringTransformer })
     authorizationDetails?: string;
 
     /**
@@ -1535,8 +1540,9 @@ export class InteractiveAuthSessionEntity {
 
     /**
      * OpenID4VP presentation data as JSON string.
+     * Encrypted at rest - contains personal information.
      */
-    @Column(&quot;text&quot;, { nullable: true })
+    @Column(&quot;text&quot;, { nullable: true, transformer: EncryptedStringTransformer })
     presentationData?: string;
 
     /**
@@ -1556,8 +1562,9 @@ export class InteractiveAuthSessionEntity {
     /**
      * Completed steps data as JSON string.
      * Contains results from each completed step (presentations, web auth results).
+     * Encrypted at rest - may contain personal information.
      */
-    @Column(&quot;text&quot;, { nullable: true })
+    @Column(&quot;text&quot;, { nullable: true, transformer: EncryptedStringTransformer })
     completedStepsData?: string;
 
     /**

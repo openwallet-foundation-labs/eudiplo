@@ -253,6 +253,23 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="modules/DatabaseModule.html" data-type="entity-link" >DatabaseModule</a>
                             </li>
                             <li class="link">
+                                <a href="modules/EncryptionModule.html" data-type="entity-link" >EncryptionModule</a>
+                                <li class="chapter inner">
+                                    <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
+                                        'data-bs-target="#injectables-links-module-EncryptionModule-0615a9d736cc381dae13c22b1b16870a27bc6cf167023642f6502764461be384df5f2ea76cfe461d9250cb2f5d141dacbb0f2bd97b40f5bad343606ef8e35db3"' : 'data-bs-target="#xs-injectables-links-module-EncryptionModule-0615a9d736cc381dae13c22b1b16870a27bc6cf167023642f6502764461be384df5f2ea76cfe461d9250cb2f5d141dacbb0f2bd97b40f5bad343606ef8e35db3"' }>
+                                        <span class="icon ion-md-arrow-round-down"></span>
+                                        <span>Injectables</span>
+                                        <span class="icon ion-ios-arrow-down"></span>
+                                    </div>
+                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-EncryptionModule-0615a9d736cc381dae13c22b1b16870a27bc6cf167023642f6502764461be384df5f2ea76cfe461d9250cb2f5d141dacbb0f2bd97b40f5bad343606ef8e35db3"' :
+                                        'id="xs-injectables-links-module-EncryptionModule-0615a9d736cc381dae13c22b1b16870a27bc6cf167023642f6502764461be384df5f2ea76cfe461d9250cb2f5d141dacbb0f2bd97b40f5bad343606ef8e35db3"' }>
+                                        <li class="link">
+                                            <a href="injectables/EncryptionService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >EncryptionService</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </li>
+                            <li class="link">
                                 <a href="modules/HealthModule.html" data-type="entity-link" >HealthModule</a>
                                     <li class="chapter inner">
                                         <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
@@ -1150,10 +1167,19 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </div>
                             <ul class="links collapse " ${ isNormalMode ? 'id="injectables-links"' : 'id="xs-injectables-links"' }>
                                 <li class="link">
+                                    <a href="injectables/AwsSecretsManagerEncryptionKeyProvider.html" data-type="entity-link" >AwsSecretsManagerEncryptionKeyProvider</a>
+                                </li>
+                                <li class="link">
+                                    <a href="injectables/AzureKeyVaultEncryptionKeyProvider.html" data-type="entity-link" >AzureKeyVaultEncryptionKeyProvider</a>
+                                </li>
+                                <li class="link">
                                     <a href="injectables/CertService.html" data-type="entity-link" >CertService</a>
                                 </li>
                                 <li class="link">
                                     <a href="injectables/CrlValidationService.html" data-type="entity-link" >CrlValidationService</a>
+                                </li>
+                                <li class="link">
+                                    <a href="injectables/EnvEncryptionKeyProvider.html" data-type="entity-link" >EnvEncryptionKeyProvider</a>
                                 </li>
                                 <li class="link">
                                     <a href="injectables/FilesService.html" data-type="entity-link" >FilesService</a>
@@ -1169,6 +1195,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 </li>
                                 <li class="link">
                                     <a href="injectables/SessionLoggerInterceptor.html" data-type="entity-link" >SessionLoggerInterceptor</a>
+                                </li>
+                                <li class="link">
+                                    <a href="injectables/VaultEncryptionKeyProvider.html" data-type="entity-link" >VaultEncryptionKeyProvider</a>
                                 </li>
                             </ul>
                         </li>
@@ -1237,6 +1266,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="interfaces/CryptoImplementation.html" data-type="entity-link" >CryptoImplementation</a>
+                            </li>
+                            <li class="link">
+                                <a href="interfaces/EncryptionKeyProvider.html" data-type="entity-link" >EncryptionKeyProvider</a>
                             </li>
                             <li class="link">
                                 <a href="interfaces/FileImportData.html" data-type="entity-link" >FileImportData</a>
@@ -1375,6 +1407,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="interfaces/TrustedEntityService.html" data-type="entity-link" >TrustedEntityService</a>
+                            </li>
+                            <li class="link">
+                                <a href="interfaces/VaultKVResponse.html" data-type="entity-link" >VaultKVResponse</a>
                             </li>
                             <li class="link">
                                 <a href="interfaces/WebhookResponse.html" data-type="entity-link" >WebhookResponse</a>
