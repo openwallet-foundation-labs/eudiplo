@@ -302,6 +302,7 @@ export type KeyEntity = {
   tenant: TenantEntity;
   /**
    * The key material.
+   * Encrypted at rest using AES-256-GCM.
    */
   key: {
     [key: string]: unknown;
@@ -720,10 +721,12 @@ export type Session = {
   request_uri?: string;
   /**
    * Authorization queries associated with the session.
+   * Encrypted at rest.
    */
   auth_queries?: AuthorizeQueries;
   /**
    * Credential offer object containing details about the credential offer or presentation request.
+   * Encrypted at rest.
    */
   offer?: {
     [key: string]: unknown;
@@ -734,6 +737,7 @@ export type Session = {
   offerUrl?: string;
   /**
    * Credential payload containing the offer request details.
+   * Encrypted at rest - may contain sensitive claim data.
    */
   credentialPayload?: OfferRequestDto;
   /**
@@ -757,6 +761,7 @@ export type Session = {
   requestObject?: string;
   /**
    * Verified credentials from the presentation process.
+   * Encrypted at rest - contains personal information.
    */
   credentials?: Array<{
     [key: string]: unknown;
@@ -1235,6 +1240,179 @@ export type CredentialConfigUpdate = {
   schema?: SchemaResponse;
 };
 
+export type Dcql = {
+  credentials: Array<CredentialQuery>;
+  credential_sets?: Array<CredentialSetQuery>;
+};
+
+export type RegistrationCertificateRequest = {
+  /**
+   * The body of the registration certificate request containing the necessary details.
+   */
+  jwt: string;
+};
+
+export type PresentationAttachment = {
+  format: string;
+  data: {
+    [key: string]: unknown;
+  };
+  credential_ids?: Array<string>;
+};
+
+export type PresentationConfig = {
+  /**
+   * Unique identifier for the VP request.
+   */
+  id: string;
+  /**
+   * The tenant that owns this object.
+   */
+  tenant: TenantEntity;
+  /**
+   * Description of the presentation configuration.
+   */
+  description?: string;
+  /**
+   * Lifetime how long the presentation request is valid after creation, in seconds.
+   */
+  lifeTime?: number;
+  /**
+   * The DCQL query to be used for the VP request.
+   */
+  dcql_query: Dcql;
+  transaction_data?: Array<TransactionData>;
+  /**
+   * The registration certificate request containing the necessary details.
+   */
+  registrationCert?: RegistrationCertificateRequest;
+  /**
+   * Optional webhook URL to receive the response.
+   */
+  webhook?: WebhookConfig;
+  /**
+   * The timestamp when the VP request was created.
+   */
+  createdAt: string;
+  /**
+   * The timestamp when the VP request was last updated.
+   */
+  updatedAt: string;
+  /**
+   * Attestation that should be attached
+   */
+  attached?: Array<PresentationAttachment>;
+  /**
+   * Redirect URI to which the user-agent should be redirected after the presentation is completed.
+   * You can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.
+   */
+  redirectUri?: string;
+  /**
+   * Optional ID of the access certificate to use for signing the presentation request.
+   * If not provided, the default access certificate for the tenant will be used.
+   *
+   * Note: This is intentionally NOT a TypeORM relationship because CertEntity uses
+   * a composite primary key (id + tenantId), and SQLite cannot create foreign keys
+   * that reference only part of a composite primary key. The relationship is handled
+   * at the application level in the service layer.
+   */
+  accessCertId?: string;
+};
+
+export type PresentationConfigCreateDto = {
+  /**
+   * Unique identifier for the VP request.
+   */
+  id: string;
+  /**
+   * Description of the presentation configuration.
+   */
+  description?: string;
+  /**
+   * Lifetime how long the presentation request is valid after creation, in seconds.
+   */
+  lifeTime?: number;
+  /**
+   * The DCQL query to be used for the VP request.
+   */
+  dcql_query: Dcql;
+  transaction_data?: Array<TransactionData>;
+  /**
+   * The registration certificate request containing the necessary details.
+   */
+  registrationCert?: RegistrationCertificateRequest;
+  /**
+   * Optional webhook URL to receive the response.
+   */
+  webhook?: WebhookConfig;
+  /**
+   * Attestation that should be attached
+   */
+  attached?: Array<PresentationAttachment>;
+  /**
+   * Redirect URI to which the user-agent should be redirected after the presentation is completed.
+   * You can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.
+   */
+  redirectUri?: string;
+  /**
+   * Optional ID of the access certificate to use for signing the presentation request.
+   * If not provided, the default access certificate for the tenant will be used.
+   *
+   * Note: This is intentionally NOT a TypeORM relationship because CertEntity uses
+   * a composite primary key (id + tenantId), and SQLite cannot create foreign keys
+   * that reference only part of a composite primary key. The relationship is handled
+   * at the application level in the service layer.
+   */
+  accessCertId?: string;
+};
+
+export type PresentationConfigUpdateDto = {
+  /**
+   * Unique identifier for the VP request.
+   */
+  id?: string;
+  /**
+   * Description of the presentation configuration.
+   */
+  description?: string;
+  /**
+   * Lifetime how long the presentation request is valid after creation, in seconds.
+   */
+  lifeTime?: number;
+  /**
+   * The DCQL query to be used for the VP request.
+   */
+  dcql_query?: Dcql;
+  transaction_data?: Array<TransactionData>;
+  /**
+   * The registration certificate request containing the necessary details.
+   */
+  registrationCert?: RegistrationCertificateRequest;
+  /**
+   * Optional webhook URL to receive the response.
+   */
+  webhook?: WebhookConfig;
+  /**
+   * Attestation that should be attached
+   */
+  attached?: Array<PresentationAttachment>;
+  /**
+   * Redirect URI to which the user-agent should be redirected after the presentation is completed.
+   * You can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.
+   */
+  redirectUri?: string;
+  /**
+   * Optional ID of the access certificate to use for signing the presentation request.
+   * If not provided, the default access certificate for the tenant will be used.
+   *
+   * Note: This is intentionally NOT a TypeORM relationship because CertEntity uses
+   * a composite primary key (id + tenantId), and SQLite cannot create foreign keys
+   * that reference only part of a composite primary key. The relationship is handled
+   * at the application level in the service layer.
+   */
+  accessCertId?: string;
+};
+
 export type DeferredCredentialRequestDto = {
   /**
    * The transaction identifier previously returned by the Credential Endpoint
@@ -1499,179 +1677,6 @@ export type CreateAccessCertificateDto = {
    * The ID of the key to create an access certificate for
    */
   keyId: string;
-};
-
-export type Dcql = {
-  credentials: Array<CredentialQuery>;
-  credential_sets?: Array<CredentialSetQuery>;
-};
-
-export type RegistrationCertificateRequest = {
-  /**
-   * The body of the registration certificate request containing the necessary details.
-   */
-  jwt: string;
-};
-
-export type PresentationAttachment = {
-  format: string;
-  data: {
-    [key: string]: unknown;
-  };
-  credential_ids?: Array<string>;
-};
-
-export type PresentationConfig = {
-  /**
-   * Unique identifier for the VP request.
-   */
-  id: string;
-  /**
-   * The tenant that owns this object.
-   */
-  tenant: TenantEntity;
-  /**
-   * Description of the presentation configuration.
-   */
-  description?: string;
-  /**
-   * Lifetime how long the presentation request is valid after creation, in seconds.
-   */
-  lifeTime?: number;
-  /**
-   * The DCQL query to be used for the VP request.
-   */
-  dcql_query: Dcql;
-  transaction_data?: Array<TransactionData>;
-  /**
-   * The registration certificate request containing the necessary details.
-   */
-  registrationCert?: RegistrationCertificateRequest;
-  /**
-   * Optional webhook URL to receive the response.
-   */
-  webhook?: WebhookConfig;
-  /**
-   * The timestamp when the VP request was created.
-   */
-  createdAt: string;
-  /**
-   * The timestamp when the VP request was last updated.
-   */
-  updatedAt: string;
-  /**
-   * Attestation that should be attached
-   */
-  attached?: Array<PresentationAttachment>;
-  /**
-   * Redirect URI to which the user-agent should be redirected after the presentation is completed.
-   * You can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.
-   */
-  redirectUri?: string;
-  /**
-   * Optional ID of the access certificate to use for signing the presentation request.
-   * If not provided, the default access certificate for the tenant will be used.
-   *
-   * Note: This is intentionally NOT a TypeORM relationship because CertEntity uses
-   * a composite primary key (id + tenantId), and SQLite cannot create foreign keys
-   * that reference only part of a composite primary key. The relationship is handled
-   * at the application level in the service layer.
-   */
-  accessCertId?: string;
-};
-
-export type PresentationConfigCreateDto = {
-  /**
-   * Unique identifier for the VP request.
-   */
-  id: string;
-  /**
-   * Description of the presentation configuration.
-   */
-  description?: string;
-  /**
-   * Lifetime how long the presentation request is valid after creation, in seconds.
-   */
-  lifeTime?: number;
-  /**
-   * The DCQL query to be used for the VP request.
-   */
-  dcql_query: Dcql;
-  transaction_data?: Array<TransactionData>;
-  /**
-   * The registration certificate request containing the necessary details.
-   */
-  registrationCert?: RegistrationCertificateRequest;
-  /**
-   * Optional webhook URL to receive the response.
-   */
-  webhook?: WebhookConfig;
-  /**
-   * Attestation that should be attached
-   */
-  attached?: Array<PresentationAttachment>;
-  /**
-   * Redirect URI to which the user-agent should be redirected after the presentation is completed.
-   * You can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.
-   */
-  redirectUri?: string;
-  /**
-   * Optional ID of the access certificate to use for signing the presentation request.
-   * If not provided, the default access certificate for the tenant will be used.
-   *
-   * Note: This is intentionally NOT a TypeORM relationship because CertEntity uses
-   * a composite primary key (id + tenantId), and SQLite cannot create foreign keys
-   * that reference only part of a composite primary key. The relationship is handled
-   * at the application level in the service layer.
-   */
-  accessCertId?: string;
-};
-
-export type PresentationConfigUpdateDto = {
-  /**
-   * Unique identifier for the VP request.
-   */
-  id?: string;
-  /**
-   * Description of the presentation configuration.
-   */
-  description?: string;
-  /**
-   * Lifetime how long the presentation request is valid after creation, in seconds.
-   */
-  lifeTime?: number;
-  /**
-   * The DCQL query to be used for the VP request.
-   */
-  dcql_query?: Dcql;
-  transaction_data?: Array<TransactionData>;
-  /**
-   * The registration certificate request containing the necessary details.
-   */
-  registrationCert?: RegistrationCertificateRequest;
-  /**
-   * Optional webhook URL to receive the response.
-   */
-  webhook?: WebhookConfig;
-  /**
-   * Attestation that should be attached
-   */
-  attached?: Array<PresentationAttachment>;
-  /**
-   * Redirect URI to which the user-agent should be redirected after the presentation is completed.
-   * You can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.
-   */
-  redirectUri?: string;
-  /**
-   * Optional ID of the access certificate to use for signing the presentation request.
-   * If not provided, the default access certificate for the tenant will be used.
-   *
-   * Note: This is intentionally NOT a TypeORM relationship because CertEntity uses
-   * a composite primary key (id + tenantId), and SQLite cannot create foreign keys
-   * that reference only part of a composite primary key. The relationship is handled
-   * at the application level in the service layer.
-   */
-  accessCertId?: string;
 };
 
 export type TrustListCreateDto = {
@@ -2666,6 +2671,148 @@ export type CredentialConfigControllerUpdateCredentialConfigurationResponses = {
 export type CredentialConfigControllerUpdateCredentialConfigurationResponse =
   CredentialConfigControllerUpdateCredentialConfigurationResponses[keyof CredentialConfigControllerUpdateCredentialConfigurationResponses];
 
+export type PresentationManagementControllerConfigurationData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/verifier/config";
+};
+
+export type PresentationManagementControllerConfigurationResponses = {
+  200: Array<PresentationConfig>;
+};
+
+export type PresentationManagementControllerConfigurationResponse =
+  PresentationManagementControllerConfigurationResponses[keyof PresentationManagementControllerConfigurationResponses];
+
+export type PresentationManagementControllerStorePresentationConfigData = {
+  body: PresentationConfigCreateDto;
+  path?: never;
+  query?: never;
+  url: "/verifier/config";
+};
+
+export type PresentationManagementControllerStorePresentationConfigResponses = {
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type PresentationManagementControllerStorePresentationConfigResponse =
+  PresentationManagementControllerStorePresentationConfigResponses[keyof PresentationManagementControllerStorePresentationConfigResponses];
+
+export type PresentationManagementControllerDeleteConfigurationData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/verifier/config/{id}";
+};
+
+export type PresentationManagementControllerDeleteConfigurationResponses = {
+  200: unknown;
+};
+
+export type PresentationManagementControllerGetConfigurationData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/verifier/config/{id}";
+};
+
+export type PresentationManagementControllerGetConfigurationResponses = {
+  200: PresentationConfig;
+};
+
+export type PresentationManagementControllerGetConfigurationResponse =
+  PresentationManagementControllerGetConfigurationResponses[keyof PresentationManagementControllerGetConfigurationResponses];
+
+export type PresentationManagementControllerUpdateConfigurationData = {
+  body: PresentationConfigUpdateDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/verifier/config/{id}";
+};
+
+export type PresentationManagementControllerUpdateConfigurationResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type PresentationManagementControllerUpdateConfigurationResponse =
+  PresentationManagementControllerUpdateConfigurationResponses[keyof PresentationManagementControllerUpdateConfigurationResponses];
+
+export type CacheControllerGetStatsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/cache/stats";
+};
+
+export type CacheControllerGetStatsResponses = {
+  /**
+   * Cache statistics
+   */
+  200: unknown;
+};
+
+export type CacheControllerClearAllCachesData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/cache";
+};
+
+export type CacheControllerClearAllCachesResponses = {
+  /**
+   * All caches cleared successfully
+   */
+  204: void;
+};
+
+export type CacheControllerClearAllCachesResponse =
+  CacheControllerClearAllCachesResponses[keyof CacheControllerClearAllCachesResponses];
+
+export type CacheControllerClearTrustListCacheData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/cache/trust-list";
+};
+
+export type CacheControllerClearTrustListCacheResponses = {
+  /**
+   * Trust list cache cleared successfully
+   */
+  204: void;
+};
+
+export type CacheControllerClearTrustListCacheResponse =
+  CacheControllerClearTrustListCacheResponses[keyof CacheControllerClearTrustListCacheResponses];
+
+export type CacheControllerClearStatusListCacheData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/cache/status-list";
+};
+
+export type CacheControllerClearStatusListCacheResponses = {
+  /**
+   * Status list cache cleared successfully
+   */
+  204: void;
+};
+
+export type CacheControllerClearStatusListCacheResponse =
+  CacheControllerClearStatusListCacheResponses[keyof CacheControllerClearStatusListCacheResponses];
+
 export type Oid4VciControllerCredentialData = {
   body?: never;
   path: {
@@ -3232,148 +3379,6 @@ export type RegistrarControllerCreateAccessCertificateResponses = {
 
 export type RegistrarControllerCreateAccessCertificateResponse =
   RegistrarControllerCreateAccessCertificateResponses[keyof RegistrarControllerCreateAccessCertificateResponses];
-
-export type PresentationManagementControllerConfigurationData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/verifier/config";
-};
-
-export type PresentationManagementControllerConfigurationResponses = {
-  200: Array<PresentationConfig>;
-};
-
-export type PresentationManagementControllerConfigurationResponse =
-  PresentationManagementControllerConfigurationResponses[keyof PresentationManagementControllerConfigurationResponses];
-
-export type PresentationManagementControllerStorePresentationConfigData = {
-  body: PresentationConfigCreateDto;
-  path?: never;
-  query?: never;
-  url: "/verifier/config";
-};
-
-export type PresentationManagementControllerStorePresentationConfigResponses = {
-  201: {
-    [key: string]: unknown;
-  };
-};
-
-export type PresentationManagementControllerStorePresentationConfigResponse =
-  PresentationManagementControllerStorePresentationConfigResponses[keyof PresentationManagementControllerStorePresentationConfigResponses];
-
-export type PresentationManagementControllerDeleteConfigurationData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/verifier/config/{id}";
-};
-
-export type PresentationManagementControllerDeleteConfigurationResponses = {
-  200: unknown;
-};
-
-export type PresentationManagementControllerGetConfigurationData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/verifier/config/{id}";
-};
-
-export type PresentationManagementControllerGetConfigurationResponses = {
-  200: PresentationConfig;
-};
-
-export type PresentationManagementControllerGetConfigurationResponse =
-  PresentationManagementControllerGetConfigurationResponses[keyof PresentationManagementControllerGetConfigurationResponses];
-
-export type PresentationManagementControllerUpdateConfigurationData = {
-  body: PresentationConfigUpdateDto;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/verifier/config/{id}";
-};
-
-export type PresentationManagementControllerUpdateConfigurationResponses = {
-  200: {
-    [key: string]: unknown;
-  };
-};
-
-export type PresentationManagementControllerUpdateConfigurationResponse =
-  PresentationManagementControllerUpdateConfigurationResponses[keyof PresentationManagementControllerUpdateConfigurationResponses];
-
-export type CacheControllerGetStatsData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/cache/stats";
-};
-
-export type CacheControllerGetStatsResponses = {
-  /**
-   * Cache statistics
-   */
-  200: unknown;
-};
-
-export type CacheControllerClearAllCachesData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/cache";
-};
-
-export type CacheControllerClearAllCachesResponses = {
-  /**
-   * All caches cleared successfully
-   */
-  204: void;
-};
-
-export type CacheControllerClearAllCachesResponse =
-  CacheControllerClearAllCachesResponses[keyof CacheControllerClearAllCachesResponses];
-
-export type CacheControllerClearTrustListCacheData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/cache/trust-list";
-};
-
-export type CacheControllerClearTrustListCacheResponses = {
-  /**
-   * Trust list cache cleared successfully
-   */
-  204: void;
-};
-
-export type CacheControllerClearTrustListCacheResponse =
-  CacheControllerClearTrustListCacheResponses[keyof CacheControllerClearTrustListCacheResponses];
-
-export type CacheControllerClearStatusListCacheData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/cache/status-list";
-};
-
-export type CacheControllerClearStatusListCacheResponses = {
-  /**
-   * Status list cache cleared successfully
-   */
-  204: void;
-};
-
-export type CacheControllerClearStatusListCacheResponse =
-  CacheControllerClearStatusListCacheResponses[keyof CacheControllerClearStatusListCacheResponses];
 
 export type TrustListControllerGetAllTrustListsData = {
   body?: never;

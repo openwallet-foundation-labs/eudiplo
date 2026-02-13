@@ -6,6 +6,7 @@ import { ISSUER_VALIDATION_SCHEMA } from "../../../issuer/issuer-validation.sche
 import { STATUS_LIST_VALIDATION_SCHEMA } from "../../../issuer/lifecycle/status/status-list-validation.schema";
 import { SESSION_VALIDATION_SCHEMA } from "../../../session/session-validation.schema";
 import { STORAGE_VALIDATION_SCHEMA } from "../../../storage/storage-validation.schema";
+import { ENCRYPTION_VALIDATION_SCHEMA } from "../encryption/encryption-validation.schema";
 import { LOG_VALIDATION_SCHEMA } from "../logger/log-validation.schema";
 import { CONFIG_VALIDATION_SCHEMA } from "./config-validation.schema";
 import { BASE_VALIDATION_SCHEMA } from "./validation.schema";
@@ -24,4 +25,5 @@ export const VALIDATION_SCHEMA = BASE_VALIDATION_SCHEMA.concat(
     .concat(ISSUER_VALIDATION_SCHEMA)
     .concat(SESSION_VALIDATION_SCHEMA)
     .concat(STORAGE_VALIDATION_SCHEMA)
-    .concat(STATUS_LIST_VALIDATION_SCHEMA);
+    .concat(STATUS_LIST_VALIDATION_SCHEMA)
+    .concat(ENCRYPTION_VALIDATION_SCHEMA);

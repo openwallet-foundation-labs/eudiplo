@@ -507,7 +507,7 @@ export const KeyEntitySchema = {
     },
     key: {
       type: "object",
-      description: "The key material.",
+      description: "The key material.\nEncrypted at rest using AES-256-GCM.",
     },
     usage: {
       type: "object",
@@ -1257,7 +1257,8 @@ export const SessionSchema = {
       description: "Request URI from the authorization request.",
     },
     auth_queries: {
-      description: "Authorization queries associated with the session.",
+      description:
+        "Authorization queries associated with the session.\nEncrypted at rest.",
       allOf: [
         {
           $ref: "#/components/schemas/AuthorizeQueries",
@@ -1266,7 +1267,7 @@ export const SessionSchema = {
     },
     offer: {
       description:
-        "Credential offer object containing details about the credential offer or presentation request.",
+        "Credential offer object containing details about the credential offer or presentation request.\nEncrypted at rest.",
       type: "object",
     },
     offerUrl: {
@@ -1274,7 +1275,8 @@ export const SessionSchema = {
       description: "Offer URL for the credential offer.",
     },
     credentialPayload: {
-      description: "Credential payload containing the offer request details.",
+      description:
+        "Credential payload containing the offer request details.\nEncrypted at rest - may contain sensitive claim data.",
       allOf: [
         {
           $ref: "#/components/schemas/OfferRequestDto",
@@ -1309,7 +1311,8 @@ export const SessionSchema = {
       description: "Signed presentation auth request.",
     },
     credentials: {
-      description: "Verified credentials from the presentation process.",
+      description:
+        "Verified credentials from the presentation process.\nEncrypted at rest - contains personal information.",
       type: "array",
       items: {
         type: "object",
@@ -2360,6 +2363,298 @@ export const CredentialConfigUpdateSchema = {
   },
 } as const;
 
+export const DCQLSchema = {
+  type: "object",
+  properties: {
+    credentials: {
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/CredentialQuery",
+      },
+    },
+    credential_sets: {
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/CredentialSetQuery",
+      },
+    },
+  },
+  required: ["credentials"],
+} as const;
+
+export const RegistrationCertificateRequestSchema = {
+  type: "object",
+  properties: {
+    jwt: {
+      type: "string",
+      description:
+        "The body of the registration certificate request containing the necessary details.",
+    },
+  },
+  required: ["jwt"],
+} as const;
+
+export const PresentationAttachmentSchema = {
+  type: "object",
+  properties: {
+    format: {
+      type: "string",
+    },
+    data: {
+      type: "object",
+    },
+    credential_ids: {
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+  },
+  required: ["format", "data"],
+} as const;
+
+export const PresentationConfigSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description: "Unique identifier for the VP request.",
+    },
+    tenant: {
+      description: "The tenant that owns this object.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/TenantEntity",
+        },
+      ],
+    },
+    description: {
+      type: "string",
+      nullable: true,
+      description: "Description of the presentation configuration.",
+    },
+    lifeTime: {
+      type: "number",
+      description:
+        "Lifetime how long the presentation request is valid after creation, in seconds.",
+    },
+    dcql_query: {
+      description: "The DCQL query to be used for the VP request.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/DCQL",
+        },
+      ],
+    },
+    transaction_data: {
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/TransactionData",
+      },
+    },
+    registrationCert: {
+      nullable: true,
+      description:
+        "The registration certificate request containing the necessary details.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/RegistrationCertificateRequest",
+        },
+      ],
+    },
+    webhook: {
+      nullable: true,
+      description: "Optional webhook URL to receive the response.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/WebhookConfig",
+        },
+      ],
+    },
+    createdAt: {
+      format: "date-time",
+      type: "string",
+      description: "The timestamp when the VP request was created.",
+    },
+    updatedAt: {
+      format: "date-time",
+      type: "string",
+      description: "The timestamp when the VP request was last updated.",
+    },
+    attached: {
+      nullable: true,
+      description: "Attestation that should be attached",
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/PresentationAttachment",
+      },
+    },
+    redirectUri: {
+      type: "string",
+      nullable: true,
+      description:
+        "Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.",
+      example: "https://example.com/callback?session={sessionId}",
+    },
+    accessCertId: {
+      type: "string",
+      nullable: true,
+      description:
+        "Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.\n\nNote: This is intentionally NOT a TypeORM relationship because CertEntity uses\na composite primary key (id + tenantId), and SQLite cannot create foreign keys\nthat reference only part of a composite primary key. The relationship is handled\nat the application level in the service layer.",
+    },
+  },
+  required: ["id", "tenant", "dcql_query", "createdAt", "updatedAt"],
+} as const;
+
+export const PresentationConfigCreateDtoSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description: "Unique identifier for the VP request.",
+    },
+    description: {
+      type: "string",
+      nullable: true,
+      description: "Description of the presentation configuration.",
+    },
+    lifeTime: {
+      type: "number",
+      description:
+        "Lifetime how long the presentation request is valid after creation, in seconds.",
+    },
+    dcql_query: {
+      description: "The DCQL query to be used for the VP request.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/DCQL",
+        },
+      ],
+    },
+    transaction_data: {
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/TransactionData",
+      },
+    },
+    registrationCert: {
+      nullable: true,
+      description:
+        "The registration certificate request containing the necessary details.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/RegistrationCertificateRequest",
+        },
+      ],
+    },
+    webhook: {
+      nullable: true,
+      description: "Optional webhook URL to receive the response.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/WebhookConfig",
+        },
+      ],
+    },
+    attached: {
+      nullable: true,
+      description: "Attestation that should be attached",
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/PresentationAttachment",
+      },
+    },
+    redirectUri: {
+      type: "string",
+      nullable: true,
+      description:
+        "Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.",
+      example: "https://example.com/callback?session={sessionId}",
+    },
+    accessCertId: {
+      type: "string",
+      nullable: true,
+      description:
+        "Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.\n\nNote: This is intentionally NOT a TypeORM relationship because CertEntity uses\na composite primary key (id + tenantId), and SQLite cannot create foreign keys\nthat reference only part of a composite primary key. The relationship is handled\nat the application level in the service layer.",
+    },
+  },
+  required: ["id", "dcql_query"],
+} as const;
+
+export const PresentationConfigUpdateDtoSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description: "Unique identifier for the VP request.",
+    },
+    description: {
+      type: "string",
+      nullable: true,
+      description: "Description of the presentation configuration.",
+    },
+    lifeTime: {
+      type: "number",
+      description:
+        "Lifetime how long the presentation request is valid after creation, in seconds.",
+    },
+    dcql_query: {
+      description: "The DCQL query to be used for the VP request.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/DCQL",
+        },
+      ],
+    },
+    transaction_data: {
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/TransactionData",
+      },
+    },
+    registrationCert: {
+      nullable: true,
+      description:
+        "The registration certificate request containing the necessary details.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/RegistrationCertificateRequest",
+        },
+      ],
+    },
+    webhook: {
+      nullable: true,
+      description: "Optional webhook URL to receive the response.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/WebhookConfig",
+        },
+      ],
+    },
+    attached: {
+      nullable: true,
+      description: "Attestation that should be attached",
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/PresentationAttachment",
+      },
+    },
+    redirectUri: {
+      type: "string",
+      nullable: true,
+      description:
+        "Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.",
+      example: "https://example.com/callback?session={sessionId}",
+    },
+    accessCertId: {
+      type: "string",
+      nullable: true,
+      description:
+        "Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.\n\nNote: This is intentionally NOT a TypeORM relationship because CertEntity uses\na composite primary key (id + tenantId), and SQLite cannot create foreign keys\nthat reference only part of a composite primary key. The relationship is handled\nat the application level in the service layer.",
+    },
+  },
+} as const;
+
 export const DeferredCredentialRequestDtoSchema = {
   type: "object",
   properties: {
@@ -2735,298 +3030,6 @@ export const CreateAccessCertificateDtoSchema = {
     },
   },
   required: ["keyId"],
-} as const;
-
-export const DCQLSchema = {
-  type: "object",
-  properties: {
-    credentials: {
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/CredentialQuery",
-      },
-    },
-    credential_sets: {
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/CredentialSetQuery",
-      },
-    },
-  },
-  required: ["credentials"],
-} as const;
-
-export const RegistrationCertificateRequestSchema = {
-  type: "object",
-  properties: {
-    jwt: {
-      type: "string",
-      description:
-        "The body of the registration certificate request containing the necessary details.",
-    },
-  },
-  required: ["jwt"],
-} as const;
-
-export const PresentationAttachmentSchema = {
-  type: "object",
-  properties: {
-    format: {
-      type: "string",
-    },
-    data: {
-      type: "object",
-    },
-    credential_ids: {
-      type: "array",
-      items: {
-        type: "string",
-      },
-    },
-  },
-  required: ["format", "data"],
-} as const;
-
-export const PresentationConfigSchema = {
-  type: "object",
-  properties: {
-    id: {
-      type: "string",
-      description: "Unique identifier for the VP request.",
-    },
-    tenant: {
-      description: "The tenant that owns this object.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/TenantEntity",
-        },
-      ],
-    },
-    description: {
-      type: "string",
-      nullable: true,
-      description: "Description of the presentation configuration.",
-    },
-    lifeTime: {
-      type: "number",
-      description:
-        "Lifetime how long the presentation request is valid after creation, in seconds.",
-    },
-    dcql_query: {
-      description: "The DCQL query to be used for the VP request.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/DCQL",
-        },
-      ],
-    },
-    transaction_data: {
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/TransactionData",
-      },
-    },
-    registrationCert: {
-      nullable: true,
-      description:
-        "The registration certificate request containing the necessary details.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/RegistrationCertificateRequest",
-        },
-      ],
-    },
-    webhook: {
-      nullable: true,
-      description: "Optional webhook URL to receive the response.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/WebhookConfig",
-        },
-      ],
-    },
-    createdAt: {
-      format: "date-time",
-      type: "string",
-      description: "The timestamp when the VP request was created.",
-    },
-    updatedAt: {
-      format: "date-time",
-      type: "string",
-      description: "The timestamp when the VP request was last updated.",
-    },
-    attached: {
-      nullable: true,
-      description: "Attestation that should be attached",
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/PresentationAttachment",
-      },
-    },
-    redirectUri: {
-      type: "string",
-      nullable: true,
-      description:
-        "Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.",
-      example: "https://example.com/callback?session={sessionId}",
-    },
-    accessCertId: {
-      type: "string",
-      nullable: true,
-      description:
-        "Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.\n\nNote: This is intentionally NOT a TypeORM relationship because CertEntity uses\na composite primary key (id + tenantId), and SQLite cannot create foreign keys\nthat reference only part of a composite primary key. The relationship is handled\nat the application level in the service layer.",
-    },
-  },
-  required: ["id", "tenant", "dcql_query", "createdAt", "updatedAt"],
-} as const;
-
-export const PresentationConfigCreateDtoSchema = {
-  type: "object",
-  properties: {
-    id: {
-      type: "string",
-      description: "Unique identifier for the VP request.",
-    },
-    description: {
-      type: "string",
-      nullable: true,
-      description: "Description of the presentation configuration.",
-    },
-    lifeTime: {
-      type: "number",
-      description:
-        "Lifetime how long the presentation request is valid after creation, in seconds.",
-    },
-    dcql_query: {
-      description: "The DCQL query to be used for the VP request.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/DCQL",
-        },
-      ],
-    },
-    transaction_data: {
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/TransactionData",
-      },
-    },
-    registrationCert: {
-      nullable: true,
-      description:
-        "The registration certificate request containing the necessary details.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/RegistrationCertificateRequest",
-        },
-      ],
-    },
-    webhook: {
-      nullable: true,
-      description: "Optional webhook URL to receive the response.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/WebhookConfig",
-        },
-      ],
-    },
-    attached: {
-      nullable: true,
-      description: "Attestation that should be attached",
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/PresentationAttachment",
-      },
-    },
-    redirectUri: {
-      type: "string",
-      nullable: true,
-      description:
-        "Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.",
-      example: "https://example.com/callback?session={sessionId}",
-    },
-    accessCertId: {
-      type: "string",
-      nullable: true,
-      description:
-        "Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.\n\nNote: This is intentionally NOT a TypeORM relationship because CertEntity uses\na composite primary key (id + tenantId), and SQLite cannot create foreign keys\nthat reference only part of a composite primary key. The relationship is handled\nat the application level in the service layer.",
-    },
-  },
-  required: ["id", "dcql_query"],
-} as const;
-
-export const PresentationConfigUpdateDtoSchema = {
-  type: "object",
-  properties: {
-    id: {
-      type: "string",
-      description: "Unique identifier for the VP request.",
-    },
-    description: {
-      type: "string",
-      nullable: true,
-      description: "Description of the presentation configuration.",
-    },
-    lifeTime: {
-      type: "number",
-      description:
-        "Lifetime how long the presentation request is valid after creation, in seconds.",
-    },
-    dcql_query: {
-      description: "The DCQL query to be used for the VP request.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/DCQL",
-        },
-      ],
-    },
-    transaction_data: {
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/TransactionData",
-      },
-    },
-    registrationCert: {
-      nullable: true,
-      description:
-        "The registration certificate request containing the necessary details.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/RegistrationCertificateRequest",
-        },
-      ],
-    },
-    webhook: {
-      nullable: true,
-      description: "Optional webhook URL to receive the response.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/WebhookConfig",
-        },
-      ],
-    },
-    attached: {
-      nullable: true,
-      description: "Attestation that should be attached",
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/PresentationAttachment",
-      },
-    },
-    redirectUri: {
-      type: "string",
-      nullable: true,
-      description:
-        "Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.",
-      example: "https://example.com/callback?session={sessionId}",
-    },
-    accessCertId: {
-      type: "string",
-      nullable: true,
-      description:
-        "Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.\n\nNote: This is intentionally NOT a TypeORM relationship because CertEntity uses\na composite primary key (id + tenantId), and SQLite cannot create foreign keys\nthat reference only part of a composite primary key. The relationship is handled\nat the application level in the service layer.",
-    },
-  },
 } as const;
 
 export const TrustListCreateDtoSchema = {

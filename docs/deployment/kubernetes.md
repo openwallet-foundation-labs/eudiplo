@@ -477,6 +477,7 @@ Before deploying to production, address these critical areas:
 - **Implement network policies** to restrict pod-to-pod communication
 - **Apply Pod Security Standards** (restricted PSS to namespace)
 - **Use external secret management** (HashiCorp Vault, AWS Secrets Manager, Azure Key Vault)
+- **Configure `ENCRYPTION_KEY_SOURCE`** to `vault`, `aws`, or `azure` so the encryption key is only in RAM (see [Encryption at Rest](../architecture/database.md#encryption-key-sources))
 
 ### 2. High Availability
 

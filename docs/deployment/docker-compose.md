@@ -626,6 +626,7 @@ Before deploying to production:
 4. **Use secrets management** instead of `.env` files
 5. **Regular security updates** for all images
 6. **Enable Docker Content Trust** for image verification
+7. **Configure `ENCRYPTION_KEY_SOURCE=vault`** so the encryption key is only in RAM, not in environment variables (see [Encryption at Rest](../architecture/database.md#encryption-key-sources))
 
 ### High Availability
 
