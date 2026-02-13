@@ -92,14 +92,6 @@ export class ClientListComponent implements OnInit {
     }
   }
 
-  async copyLoginUrl(client: ClientEntity) {
-    this.snackBar.open(
-      'Login URLs are no longer available. Client secrets are now hashed for security. Use "Rotate Secret" to generate a new secret.',
-      'Close',
-      { duration: 5000 }
-    );
-  }
-
   /**
    * Rotate (regenerate) a client's secret.
    * Shows the new secret in a dialog for one-time viewing.
@@ -133,13 +125,5 @@ export class ClientListComponent implements OnInit {
       console.error('Error rotating secret:', error);
       this.snackBar.open('Failed to rotate client secret', 'Close', { duration: 3000 });
     }
-  }
-
-  async loginAsClient(client: ClientEntity): Promise<void> {
-    this.snackBar.open(
-      'Direct login is no longer available. Client secrets are now hashed for security. Use "Rotate Secret" to generate a new secret, then log in manually.',
-      'Close',
-      { duration: 5000 }
-    );
   }
 }

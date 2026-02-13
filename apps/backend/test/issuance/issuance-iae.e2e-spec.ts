@@ -1,17 +1,9 @@
 import { INestApplication } from "@nestjs/common";
-import { Jwk, JwtSignerJwk } from "@openid4vc/oauth2";
-import { Openid4vciClient } from "@openid4vc/openid4vci";
-import { exportJWK, generateKeyPair } from "jose";
 import request from "supertest";
 import { App } from "supertest/types";
 import { Agent, setGlobalDispatcher } from "undici";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import {
-    callbacks,
-    getSignJwtCallback,
-    IssuanceTestContext,
-    setupIssuanceTestApp,
-} from "../utils";
+import { IssuanceTestContext, setupIssuanceTestApp } from "../utils";
 
 setGlobalDispatcher(
     new Agent({

@@ -13,7 +13,7 @@
  * (not in globalSetup), which is why we use beforeAll/afterAll hooks.
  */
 
-import { existsSync, rmSync } from "node:fs";
+import { rmSync } from "node:fs";
 import { resolve } from "node:path";
 import {
     GenericContainer,
