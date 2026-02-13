@@ -451,20 +451,20 @@ docker compose exec vault vault status
 
 Common environment variables:
 
-| Variable      | Description                          | Default                 |
-| ------------- | ------------------------------------ | ----------------------- |
-| `PUBLIC_URL`  | Public URL for OAuth redirects       | `http://localhost:3000` |
-| `NODE_ENV`    | Environment (development/production) | `development`           |
-| `DB_TYPE`     | Database type (postgres/sqlite)      | `postgres`              |
-| `DB_HOST`     | Database hostname                    | `database`              |
-| `DB_PORT`     | Database port                        | `5432`                  |
-| `DB_USERNAME` | Database username                    | -                       |
-| `DB_PASSWORD` | Database password                    | -                       |
-| `DB_DATABASE` | Database name                        | `eudiplo`               |
-| `VAULT_TOKEN` | Vault root token                     | -                       |
-| `VAULT_ADDR`  | Vault address                        | `http://vault:8200`     |
-| `MASTER_SECRET`  | Master secret for JWT and encryption | -                       |
-| `LOG_LEVEL`   | Logging level                        | `info`                  |
+| Variable        | Description                          | Default                 |
+| --------------- | ------------------------------------ | ----------------------- |
+| `PUBLIC_URL`    | Public URL for OAuth redirects       | `http://localhost:3000` |
+| `NODE_ENV`      | Environment (development/production) | `development`           |
+| `DB_TYPE`       | Database type (postgres/sqlite)      | `postgres`              |
+| `DB_HOST`       | Database hostname                    | `database`              |
+| `DB_PORT`       | Database port                        | `5432`                  |
+| `DB_USERNAME`   | Database username                    | -                       |
+| `DB_PASSWORD`   | Database password                    | -                       |
+| `DB_DATABASE`   | Database name                        | `eudiplo`               |
+| `VAULT_TOKEN`   | Vault root token                     | -                       |
+| `VAULT_ADDR`    | Vault address                        | `http://vault:8200`     |
+| `MASTER_SECRET` | Master secret for JWT and encryption | -                       |
+| `LOG_LEVEL`     | Logging level                        | `info`                  |
 
 See [Configuration Documentation](../architecture/index.md) for complete list.
 
@@ -637,7 +637,7 @@ EUDIPLO requires several secrets (database credentials, JWT secret, encryption k
 | Secret                 | Risk Level | Dev/Test Approach | Production Approach                |
 | ---------------------- | ---------- | ----------------- | ---------------------------------- |
 | `DB_PASSWORD`          | High       | `.env` file       | Docker Secrets / Vault Agent       |
-| `MASTER_SECRET`           | Critical   | `.env` file       | Docker Secrets / Vault Agent       |
+| `MASTER_SECRET`        | Critical   | `.env` file       | Docker Secrets / Vault Agent       |
 | `AUTH_CLIENT_SECRET`   | Critical   | `.env` file       | Docker Secrets / Vault Agent       |
 | `S3_SECRET_ACCESS_KEY` | High       | `.env` file       | Docker Secrets / IAM Role          |
 | `ENCRYPTION_KEY`       | Critical   | `.env` file       | Application-level fetch (built-in) |
