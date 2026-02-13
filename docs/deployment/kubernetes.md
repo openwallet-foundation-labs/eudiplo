@@ -485,13 +485,13 @@ EUDIPLO requires several secrets (database credentials, JWT secret, encryption k
 
 #### Credential Categories
 
-| Secret | Risk Level | Recommended Approach |
-|--------|------------|---------------------|
-| `DB_PASSWORD` | High | External Secrets Operator / Vault Agent |
-| `JWT_SECRET` | Critical | External Secrets Operator / Vault Agent |
-| `AUTH_CLIENT_SECRET` | Critical | External Secrets Operator / Vault Agent |
-| `S3_SECRET_ACCESS_KEY` | High | IRSA (AWS) / Workload Identity (Azure/GCP) |
-| `ENCRYPTION_KEY` | Critical | Application-level fetch (built-in support) |
+| Secret                 | Risk Level | Recommended Approach                       |
+| ---------------------- | ---------- | ------------------------------------------ |
+| `DB_PASSWORD`          | High       | External Secrets Operator / Vault Agent    |
+| `JWT_SECRET`           | Critical   | External Secrets Operator / Vault Agent    |
+| `AUTH_CLIENT_SECRET`   | Critical   | External Secrets Operator / Vault Agent    |
+| `S3_SECRET_ACCESS_KEY` | High       | IRSA (AWS) / Workload Identity (Azure/GCP) |
+| `ENCRYPTION_KEY`       | Critical   | Application-level fetch (built-in support) |
 
 #### Option 1: External Secrets Operator (Recommended)
 
@@ -501,7 +501,7 @@ The [External Secrets Operator](https://external-secrets.io/) syncs secrets from
 # Install External Secrets Operator
 helm repo add external-secrets https://charts.external-secrets.io
 helm install external-secrets external-secrets/external-secrets \
-  -n external-secrets --create-namespace
+-n external-secrets --create-namespace
 ```
 
 Example SecretStore for AWS Secrets Manager:
@@ -510,44 +510,44 @@ Example SecretStore for AWS Secrets Manager:
 apiVersion: external-secrets.io/v1beta1
 kind: SecretStore
 metadata:
-  name: aws-secrets-manager
-  namespace: eudiplo
+    name: aws-secrets-manager
+    namespace: eudiplo
 spec:
-  provider:
-    aws:
-      service: SecretsManager
-      region: eu-central-1
-      auth:
-        jwt:
-          serviceAccountRef:
-            name: eudiplo-sa
+    provider:
+        aws:
+            service: SecretsManager
+            region: eu-central-1
+            auth:
+                jwt:
+                    serviceAccountRef:
+                        name: eudiplo-sa
 ---
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
-  name: eudiplo-secrets
-  namespace: eudiplo
+    name: eudiplo-secrets
+    namespace: eudiplo
 spec:
-  refreshInterval: 1h
-  secretStoreRef:
-    name: aws-secrets-manager
-    kind: SecretStore
-  target:
-    name: eudiplo-env
-    creationPolicy: Owner
-  data:
-    - secretKey: DB_PASSWORD
-      remoteRef:
-        key: eudiplo/production
-        property: db_password
-    - secretKey: JWT_SECRET
-      remoteRef:
-        key: eudiplo/production
-        property: jwt_secret
-    - secretKey: AUTH_CLIENT_SECRET
-      remoteRef:
-        key: eudiplo/production
-        property: auth_client_secret
+    refreshInterval: 1h
+    secretStoreRef:
+        name: aws-secrets-manager
+        kind: SecretStore
+    target:
+        name: eudiplo-env
+        creationPolicy: Owner
+    data:
+        - secretKey: DB_PASSWORD
+          remoteRef:
+              key: eudiplo/production
+              property: db_password
+        - secretKey: JWT_SECRET
+          remoteRef:
+              key: eudiplo/production
+              property: jwt_secret
+        - secretKey: AUTH_CLIENT_SECRET
+          remoteRef:
+              key: eudiplo/production
+              property: auth_client_secret
 ```
 
 Example SecretStore for HashiCorp Vault:
@@ -556,40 +556,40 @@ Example SecretStore for HashiCorp Vault:
 apiVersion: external-secrets.io/v1beta1
 kind: SecretStore
 metadata:
-  name: vault
-  namespace: eudiplo
+    name: vault
+    namespace: eudiplo
 spec:
-  provider:
-    vault:
-      server: "https://vault.example.com"
-      path: "secret"
-      version: "v2"
-      auth:
-        kubernetes:
-          mountPath: "kubernetes"
-          role: "eudiplo"
+    provider:
+        vault:
+            server: 'https://vault.example.com'
+            path: 'secret'
+            version: 'v2'
+            auth:
+                kubernetes:
+                    mountPath: 'kubernetes'
+                    role: 'eudiplo'
 ---
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
-  name: eudiplo-secrets
-  namespace: eudiplo
+    name: eudiplo-secrets
+    namespace: eudiplo
 spec:
-  refreshInterval: 1h
-  secretStoreRef:
-    name: vault
-    kind: SecretStore
-  target:
-    name: eudiplo-env
-  data:
-    - secretKey: DB_PASSWORD
-      remoteRef:
-        key: eudiplo/credentials
-        property: db_password
-    - secretKey: JWT_SECRET
-      remoteRef:
-        key: eudiplo/credentials
-        property: jwt_secret
+    refreshInterval: 1h
+    secretStoreRef:
+        name: vault
+        kind: SecretStore
+    target:
+        name: eudiplo-env
+    data:
+        - secretKey: DB_PASSWORD
+          remoteRef:
+              key: eudiplo/credentials
+              property: db_password
+        - secretKey: JWT_SECRET
+          remoteRef:
+              key: eudiplo/credentials
+              property: jwt_secret
 ```
 
 #### Option 2: Vault Agent Sidecar
@@ -600,20 +600,20 @@ Use the [Vault Agent Injector](https://developer.hashicorp.com/vault/docs/platfo
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: eudiplo
+    name: eudiplo
 spec:
-  template:
-    metadata:
-      annotations:
-        vault.hashicorp.com/agent-inject: "true"
-        vault.hashicorp.com/role: "eudiplo"
-        vault.hashicorp.com/agent-inject-secret-config: "secret/eudiplo/credentials"
-        vault.hashicorp.com/agent-inject-template-config: |
-          {{- with secret "secret/eudiplo/credentials" -}}
-          export DB_PASSWORD="{{ .Data.data.db_password }}"
-          export JWT_SECRET="{{ .Data.data.jwt_secret }}"
-          export AUTH_CLIENT_SECRET="{{ .Data.data.auth_client_secret }}"
-          {{- end -}}
+    template:
+        metadata:
+            annotations:
+                vault.hashicorp.com/agent-inject: 'true'
+                vault.hashicorp.com/role: 'eudiplo'
+                vault.hashicorp.com/agent-inject-secret-config: 'secret/eudiplo/credentials'
+                vault.hashicorp.com/agent-inject-template-config: |
+                    {{- with secret "secret/eudiplo/credentials" -}}
+                    export DB_PASSWORD="{{ .Data.data.db_password }}"
+                    export JWT_SECRET="{{ .Data.data.jwt_secret }}"
+                    export AUTH_CLIENT_SECRET="{{ .Data.data.auth_client_secret }}"
+                    {{- end -}}
 ```
 
 #### Option 3: Cloud-Native IAM (for S3/Storage)

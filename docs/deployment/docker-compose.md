@@ -634,13 +634,13 @@ EUDIPLO requires several secrets (database credentials, JWT secret, encryption k
 
 #### Credential Categories
 
-| Secret | Risk Level | Dev/Test Approach | Production Approach |
-|--------|------------|-------------------|--------------------|
-| `DB_PASSWORD` | High | `.env` file | Docker Secrets / Vault Agent |
-| `JWT_SECRET` | Critical | `.env` file | Docker Secrets / Vault Agent |
-| `AUTH_CLIENT_SECRET` | Critical | `.env` file | Docker Secrets / Vault Agent |
-| `S3_SECRET_ACCESS_KEY` | High | `.env` file | Docker Secrets / IAM Role |
-| `ENCRYPTION_KEY` | Critical | `.env` file | Application-level fetch (built-in) |
+| Secret                 | Risk Level | Dev/Test Approach | Production Approach                |
+| ---------------------- | ---------- | ----------------- | ---------------------------------- |
+| `DB_PASSWORD`          | High       | `.env` file       | Docker Secrets / Vault Agent       |
+| `JWT_SECRET`           | Critical   | `.env` file       | Docker Secrets / Vault Agent       |
+| `AUTH_CLIENT_SECRET`   | Critical   | `.env` file       | Docker Secrets / Vault Agent       |
+| `S3_SECRET_ACCESS_KEY` | High       | `.env` file       | Docker Secrets / IAM Role          |
+| `ENCRYPTION_KEY`       | Critical   | `.env` file       | Application-level fetch (built-in) |
 
 #### Option 1: Docker Secrets (Docker Swarm)
 
@@ -656,30 +656,30 @@ echo "your-auth-client-secret" | docker secret create auth_client_secret -
 Reference in `docker-compose.yml`:
 
 ```yaml
-version: "3.8"
+version: '3.8'
 services:
-  eudiplo:
-    image: eudiplo/backend:latest
-    secrets:
-      - db_password
-      - jwt_secret
-      - auth_client_secret
-    environment:
-      DB_PASSWORD_FILE: /run/secrets/db_password
-      JWT_SECRET_FILE: /run/secrets/jwt_secret
-      AUTH_CLIENT_SECRET_FILE: /run/secrets/auth_client_secret
+    eudiplo:
+        image: eudiplo/backend:latest
+        secrets:
+            - db_password
+            - jwt_secret
+            - auth_client_secret
+        environment:
+            DB_PASSWORD_FILE: /run/secrets/db_password
+            JWT_SECRET_FILE: /run/secrets/jwt_secret
+            AUTH_CLIENT_SECRET_FILE: /run/secrets/auth_client_secret
 
 secrets:
-  db_password:
-    external: true
-  jwt_secret:
-    external: true
-  auth_client_secret:
-    external: true
+    db_password:
+        external: true
+    jwt_secret:
+        external: true
+    auth_client_secret:
+        external: true
 ```
 
 !!! note "File-based Secrets"
-    Docker Secrets are mounted as files at `/run/secrets/<secret_name>`. The application reads secret values from these files at startup.
+Docker Secrets are mounted as files at `/run/secrets/<secret_name>`. The application reads secret values from these files at startup.
 
 #### Option 2: Vault Agent Sidecar
 
@@ -687,25 +687,25 @@ Run HashiCorp Vault Agent alongside the application to inject secrets:
 
 ```yaml
 services:
-  vault-agent:
-    image: hashicorp/vault:latest
-    command: agent -config=/vault/config/agent.hcl
-    volumes:
-      - vault-secrets:/vault/secrets
-      - ./vault-agent-config.hcl:/vault/config/agent.hcl:ro
+    vault-agent:
+        image: hashicorp/vault:latest
+        command: agent -config=/vault/config/agent.hcl
+        volumes:
+            - vault-secrets:/vault/secrets
+            - ./vault-agent-config.hcl:/vault/config/agent.hcl:ro
 
-  eudiplo:
-    image: eudiplo/backend:latest
-    depends_on:
-      - vault-agent
-    volumes:
-      - vault-secrets:/vault/secrets:ro
-    environment:
-      DB_PASSWORD_FILE: /vault/secrets/db_password
-      JWT_SECRET_FILE: /vault/secrets/jwt_secret
+    eudiplo:
+        image: eudiplo/backend:latest
+        depends_on:
+            - vault-agent
+        volumes:
+            - vault-secrets:/vault/secrets:ro
+        environment:
+            DB_PASSWORD_FILE: /vault/secrets/db_password
+            JWT_SECRET_FILE: /vault/secrets/jwt_secret
 
 volumes:
-  vault-secrets:
+    vault-secrets:
 ```
 
 Vault Agent config (`vault-agent-config.hcl`):
