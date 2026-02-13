@@ -218,17 +218,6 @@ async function bootstrap() {
                 usingDefaults.push("JWT_SECRET");
             }
 
-            // Check for default auth credentials
-            const clientId = configService.get<string>("AUTH_CLIENT_ID");
-            const clientSecret =
-                configService.get<string>("AUTH_CLIENT_SECRET");
-            if (clientId === "root") {
-                usingDefaults.push("AUTH_CLIENT_ID");
-            }
-            if (clientSecret === "root") {
-                usingDefaults.push("AUTH_CLIENT_SECRET");
-            }
-
             if (usingDefaults.length > 0) {
                 logger.warn(
                     "🚨 SECURITY WARNING: Using default credentials for demo purposes!",
