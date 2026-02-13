@@ -150,16 +150,19 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &quot;@nestjs/common&quot;;
 import { PrometheusModule } from &quot;@willsoto/nestjs-prometheus&quot;;
+import { MetricsController } from &quot;./metrics.controller&quot;;
+import { MetricsAuthGuard } from &quot;./metrics-auth.guard&quot;;
 
 @Module({
     imports: [
-        //TODO: add a guard to protect the metrics endpoint
         PrometheusModule.register({
             defaultMetrics: {
                 enabled: false,
             },
+            controller: MetricsController,
         }),
     ],
+    providers: [MetricsAuthGuard],
 })
 export class MetricsModule {}
 </code></pre>

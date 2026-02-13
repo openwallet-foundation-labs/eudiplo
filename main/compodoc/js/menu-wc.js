@@ -726,6 +726,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </div>
                             <ul class="links collapse " ${ isNormalMode ? 'id="controllers-links"' : 'id="xs-controllers-links"' }>
                                 <li class="link">
+                                    <a href="controllers/MetricsController.html" data-type="entity-link" >MetricsController</a>
+                                </li>
+                                <li class="link">
                                     <a href="controllers/StorageController.html" data-type="entity-link" >StorageController</a>
                                 </li>
                             </ul>
@@ -1215,6 +1218,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             <span class="icon ion-ios-arrow-down"></span>
                         </div>
                         <ul class="links collapse " ${ isNormalMode ? 'id="guards-links"' : 'id="xs-guards-links"' }>
+                            <li class="link">
+                                <a href="guards/MetricsAuthGuard.html" data-type="entity-link" >MetricsAuthGuard</a>
+                            </li>
                             <li class="link">
                                 <a href="guards/RolesGuard.html" data-type="entity-link" >RolesGuard</a>
                             </li>

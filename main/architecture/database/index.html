@@ -2680,8 +2680,8 @@ the service.</p>
 </table>
 <div class="admonition tip">
 <p class="admonition-title">Security Hardening</p>
-</div>
 <p>When using <code>vault</code>, <code>aws</code>, or <code>azure</code>, the encryption key is <strong>only in RAM</strong> — it's never stored in environment variables. This means a compromised container cannot retrieve the key via <code>env</code> or <code>/proc/*/environ</code> commands.</p>
+</div>
 <h4 id="environment-based-key-development">Environment-based Key (Development)<a class="headerlink" href="#environment-based-key-development" title="Permanent link">¶</a></h4>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">ENCRYPTION_KEY_SOURCE</span><span class="o">=</span>env<span class="w">  </span><span class="c1"># default</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nv">MASTER_SECRET</span><span class="o">=</span>your-jwt-secret<span class="w">  </span><span class="c1"># key derived via HKDF</span>
@@ -2740,16 +2740,17 @@ the service.</p>
 <p>To fully encrypt existing data, update each record (e.g., via a migration script or by re-creating keys/sessions).</p>
 <div class="admonition warning">
 <p class="admonition-title">Important: Key Recovery</p>
-</div>
 <p>If you lose your encryption key, all encrypted data becomes unrecoverable. Ensure you:</p>
-<div class="highlight"><pre><span></span><code>- Use a secrets manager with backup/versioning
-- Document the key's location for disaster recovery
-- Test key rotation procedures
-</code></pre></div>
+<ul>
+<li>Use a secrets manager with backup/versioning</li>
+<li>Document the key's location for disaster recovery</li>
+<li>Test key rotation procedures</li>
+</ul>
+</div>
 <div class="admonition tip">
 <p class="admonition-title">Database Column Type Change</p>
-</div>
 <p>Encrypted columns use <code>text</code> type instead of <code>json</code>. If you have custom migrations or database constraints on these columns, update them accordingly.</p>
+</div>
 <hr>
 <h2 id="extensibility">Extensibility<a class="headerlink" href="#extensibility" title="Permanent link">¶</a></h2>
 <p>Because this service uses TypeORM, it is easy to integrate additional database

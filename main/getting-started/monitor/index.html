@@ -1326,6 +1326,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Production Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#securing-the-metrics-endpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Securing the Metrics Endpoint
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2686,6 +2703,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Production Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#securing-the-metrics-endpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Securing the Metrics Endpoint
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2931,16 +2965,35 @@ both local development and Docker container scenarios.</p>
 <li><strong>Alerting</strong>: Configure alertmanager for notifications</li>
 <li><strong>Resources</strong>: Monitor resource usage and scale accordingly</li>
 </ol>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The endpoint for <code>/metrics</code> is not protected yet. So for now run the prometheus in the same network as the EUDIPLO instance. Authentication mechanisms will be added in the future.</p>
+<h3 id="securing-the-metrics-endpoint">Securing the Metrics Endpoint<a class="headerlink" href="#securing-the-metrics-endpoint" title="Permanent link">¶</a></h3>
+<p>The <code>/metrics</code> endpoint can expose sensitive metadata about your deployment
+(tenant IDs, session counts, etc.). In production, protect it with a Bearer token:</p>
+<p><strong>1. Set the metrics token in EUDIPLO:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># In your .env or environment</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nv">METRICS_TOKEN</span><span class="o">=</span>your-secure-metrics-token
+</code></pre></div>
+<p><strong>2. Configure Prometheus to use the token:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># prometheus.yml</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="nt">scrape_configs</span><span class="p">:</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">'eudiplo'</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">      </span><span class="nt">bearer_token</span><span class="p">:</span><span class="w"> </span><span class="s">'your-secure-metrics-token'</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">      </span><span class="nt">static_configs</span><span class="p">:</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">'eudiplo:3000'</span><span class="p p-Indicator">]</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">      </span><span class="nt">metrics_path</span><span class="p">:</span><span class="w"> </span><span class="s">'/metrics'</span>
+</code></pre></div>
+<p>When <code>METRICS_TOKEN</code> is set, requests without a valid <code>Authorization: Bearer &lt;token&gt;</code>
+header will receive a 401 Unauthorized response.</p>
+<div class="admonition tip">
+<p class="admonition-title">Development Mode</p>
+<p>If <code>METRICS_TOKEN</code> is not set, the endpoint remains unprotected for easier
+local development. Always set it in production environments.</p>
 </div>
 <h2 id="clean-up">Clean Up<a class="headerlink" href="#clean-up" title="Permanent link">¶</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Stop monitoring stack</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>docker-compose<span class="w"> </span>down
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># Remove volumes (deletes all data)</span>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>docker-compose<span class="w"> </span>down<span class="w"> </span>-v
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Stop monitoring stack</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>docker-compose<span class="w"> </span>down
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># Remove volumes (deletes all data)</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>docker-compose<span class="w"> </span>down<span class="w"> </span>-v
 </code></pre></div>
 
 
