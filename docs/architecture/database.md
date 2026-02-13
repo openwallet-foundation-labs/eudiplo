@@ -74,13 +74,14 @@ The encryption key can be sourced from different providers, configured via `ENCR
 
 | Source  | Description                             | Security Level | Use Case                 |
 | ------- | --------------------------------------- | -------------- | ------------------------ |
-| `env`   | Derived from `MASTER_SECRET` via HKDF      | Development    | Local dev, testing       |
+| `env`   | Derived from `MASTER_SECRET` via HKDF   | Development    | Local dev, testing       |
 | `vault` | Fetched from HashiCorp Vault at startup | Production     | Self-hosted, on-prem     |
 | `aws`   | Fetched from AWS Secrets Manager        | Production     | AWS-native deployments   |
 | `azure` | Fetched from Azure Key Vault            | Production     | Azure-native deployments |
 
 !!! tip "Security Hardening"
-When using `vault`, `aws`, or `azure`, the encryption key is **only in RAM** — it's never stored in environment variables. This means a compromised container cannot retrieve the key via `env` or `/proc/*/environ` commands.
+
+    When using `vault`, `aws`, or `azure`, the encryption key is **only in RAM** — it's never stored in environment variables. This means a compromised container cannot retrieve the key via `env` or `/proc/*/environ` commands.
 
 #### Environment-based Key (Development)
 
@@ -159,14 +160,16 @@ If upgrading from a version without encryption, EUDIPLO automatically handles mi
 To fully encrypt existing data, update each record (e.g., via a migration script or by re-creating keys/sessions).
 
 !!! warning "Important: Key Recovery"
-If you lose your encryption key, all encrypted data becomes unrecoverable. Ensure you:
 
-    - Use a secrets manager with backup/versioning
-    - Document the key's location for disaster recovery
-    - Test key rotation procedures
+    If you lose your encryption key, all encrypted data becomes unrecoverable. Ensure you:
+
+       - Use a secrets manager with backup/versioning
+       - Document the key's location for disaster recovery
+       - Test key rotation procedures
 
 !!! tip "Database Column Type Change"
-Encrypted columns use `text` type instead of `json`. If you have custom migrations or database constraints on these columns, update them accordingly.
+
+    Encrypted columns use `text` type instead of `json`. If you have custom migrations or database constraints on these columns, update them accordingly.
 
 ---
 

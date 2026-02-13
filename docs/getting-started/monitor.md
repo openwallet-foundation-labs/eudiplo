@@ -189,9 +189,37 @@ For production deployments:
 4. **Alerting**: Configure alertmanager for notifications
 5. **Resources**: Monitor resource usage and scale accordingly
 
-!!! Warning
+### Securing the Metrics Endpoint
 
-    The endpoint for `/metrics` is not protected yet. So for now run the prometheus in the same network as the EUDIPLO instance. Authentication mechanisms will be added in the future.
+The `/metrics` endpoint can expose sensitive metadata about your deployment
+(tenant IDs, session counts, etc.). In production, protect it with a Bearer token:
+
+**1. Set the metrics token in EUDIPLO:**
+
+```bash
+# In your .env or environment
+METRICS_TOKEN=your-secure-metrics-token
+```
+
+**2. Configure Prometheus to use the token:**
+
+```yaml
+# prometheus.yml
+scrape_configs:
+    - job_name: 'eudiplo'
+      bearer_token: 'your-secure-metrics-token'
+      static_configs:
+          - targets: ['eudiplo:3000']
+      metrics_path: '/metrics'
+```
+
+When `METRICS_TOKEN` is set, requests without a valid `Authorization: Bearer <token>`
+header will receive a 401 Unauthorized response.
+
+!!! tip "Development Mode"
+
+    If `METRICS_TOKEN` is not set, the endpoint remains unprotected for easier
+    local development. Always set it in production environments.
 
 ## Clean Up
 
