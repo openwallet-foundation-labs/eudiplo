@@ -67,7 +67,7 @@ See: [TLS Configuration Guide](tls.md)
 
 Before deploying to production, ensure you:
 
-- [ ] Changed all default credentials (JWT_SECRET, database passwords)
+- [ ] Changed all default credentials (MASTER_SECRET, database passwords)
 - [ ] Configured TLS/HTTPS with valid certificates
 - [ ] Set up database backups
 - [ ] Configured monitoring and alerting

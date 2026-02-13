@@ -47,13 +47,13 @@ export const AUTH_VALIDATION_SCHEMA: Joi.ObjectSchema = Joi.object({
         .description("Expected JWT alg")
         .meta({ group: "auth", order: 40 }),
 
-    JWT_SECRET: Joi.when("OIDC", {
+    MASTER_SECRET: Joi.when("OIDC", {
         is: Joi.exist(),
         then: Joi.string().optional(),
         otherwise: Joi.string().min(32).required(),
     })
         .description(
-            "Local JWT secret (when OIDC is off) - required, minimum 32 characters",
+            "Master secret for JWT signing and encryption key derivation - required, minimum 32 characters",
         )
         .meta({ group: "auth", order: 50 }),
 

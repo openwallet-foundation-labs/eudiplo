@@ -11,7 +11,7 @@ export default defineConfig({
         fileParallelism: false,
         env: {
             // Required environment variables for E2E tests
-            JWT_SECRET: "e2e-test-jwt-secret-do-not-use-in-production",
+            MASTER_SECRET: "e2e-test-master-secret-do-not-use-in-production",
             AUTH_CLIENT_ID: "e2e-test-client",
             AUTH_CLIENT_SECRET: "e2e-test-secret",
             ENCRYPTION_KEY:

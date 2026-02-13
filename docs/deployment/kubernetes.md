@@ -94,7 +94,7 @@ MINIO_ROOT_PASSWORD=minioadmin123
 MINIO_BUCKET=uploads
 
 # Application Secrets (ALL REQUIRED when not using external OIDC)
-JWT_SECRET=your-secret-jwt-key-change-in-production
+MASTER_SECRET=your-secret-jwt-key-change-in-production
 AUTH_CLIENT_ID=your-client-id
 AUTH_CLIENT_SECRET=your-client-secret
 
@@ -472,7 +472,7 @@ Before deploying to production, address these critical areas:
 
 ### 1. Security
 
-- **Change all default secrets** (JWT_SECRET, database passwords, MinIO credentials)
+- **Change all default secrets** (MASTER_SECRET, database passwords, MinIO credentials)
 - **Enable TLS/HTTPS** using cert-manager or LoadBalancer with TLS termination
 - **Implement network policies** to restrict pod-to-pod communication
 - **Apply Pod Security Standards** (restricted PSS to namespace)
@@ -488,7 +488,7 @@ EUDIPLO requires several secrets (database credentials, JWT secret, encryption k
 | Secret                 | Risk Level | Recommended Approach                       |
 | ---------------------- | ---------- | ------------------------------------------ |
 | `DB_PASSWORD`          | High       | External Secrets Operator / Vault Agent    |
-| `JWT_SECRET`           | Critical   | External Secrets Operator / Vault Agent    |
+| `MASTER_SECRET`           | Critical   | External Secrets Operator / Vault Agent    |
 | `AUTH_CLIENT_SECRET`   | Critical   | External Secrets Operator / Vault Agent    |
 | `S3_SECRET_ACCESS_KEY` | High       | IRSA (AWS) / Workload Identity (Azure/GCP) |
 | `ENCRYPTION_KEY`       | Critical   | Application-level fetch (built-in support) |
@@ -540,10 +540,10 @@ spec:
           remoteRef:
               key: eudiplo/production
               property: db_password
-        - secretKey: JWT_SECRET
+        - secretKey: MASTER_SECRET
           remoteRef:
               key: eudiplo/production
-              property: jwt_secret
+              property: master_secret
         - secretKey: AUTH_CLIENT_SECRET
           remoteRef:
               key: eudiplo/production
@@ -586,10 +586,10 @@ spec:
           remoteRef:
               key: eudiplo/credentials
               property: db_password
-        - secretKey: JWT_SECRET
+        - secretKey: MASTER_SECRET
           remoteRef:
               key: eudiplo/credentials
-              property: jwt_secret
+              property: master_secret
 ```
 
 #### Option 2: Vault Agent Sidecar
@@ -611,7 +611,7 @@ spec:
                 vault.hashicorp.com/agent-inject-template-config: |
                     {{- with secret "secret/eudiplo/credentials" -}}
                     export DB_PASSWORD="{{ .Data.data.db_password }}"
-                    export JWT_SECRET="{{ .Data.data.jwt_secret }}"
+                    export MASTER_SECRET="{{ .Data.data.master_secret }}"
                     export AUTH_CLIENT_SECRET="{{ .Data.data.auth_client_secret }}"
                     {{- end -}}
 ```

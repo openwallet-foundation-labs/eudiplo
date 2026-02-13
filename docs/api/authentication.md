@@ -110,7 +110,7 @@ PUBLIC_URL=https://your-api.example.com
 # Leave OIDC undefined for integrated OAuth2 server
 # All three values below are REQUIRED
 PUBLIC_URL=https://your-api.example.com
-JWT_SECRET=your-secret-key-here-minimum-32-characters
+MASTER_SECRET=your-secret-key-here-minimum-32-characters
 AUTH_CLIENT_ID=your-client-id
 AUTH_CLIENT_SECRET=your-client-secret
 ```
@@ -185,7 +185,7 @@ If the client attempts to use a config not in their allowed list, a `403 Forbidd
 
 ### Integrated OAuth2 Server Issues
 
-1. Verify `JWT_SECRET` is at least 32 characters
+1. Verify `MASTER_SECRET` is at least 32 characters
 2. Ensure client credentials (`AUTH_CLIENT_ID`/`AUTH_CLIENT_SECRET`) are
    configured correctly
 3. Check that `PUBLIC_URL` is accessible for OAuth2 flows

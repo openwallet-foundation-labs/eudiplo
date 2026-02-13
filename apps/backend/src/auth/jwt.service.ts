@@ -26,7 +26,7 @@ export class JwtService {
             );
         }
 
-        const secret = this.configService.getOrThrow<string>("JWT_SECRET");
+        const secret = this.configService.getOrThrow<string>("MASTER_SECRET");
         const issuer = this.configService.getOrThrow<string>("JWT_ISSUER");
         const expiresIn =
             options.expiresIn ||
@@ -60,7 +60,7 @@ export class JwtService {
             );
         }
 
-        const secret = this.configService.getOrThrow<string>("JWT_SECRET");
+        const secret = this.configService.getOrThrow<string>("MASTER_SECRET");
         const issuer = this.configService.getOrThrow<string>("JWT_ISSUER");
 
         const secretKey = new TextEncoder().encode(secret);

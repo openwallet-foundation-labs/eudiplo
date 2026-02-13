@@ -18,7 +18,7 @@ import {
  * This module initializes the encryption transformer on startup.
  *
  * Key source is configured via ENCRYPTION_KEY_SOURCE environment variable:
- * - "env" (default): Derive key from JWT_SECRET (development only)
+ * - "env" (default): Derive key from MASTER_SECRET (development only)
  * - "vault": Fetch from HashiCorp Vault at runtime (production)
  * - "aws": Fetch from AWS Secrets Manager at runtime (production)
  * - "azure": Fetch from Azure Key Vault at runtime (production)
