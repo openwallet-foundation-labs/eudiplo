@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { InjectRepository } from "@nestjs/typeorm";
 import { InjectMetric } from "@willsoto/nestjs-prometheus/dist/injector";
@@ -9,6 +10,10 @@ import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity
 import { SessionCleanupMode } from "../auth/tenant/entitites/session-storage-config";
 import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
 import { Session, SessionStatus } from "./entities/session.entity";
+import {
+    SESSION_STATUS_CHANGED,
+    SessionStatusChangedEvent,
+} from "./session-events.service";
 
 @Injectable()
 export class SessionService implements OnApplicationBootstrap {
@@ -21,6 +26,7 @@ export class SessionService implements OnApplicationBootstrap {
         private readonly tenantRepository: Repository<TenantEntity>,
         private readonly configService: ConfigService,
         private readonly schedulerRegistry: SchedulerRegistry,
+        private readonly eventEmitter: EventEmitter2,
         @InjectMetric("sessions")
         private readonly sessionsCounter: Gauge<string>,
     ) {}
@@ -101,6 +107,7 @@ export class SessionService implements OnApplicationBootstrap {
 
     /**
      * Marks the session as successful or failed.
+     * Emits a session status change event for SSE subscribers.
      * @param session
      * @param status
      */
@@ -108,6 +115,15 @@ export class SessionService implements OnApplicationBootstrap {
         const sessionType = session.requestId ? "verification" : "issuance";
 
         await this.sessionRepository.update({ id: session.id }, { status });
+
+        // Emit status change event for SSE subscribers
+        const event: SessionStatusChangedEvent = {
+            sessionId: session.id,
+            status,
+            updatedAt: new Date(),
+            session: { ...session, status },
+        };
+        this.eventEmitter.emit(SESSION_STATUS_CHANGED, event);
 
         // Count completed sessions (success or failure)
         this.sessionsCounter.inc({

@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
+import { EventEmitterModule } from "@nestjs/event-emitter";
 import { MulterModule } from "@nestjs/platform-express";
 import { ScheduleModule } from "@nestjs/schedule";
 import { memoryStorage } from "multer";
@@ -26,6 +27,7 @@ import { VerifierModule } from "./verifier/verifier.module";
             isGlobal: true,
             expandVariables: true,
         }),
+        EventEmitterModule.forRoot(),
         LoggerModule.forRootAsync({
             imports: [ConfigModule],
             inject: [ConfigService],

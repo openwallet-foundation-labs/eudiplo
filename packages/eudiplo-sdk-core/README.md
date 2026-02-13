@@ -141,14 +141,16 @@ const session = await client.submitDcApiResponse(sessionId, credential);
 When deploying to production, you should **never expose your client credentials to the browser**. The SDK provides helper functions to split the DC API flow between your server (where credentials are safe) and the browser (where the DC API runs).
 
 **Server-side Functions:**
-| Function | Description |
-| ---------------------- | --------------------------------------------------- |
+
+| Function                         | Description                                            |
+| -------------------------------- | ------------------------------------------------------ |
 | `createDcApiRequestForBrowser()` | Create request on server, return safe data for browser |
-| `submitDcApiWalletResponse()` | Submit wallet response to EUDIPLO from server |
+| `submitDcApiWalletResponse()`    | Submit wallet response to EUDIPLO from server          |
 
 **Browser-side Functions:**
-| Function | Description |
-| ---------------------- | --------------------------------------------------- |
+
+| Function      | Description                                            |
+| ------------- | ------------------------------------------------------ |
 | `callDcApi()` | Call the native DC API with a request from your server |
 
 ##### Example: Express.js Backend + Browser Frontend
@@ -165,8 +167,8 @@ import {
 app.post('/api/start-verification', async (req, res) => {
   const requestData = await createDcApiRequestForBrowser({
     baseUrl: process.env.EUDIPLO_URL,
-    clientId: process.env.EUDIPLO_CLIENT_ID,     // ✅ Safe on server
-    clientSecret: process.env.EUDIPLO_SECRET,   // ✅ Safe on server
+    clientId: process.env.EUDIPLO_CLIENT_ID, // ✅ Safe on server
+    clientSecret: process.env.EUDIPLO_SECRET, // ✅ Safe on server
     configId: 'age-over-18',
   });
 
@@ -181,7 +183,7 @@ app.post('/api/complete-verification', async (req, res) => {
   const result = await submitDcApiWalletResponse({
     responseUri,
     walletResponse,
-    sendResponse: true,  // Get verified claims back
+    sendResponse: true, // Get verified claims back
   });
 
   // result.credentials contains the verified data
@@ -224,13 +226,13 @@ async function verifyAge() {
 
 **What stays where:**
 
-| Data | Location | Safe to expose? |
-|------|----------|-----------------|
-| `clientId` / `clientSecret` | Server only | ❌ Never expose |
-| `requestObject` (signed JWT) | Server → Browser | ✅ Yes |
-| `responseUri` | Server → Browser | ✅ Yes |
-| Wallet response (encrypted VP) | Browser → Server | ✅ Yes |
-| Verified credentials | Server only | Depends on use case |
+| Data                           | Location         | Safe to expose?     |
+| ------------------------------ | ---------------- | ------------------- |
+| `clientId` / `clientSecret`    | Server only      | ❌ Never expose     |
+| `requestObject` (signed JWT)   | Server → Browser | ✅ Yes              |
+| `responseUri`                  | Server → Browser | ✅ Yes              |
+| Wallet response (encrypted VP) | Browser → Server | ✅ Yes              |
+| Verified credentials           | Server only      | Depends on use case |
 
 ### Class-based API (More Control)
 
@@ -323,6 +325,43 @@ const session = await client.waitForSession(sessionId, {
     console.log('Status:', session.status);
   },
 });
+```
+
+### `subscribeToSession(sessionId, options)`
+
+Subscribe to real-time session status updates via Server-Sent Events (SSE).
+This is more efficient than polling and provides instant updates.
+
+```typescript
+const subscription = await client.subscribeToSession(sessionId, {
+  onStatusChange: (event) => {
+    console.log(`Status: ${event.status}`);
+    if (['completed', 'expired', 'failed'].includes(event.status)) {
+      subscription.close();
+    }
+  },
+  onError: (error) => console.error('SSE error:', error),
+  onOpen: () => console.log('Connected'),
+});
+
+// Later, to close the connection:
+subscription.close();
+```
+
+### `waitForSessionWithSse(sessionId, options)`
+
+Wait for session completion using SSE instead of polling. Returns a Promise
+that resolves when the session completes.
+
+```typescript
+try {
+  const finalStatus = await client.waitForSessionWithSse(sessionId, {
+    onStatusChange: (event) => console.log('Status:', event.status),
+  });
+  console.log('Session completed:', finalStatus);
+} catch (error) {
+  console.error('Session failed:', error);
+}
 ```
 
 ## Examples
