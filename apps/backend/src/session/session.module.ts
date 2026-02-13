@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { makeGaugeProvider } from "@willsoto/nestjs-prometheus";
 import { AuthModule } from "../auth/auth.module";
@@ -21,7 +21,7 @@ import { SessionEventsService } from "./session-events.service";
         TypeOrmModule.forFeature([Session, TenantEntity]),
         StatusListModule,
         LoggerModule,
-        AuthModule,
+        forwardRef(() => AuthModule),
     ],
     providers: [
         SessionService,
