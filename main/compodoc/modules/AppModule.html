@@ -403,6 +403,7 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &quot;@nestjs/common&quot;;
 import { ConfigModule, ConfigService } from &quot;@nestjs/config&quot;;
+import { EventEmitterModule } from &quot;@nestjs/event-emitter&quot;;
 import { MulterModule } from &quot;@nestjs/platform-express&quot;;
 import { ScheduleModule } from &quot;@nestjs/schedule&quot;;
 import { memoryStorage } from &quot;multer&quot;;
@@ -429,6 +430,7 @@ import { VerifierModule } from &quot;./verifier/verifier.module&quot;;
             isGlobal: true,
             expandVariables: true,
         }),
+        EventEmitterModule.forRoot(),
         LoggerModule.forRootAsync({
             imports: [ConfigModule],
             inject: [ConfigService],

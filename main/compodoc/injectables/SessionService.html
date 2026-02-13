@@ -219,12 +219,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(sessionRepository: <a href="../entitys/Session.html" target="_self">Repository&lt;Session&gt;</a>, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, configService: ConfigService, schedulerRegistry: SchedulerRegistry, sessionsCounter: Gauge<string>)</code>
+<code>constructor(sessionRepository: <a href="../entitys/Session.html" target="_self">Repository&lt;Session&gt;</a>, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, configService: ConfigService, schedulerRegistry: SchedulerRegistry, eventEmitter: EventEmitter2, sessionsCounter: Gauge<string>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/session/session.service.ts:15</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/session/session.service.ts:20</a></div>
                             </td>
                         </tr>
 
@@ -290,6 +290,18 @@
                                                     
                                                 </tr>
                                                 <tr>
+                                                        <td>eventEmitter</td>
+                                                  
+                                                        <td>
+                                                                    <code>EventEmitter2</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
                                                         <td>sessionsCounter</td>
                                                   
                                                         <td>
@@ -335,8 +347,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="133"
-                                    class="link-to-prism">src/session/session.service.ts:133</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="149"
+                                    class="link-to-prism">src/session/session.service.ts:149</a></div>
                         </td>
                     </tr>
 
@@ -418,8 +430,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="87"
-                                    class="link-to-prism">src/session/session.service.ts:87</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="93"
+                                    class="link-to-prism">src/session/session.service.ts:93</a></div>
                         </td>
                     </tr>
 
@@ -487,8 +499,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="255"
-                                    class="link-to-prism">src/session/session.service.ts:255</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="271"
+                                    class="link-to-prism">src/session/session.service.ts:271</a></div>
                         </td>
                     </tr>
 
@@ -568,8 +580,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="153"
-                                    class="link-to-prism">src/session/session.service.ts:153</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="169"
+                                    class="link-to-prism">src/session/session.service.ts:169</a></div>
                         </td>
                     </tr>
 
@@ -637,8 +649,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="141"
-                                    class="link-to-prism">src/session/session.service.ts:141</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="157"
+                                    class="link-to-prism">src/session/session.service.ts:157</a></div>
                         </td>
                     </tr>
 
@@ -706,8 +718,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="162"
-                                    class="link-to-prism">src/session/session.service.ts:162</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="178"
+                                    class="link-to-prism">src/session/session.service.ts:178</a></div>
                         </td>
                     </tr>
 
@@ -777,8 +789,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="33"
-                                    class="link-to-prism">src/session/session.service.ts:33</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="39"
+                                    class="link-to-prism">src/session/session.service.ts:39</a></div>
                         </td>
                     </tr>
 
@@ -822,15 +834,16 @@ This will run every hour by default, but can be configured via the <code>SESSION
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="107"
-                                    class="link-to-prism">src/session/session.service.ts:107</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="114"
+                                    class="link-to-prism">src/session/session.service.ts:114</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Marks the session as successful or failed.</p>
+                        <div class="io-description"><p>Marks the session as successful or failed.
+Emits a session status change event for SSE subscribers.</p>
 </div>
 
                             <div class="io-description">
@@ -905,8 +918,8 @@ This will run every hour by default, but can be configured via the <code>SESSION
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="172"
-                                    class="link-to-prism">src/session/session.service.ts:172</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="188"
+                                    class="link-to-prism">src/session/session.service.ts:188</a></div>
                         </td>
                     </tr>
 
@@ -961,7 +974,7 @@ Each tenant can configure their own TTL and cleanup mode.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/session/session.service.ts:15</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="20" class="link-to-prism">src/session/session.service.ts:20</a></div>
                         </td>
                     </tr>
 
@@ -976,6 +989,7 @@ Each tenant can configure their own TTL and cleanup mode.</p>
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, Logger, OnApplicationBootstrap } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
+import { EventEmitter2 } from &quot;@nestjs/event-emitter&quot;;
 import { SchedulerRegistry } from &quot;@nestjs/schedule&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { InjectMetric } from &quot;@willsoto/nestjs-prometheus/dist/injector&quot;;
@@ -985,6 +999,10 @@ import { QueryDeepPartialEntity } from &quot;typeorm/query-builder/QueryPartialE
 import { SessionCleanupMode } from &quot;../auth/tenant/entitites/session-storage-config&quot;;
 import { TenantEntity } from &quot;../auth/tenant/entitites/tenant.entity&quot;;
 import { Session, SessionStatus } from &quot;./entities/session.entity&quot;;
+import {
+    SESSION_STATUS_CHANGED,
+    SessionStatusChangedEvent,
+} from &quot;./session-events.service&quot;;
 
 @Injectable()
 export class SessionService implements OnApplicationBootstrap {
@@ -997,6 +1015,7 @@ export class SessionService implements OnApplicationBootstrap {
         private readonly tenantRepository: Repository&lt;TenantEntity&gt;,
         private readonly configService: ConfigService,
         private readonly schedulerRegistry: SchedulerRegistry,
+        private readonly eventEmitter: EventEmitter2,
         @InjectMetric(&quot;sessions&quot;)
         private readonly sessionsCounter: Gauge&lt;string&gt;,
     ) {}
@@ -1077,6 +1096,7 @@ export class SessionService implements OnApplicationBootstrap {
 
     /**
      * Marks the session as successful or failed.
+     * Emits a session status change event for SSE subscribers.
      * @param session
      * @param status
      */
@@ -1084,6 +1104,15 @@ export class SessionService implements OnApplicationBootstrap {
         const sessionType &#x3D; session.requestId ? &quot;verification&quot; : &quot;issuance&quot;;
 
         await this.sessionRepository.update({ id: session.id }, { status });
+
+        // Emit status change event for SSE subscribers
+        const event: SessionStatusChangedEvent &#x3D; {
+            sessionId: session.id,
+            status,
+            updatedAt: new Date(),
+            session: { ...session, status },
+        };
+        this.eventEmitter.emit(SESSION_STATUS_CHANGED, event);
 
         // Count completed sessions (success or failure)
         this.sessionsCounter.inc({

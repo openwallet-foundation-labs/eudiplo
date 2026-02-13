@@ -6,7 +6,7 @@
       
       
       
-        <link rel="prev" href="../authentication/">
+        <link rel="prev" href="../session-events/">
       
       
         <link rel="next" href="../../development/">
@@ -1642,6 +1642,8 @@
       
         
       
+        
+      
     
     
     
@@ -1714,6 +1716,34 @@
     
   
     Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../session-events/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Session Events (SSE)
   
 
     
@@ -2386,6 +2416,34 @@
     <span class="md-ellipsis">
       
         DELETE /session-config
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#session-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Session Events
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Session Events">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-sessionidevents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /session/{id}/events
       
     </span>
   </a>
@@ -4770,6 +4828,34 @@
     <span class="md-ellipsis">
       
         DELETE /session-config
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#session-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Session Events
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Session Events">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-sessionidevents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /session/{id}/events
       
     </span>
   </a>
@@ -10478,6 +10564,52 @@ configuration and/or certificate.</p>
             <td>N/A</td>
             <td>No</td>
             <td></td>
+        </tr>
+    </tbody>
+</table>
+
+<p class="response-title">
+    <strong>Response <span class="response-code code-200">200</span>&nbsp;<span class="status-phrase">OK</span></strong>
+</p>
+
+<h2 id="session-events"><span class="api-tag">Session Events</span><a class="headerlink" href="#session-events" title="Permanent link">¶</a></h2>
+<hr class="operation-separator">
+
+<h3 id="get-sessionidevents"><span class="http-get">GET</span> /session/<span class="route-param">{id}</span>/events<a class="headerlink" href="#get-sessionidevents" title="Permanent link">¶</a></h3>
+<p>Subscribe to session status updates</p>
+<details class="note">
+<summary>Description</summary>
+<p>Server-Sent Events endpoint for real-time session status updates. Requires
+JWT authentication via query parameter.</p>
+</details>
+<p><strong>Input parameters</strong></p>
+<table>
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>In</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Nullable</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="parameter-name"><code>id</code></td>
+            <td>path</td>
+            <td>string</td>
+            <td></td>
+            <td>No</td>
+            <td>Session ID to subscribe to</td>
+        </tr>
+        <tr>
+            <td class="parameter-name"><code>token</code></td>
+            <td>query</td>
+            <td>string</td>
+            <td></td>
+            <td>No</td>
+            <td>JWT access token for authentication</td>
         </tr>
     </tbody>
 </table>
@@ -17376,7 +17508,7 @@ certificate is automatically stored in EUDIPLO.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer">
         
           
-          <a href="../authentication/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Authentication">
+          <a href="../session-events/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Session Events (SSE)">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
@@ -17386,7 +17518,7 @@ certificate is automatically stored in EUDIPLO.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Authentication
+                Session Events (SSE)
               </div>
             </div>
           </a>
