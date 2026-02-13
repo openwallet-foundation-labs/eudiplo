@@ -209,7 +209,7 @@ MINIO_ROOT_USER=minioadmin
 MINIO_ROOT_PASSWORD=minioadmin-secure-password
 
 # Application Secrets
-JWT_SECRET=your-secret-jwt-key-change-in-production
+MASTER_SECRET=your-secret-jwt-key-change-in-production
 AUTH_CLIENT_ID=your-client-id
 AUTH_CLIENT_SECRET=your-client-secret
 
@@ -451,20 +451,20 @@ docker compose exec vault vault status
 
 Common environment variables:
 
-| Variable      | Description                          | Default                 |
-| ------------- | ------------------------------------ | ----------------------- |
-| `PUBLIC_URL`  | Public URL for OAuth redirects       | `http://localhost:3000` |
-| `NODE_ENV`    | Environment (development/production) | `development`           |
-| `DB_TYPE`     | Database type (postgres/sqlite)      | `postgres`              |
-| `DB_HOST`     | Database hostname                    | `database`              |
-| `DB_PORT`     | Database port                        | `5432`                  |
-| `DB_USERNAME` | Database username                    | -                       |
-| `DB_PASSWORD` | Database password                    | -                       |
-| `DB_DATABASE` | Database name                        | `eudiplo`               |
-| `VAULT_TOKEN` | Vault root token                     | -                       |
-| `VAULT_ADDR`  | Vault address                        | `http://vault:8200`     |
-| `JWT_SECRET`  | JWT signing secret                   | -                       |
-| `LOG_LEVEL`   | Logging level                        | `info`                  |
+| Variable        | Description                          | Default                 |
+| --------------- | ------------------------------------ | ----------------------- |
+| `PUBLIC_URL`    | Public URL for OAuth redirects       | `http://localhost:3000` |
+| `NODE_ENV`      | Environment (development/production) | `development`           |
+| `DB_TYPE`       | Database type (postgres/sqlite)      | `postgres`              |
+| `DB_HOST`       | Database hostname                    | `database`              |
+| `DB_PORT`       | Database port                        | `5432`                  |
+| `DB_USERNAME`   | Database username                    | -                       |
+| `DB_PASSWORD`   | Database password                    | -                       |
+| `DB_DATABASE`   | Database name                        | `eudiplo`               |
+| `VAULT_TOKEN`   | Vault root token                     | -                       |
+| `VAULT_ADDR`    | Vault address                        | `http://vault:8200`     |
+| `MASTER_SECRET` | Master secret for JWT and encryption | -                       |
+| `LOG_LEVEL`     | Logging level                        | `info`                  |
 
 See [Configuration Documentation](../architecture/index.md) for complete list.
 
@@ -637,7 +637,7 @@ EUDIPLO requires several secrets (database credentials, JWT secret, encryption k
 | Secret                 | Risk Level | Dev/Test Approach | Production Approach                |
 | ---------------------- | ---------- | ----------------- | ---------------------------------- |
 | `DB_PASSWORD`          | High       | `.env` file       | Docker Secrets / Vault Agent       |
-| `JWT_SECRET`           | Critical   | `.env` file       | Docker Secrets / Vault Agent       |
+| `MASTER_SECRET`        | Critical   | `.env` file       | Docker Secrets / Vault Agent       |
 | `AUTH_CLIENT_SECRET`   | Critical   | `.env` file       | Docker Secrets / Vault Agent       |
 | `S3_SECRET_ACCESS_KEY` | High       | `.env` file       | Docker Secrets / IAM Role          |
 | `ENCRYPTION_KEY`       | Critical   | `.env` file       | Application-level fetch (built-in) |
@@ -649,7 +649,7 @@ Docker Secrets provide encrypted secret storage for Swarm mode:
 ```bash
 # Create secrets
 echo "your-db-password" | docker secret create db_password -
-echo "your-jwt-secret" | docker secret create jwt_secret -
+echo "your-jwt-secret" | docker secret create master_secret -
 echo "your-auth-client-secret" | docker secret create auth_client_secret -
 ```
 
@@ -662,17 +662,17 @@ services:
         image: eudiplo/backend:latest
         secrets:
             - db_password
-            - jwt_secret
+            - master_secret
             - auth_client_secret
         environment:
             DB_PASSWORD_FILE: /run/secrets/db_password
-            JWT_SECRET_FILE: /run/secrets/jwt_secret
+            MASTER_SECRET_FILE: /run/secrets/master_secret
             AUTH_CLIENT_SECRET_FILE: /run/secrets/auth_client_secret
 
 secrets:
     db_password:
         external: true
-    jwt_secret:
+    master_secret:
         external: true
     auth_client_secret:
         external: true
@@ -702,7 +702,7 @@ services:
             - vault-secrets:/vault/secrets:ro
         environment:
             DB_PASSWORD_FILE: /vault/secrets/db_password
-            JWT_SECRET_FILE: /vault/secrets/jwt_secret
+            MASTER_SECRET_FILE: /vault/secrets/master_secret
 
 volumes:
     vault-secrets:

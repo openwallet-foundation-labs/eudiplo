@@ -74,7 +74,7 @@ The encryption key can be sourced from different providers, configured via `ENCR
 
 | Source  | Description                             | Security Level | Use Case                 |
 | ------- | --------------------------------------- | -------------- | ------------------------ |
-| `env`   | Derived from `JWT_SECRET` via HKDF      | Development    | Local dev, testing       |
+| `env`   | Derived from `MASTER_SECRET` via HKDF      | Development    | Local dev, testing       |
 | `vault` | Fetched from HashiCorp Vault at startup | Production     | Self-hosted, on-prem     |
 | `aws`   | Fetched from AWS Secrets Manager        | Production     | AWS-native deployments   |
 | `azure` | Fetched from Azure Key Vault            | Production     | Azure-native deployments |
@@ -86,7 +86,7 @@ When using `vault`, `aws`, or `azure`, the encryption key is **only in RAM** —
 
 ```bash
 ENCRYPTION_KEY_SOURCE=env  # default
-JWT_SECRET=your-jwt-secret  # key derived via HKDF
+MASTER_SECRET=your-jwt-secret  # key derived via HKDF
 ```
 
 #### HashiCorp Vault

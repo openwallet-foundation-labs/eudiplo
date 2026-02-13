@@ -5,7 +5,7 @@ import { EncryptionKeyProvider } from "./encryption-key-provider.interface";
 
 /**
  * Environment-based encryption key provider.
- * Derives the encryption key from JWT_SECRET using HKDF.
+ * Derives the encryption key from MASTER_SECRET using HKDF.
  *
  * WARNING: This provider is intended for development only.
  * In production, use 'vault', 'aws', or 'azure' to fetch keys at runtime.
@@ -21,10 +21,10 @@ export class EnvEncryptionKeyProvider implements EncryptionKeyProvider {
     constructor(private readonly configService: ConfigService) {}
 
     async getKey(): Promise<Buffer> {
-        const jwtSecret = this.configService.get<string>("JWT_SECRET");
-        if (!jwtSecret) {
+        const masterSecret = this.configService.get<string>("MASTER_SECRET");
+        if (!masterSecret) {
             throw new Error(
-                "JWT_SECRET is required when using env encryption key source",
+                "MASTER_SECRET is required when using env encryption key source",
             );
         }
 
@@ -34,11 +34,11 @@ export class EnvEncryptionKeyProvider implements EncryptionKeyProvider {
                 "to fetch keys at runtime (keys only in RAM, not env vars).",
         );
 
-        // Derive a 256-bit encryption key from JWT_SECRET using HKDF
+        // Derive a 256-bit encryption key from MASTER_SECRET using HKDF
         return Buffer.from(
             hkdfSync(
                 "sha256",
-                jwtSecret,
+                masterSecret,
                 "", // salt - empty for simplicity
                 "eudiplo-encryption-at-rest", // info - context string
                 32, // 256 bits

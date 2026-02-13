@@ -4,7 +4,7 @@ import * as Joi from "joi";
  * Validation schema for encryption key source configuration.
  *
  * Configures where the encryption key for data at rest is fetched from:
- * - env (default): Derived from JWT_SECRET (development only)
+ * - env (default): Derived from MASTER_SECRET (development only)
  * - vault: Fetched from HashiCorp Vault (production)
  * - aws: Fetched from AWS Secrets Manager (production)
  * - azure: Fetched from Azure Key Vault (production)

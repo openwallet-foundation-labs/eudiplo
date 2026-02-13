@@ -87,7 +87,7 @@ cd eudiplo
 cp .env.example .env
 
 # Configure secure authentication (all three are REQUIRED)
-echo "JWT_SECRET=$(openssl rand -base64 32)" >> .env
+echo "MASTER_SECRET=$(openssl rand -base64 32)" >> .env
 echo "AUTH_CLIENT_ID=my-client" >> .env
 echo "AUTH_CLIENT_SECRET=$(openssl rand -base64 24)" >> .env
 
@@ -105,7 +105,7 @@ docker compose up -d
 # Run just the backend
 docker run -p 3000:3000 \
   -e PUBLIC_URL=https://example.com \
-  -e JWT_SECRET=your-32-character-secret \
+  -e MASTER_SECRET=your-32-character-secret \
   -e AUTH_CLIENT_ID=your-client-id \
   -e AUTH_CLIENT_SECRET=your-client-secret \
   -v $(pwd)/assets:/app/config \

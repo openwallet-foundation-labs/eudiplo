@@ -61,7 +61,7 @@ flowchart TD
     ```env
     AUTH_CLIENT_ID=your-client-id
     AUTH_CLIENT_SECRET=your-client-secret
-    JWT_SECRET=your-32-character-minimum-secret
+    MASTER_SECRET=your-32-character-minimum-secret
     ```
 
     The application will fail to start without these values. See [Authentication](../api/authentication.md) for details.

@@ -93,7 +93,7 @@ Default development environment variables are set in the docker-compose.yml:
 
 - `PUBLIC_URL=http://localhost:3000`
 - `DATABASE_TYPE=sqlite` (no external database needed)
-- `JWT_SECRET` and `AUTH_CLIENT_SECRET` are pre-set for development
+- `MASTER_SECRET` and `AUTH_CLIENT_SECRET` are pre-set for development
 
 For custom configuration, create a `.env` file in the project root.
 
