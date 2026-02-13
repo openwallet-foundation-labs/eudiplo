@@ -493,8 +493,8 @@ This will fetch the status list (with caching) and check the status at the speci
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="253"
-                                    class="link-to-prism">src/shared/trust/status-list-verifier.service.ts:253</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="265"
+                                    class="link-to-prism">src/shared/trust/status-list-verifier.service.ts:265</a></div>
                         </td>
                     </tr>
 
@@ -667,8 +667,8 @@ This will fetch the status list (with caching) and check the status at the speci
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="266"
-                                    class="link-to-prism">src/shared/trust/status-list-verifier.service.ts:266</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="278"
+                                    class="link-to-prism">src/shared/trust/status-list-verifier.service.ts:278</a></div>
                         </td>
                     </tr>
 
@@ -708,8 +708,8 @@ This will fetch the status list (with caching) and check the status at the speci
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="235"
-                                    class="link-to-prism">src/shared/trust/status-list-verifier.service.ts:235</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="247"
+                                    class="link-to-prism">src/shared/trust/status-list-verifier.service.ts:247</a></div>
                         </td>
                     </tr>
 
@@ -932,8 +932,8 @@ This extracts the status_list reference (uri and idx) from the JWT.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="284"
-                                    class="link-to-prism">src/shared/trust/status-list-verifier.service.ts:284</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="296"
+                                    class="link-to-prism">src/shared/trust/status-list-verifier.service.ts:296</a></div>
                         </td>
                     </tr>
 
@@ -1011,8 +1011,8 @@ The JWT is cached based on its TTL/exp claims.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="214"
-                                    class="link-to-prism">src/shared/trust/status-list-verifier.service.ts:214</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="226"
+                                    class="link-to-prism">src/shared/trust/status-list-verifier.service.ts:226</a></div>
                         </td>
                     </tr>
 
@@ -1082,8 +1082,8 @@ The JWT is cached based on its TTL/exp claims.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="314"
-                                    class="link-to-prism">src/shared/trust/status-list-verifier.service.ts:314</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="326"
+                                    class="link-to-prism">src/shared/trust/status-list-verifier.service.ts:326</a></div>
                         </td>
                     </tr>
 
@@ -1500,6 +1500,18 @@ export class StatusListVerifierService {
                 }),
             );
             return response.data;
+        } catch (error: any) {
+            if (
+                error?.name &#x3D;&#x3D;&#x3D; &quot;CanceledError&quot; ||
+                error?.code &#x3D;&#x3D;&#x3D; &quot;ERR_CANCELED&quot;
+            ) {
+                throw new Error(
+                    &#x60;Status list fetch timed out after ${timeoutMs}ms for URI: ${uri}&#x60;,
+                );
+            }
+            throw new Error(
+                &#x60;Failed to fetch status list from ${uri}: ${error?.message || error}&#x60;,
+            );
         } finally {
             clearTimeout(timeout);
         }

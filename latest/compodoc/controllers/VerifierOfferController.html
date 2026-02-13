@@ -216,8 +216,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="68"
-                                    class="link-to-prism">src/verifier/verifier-offer/verifier-offer.controller.ts:68</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="67"
+                                    class="link-to-prism">src/verifier/verifier-offer/verifier-offer.controller.ts:67</a></div>
                         </td>
                     </tr>
 
@@ -305,10 +305,16 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Body, Controller, Post, Req, Res } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    Body,
+    Controller,
+    ForbiddenException,
+    Post,
+    Req,
+    Res,
+} from &quot;@nestjs/common&quot;;
 import { ApiBody, ApiProduces, ApiResponse, ApiTags } from &quot;@nestjs/swagger&quot;;
 import { Request, Response } from &quot;express&quot;;
-import QRCode from &quot;qrcode&quot;;
 import { Role } from &quot;../../auth/roles/role.enum&quot;;
 import { Secured } from &quot;../../auth/secure.decorator&quot;;
 import { Token, TokenPayload } from &quot;../../auth/token.decorator&quot;;
@@ -348,13 +354,6 @@ export class VerifierOfferController {
     @ApiBody({
         type: PresentationRequest,
         examples: {
-            qrcode: {
-                summary: &quot;QR-Code Example&quot;,
-                value: {
-                    response_type: ResponseType.QRCode,
-                    requestId: &quot;pid&quot;,
-                },
-            },
             uri: {
                 summary: &quot;URI&quot;,
                 value: {
@@ -378,6 +377,17 @@ export class VerifierOfferController {
         @Body() body: PresentationRequest,
         @Token() user: TokenPayload,
     ) {
+        // Check resource-level authorization
+        if (user.client?.allowedPresentationConfigs?.length) {
+            if (
+                !user.client.allowedPresentationConfigs.includes(body.requestId)
+            ) {
+                throw new ForbiddenException(
+                    &#x60;Client is not authorized to use presentation config: ${body.requestId}&#x60;,
+                );
+            }
+        }
+
         const values &#x3D; await this.oid4vpService.createRequest(
             body.requestId,
             {
@@ -390,18 +400,8 @@ export class VerifierOfferController {
             req.get(&quot;origin&quot;) || req.get(&quot;host&quot;) || &quot;&quot;,
         );
         values.uri &#x3D; &#x60;openid4vp://?${values.uri}&#x60;;
-        if (body.response_type &#x3D;&#x3D;&#x3D; ResponseType.QRCode) {
-            // Generate QR code as a PNG buffer.
-            const qrCodeBuffer &#x3D; await QRCode.toBuffer(values.uri);
-
-            // Set the response content type to image/png
-            res.setHeader(&quot;Content-Type&quot;, &quot;image/png&quot;);
-
-            // Send the QR code image as the response
-            res.send(qrCodeBuffer);
-        } else {
-            res.send(values);
-        }
+        values.crossDeviceUri &#x3D; &#x60;openid4vp://?${values.crossDeviceUri}&#x60;;
+        res.send(values);
     }
 }
 </code></pre>

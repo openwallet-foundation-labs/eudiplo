@@ -110,7 +110,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Injectables</li>
-  <li class="breadcrumb-item" >MdlverifierService</li>
+  <li class="breadcrumb-item" >MdocverifierService</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -134,17 +134,11 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/verifier/presentations/credential/mdlverifier/mdlverifier.service.ts</code>
+            <code>src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts</code>
         </p>
 
 
 
-            <p class="comment">
-                <h3>Extends</h3>
-            </p>
-            <p class="comment">
-                            <code><a href="../classes/BaseVerifierService.html" target="_self" >BaseVerifierService</a></code>
-            </p>
 
 
             <section data-compodoc="block-index">
@@ -160,7 +154,7 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                    <span class="modifier">Protected</span>
+                                    <span class="modifier">Private</span>
                                     <span class="modifier">Readonly</span>
                                 <a href="#logger" >logger</a>
                             </li>
@@ -181,27 +175,33 @@
                                 <a href="#buildDeviceRequest" >buildDeviceRequest</a>
                             </li>
                             <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#extractErrorDetails" >extractErrorDetails</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#extractIssuerCertInfo" >extractIssuerCertInfo</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#handleVerificationError" >handleVerificationError</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#summarizeTrustedCerts" >summarizeTrustedCerts</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#validateIssuerCertificateChain" >validateIssuerCertificateChain</a>
+                            </li>
+                            <li>
                                     <span class="modifier">Async</span>
                                 <a href="#verify" >verify</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Protected</span>
-                                    <span class="modifier">Async</span>
-                                <a href="#getThumbprint" >getThumbprint</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Protected</span>
-                                    <span class="modifier">Async</span>
-                                <a href="#getTrustedCertificateBuffers" >getTrustedCertificateBuffers</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Protected</span>
-                                    <span class="modifier">Async</span>
-                                <a href="#getTrustStoreIfConfigured" >getTrustStoreIfConfigured</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Protected</span>
-                                <a href="#parseCertificate" >parseCertificate</a>
                             </li>
                         </ul>
                     </td>
@@ -221,12 +221,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(trustStore: <a href="../injectables/TrustStoreService.html" target="_self">TrustStoreService</a>)</code>
+<code>constructor(chainValidation: <a href="../injectables/CredentialChainValidationService.html" target="_self">CredentialChainValidationService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/verifier/presentations/credential/mdlverifier/mdlverifier.service.ts:32</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:48</a></div>
                             </td>
                         </tr>
 
@@ -244,10 +244,10 @@
                                         </thead>
                                         <tbody>
                                                 <tr>
-                                                        <td>trustStore</td>
+                                                        <td>chainValidation</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../injectables/TrustStoreService.html" target="_self" >TrustStoreService</a></code>
+                                                                        <code><a href="../injectables/CredentialChainValidationService.html" target="_self" >CredentialChainValidationService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -291,8 +291,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="150"
-                                    class="link-to-prism">src/verifier/presentations/credential/mdlverifier/mdlverifier.service.ts:150</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="331"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:331</a></div>
                         </td>
                     </tr>
 
@@ -357,6 +357,428 @@ This creates a request that matches what was received for verification.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="extractErrorDetails"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>extractErrorDetails</b></span>
+                        <a href="#extractErrorDetails"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>extractErrorDetails(vp: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, options: <a href="../miscellaneous/typealiases.html#VerifierOptions" target="_self">VerifierOptions</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="225"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:225</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Extract error details from the mDOC document for debugging.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>vp</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>options</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#VerifierOptions" target="_self" >VerifierOptions</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/MdocErrorDetails.html" target="_self" >Promise&lt;MdocErrorDetails&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="extractIssuerCertInfo"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>extractIssuerCertInfo</b></span>
+                        <a href="#extractIssuerCertInfo"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>extractIssuerCertInfo(mdocDoc: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, details: <a href="../interfaces/MdocErrorDetails.html" target="_self">MdocErrorDetails</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="265"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:265</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Extract issuer certificate information from the mDOC document.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>mdocDoc</td>
+                                            <td>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>details</td>
+                                            <td>
+                                                            <code><a href="../interfaces/MdocErrorDetails.html" target="_self" >MdocErrorDetails</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="handleVerificationError"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>handleVerificationError</b></span>
+                        <a href="#handleVerificationError"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>handleVerificationError(vp: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, error: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, options: <a href="../miscellaneous/typealiases.html#VerifierOptions" target="_self">VerifierOptions</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="190"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:190</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Handle verification errors with detailed logging.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>vp</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>error</td>
+                                            <td>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>options</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#VerifierOptions" target="_self" >VerifierOptions</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#MdocVerificationResult" target="_self" >Promise&lt;MdocVerificationResult&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="summarizeTrustedCerts"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>summarizeTrustedCerts</b></span>
+                        <a href="#summarizeTrustedCerts"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>summarizeTrustedCerts(trustListSource: <a href="../miscellaneous/typealiases.html#VerifierOptions" target="_self">VerifierOptions</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="291"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:291</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Summarize trusted certificates for error logging.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>trustListSource</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#VerifierOptions" target="_self" >VerifierOptions</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="validateIssuerCertificateChain"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>validateIssuerCertificateChain</b></span>
+                        <a href="#validateIssuerCertificateChain"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>validateIssuerCertificateChain(mdocDocument: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, options: <a href="../miscellaneous/typealiases.html#VerifierOptions" target="_self">VerifierOptions</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="150"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:150</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Validates the issuer certificate chain from the mDOC&#39;s IssuerAuth.
+Extracts x5chain from the COSE Sign1 structure and validates it using
+the shared CredentialChainValidationService.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>mdocDocument</td>
+                                            <td>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>options</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#VerifierOptions" target="_self" >VerifierOptions</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/ChainValidationResult.html" target="_self" >Promise&lt;ChainValidationResult&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="verify"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -368,22 +790,22 @@ This creates a request that matches what was received for verification.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>verify(vp: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, sessionData: <a href="../miscellaneous/typealiases.html#MdlSessionData" target="_self">MdlSessionData</a>, options: <a href="../miscellaneous/typealiases.html#VerifierOptions" target="_self">VerifierOptions</a>)</code>
+                    <code>verify(vp: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, sessionData: <a href="../miscellaneous/typealiases.html#MdocSessionData" target="_self">MdocSessionData</a>, options: <a href="../miscellaneous/typealiases.html#VerifierOptions" target="_self">VerifierOptions</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="45"
-                                    class="link-to-prism">src/verifier/presentations/credential/mdlverifier/mdlverifier.service.ts:45</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="61"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:61</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Verifies an MDL/mDOC credential.</p>
+                        <div class="io-description"><p>Verifies an mDOC credential.</p>
 </div>
 
                             <div class="io-description">
@@ -418,7 +840,7 @@ This creates a request that matches what was received for verification.</p>
                                         <tr>
                                                 <td>sessionData</td>
                                             <td>
-                                                            <code><a href="../miscellaneous/typealiases.html#MdlSessionData" target="_self" >MdlSessionData</a></code>
+                                                            <code><a href="../miscellaneous/typealiases.html#MdocSessionData" target="_self" >MdocSessionData</a></code>
                                             </td>
 
                                             <td>
@@ -451,348 +873,11 @@ This creates a request that matches what was received for verification.</p>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#MdlVerificationResult" target="_self" >Promise&lt;MdlVerificationResult&gt;</a></code>
+                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#MdocVerificationResult" target="_self" >Promise&lt;MdocVerificationResult&gt;</a></code>
 
                         </div>
                             <div class="io-description">
                                 <p>Verification result with claims</p>
-
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getThumbprint"></a>
-                    <span class="name">
-                            <span class="modifier">Protected</span>
-                            <span class="modifier">Async</span>
-                        <span ><b>getThumbprint</b></span>
-                        <a href="#getThumbprint"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getThumbprint(cert: x509.X509Certificate)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/BaseVerifierService.html" target="_self" >BaseVerifierService</a></code>
-</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:128</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Get the hex thumbprint of a certificate.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>cert</td>
-                                            <td>
-                                                        <code>x509.X509Certificate</code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <p>X509 certificate</p>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
-
-                        </div>
-                            <div class="io-description">
-                                <p>Hex-encoded thumbprint</p>
-
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getTrustedCertificateBuffers"></a>
-                    <span class="name">
-                            <span class="modifier">Protected</span>
-                            <span class="modifier">Async</span>
-                        <span ><b>getTrustedCertificateBuffers</b></span>
-                        <a href="#getTrustedCertificateBuffers"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getTrustedCertificateBuffers(trustListSource?: <a href="../miscellaneous/typealiases.html#TrustListSource" target="_self">TrustListSource</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/BaseVerifierService.html" target="_self" >BaseVerifierService</a></code>
-</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:74</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Get trusted certificates from the trust store as Uint8Array[].
-Used primarily for mDOC verification.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>trustListSource</td>
-                                            <td>
-                                                            <code><a href="../miscellaneous/typealiases.html#TrustListSource" target="_self" >TrustListSource</a></code>
-                                            </td>
-
-                                            <td>
-                                                    Yes
-                                            </td>
-
-
-                                            <td>
-                                                    <p>Trust list source</p>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;Uint8Array[]&gt;</code>
-
-                        </div>
-                            <div class="io-description">
-                                <p>Array of certificate buffers, empty if no trust source or on error</p>
-
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getTrustStoreIfConfigured"></a>
-                    <span class="name">
-                            <span class="modifier">Protected</span>
-                            <span class="modifier">Async</span>
-                        <span ><b>getTrustStoreIfConfigured</b></span>
-                        <a href="#getTrustStoreIfConfigured"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getTrustStoreIfConfigured(trustListSource?: <a href="../miscellaneous/typealiases.html#TrustListSource" target="_self">TrustListSource</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/BaseVerifierService.html" target="_self" >BaseVerifierService</a></code>
-</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:35</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Get the trust store, checking if trustListSource is provided.
-Returns null if no trust list source is configured (skip trust validation).</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>trustListSource</td>
-                                            <td>
-                                                            <code><a href="../miscellaneous/typealiases.html#TrustListSource" target="_self" >TrustListSource</a></code>
-                                            </td>
-
-                                            <td>
-                                                    Yes
-                                            </td>
-
-
-                                            <td>
-                                                    <p>Optional trust list source</p>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#BuiltTrustStore" target="_self" >Promise&lt;BuiltTrustStore | null&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                <p>The trust store or null if not configured</p>
-
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="parseCertificate"></a>
-                    <span class="name">
-                            <span class="modifier">Protected</span>
-                        <span ><b>parseCertificate</b></span>
-                        <a href="#parseCertificate"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>parseCertificate(certValue: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/BaseVerifierService.html" target="_self" >BaseVerifierService</a></code>
-</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:119</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Parse a certificate from PEM or base64 DER format.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>certValue</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <p>Certificate in PEM or base64 DER format</p>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>x509.X509Certificate</code>
-
-                        </div>
-                            <div class="io-description">
-                                <p>Parsed X509Certificate</p>
 
                             </div>
                 </td>
@@ -811,7 +896,7 @@ Returns null if no trust list source is configured (skip trust validation).</p>
                 <td class="col-md-4">
                     <a name="logger"></a>
                     <span class="name">
-                            <span class="modifier">Protected</span>
+                            <span class="modifier">Private</span>
                             <span class="modifier">Readonly</span>
                         <span ><b>logger</b></span>
                         <a href="#logger"><span class="icon ion-ios-link"></span></a>
@@ -826,19 +911,12 @@ Returns null if no trust list source is configured (skip trust validation).</p>
                 </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Default value : </i><code>new Logger(MdlverifierService.name)</code>
+                        <i>Default value : </i><code>new Logger(MdocverifierService.name)</code>
                     </td>
                 </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                <div class="io-line">Inherited from         <code><a href="../classes/BaseVerifierService.html" target="_self" >BaseVerifierService</a></code>
-</div>
-                            </td>
-                        </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/BaseVerifierService.html#source" target="_self" >BaseVerifierService:32</a></code>
-</div>
+                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:48</a></div>
                         </td>
                     </tr>
 
@@ -852,20 +930,25 @@ Returns null if no trust list source is configured (skip trust validation).</p>
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    base64,
     DeviceRequest,
     DeviceResponse,
     DocRequest,
+    hex,
     ItemsRequest,
     SessionTranscript,
     Verifier,
 } from &quot;@animo-id/mdoc&quot;;
 import { Injectable, Logger } from &quot;@nestjs/common&quot;;
-import { TrustStoreService } from &quot;../../../../shared/trust/trust-store.service&quot;;
+import * as x509 from &quot;@peculiar/x509&quot;;
 import { VerifierOptions } from &quot;../../../../shared/trust/types&quot;;
-import { mdocContext } from &quot;../../mdl-context&quot;;
-import { BaseVerifierService } from &quot;../base-verifier.service&quot;;
+import { mdocContext } from &quot;../../mdoc-context&quot;;
+import {
+    ChainValidationResult,
+    CredentialChainValidationService,
+} from &quot;../credential-chain-validation.service&quot;;
 
-export type MdlSessionData &#x3D; {
+export type MdocSessionData &#x3D; {
     protocol: &quot;openid4vp&quot;;
     nonce: string;
     responseMode: string;
@@ -873,23 +956,34 @@ export type MdlSessionData &#x3D; {
     responseUri: string;
 };
 
-export type MdlVerificationResult &#x3D; {
+export type MdocVerificationResult &#x3D; {
     verified: boolean;
     claims: Record&lt;string, unknown&gt;;
     payload: string;
     docType?: string;
 };
 
-@Injectable()
-export class MdlverifierService extends BaseVerifierService {
-    protected readonly logger &#x3D; new Logger(MdlverifierService.name);
+/**
+ * Error details extracted from an mDOC document for debugging.
+ */
+interface MdocErrorDetails {
+    docType: string;
+    issuerCertInfo: string;
+    issuerThumbprint: string;
+    issuerValidity: string;
+    trustedCertsSummary: string;
+}
 
-    constructor(trustStore: TrustStoreService) {
-        super(trustStore);
-    }
+@Injectable()
+export class MdocverifierService {
+    private readonly logger &#x3D; new Logger(MdocverifierService.name);
+
+    constructor(
+        private readonly chainValidation: CredentialChainValidationService,
+    ) {}
 
     /**
-     * Verifies an MDL/mDOC credential.
+     * Verifies an mDOC credential.
      * @param vp The base64url encoded device response
      * @param sessionData Session data for transcript generation
      * @param options Verification options including trust list
@@ -897,22 +991,22 @@ export class MdlverifierService extends BaseVerifierService {
      */
     async verify(
         vp: string,
-        sessionData: MdlSessionData,
+        sessionData: MdocSessionData,
         options: VerifierOptions,
-    ): Promise&lt;MdlVerificationResult&gt; {
+    ): Promise&lt;MdocVerificationResult&gt; {
         try {
             // 1) Decode the device response
             const uint8Array &#x3D; Buffer.from(vp, &quot;base64url&quot;);
             const deviceResponse &#x3D; DeviceResponse.decode(uint8Array);
-            const mdlDocument &#x3D; deviceResponse.documents?.[0];
+            const mdocDocument &#x3D; deviceResponse.documents?.[0];
 
-            if (!mdlDocument) {
-                throw new Error(&quot;MDL document not found in device response&quot;);
+            if (!mdocDocument) {
+                throw new Error(&quot;mDOC document not found in device response&quot;);
             }
 
             // 2) Extract claims from the issuer signed data
-            const issuerSigned &#x3D; mdlDocument.issuerSigned;
-            const docType &#x3D; mdlDocument.docType;
+            const issuerSigned &#x3D; mdocDocument.issuerSigned;
+            const docType &#x3D; mdocDocument.docType;
 
             // Get claims from the appropriate namespace
             const namespace &#x3D;
@@ -921,29 +1015,41 @@ export class MdlverifierService extends BaseVerifierService {
                     : docType;
             const claims &#x3D; issuerSigned.getPrettyClaims(namespace) || {};
 
-            // 3) Build the trusted certificates from trust store
-            const trustedCertificates &#x3D; await this.getTrustedCertificateBuffers(
-                options.trustListSource,
+            // 3) Build the session transcript for verification
+            const sessionTranscript &#x3D; await SessionTranscript.forOid4Vp(
+                sessionData,
+                mdocContext,
             );
 
-            if (trustedCertificates.length &#x3D;&#x3D;&#x3D; 0) {
-                // No trust list configured or empty - skip trust validation
-                // but still return verified: true with claims
-                if (!options.trustListSource) {
-                    this.logger.debug(
-                        &quot;No trust list source configured, returning claims without trust validation&quot;,
-                    );
-                    return {
-                        verified: true,
-                        claims,
-                        payload: vp,
-                        docType,
-                    };
-                }
+            // 4) Build a device request (currently requesting all claims that were received)
+            const deviceRequest &#x3D; this.buildDeviceRequest(docType, claims);
 
-                this.logger.warn(
-                    &quot;No trusted certificates found in trust store&quot;,
-                );
+            // 5) Verify the device response (signature, device binding, etc.)
+            // Certificate chain validation is disabled here - we do it separately via CredentialChainValidationService
+            await Verifier.verifyDeviceResponse(
+                {
+                    deviceRequest,
+                    deviceResponse,
+                    sessionTranscript,
+                    trustedCertificates: [],
+                    disableCertificateChainValidation: true,
+                },
+                mdocContext,
+            );
+
+            // 6) Validate certificate chain using shared CredentialChainValidationService
+            // This ensures consistent trust validation with SD-JWT-VC and other formats
+            const chainResult &#x3D; await this.validateIssuerCertificateChain(
+                mdocDocument,
+                options,
+            );
+
+            if (!chainResult.verified) {
+                if (chainResult.errorDetails) {
+                    this.logger.warn(
+                        &#x60;Certificate chain validation failed: ${chainResult.errorDetails}&#x60;,
+                    );
+                }
                 return {
                     verified: false,
                     claims,
@@ -951,27 +1057,6 @@ export class MdlverifierService extends BaseVerifierService {
                     docType,
                 };
             }
-
-            // 4) Build the session transcript for verification
-            const sessionTranscript &#x3D; await SessionTranscript.forOid4Vp(
-                sessionData,
-                mdocContext,
-            );
-
-            // 5) Build a device request (currently requesting all claims that were received)
-            // In a real implementation, you might want to pass the expected claims
-            const deviceRequest &#x3D; this.buildDeviceRequest(docType, claims);
-
-            // 6) Verify the device response
-            await Verifier.verifyDeviceResponse(
-                {
-                    deviceRequest,
-                    deviceResponse,
-                    sessionTranscript,
-                    trustedCertificates,
-                },
-                mdocContext,
-            );
 
             this.logger.debug(
                 &#x60;MDL device response verified successfully for docType: ${docType}&#x60;,
@@ -984,16 +1069,190 @@ export class MdlverifierService extends BaseVerifierService {
                 docType,
             };
         } catch (error: any) {
-            console.log(&quot;MDL verification error:&quot;, error);
-            this.logger.error(
-                &#x60;MDL verification failed: ${error?.message ?? error}&#x60;,
-            );
-            return {
-                verified: false,
-                claims: {},
-                payload: vp,
-            };
+            return this.handleVerificationError(vp, error, options);
         }
+    }
+
+    /**
+     * Validates the issuer certificate chain from the mDOC&#x27;s IssuerAuth.
+     * Extracts x5chain from the COSE Sign1 structure and validates it using
+     * the shared CredentialChainValidationService.
+     */
+    private async validateIssuerCertificateChain(
+        mdocDocument: any,
+        options: VerifierOptions,
+    ): Promise&lt;ChainValidationResult&gt; {
+        // Extract x5chain from IssuerAuth (COSE Sign1 unprotected headers)
+        const issuerAuth &#x3D; mdocDocument?.issuerSigned?.issuerAuth;
+        const x5chain: Uint8Array[] | undefined &#x3D; issuerAuth?.x5chain;
+
+        if (!x5chain || x5chain.length &#x3D;&#x3D;&#x3D; 0) {
+            // No x5c in the credential
+            if (options.policy?.requireX5c) {
+                return {
+                    verified: false,
+                    matchedEntity: null,
+                    error: &quot;x5c_required&quot;,
+                    errorDetails:
+                        &quot;Policy requires x5c but none was found in IssuerAuth&quot;,
+                };
+            }
+            // If x5c not required, skip trust validation
+            return { verified: true, matchedEntity: null };
+        }
+
+        // Convert Uint8Array[] to base64 string[] for CredentialChainValidationService
+        const x5cBase64 &#x3D; x5chain.map((cert) &#x3D;&gt; base64.encode(cert));
+
+        return this.chainValidation.validateChain(
+            x5cBase64,
+            options.trustListSource,
+            {
+                requireX5c: options.policy?.requireX5c,
+                pinnedCertMode: options.policy?.pinnedCertMode ?? &quot;leaf&quot;,
+                serviceTypeFilter: &quot;/Issuance&quot;,
+            },
+        );
+    }
+
+    /**
+     * Handle verification errors with detailed logging.
+     */
+    private async handleVerificationError(
+        vp: string,
+        error: any,
+        options: VerifierOptions,
+    ): Promise&lt;MdocVerificationResult&gt; {
+        const configuredTrustLists &#x3D;
+            options.trustListSource?.lotes?.map((l) &#x3D;&gt; l.url).join(&quot;, &quot;) ||
+            &quot;none configured&quot;;
+
+        const details &#x3D; await this.extractErrorDetails(vp, options);
+
+        const errorDetails &#x3D; [
+            &#x60;Error: ${error?.message ?? error}&#x60;,
+            &#x60;DocType: ${details.docType}&#x60;,
+            &#x60;Issuer cert: ${details.issuerCertInfo}&#x60;,
+            &#x60;Issuer thumbprint: ${details.issuerThumbprint}&#x60;,
+            &#x60;Issuer validity: ${details.issuerValidity}&#x60;,
+            &#x60;Configured trust lists: ${configuredTrustLists}&#x60;,
+            &#x60;Trusted certs: ${details.trustedCertsSummary}&#x60;,
+        ].join(&quot; | &quot;);
+
+        this.logger.error(&#x60;mDOC verification failed: ${errorDetails}&#x60;);
+
+        return {
+            verified: false,
+            claims: {},
+            payload: vp,
+            docType:
+                details.docType &#x3D;&#x3D;&#x3D; &quot;unknown&quot; ? undefined : details.docType,
+        };
+    }
+
+    /**
+     * Extract error details from the mDOC document for debugging.
+     */
+    private async extractErrorDetails(
+        vp: string,
+        options: VerifierOptions,
+    ): Promise&lt;MdocErrorDetails&gt; {
+        const details: MdocErrorDetails &#x3D; {
+            docType: &quot;unknown&quot;,
+            issuerCertInfo: &quot;unknown&quot;,
+            issuerThumbprint: &quot;unknown&quot;,
+            issuerValidity: &quot;unknown&quot;,
+            trustedCertsSummary: &quot;unknown&quot;,
+        };
+
+        try {
+            const uint8Array &#x3D; Buffer.from(vp, &quot;base64url&quot;);
+            const deviceResponse &#x3D; DeviceResponse.decode(uint8Array);
+            const mdocDoc &#x3D; deviceResponse.documents?.[0];
+
+            if (mdocDoc?.docType) {
+                details.docType &#x3D; mdocDoc.docType;
+            }
+
+            // Extract issuer certificate info from the MSO
+            await this.extractIssuerCertInfo(mdocDoc, details);
+
+            // Summarize trusted certificates
+            details.trustedCertsSummary &#x3D; await this.summarizeTrustedCerts(
+                options.trustListSource,
+            );
+        } catch (parseError: any) {
+            this.logger.debug(
+                &#x60;Could not extract additional debug info: ${parseError?.message ?? parseError}&#x60;,
+            );
+        }
+
+        return details;
+    }
+
+    /**
+     * Extract issuer certificate information from the mDOC document.
+     */
+    private async extractIssuerCertInfo(
+        mdocDoc: any,
+        details: MdocErrorDetails,
+    ): Promise&lt;void&gt; {
+        const issuerAuth &#x3D; mdocDoc?.issuerSigned?.issuerAuth;
+        if (!issuerAuth) return;
+
+        const x5chain &#x3D; issuerAuth?.x5chain;
+        if (!x5chain?.length) return;
+
+        try {
+            const leafCertBytes &#x3D; x5chain[0];
+            const leafCert &#x3D; new x509.X509Certificate(leafCertBytes);
+            const thumbprint &#x3D; await leafCert.getThumbprint(&quot;SHA-256&quot;);
+
+            details.issuerThumbprint &#x3D; hex.encode(new Uint8Array(thumbprint));
+            details.issuerValidity &#x3D; &#x60;${leafCert.notBefore.toISOString()} - ${leafCert.notAfter.toISOString()}&#x60;;
+            details.issuerCertInfo &#x3D; &#x60;subject&#x3D;&quot;${leafCert.subject}&quot;, issuer&#x3D;&quot;${leafCert.issuer}&quot;&#x60;;
+        } catch {
+            // Ignore certificate parsing errors
+        }
+    }
+
+    /**
+     * Summarize trusted certificates for error logging.
+     */
+    private async summarizeTrustedCerts(
+        trustListSource: VerifierOptions[&quot;trustListSource&quot;],
+    ): Promise&lt;string&gt; {
+        const trustedCerts &#x3D;
+            await this.chainValidation.getTrustedCertificateBuffers(
+                trustListSource,
+            );
+
+        if (trustedCerts.length &#x3D;&#x3D;&#x3D; 0) {
+            return &quot;none loaded&quot;;
+        }
+
+        const certSummaries: string[] &#x3D; [];
+        for (const certBuf of trustedCerts.slice(0, 5)) {
+            try {
+                const cert &#x3D; new x509.X509Certificate(new Uint8Array(certBuf));
+                const thumb &#x3D; hex.encode(
+                    new Uint8Array(await cert.getThumbprint(&quot;SHA-256&quot;)),
+                );
+                certSummaries.push(
+                    &#x60;${cert.subject} (${thumb.substring(0, 16)}...)&#x60;,
+                );
+            } catch {
+                // Skip invalid certs
+            }
+        }
+
+        let summary &#x3D;
+            certSummaries.length &gt; 0 ? certSummaries.join(&quot;; &quot;) : &quot;none valid&quot;;
+        if (trustedCerts.length &gt; 5) {
+            summary +&#x3D; &#x60; ...and ${trustedCerts.length - 5} more&#x60;;
+        }
+
+        return summary;
     }
 
     /**
@@ -1018,10 +1277,10 @@ export class MdlverifierService extends BaseVerifierService {
             }
         }
 
-        return new DeviceRequest({
+        return DeviceRequest.create({
             docRequests: [
-                new DocRequest({
-                    itemsRequest: new ItemsRequest({
+                DocRequest.create({
+                    itemsRequest: ItemsRequest.create({
                         docType,
                         namespaces,
                     }),
@@ -1073,7 +1332,7 @@ export class MdlverifierService extends BaseVerifierService {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
-            var COMPODOC_CURRENT_PAGE_URL = 'MdlverifierService.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'MdocverifierService.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

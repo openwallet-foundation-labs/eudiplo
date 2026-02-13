@@ -173,6 +173,11 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                <a href="#getRequestNoRedirectWithSession" >getRequestNoRedirectWithSession</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#getRequestWithSession" >getRequestWithSession</a>
                             </li>
                             <li>
@@ -228,6 +233,97 @@
 
                     <tr>
                         <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="78"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:78</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Returns the authorization request for a given requestId and session.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>sessionId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>req</td>
+                                            <td>
+                                                        <code>Request</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getRequestNoRedirectWithSession"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>getRequestNoRedirectWithSession</b></span>
+                        <a href="#getRequestNoRedirectWithSession"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getRequestNoRedirectWithSession(sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, req: Request)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;request/no-redirect&#x27;)<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
                             <div class="io-line">Defined in <a href="" data-line="58"
                                     class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:58</a></div>
                         </td>
@@ -236,7 +332,7 @@
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Returns the authorization request for a given requestId and session.</p>
+                        <div class="io-description"><p>Returns the authorization request for a given requestId and session, but does not redirect in the end.</p>
 </div>
 
                             <div class="io-description">
@@ -411,8 +507,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="74"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:74</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="94"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:94</a></div>
                         </td>
                     </tr>
 
@@ -526,6 +622,26 @@ export class Oid4vpController {
     }
 
     /**
+     * Returns the authorization request for a given requestId and session, but does not redirect in the end.
+     * @param sessionId
+     * @param req
+     * @returns
+     */
+    @Get(&quot;request/no-redirect&quot;)
+    @SessionLogger(&quot;session&quot;, &quot;OID4VP&quot;)
+    getRequestNoRedirectWithSession(
+        @Param(&quot;session&quot;) sessionId: string,
+        @Req() req: Request,
+    ) {
+        const origin &#x3D; req.get(&quot;origin&quot;) as string;
+        return this.oid4vpService.createAuthorizationRequest(
+            sessionId,
+            origin,
+            true,
+        );
+    }
+
+    /**
      * Returns the authorization request for a given requestId and session.
      * @param sessionId
      * @param req
@@ -553,11 +669,7 @@ export class Oid4vpController {
         @Body() body: AuthorizationResponse,
         @Param(&quot;session&quot;) sessionId: string,
     ) {
-        return this.oid4vpService.getResponse(body, sessionId).catch((err) &#x3D;&gt; {
-            console.log(&quot;Error in OID4VP response handling:&quot;);
-            console.error(err);
-            throw err;
-        });
+        return this.oid4vpService.getResponse(body, sessionId);
     }
 }
 </code></pre>

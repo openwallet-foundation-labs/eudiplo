@@ -210,7 +210,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:32</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -237,7 +237,9 @@
 } from &quot;@nestjs/swagger&quot;;
 import { Type } from &quot;class-transformer&quot;;
 import {
+    IsArray,
     IsBoolean,
+    IsEnum,
     IsNumber,
     IsObject,
     IsOptional,
@@ -250,6 +252,13 @@ import { CertEntity } from &quot;../../../../crypto/key/entities/cert.entity&quo
 import { WebhookConfig } from &quot;../../../../shared/utils/webhook/webhook.dto&quot;;
 import { SchemaResponse } from &quot;../../../issuance/oid4vci/metadata/dto/schema-response.dto&quot;;
 import { VCT } from &quot;../../../issuance/oid4vci/metadata/dto/vct.dto&quot;;
+import {
+    IaeAction,
+    IaeActionBase,
+    IaeActionOpenid4vpPresentation,
+    IaeActionRedirectToWeb,
+    IaeActionType,
+} from &quot;./iae-action.dto&quot;;
 import {
     AllowListPolicy,
     AttestationBasedPolicy,
@@ -285,9 +294,14 @@ export class Display {
     logo?: DisplayImage;
 }
 
+export enum CredentialFormat {
+    MSO_MDOC &#x3D; &quot;mso_mdoc&quot;,
+    SD_JWT &#x3D; &quot;dc+sd-jwt&quot;,
+}
+
 export class IssuerMetadataCredentialConfig {
-    @IsString()
-    format!: string;
+    @IsEnum(CredentialFormat)
+    format!: CredentialFormat;
     @ValidateNested()
     @Type(() &#x3D;&gt; Display)
     display!: Display[];
@@ -333,6 +347,8 @@ export class IssuerMetadataCredentialConfig {
     AllowListPolicy,
     RootOfTrustPolicy,
     VCT,
+    IaeActionOpenid4vpPresentation,
+    IaeActionRedirectToWeb,
 )
 @Entity()
 export class CredentialConfig {
@@ -428,6 +444,57 @@ export class CredentialConfig {
     @Column(&quot;boolean&quot;, { default: false })
     @IsBoolean()
     statusManagement?: boolean;
+
+    /**
+     * List of Interactive Authorization Endpoint (IAE) actions to execute
+     * before credential issuance. Actions are executed in order.
+     *
+     * Each action can be:
+     * - &#x60;openid4vp_presentation&#x60;: Request a verifiable presentation from the wallet
+     * - &#x60;redirect_to_web&#x60;: Redirect user to a web page for additional interaction
+     *
+     * If empty or not set, no interactive authorization is required.
+     *
+     * @example
+     * [
+     *   { &quot;type&quot;: &quot;openid4vp_presentation&quot;, &quot;presentationConfigId&quot;: &quot;pid-config&quot; },
+     *   { &quot;type&quot;: &quot;redirect_to_web&quot;, &quot;url&quot;: &quot;https://example.com/verify&quot;, &quot;label&quot;: &quot;Additional Verification&quot; }
+     * ]
+     */
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() &#x3D;&gt; IaeActionBase, {
+        discriminator: {
+            property: &quot;type&quot;,
+            subTypes: [
+                {
+                    name: IaeActionType.OPENID4VP_PRESENTATION,
+                    value: IaeActionOpenid4vpPresentation,
+                },
+                {
+                    name: IaeActionType.REDIRECT_TO_WEB,
+                    value: IaeActionRedirectToWeb,
+                },
+            ],
+        },
+        keepDiscriminatorProperty: true,
+    })
+    @ApiProperty({
+        description:
+            &quot;List of IAE actions to execute before credential issuance&quot;,
+        type: &quot;array&quot;,
+        items: {
+            oneOf: [
+                { $ref: getSchemaPath(IaeActionOpenid4vpPresentation) },
+                { $ref: getSchemaPath(IaeActionRedirectToWeb) },
+            ],
+        },
+        nullable: true,
+        required: false,
+    })
+    @Column(&quot;json&quot;, { nullable: true })
+    iaeActions?: IaeAction[] | null;
 
     @IsOptional()
     @Column(&quot;int&quot;, { nullable: true })

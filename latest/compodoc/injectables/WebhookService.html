@@ -191,7 +191,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/shared/utils/webhook/webhook.service.ts:24</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/shared/utils/webhook/webhook.service.ts:48</a></div>
                             </td>
                         </tr>
 
@@ -280,8 +280,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="40"
-                                    class="link-to-prism">src/shared/utils/webhook/webhook.service.ts:40</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="65"
+                                    class="link-to-prism">src/shared/utils/webhook/webhook.service.ts:65</a></div>
                         </td>
                     </tr>
 
@@ -319,11 +319,12 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>        <code><a href="../interfaces/WebhookResponse.html" target="_self" >Promise&lt;WebhookResponse&gt;</a></code>
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>WebhookResponse containing claims data or deferred issuance indicator</p>
+
                             </div>
                 </td>
             </tr>
@@ -351,8 +352,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="114"
-                                    class="link-to-prism">src/shared/utils/webhook/webhook.service.ts:114</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="137"
+                                    class="link-to-prism">src/shared/utils/webhook/webhook.service.ts:137</a></div>
                         </td>
                     </tr>
 
@@ -444,9 +445,33 @@ import { WebhookConfig } from &quot;./webhook.dto&quot;;
 
 /**
  * Response from a webhook to receive credentials.
+ * Can include claims data for immediate issuance or a deferred flag for deferred issuance.
  */
-export class WebhookResponse {
-    [key: string]: Record&lt;string, any&gt;;
+export interface WebhookResponse {
+    /**
+     * Redirect URI for OAuth-style redirects.
+     */
+    redirectUri?: string;
+    /**
+     * When true, indicates that the credential issuance should be deferred.
+     * The wallet will receive a transaction_id to poll later.
+     */
+    deferred?: boolean;
+    /**
+     * Recommended polling interval in seconds for deferred issuance.
+     * Defaults to 5 seconds if not specified.
+     */
+    interval?: number;
+    /**
+     * Claims data keyed by credential configuration ID.
+     * Allows dynamic keys for credential configuration IDs.
+     */
+    [credentialConfigurationId: string]:
+        | Record&lt;string, any&gt;
+        | string
+        | boolean
+        | number
+        | undefined;
 }
 
 /**
@@ -468,6 +493,7 @@ export class WebhookService {
 
     /**
      * Sends a webhook with the optional provided credentials, return the response data.
+     * @returns WebhookResponse containing claims data or deferred issuance indicator
      */
     sendWebhook(values: {
         webhook: WebhookConfig;
@@ -475,7 +501,7 @@ export class WebhookService {
         session: Session;
         credentials?: any[];
         expectResponse: boolean;
-    }) {
+    }): Promise&lt;WebhookResponse&gt; {
         const headers: Record&lt;string, string&gt; &#x3D; {};
 
         if (values.webhook.auth &amp;&amp; values.webhook.auth.type &#x3D;&#x3D;&#x3D; &quot;apiKey&quot;) {
@@ -511,11 +537,9 @@ export class WebhookService {
 
                 //check if a redirect URI is passed, we either expect a redirect or claims, but never both.
                 if (webhookResponse.data?.redirectUri) {
-                    //TODO: do we need to do something with it?
+                    // redirectUri is returned but no special handling needed here
                 } else if (webhookResponse.data &amp;&amp; values.expectResponse) {
-                    //TODO: update this for presentation during issuance
-                    //session.credentialPayload!.credentialClaims![&quot;id&quot;].claims &#x3D; webhookResponse.data;
-                    //store received webhook response
+                    // Store received webhook response
                     await this.sessionService.add(values.session.id, {
                         credentialPayload: values.session.credentialPayload,
                     });

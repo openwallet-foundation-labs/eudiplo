@@ -201,12 +201,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, keyService: <a href="../classes/KeyService.html" target="_self">KeyService</a>, encryptionService: <a href="../injectables/EncryptionService.html" target="_self">EncryptionService</a>, configService: ConfigService, registrarService: <a href="../injectables/RegistrarService.html" target="_self">RegistrarService</a>, presentationsService: <a href="../injectables/PresentationsService.html" target="_self">PresentationsService</a>, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, sessionLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, cryptoImplementationService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>)</code>
+<code>constructor(certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, keyService: <a href="../classes/KeyService.html" target="_self">KeyService</a>, encryptionService: <a href="../injectables/EncryptionService.html" target="_self">EncryptionService</a>, configService: ConfigService, presentationsService: <a href="../injectables/PresentationsService.html" target="_self">PresentationsService</a>, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, sessionLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, cryptoImplementationService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:24</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:25</a></div>
                             </td>
                         </tr>
 
@@ -264,18 +264,6 @@
                                                   
                                                         <td>
                                                                     <code>ConfigService</code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>registrarService</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/RegistrarService.html" target="_self" >RegistrarService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -372,15 +360,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>createAuthorizationRequest(sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, origin: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>createAuthorizationRequest(sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, origin: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, noRedirect: unknown)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="46"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:46</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="47"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:47</a></div>
                         </td>
                     </tr>
 
@@ -401,6 +389,7 @@ It initializes the session logging context and logs the start of the flow.</p>
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Default value</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -414,6 +403,8 @@ It initializes the session logging context and logs the start of the flow.</p>
                                                     No
                                             </td>
 
+                                            <td>
+                                            </td>
 
                                         </tr>
                                         <tr>
@@ -426,6 +417,23 @@ It initializes the session logging context and logs the start of the flow.</p>
                                                     No
                                             </td>
 
+                                            <td>
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                                <td>noRedirect</td>
+                                            <td>
+                                                        <code>unknown</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+                                            <td>
+                                                    <code>false</code>
+                                            </td>
 
                                         </tr>
                                     </tbody>
@@ -464,8 +472,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="230"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:230</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="239"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:239</a></div>
                         </td>
                     </tr>
 
@@ -583,8 +591,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="327"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:327</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="349"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:349</a></div>
                         </td>
                     </tr>
 
@@ -681,7 +689,7 @@ It initializes the session logging context and logs the start of the flow.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:27</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="28" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:28</a></div>
                         </td>
                     </tr>
 
@@ -697,6 +705,8 @@ It initializes the session logging context and logs the start of the flow.</p>
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &quot;node:crypto&quot;;
 import { BadRequestException, Inject, Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
+import { plainToInstance } from &quot;class-transformer&quot;;
+import { validateOrReject } from &quot;class-validator&quot;;
 import { base64url } from &quot;jose&quot;;
 import { v4 } from &quot;uuid&quot;;
 import { EncryptionService } from &quot;../../crypto/encryption/encryption.service&quot;;
@@ -705,7 +715,6 @@ import { CryptoImplementationService } from &quot;../../crypto/key/crypto-implem
 import { CertUsage } from &quot;../../crypto/key/entities/cert-usage.entity&quot;;
 import { KeyService } from &quot;../../crypto/key/key.service&quot;;
 import { OfferResponse } from &quot;../../issuer/issuance/oid4vci/dto/offer-request.dto&quot;;
-import { RegistrarService } from &quot;../../registrar/registrar.service&quot;;
 import { SessionStatus } from &quot;../../session/entities/session.entity&quot;;
 import { SessionService } from &quot;../../session/session.service&quot;;
 import { SessionLoggerService } from &quot;../../shared/utils/logger/session-logger.service&quot;;
@@ -723,7 +732,6 @@ export class Oid4vpService {
         @Inject(&quot;KeyService&quot;) public readonly keyService: KeyService,
         private readonly encryptionService: EncryptionService,
         private readonly configService: ConfigService,
-        private readonly registrarService: RegistrarService,
         private readonly presentationsService: PresentationsService,
         private readonly sessionService: SessionService,
         private readonly sessionLogger: SessionLoggerService,
@@ -737,13 +745,22 @@ export class Oid4vpService {
      * It initializes the session logging context and logs the start of the flow.
      * @param session
      * @param origin
+     * @param noRedirect
      * @returns
      */
     async createAuthorizationRequest(
         sessionId: string,
         origin: string,
+        noRedirect &#x3D; false,
     ): Promise&lt;string&gt; {
         const session &#x3D; await this.sessionService.get(sessionId);
+
+        // if noRedirect is true, we want to keep the redirectUri undefined in the session, as it will be used by the client to decide whether to redirect or not after receiving the response. If it&#x27;s defined, the client will always redirect, even if it was instructed not to.
+        if (noRedirect) {
+            await this.sessionService.add(session.id, {
+                redirectUri: null,
+            });
+        }
 
         // Create session logging context
         const logContext: SessionLogContext &#x3D; {
@@ -959,6 +976,18 @@ export class Oid4vpService {
             )
             .join(&quot;&amp;&quot;);
 
+        // Create cross-device params with /no-redirect appended to request_uri
+        const crossDeviceParams &#x3D; {
+            ...params,
+            request_uri: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${values.session}/oid4vp/request/no-redirect&#x60;,
+        };
+        const crossDeviceQueryString &#x3D; Object.entries(crossDeviceParams)
+            .map(
+                ([key, value]) &#x3D;&gt;
+                    &#x60;${encodeURIComponent(key)}&#x3D;${encodeURIComponent(value)}&#x60;,
+            )
+            .join(&quot;&amp;&quot;);
+
         const expiresAt &#x3D; new Date(
             Date.now() + (presentationConfig.lifeTime ?? 300) * 1000,
         );
@@ -1011,6 +1040,7 @@ export class Oid4vpService {
 
         return {
             uri: queryString,
+            crossDeviceUri: crossDeviceQueryString,
             session: values.session,
         };
     }
@@ -1022,10 +1052,20 @@ export class Oid4vpService {
      */
     async getResponse(body: AuthorizationResponse, sessionId: string) {
         const session &#x3D; await this.sessionService.get(sessionId);
-        const res &#x3D; await this.encryptionService.decryptJwe&lt;AuthResponse&gt;(
+        const decrypted &#x3D; await this.encryptionService.decryptJwe&lt;AuthResponse&gt;(
             body.response,
             session.tenantId,
         );
+
+        // Validate decrypted response against AuthResponse class
+        const res &#x3D; plainToInstance(AuthResponse, decrypted);
+        try {
+            await validateOrReject(res);
+        } catch (errors) {
+            throw new BadRequestException(
+                &#x60;Invalid authorization response: ${JSON.stringify(errors)}&#x60;,
+            );
+        }
 
         //for dc api the state is no longer included in the res, see: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-request
 
@@ -1066,8 +1106,19 @@ export class Oid4vpService {
                 },
             );
 
+            // For DC API, state is not included in the response (per OID4VP spec).
+            // Use sessionId from URL path as fallback.
+            const effectiveSessionId &#x3D; res.state ?? sessionId;
+
+            // Validate state matches sessionId when provided (prevents session hijacking)
+            if (res.state &amp;&amp; res.state !&#x3D;&#x3D; sessionId) {
+                throw new BadRequestException(
+                    &quot;State mismatch: response state does not match session ID&quot;,
+                );
+            }
+
             //tell the auth server the result of the session.
-            await this.sessionService.add(res.state, {
+            await this.sessionService.add(effectiveSessionId, {
                 //TODO: not clear why it has to be any
                 credentials: credentials as any,
                 status: SessionStatus.Completed,

@@ -204,8 +204,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="13"
-                                    class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:13</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="12"
+                                    class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:12</a></div>
                         </td>
                     </tr>
 
@@ -230,9 +230,8 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { existsSync, readdirSync } from &quot;node:fs&quot;;
-import { Injectable, OnApplicationBootstrap } from &quot;@nestjs/common&quot;;
+import { Injectable, Logger, OnApplicationBootstrap } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
-import { PinoLogger } from &quot;nestjs-pino&quot;;
 
 /**
  * Interface for services that can be registered with the import orchestrator.
@@ -297,11 +296,9 @@ export class ConfigImportOrchestratorService implements OnApplicationBootstrap {
     private tenantSetup: TenantSetupFn | null &#x3D; null;
     private hasRun &#x3D; false;
     private runPromise: Promise&lt;void&gt; | null &#x3D; null;
+    private readonly logger &#x3D; new Logger(ConfigImportOrchestratorService.name);
 
-    constructor(
-        private readonly logger: PinoLogger,
-        private readonly configService: ConfigService,
-    ) {}
+    constructor(private readonly configService: ConfigService) {}
 
     /**
      * Lifecycle hook - automatically triggers import orchestration.
@@ -381,7 +378,7 @@ export class ConfigImportOrchestratorService implements OnApplicationBootstrap {
     private async executeImports(): Promise&lt;void&gt; {
         if (!this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT&quot;)) {
             this.hasRun &#x3D; true;
-            this.logger.info(&quot;Config import is disabled&quot;);
+            this.logger.log(&quot;Config import is disabled&quot;);
             return;
         }
 
@@ -393,7 +390,7 @@ export class ConfigImportOrchestratorService implements OnApplicationBootstrap {
         // Discover tenants
         const tenants &#x3D; this.discoverTenants();
 
-        this.logger.info(
+        this.logger.log(
             &#x60;Starting config import for ${tenants.length} tenant(s)&#x60;,
         );
 
@@ -430,7 +427,7 @@ export class ConfigImportOrchestratorService implements OnApplicationBootstrap {
                     }
                 }
 
-                this.logger.info(&#x60;[${tenantId}] Import completed&#x60;);
+                this.logger.log(&#x60;[${tenantId}] Import completed&#x60;);
             } catch (error: any) {
                 this.logger.error(
                     { error: error.message },
@@ -448,7 +445,7 @@ export class ConfigImportOrchestratorService implements OnApplicationBootstrap {
                 &#x60;Config import completed with ${failedTenants.length} failed tenant(s): ${failedTenants.join(&quot;, &quot;)}&#x60;,
             );
         } else {
-            this.logger.info(
+            this.logger.log(
                 &#x60;Config import completed for ${tenants.length} tenant(s)&#x60;,
             );
         }

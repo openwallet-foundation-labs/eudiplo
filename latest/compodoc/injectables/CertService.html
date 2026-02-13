@@ -196,6 +196,7 @@
                                 <a href="#deleteCertificate" >deleteCertificate</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#find" >find</a>
                             </li>
                             <li>
@@ -221,6 +222,9 @@
                                 <a href="#getCertificates" >getCertificates</a>
                             </li>
                             <li>
+                                <a href="#getCertificateValidity" >getCertificateValidity</a>
+                            </li>
+                            <li>
                                 <a href="#hasEntry" >hasEntry</a>
                             </li>
                             <li>
@@ -228,11 +232,18 @@
                                 <a href="#importForTenant" >importForTenant</a>
                             </li>
                             <li>
+                                <a href="#isCertificateExpired" >isCertificateExpired</a>
+                            </li>
+                            <li>
                                 <a href="#updateCert" >updateCert</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
                                 <a href="#updateCertificate" >updateCertificate</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#validateCertificate" >validateCertificate</a>
                             </li>
                         </ul>
                     </td>
@@ -252,12 +263,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(certRepository: <a href="../entitys/CertEntity.html" target="_self">Repository&lt;CertEntity&gt;</a>, certUsageRepository: <a href="../classes/CertUsageEntity.html" target="_self">Repository&lt;CertUsageEntity&gt;</a>, keyService: <a href="../classes/KeyService.html" target="_self">KeyService</a>, configService: ConfigService, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>)</code>
+<code>constructor(certRepository: <a href="../entitys/CertEntity.html" target="_self">Repository&lt;CertEntity&gt;</a>, certUsageRepository: <a href="../classes/CertUsageEntity.html" target="_self">Repository&lt;CertUsageEntity&gt;</a>, keyService: <a href="../classes/KeyService.html" target="_self">KeyService</a>, configService: ConfigService, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>, crlValidationService?: <a href="../injectables/CrlValidationService.html" target="_self">CrlValidationService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/crypto/key/cert/cert.service.ts:41</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">src/crypto/key/cert/cert.service.ts:65</a></div>
                             </td>
                         </tr>
 
@@ -358,6 +369,18 @@
                                                     </td>
                                                     
                                                 </tr>
+                                                <tr>
+                                                        <td>crlValidationService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/CrlValidationService.html" target="_self" >CrlValidationService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            Yes
+                                                    </td>
+                                                    
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -394,8 +417,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="138"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:138</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="164"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:164</a></div>
                         </td>
                     </tr>
 
@@ -491,8 +514,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="166"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:166</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="192"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:192</a></div>
                         </td>
                     </tr>
 
@@ -586,8 +609,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="277"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:277</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="303"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:303</a></div>
                         </td>
                     </tr>
 
@@ -666,6 +689,7 @@
                 <td class="col-md-4">
                     <a name="find"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>find</b></span>
                         <a href="#find"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -673,15 +697,16 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>find(value: <a href="../interfaces/FindCertOptions.html" target="_self">FindCertOptions</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>find(value: <a href="../interfaces/FindCertOptions.html" target="_self">FindCertOptions</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="296"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:296</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="322"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:322</a></div>
                         </td>
                     </tr>
 
@@ -757,8 +782,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="314"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:314</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="474"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:474</a></div>
                         </td>
                     </tr>
 
@@ -826,8 +851,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="67"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:67</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="93"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:93</a></div>
                         </td>
                     </tr>
 
@@ -903,8 +928,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="368"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:368</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="528"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:528</a></div>
                         </td>
                     </tr>
 
@@ -953,7 +978,7 @@
 
                         </div>
                             <div class="io-description">
-                                <p>Array with base64-encoded certificate</p>
+                                <p>Array with base64-encoded certificates (leaf first, then intermediates/root)</p>
 
                             </div>
                 </td>
@@ -980,15 +1005,15 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="381"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:381</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="542"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:542</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Get the base64 url encoded SHA-256 hash of the certificate.</p>
+                        <div class="io-description"><p>Get the base64 url encoded SHA-256 hash of the leaf certificate.</p>
 </div>
 
                             <div class="io-description">
@@ -1057,8 +1082,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="96"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:96</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="122"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:122</a></div>
                         </td>
                     </tr>
 
@@ -1154,8 +1179,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="112"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:112</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="138"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:138</a></div>
                         </td>
                     </tr>
 
@@ -1235,8 +1260,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="80"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:80</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="106"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:106</a></div>
                         </td>
                     </tr>
 
@@ -1314,6 +1339,83 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="getCertificateValidity"></a>
+                    <span class="name">
+                        <span ><b>getCertificateValidity</b></span>
+                        <a href="#getCertificateValidity"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getCertificateValidity(cert: <a href="../entitys/CertEntity.html" target="_self">CertEntity</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="457"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:457</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get certificate validity information.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>cert</td>
+                                            <td>
+                                                            <code><a href="../entitys/CertEntity.html" target="_self" >CertEntity</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The certificate entity</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>literal type</code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>Object with validFrom and expiresAt dates</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="hasEntry"></a>
                     <span class="name">
                         <span ><b>hasEntry</b></span>
@@ -1330,8 +1432,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="347"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:347</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="507"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:507</a></div>
                         </td>
                     </tr>
 
@@ -1427,8 +1529,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="397"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:397</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="559"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:559</a></div>
                         </td>
                     </tr>
 
@@ -1480,6 +1582,83 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="isCertificateExpired"></a>
+                    <span class="name">
+                        <span ><b>isCertificateExpired</b></span>
+                        <a href="#isCertificateExpired"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>isCertificateExpired(cert: <a href="../entitys/CertEntity.html" target="_self">CertEntity</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="441"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:441</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Check if a certificate is expired.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>cert</td>
+                                            <td>
+                                                            <code><a href="../entitys/CertEntity.html" target="_self" >CertEntity</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The certificate entity to check</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>True if the certificate is expired</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="updateCert"></a>
                     <span class="name">
                         <span ><b>updateCert</b></span>
@@ -1496,8 +1675,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="359"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:359</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="519"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:519</a></div>
                         </td>
                     </tr>
 
@@ -1610,8 +1789,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="239"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:239</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="265"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:265</a></div>
                         </td>
                     </tr>
 
@@ -1702,6 +1881,85 @@
             </tr>
         </tbody>
     </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="validateCertificate"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>validateCertificate</b></span>
+                        <a href="#validateCertificate"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>validateCertificate(cert: <a href="../entitys/CertEntity.html" target="_self">CertEntity</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="353"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:353</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Validate a certificate for expiry and revocation status.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>cert</td>
+                                            <td>
+                                                            <code><a href="../entitys/CertEntity.html" target="_self" >CertEntity</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The certificate entity to validate</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/CertValidationResult.html" target="_self" >Promise&lt;CertValidationResult&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>Validation result with details</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>
             <section data-compodoc="block-properties">
     
@@ -1739,7 +1997,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/crypto/key/cert/cert.service.ts:48</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="72" class="link-to-prism">src/crypto/key/cert/cert.service.ts:72</a></div>
                         </td>
                     </tr>
 
@@ -1772,7 +2030,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/crypto/key/cert/cert.service.ts:41</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">src/crypto/key/cert/cert.service.ts:65</a></div>
                         </td>
                     </tr>
 
@@ -1787,7 +2045,7 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash } from &quot;node:crypto&quot;;
 import { readFileSync } from &quot;node:fs&quot;;
-import { Inject, Injectable, Logger } from &quot;@nestjs/common&quot;;
+import { Inject, Injectable, Logger, Optional } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import * as x509 from &quot;@peculiar/x509&quot;;
@@ -1807,6 +2065,7 @@ import { UpdateKeyDto } from &quot;../dto/key-update.dto&quot;;
 import { CertEntity } from &quot;../entities/cert.entity&quot;;
 import { CertUsage, CertUsageEntity } from &quot;../entities/cert-usage.entity&quot;;
 import { KeyService } from &quot;../key.service&quot;;
+import { CrlValidationService } from &quot;./crl-validation.service&quot;;
 
 const ECDSA_P256 &#x3D; {
     name: &quot;ECDSA&quot;,
@@ -1818,6 +2077,29 @@ export interface FindCertOptions {
     tenantId: string;
     type: CertUsage;
     id?: string;
+    /**
+     * Skip certificate validation (expiry and CRL check).
+     * Default: false
+     */
+    skipValidation?: boolean;
+}
+
+/**
+ * Result of certificate validation.
+ */
+export interface CertValidationResult {
+    /** Whether the certificate passed all validations */
+    isValid: boolean;
+    /** Error message if validation failed */
+    error?: string;
+    /** Whether the certificate is expired */
+    isExpired?: boolean;
+    /** Whether the certificate is revoked */
+    isRevoked?: boolean;
+    /** Certificate expiry date */
+    expiresAt?: Date;
+    /** Certificate validity start date */
+    validFrom?: Date;
 }
 
 /**
@@ -1838,6 +2120,8 @@ export class CertService {
         private readonly tenantRepository: Repository&lt;TenantEntity&gt;,
         private readonly configImportService: ConfigImportService,
         configImportOrchestrator: ConfigImportOrchestratorService,
+        @Optional()
+        private readonly crlValidationService?: CrlValidationService,
     ) {
         configImportOrchestrator.register(
             &quot;certificates&quot;,
@@ -2007,7 +2291,7 @@ export class CertService {
         const crtPem &#x3D; selfSignedCert.toString(&quot;pem&quot;); // PEM-encoded certificate
 
         return this.addCertificate(tenant.id, {
-            crt: crtPem,
+            crt: [crtPem],
             certUsageTypes: dto.certUsageTypes,
             description:
                 dto.description ??
@@ -2080,17 +2364,151 @@ export class CertService {
     /**
      * Find a certificate by tenantId and usage type.
      */
-    find(value: FindCertOptions): Promise&lt;CertEntity&gt; {
-        return this.certUsageRepository
-            .findOneOrFail({
-                where: {
-                    tenantId: value.tenantId,
-                    usage: value.type,
-                    certId: value.id || undefined,
-                },
-                relations: [&quot;cert&quot;],
-            })
-            .then((certUsage) &#x3D;&gt; certUsage.cert);
+    async find(value: FindCertOptions): Promise&lt;CertEntity&gt; {
+        const certUsage &#x3D; await this.certUsageRepository.findOneOrFail({
+            where: {
+                tenantId: value.tenantId,
+                usage: value.type,
+                certId: value.id || undefined,
+            },
+            relations: [&quot;cert&quot;],
+        });
+
+        const cert &#x3D; certUsage.cert;
+
+        // Validate the certificate unless explicitly skipped
+        if (!value.skipValidation) {
+            const validationResult &#x3D; await this.validateCertificate(cert);
+            if (!validationResult.isValid) {
+                throw new Error(
+                    &#x60;Certificate ${cert.id} validation failed: ${validationResult.error}&#x60;,
+                );
+            }
+        }
+
+        return cert;
+    }
+
+    /**
+     * Validate a certificate for expiry and revocation status.
+     *
+     * @param cert - The certificate entity to validate
+     * @returns Validation result with details
+     */
+    async validateCertificate(cert: CertEntity): Promise&lt;CertValidationResult&gt; {
+        try {
+            // Use the first certificate (leaf) for validation
+            const x509Cert &#x3D; new x509.X509Certificate(cert.crt[0]);
+
+            // Check time validity
+            const now &#x3D; new Date();
+            const validFrom &#x3D; x509Cert.notBefore;
+            const expiresAt &#x3D; x509Cert.notAfter;
+
+            if (now &lt; validFrom) {
+                return {
+                    isValid: false,
+                    error: &#x60;Certificate is not yet valid (valid from: ${validFrom.toISOString()})&#x60;,
+                    isExpired: false,
+                    validFrom,
+                    expiresAt,
+                };
+            }
+
+            if (now &gt; expiresAt) {
+                this.logger.warn(
+                    &#x60;Certificate ${cert.id} has expired at ${expiresAt.toISOString()}&#x60;,
+                );
+                return {
+                    isValid: false,
+                    error: &#x60;Certificate expired at ${expiresAt.toISOString()}&#x60;,
+                    isExpired: true,
+                    validFrom,
+                    expiresAt,
+                };
+            }
+
+            // Check CRL if the service is available
+            if (this.crlValidationService) {
+                const crlResult &#x3D;
+                    await this.crlValidationService.checkCertificateRevocation(
+                        cert.crt[0],
+                    );
+
+                if (
+                    !crlResult.isValid &amp;&amp;
+                    !crlResult.error?.includes(&quot;No CRL&quot;)
+                ) {
+                    this.logger.warn(
+                        &#x60;Certificate ${cert.id} revocation check failed: ${crlResult.error || &quot;revoked&quot;}&#x60;,
+                    );
+                    return {
+                        isValid: false,
+                        error:
+                            crlResult.error ||
+                            &#x60;Certificate revoked at ${crlResult.revokedAt?.toISOString()}&#x60;,
+                        isRevoked: true,
+                        validFrom,
+                        expiresAt,
+                    };
+                }
+
+                // Log if CRL couldn&#x27;t be checked but don&#x27;t fail
+                if (crlResult.error?.includes(&quot;No CRL&quot;)) {
+                    this.logger.debug(
+                        &#x60;Certificate ${cert.id} has no CRL Distribution Points, skipping revocation check&#x60;,
+                    );
+                }
+            }
+
+            return {
+                isValid: true,
+                validFrom,
+                expiresAt,
+            };
+        } catch (error: any) {
+            this.logger.error(
+                &#x60;Failed to validate certificate ${cert.id}: ${error.message}&#x60;,
+            );
+            return {
+                isValid: false,
+                error: &#x60;Certificate validation error: ${error.message}&#x60;,
+            };
+        }
+    }
+
+    /**
+     * Check if a certificate is expired.
+     *
+     * @param cert - The certificate entity to check
+     * @returns True if the certificate is expired
+     */
+    isCertificateExpired(cert: CertEntity): boolean {
+        try {
+            // Use the first certificate (leaf) for expiry check
+            const x509Cert &#x3D; new x509.X509Certificate(cert.crt[0]);
+            return new Date() &gt; x509Cert.notAfter;
+        } catch {
+            return true; // Assume expired if we can&#x27;t parse
+        }
+    }
+
+    /**
+     * Get certificate validity information.
+     *
+     * @param cert - The certificate entity
+     * @returns Object with validFrom and expiresAt dates
+     */
+    getCertificateValidity(cert: CertEntity): {
+        validFrom: Date;
+        expiresAt: Date;
+    } {
+        // Use the first certificate (leaf) for validity
+        const x509Cert &#x3D; new x509.X509Certificate(cert.crt[0]);
+        return {
+            validFrom: x509Cert.notBefore,
+            expiresAt: x509Cert.notAfter,
+        };
     }
 
     /**
@@ -2150,25 +2568,27 @@ export class CertService {
     /**
      * Get the certificate chain to be included in the JWS header.
      * @param cert - The certificate entity
-     * @returns Array with base64-encoded certificate
+     * @returns Array with base64-encoded certificates (leaf first, then intermediates/root)
      */
     getCertChain(cert: CertEntity): string[] {
-        const chain &#x3D; cert.crt
-            .replace(&quot;-----BEGIN CERTIFICATE-----&quot;, &quot;&quot;)
-            .replace(&quot;-----END CERTIFICATE-----&quot;, &quot;&quot;)
-            .replaceAll(/\r?\n|\r/g, &quot;&quot;);
-        return [chain];
+        return cert.crt.map((pem) &#x3D;&gt;
+            pem
+                .replace(&quot;-----BEGIN CERTIFICATE-----&quot;, &quot;&quot;)
+                .replace(&quot;-----END CERTIFICATE-----&quot;, &quot;&quot;)
+                .replaceAll(/\s/g, &quot;&quot;),
+        );
     }
 
     /**
-     * Get the base64 url encoded SHA-256 hash of the certificate.
+     * Get the base64 url encoded SHA-256 hash of the leaf certificate.
      * @param cert - The certificate entity
      * @returns The certificate hash as base64url encoded string
      */
     getCertHash(cert: CertEntity): string {
         // Extract DER from PEM (PEM is base64 encoded, not base64url)
+        // Use the first certificate (leaf) for the hash
         const der &#x3D; Buffer.from(
-            cert.crt
+            cert.crt[0]
                 .replace(&quot;-----BEGIN CERTIFICATE-----&quot;, &quot;&quot;)
                 .replace(&quot;-----END CERTIFICATE-----&quot;, &quot;&quot;)
                 .replaceAll(/\r?\n|\r/g, &quot;&quot;),

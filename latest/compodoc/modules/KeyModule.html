@@ -196,7 +196,6 @@
 import { DynamicModule, Global, Module } from &quot;@nestjs/common&quot;;
 import { ConfigModule, ConfigService } from &quot;@nestjs/config&quot;;
 import { getRepositoryToken, TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
-import { PinoLogger } from &quot;nestjs-pino/PinoLogger&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { TenantEntity } from &quot;../../auth/tenant/entitites/tenant.entity&quot;;
 import { ConfigImportService } from &quot;../../shared/utils/config-import/config-import.service&quot;;
@@ -204,6 +203,7 @@ import { ConfigImportOrchestratorService } from &quot;../../shared/utils/config-
 import { DBKeyService } from &quot;./adapters/db-key.service&quot;;
 import { VaultKeyService } from &quot;./adapters/vault-key.service&quot;;
 import { CertService } from &quot;./cert/cert.service&quot;;
+import { CrlValidationService } from &quot;./cert/crl-validation.service&quot;;
 import { CryptoImplementatationModule } from &quot;./crypto-implementation/crypto-implementation.module&quot;;
 import { CryptoImplementationService } from &quot;./crypto-implementation/crypto-implementation.service&quot;;
 import { CertEntity } from &quot;./entities/cert.entity&quot;;
@@ -229,6 +229,7 @@ export class KeyModule {
             ],
             providers: [
                 CertService,
+                CrlValidationService,
                 {
                     provide: &quot;KeyService&quot;,
                     useFactory: (
@@ -239,7 +240,6 @@ export class KeyModule {
                         configImportService: ConfigImportService,
                         certRepository: Repository&lt;CertEntity&gt;,
                         tenantRepository: Repository&lt;TenantEntity&gt;,
-                        logger: PinoLogger,
                         configImportOrchestrator: ConfigImportOrchestratorService,
                     ) &#x3D;&gt; {
                         const kmType &#x3D; configService.get&lt;&quot;vault&quot; | &quot;file&quot;&gt;(
@@ -254,7 +254,6 @@ export class KeyModule {
                                 configImportService,
                                 certRepository,
                                 tenantRepository,
-                                logger,
                                 configImportOrchestrator,
                             );
                         }
@@ -266,7 +265,6 @@ export class KeyModule {
                             configImportService,
                             certRepository,
                             tenantRepository,
-                            logger,
                             configImportOrchestrator,
                         );
                     },
@@ -278,12 +276,11 @@ export class KeyModule {
                         ConfigImportService,
                         getRepositoryToken(CertEntity),
                         getRepositoryToken(TenantEntity),
-                        PinoLogger,
                         ConfigImportOrchestratorService,
                     ],
                 },
             ],
-            exports: [&quot;KeyService&quot;, CertService],
+            exports: [&quot;KeyService&quot;, CertService, CrlValidationService],
         };
     }
 }

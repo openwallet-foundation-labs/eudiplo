@@ -178,18 +178,40 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#cleanupExpiredDeferredTransactions" >cleanupExpiredDeferredTransactions</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#completeDeferredTransaction" >completeDeferredTransaction</a>
+                            </li>
+                            <li>
                                     <span class="modifier">Async</span>
                                 <a href="#createOffer" >createOffer</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#failDeferredTransaction" >failDeferredTransaction</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
                                 <a href="#getCredential" >getCredential</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#getDeferredCredential" >getDeferredCredential</a>
+                            </li>
+                            <li>
                                 <a href="#getIssuer" >getIssuer</a>
                             </li>
                             <li>
                                 <a href="#getResourceServer" >getResourceServer</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#handleDeferredIssuance" >handleDeferredIssuance</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
@@ -225,12 +247,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(authzService: <a href="../injectables/AuthorizeService.html" target="_self">AuthorizeService</a>, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, credentialsService: <a href="../injectables/CredentialsService.html" target="_self">CredentialsService</a>, configService: ConfigService, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, sessionLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>, issuanceService: <a href="../injectables/IssuanceService.html" target="_self">IssuanceService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, httpService: HttpService, statusListConfigService: <a href="../injectables/StatusListConfigService.html" target="_self">StatusListConfigService</a>, nonceRepository: <a href="../entitys/NonceEntity.html" target="_self">Repository&lt;NonceEntity&gt;</a>)</code>
+<code>constructor(authzService: <a href="../injectables/AuthorizeService.html" target="_self">AuthorizeService</a>, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, credentialsService: <a href="../injectables/CredentialsService.html" target="_self">CredentialsService</a>, configService: ConfigService, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, sessionLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>, issuanceService: <a href="../injectables/IssuanceService.html" target="_self">IssuanceService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, httpService: HttpService, statusListConfigService: <a href="../injectables/StatusListConfigService.html" target="_self">StatusListConfigService</a>, nonceRepository: <a href="../entitys/NonceEntity.html" target="_self">Repository&lt;NonceEntity&gt;</a>, deferredTransactionRepository: <a href="../entitys/DeferredTransactionEntity.html" target="_self">Repository&lt;DeferredTransactionEntity&gt;</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:54</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="67" class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:67</a></div>
                             </td>
                         </tr>
 
@@ -379,6 +401,18 @@
                                                     </td>
                                                     
                                                 </tr>
+                                                <tr>
+                                                        <td>deferredTransactionRepository</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../entitys/DeferredTransactionEntity.html" target="_self" >Repository&lt;DeferredTransactionEntity&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -393,6 +427,165 @@
     <h3 id="methods">
         Methods
     </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="cleanupExpiredDeferredTransactions"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>cleanupExpiredDeferredTransactions</b></span>
+                        <a href="#cleanupExpiredDeferredTransactions"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>cleanupExpiredDeferredTransactions()</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Cron(CronExpression.EVERY_HOUR)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="1014"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:1014</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Cleanup expired deferred transactions.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="completeDeferredTransaction"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>completeDeferredTransaction</b></span>
+                        <a href="#completeDeferredTransaction"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>completeDeferredTransaction(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, transactionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, claims: Record<string | unknown>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="926"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:926</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Mark a deferred transaction as ready with the issued credential.
+This method is called when the external system completes processing.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The tenant ID</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>transactionId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The transaction ID</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>claims</td>
+                                            <td>
+                                                        <code>Record&lt;string | unknown&gt;</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The claims to include in the credential</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/DeferredTransactionEntity.html" target="_self" >Promise&lt;DeferredTransactionEntity | null&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>The updated deferred transaction</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -415,8 +608,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="184"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:184</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="200"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:200</a></div>
                         </td>
                     </tr>
 
@@ -506,6 +699,115 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="failDeferredTransaction"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>failDeferredTransaction</b></span>
+                        <a href="#failDeferredTransaction"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>failDeferredTransaction(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, transactionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, errorMessage?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="980"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:980</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Mark a deferred transaction as failed.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The tenant ID</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>transactionId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The transaction ID</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>errorMessage</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                            <td>
+                                                    <p>Optional error message</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/DeferredTransactionEntity.html" target="_self" >Promise&lt;DeferredTransactionEntity | null&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>The updated deferred transaction</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="getCredential"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -524,8 +826,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="310"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:310</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="326"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:326</a></div>
                         </td>
                     </tr>
 
@@ -589,6 +891,116 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="getDeferredCredential"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>getDeferredCredential</b></span>
+                        <a href="#getDeferredCredential"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getDeferredCredential(req: Request, body: <a href="../classes/DeferredCredentialRequestDto.html" target="_self">DeferredCredentialRequestDto</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="774"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:774</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Handle deferred credential request.
+Called when wallet polls with transaction_id.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>req</td>
+                                            <td>
+                                                        <code>Request</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The request</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>body</td>
+                                            <td>
+                                                            <code><a href="../classes/DeferredCredentialRequestDto.html" target="_self" >DeferredCredentialRequestDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The deferred credential request DTO</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The tenant ID</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;CredentialResponse&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>Credential response or issuance_pending error</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="getIssuer"></a>
                     <span class="name">
                         <span ><b>getIssuer</b></span>
@@ -605,8 +1017,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="75"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:75</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="90"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:90</a></div>
                         </td>
                     </tr>
 
@@ -680,8 +1092,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="87"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:87</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="102"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:102</a></div>
                         </td>
                     </tr>
 
@@ -739,6 +1151,149 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="handleDeferredIssuance"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>handleDeferredIssuance</b></span>
+                        <a href="#handleDeferredIssuance"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>handleDeferredIssuance(parsedCredentialRequest: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, session: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, claimsResult: <a href="../interfaces/ClaimsWebhookResult.html" target="_self">ClaimsWebhookResult</a>, logContext: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="685"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:685</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Handle deferred credential issuance.
+Creates a deferred transaction and returns HTTP 202 with transaction_id.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>parsedCredentialRequest</td>
+                                            <td>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The parsed credential request</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>session</td>
+                                            <td>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The session</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The tenant ID</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>claimsResult</td>
+                                            <td>
+                                                            <code><a href="../interfaces/ClaimsWebhookResult.html" target="_self" >ClaimsWebhookResult</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The claims webhook result indicating deferral</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>logContext</td>
+                                            <td>
+                                                            <code><a href="../interfaces/SessionLogContext.html" target="_self" >SessionLogContext</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The logging context</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;literal type&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>A deferred credential response</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="handleNotification"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -757,8 +1312,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="485"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:485</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="577"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:577</a></div>
                         </td>
                     </tr>
 
@@ -852,8 +1407,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="99"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:99</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="114"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:114</a></div>
                         </td>
                     </tr>
 
@@ -943,8 +1498,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="297"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:297</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="313"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:313</a></div>
                         </td>
                     </tr>
 
@@ -984,8 +1539,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="283"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:283</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="299"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:299</a></div>
                         </td>
                     </tr>
 
@@ -1060,7 +1615,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="58" class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:58</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="71" class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:71</a></div>
                         </td>
                     </tr>
 
@@ -1082,6 +1637,7 @@ import {
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { Cron, CronExpression } from &quot;@nestjs/schedule&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
+import type { Jwk } from &quot;@openid4vc/oauth2&quot;;
 import {
     AuthorizationServerMetadata,
     authorizationCodeGrantIdentifier,
@@ -1109,17 +1665,29 @@ import { SessionService } from &quot;../../../session/session.service&quot;;
 import { SessionLoggerService } from &quot;../../../shared/utils/logger/session-logger.service&quot;;
 import { SessionLogContext } from &quot;../../../shared/utils/logger/session-logger-context&quot;;
 import { WebhookService } from &quot;../../../shared/utils/webhook/webhook.service&quot;;
-import { CredentialsService } from &quot;../../configuration/credentials/credentials.service&quot;;
+import {
+    ClaimsWebhookResult,
+    CredentialsService,
+} from &quot;../../configuration/credentials/credentials.service&quot;;
 import { IssuanceService } from &quot;../../configuration/issuance/issuance.service&quot;;
 import { StatusListConfigService } from &quot;../../lifecycle/status/status-list-config.service&quot;;
 import { AuthorizeService } from &quot;./authorize/authorize.service&quot;;
+import { DeferredCredentialRequestDto } from &quot;./dto/deferred-credential-request.dto&quot;;
 import { NotificationRequestDto } from &quot;./dto/notification-request.dto&quot;;
 import {
     FlowType,
     OfferRequestDto,
     OfferResponse,
 } from &quot;./dto/offer-request.dto&quot;;
+import {
+    DeferredTransactionEntity,
+    DeferredTransactionStatus,
+} from &quot;./entities/deferred-transaction.entity&quot;;
 import { NonceEntity } from &quot;./entities/nonces.entity&quot;;
+import {
+    CredentialRequestException,
+    DeferredCredentialException,
+} from &quot;./exceptions&quot;;
 import { getHeadersFromRequest } from &quot;./util&quot;;
 
 /**
@@ -1140,6 +1708,8 @@ export class Oid4vciService {
         private readonly statusListConfigService: StatusListConfigService,
         @InjectRepository(NonceEntity)
         private readonly nonceRepository: Repository&lt;NonceEntity&gt;,
+        @InjectRepository(DeferredTransactionEntity)
+        private readonly deferredTransactionRepository: Repository&lt;DeferredTransactionEntity&gt;,
     ) {}
 
     /**
@@ -1230,6 +1800,7 @@ export class Oid4vciService {
                     tenantId,
                 ),
             credential_endpoint: &#x60;${credential_issuer}/vci/credential&#x60;,
+            deferred_credential_endpoint: &#x60;${credential_issuer}/vci/deferred_credential&#x60;,
             authorization_servers: authServers,
             notification_endpoint: &#x60;${credential_issuer}/vci/notification&#x60;,
             nonce_endpoint: &#x60;${credential_issuer}/vci/nonce&#x60;,
@@ -1402,12 +1973,22 @@ export class Oid4vciService {
                 issuerMetadata,
                 credentialRequest: req.body as Record&lt;string, unknown&gt;,
             });
-        } catch {
-            throw new ConflictException(&quot;Invalid credential request&quot;);
+        } catch (err) {
+            // OID4VCI spec Section 8.3.1.2: invalid_credential_request
+            throw new CredentialRequestException(
+                &quot;invalid_credential_request&quot;,
+                err instanceof Error
+                    ? err.message
+                    : &quot;The Credential Request is malformed or missing required parameters&quot;,
+            );
         }
 
         if (parsedCredentialRequest?.proofs?.jwt &#x3D;&#x3D;&#x3D; undefined) {
-            throw new Error(&quot;Invalid credential request&quot;);
+            // OID4VCI spec Section 8.3.1.2: invalid_proof
+            throw new CredentialRequestException(
+                &quot;invalid_proof&quot;,
+                &quot;The proofs parameter is missing or does not contain required JWT proofs&quot;,
+            );
         }
 
         const protocol &#x3D; new URL(
@@ -1442,7 +2023,11 @@ export class Oid4vciService {
         });
 
         if (tokenPayload.sub !&#x3D;&#x3D; session.id) {
-            throw new BadRequestException(&quot;Session not found&quot;);
+            // OID4VCI spec Section 8.3.1.2: credential_request_denied
+            throw new CredentialRequestException(
+                &quot;credential_request_denied&quot;,
+                &quot;The access token is not associated with a valid session&quot;,
+            );
         }
 
         // Create session logging context
@@ -1463,36 +2048,61 @@ export class Oid4vciService {
             const credentials: { credential: string }[] &#x3D; [];
 
             //get the claims from webhook if configured
-            const claims &#x3D; await this.credentialsService.getClaimsFromWebhook(
-                parsedCredentialRequest.credentialConfigurationId as string,
-                session,
-            );
+            const claimsResult &#x3D;
+                await this.credentialsService.getClaimsFromWebhook(
+                    parsedCredentialRequest.credentialConfigurationId as string,
+                    session,
+                );
 
+            // Check if the webhook indicated deferred issuance
+            if (claimsResult?.deferred) {
+                return this.handleDeferredIssuance(
+                    parsedCredentialRequest,
+                    session,
+                    tenantId,
+                    claimsResult,
+                    logContext,
+                );
+            }
+
+            // OID4VCI spec Section 13.8: A Wallet can continue using a given nonce until
+            // it is rejected by the Credential Issuer.
+            // For batch issuance (multiple proofs), all proofs typically use the same nonce.
+            // We collect unique nonces and validate/consume them once before processing proofs.
+            const uniqueNonces &#x3D; new Set&lt;string&gt;();
             for (const jwt of parsedCredentialRequest.proofs.jwt) {
-                // check if the nonce was requested before and delete it
                 const payload &#x3D; decodeJwt(jwt);
-                const expectedNonce &#x3D; payload.nonce! as string;
-                //check if nonce was requested before and delete it
+                if (payload.nonce) {
+                    uniqueNonces.add(payload.nonce as string);
+                }
+            }
+
+            // Validate and consume all unique nonces upfront
+            for (const nonce of uniqueNonces) {
                 const nonceResult &#x3D; await this.nonceRepository.delete({
-                    nonce: expectedNonce,
+                    nonce,
                     tenantId,
                 });
                 if (nonceResult.affected &#x3D;&#x3D;&#x3D; 0) {
-                    this.sessionLogger.logFlowError(
-                        logContext,
-                        new ConflictException(
-                            &quot;Nonce not found or already deleted&quot;,
-                        ),
-                        {
-                            credentialConfigurationId:
-                                parsedCredentialRequest.credentialConfigurationId,
-                        },
+                    // OID4VCI spec Section 8.3.1.2: invalid_nonce
+                    const nonceError &#x3D; new CredentialRequestException(
+                        &quot;invalid_nonce&quot;,
+                        &quot;The nonce in the key proof is invalid or has already been used&quot;,
                     );
+                    this.sessionLogger.logFlowError(logContext, nonceError, {
+                        credentialConfigurationId:
+                            parsedCredentialRequest.credentialConfigurationId,
+                    });
+                    throw nonceError;
                 }
+            }
+
+            for (const jwt of parsedCredentialRequest.proofs.jwt) {
+                const payload &#x3D; decodeJwt(jwt);
+                const expectedNonce &#x3D; payload.nonce! as string;
 
                 const verifiedProof &#x3D;
                     await issuer.verifyCredentialRequestJwtProof({
-                        //check if this is correct or if the passed nonce is validated.
                         expectedNonce,
                         issuerMetadata: await this.issuerMetadata(
                             session.tenantId,
@@ -1504,7 +2114,7 @@ export class Oid4vciService {
                     parsedCredentialRequest.credentialConfigurationId as string,
                     cnf as any,
                     session,
-                    claims,
+                    claimsResult?.claims,
                 );
                 credentials.push({
                     credential: cred,
@@ -1548,7 +2158,44 @@ export class Oid4vciService {
                 credentialConfigurationId:
                     parsedCredentialRequest.credentialConfigurationId,
             });
-            throw error;
+
+            // If it&#x27;s already a CredentialRequestException, re-throw it
+            if (error instanceof CredentialRequestException) {
+                throw error;
+            }
+
+            // Check for credential configuration not found
+            if (
+                error instanceof ConflictException &amp;&amp;
+                (error.message?.includes(&quot;not found&quot;) ||
+                    error.message?.includes(&quot;Credential configuration&quot;))
+            ) {
+                throw new CredentialRequestException(
+                    &quot;unknown_credential_configuration&quot;,
+                    error.message,
+                );
+            }
+
+            // Check for proof verification errors
+            if (
+                error instanceof Error &amp;&amp;
+                (error.message?.toLowerCase().includes(&quot;proof&quot;) ||
+                    error.message?.toLowerCase().includes(&quot;signature&quot;) ||
+                    error.message?.toLowerCase().includes(&quot;jwt&quot;))
+            ) {
+                throw new CredentialRequestException(
+                    &quot;invalid_proof&quot;,
+                    error.message,
+                );
+            }
+
+            // Default: credential_request_denied for unrecoverable errors
+            throw new CredentialRequestException(
+                &quot;credential_request_denied&quot;,
+                error instanceof Error
+                    ? error.message
+                    : &quot;An unexpected error occurred&quot;,
+            );
         }
     }
 
@@ -1653,6 +2300,351 @@ export class Oid4vciService {
             );
             throw error;
         }
+    }
+
+    /**
+     * Handle deferred credential issuance.
+     * Creates a deferred transaction and returns HTTP 202 with transaction_id.
+     * @param parsedCredentialRequest The parsed credential request
+     * @param session The session
+     * @param tenantId The tenant ID
+     * @param claimsResult The claims webhook result indicating deferral
+     * @param logContext The logging context
+     * @returns A deferred credential response
+     */
+    private async handleDeferredIssuance(
+        parsedCredentialRequest: any,
+        session: any,
+        tenantId: string,
+        claimsResult: ClaimsWebhookResult,
+        logContext: SessionLogContext,
+    ): Promise&lt;{
+        transaction_id: string;
+        interval?: number;
+    }&gt; {
+        // For deferred issuance, we need to store the holder&#x27;s proof(s) for later verification
+        // We&#x27;ll verify the first proof and store the CNF for when the credential is ready
+        const issuer &#x3D; this.getIssuer(tenantId);
+
+        // Verify the first proof to get the holder&#x27;s public key
+        const jwt &#x3D; parsedCredentialRequest.proofs.jwt[0];
+        const payload &#x3D; decodeJwt(jwt);
+        const expectedNonce &#x3D; payload.nonce! as string;
+
+        // Delete the nonce to prevent reuse
+        const nonceResult &#x3D; await this.nonceRepository.delete({
+            nonce: expectedNonce,
+            tenantId,
+        });
+        if (nonceResult.affected &#x3D;&#x3D;&#x3D; 0) {
+            throw new CredentialRequestException(
+                &quot;invalid_nonce&quot;,
+                &quot;The nonce in the key proof is invalid or has already been used&quot;,
+            );
+        }
+
+        const verifiedProof &#x3D; await issuer.verifyCredentialRequestJwtProof({
+            expectedNonce,
+            issuerMetadata: await this.issuerMetadata(session.tenantId),
+            jwt,
+        });
+
+        const transactionId &#x3D; v4();
+        const interval &#x3D; claimsResult.interval ?? 5;
+
+        // Calculate expiration (default 24 hours)
+        const expiresAt &#x3D; new Date();
+        expiresAt.setHours(expiresAt.getHours() + 24);
+
+        // Create deferred transaction record
+        const deferredTransaction &#x3D; this.deferredTransactionRepository.create({
+            transactionId,
+            tenantId,
+            sessionId: session.id,
+            credentialConfigurationId:
+                parsedCredentialRequest.credentialConfigurationId as string,
+            holderCnf: verifiedProof.signer.publicJwk as Record&lt;
+                string,
+                unknown
+            &gt;,
+            status: DeferredTransactionStatus.Pending,
+            interval,
+            expiresAt,
+        });
+
+        await this.deferredTransactionRepository.save(deferredTransaction);
+
+        this.sessionLogger.logSession(
+            logContext,
+            &quot;Deferred credential issuance initiated&quot;,
+            {
+                transactionId,
+                credentialConfigurationId:
+                    parsedCredentialRequest.credentialConfigurationId,
+                interval,
+                expiresAt: expiresAt.toISOString(),
+            },
+        );
+
+        // Return response with HTTP 202 (handled by controller)
+        return {
+            transaction_id: transactionId,
+            interval,
+        };
+    }
+
+    /**
+     * Handle deferred credential request.
+     * Called when wallet polls with transaction_id.
+     * @param req The request
+     * @param body The deferred credential request DTO
+     * @param tenantId The tenant ID
+     * @returns Credential response or issuance_pending error
+     */
+    async getDeferredCredential(
+        req: Request,
+        body: DeferredCredentialRequestDto,
+        tenantId: string,
+    ): Promise&lt;CredentialResponse&gt; {
+        const issuer &#x3D; this.getIssuer(tenantId);
+        const resourceServer &#x3D; this.getResourceServer(tenantId);
+        const issuerMetadata &#x3D; await this.issuerMetadata(tenantId, issuer);
+        const issuanceConfig &#x3D;
+            await this.issuanceService.getIssuanceConfiguration(tenantId);
+        const headers &#x3D; getHeadersFromRequest(req);
+
+        const allowedAuthenticationSchemes &#x3D; [
+            SupportedAuthenticationScheme.DPoP,
+        ];
+
+        if (!issuanceConfig.dPopRequired) {
+            allowedAuthenticationSchemes.push(
+                SupportedAuthenticationScheme.Bearer,
+            );
+        }
+
+        // Verify the access token
+        await resourceServer.verifyResourceRequest({
+            authorizationServers: issuerMetadata.authorizationServers,
+            request: {
+                url: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}${req.url}&#x60;,
+                method: req.method as HttpMethod,
+                headers,
+            },
+            resourceServer: issuerMetadata.credentialIssuer.credential_issuer,
+            allowedAuthenticationSchemes,
+        });
+
+        // Find the deferred transaction
+        const deferredTransaction &#x3D;
+            await this.deferredTransactionRepository.findOneBy({
+                transactionId: body.transaction_id,
+                tenantId,
+            });
+
+        if (!deferredTransaction) {
+            throw new DeferredCredentialException(
+                &quot;invalid_transaction_id&quot;,
+                &quot;The transaction_id is invalid or has expired&quot;,
+            );
+        }
+
+        // Check if transaction has expired
+        if (new Date() &gt; deferredTransaction.expiresAt) {
+            await this.deferredTransactionRepository.update(
+                { transactionId: body.transaction_id },
+                { status: DeferredTransactionStatus.Expired },
+            );
+            throw new DeferredCredentialException(
+                &quot;invalid_transaction_id&quot;,
+                &quot;The transaction has expired&quot;,
+            );
+        }
+
+        // Create logging context
+        const logContext: SessionLogContext &#x3D; {
+            sessionId: deferredTransaction.sessionId,
+            tenantId,
+            flowType: &quot;OID4VCI&quot;,
+            stage: &quot;deferred_credential&quot;,
+        };
+
+        // Check the status of the deferred transaction
+        switch (deferredTransaction.status) {
+            case DeferredTransactionStatus.Pending:
+                // Credential is still being processed
+                this.sessionLogger.logSession(
+                    logContext,
+                    &quot;Deferred credential still pending&quot;,
+                    {
+                        transactionId: body.transaction_id,
+                        interval: deferredTransaction.interval,
+                    },
+                );
+                throw new DeferredCredentialException(
+                    &quot;issuance_pending&quot;,
+                    &quot;The credential issuance is still pending&quot;,
+                    deferredTransaction.interval,
+                );
+
+            case DeferredTransactionStatus.Failed:
+                throw new DeferredCredentialException(
+                    &quot;invalid_transaction_id&quot;,
+                    deferredTransaction.errorMessage ||
+                        &quot;The credential issuance has failed&quot;,
+                );
+
+            case DeferredTransactionStatus.Expired:
+                throw new DeferredCredentialException(
+                    &quot;invalid_transaction_id&quot;,
+                    &quot;The transaction has expired&quot;,
+                );
+
+            case DeferredTransactionStatus.Retrieved:
+                throw new DeferredCredentialException(
+                    &quot;invalid_transaction_id&quot;,
+                    &quot;The credential has already been retrieved&quot;,
+                );
+
+            case DeferredTransactionStatus.Ready:
+                // Credential is ready - return it
+                if (!deferredTransaction.credential) {
+                    throw new DeferredCredentialException(
+                        &quot;invalid_transaction_id&quot;,
+                        &quot;Credential is marked as ready but not available&quot;,
+                    );
+                }
+
+                // Mark as retrieved
+                await this.deferredTransactionRepository.update(
+                    { transactionId: body.transaction_id },
+                    { status: DeferredTransactionStatus.Retrieved },
+                );
+
+                this.sessionLogger.logSession(
+                    logContext,
+                    &quot;Deferred credential retrieved&quot;,
+                    {
+                        transactionId: body.transaction_id,
+                        credentialConfigurationId:
+                            deferredTransaction.credentialConfigurationId,
+                    },
+                );
+
+                // Return the credential response directly
+                // Per OID4VCI Section 9.2, the response has the same format as the Credential Response
+                return {
+                    credential: deferredTransaction.credential,
+                } as CredentialResponse;
+
+            default:
+                throw new DeferredCredentialException(
+                    &quot;invalid_transaction_id&quot;,
+                    &quot;Unknown transaction status&quot;,
+                );
+        }
+    }
+
+    /**
+     * Mark a deferred transaction as ready with the issued credential.
+     * This method is called when the external system completes processing.
+     * @param tenantId The tenant ID
+     * @param transactionId The transaction ID
+     * @param claims The claims to include in the credential
+     * @returns The updated deferred transaction
+     */
+    async completeDeferredTransaction(
+        tenantId: string,
+        transactionId: string,
+        claims: Record&lt;string, unknown&gt;,
+    ): Promise&lt;DeferredTransactionEntity | null&gt; {
+        // Find the deferred transaction
+        const transaction &#x3D; await this.deferredTransactionRepository.findOneBy({
+            transactionId,
+            tenantId,
+            status: DeferredTransactionStatus.Pending,
+        });
+
+        if (!transaction) {
+            return null;
+        }
+
+        // Get the session to issue the credential
+        const session &#x3D; await this.sessionService.get(transaction.sessionId);
+        if (!session) {
+            throw new ConflictException(
+                &#x60;Session ${transaction.sessionId} not found for deferred transaction ${transactionId}&#x60;,
+            );
+        }
+
+        // Issue the credential
+        const credential &#x3D; await this.credentialsService.getCredential(
+            transaction.credentialConfigurationId,
+            transaction.holderCnf as Jwk,
+            session,
+            claims as Record&lt;string, any&gt;,
+        );
+
+        // Update the transaction
+        await this.deferredTransactionRepository.update(
+            { transactionId, tenantId },
+            {
+                status: DeferredTransactionStatus.Ready,
+                credential,
+            },
+        );
+
+        transaction.status &#x3D; DeferredTransactionStatus.Ready;
+        transaction.credential &#x3D; credential;
+
+        return transaction;
+    }
+
+    /**
+     * Mark a deferred transaction as failed.
+     * @param tenantId The tenant ID
+     * @param transactionId The transaction ID
+     * @param errorMessage Optional error message
+     * @returns The updated deferred transaction
+     */
+    async failDeferredTransaction(
+        tenantId: string,
+        transactionId: string,
+        errorMessage?: string,
+    ): Promise&lt;DeferredTransactionEntity | null&gt; {
+        // Find the deferred transaction
+        const transaction &#x3D; await this.deferredTransactionRepository.findOneBy({
+            transactionId,
+            tenantId,
+        });
+
+        if (!transaction) {
+            return null;
+        }
+
+        await this.deferredTransactionRepository.update(
+            { transactionId, tenantId },
+            {
+                status: DeferredTransactionStatus.Failed,
+                errorMessage: errorMessage ?? &quot;Transaction marked as failed&quot;,
+            },
+        );
+
+        transaction.status &#x3D; DeferredTransactionStatus.Failed;
+        transaction.errorMessage &#x3D;
+            errorMessage ?? &quot;Transaction marked as failed&quot;;
+
+        return transaction;
+    }
+
+    /**
+     * Cleanup expired deferred transactions.
+     */
+    @Cron(CronExpression.EVERY_HOUR)
+    async cleanupExpiredDeferredTransactions() {
+        await this.deferredTransactionRepository.delete({
+            expiresAt: LessThan(new Date()),
+        });
     }
 }
 </code></pre>

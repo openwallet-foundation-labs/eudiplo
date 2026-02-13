@@ -137,7 +137,13 @@
                             <a href="#bootstrap" title="src/main.ts" ><b>bootstrap</b>&nbsp;&nbsp;&nbsp;(src/.../main.ts)</a>
                         </li>
                         <li>
-                            <a href="#certFromValue" title="src/shared/trust/x509-validation.service.ts" ><b>certFromValue</b>&nbsp;&nbsp;&nbsp;(src/.../x509-validation.service.ts)</a>
+                            <a href="#buildMsoMdocConfig" title="src/issuer/configuration/credentials/types/credential-config-types.ts" ><b>buildMsoMdocConfig</b>&nbsp;&nbsp;&nbsp;(src/.../credential-config-types.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#buildSdJwtDcConfig" title="src/issuer/configuration/credentials/types/credential-config-types.ts" ><b>buildSdJwtDcConfig</b>&nbsp;&nbsp;&nbsp;(src/.../credential-config-types.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#certFromBase64Der" title="src/shared/trust/x509-validation.service.ts" ><b>certFromBase64Der</b>&nbsp;&nbsp;&nbsp;(src/.../x509-validation.service.ts)</a>
                         </li>
                         <li>
                             <a href="#extractConditionsFromKeyDesc" title="src/shared/utils/config-printer/helpers.ts" ><b>extractConditionsFromKeyDesc</b>&nbsp;&nbsp;&nbsp;(src/.../helpers.ts)</a>
@@ -161,7 +167,13 @@
                             <a href="#isEffectivelyRequired" title="src/shared/utils/config-printer/helpers.ts" ><b>isEffectivelyRequired</b>&nbsp;&nbsp;&nbsp;(src/.../helpers.ts)</a>
                         </li>
                         <li>
-                            <a href="#isPem" title="src/shared/trust/x509-validation.service.ts" ><b>isPem</b>&nbsp;&nbsp;&nbsp;(src/.../x509-validation.service.ts)</a>
+                            <a href="#isMsoMdocConfig" title="src/issuer/configuration/credentials/types/credential-config-types.ts" ><b>isMsoMdocConfig</b>&nbsp;&nbsp;&nbsp;(src/.../credential-config-types.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#isSdJwtDcConfig" title="src/issuer/configuration/credentials/types/credential-config-types.ts" ><b>isSdJwtDcConfig</b>&nbsp;&nbsp;&nbsp;(src/.../credential-config-types.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#loadTlsOptions" title="src/main.ts" ><b>loadTlsOptions</b>&nbsp;&nbsp;&nbsp;(src/.../main.ts)</a>
                         </li>
                         <li>
                             <a href="#Secured" title="src/auth/secure.decorator.ts" ><b>Secured</b>&nbsp;&nbsp;&nbsp;(src/.../secure.decorator.ts)</a>
@@ -174,6 +186,12 @@
                         </li>
                         <li>
                             <a href="#summarizeWhenEntry" title="src/shared/utils/config-printer/helpers.ts" ><b>summarizeWhenEntry</b>&nbsp;&nbsp;&nbsp;(src/.../helpers.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#toCredentialConfigurationSupported" title="src/issuer/configuration/credentials/types/credential-config-types.ts" ><b>toCredentialConfigurationSupported</b>&nbsp;&nbsp;&nbsp;(src/.../credential-config-types.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#transformIaeActions" title="src/issuer/configuration/credentials/entities/iae-action.dto.ts" ><b>transformIaeActions</b>&nbsp;&nbsp;&nbsp;(src/.../iae-action.dto.ts)</a>
                         </li>
                     </ul>
                 </td>
@@ -249,16 +267,16 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="certFromValue"></a>
+                    <a name="certFromBase64Der"></a>
                     <span class="name">
-                        <span ><b>certFromValue</b></span>
-                        <a href="#certFromValue"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>certFromBase64Der</b></span>
+                        <a href="#certFromBase64Der"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>certFromValue(val)</code>
+<code>certFromBase64Der(val: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -267,63 +285,9 @@
 
             <tr>
                 <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>val</td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>x509.X509Certificate</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="isPem"></a>
-                    <span class="name">
-                        <span ><b>isPem</b></span>
-                        <a href="#isPem"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>isPem(s: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-
-
-            <tr>
-                <td class="col-md-4">
+                        <div class="io-description"><p>Parse a certificate from a Base64-encoded DER string (as used in LoTE trust lists).
+Converts to PEM format which is more reliably parsed by</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -338,7 +302,7 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>s</td>
+                                                <td>val</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -353,7 +317,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                            <b>Returns : </b>    <code>x509.X509Certificate</code>
 
                         </div>
                             <div class="io-description">
@@ -390,6 +354,422 @@
                         <div class="io-description"><p>Bootstrap function to initialize the NestJS application.</p>
 </div>
 
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="loadTlsOptions"></a>
+                    <span class="name">
+                        <span ><b>loadTlsOptions</b></span>
+                        <a href="#loadTlsOptions"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>loadTlsOptions()</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Load TLS options from certificate and key files.
+Returns undefined if TLS is not enabled or files are not found.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/TlsOptions.html" target="_self" >TlsOptions | undefined</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/issuer/configuration/credentials/types/credential-config-types.ts</h3>
+    <section data-compodoc="block-methods">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="buildMsoMdocConfig"></a>
+                    <span class="name">
+                        <span ><b>buildMsoMdocConfig</b></span>
+                        <a href="#buildMsoMdocConfig"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>buildMsoMdocConfig(doctype: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, options: <a href="../interfaces/BuildCredentialConfigOptions.html" target="_self">BuildCredentialConfigOptions</a>, metadata?: <a href="../interfaces/CredentialMetadataInput.html" target="_self">CredentialMetadataInput</a>, scope?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Build an mso_mdoc credential configuration</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>doctype</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>options</td>
+                                            <td>
+                                                            <code><a href="../interfaces/BuildCredentialConfigOptions.html" target="_self" >BuildCredentialConfigOptions</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>metadata</td>
+                                            <td>
+                                                            <code><a href="../interfaces/CredentialMetadataInput.html" target="_self" >CredentialMetadataInput</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>scope</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#MsoMdocCredentialConfig" target="_self" >MsoMdocCredentialConfig</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="buildSdJwtDcConfig"></a>
+                    <span class="name">
+                        <span ><b>buildSdJwtDcConfig</b></span>
+                        <a href="#buildSdJwtDcConfig"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>buildSdJwtDcConfig(vct: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, options: <a href="../interfaces/BuildCredentialConfigOptions.html" target="_self">BuildCredentialConfigOptions</a>, metadata?: <a href="../interfaces/CredentialMetadataInput.html" target="_self">CredentialMetadataInput</a>, scope?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Build a dc+sd-jwt credential configuration</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>vct</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>options</td>
+                                            <td>
+                                                            <code><a href="../interfaces/BuildCredentialConfigOptions.html" target="_self" >BuildCredentialConfigOptions</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>metadata</td>
+                                            <td>
+                                                            <code><a href="../interfaces/CredentialMetadataInput.html" target="_self" >CredentialMetadataInput</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>scope</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#SdJwtDcCredentialConfig" target="_self" >SdJwtDcCredentialConfig</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="isMsoMdocConfig"></a>
+                    <span class="name">
+                        <span ><b>isMsoMdocConfig</b></span>
+                        <a href="#isMsoMdocConfig"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>isMsoMdocConfig(config)</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Type guard to check if a config is for mso_mdoc format</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>config</td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#MsoMdocCredentialConfig" target="_self" >MsoMdocCredentialConfig</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="isSdJwtDcConfig"></a>
+                    <span class="name">
+                        <span ><b>isSdJwtDcConfig</b></span>
+                        <a href="#isSdJwtDcConfig"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>isSdJwtDcConfig(config)</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Type guard to check if a config is for dc+sd-jwt format</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>config</td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#SdJwtDcCredentialConfig" target="_self" >SdJwtDcCredentialConfig</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="toCredentialConfigurationSupported"></a>
+                    <span class="name">
+                        <span ><b>toCredentialConfigurationSupported</b></span>
+                        <a href="#toCredentialConfigurationSupported"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>toCredentialConfigurationSupported(config: <a href="../miscellaneous/typealiases.html#TypedCredentialConfig" target="_self">TypedCredentialConfig</a>)</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Converts a TypedCredentialConfig to CredentialConfigurationSupported
+This is a type assertion helper since our types are derived from the SDK</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>config</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#TypedCredentialConfig" target="_self" >TypedCredentialConfig</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/CredentialConfig.html" target="_self" >CredentialConfigurationSupportedWithFormats</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -1142,6 +1522,41 @@
                                     </tbody>
                                 </table>
                             </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/issuer/configuration/credentials/entities/iae-action.dto.ts</h3>
+    <section data-compodoc="block-methods">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="transformIaeActions"></a>
+                    <span class="name">
+                        <span ><b>transformIaeActions</b></span>
+                        <a href="#transformIaeActions"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>transformIaeActions()</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Helper function to validate and transform IAE actions array.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>ReturnType&lt;unknown&gt;</code>
+
+                        </div>
                 </td>
             </tr>
         </tbody>

@@ -114,7 +114,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Classes</li>
-  <li class="breadcrumb-item" >WebhookResponse</li>
+  <li class="breadcrumb-item" >IaeActionsWrapper</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -138,7 +138,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/shared/utils/webhook/webhook.service.ts</code>
+            <code>src/issuer/configuration/credentials/entities/iae-action.dto.ts</code>
         </p>
 
 
@@ -146,35 +146,91 @@
                 <h3>Description</h3>
             </p>
             <p class="comment">
-                <p>Response from a webhook to receive credentials.</p>
+                <p>Array validator class for IAE actions with class-transformer support.</p>
 
             </p>
 
 
 
 
-
-
-
-
-            <section data-compodoc="block-indexables">
-    <h3 id="inputs">Indexable</h3>
-        <table class="table table-sm table-bordered">
-            <tbody>
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
                 <tr>
                     <td class="col-md-4">
-                        <code>[key: string]:    <code>Record&lt;string, any&gt;</code>
-</code>
+                        <h6><b>Properties</b></h6>
                     </td>
                 </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/shared/utils/webhook/webhook.service.ts:16</a></div>
-                            </td>
-                        </tr>
-            </tbody>
-        </table>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                <a href="#actions" >actions</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+
+        </tbody>
+    </table>
 </section>
+
+
+            <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="actions"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>actions</b></span>
+                        <a href="#actions"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#IaeAction" target="_self" >IaeAction[]</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @ApiProperty({description: &#x27;List of IAE actions to execute in order&#x27;, type: &#x27;array&#x27;, items: undefined})<br />@ValidateNested({each: true})<br />@Type(undefined, {discriminator: undefined, keepDiscriminatorProperty: true})<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="147" class="link-to-prism">src/issuer/configuration/credentials/entities/iae-action.dto.ts:147</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+
 
 
 
@@ -184,175 +240,175 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpService } from &quot;@nestjs/axios&quot;;
-import { Injectable } from &quot;@nestjs/common&quot;;
-import { firstValueFrom } from &quot;rxjs&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    ApiProperty,
+    ApiPropertyOptional,
+    getSchemaPath,
+} from &quot;@nestjs/swagger&quot;;
+import { Type } from &quot;class-transformer&quot;;
 import {
-    Notification,
-    Session,
-} from &quot;../../../session/entities/session.entity&quot;;
-import { SessionService } from &quot;../../../session/session.service&quot;;
-import { SessionLoggerService } from &quot;../logger/session-logger.service&quot;;
-import { SessionLogContext } from &quot;../logger/session-logger-context&quot;;
-import { WebhookConfig } from &quot;./webhook.dto&quot;;
+    IsEnum,
+    IsOptional,
+    IsString,
+    IsUrl,
+    ValidateNested,
+} from &quot;class-validator&quot;;
 
 /**
- * Response from a webhook to receive credentials.
+ * Discriminator for IAE action types.
  */
-export class WebhookResponse {
-    [key: string]: Record&lt;string, any&gt;;
+export enum IaeActionType {
+    /**
+     * Request a verifiable presentation via OpenID4VP.
+     */
+    OPENID4VP_PRESENTATION &#x3D; &quot;openid4vp_presentation&quot;,
+    /**
+     * Redirect to a web page for user interaction (e.g., form entry, payment).
+     */
+    REDIRECT_TO_WEB &#x3D; &quot;redirect_to_web&quot;,
 }
 
 /**
- * Service for handling webhooks in the application.
+ * Base class for IAE actions.
  */
-@Injectable()
-export class WebhookService {
-    /**
-     * Constructor for WebhookService.
-     * @param httpService
-     * @param sessionService
-     * @param sessionLogger
-     */
-    constructor(
-        private httpService: HttpService,
-        private sessionService: SessionService,
-        private sessionLogger: SessionLoggerService,
-    ) {}
+export abstract class IaeActionBase {
+    @ApiProperty({
+        description: &quot;Type of the IAE action&quot;,
+        enum: IaeActionType,
+    })
+    @IsEnum(IaeActionType)
+    type!: IaeActionType;
 
-    /**
-     * Sends a webhook with the optional provided credentials, return the response data.
-     */
-    sendWebhook(values: {
-        webhook: WebhookConfig;
-        logContext: SessionLogContext;
-        session: Session;
-        credentials?: any[];
-        expectResponse: boolean;
-    }) {
-        const headers: Record&lt;string, string&gt; &#x3D; {};
+    @ApiPropertyOptional({
+        description: &quot;Optional label for this step (for display purposes)&quot;,
+        example: &quot;Identity Verification&quot;,
+    })
+    @IsOptional()
+    @IsString()
+    label?: string;
+}
 
-        if (values.webhook.auth &amp;&amp; values.webhook.auth.type &#x3D;&#x3D;&#x3D; &quot;apiKey&quot;) {
-            headers[values.webhook.auth.config.headerName] &#x3D;
-                values.webhook.auth.config.value;
-        }
-        this.sessionLogger.logSession(values.logContext, &quot;Sending webhook&quot;, {
-            webhookUrl: values.webhook.url,
-            authType: values.webhook.auth?.type || &quot;none&quot;,
-        });
+/**
+ * IAE action for requesting a verifiable presentation via OpenID4VP.
+ */
+export class IaeActionOpenid4vpPresentation extends IaeActionBase {
+    @ApiProperty({
+        description: &quot;Action type discriminator&quot;,
+        enum: [IaeActionType.OPENID4VP_PRESENTATION],
+        example: IaeActionType.OPENID4VP_PRESENTATION,
+    })
+    @IsEnum(IaeActionType)
+    declare type: IaeActionType.OPENID4VP_PRESENTATION;
 
-        return firstValueFrom(
-            this.httpService.post(
-                values.webhook.url,
+    @ApiProperty({
+        description:
+            &quot;ID of the presentation configuration to use for this step&quot;,
+        example: &quot;pid-presentation-config&quot;,
+    })
+    @IsString()
+    presentationConfigId!: string;
+}
+
+/**
+ * IAE action for redirecting to a web page.
+ */
+export class IaeActionRedirectToWeb extends IaeActionBase {
+    @ApiProperty({
+        description: &quot;Action type discriminator&quot;,
+        enum: [IaeActionType.REDIRECT_TO_WEB],
+        example: IaeActionType.REDIRECT_TO_WEB,
+    })
+    @IsEnum(IaeActionType)
+    declare type: IaeActionType.REDIRECT_TO_WEB;
+
+    @ApiProperty({
+        description: &quot;URL to redirect the user to for web-based interaction&quot;,
+        example: &quot;https://example.com/verify?session&#x3D;{auth_session}&quot;,
+    })
+    @IsUrl({}, { message: &quot;url must be a valid URL&quot; })
+    url!: string;
+
+    @ApiPropertyOptional({
+        description:
+            &quot;URL where the external service should redirect back after completion. &quot; +
+            &quot;If not provided, the service must call back to the IAE endpoint.&quot;,
+        example:
+            &quot;https://issuer.example.com/{tenantId}/authorize/interactive/callback&quot;,
+    })
+    @IsOptional()
+    @IsUrl({}, { message: &quot;callbackUrl must be a valid URL&quot; })
+    callbackUrl?: string;
+
+    @ApiPropertyOptional({
+        description:
+            &quot;Description of what the user should do on the web page (for wallet display)&quot;,
+        example: &quot;Please complete the identity verification form&quot;,
+    })
+    @IsOptional()
+    @IsString()
+    description?: string;
+}
+
+/**
+ * Union type for all IAE actions.
+ * This is a discriminated union based on the &#x60;type&#x60; field.
+ */
+export type IaeAction &#x3D; IaeActionOpenid4vpPresentation | IaeActionRedirectToWeb;
+
+/**
+ * Array validator class for IAE actions with class-transformer support.
+ */
+export class IaeActionsWrapper {
+    @ApiProperty({
+        description: &quot;List of IAE actions to execute in order&quot;,
+        type: &quot;array&quot;,
+        items: {
+            oneOf: [
+                { $ref: getSchemaPath(IaeActionOpenid4vpPresentation) },
+                { $ref: getSchemaPath(IaeActionRedirectToWeb) },
+            ],
+        },
+    })
+    @ValidateNested({ each: true })
+    @Type(() &#x3D;&gt; IaeActionBase, {
+        discriminator: {
+            property: &quot;type&quot;,
+            subTypes: [
                 {
-                    credentials: values.credentials,
-                    session: values.session.id,
+                    name: IaeActionType.OPENID4VP_PRESENTATION,
+                    value: IaeActionOpenid4vpPresentation,
                 },
                 {
-                    headers,
+                    name: IaeActionType.REDIRECT_TO_WEB,
+                    value: IaeActionRedirectToWeb,
                 },
-            ),
-        ).then(
-            async (webhookResponse) &#x3D;&gt; {
-                this.sessionLogger.logSession(
-                    values.logContext,
-                    &quot;Webhook sent successfully&quot;,
-                    {
-                        responseStatus: webhookResponse.status,
-                        hasResponseData: !!webhookResponse.data,
-                    },
-                );
+            ],
+        },
+        keepDiscriminatorProperty: true,
+    })
+    actions!: IaeAction[];
+}
 
-                //check if a redirect URI is passed, we either expect a redirect or claims, but never both.
-                if (webhookResponse.data?.redirectUri) {
-                    //TODO: do we need to do something with it?
-                } else if (webhookResponse.data &amp;&amp; values.expectResponse) {
-                    //TODO: update this for presentation during issuance
-                    //session.credentialPayload!.credentialClaims![&quot;id&quot;].claims &#x3D; webhookResponse.data;
-                    //store received webhook response
-                    await this.sessionService.add(values.session.id, {
-                        credentialPayload: values.session.credentialPayload,
-                    });
-                }
-
-                return webhookResponse.data;
-            },
-            (err) &#x3D;&gt; {
-                this.sessionLogger.logSessionError(
-                    values.logContext,
-                    err,
-                    &quot;Error sending webhook&quot;,
-                    {
-                        webhookUrl: values.webhook.url,
-                    },
-                );
-                throw new Error(&#x60;Error sending webhook: ${err.message || err}&#x60;);
-            },
-        );
-    }
-
-    /**
-     * Sends a webhook notification for a session.
-     * @param session
-     * @param logContext
-     * @param notification
-     */
-    async sendWebhookNotification(
-        session: Session,
-        logContext: SessionLogContext,
-        notification: Notification,
-    ) {
-        const headers: Record&lt;string, string&gt; &#x3D; {};
-        const webhook &#x3D; session.notifyWebhook!;
-
-        if (webhook.auth &amp;&amp; webhook.auth.type &#x3D;&#x3D;&#x3D; &quot;apiKey&quot;) {
-            headers[webhook.auth.config.headerName] &#x3D; webhook.auth.config.value;
-        }
-        this.sessionLogger.logSession(
-            logContext,
-            &quot;Sending webhook notification&quot;,
-            {
-                webhookUrl: webhook.url,
-                authType: webhook.auth?.type || &quot;none&quot;,
-            },
-        );
-
-        await firstValueFrom(
-            this.httpService.post(
-                webhook.url,
+/**
+ * Helper function to validate and transform IAE actions array.
+ */
+export function transformIaeActions(): ReturnType&lt;typeof Type&gt; {
+    return Type(() &#x3D;&gt; IaeActionBase, {
+        discriminator: {
+            property: &quot;type&quot;,
+            subTypes: [
                 {
-                    notification,
-                    session: session.id,
+                    name: IaeActionType.OPENID4VP_PRESENTATION,
+                    value: IaeActionOpenid4vpPresentation,
                 },
                 {
-                    headers,
+                    name: IaeActionType.REDIRECT_TO_WEB,
+                    value: IaeActionRedirectToWeb,
                 },
-            ),
-        ).then(
-            (webhookResponse) &#x3D;&gt; {
-                //TODO: update notification status based on response
-                this.sessionLogger.logSession(
-                    logContext,
-                    &quot;Webhook notification sent successfully&quot;,
-                    {
-                        responseStatus: webhookResponse.status,
-                        hasResponseData: !!webhookResponse.data,
-                    },
-                );
-            },
-            (err) &#x3D;&gt; {
-                this.sessionLogger.logSessionError(
-                    logContext,
-                    err,
-                    &quot;Error sending webhook&quot;,
-                    {
-                        webhookUrl: webhook.url,
-                    },
-                );
-                throw new Error(&#x60;Error sending webhook: ${err.message || err}&#x60;);
-            },
-        );
-    }
+            ],
+        },
+        keepDiscriminatorProperty: true,
+    });
 }
 </code></pre>
     </div>
@@ -392,7 +448,7 @@ export class WebhookService {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
-            var COMPODOC_CURRENT_PAGE_URL = 'WebhookResponse.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'IaeActionsWrapper.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

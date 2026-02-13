@@ -183,6 +183,11 @@ The orchestrator automatically runs imports during onApplicationBootstrap.</p>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#logger" >logger</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
                                 <a href="#runPromise" >runPromise</a>
                             </li>
                             <li>
@@ -242,7 +247,7 @@ The orchestrator automatically runs imports during onApplicationBootstrap.</p>
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(logger: PinoLogger, configService: ConfigService)</code>
+<code>constructor(configService: ConfigService)</code>
                     </td>
                 </tr>
                         <tr>
@@ -264,18 +269,6 @@ The orchestrator automatically runs imports during onApplicationBootstrap.</p>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                                <tr>
-                                                        <td>logger</td>
-                                                  
-                                                        <td>
-                                                                    <code>PinoLogger</code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
                                                 <tr>
                                                         <td>configService</td>
                                                   
@@ -324,8 +317,8 @@ The orchestrator automatically runs imports during onApplicationBootstrap.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="139"
-                                    class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:139</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="136"
+                                    class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:136</a></div>
                         </td>
                     </tr>
 
@@ -366,8 +359,8 @@ The orchestrator automatically runs imports during onApplicationBootstrap.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="150"
-                                    class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:150</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="147"
+                                    class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:147</a></div>
                         </td>
                     </tr>
 
@@ -405,8 +398,8 @@ The orchestrator automatically runs imports during onApplicationBootstrap.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="78"
-                                    class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:78</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="75"
+                                    class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:75</a></div>
                         </td>
                     </tr>
 
@@ -444,8 +437,8 @@ The orchestrator automatically runs imports during onApplicationBootstrap.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="106"
-                                    class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:106</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="103"
+                                    class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:103</a></div>
                         </td>
                     </tr>
 
@@ -556,8 +549,8 @@ The orchestrator automatically runs imports during onApplicationBootstrap.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="88"
-                                    class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:88</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="85"
+                                    class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:85</a></div>
                         </td>
                     </tr>
 
@@ -653,8 +646,8 @@ This is called first for each tenant to ensure the tenant exists.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="120"
-                                    class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:120</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="117"
+                                    class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:117</a></div>
                         </td>
                     </tr>
 
@@ -705,7 +698,7 @@ Returns the same promise if called while running.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="67" class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:67</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="66" class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:66</a></div>
                         </td>
                     </tr>
 
@@ -738,7 +731,40 @@ Returns the same promise if called while running.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:65</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="64" class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:64</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="logger"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Readonly</span>
+                        <span ><b>logger</b></span>
+                        <a href="#logger"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new Logger(ConfigImportOrchestratorService.name)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="68" class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:68</a></div>
                         </td>
                     </tr>
 
@@ -770,7 +796,7 @@ Returns the same promise if called while running.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="68" class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:68</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="67" class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:67</a></div>
                         </td>
                     </tr>
 
@@ -802,7 +828,7 @@ Returns the same promise if called while running.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="66" class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:66</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">src/shared/utils/config-import/config-import-orchestrator.service.ts:65</a></div>
                         </td>
                     </tr>
 
@@ -816,9 +842,8 @@ Returns the same promise if called while running.</p>
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { existsSync, readdirSync } from &quot;node:fs&quot;;
-import { Injectable, OnApplicationBootstrap } from &quot;@nestjs/common&quot;;
+import { Injectable, Logger, OnApplicationBootstrap } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
-import { PinoLogger } from &quot;nestjs-pino&quot;;
 
 /**
  * Interface for services that can be registered with the import orchestrator.
@@ -883,11 +908,9 @@ export class ConfigImportOrchestratorService implements OnApplicationBootstrap {
     private tenantSetup: TenantSetupFn | null &#x3D; null;
     private hasRun &#x3D; false;
     private runPromise: Promise&lt;void&gt; | null &#x3D; null;
+    private readonly logger &#x3D; new Logger(ConfigImportOrchestratorService.name);
 
-    constructor(
-        private readonly logger: PinoLogger,
-        private readonly configService: ConfigService,
-    ) {}
+    constructor(private readonly configService: ConfigService) {}
 
     /**
      * Lifecycle hook - automatically triggers import orchestration.
@@ -967,7 +990,7 @@ export class ConfigImportOrchestratorService implements OnApplicationBootstrap {
     private async executeImports(): Promise&lt;void&gt; {
         if (!this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT&quot;)) {
             this.hasRun &#x3D; true;
-            this.logger.info(&quot;Config import is disabled&quot;);
+            this.logger.log(&quot;Config import is disabled&quot;);
             return;
         }
 
@@ -979,7 +1002,7 @@ export class ConfigImportOrchestratorService implements OnApplicationBootstrap {
         // Discover tenants
         const tenants &#x3D; this.discoverTenants();
 
-        this.logger.info(
+        this.logger.log(
             &#x60;Starting config import for ${tenants.length} tenant(s)&#x60;,
         );
 
@@ -1016,7 +1039,7 @@ export class ConfigImportOrchestratorService implements OnApplicationBootstrap {
                     }
                 }
 
-                this.logger.info(&#x60;[${tenantId}] Import completed&#x60;);
+                this.logger.log(&#x60;[${tenantId}] Import completed&#x60;);
             } catch (error: any) {
                 this.logger.error(
                     { error: error.message },
@@ -1034,7 +1057,7 @@ export class ConfigImportOrchestratorService implements OnApplicationBootstrap {
                 &#x60;Config import completed with ${failedTenants.length} failed tenant(s): ${failedTenants.join(&quot;, &quot;)}&#x60;,
             );
         } else {
-            this.logger.info(
+            this.logger.log(
                 &#x60;Config import completed for ${tenants.length} tenant(s)&#x60;,
             );
         }

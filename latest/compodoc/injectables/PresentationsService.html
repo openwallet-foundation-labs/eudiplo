@@ -212,7 +212,7 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(vpRequestRepository: <a href="../entitys/PresentationConfig.html" target="_self">Repository&lt;PresentationConfig&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>, sdjwtvcverifierService: <a href="../injectables/SdjwtvcverifierService.html" target="_self">SdjwtvcverifierService</a>, mdlverifierService: <a href="../injectables/MdlverifierService.html" target="_self">MdlverifierService</a>, configService: ConfigService)</code>
+<code>constructor(vpRequestRepository: <a href="../entitys/PresentationConfig.html" target="_self">Repository&lt;PresentationConfig&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>, sdjwtvcverifierService: <a href="../injectables/SdjwtvcverifierService.html" target="_self">SdjwtvcverifierService</a>, mdocverifierService: <a href="../injectables/MdocverifierService.html" target="_self">MdocverifierService</a>, configService: ConfigService)</code>
                     </td>
                 </tr>
                         <tr>
@@ -298,10 +298,10 @@
                                                         </td>
                                                 </tr>
                                                 <tr>
-                                                        <td>mdlverifierService</td>
+                                                        <td>mdocverifierService</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../injectables/MdlverifierService.html" target="_self" >MdlverifierService</a></code>
+                                                                        <code><a href="../injectables/MdocverifierService.html" target="_self" >MdocverifierService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -626,8 +626,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="316"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:316</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="333"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:333</a></div>
                         </td>
                     </tr>
 
@@ -774,7 +774,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>parseResponse(res: <a href="../interfaces/AuthResponse.html" target="_self">AuthResponse</a>, presentationConfig: <a href="../entitys/PresentationConfig.html" target="_self">PresentationConfig</a>, session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
+                    <code>parseResponse(res: <a href="../classes/AuthResponse.html" target="_self">AuthResponse</a>, presentationConfig: <a href="../entitys/PresentationConfig.html" target="_self">PresentationConfig</a>, session: <a href="../entitys/Session.html" target="_self">Session</a>)</code>
                 </td>
             </tr>
 
@@ -807,7 +807,7 @@
                                         <tr>
                                                 <td>res</td>
                                             <td>
-                                                            <code><a href="../interfaces/AuthResponse.html" target="_self" >AuthResponse</a></code>
+                                                            <code><a href="../classes/AuthResponse.html" target="_self" >AuthResponse</a></code>
                                             </td>
 
                                             <td>
@@ -1180,7 +1180,7 @@ import {
     ConfigImportOrchestratorService,
     ImportPhase,
 } from &quot;../../shared/utils/config-import/config-import-orchestrator.service&quot;;
-import { MdlverifierService } from &quot;./credential/mdlverifier/mdlverifier.service&quot;;
+import { MdocverifierService } from &quot;./credential/mdocverifier/mdocverifier.service&quot;;
 import { SdjwtvcverifierService } from &quot;./credential/sdjwtvcverifier/sdjwtvcverifier.service&quot;;
 import { AuthResponse } from &quot;./dto/auth-response.dto&quot;;
 import { PresentationConfigCreateDto } from &quot;./dto/presentation-config-create.dto&quot;;
@@ -1209,7 +1209,7 @@ export class PresentationsService {
         private readonly configImportService: ConfigImportService,
         private readonly configImportOrchestrator: ConfigImportOrchestratorService,
         private readonly sdjwtvcverifierService: SdjwtvcverifierService,
-        private readonly mdlverifierService: MdlverifierService,
+        private readonly mdocverifierService: MdocverifierService,
         private readonly configService: ConfigService,
     ) {
         // Register presentation config import in REFERENCES phase
@@ -1376,9 +1376,15 @@ export class PresentationsService {
         const host &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
         const tenantHost &#x3D; &#x60;${host}/${presentationConfig.tenantId}&#x60;;
 
-        // Get transaction data from session (which was base64url-encoded in the request)
-        // We need the encoded strings for hash comparison
-        const transactionDataObjects &#x3D; session.transaction_data;
+        // Get transaction_data from the request object JWT payload
+        // This ensures we use the exact same encoded strings that were sent to the wallet
+        let transactionDataStrings: string[] | undefined;
+        if (session.requestObject) {
+            const requestPayload &#x3D; decodeJwt(session.requestObject) as {
+                transaction_data?: string[];
+            };
+            transactionDataStrings &#x3D; requestPayload.transaction_data;
+        }
 
         const results &#x3D; await Promise.all(
             attestationIds.map(async (attId) &#x3D;&gt; {
@@ -1395,11 +1401,20 @@ export class PresentationsService {
                 }
 
                 // Find transaction data entries that reference this credential
-                // According to the spec, each transaction_data object has credential_ids
-                // and the wallet must use one of the referenced credentials
-                const relevantTransactionData &#x3D; transactionDataObjects
-                    ?.filter((td) &#x3D;&gt; td.credential_ids.includes(attId))
-                    .map((td) &#x3D;&gt; base64url.encode(JSON.stringify(td)));
+                // The strings are already base64url-encoded from the request object
+                // We need to decode them to check credential_ids, then use the original encoded string for hash validation
+                const relevantTransactionData &#x3D; transactionDataStrings?.filter(
+                    (tdStr) &#x3D;&gt; {
+                        try {
+                            const td &#x3D; JSON.parse(
+                                Buffer.from(base64url.decode(tdStr)).toString(),
+                            ) as { credential_ids?: string[] };
+                            return td.credential_ids?.includes(attId);
+                        } catch {
+                            return false;
+                        }
+                    },
+                );
 
                 const verifyOptions: VerifierOptions &#x3D; {
                     trustListSource: {
@@ -1418,6 +1433,7 @@ export class PresentationsService {
                                 })) || [],
                         acceptedServiceTypes: [
                             ServiceTypeIdentifier.EaaIssuance,
+                            ServiceTypeIdentifier.PIDIssuance,
                         ],
                     },
                     policy: {
@@ -1431,19 +1447,20 @@ export class PresentationsService {
                 const values &#x3D; await Promise.all(
                     credentials.map(async (cred) &#x3D;&gt; {
                         if (type &#x3D;&#x3D;&#x3D; &quot;mso_mdoc&quot;) {
-                            const result &#x3D; await this.mdlverifierService.verify(
-                                cred,
-                                {
-                                    nonce: session.vp_nonce as string,
-                                    clientId: session.clientId!,
-                                    responseUri: session.responseUri!,
-                                    protocol: &quot;openid4vp&quot;,
-                                    responseMode: session.useDcApi
-                                        ? &quot;dc_api.jwt&quot;
-                                        : &quot;direct_post.jwt&quot;,
-                                },
-                                verifyOptions,
-                            );
+                            const result &#x3D;
+                                await this.mdocverifierService.verify(
+                                    cred,
+                                    {
+                                        nonce: session.vp_nonce as string,
+                                        clientId: session.clientId!,
+                                        responseUri: session.responseUri!,
+                                        protocol: &quot;openid4vp&quot;,
+                                        responseMode: session.useDcApi
+                                            ? &quot;dc_api.jwt&quot;
+                                            : &quot;direct_post.jwt&quot;,
+                                    },
+                                    verifyOptions,
+                                );
                             return {
                                 ...result.claims,
                                 payload: result.payload,

@@ -300,8 +300,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="66"
-                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:66</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="58"
+                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:58</a></div>
                         </td>
                     </tr>
 
@@ -337,8 +337,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="100"
-                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:100</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="92"
+                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:92</a></div>
                         </td>
                     </tr>
 
@@ -376,8 +376,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="86"
-                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:86</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="78"
+                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:78</a></div>
                         </td>
                     </tr>
 
@@ -413,8 +413,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="82"
-                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:82</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="74"
+                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:74</a></div>
                         </td>
                     </tr>
 
@@ -450,8 +450,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="78"
-                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:78</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="70"
+                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:70</a></div>
                         </td>
                     </tr>
 
@@ -487,8 +487,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="93"
-                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:93</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="85"
+                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:85</a></div>
                         </td>
                     </tr>
 
@@ -526,8 +526,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="74"
-                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:74</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="66"
+                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:66</a></div>
                         </td>
                     </tr>
 
@@ -563,8 +563,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="70"
-                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:70</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="62"
+                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:62</a></div>
                         </td>
                     </tr>
 
@@ -641,8 +641,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="54"
-                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:54</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="46"
+                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:46</a></div>
                         </td>
                     </tr>
 
@@ -708,8 +708,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="107"
-                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:107</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="99"
+                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:99</a></div>
                         </td>
                     </tr>
 
@@ -747,8 +747,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="115"
-                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:115</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="107"
+                                    class="link-to-prism">src/shared/utils/logger/logger-config.service.ts:107</a></div>
                         </td>
                     </tr>
 
@@ -835,27 +835,19 @@ export class LoggerConfigService {
             level: this.parseLogLevel(
                 this.configService.get&lt;string&gt;(&quot;LOG_LEVEL&quot;, &quot;info&quot;),
             ),
-            enableSessionLogger: this.configService.get&lt;boolean&gt;(
+            enableSessionLogger: this.configService.getOrThrow&lt;boolean&gt;(
                 &quot;LOG_ENABLE_SESSION_LOGGER&quot;,
-                false,
             ),
-            enableHttpLogger: this.configService.get&lt;boolean&gt;(
+            enableHttpLogger: this.configService.getOrThrow&lt;boolean&gt;(
                 &quot;LOG_ENABLE_HTTP_LOGGER&quot;,
-                false,
             ),
-            enableDebugMode: this.configService.get&lt;boolean&gt;(
-                &quot;LOG_DEBUG_MODE&quot;,
-                false,
-            ),
-            logFormat: this.configService.get&lt;&quot;json&quot; | &quot;pretty&quot;&gt;(
+            enableDebugMode:
+                this.configService.getOrThrow&lt;boolean&gt;(&quot;LOG_DEBUG_MODE&quot;),
+            logFormat: this.configService.getOrThrow&lt;&quot;json&quot; | &quot;pretty&quot;&gt;(
                 &quot;LOG_FORMAT&quot;,
-                &quot;pretty&quot;,
             ),
-            logToFile: this.configService.get&lt;boolean&gt;(&quot;LOG_TO_FILE&quot;, false),
-            logFilePath: this.configService.get&lt;string&gt;(
-                &quot;LOG_FILE_PATH&quot;,
-                &quot;./logs/session.log&quot;,
-            ),
+            logToFile: this.configService.getOrThrow&lt;boolean&gt;(&quot;LOG_TO_FILE&quot;),
+            logFilePath: this.configService.getOrThrow&lt;string&gt;(&quot;LOG_FILE_PATH&quot;),
         };
     }
 

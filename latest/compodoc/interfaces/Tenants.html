@@ -254,13 +254,17 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { existsSync, readFileSync } from &quot;node:fs&quot;;
-import { Inject, Injectable, OnApplicationBootstrap } from &quot;@nestjs/common&quot;;
+import {
+    Inject,
+    Injectable,
+    Logger,
+    OnApplicationBootstrap,
+} from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { InjectMetric } from &quot;@willsoto/nestjs-prometheus&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
 import { validate } from &quot;class-validator&quot;;
-import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { Gauge } from &quot;prom-client&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { EncryptionService } from &quot;../../crypto/encryption/encryption.service&quot;;
@@ -281,6 +285,8 @@ export interface Tenants {
 
 @Injectable()
 export class TenantService implements OnApplicationBootstrap {
+    private readonly logger &#x3D; new Logger(TenantService.name);
+
     constructor(
         @Inject(CLIENTS_PROVIDER) private readonly clients: ClientsProvider,
         private readonly configService: ConfigService,
@@ -291,7 +297,6 @@ export class TenantService implements OnApplicationBootstrap {
         @InjectMetric(&quot;tenant_total&quot;)
         private readonly tenantTotal: Gauge&lt;string&gt;,
         private readonly filesService: FilesService,
-        private readonly logger: PinoLogger,
         private readonly configImportOrchestrator: ConfigImportOrchestratorService,
     ) {
         // Register tenant setup - this runs first for each tenant before other imports
@@ -387,14 +392,18 @@ export class TenantService implements OnApplicationBootstrap {
     /**
      * Create a new tenant.
      * @param data
-     * @returns
+     * @returns The created tenant with optional client credentials (if roles were specified)
      */
     async createTenant(data: ImportTenantDto | CreateTenantDto) {
         const tenant &#x3D; await this.tenantRepository.save(data);
         await this.setUpTenant(tenant);
 
+        let clientCredentials:
+            | { clientId: string; clientSecret: string }
+            | undefined;
+
         if ((data as CreateTenantDto).roles) {
-            await this.clients.addClient(tenant.id, {
+            const client &#x3D; await this.clients.addClient(tenant.id, {
                 clientId: &#x60;${tenant.id}-admin&#x60;,
                 description: &#x60;auto generated admin client for tenant ${tenant.id}&#x60;,
                 roles: [
@@ -402,7 +411,17 @@ export class TenantService implements OnApplicationBootstrap {
                     ...((data as CreateTenantDto).roles || []),
                 ],
             });
+            // Return the client credentials for one-time display
+            clientCredentials &#x3D; {
+                clientId: client.clientId,
+                clientSecret: (client as any).clientSecret,
+            };
         }
+
+        return {
+            ...tenant,
+            client: clientCredentials,
+        };
     }
 
     /**

@@ -182,9 +182,6 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                <a href="#fetchFunction" >fetchFunction</a>
-                            </li>
-                            <li>
                                 <a href="#getCallbackContext" >getCallbackContext</a>
                             </li>
                             <li>
@@ -262,75 +259,6 @@
     <h3 id="methods">
         Methods
     </h3>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="fetchFunction"></a>
-                    <span class="name">
-                        <span ><b>fetchFunction</b></span>
-                        <a href="#fetchFunction"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>fetchFunction(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="129"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:129</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Override the fetch function since key can be passed</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>() &#x3D;&gt; Promise&lt;Response&gt;</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -420,8 +348,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="146"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:146</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="123"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:123</a></div>
                         </td>
                     </tr>
 
@@ -644,7 +572,7 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash, randomBytes, X509Certificate } from &quot;node:crypto&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash, randomBytes } from &quot;node:crypto&quot;;
 import { Inject, Injectable } from &quot;@nestjs/common&quot;;
 import {
     type CallbackContext,
@@ -716,8 +644,6 @@ export class CryptoService {
             clientAuthentication: clientAuthenticationNone({
                 clientId: &quot;some-random&quot;,
             }),
-            fetch: this.fetchFunction(tenantId).bind(this),
-            //clientId: &#x27;some-random-client-id&#x27;, // TODO: Replace with your real clientId if necessary
             signJwt: this.getSignJwtCallback(tenantId),
             verifyJwt: async (signer, { compact, payload }) &#x3D;&gt; {
                 if (signer.method &#x3D;&#x3D;&#x3D; &quot;jwk&quot;) {
@@ -764,27 +690,6 @@ export class CryptoService {
                     &#x60;Signer method &#x27;${signer.method}&#x27; not supported&#x60;,
                 );
             },
-        };
-    }
-
-    /**
-     * Override the fetch function since key can be passed
-     * @param tenantId
-     * @returns
-     */
-    fetchFunction(tenantId: string) {
-        return (): Promise&lt;Response&gt; &#x3D;&gt; {
-            return Promise.resolve({
-                json: async () &#x3D;&gt; {
-                    return {
-                        keys: [
-                            await this.keyService.getPublicKey(&quot;jwk&quot;, tenantId),
-                        ],
-                    };
-                },
-                ok: true,
-                headers: new Headers({ &quot;Content-Type&quot;: &quot;application/json&quot; }),
-            }) as Promise&lt;Response&gt;;
         };
     }
 

@@ -477,27 +477,19 @@ export class LoggerConfigService {
             level: this.parseLogLevel(
                 this.configService.get&lt;string&gt;(&quot;LOG_LEVEL&quot;, &quot;info&quot;),
             ),
-            enableSessionLogger: this.configService.get&lt;boolean&gt;(
+            enableSessionLogger: this.configService.getOrThrow&lt;boolean&gt;(
                 &quot;LOG_ENABLE_SESSION_LOGGER&quot;,
-                false,
             ),
-            enableHttpLogger: this.configService.get&lt;boolean&gt;(
+            enableHttpLogger: this.configService.getOrThrow&lt;boolean&gt;(
                 &quot;LOG_ENABLE_HTTP_LOGGER&quot;,
-                false,
             ),
-            enableDebugMode: this.configService.get&lt;boolean&gt;(
-                &quot;LOG_DEBUG_MODE&quot;,
-                false,
-            ),
-            logFormat: this.configService.get&lt;&quot;json&quot; | &quot;pretty&quot;&gt;(
+            enableDebugMode:
+                this.configService.getOrThrow&lt;boolean&gt;(&quot;LOG_DEBUG_MODE&quot;),
+            logFormat: this.configService.getOrThrow&lt;&quot;json&quot; | &quot;pretty&quot;&gt;(
                 &quot;LOG_FORMAT&quot;,
-                &quot;pretty&quot;,
             ),
-            logToFile: this.configService.get&lt;boolean&gt;(&quot;LOG_TO_FILE&quot;, false),
-            logFilePath: this.configService.get&lt;string&gt;(
-                &quot;LOG_FILE_PATH&quot;,
-                &quot;./logs/session.log&quot;,
-            ),
+            logToFile: this.configService.getOrThrow&lt;boolean&gt;(&quot;LOG_TO_FILE&quot;),
+            logFilePath: this.configService.getOrThrow&lt;string&gt;(&quot;LOG_FILE_PATH&quot;),
         };
     }
 

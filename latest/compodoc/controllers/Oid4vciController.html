@@ -169,7 +169,14 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
                                 <a href="#credential" >credential</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                <a href="#deferredCredential" >deferredCredential</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
@@ -208,6 +215,7 @@
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier">Async</span>
                         <span ><b>credential</b></span>
                         <a href="#credential"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -216,7 +224,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>credential(req: Request, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>credential(req: Request, res: Response, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -224,14 +232,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post(&#x27;credential&#x27;)<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VCI&#x27;)<br />@HttpCode(HttpStatus.OK)<br /></code>
+                    <code>@Post(&#x27;credential&#x27;)<br />@HttpCode(HttpStatus.OK)<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VCI&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="39"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:39</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="43"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:43</a></div>
                         </td>
                     </tr>
 
@@ -266,6 +274,18 @@
 
                                         </tr>
                                         <tr>
+                                                <td>res</td>
+                                            <td>
+                                                        <code>Response</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
                                                 <td>tenantId</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
@@ -281,11 +301,131 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;CredentialResponse&gt;</code>
+                            <b>Returns : </b>    <code>Promise&lt;CredentialResponse | literal type&gt;</code>
 
                         </div>
                             <div class="io-description">
                                 
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="deferredCredential"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>deferredCredential</b></span>
+                        <a href="#deferredCredential"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>deferredCredential(req: Request, body: <a href="../classes/DeferredCredentialRequestDto.html" target="_self">DeferredCredentialRequestDto</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Post(&#x27;deferred_credential&#x27;)<br />@SessionLogger(&#x27;transaction_id&#x27;, &#x27;OID4VCI&#x27;)<br />@HttpCode(HttpStatus.OK)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="74"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:74</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Deferred Credential Endpoint</p>
+<p>According to OID4VCI Section 9, this endpoint is used by the wallet to poll
+for credentials that were not immediately available.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>req</td>
+                                            <td>
+                                                        <code>Request</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The request</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>body</td>
+                                            <td>
+                                                            <code><a href="../classes/DeferredCredentialRequestDto.html" target="_self" >DeferredCredentialRequestDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The deferred credential request containing transaction_id</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The tenant ID</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;CredentialResponse&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>The credential response if ready, or issuance_pending error</p>
+
                             </div>
                 </td>
             </tr>
@@ -322,8 +462,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="67"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:67</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="100"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:100</a></div>
                         </td>
                     </tr>
 
@@ -399,8 +539,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="56"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:56</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="89"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:89</a></div>
                         </td>
                     </tr>
 
@@ -485,13 +625,15 @@
     Param,
     Post,
     Req,
+    Res,
     UseInterceptors,
 } from &quot;@nestjs/common&quot;;
 import { ApiExcludeController, ApiParam, ApiTags } from &quot;@nestjs/swagger&quot;;
 import type { CredentialResponse } from &quot;@openid4vc/openid4vci&quot;;
-import type { Request } from &quot;express&quot;;
+import type { Request, Response } from &quot;express&quot;;
 import { SessionLogger } from &quot;../../../shared/utils/logger/session-logger.decorator&quot;;
 import { SessionLoggerInterceptor } from &quot;../../../shared/utils/logger/session-logger.interceptor&quot;;
+import { DeferredCredentialRequestDto } from &quot;./dto/deferred-credential-request.dto&quot;;
 import { NotificationRequestDto } from &quot;./dto/notification-request.dto&quot;;
 import { Oid4vciService } from &quot;./oid4vci.service&quot;;
 
@@ -509,19 +651,50 @@ export class Oid4vciController {
     /**
      * Endpoint to issue credentials
      * @param req
+     * @param res
+     * @param tenantId
      * @returns
      */
     @Post(&quot;credential&quot;)
-    @SessionLogger(&quot;session&quot;, &quot;OID4VCI&quot;)
     @HttpCode(HttpStatus.OK)
-    credential(
+    @SessionLogger(&quot;session&quot;, &quot;OID4VCI&quot;)
+    async credential(
         @Req() req: Request,
+        @Res({ passthrough: true }) res: Response,
+        @Param(&quot;tenantId&quot;) tenantId: string,
+    ): Promise&lt;
+        CredentialResponse | { transaction_id: string; interval?: number }
+    &gt; {
+        const result &#x3D; await this.oid4vciService.getCredential(req, tenantId);
+        // Check if this is a deferred response (has non-null transaction_id)
+        // Note: Using truthiness check because CredentialResponse type may include
+        // transaction_id as optional property with undefined value
+        if (&quot;transaction_id&quot; in result &amp;&amp; result.transaction_id) {
+            res.status(HttpStatus.ACCEPTED);
+        }
+        return result;
+    }
+
+    /**
+     * Deferred Credential Endpoint
+     *
+     * According to OID4VCI Section 9, this endpoint is used by the wallet to poll
+     * for credentials that were not immediately available.
+     *
+     * @param req The request
+     * @param body The deferred credential request containing transaction_id
+     * @param tenantId The tenant ID
+     * @returns The credential response if ready, or issuance_pending error
+     */
+    @Post(&quot;deferred_credential&quot;)
+    @SessionLogger(&quot;transaction_id&quot;, &quot;OID4VCI&quot;)
+    @HttpCode(HttpStatus.OK)
+    deferredCredential(
+        @Req() req: Request,
+        @Body() body: DeferredCredentialRequestDto,
         @Param(&quot;tenantId&quot;) tenantId: string,
     ): Promise&lt;CredentialResponse&gt; {
-        return this.oid4vciService.getCredential(req, tenantId).catch((err) &#x3D;&gt; {
-            console.error(&quot;Error issuing credential:&quot;, err);
-            throw err;
-        });
+        return this.oid4vciService.getDeferredCredential(req, body, tenantId);
     }
 
     /**
