@@ -218,6 +218,60 @@ jobs:
           name: generated-docs
           path: site/
 
+  deploy-docs:
+    name: Deploy Documentation
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [build-doc]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # Fetch full history for mike versioning
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Configure git for mike
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Build and deploy main branch docs
+        env:
+          JWT_SECRET: ci-docs-build-secret-minimum-32-chars
+          AUTH_CLIENT_ID: ci-docs-client
+          AUTH_CLIENT_SECRET: ci-docs-secret
+          ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+        run: |
+          pnpm run doc:generate
+          pnpm run compodoc
+          mike deploy --push --update-aliases main
+          mike set-default --push main
+
   test-e2e:
     permissions:
       contents: read
@@ -576,6 +630,11 @@ jobs:
 
       - name: Build and deploy release docs
         if: steps.semantic_release.outputs.new_release == 'true'
+        env:
+          JWT_SECRET: ci-docs-build-secret-minimum-32-chars
+          AUTH_CLIENT_ID: ci-docs-client
+          AUTH_CLIENT_SECRET: ci-docs-secret
+          ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
         run: |
           pnpm run doc:generate
           pnpm run compodoc
