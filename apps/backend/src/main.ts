@@ -206,37 +206,9 @@ async function bootstrap() {
 
         SwaggerModule.setup("/api", app, documentFactory, swaggerOptions);
 
-        // Security warnings for default credentials
         const logger =
             app.getHttpAdapter().getInstance().locals?.logger || console;
-        const warnSecurityDefaults = () => {
-            const usingDefaults: string[] = [];
-
-            // Check for default JWT secret
-            const jwtSecret = configService.get<string>("JWT_SECRET");
-            if (jwtSecret === "supersecret") {
-                usingDefaults.push("JWT_SECRET");
-            }
-
-            if (usingDefaults.length > 0) {
-                logger.warn(
-                    "🚨 SECURITY WARNING: Using default credentials for demo purposes!",
-                );
-                logger.warn(
-                    `   Default values detected for: ${usingDefaults.join(", ")}`,
-                );
-                logger.warn(
-                    "   🔧 Please set custom values in production environments",
-                );
-                logger.warn(
-                    "   📖 See .env.example for configuration guidance",
-                );
-            }
-        };
         const oidc = configService.get<string>("OIDC");
-        if (!oidc) {
-            warnSecurityDefaults();
-        }
 
         await app.listen(process.env.PORT ?? 3000).then(() => {
             const port = process.env.PORT ?? 3000;

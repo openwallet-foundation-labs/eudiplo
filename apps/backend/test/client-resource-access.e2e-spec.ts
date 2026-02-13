@@ -107,7 +107,7 @@ describe("Client Resource-Level Access Control (e2e)", () => {
         unrestrictedClientToken = unrestrictedTokenRes.body.access_token;
     }
 
-    describe("Presentation Offer Authorization", () => {
+    describe("Presentation Request Authorization", () => {
         test("restricted client can create offer for allowed presentation config", async () => {
             const res = await request(ctx.app.getHttpServer())
                 .post("/verifier/offer")

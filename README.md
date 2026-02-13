@@ -86,8 +86,9 @@ git clone https://github.com/openwallet-foundation-labs/eudiplo.git
 cd eudiplo
 cp .env.example .env
 
-# Configure secure authentication
+# Configure secure authentication (all three are REQUIRED)
 echo "JWT_SECRET=$(openssl rand -base64 32)" >> .env
+echo "AUTH_CLIENT_ID=my-client" >> .env
 echo "AUTH_CLIENT_SECRET=$(openssl rand -base64 24)" >> .env
 
 # Start both backend and client with Docker Compose
@@ -105,7 +106,8 @@ docker compose up -d
 docker run -p 3000:3000 \
   -e PUBLIC_URL=https://example.com \
   -e JWT_SECRET=your-32-character-secret \
-  -e AUTH_CLIENT_SECRET=your-issuer-secret \
+  -e AUTH_CLIENT_ID=your-client-id \
+  -e AUTH_CLIENT_SECRET=your-client-secret \
   -v $(pwd)/assets:/app/config \
   ghcr.io/openwallet-foundation-labs/eudiplo:latest
 
@@ -132,11 +134,12 @@ pnpm --filter @eudiplo/client run dev
 
 ```bash
 # Get a token and start using the API
+# Replace with your configured AUTH_CLIENT_ID and AUTH_CLIENT_SECRET
 curl -X POST http://localhost:3000/oauth2/token \
   -H "Content-Type: application/json" \
   -d '{
-    "client_id": "root",
-    "client_secret": "root"
+    "client_id": "your-client-id",
+    "client_secret": "your-client-secret"
   }'
 ```
 

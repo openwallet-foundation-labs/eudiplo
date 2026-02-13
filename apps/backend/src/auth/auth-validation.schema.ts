@@ -1,7 +1,5 @@
 import * as Joi from "joi";
 
-export const DEFAULT_JWT_SECRET = "supersecret";
-
 export const AUTH_VALIDATION_SCHEMA: Joi.ObjectSchema = Joi.object({
     OIDC: Joi.string()
         .description("Enable OIDC mode")
@@ -52,9 +50,11 @@ export const AUTH_VALIDATION_SCHEMA: Joi.ObjectSchema = Joi.object({
     JWT_SECRET: Joi.when("OIDC", {
         is: Joi.exist(),
         then: Joi.string().optional(),
-        otherwise: Joi.string().min(32).default(DEFAULT_JWT_SECRET),
+        otherwise: Joi.string().min(32).required(),
     })
-        .description("Local JWT secret (when OIDC is off)")
+        .description(
+            "Local JWT secret (when OIDC is off) - required, minimum 32 characters",
+        )
         .meta({ group: "auth", order: 50 }),
 
     JWT_ISSUER: Joi.when("OIDC", {

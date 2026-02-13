@@ -93,10 +93,10 @@ MINIO_ROOT_USER=minioadmin
 MINIO_ROOT_PASSWORD=minioadmin123
 MINIO_BUCKET=uploads
 
-# Application Secrets
+# Application Secrets (ALL REQUIRED when not using external OIDC)
 JWT_SECRET=your-secret-jwt-key-change-in-production
-AUTH_CLIENT_ID=demo-client
-AUTH_CLIENT_SECRET=demo-secret
+AUTH_CLIENT_ID=your-client-id
+AUTH_CLIENT_SECRET=your-client-secret
 
 # Logging
 LOG_LEVEL=info
