@@ -35,7 +35,10 @@
     "dependencies": {
         "@animo-id/mdoc": "0.6.0-alpha-20260202121208",
         "@aws-sdk/client-s3": "^3.983.0",
+        "@aws-sdk/client-secrets-manager": "^3.983.0",
         "@aws-sdk/s3-request-presigner": "^3.983.0",
+        "@azure/identity": "^4.9.1",
+        "@azure/keyvault-secrets": "^4.10.0",
         "@badgateway/oauth2-client": "^3.3.1",
         "@keycloak/keycloak-admin-client": "^26.5.2",
         "@nestjs/axios": "^4.0.1",

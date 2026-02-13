@@ -1,9 +1,5 @@
 import * as Joi from "joi";
 
-export const DEFAULT_JWT_SECRET = "supersecret";
-export const DEFAULT_AUTH_CLIENT_ID = "root";
-export const DEFAULT_AUTH_CLIENT_SECRET = "root";
-
 export const AUTH_VALIDATION_SCHEMA: Joi.ObjectSchema = Joi.object({
     OIDC: Joi.string()
         .description("Enable OIDC mode")
@@ -54,9 +50,11 @@ export const AUTH_VALIDATION_SCHEMA: Joi.ObjectSchema = Joi.object({
     JWT_SECRET: Joi.when("OIDC", {
         is: Joi.exist(),
         then: Joi.string().optional(),
-        otherwise: Joi.string().min(32).default(DEFAULT_JWT_SECRET),
+        otherwise: Joi.string().min(32).required(),
     })
-        .description("Local JWT secret (when OIDC is off)")
+        .description(
+            "Local JWT secret (when OIDC is off) - required, minimum 32 characters",
+        )
         .meta({ group: "auth", order: 50 }),
 
     JWT_ISSUER: Joi.when("OIDC", {
@@ -78,16 +76,20 @@ export const AUTH_VALIDATION_SCHEMA: Joi.ObjectSchema = Joi.object({
     AUTH_CLIENT_SECRET: Joi.when("OIDC", {
         is: Joi.exist(),
         then: Joi.string().optional(),
-        otherwise: Joi.string().default(DEFAULT_AUTH_CLIENT_SECRET),
+        otherwise: Joi.string().required(),
     })
-        .description("Client secret (local auth)")
+        .description(
+            "Client secret (local auth) - required when OIDC is not enabled",
+        )
         .meta({ group: "auth", order: 80 }),
 
     AUTH_CLIENT_ID: Joi.when("OIDC", {
         is: Joi.exist(),
         then: Joi.string().optional(),
-        otherwise: Joi.string().default(DEFAULT_AUTH_CLIENT_ID),
+        otherwise: Joi.string().required(),
     })
-        .description("Client ID (local auth)")
+        .description(
+            "Client ID (local auth) - required when OIDC is not enabled",
+        )
         .meta({ group: "auth", order: 90 }),
 }).unknown(true);

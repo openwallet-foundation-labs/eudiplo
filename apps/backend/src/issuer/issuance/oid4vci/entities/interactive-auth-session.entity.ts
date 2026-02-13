@@ -8,6 +8,7 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 import { TenantEntity } from "../../../../auth/tenant/entitites/tenant.entity";
+import { EncryptedStringTransformer } from "../../../../shared/utils/encryption";
 
 /**
  * Status of an interactive authorization session.
@@ -124,8 +125,9 @@ export class InteractiveAuthSessionEntity {
 
     /**
      * Authorization details as JSON string.
+     * Encrypted at rest.
      */
-    @Column("text", { nullable: true })
+    @Column("text", { nullable: true, transformer: EncryptedStringTransformer })
     authorizationDetails?: string;
 
     /**
@@ -163,8 +165,9 @@ export class InteractiveAuthSessionEntity {
 
     /**
      * OpenID4VP presentation data as JSON string.
+     * Encrypted at rest - contains personal information.
      */
-    @Column("text", { nullable: true })
+    @Column("text", { nullable: true, transformer: EncryptedStringTransformer })
     presentationData?: string;
 
     /**
@@ -184,8 +187,9 @@ export class InteractiveAuthSessionEntity {
     /**
      * Completed steps data as JSON string.
      * Contains results from each completed step (presentations, web auth results).
+     * Encrypted at rest - may contain personal information.
      */
-    @Column("text", { nullable: true })
+    @Column("text", { nullable: true, transformer: EncryptedStringTransformer })
     completedStepsData?: string;
 
     /**

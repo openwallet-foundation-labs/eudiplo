@@ -205,6 +205,11 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Build documentation
+        env:
+          JWT_SECRET: ci-docs-build-secret-minimum-32-chars
+          AUTH_CLIENT_ID: ci-docs-client
+          AUTH_CLIENT_SECRET: ci-docs-secret
+          ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
         run: pnpm run doc:generate && pnpm run compodoc && mkdocs build --strict
 
       - name: Upload built documentation
@@ -305,6 +310,10 @@ jobs:
           docker run -d \
             --name eudiplo-test \
             -p 8080:8080 \
+            -e JWT_SECRET=ci-docker-test-secret-min-32-chars \
+            -e AUTH_CLIENT_ID=ci-docker-client \
+            -e AUTH_CLIENT_SECRET=ci-docker-secret \
+            -e ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef \
             ghcr.io/openwallet-foundation-labs/eudiplo:main
 
       - name: Wait for healthy

@@ -96,5 +96,6 @@
   "sonarlint.connectedMode.project": {
     "connectionId": "eudiplo",
     "projectKey": "openwallet-foundation-labs_eudiplo"
-  }
+  },
+  "chat.useNestedAgentsMdFiles": true
 }

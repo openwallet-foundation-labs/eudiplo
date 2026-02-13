@@ -1,4 +1,3 @@
-import { HttpStatus } from "@nestjs/common";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { InteractiveAuthorizationRequestDto } from "./dto/interactive-authorization.dto";
 import { InteractiveAuthorizationController } from "./interactive-authorization.controller";

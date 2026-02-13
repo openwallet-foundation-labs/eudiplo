@@ -1256,6 +1256,197 @@ export const credentialConfigControllerUpdateCredentialConfiguration = <
   });
 
 /**
+ * Returns the presentation request configurations.
+ */
+export const presentationManagementControllerConfiguration = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<
+    PresentationManagementControllerConfigurationData,
+    ThrowOnError
+  >,
+) =>
+  (options?.client ?? client).get<
+    PresentationManagementControllerConfigurationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/verifier/config",
+    ...options,
+  });
+
+/**
+ * Store a presentation request configuration. If it already exists, it will be updated.
+ */
+export const presentationManagementControllerStorePresentationConfig = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    PresentationManagementControllerStorePresentationConfigData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    PresentationManagementControllerStorePresentationConfigResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/verifier/config",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Deletes a presentation request configuration by its ID.
+ */
+export const presentationManagementControllerDeleteConfiguration = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    PresentationManagementControllerDeleteConfigurationData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).delete<
+    PresentationManagementControllerDeleteConfigurationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/verifier/config/{id}",
+    ...options,
+  });
+
+/**
+ * Get a presentation request configuration by its ID.
+ */
+export const presentationManagementControllerGetConfiguration = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    PresentationManagementControllerGetConfigurationData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).get<
+    PresentationManagementControllerGetConfigurationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/verifier/config/{id}",
+    ...options,
+  });
+
+/**
+ * Update a presentation request configuration by its ID.
+ */
+export const presentationManagementControllerUpdateConfiguration = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    PresentationManagementControllerUpdateConfigurationData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).patch<
+    PresentationManagementControllerUpdateConfigurationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/verifier/config/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get cache statistics
+ *
+ * Returns statistics about the trust list and status list caches.
+ */
+export const cacheControllerGetStats = <ThrowOnError extends boolean = true>(
+  options?: Options<CacheControllerGetStatsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    CacheControllerGetStatsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/cache/stats",
+    ...options,
+  });
+
+/**
+ * Clear all caches
+ *
+ * Clears both trust list and status list caches. Next verification will fetch fresh data.
+ */
+export const cacheControllerClearAllCaches = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<CacheControllerClearAllCachesData, ThrowOnError>,
+) =>
+  (options?.client ?? client).delete<
+    CacheControllerClearAllCachesResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/cache",
+    ...options,
+  });
+
+/**
+ * Clear trust list cache
+ *
+ * Clears the trust list cache. Next verification will fetch fresh trust lists.
+ */
+export const cacheControllerClearTrustListCache = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<CacheControllerClearTrustListCacheData, ThrowOnError>,
+) =>
+  (options?.client ?? client).delete<
+    CacheControllerClearTrustListCacheResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/cache/trust-list",
+    ...options,
+  });
+
+/**
+ * Clear status list cache
+ *
+ * Clears the status list (revocation) cache. Next status check will fetch fresh status lists.
+ */
+export const cacheControllerClearStatusListCache = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<CacheControllerClearStatusListCacheData, ThrowOnError>,
+) =>
+  (options?.client ?? client).delete<
+    CacheControllerClearStatusListCacheResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/cache/status-list",
+    ...options,
+  });
+
+/**
  * Endpoint to issue credentials
  */
 export const oid4VciControllerCredential = <
@@ -1795,197 +1986,6 @@ export const registrarControllerCreateAccessCertificate = <
       "Content-Type": "application/json",
       ...options.headers,
     },
-  });
-
-/**
- * Returns the presentation request configurations.
- */
-export const presentationManagementControllerConfiguration = <
-  ThrowOnError extends boolean = true,
->(
-  options?: Options<
-    PresentationManagementControllerConfigurationData,
-    ThrowOnError
-  >,
-) =>
-  (options?.client ?? client).get<
-    PresentationManagementControllerConfigurationResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/verifier/config",
-    ...options,
-  });
-
-/**
- * Store a presentation request configuration. If it already exists, it will be updated.
- */
-export const presentationManagementControllerStorePresentationConfig = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<
-    PresentationManagementControllerStorePresentationConfigData,
-    ThrowOnError
-  >,
-) =>
-  (options.client ?? client).post<
-    PresentationManagementControllerStorePresentationConfigResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/verifier/config",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Deletes a presentation request configuration by its ID.
- */
-export const presentationManagementControllerDeleteConfiguration = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<
-    PresentationManagementControllerDeleteConfigurationData,
-    ThrowOnError
-  >,
-) =>
-  (options.client ?? client).delete<
-    PresentationManagementControllerDeleteConfigurationResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/verifier/config/{id}",
-    ...options,
-  });
-
-/**
- * Get a presentation request configuration by its ID.
- */
-export const presentationManagementControllerGetConfiguration = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<
-    PresentationManagementControllerGetConfigurationData,
-    ThrowOnError
-  >,
-) =>
-  (options.client ?? client).get<
-    PresentationManagementControllerGetConfigurationResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/verifier/config/{id}",
-    ...options,
-  });
-
-/**
- * Update a presentation request configuration by its ID.
- */
-export const presentationManagementControllerUpdateConfiguration = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<
-    PresentationManagementControllerUpdateConfigurationData,
-    ThrowOnError
-  >,
-) =>
-  (options.client ?? client).patch<
-    PresentationManagementControllerUpdateConfigurationResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/verifier/config/{id}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Get cache statistics
- *
- * Returns statistics about the trust list and status list caches.
- */
-export const cacheControllerGetStats = <ThrowOnError extends boolean = true>(
-  options?: Options<CacheControllerGetStatsData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    CacheControllerGetStatsResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/cache/stats",
-    ...options,
-  });
-
-/**
- * Clear all caches
- *
- * Clears both trust list and status list caches. Next verification will fetch fresh data.
- */
-export const cacheControllerClearAllCaches = <
-  ThrowOnError extends boolean = true,
->(
-  options?: Options<CacheControllerClearAllCachesData, ThrowOnError>,
-) =>
-  (options?.client ?? client).delete<
-    CacheControllerClearAllCachesResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/cache",
-    ...options,
-  });
-
-/**
- * Clear trust list cache
- *
- * Clears the trust list cache. Next verification will fetch fresh trust lists.
- */
-export const cacheControllerClearTrustListCache = <
-  ThrowOnError extends boolean = true,
->(
-  options?: Options<CacheControllerClearTrustListCacheData, ThrowOnError>,
-) =>
-  (options?.client ?? client).delete<
-    CacheControllerClearTrustListCacheResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/cache/trust-list",
-    ...options,
-  });
-
-/**
- * Clear status list cache
- *
- * Clears the status list (revocation) cache. Next status check will fetch fresh status lists.
- */
-export const cacheControllerClearStatusListCache = <
-  ThrowOnError extends boolean = true,
->(
-  options?: Options<CacheControllerClearStatusListCacheData, ThrowOnError>,
-) =>
-  (options?.client ?? client).delete<
-    CacheControllerClearStatusListCacheResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/cache/status-list",
-    ...options,
   });
 
 /**
