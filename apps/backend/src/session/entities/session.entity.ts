@@ -217,4 +217,20 @@ export class Session {
      */
     @Column("json", { nullable: true })
     transaction_data?: TransactionData[];
+
+    // External authorization server fields (for wallet-initiated flows with external AS like Keycloak)
+
+    /**
+     * The issuer (iss) of the external authorization server token.
+     * Set when a wallet presents a token from an external AS.
+     */
+    @Column("varchar", { nullable: true })
+    externalIssuer?: string;
+
+    /**
+     * The subject (sub) from the external authorization server token.
+     * Used to identify the user at the external AS.
+     */
+    @Column("varchar", { nullable: true })
+    externalSubject?: string;
 }

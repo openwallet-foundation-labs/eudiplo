@@ -271,4 +271,49 @@ export class SessionService implements OnApplicationBootstrap {
     delete(id: string, sub: string): Promise<any> {
         return this.sessionRepository.delete({ id, tenantId: sub });
     }
+
+    /**
+     * Find or create a session by external authorization server identity.
+     * Used for wallet-initiated flows where the wallet presents a token from an external AS (e.g., Keycloak).
+     * @param tenantId The tenant ID
+     * @param externalIssuer The issuer (iss) from the external AS token
+     * @param externalSubject The subject (sub) from the external AS token
+     * @returns The existing or newly created session
+     */
+    async findOrCreateByExternalIdentity(
+        tenantId: string,
+        externalIssuer: string,
+        externalSubject: string,
+    ): Promise<Session> {
+        // Try to find existing session by external identity
+        const existingSession = await this.sessionRepository.findOne({
+            where: {
+                tenantId,
+                externalIssuer,
+                externalSubject,
+                status: SessionStatus.Active,
+            },
+        });
+
+        if (existingSession) {
+            return existingSession;
+        }
+
+        // Create new session for external identity
+        const { v4: uuidv4 } = await import("uuid");
+        const newSession = await this.create({
+            id: uuidv4(),
+            tenantId,
+            externalIssuer,
+            externalSubject,
+            status: SessionStatus.Active,
+            notifications: [],
+        });
+
+        this.logger.log(
+            `Created session for external identity: iss=${externalIssuer}, sub=${externalSubject}`,
+        );
+
+        return newSession;
+    }
 }
