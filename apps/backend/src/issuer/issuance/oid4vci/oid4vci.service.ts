@@ -7,11 +7,11 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { InjectRepository } from "@nestjs/typeorm";
-import type { Jwk } from "@openid4vc/oauth2";
 import {
     AuthorizationServerMetadata,
     authorizationCodeGrantIdentifier,
     type HttpMethod,
+    type Jwk,
     Oauth2ResourceServer,
     preAuthorizedCodeGrantIdentifier,
     SupportedAuthenticationScheme,
