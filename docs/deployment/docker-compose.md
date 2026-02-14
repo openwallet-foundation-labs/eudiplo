@@ -31,9 +31,20 @@ docker compose version
 
 The fastest way to get EUDIPLO running for quick testing.
 
-### Start Services
+### Setup
 
-From the repository root:
+From the repository root, create an `.env` file with required credentials:
+
+```bash
+cp .env.example .env
+
+# Generate required credentials
+echo "MASTER_SECRET=$(openssl rand -base64 32)" >> .env
+echo "AUTH_CLIENT_ID=demo" >> .env
+echo "AUTH_CLIENT_SECRET=demo-secret" >> .env
+```
+
+### Start Services
 
 ```bash
 docker compose up -d
@@ -212,6 +223,9 @@ MINIO_ROOT_PASSWORD=minioadmin-secure-password
 MASTER_SECRET=your-secret-jwt-key-change-in-production
 AUTH_CLIENT_ID=your-client-id
 AUTH_CLIENT_SECRET=your-client-secret
+
+# Metrics Protection (optional but recommended)
+METRICS_TOKEN=your-metrics-bearer-token
 
 # Logging
 LOG_LEVEL=info
@@ -453,18 +467,21 @@ Common environment variables:
 
 | Variable        | Description                          | Default                 |
 | --------------- | ------------------------------------ | ----------------------- |
-| `PUBLIC_URL`    | Public URL for OAuth redirects       | `http://localhost:3000` |
-| `NODE_ENV`      | Environment (development/production) | `development`           |
-| `DB_TYPE`       | Database type (postgres/sqlite)      | `postgres`              |
-| `DB_HOST`       | Database hostname                    | `database`              |
-| `DB_PORT`       | Database port                        | `5432`                  |
-| `DB_USERNAME`   | Database username                    | -                       |
-| `DB_PASSWORD`   | Database password                    | -                       |
-| `DB_DATABASE`   | Database name                        | `eudiplo`               |
-| `VAULT_TOKEN`   | Vault root token                     | -                       |
-| `VAULT_ADDR`    | Vault address                        | `http://vault:8200`     |
-| `MASTER_SECRET` | Master secret for JWT and encryption | -                       |
-| `LOG_LEVEL`     | Logging level                        | `info`                  |
+| `PUBLIC_URL`           | Public URL for OAuth redirects       | `http://localhost:3000` |
+| `NODE_ENV`             | Environment (development/production) | `development`           |
+| `DB_TYPE`              | Database type (postgres/sqlite)      | `postgres`              |
+| `DB_HOST`              | Database hostname                    | `database`              |
+| `DB_PORT`              | Database port                        | `5432`                  |
+| `DB_USERNAME`          | Database username                    | -                       |
+| `DB_PASSWORD`          | Database password                    | -                       |
+| `DB_DATABASE`          | Database name                        | `eudiplo`               |
+| `VAULT_TOKEN`          | Vault root token                     | -                       |
+| `VAULT_ADDR`           | Vault address                        | `http://vault:8200`     |
+| `MASTER_SECRET`        | Master secret for JWT and encryption | - (required)            |
+| `AUTH_CLIENT_ID`       | OAuth client ID                      | - (required)            |
+| `AUTH_CLIENT_SECRET`   | OAuth client secret                  | - (required)            |
+| `METRICS_TOKEN`        | Bearer token for /metrics endpoint   | - (unprotected)         |
+| `LOG_LEVEL`            | Logging level                        | `info`                  |
 
 See [Configuration Documentation](../architecture/index.md) for complete list.
 
