@@ -51,7 +51,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
    */
   recreateOffer(): void {
     if (this.session?.credentialPayload) {
-      this.router.navigate(['/issuance/offer'], {
+      this.router.navigate(['/offer/issuance'], {
         state: { offerRequest: this.session.credentialPayload },
       });
     }
