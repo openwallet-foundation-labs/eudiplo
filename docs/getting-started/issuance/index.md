@@ -222,7 +222,7 @@ sequenceDiagram
 
 **Configuration:**
 
-1. Configure external authorization servers in issuance config:
+- Configure external authorization servers in issuance config:
 
 ```json
 {
@@ -231,7 +231,7 @@ sequenceDiagram
 }
 ```
 
-2. Configure claims webhook on the credential configuration:
+- Configure claims webhook on the credential configuration:
 
 ```json
 {
