@@ -61,14 +61,20 @@ Curious about EUDIPLO? Check out our recorded webinar (September 17, 2025) for a
 
 ### Demo Setup (Easiest)
 
-For quick testing and demos, you can run EUDIPLO with minimal configuration:
+For quick testing and demos:
 
 ```bash
 # Clone the repository
 git clone https://github.com/openwallet-foundation-labs/eudiplo.git
 cd eudiplo
 
-# Start with default demo credentials (includes security warnings)
+# Create .env with demo credentials
+cp .env.example .env
+echo "MASTER_SECRET=$(openssl rand -base64 32)" >> .env
+echo "AUTH_CLIENT_ID=demo" >> .env
+echo "AUTH_CLIENT_SECRET=demo-secret" >> .env
+
+# Start services
 docker compose up -d
 
 # Access the services
@@ -76,7 +82,7 @@ docker compose up -d
 # Client UI: http://localhost:4200
 ```
 
-⚠️ **Demo mode uses default credentials** - perfect for testing, but change them for production!
+⚠️ **Remember to change credentials for production!**
 
 ### Option 1: Using Docker Compose (Recommended for Production)
 

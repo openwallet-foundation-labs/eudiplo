@@ -27,10 +27,13 @@ Choose how you want to run EUDIPLO:
     **For users who want the web interface:**
 
     ```bash
-    # Start the backend
+    # Start the backend (set required credentials)
     docker run -d \
       --name eudiplo \
       -p 3000:3000 \
+      -e MASTER_SECRET=$(openssl rand -base64 32) \
+      -e AUTH_CLIENT_ID=demo \
+      -e AUTH_CLIENT_SECRET=demo-secret \
       ghcr.io/openwallet-foundation-labs/eudiplo:latest
 
     # Start the web client
@@ -45,10 +48,13 @@ Choose how you want to run EUDIPLO:
     **For users who only need the API:**
 
     ```bash
-    # Run EUDIPLO backend only
+    # Run EUDIPLO backend only (set required credentials)
     docker run -d \
       --name eudiplo \
       -p 3000:3000 \
+      -e MASTER_SECRET=$(openssl rand -base64 32) \
+      -e AUTH_CLIENT_ID=demo \
+      -e AUTH_CLIENT_SECRET=demo-secret \
       ghcr.io/openwallet-foundation-labs/eudiplo:latest
     ```
 
