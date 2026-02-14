@@ -86,26 +86,4 @@ export class AuthorizeController {
     ): Promise<any> {
         return this.authorizeService.validateTokenRequest(body, req, tenantId);
     }
-
-    /**
-     * Endpoint for the authorization challenge.
-     * @param res
-     * @param body
-     * @returns
-     */
-    @Post("challenge")
-    authorizationChallengeEndpoint(
-        @Req() req: Request,
-        @Res() res: Response,
-        @Body() body: AuthorizeQueries,
-        @Param("tenantId") tenantId: string,
-    ) {
-        const origin = req.headers.origin || `https://${req.headers.host}`;
-        return this.authorizeService.authorizationChallengeEndpoint(
-            res,
-            body,
-            tenantId,
-            origin,
-        );
-    }
 }

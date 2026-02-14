@@ -16,7 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { CredentialConfig, type IssuanceConfig, type OfferRequestDto } from '@eudiplo/sdk-core';
 import { IssuanceConfigService } from '../issuance-config/issuance-config.service';
@@ -77,6 +77,7 @@ export class IssuanceOfferComponent implements OnInit {
     private readonly issuanceConfigService: IssuanceConfigService,
     private readonly snackBar: MatSnackBar,
     private readonly router: Router,
+    private readonly route: ActivatedRoute,
     private readonly formlyJsonschema: FormlyJsonschema,
     private readonly credentialConfigService: CredentialConfigService,
     private readonly dialog: MatDialog,
@@ -85,13 +86,19 @@ export class IssuanceOfferComponent implements OnInit {
     this.form = new FormGroup({
       credentialConfigurationIds: new FormControl([], Validators.required),
       claims: new FormGroup({}),
-      flow: new FormControl('authorization_code', Validators.required),
+      flow: new FormControl('pre_authorized_code', Validators.required),
       tx_code: new FormControl(''),
       authorization_server: new FormControl(''),
     } as { [k in keyof Omit<OfferRequestDto, 'response_type'>]: any });
   }
 
   ngOnInit() {
+    // Check for pre-fill data from navigation state (recreate offer flow)
+    const prefillData = history.state?.offerRequest as OfferRequestDto | undefined;
+    if (prefillData) {
+      this.prefillFromOffer(prefillData);
+    }
+
     this.form
       .get('credentialConfigurationIds')
       ?.valueChanges.subscribe((ids) => this.setClaimFormFields(ids));
@@ -283,5 +290,42 @@ export class IssuanceOfferComponent implements OnInit {
     this.form.reset({
       credentialConfigurationIds: [],
     });
+  }
+
+  /**
+   * Pre-fill the form from an existing offer request (recreate offer flow)
+   */
+  private async prefillFromOffer(offer: OfferRequestDto): Promise<void> {
+    // Wait for credential configs to load
+    await this.credentialConfigService.loadConfigurations().then((configs) => {
+      this.credentialConfigs = configs;
+    });
+
+    // Set basic form values
+    this.form.patchValue({
+      flow: offer.flow || 'pre_authorized_code',
+      tx_code: offer.tx_code || '',
+      authorization_server: offer.authorization_server || '',
+      credentialConfigurationIds: offer.credentialConfigurationIds || [],
+    });
+
+    // Pre-fill claims after the form fields are generated
+    if (offer.credentialClaims) {
+      // Wait for form fields to be set up
+      setTimeout(() => {
+        for (const [credId, claimData] of Object.entries(offer.credentialClaims || {})) {
+          const element = this.elements.find((e) => e.id === credId);
+          if (element && claimData.type === 'inline') {
+            element.claimSource = 'form';
+            this.form.get('claims')?.patchValue({ [credId]: claimData.claims });
+          } else if (element && claimData.type === 'webhook') {
+            element.claimSource = 'webhook';
+          }
+        }
+        this.cdr.detectChanges();
+      }, 100);
+    }
+
+    this.snackBar.open('Form pre-filled from previous offer', 'Close', { duration: 2000 });
   }
 }

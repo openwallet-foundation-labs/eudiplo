@@ -33,11 +33,19 @@
         <mat-card-content fxLayout="column" fxLayoutGap="16px">
           <mat-form-field>
             <mat-select formControlName="flow">
-              <mat-label>Flow</mat-label>
-              <mat-option value="authorization_code">Authorization Code</mat-option>
+              <mat-option value="authorization_code" [disabled]="availableAuthServers.length === 0">
+                Authorization Code
+                @if (availableAuthServers.length === 0) {
+                  (requires external AS)
+                }
+              </mat-option>
               <mat-option value="pre_authorized_code">Pre Authorized Code</mat-option>
             </mat-select>
-            <mat-hint>Select flow for the issuance offer</mat-hint>
+            @if (availableAuthServers.length === 0) {
+              <mat-hint>Authorization Code requires an external Authorization Server</mat-hint>
+            } @else {
+              <mat-hint>Select flow for the issuance offer</mat-hint>
+            }
           </mat-form-field>
 
           <!-- Authorization Server Selection (visible only for authorization_code flow) -->

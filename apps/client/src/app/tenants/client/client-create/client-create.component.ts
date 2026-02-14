@@ -15,7 +15,7 @@ import {
   credentialConfigControllerGetConfigs,
 } from '@eudiplo/sdk-core';
 import { ApiService } from '../../../core';
-import { roles } from '../../../services/jwt.service';
+import { JwtService, roles } from '../../../services/jwt.service';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -45,7 +45,8 @@ export class ClientCreateComponent implements OnInit {
   isSubmitting = false;
   hasPermission = false;
 
-  roles = roles;
+  /** Roles available for selection - filtered based on current user's permissions */
+  availableRoles = roles;
   loaded = false;
   id?: string | null;
 
@@ -54,13 +55,14 @@ export class ClientCreateComponent implements OnInit {
   availableIssuanceConfigs: string[] = [];
 
   constructor(
-    private fb: FormBuilder,
-    private snackBar: MatSnackBar,
-    private router: Router,
-    private route: ActivatedRoute,
-    private apiService: ApiService,
+    private readonly fb: FormBuilder,
+    private readonly snackBar: MatSnackBar,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly apiService: ApiService,
     private readonly presentationManagementService: PresentationManagementService,
-    private readonly dialog: MatDialog
+    private readonly dialog: MatDialog,
+    private readonly jwtService: JwtService
   ) {
     this.clientForm = this.fb.group({
       clientId: ['', [Validators.required, Validators.minLength(1)]],
@@ -69,6 +71,11 @@ export class ClientCreateComponent implements OnInit {
       allowedPresentationConfigs: [[]],
       allowedIssuanceConfigs: [[]],
     });
+
+    // Filter out tenants:manage if current user doesn't have it
+    if (!this.jwtService.hasRole('tenants:manage')) {
+      this.availableRoles = roles.filter((r) => r !== 'tenants:manage');
+    }
   }
   ngOnInit(): void {
     // Load available configs for the dropdowns

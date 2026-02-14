@@ -7,11 +7,11 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { InjectRepository } from "@nestjs/typeorm";
-import type { Jwk } from "@openid4vc/oauth2";
 import {
     AuthorizationServerMetadata,
     authorizationCodeGrantIdentifier,
     type HttpMethod,
+    type Jwk,
     Oauth2ResourceServer,
     preAuthorizedCodeGrantIdentifier,
     SupportedAuthenticationScheme,
@@ -22,6 +22,7 @@ import {
     type IssuerMetadataResult,
     Openid4vciIssuer,
     Openid4vciVersion,
+    ParseCredentialRequestReturn,
 } from "@openid4vc/openid4vci";
 import type { Request } from "express";
 import { decodeJwt } from "jose";
@@ -30,7 +31,10 @@ import { LessThan, Repository } from "typeorm";
 import { v4 } from "uuid";
 import { TokenPayload } from "../../../auth/token.decorator";
 import { CryptoService } from "../../../crypto/crypto.service";
-import { SessionStatus } from "../../../session/entities/session.entity";
+import {
+    Session,
+    SessionStatus,
+} from "../../../session/entities/session.entity";
 import { SessionService } from "../../../session/session.service";
 import { SessionLoggerService } from "../../../shared/utils/logger/session-logger.service";
 import { SessionLogContext } from "../../../shared/utils/logger/session-logger-context";
@@ -38,6 +42,7 @@ import { WebhookService } from "../../../shared/utils/webhook/webhook.service";
 import {
     ClaimsWebhookResult,
     CredentialsService,
+    ExternalAsClaimsContext,
 } from "../../configuration/credentials/credentials.service";
 import { IssuanceService } from "../../configuration/issuance/issuance.service";
 import { StatusListConfigService } from "../../lifecycle/status/status-list-config.service";
@@ -333,7 +338,7 @@ export class Oid4vciService {
         const issuanceConfig =
             await this.issuanceService.getIssuanceConfiguration(tenantId);
 
-        let parsedCredentialRequest;
+        let parsedCredentialRequest: ParseCredentialRequestReturn;
         const known = issuer.getKnownCredentialConfigurationsSupported(
             issuerMetadata.credentialIssuer,
         );
@@ -361,10 +366,6 @@ export class Oid4vciService {
             );
         }
 
-        const protocol = new URL(
-            this.configService.getOrThrow<string>("PUBLIC_URL"),
-        ).protocol;
-
         const headers = getHeadersFromRequest(req);
 
         const allowedAuthenticationSchemes = [
@@ -388,15 +389,65 @@ export class Oid4vciService {
             resourceServer: issuerMetadata.credentialIssuer.credential_issuer,
             allowedAuthenticationSchemes,
         });
-        const session = await this.sessionService.getBy({
-            id: tokenPayload.sub,
-        });
 
-        if (tokenPayload.sub !== session.id) {
-            // OID4VCI spec Section 8.3.1.2: credential_request_denied
-            throw new CredentialRequestException(
-                "credential_request_denied",
-                "The access token is not associated with a valid session",
+        // Determine if this is a token from an external AS or our local AS
+        const localIssuer = this.authzService.getAuthzIssuer(tenantId);
+        const isExternalAsToken = tokenPayload.iss !== localIssuer;
+
+        let session: Session;
+        let claimsResult: ClaimsWebhookResult | undefined;
+
+        if (isExternalAsToken) {
+            // External AS flow (e.g., Keycloak)
+            // Verify that the token's issuer is in the list of configured auth servers
+            const configuredAuthServers =
+                issuanceConfig.authServers?.map((url) => url) ?? [];
+            if (!configuredAuthServers.includes(tokenPayload.iss as string)) {
+                throw new CredentialRequestException(
+                    "credential_request_denied",
+                    `Token issuer '${tokenPayload.iss}' is not a configured authorization server`,
+                );
+            }
+
+            // Find or create session by external identity
+            session = await this.sessionService.findOrCreateByExternalIdentity(
+                tenantId,
+                tokenPayload.iss as string,
+                tokenPayload.sub as string,
+            );
+
+            // For external AS, claims must come from webhook
+            const externalAsContext: ExternalAsClaimsContext = {
+                iss: tokenPayload.iss as string,
+                sub: tokenPayload.sub as string,
+                credential_configuration_id:
+                    parsedCredentialRequest.credentialConfigurationId as string,
+                token_claims: tokenPayload as Record<string, unknown>,
+            };
+
+            claimsResult =
+                await this.credentialsService.getClaimsFromExternalAsWebhook(
+                    externalAsContext,
+                    session,
+                );
+        } else {
+            // Local AS flow - existing behavior
+            session = await this.sessionService.getBy({
+                id: tokenPayload.sub,
+            });
+
+            if (tokenPayload.sub !== session.id) {
+                // OID4VCI spec Section 8.3.1.2: credential_request_denied
+                throw new CredentialRequestException(
+                    "credential_request_denied",
+                    "The access token is not associated with a valid session",
+                );
+            }
+
+            // Get claims from webhook if configured (existing flow)
+            claimsResult = await this.credentialsService.getClaimsFromWebhook(
+                parsedCredentialRequest.credentialConfigurationId as string,
+                session,
             );
         }
 
@@ -412,17 +463,11 @@ export class Oid4vciService {
             credentialConfigurationId:
                 parsedCredentialRequest.credentialConfigurationId,
             proofCount: parsedCredentialRequest.proofs?.jwt?.length || 0,
+            isExternalAs: isExternalAsToken,
         });
 
         try {
             const credentials: { credential: string }[] = [];
-
-            //get the claims from webhook if configured
-            const claimsResult =
-                await this.credentialsService.getClaimsFromWebhook(
-                    parsedCredentialRequest.credentialConfigurationId as string,
-                    session,
-                );
 
             // Check if the webhook indicated deferred issuance
             if (claimsResult?.deferred) {
@@ -435,25 +480,33 @@ export class Oid4vciService {
                 );
             }
 
-            // OID4VCI spec Section 13.8: A Wallet can continue using a given nonce until
-            // it is rejected by the Credential Issuer.
-            // For batch issuance (multiple proofs), all proofs typically use the same nonce.
-            // We collect unique nonces and validate/consume them once before processing proofs.
+            // OID4VCI spec Section 8.3.1.2: When the Credential Issuer has a Nonce Endpoint,
+            // all key proofs MUST contain a c_nonce value. If any proof is missing a nonce,
+            // return invalid_proof error.
+            // Section 13.8: A Wallet can continue using a given nonce until it is rejected
+            // by the Credential Issuer. For batch issuance, all proofs typically use the same nonce.
             const uniqueNonces = new Set<string>();
             for (const jwt of parsedCredentialRequest.proofs.jwt) {
                 const payload = decodeJwt(jwt);
-                if (payload.nonce) {
-                    uniqueNonces.add(payload.nonce as string);
+                if (!payload.nonce) {
+                    // OID4VCI spec Section 8.3.1.2: invalid_proof
+                    // "if at least one of the key proofs does not contain a c_nonce value"
+                    throw new CredentialRequestException(
+                        "invalid_proof",
+                        "All key proofs must contain a nonce when the nonce endpoint is offered",
+                    );
                 }
+                uniqueNonces.add(payload.nonce as string);
             }
 
             // Validate and consume all unique nonces upfront
             for (const nonce of uniqueNonces) {
-                const nonceResult = await this.nonceRepository.delete({
-                    nonce,
-                    tenantId,
+                // Find the nonce and verify it hasn't expired
+                const nonceEntity = await this.nonceRepository.findOne({
+                    where: { nonce, tenantId },
                 });
-                if (nonceResult.affected === 0) {
+
+                if (!nonceEntity) {
                     // OID4VCI spec Section 8.3.1.2: invalid_nonce
                     const nonceError = new CredentialRequestException(
                         "invalid_nonce",
@@ -465,6 +518,23 @@ export class Oid4vciService {
                     });
                     throw nonceError;
                 }
+
+                if (nonceEntity.expiresAt < new Date()) {
+                    // Nonce exists but has expired - clean it up and reject
+                    await this.nonceRepository.delete({ nonce, tenantId });
+                    const nonceError = new CredentialRequestException(
+                        "invalid_nonce",
+                        "The nonce in the key proof has expired",
+                    );
+                    this.sessionLogger.logFlowError(logContext, nonceError, {
+                        credentialConfigurationId:
+                            parsedCredentialRequest.credentialConfigurationId,
+                    });
+                    throw nonceError;
+                }
+
+                // Consume the nonce (delete it so it can't be reused)
+                await this.nonceRepository.delete({ nonce, tenantId });
             }
 
             for (const jwt of parsedCredentialRequest.proofs.jwt) {

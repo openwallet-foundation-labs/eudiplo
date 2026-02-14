@@ -39,6 +39,24 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
   qrCodeDataUrl: string | null = null;
   generatingQR = false;
 
+  /**
+   * Check if this session can be recreated as a new offer
+   */
+  canRecreateOffer(): boolean {
+    return !!(this.session?.credentialPayload && this.isIssuanceSession());
+  }
+
+  /**
+   * Navigate to issuance offer page with the stored payload to recreate the offer
+   */
+  recreateOffer(): void {
+    if (this.session?.credentialPayload) {
+      this.router.navigate(['/offer/issuance'], {
+        state: { offerRequest: this.session.credentialPayload },
+      });
+    }
+  }
+
   // Status polling properties
   pollingInterval: any = null;
   readonly POLLING_INTERVAL_MS = 3000; // Poll every 3 seconds

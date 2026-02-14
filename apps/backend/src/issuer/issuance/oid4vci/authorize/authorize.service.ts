@@ -19,12 +19,11 @@ import {
 } from "@openid4vc/oauth2";
 import { Openid4vciIssuer } from "@openid4vc/openid4vci";
 import * as x509 from "@peculiar/x509";
-import type { Request, Response } from "express";
+import type { Request } from "express";
 import { decodeProtectedHeader, JWK } from "jose";
 import { v4 } from "uuid";
 import { CryptoService } from "../../../../crypto/crypto.service";
 import { CryptoImplementationService } from "../../../../crypto/key/crypto-implementation/crypto-implementation.service";
-import { Session } from "../../../../session/entities/session.entity";
 import { SessionService } from "../../../../session/session.service";
 import { StatusListVerifierService } from "../../../../shared/trust/status-list-verifier.service";
 import {
@@ -39,7 +38,6 @@ import {
     MatchedTrustedEntity,
     X509ValidationService,
 } from "../../../../shared/trust/x509-validation.service";
-import { WebhookConfig } from "../../../../shared/utils/webhook/webhook.dto";
 import { IssuanceService } from "../../../configuration/issuance/issuance.service";
 import { TokenErrorException } from "../exceptions";
 import { getHeadersFromRequest } from "../util";
@@ -536,7 +534,6 @@ export class AuthorizeService {
             require_pushed_authorization_requests: true,
             pushed_authorization_request_endpoint: `${authServer}/authorize/par`,
             code_challenge_methods_supported: [PkceCodeChallengeMethod.S256],
-            authorization_challenge_endpoint: `${authServer}/authorize/challenge`,
             client_attestation_pop_nonce_required: true,
             authorization_details_types_supported: ["openid_credential"],
             token_endpoint_auth_methods_supported: ["attest_jwt_client_auth"],
@@ -710,7 +707,6 @@ export class AuthorizeService {
             dpopValue = dpop;
         }
 
-        //const cNonce = randomUUID();
         return this.getAuthorizationServer(tenantId)
             .createAccessTokenResponse({
                 audience: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${tenantId}`,
@@ -726,8 +722,6 @@ export class AuthorizeService {
                 subject: session.id,
                 expiresInSeconds: 300,
                 authorizationServer: authorizationServerMetadata.issuer,
-                /* cNonce,
-            cNonceExpiresIn: 100, */
                 clientId: req.body.client_id,
                 dpop: dpopValue,
             })
@@ -741,103 +735,11 @@ export class AuthorizeService {
             });
     }
 
-    parseChallengeRequest(
-        body: AuthorizeQueries,
-        session: Session,
-        origin: string,
-        webhook?: WebhookConfig,
-    ) {
-        throw new Error("Not implemented");
-        /* // re using the issuer state as auth session
-        const auth_session = body.issuer_state;        
-        const issuanceConfig =
-            await this.issuanceService.getIssuanceConfiguration(
-                session.tenantId,
-            ); */
-        /* const presentationConfig = (
-            issuanceConfig.authenticationConfig as AuthenticationMethodPresentation
-        ).config.type;
-        const presentation = `openid4vp://?${(await this.oid4vpService.createRequest(presentationConfig, { session: auth_session, webhook }, session.tenantId, session.useDcApi, origin)).uri}`;
-        const res = {
-            error: "insufficient_authorization",
-            auth_session,
-            presentation,
-            error_description:
-                "Presentation of credential required before issuance",
-        };
-        return res;*/
-    }
-
-    async authorizationChallengeEndpoint(
-        res: Response<any, Record<string, any>>,
-        body: AuthorizeQueries,
-        tenantId: string,
-        origin: string,
-    ) {
-        // auth session and issuer state have the same value
-        if (body.auth_session) {
-            /* const session = await this.sessionService.get(body.auth_session);
-            // if session is not found, we assume that the auth session is the
-            if (!session) {
-                throw new ConflictException(
-                    'auth_session not found or not provided in the request',
-                );
-            }
- */
-            //check if session has valid presentation, we assume for now
-            /* if (session.credentials) {
-                await this.sendAuthorizationCode(res, body.auth_session);
-                return;
-            } else {
-                //TODO: needs to be checked if this is the correct response
-                throw new ConflictException(
-                    "Session does not have valid credentials for issuance",
-                );
-            } */
-        }
-
-        /* const session = await this.sessionService.get(body.issuer_state!);
-        if (!session) {
-            throw new Error('Credential offer not found');
-        } */
-        /* const issuanceConfig =
-            await this.issuanceService.getIssuanceConfiguration(tenantId); */
-
-        await this.sendAuthorizationCode(res, body.issuer_state!);
-        /* switch (authConfig.method) {
-            case "presentationDuringIssuance": {
-                throw new Error("Not implemented");
-                // OID4VP flow - credential presentation required
-                const webhook = issuanceConfig.claimsWebhook;
-                const response = await this.parseChallengeRequest(
-                    body,
-                    session,
-                    origin,
-                    webhook,
-                );
-                res.status(400).send(response);
-                break;
-            }
-            case "auth":
-                
-                break;
-            case "none":
-                await this.sendAuthorizationCode(res, body.issuer_state!);
-                break;
-            default:
-                throw new Error(
-                    `Unsupported authentication method: ${(authConfig as any).method}`,
-                ); 
-        }*/
-    }
-
-    private async sendAuthorizationCode(res: Response, issuer_state: string) {
-        const authorization_code = await this.setAuthCode(issuer_state);
-        res.send({
-            authorization_code,
-        });
-    }
-
+    /**
+     * Set the authorization code for a session based on the issuer_state and return the code.
+     * @param issuer_state
+     * @returns
+     */
     async setAuthCode(issuer_state: string) {
         const code = randomUUID();
         await this.sessionService.add(issuer_state, {
