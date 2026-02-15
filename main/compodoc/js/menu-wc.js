@@ -1283,6 +1283,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="interfaces/EncryptionKeyProvider.html" data-type="entity-link" >EncryptionKeyProvider</a>
                             </li>
                             <li class="link">
+                                <a href="interfaces/ExternalAsClaimsContext.html" data-type="entity-link" >ExternalAsClaimsContext</a>
+                            </li>
+                            <li class="link">
                                 <a href="interfaces/FileImportData.html" data-type="entity-link" >FileImportData</a>
                             </li>
                             <li class="link">

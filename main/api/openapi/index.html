@@ -9913,9 +9913,11 @@ configuration and/or certificate.</p>
 <a id="__codelineno-68-36" name="__codelineno-68-36" href="#__codelineno-68-36"></a><span class="w">                    </span><span class="s2">"string"</span>
 <a id="__codelineno-68-37" name="__codelineno-68-37" href="#__codelineno-68-37"></a><span class="w">                </span><span class="p">]</span>
 <a id="__codelineno-68-38" name="__codelineno-68-38" href="#__codelineno-68-38"></a><span class="w">            </span><span class="p">}</span>
-<a id="__codelineno-68-39" name="__codelineno-68-39" href="#__codelineno-68-39"></a><span class="w">        </span><span class="p">]</span>
-<a id="__codelineno-68-40" name="__codelineno-68-40" href="#__codelineno-68-40"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-68-41" name="__codelineno-68-41" href="#__codelineno-68-41"></a><span class="p">]</span>
+<a id="__codelineno-68-39" name="__codelineno-68-39" href="#__codelineno-68-39"></a><span class="w">        </span><span class="p">],</span>
+<a id="__codelineno-68-40" name="__codelineno-68-40" href="#__codelineno-68-40"></a><span class="w">        </span><span class="nt">"externalIssuer"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-68-41" name="__codelineno-68-41" href="#__codelineno-68-41"></a><span class="w">        </span><span class="nt">"externalSubject"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
+<a id="__codelineno-68-42" name="__codelineno-68-42" href="#__codelineno-68-42"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-68-43" name="__codelineno-68-43" href="#__codelineno-68-43"></a><span class="p">]</span>
 </code></pre></div>
 <span class="small-note">⚠️</span>&nbsp;<em class="small-note warning">This example has been generated automatically from the schema and it is not accurate. Refer to the schema for more information.</em><p></p>
 <details class="hint">
@@ -10011,8 +10013,10 @@ configuration and/or certificate.</p>
 <a id="__codelineno-70-35" name="__codelineno-70-35" href="#__codelineno-70-35"></a><span class="w">                </span><span class="s2">"string"</span>
 <a id="__codelineno-70-36" name="__codelineno-70-36" href="#__codelineno-70-36"></a><span class="w">            </span><span class="p">]</span>
 <a id="__codelineno-70-37" name="__codelineno-70-37" href="#__codelineno-70-37"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-70-38" name="__codelineno-70-38" href="#__codelineno-70-38"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-70-39" name="__codelineno-70-39" href="#__codelineno-70-39"></a><span class="p">}</span>
+<a id="__codelineno-70-38" name="__codelineno-70-38" href="#__codelineno-70-38"></a><span class="w">    </span><span class="p">],</span>
+<a id="__codelineno-70-39" name="__codelineno-70-39" href="#__codelineno-70-39"></a><span class="w">    </span><span class="nt">"externalIssuer"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-70-40" name="__codelineno-70-40" href="#__codelineno-70-40"></a><span class="w">    </span><span class="nt">"externalSubject"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
+<a id="__codelineno-70-41" name="__codelineno-70-41" href="#__codelineno-70-41"></a><span class="p">}</span>
 </code></pre></div>
 <span class="small-note">⚠️</span>&nbsp;<em class="small-note warning">This example has been generated automatically from the schema and it is not accurate. Refer to the schema for more information.</em><p></p>
 <details class="hint">
@@ -10161,19 +10165,26 @@ configuration and/or certificate.</p>
 <a id="__codelineno-71-142" name="__codelineno-71-142" href="#__codelineno-71-142"></a><span class="w">            </span><span class="nt">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-71-143" name="__codelineno-71-143" href="#__codelineno-71-143"></a><span class="w">                </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/TransactionData"</span>
 <a id="__codelineno-71-144" name="__codelineno-71-144" href="#__codelineno-71-144"></a><span class="w">            </span><span class="p">}</span>
-<a id="__codelineno-71-145" name="__codelineno-71-145" href="#__codelineno-71-145"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-71-146" name="__codelineno-71-146" href="#__codelineno-71-146"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-71-147" name="__codelineno-71-147" href="#__codelineno-71-147"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-71-148" name="__codelineno-71-148" href="#__codelineno-71-148"></a><span class="w">        </span><span class="s2">"status"</span><span class="p">,</span>
-<a id="__codelineno-71-149" name="__codelineno-71-149" href="#__codelineno-71-149"></a><span class="w">        </span><span class="s2">"id"</span><span class="p">,</span>
-<a id="__codelineno-71-150" name="__codelineno-71-150" href="#__codelineno-71-150"></a><span class="w">        </span><span class="s2">"createdAt"</span><span class="p">,</span>
-<a id="__codelineno-71-151" name="__codelineno-71-151" href="#__codelineno-71-151"></a><span class="w">        </span><span class="s2">"updatedAt"</span><span class="p">,</span>
-<a id="__codelineno-71-152" name="__codelineno-71-152" href="#__codelineno-71-152"></a><span class="w">        </span><span class="s2">"useDcApi"</span><span class="p">,</span>
-<a id="__codelineno-71-153" name="__codelineno-71-153" href="#__codelineno-71-153"></a><span class="w">        </span><span class="s2">"tenantId"</span><span class="p">,</span>
-<a id="__codelineno-71-154" name="__codelineno-71-154" href="#__codelineno-71-154"></a><span class="w">        </span><span class="s2">"tenant"</span><span class="p">,</span>
-<a id="__codelineno-71-155" name="__codelineno-71-155" href="#__codelineno-71-155"></a><span class="w">        </span><span class="s2">"notifications"</span>
-<a id="__codelineno-71-156" name="__codelineno-71-156" href="#__codelineno-71-156"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-71-157" name="__codelineno-71-157" href="#__codelineno-71-157"></a><span class="p">}</span>
+<a id="__codelineno-71-145" name="__codelineno-71-145" href="#__codelineno-71-145"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-71-146" name="__codelineno-71-146" href="#__codelineno-71-146"></a><span class="w">        </span><span class="nt">"externalIssuer"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-71-147" name="__codelineno-71-147" href="#__codelineno-71-147"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
+<a id="__codelineno-71-148" name="__codelineno-71-148" href="#__codelineno-71-148"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-71-149" name="__codelineno-71-149" href="#__codelineno-71-149"></a><span class="w">        </span><span class="nt">"externalSubject"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-71-150" name="__codelineno-71-150" href="#__codelineno-71-150"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-71-151" name="__codelineno-71-151" href="#__codelineno-71-151"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The subject (sub) from the external authorization server token.\nUsed to identify the user at the external AS."</span>
+<a id="__codelineno-71-152" name="__codelineno-71-152" href="#__codelineno-71-152"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-71-153" name="__codelineno-71-153" href="#__codelineno-71-153"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-71-154" name="__codelineno-71-154" href="#__codelineno-71-154"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-71-155" name="__codelineno-71-155" href="#__codelineno-71-155"></a><span class="w">        </span><span class="s2">"status"</span><span class="p">,</span>
+<a id="__codelineno-71-156" name="__codelineno-71-156" href="#__codelineno-71-156"></a><span class="w">        </span><span class="s2">"id"</span><span class="p">,</span>
+<a id="__codelineno-71-157" name="__codelineno-71-157" href="#__codelineno-71-157"></a><span class="w">        </span><span class="s2">"createdAt"</span><span class="p">,</span>
+<a id="__codelineno-71-158" name="__codelineno-71-158" href="#__codelineno-71-158"></a><span class="w">        </span><span class="s2">"updatedAt"</span><span class="p">,</span>
+<a id="__codelineno-71-159" name="__codelineno-71-159" href="#__codelineno-71-159"></a><span class="w">        </span><span class="s2">"useDcApi"</span><span class="p">,</span>
+<a id="__codelineno-71-160" name="__codelineno-71-160" href="#__codelineno-71-160"></a><span class="w">        </span><span class="s2">"tenantId"</span><span class="p">,</span>
+<a id="__codelineno-71-161" name="__codelineno-71-161" href="#__codelineno-71-161"></a><span class="w">        </span><span class="s2">"tenant"</span><span class="p">,</span>
+<a id="__codelineno-71-162" name="__codelineno-71-162" href="#__codelineno-71-162"></a><span class="w">        </span><span class="s2">"notifications"</span>
+<a id="__codelineno-71-163" name="__codelineno-71-163" href="#__codelineno-71-163"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-71-164" name="__codelineno-71-164" href="#__codelineno-71-164"></a><span class="p">}</span>
 </code></pre></div>
 </details>
 </div>
@@ -16665,6 +16676,14 @@ certificate is automatically stored in EUDIPLO.</p>
         <tr>
             <td><code>expiresAt</code></td>
             <td><span class="string-type">string</span>(<span class="date-time-format format">date-time</span>)</td>
+        </tr>
+        <tr>
+            <td><code>externalIssuer</code></td>
+            <td><span class="string-type">string</span></td>
+        </tr>
+        <tr>
+            <td><code>externalSubject</code></td>
+            <td><span class="string-type">string</span></td>
         </tr>
         <tr>
             <td><code>id</code></td>

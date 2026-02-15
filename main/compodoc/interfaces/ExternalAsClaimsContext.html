@@ -117,7 +117,7 @@
   <li class="breadcrumb-item">Interfaces</li>
   <li class="breadcrumb-item"
   >
-  ClaimsWebhookResult</li>
+  ExternalAsClaimsContext</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -149,8 +149,8 @@
                 <h3>Description</h3>
             </p>
             <p class="comment">
-                <p>Result of fetching claims from webhook.
-Either contains claims for immediate issuance or indicates deferred issuance.</p>
+                <p>Context for external AS webhook requests.
+Contains all the information needed to identify and fetch claims for a user authenticated via external AS.</p>
 
             </p>
 
@@ -168,23 +168,27 @@ Either contains claims for immediate issuance or indicates deferred issuance.</p
                         <td class="col-md-4">
                             <ul class="index-list">
                                 <li>
-                                            <span class="modifier">Optional</span>
-                                        <a href="#claims" 
+                                        <a href="#credential_configuration_id" 
 >
-                                            claims
+                                            credential_configuration_id
                                         </a>
                                 </li>
                                 <li>
-                                        <a href="#deferred" 
+                                        <a href="#iss" 
 >
-                                            deferred
+                                            iss
                                         </a>
                                 </li>
                                 <li>
-                                            <span class="modifier">Optional</span>
-                                        <a href="#interval" 
+                                        <a href="#sub" 
 >
-                                            interval
+                                            sub
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#token_claims" 
+>
+                                            token_claims
                                         </a>
                                 </li>
                             </ul>
@@ -202,9 +206,9 @@ Either contains claims for immediate issuance or indicates deferred issuance.</p
                         <tbody>
                                 <tr>
                                     <td class="col-md-4">
-                                        <a name="claims"></a>
-                                        <span class="name "><b>claims</b>
-                                            <a href="#claims">
+                                        <a name="credential_configuration_id"></a>
+                                        <span class="name "><b>credential_configuration_id</b>
+                                            <a href="#credential_configuration_id">
                                                 <span class="icon ion-ios-link"></span>
                                             </a>
                                         </span>
@@ -212,7 +216,7 @@ Either contains claims for immediate issuance or indicates deferred issuance.</p
                                 </tr>
                                 <tr>
                                     <td class="col-md-4">
-                                        <code>claims:     <code>Record&lt;string | any&gt;</code>
+                                        <code>credential_configuration_id:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 </code>
                                     </td>
                                 </tr>
@@ -220,23 +224,18 @@ Either contains claims for immediate issuance or indicates deferred issuance.</p
 
                                     <tr>
                                         <td class="col-md-4">
-                                            <i>Type : </i>    <code>Record&lt;string | any&gt;</code>
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 
                                         </td>
                                     </tr>
 
-                                    <tr>
-                                        <td class="col-md-4">
-                                            <i>Optional</i>
-                                        </td>
-                                    </tr>
 
 
 
 
                             <tr>
                                 <td class="col-md-4">
-                                    <div class="io-description"><p>Claims data for the credential (when not deferred).</p>
+                                    <div class="io-description"><p>The credential configuration ID being requested</p>
 </div>
                                 </td>
                             </tr>
@@ -246,9 +245,9 @@ Either contains claims for immediate issuance or indicates deferred issuance.</p
                         <tbody>
                                 <tr>
                                     <td class="col-md-4">
-                                        <a name="deferred"></a>
-                                        <span class="name "><b>deferred</b>
-                                            <a href="#deferred">
+                                        <a name="iss"></a>
+                                        <span class="name "><b>iss</b>
+                                            <a href="#iss">
                                                 <span class="icon ion-ios-link"></span>
                                             </a>
                                         </span>
@@ -256,7 +255,7 @@ Either contains claims for immediate issuance or indicates deferred issuance.</p
                                 </tr>
                                 <tr>
                                     <td class="col-md-4">
-                                        <code>deferred:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                                        <code>iss:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 </code>
                                     </td>
                                 </tr>
@@ -264,7 +263,7 @@ Either contains claims for immediate issuance or indicates deferred issuance.</p
 
                                     <tr>
                                         <td class="col-md-4">
-                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 
                                         </td>
                                     </tr>
@@ -275,7 +274,7 @@ Either contains claims for immediate issuance or indicates deferred issuance.</p
 
                             <tr>
                                 <td class="col-md-4">
-                                    <div class="io-description"><p>Whether the issuance should be deferred.</p>
+                                    <div class="io-description"><p>The issuer (iss) of the external authorization server</p>
 </div>
                                 </td>
                             </tr>
@@ -285,9 +284,9 @@ Either contains claims for immediate issuance or indicates deferred issuance.</p
                         <tbody>
                                 <tr>
                                     <td class="col-md-4">
-                                        <a name="interval"></a>
-                                        <span class="name "><b>interval</b>
-                                            <a href="#interval">
+                                        <a name="sub"></a>
+                                        <span class="name "><b>sub</b>
+                                            <a href="#sub">
                                                 <span class="icon ion-ios-link"></span>
                                             </a>
                                         </span>
@@ -295,7 +294,7 @@ Either contains claims for immediate issuance or indicates deferred issuance.</p
                                 </tr>
                                 <tr>
                                     <td class="col-md-4">
-                                        <code>interval:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                        <code>sub:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 </code>
                                     </td>
                                 </tr>
@@ -303,23 +302,57 @@ Either contains claims for immediate issuance or indicates deferred issuance.</p
 
                                     <tr>
                                         <td class="col-md-4">
-                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 
                                         </td>
                                     </tr>
 
-                                    <tr>
-                                        <td class="col-md-4">
-                                            <i>Optional</i>
-                                        </td>
-                                    </tr>
 
 
 
 
                             <tr>
                                 <td class="col-md-4">
-                                    <div class="io-description"><p>Recommended polling interval in seconds for deferred issuance.</p>
+                                    <div class="io-description"><p>The subject (sub) from the external AS token - user identifier</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="token_claims"></a>
+                                        <span class="name "><b>token_claims</b>
+                                            <a href="#token_claims">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>token_claims:     <code>Record&lt;string | unknown&gt;</code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code>Record&lt;string | unknown&gt;</code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Additional claims from the access token (e.g., email, preferred_username if included by AS)</p>
 </div>
                                 </td>
                             </tr>
@@ -910,7 +943,7 @@ export class CredentialsService {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
-            var COMPODOC_CURRENT_PAGE_URL = 'ClaimsWebhookResult.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'ExternalAsClaimsContext.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

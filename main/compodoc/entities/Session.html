@@ -195,6 +195,16 @@ request URI, authorization queries, and more.</p>
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#externalIssuer" >externalIssuer</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#externalSubject" >externalSubject</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
                                 <a href="#id" >id</a>
                             </li>
                             <li>
@@ -597,6 +607,94 @@ Encrypted at rest - contains personal information.</p>
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>The timestamp when the request is set to expire.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="externalIssuer"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>externalIssuer</b></span>
+                        <a href="#externalIssuer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @Column(&#x27;varchar&#x27;, {nullable: true})<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="228" class="link-to-prism">src/session/entities/session.entity.ts:228</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>The issuer (iss) of the external authorization server token.
+Set when a wallet presents a token from an external AS.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="externalSubject"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>externalSubject</b></span>
+                        <a href="#externalSubject"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @Column(&#x27;varchar&#x27;, {nullable: true})<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="235" class="link-to-prism">src/session/entities/session.entity.ts:235</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>The subject (sub) from the external authorization server token.
+Used to identify the user at the external AS.</p>
 </div>
                 </td>
             </tr>
@@ -1640,6 +1738,22 @@ export class Session {
      */
     @Column(&quot;json&quot;, { nullable: true })
     transaction_data?: TransactionData[];
+
+    // External authorization server fields (for wallet-initiated flows with external AS like Keycloak)
+
+    /**
+     * The issuer (iss) of the external authorization server token.
+     * Set when a wallet presents a token from an external AS.
+     */
+    @Column(&quot;varchar&quot;, { nullable: true })
+    externalIssuer?: string;
+
+    /**
+     * The subject (sub) from the external authorization server token.
+     * Used to identify the user at the external AS.
+     */
+    @Column(&quot;varchar&quot;, { nullable: true })
+    externalSubject?: string;
 }
 </code></pre>
     </div>

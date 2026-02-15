@@ -162,6 +162,10 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#sendExternalAsWebhook" >sendExternalAsWebhook</a>
+                            </li>
+                            <li>
                                 <a href="#sendWebhook" >sendWebhook</a>
                             </li>
                             <li>
@@ -260,6 +264,80 @@
     <h3 id="methods">
         Methods
     </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="sendExternalAsWebhook"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>sendExternalAsWebhook</b></span>
+                        <a href="#sendExternalAsWebhook"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>sendExternalAsWebhook(values: literal type)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="204"
+                                    class="link-to-prism">src/shared/utils/webhook/webhook.service.ts:204</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Sends a webhook with external authorization server context.
+Used for wallet-initiated flows where the wallet authenticates with an external AS (e.g., Keycloak).
+The webhook receives enriched context to enable identity mapping and claims resolution.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>values</td>
+                                            <td>
+                                                        <code>literal type</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/WebhookResponse.html" target="_self" >Promise&lt;WebhookResponse&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>WebhookResponse containing claims data or deferred issuance indicator</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -620,6 +698,89 @@ export class WebhookService {
                     },
                 );
                 throw new Error(&#x60;Error sending webhook: ${err.message || err}&#x60;);
+            },
+        );
+    }
+
+    /**
+     * Sends a webhook with external authorization server context.
+     * Used for wallet-initiated flows where the wallet authenticates with an external AS (e.g., Keycloak).
+     * The webhook receives enriched context to enable identity mapping and claims resolution.
+     *
+     * @param values.webhook The webhook configuration
+     * @param values.logContext Logging context
+     * @param values.context External AS context (iss, sub, credential_configuration_id, token_claims)
+     * @returns WebhookResponse containing claims data or deferred issuance indicator
+     */
+    async sendExternalAsWebhook(values: {
+        webhook: WebhookConfig;
+        logContext: SessionLogContext;
+        context: {
+            iss: string;
+            sub: string;
+            credential_configuration_id: string;
+            token_claims: Record&lt;string, unknown&gt;;
+        };
+    }): Promise&lt;WebhookResponse&gt; {
+        const headers: Record&lt;string, string&gt; &#x3D; {};
+
+        if (values.webhook.auth?.type &#x3D;&#x3D;&#x3D; &quot;apiKey&quot;) {
+            headers[values.webhook.auth.config.headerName] &#x3D;
+                values.webhook.auth.config.value;
+        }
+
+        this.sessionLogger.logSession(
+            values.logContext,
+            &quot;Sending external AS claims webhook&quot;,
+            {
+                webhookUrl: values.webhook.url,
+                authType: values.webhook.auth?.type || &quot;none&quot;,
+                externalIss: values.context.iss,
+                externalSub: values.context.sub,
+                credentialConfigurationId:
+                    values.context.credential_configuration_id,
+            },
+        );
+
+        return firstValueFrom(
+            this.httpService.post(
+                values.webhook.url,
+                {
+                    // External AS context for identity resolution
+                    iss: values.context.iss,
+                    sub: values.context.sub,
+                    credential_configuration_id:
+                        values.context.credential_configuration_id,
+                    token_claims: values.context.token_claims,
+                },
+                {
+                    headers,
+                },
+            ),
+        ).then(
+            (webhookResponse) &#x3D;&gt; {
+                this.sessionLogger.logSession(
+                    values.logContext,
+                    &quot;External AS claims webhook sent successfully&quot;,
+                    {
+                        responseStatus: webhookResponse.status,
+                        hasResponseData: !!webhookResponse.data,
+                    },
+                );
+                return webhookResponse.data;
+            },
+            (err) &#x3D;&gt; {
+                this.sessionLogger.logSessionError(
+                    values.logContext,
+                    err,
+                    &quot;Error sending external AS claims webhook&quot;,
+                    {
+                        webhookUrl: values.webhook.url,
+                    },
+                );
+                throw new Error(
+                    &#x60;Error sending external AS claims webhook: ${err.message || err}&#x60;,
+                );
             },
         );
     }
