@@ -109,6 +109,30 @@ export class CredentialConfigService {
     }
 
     /**
+     * Replaces a single image reference with a public URL, or returns undefined if invalid.
+     */
+    private async resolveImageUrl(
+        tenantId: string,
+        image: { uri?: string } | undefined,
+        context: string,
+    ): Promise<{ uri: string } | undefined> {
+        if (!image?.uri) {
+            return undefined;
+        }
+        const url = await this.filesService.replaceUriWithPublicUrl(
+            tenantId,
+            image.uri,
+        );
+        if (url) {
+            return { uri: url };
+        }
+        this.logger.warn(
+            `[${tenantId}] Could not find image ${image.uri} for ${context}`,
+        );
+        return undefined;
+    }
+
+    /**
      * Replaces image references (logo, background_image) with actual public URLs.
      * This is used both during file import and API calls.
      * @param tenantId - The ID of the tenant.
@@ -124,34 +148,16 @@ export class CredentialConfigService {
 
         config.config.display = await Promise.all(
             config.config.display.map(async (display) => {
-                if (display.background_image?.uri) {
-                    const url = await this.filesService.replaceUriWithPublicUrl(
-                        tenantId,
-                        display.background_image.uri,
-                    );
-                    if (url) {
-                        display.background_image.uri = url;
-                    } else {
-                        this.logger.warn(
-                            `[${tenantId}] Could not find image ${display.background_image.uri} for credentials config`,
-                        );
-                        delete display?.background_image; // Remove the URI if the file is not found to avoid confusion
-                    }
-                }
-                if (display.logo?.uri) {
-                    const url = await this.filesService.replaceUriWithPublicUrl(
-                        tenantId,
-                        display.logo.uri,
-                    );
-                    if (url) {
-                        display.logo.uri = url;
-                    } else {
-                        this.logger.warn(
-                            `[${tenantId}] Could not find image ${display.logo.uri} for credentials config`,
-                        );
-                        delete display?.logo; // Remove the URI if the file is not found to avoid confusion
-                    }
-                }
+                display.background_image = await this.resolveImageUrl(
+                    tenantId,
+                    display.background_image,
+                    "credentials config background_image",
+                );
+                display.logo = await this.resolveImageUrl(
+                    tenantId,
+                    display.logo,
+                    "credentials config logo",
+                );
                 return display;
             }),
         );

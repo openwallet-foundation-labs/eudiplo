@@ -465,23 +465,23 @@ docker compose exec vault vault status
 
 Common environment variables:
 
-| Variable        | Description                          | Default                 |
-| --------------- | ------------------------------------ | ----------------------- |
-| `PUBLIC_URL`           | Public URL for OAuth redirects       | `http://localhost:3000` |
-| `NODE_ENV`             | Environment (development/production) | `development`           |
-| `DB_TYPE`              | Database type (postgres/sqlite)      | `postgres`              |
-| `DB_HOST`              | Database hostname                    | `database`              |
-| `DB_PORT`              | Database port                        | `5432`                  |
-| `DB_USERNAME`          | Database username                    | -                       |
-| `DB_PASSWORD`          | Database password                    | -                       |
-| `DB_DATABASE`          | Database name                        | `eudiplo`               |
-| `VAULT_TOKEN`          | Vault root token                     | -                       |
-| `VAULT_ADDR`           | Vault address                        | `http://vault:8200`     |
-| `MASTER_SECRET`        | Master secret for JWT and encryption | - (required)            |
-| `AUTH_CLIENT_ID`       | OAuth client ID                      | - (required)            |
-| `AUTH_CLIENT_SECRET`   | OAuth client secret                  | - (required)            |
-| `METRICS_TOKEN`        | Bearer token for /metrics endpoint   | - (unprotected)         |
-| `LOG_LEVEL`            | Logging level                        | `info`                  |
+| Variable             | Description                          | Default                 |
+| -------------------- | ------------------------------------ | ----------------------- |
+| `PUBLIC_URL`         | Public URL for OAuth redirects       | `http://localhost:3000` |
+| `NODE_ENV`           | Environment (development/production) | `development`           |
+| `DB_TYPE`            | Database type (postgres/sqlite)      | `postgres`              |
+| `DB_HOST`            | Database hostname                    | `database`              |
+| `DB_PORT`            | Database port                        | `5432`                  |
+| `DB_USERNAME`        | Database username                    | -                       |
+| `DB_PASSWORD`        | Database password                    | -                       |
+| `DB_DATABASE`        | Database name                        | `eudiplo`               |
+| `VAULT_TOKEN`        | Vault root token                     | -                       |
+| `VAULT_ADDR`         | Vault address                        | `http://vault:8200`     |
+| `MASTER_SECRET`      | Master secret for JWT and encryption | - (required)            |
+| `AUTH_CLIENT_ID`     | OAuth client ID                      | - (required)            |
+| `AUTH_CLIENT_SECRET` | OAuth client secret                  | - (required)            |
+| `METRICS_TOKEN`      | Bearer token for /metrics endpoint   | - (unprotected)         |
+| `LOG_LEVEL`          | Logging level                        | `info`                  |
 
 See [Configuration Documentation](../architecture/index.md) for complete list.
 

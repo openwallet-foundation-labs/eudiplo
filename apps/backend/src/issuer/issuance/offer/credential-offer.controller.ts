@@ -32,12 +32,7 @@ export class CredentialOfferController {
     @ApiResponse({
         description: "JSON response",
         status: 201,
-        //TODO: do not use type, otherwhise the response can not deal with both JSON and PNG.
         type: OfferResponse,
-        content: {
-            "application/json": { schema: { type: "object" } },
-            "image/png": { schema: { type: "string", format: "binary" } },
-        },
     })
     @ApiProduces("application/json", "image/png")
     @ApiBody({
