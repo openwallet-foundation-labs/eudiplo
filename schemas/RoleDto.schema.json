@@ -7,7 +7,7 @@
     "role": {
       "enum": [
         "presentation:manage",
-        "presentation:offer",
+        "presentation:request",
         "issuance:manage",
         "issuance:offer",
         "clients:manage",

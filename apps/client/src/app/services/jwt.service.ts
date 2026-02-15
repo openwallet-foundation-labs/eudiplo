@@ -10,7 +10,7 @@ export const roles: Role[] = [
   'issuance:manage',
   'issuance:offer',
   'presentation:manage',
-  'presentation:offer',
+  'presentation:request',
   'registrar:manage',
   'tenants:manage',
 ];

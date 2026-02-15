@@ -9,7 +9,7 @@ import { Session } from "./entities/session.entity";
 import { SessionService } from "./session.service";
 
 @ApiTags("Session")
-@Secured([Role.IssuanceOffer, Role.PresentationOffer])
+@Secured([Role.IssuanceOffer, Role.PresentationRequest])
 @Controller("session")
 export class SessionController {
     constructor(

@@ -17,8 +17,6 @@ import type {
   AuthControllerGetOAuth2TokenResponses,
   AuthControllerGetOidcDiscoveryData,
   AuthControllerGetOidcDiscoveryResponses,
-  AuthorizeControllerAuthorizationChallengeEndpointData,
-  AuthorizeControllerAuthorizationChallengeEndpointResponses,
   AuthorizeControllerAuthorizeData,
   AuthorizeControllerAuthorizeResponses,
   AuthorizeControllerParData,
@@ -128,8 +126,6 @@ import type {
   PresentationManagementControllerStorePresentationConfigResponses,
   PresentationManagementControllerUpdateConfigurationData,
   PresentationManagementControllerUpdateConfigurationResponses,
-  PrometheusControllerIndexData,
-  PrometheusControllerIndexResponses,
   RegistrarControllerCreateAccessCertificateData,
   RegistrarControllerCreateAccessCertificateErrors,
   RegistrarControllerCreateAccessCertificateResponses,
@@ -158,6 +154,8 @@ import type {
   SessionControllerGetSessionResponses,
   SessionControllerRevokeAllData,
   SessionControllerRevokeAllResponses,
+  SessionEventsControllerSubscribeToSessionEventsData,
+  SessionEventsControllerSubscribeToSessionEventsResponses,
   StatusListConfigControllerGetConfigData,
   StatusListConfigControllerGetConfigResponses,
   StatusListConfigControllerResetConfigData,
@@ -266,15 +264,6 @@ export const healthControllerCheck = <ThrowOnError extends boolean = true>(
     HealthControllerCheckErrors,
     ThrowOnError
   >({ url: "/health", ...options });
-
-export const prometheusControllerIndex = <ThrowOnError extends boolean = true>(
-  options?: Options<PrometheusControllerIndexData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    PrometheusControllerIndexResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/metrics", ...options });
 
 /**
  * OAuth2 Token endpoint - supports client credentials flow only
@@ -1103,6 +1092,25 @@ export const sessionConfigControllerUpdateConfig = <
   });
 
 /**
+ * Subscribe to session status updates
+ *
+ * Server-Sent Events endpoint for real-time session status updates. Requires JWT authentication via query parameter.
+ */
+export const sessionEventsControllerSubscribeToSessionEvents = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    SessionEventsControllerSubscribeToSessionEventsData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).get<
+    SessionEventsControllerSubscribeToSessionEventsResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/session/{id}/events", ...options });
+
+/**
  * Returns the issuance configurations for this tenant.
  */
 export const issuanceConfigControllerGetIssuanceConfigurations = <
@@ -1559,30 +1567,6 @@ export const authorizeControllerToken = <ThrowOnError extends boolean = true>(
     unknown,
     ThrowOnError
   >({ url: "/{tenantId}/authorize/token", ...options });
-
-/**
- * Endpoint for the authorization challenge.
- */
-export const authorizeControllerAuthorizationChallengeEndpoint = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<
-    AuthorizeControllerAuthorizationChallengeEndpointData,
-    ThrowOnError
-  >,
-) =>
-  (options.client ?? client).post<
-    AuthorizeControllerAuthorizationChallengeEndpointResponses,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/{tenantId}/authorize/challenge",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
 
 /**
  * Interactive Authorization Endpoint

@@ -48,7 +48,7 @@ export class ClientEntity {
     /**
      * Optional list of presentation config IDs this client is allowed to use.
      * If null or empty, the client can use all presentation configs (backward compatible).
-     * Only relevant if the client has the 'presentation:offer' role.
+     * Only relevant if the client has the 'presentation:request' role.
      */
     @ApiPropertyOptional({
         type: [String],

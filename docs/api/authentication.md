@@ -154,7 +154,7 @@ curl -X POST http://localhost:3000/clients \
   -H "Content-Type: application/json" \
   -d '{
     "clientId": "partner-service",
-    "roles": ["presentation:offer", "issuance:offer"],
+    "roles": ["presentation:request", "issuance:offer"],
     "allowedPresentationConfigs": ["age-verification", "identity-check"],
     "allowedIssuanceConfigs": ["partner-credential"]
   }'

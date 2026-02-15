@@ -375,7 +375,7 @@ export async function getToken(
                 Role.Clients,
                 Role.IssuanceOffer,
                 Role.Issuances,
-                Role.PresentationOffer,
+                Role.PresentationRequest,
                 Role.Presentations,
             ],
         })

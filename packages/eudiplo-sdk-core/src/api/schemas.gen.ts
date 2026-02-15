@@ -6,7 +6,7 @@ export const RoleDtoSchema = {
     role: {
       enum: [
         "presentation:manage",
-        "presentation:offer",
+        "presentation:request",
         "issuance:manage",
         "issuance:offer",
         "clients:manage",
@@ -228,7 +228,7 @@ export const ClientEntitySchema = {
         type: "string",
         enum: [
           "presentation:manage",
-          "presentation:offer",
+          "presentation:request",
           "issuance:manage",
           "issuance:offer",
           "clients:manage",
@@ -277,7 +277,7 @@ export const CreateTenantDtoSchema = {
         type: "string",
         enum: [
           "presentation:manage",
-          "presentation:offer",
+          "presentation:request",
           "issuance:manage",
           "issuance:offer",
           "clients:manage",
@@ -338,7 +338,7 @@ export const UpdateTenantDtoSchema = {
         type: "string",
         enum: [
           "presentation:manage",
-          "presentation:offer",
+          "presentation:request",
           "issuance:manage",
           "issuance:offer",
           "clients:manage",
@@ -394,7 +394,7 @@ export const UpdateClientDtoSchema = {
         type: "string",
         enum: [
           "presentation:manage",
-          "presentation:offer",
+          "presentation:request",
           "issuance:manage",
           "issuance:offer",
           "clients:manage",
@@ -449,7 +449,7 @@ export const CreateClientDtoSchema = {
         type: "string",
         enum: [
           "presentation:manage",
-          "presentation:offer",
+          "presentation:request",
           "issuance:manage",
           "issuance:offer",
           "clients:manage",
@@ -1351,6 +1351,14 @@ export const SessionSchema = {
       items: {
         $ref: "#/components/schemas/TransactionData",
       },
+    },
+    externalIssuer: {
+      type: "string",
+    },
+    externalSubject: {
+      type: "string",
+      description:
+        "The subject (sub) from the external authorization server token.\nUsed to identify the user at the external AS.",
     },
   },
   required: [

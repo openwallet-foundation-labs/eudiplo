@@ -81,10 +81,10 @@ export class DashboardService {
         promiseKeys.push('presentations');
       }
 
-      // Sessions require issuance:offer OR presentation:offer
+      // Sessions require issuance:offer OR presentation:request
       if (
         this.jwtService.hasRole('issuance:offer') ||
-        this.jwtService.hasRole('presentation:offer')
+        this.jwtService.hasRole('presentation:request')
       ) {
         promises.push(sessionControllerGetAllSessions());
         promiseKeys.push('sessions');
@@ -160,7 +160,7 @@ export class DashboardService {
 
   get canViewSessions(): boolean {
     return (
-      this.jwtService.hasRole('issuance:offer') || this.jwtService.hasRole('presentation:offer')
+      this.jwtService.hasRole('issuance:offer') || this.jwtService.hasRole('presentation:request')
     );
   }
 

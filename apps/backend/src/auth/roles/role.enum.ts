@@ -5,7 +5,7 @@ export enum Role {
     //to manage presentation resources
     Presentations = "presentation:manage",
     // to create offers
-    PresentationOffer = "presentation:offer",
+    PresentationRequest = "presentation:request",
     // to manage issuance resources
     Issuances = "issuance:manage",
     // to create offers
@@ -25,7 +25,7 @@ export const allRoles = [
     Role.Tenants,
     Role.IssuanceOffer,
     Role.Issuances,
-    Role.PresentationOffer,
+    Role.PresentationRequest,
     Role.Presentations,
     Role.Clients,
     Role.Registrar,

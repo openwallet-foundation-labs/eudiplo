@@ -19,7 +19,7 @@ import {
 import { Oid4vpService } from "../oid4vp/oid4vp.service";
 
 @ApiTags("Verifier")
-@Secured([Role.PresentationOffer, Role.Presentations])
+@Secured([Role.PresentationRequest, Role.Presentations])
 @Controller("verifier/offer")
 export class VerifierOfferController {
     /**

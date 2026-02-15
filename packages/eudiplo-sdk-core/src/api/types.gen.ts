@@ -10,7 +10,7 @@ export type RoleDto = {
    */
   role:
     | "presentation:manage"
-    | "presentation:offer"
+    | "presentation:request"
     | "issuance:manage"
     | "issuance:offer"
     | "clients:manage"
@@ -137,7 +137,7 @@ export type ClientEntity = {
    */
   roles: Array<
     | "presentation:manage"
-    | "presentation:offer"
+    | "presentation:request"
     | "issuance:manage"
     | "issuance:offer"
     | "clients:manage"
@@ -161,7 +161,7 @@ export type CreateTenantDto = {
   sessionConfig?: SessionStorageConfig;
   roles?: Array<
     | "presentation:manage"
-    | "presentation:offer"
+    | "presentation:request"
     | "issuance:manage"
     | "issuance:offer"
     | "clients:manage"
@@ -201,7 +201,7 @@ export type UpdateTenantDto = {
   description?: string;
   roles?: Array<
     | "presentation:manage"
-    | "presentation:offer"
+    | "presentation:request"
     | "issuance:manage"
     | "issuance:offer"
     | "clients:manage"
@@ -232,7 +232,7 @@ export type UpdateClientDto = {
    */
   roles: Array<
     | "presentation:manage"
-    | "presentation:offer"
+    | "presentation:request"
     | "issuance:manage"
     | "issuance:offer"
     | "clients:manage"
@@ -267,7 +267,7 @@ export type CreateClientDto = {
    */
   roles: Array<
     | "presentation:manage"
-    | "presentation:offer"
+    | "presentation:request"
     | "issuance:manage"
     | "issuance:offer"
     | "clients:manage"
@@ -791,6 +791,12 @@ export type Session = {
    * Can be overridden per-request from the presentation configuration.
    */
   transaction_data?: Array<TransactionData>;
+  externalIssuer?: string;
+  /**
+   * The subject (sub) from the external authorization server token.
+   * Used to identify the user at the external AS.
+   */
+  externalSubject?: string;
 };
 
 export type StatusUpdateDto = {
@@ -1871,17 +1877,6 @@ export type HealthControllerCheckResponses = {
 export type HealthControllerCheckResponse =
   HealthControllerCheckResponses[keyof HealthControllerCheckResponses];
 
-export type PrometheusControllerIndexData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/metrics";
-};
-
-export type PrometheusControllerIndexResponses = {
-  200: unknown;
-};
-
 export type AuthControllerGetOAuth2TokenData = {
   body: ClientCredentialsDto;
   path?: never;
@@ -2564,6 +2559,27 @@ export type SessionConfigControllerUpdateConfigResponses = {
 export type SessionConfigControllerUpdateConfigResponse =
   SessionConfigControllerUpdateConfigResponses[keyof SessionConfigControllerUpdateConfigResponses];
 
+export type SessionEventsControllerSubscribeToSessionEventsData = {
+  body?: never;
+  path: {
+    /**
+     * Session ID to subscribe to
+     */
+    id: string;
+  };
+  query: {
+    /**
+     * JWT access token for authentication
+     */
+    token: string;
+  };
+  url: "/session/{id}/events";
+};
+
+export type SessionEventsControllerSubscribeToSessionEventsResponses = {
+  200: unknown;
+};
+
 export type IssuanceConfigControllerGetIssuanceConfigurationsData = {
   body?: never;
   path?: never;
@@ -2930,19 +2946,6 @@ export type AuthorizeControllerTokenResponses = {
 
 export type AuthorizeControllerTokenResponse =
   AuthorizeControllerTokenResponses[keyof AuthorizeControllerTokenResponses];
-
-export type AuthorizeControllerAuthorizationChallengeEndpointData = {
-  body: AuthorizeQueries;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/{tenantId}/authorize/challenge";
-};
-
-export type AuthorizeControllerAuthorizationChallengeEndpointResponses = {
-  201: unknown;
-};
 
 export type InteractiveAuthorizationControllerInteractiveAuthorizationData = {
   /**

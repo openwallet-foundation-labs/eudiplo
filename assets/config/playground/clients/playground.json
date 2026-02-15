@@ -3,7 +3,7 @@
     "secret": "dj29vds3vdMj3nc8ief",
     "description": "Client for playground.eudi-wallet.dev",
     "roles": [
-        "presentation:offer",
+        "presentation:request",
         "issuance:offer"
     ]
 }

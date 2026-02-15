@@ -64,7 +64,7 @@ describe("Client Resource-Level Access Control (e2e)", () => {
             .set("Authorization", `Bearer ${adminToken}`)
             .send({
                 clientId: "restricted-client",
-                roles: [Role.PresentationOffer, Role.IssuanceOffer],
+                roles: [Role.PresentationRequest, Role.IssuanceOffer],
                 allowedPresentationConfigs: ["pid-no-hook"], // Can only use pid-no-hook
                 allowedIssuanceConfigs: ["pid"], // Can only use pid
             })
@@ -90,7 +90,7 @@ describe("Client Resource-Level Access Control (e2e)", () => {
             .set("Authorization", `Bearer ${adminToken}`)
             .send({
                 clientId: "unrestricted-client",
-                roles: [Role.PresentationOffer, Role.IssuanceOffer],
+                roles: [Role.PresentationRequest, Role.IssuanceOffer],
                 // No allowedPresentationConfigs or allowedIssuanceConfigs
             })
             .then((res) => res.body);
@@ -251,7 +251,7 @@ describe("Client Resource-Level Access Control (e2e)", () => {
                 .patch("/client/restricted-client")
                 .set("Authorization", `Bearer ${adminToken}`)
                 .send({
-                    roles: [Role.PresentationOffer, Role.IssuanceOffer],
+                    roles: [Role.PresentationRequest, Role.IssuanceOffer],
                     allowedPresentationConfigs: ["pid", "pid-no-hook"], // Add pid
                     allowedIssuanceConfigs: ["pid", "citizen"], // Add citizen
                 })
@@ -299,7 +299,7 @@ describe("Client Resource-Level Access Control (e2e)", () => {
                 .set("Authorization", `Bearer ${adminToken}`)
                 .send({
                     clientId: "empty-arrays-client",
-                    roles: [Role.PresentationOffer, Role.IssuanceOffer],
+                    roles: [Role.PresentationRequest, Role.IssuanceOffer],
                     allowedPresentationConfigs: [], // Empty = all allowed
                     allowedIssuanceConfigs: [], // Empty = all allowed
                 })
