@@ -78,35 +78,48 @@
         }
 
         <!-- Issuance Workflow -->
-        @if (hasRole('issuance:manage')) {
+        @if (hasRole(['issuance:manage', 'issuance:offer'])) {
           <div mat-subheader>Issuance</div>
 
-          <mat-list-item [routerLink]="['/issuance-config']" routerLinkActive="active-link">
-            <span matListItemTitle>Issuance Configuration</span>
-          </mat-list-item>
+          @if (hasRole('issuance:offer')) {
+            <mat-list-item [routerLink]="['/offer/issuance']" routerLinkActive="active-link">
+              <span matListItemTitle>Issuance Offer</span>
+            </mat-list-item>
+          }
+          @if (hasRole('issuance:manage')) {
+            <mat-list-item [routerLink]="['/issuance-config']" routerLinkActive="active-link">
+              <span matListItemTitle>Issuance Configuration</span>
+            </mat-list-item>
+            <mat-list-item [routerLink]="['/credential-config']" routerLinkActive="active-link">
+              <span matListItemTitle>Credential Configurations</span>
+            </mat-list-item>
 
-          <mat-list-item [routerLink]="['/credential-config']" routerLinkActive="active-link">
-            <span matListItemTitle>Credential Configurations</span>
-          </mat-list-item>
+            <mat-list-item [routerLink]="['/trust-list']" routerLinkActive="active-link">
+              <span matListItemTitle>Trust Lists</span>
+            </mat-list-item>
 
-          <mat-list-item [routerLink]="['/trust-list']" routerLinkActive="active-link">
-            <span matListItemTitle>Trust Lists</span>
-          </mat-list-item>
-
-          <mat-list-item [routerLink]="['/status-lists']" routerLinkActive="active-link">
-            <span matListItemTitle>Status Lists</span>
-          </mat-list-item>
+            <mat-list-item [routerLink]="['/status-lists']" routerLinkActive="active-link">
+              <span matListItemTitle>Status Lists</span>
+            </mat-list-item>
+          }
 
           <mat-divider></mat-divider>
         }
 
-        @if (hasRole('presentation:manage')) {
+        @if (hasRole(['presentation:manage', 'presentation:offer'])) {
           <!-- Verification Workflow -->
           <div mat-subheader>Credential Verification</div>
 
-          <mat-list-item [routerLink]="['/presentation-config']" routerLinkActive="active-link">
-            <span matListItemTitle>Presentation Configuration</span>
-          </mat-list-item>
+          @if (hasRole('presentation:offer')) {
+            <mat-list-item [routerLink]="['/offer/presentation']" routerLinkActive="active-link">
+              <span matListItemTitle>Presentation Offer</span>
+            </mat-list-item>
+          }
+          @if (hasRole('presentation:manage')) {
+            <mat-list-item [routerLink]="['/presentation-config']" routerLinkActive="active-link">
+              <span matListItemTitle>Presentation Configuration</span>
+            </mat-list-item>
+          }
 
           <mat-divider></mat-divider>
         }

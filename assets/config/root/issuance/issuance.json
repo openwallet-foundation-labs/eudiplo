@@ -1,5 +1,7 @@
 {
-    "authServers": [],
+    "authServers": [
+        "https://auth.eudi-wallet.dev/realms/eudiplo"
+    ],
     "batchSize": 10,
     "dPopRequired": false,
     "display": [
