@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { Injectable, Logger } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
 import { Repository } from "typeorm";
@@ -11,9 +11,11 @@ import {
     ImportPhase,
 } from "../../../../shared/utils/config-import/config-import-orchestrator.service";
 import { FilesService } from "../../../../storage/files.service";
+import { PresentationsService } from "../../../../verifier/presentations/presentations.service";
 import { CredentialConfigCreate } from "../dto/credential-config-create.dto";
 import { CredentialConfigUpdate } from "../dto/credential-config-update.dto";
 import { CredentialConfig } from "../entities/credential.entity";
+import { IaeActionType } from "../entities/iae-action.dto";
 
 /**
  * Service for managing credential configurations.
@@ -33,6 +35,7 @@ export class CredentialConfigService {
         private readonly filesService: FilesService,
         private readonly configImportService: ConfigImportService,
         private readonly configImportOrchestrator: ConfigImportOrchestratorService,
+        private readonly presentationsService: PresentationsService,
     ) {
         this.configImportOrchestrator.register(
             "credentials",
@@ -76,6 +79,8 @@ export class CredentialConfigService {
 
     /**
      * Process a credential config for import.
+     * Note: IAE action validation is skipped during import because
+     * presentation configs are imported in a later phase (REFERENCES).
      */
     private async processCredentialConfig(
         tenantId: string,
@@ -99,7 +104,32 @@ export class CredentialConfigService {
             (config as CredentialConfig).cert = cert;
         }
 
-        await this.store(tenantId, config);
+        // Skip IAE validation during import - presentation configs are imported later
+        await this.store(tenantId, config, true);
+    }
+
+    /**
+     * Replaces a single image reference with a public URL, or returns undefined if invalid.
+     */
+    private async resolveImageUrl(
+        tenantId: string,
+        image: { uri?: string } | undefined,
+        context: string,
+    ): Promise<{ uri: string } | undefined> {
+        if (!image?.uri) {
+            return undefined;
+        }
+        const url = await this.filesService.replaceUriWithPublicUrl(
+            tenantId,
+            image.uri,
+        );
+        if (url) {
+            return { uri: url };
+        }
+        this.logger.warn(
+            `[${tenantId}] Could not find image ${image.uri} for ${context}`,
+        );
+        return undefined;
     }
 
     /**
@@ -118,34 +148,16 @@ export class CredentialConfigService {
 
         config.config.display = await Promise.all(
             config.config.display.map(async (display) => {
-                if (display.background_image?.uri) {
-                    const url = await this.filesService.replaceUriWithPublicUrl(
-                        tenantId,
-                        display.background_image.uri,
-                    );
-                    if (url) {
-                        display.background_image.uri = url;
-                    } else {
-                        this.logger.warn(
-                            `[${tenantId}] Could not find image ${display.background_image.uri} for credentials config`,
-                        );
-                        delete display?.background_image; // Remove the URI if the file is not found to avoid confusion
-                    }
-                }
-                if (display.logo?.uri) {
-                    const url = await this.filesService.replaceUriWithPublicUrl(
-                        tenantId,
-                        display.logo.uri,
-                    );
-                    if (url) {
-                        display.logo.uri = url;
-                    } else {
-                        this.logger.warn(
-                            `[${tenantId}] Could not find image ${display.logo.uri} for credentials config`,
-                        );
-                        delete display?.logo; // Remove the URI if the file is not found to avoid confusion
-                    }
-                }
+                display.background_image = await this.resolveImageUrl(
+                    tenantId,
+                    display.background_image,
+                    "credentials config background_image",
+                );
+                display.logo = await this.resolveImageUrl(
+                    tenantId,
+                    display.logo,
+                    "credentials config logo",
+                );
                 return display;
             }),
         );
@@ -176,15 +188,59 @@ export class CredentialConfigService {
     }
 
     /**
+     * Validates IAE actions in a credential configuration.
+     * Checks that all referenced presentation configs exist.
+     * @param tenantId - The ID of the tenant.
+     * @param config - The credential config to validate.
+     * @throws BadRequestException if a referenced presentation config doesn't exist.
+     */
+    private async validateIaeActions(
+        tenantId: string,
+        config: CredentialConfigCreate | CredentialConfigUpdate,
+    ): Promise<void> {
+        if (!config.iaeActions?.length) {
+            return;
+        }
+
+        for (const action of config.iaeActions) {
+            if (action.type === IaeActionType.OPENID4VP_PRESENTATION) {
+                const presentationConfigId = (
+                    action as { presentationConfigId: string }
+                ).presentationConfigId;
+
+                try {
+                    await this.presentationsService.getPresentationConfig(
+                        presentationConfigId,
+                        tenantId,
+                    );
+                } catch {
+                    throw new BadRequestException(
+                        `IAE action references presentation config '${presentationConfigId}' which does not exist`,
+                    );
+                }
+            }
+        }
+    }
+
+    /**
      * Stores a credential configuration for a given tenant.
      * If the configuration already exists, it will be overwritten.
      * Automatically replaces image references with public URLs.
+     * Validates IAE action references.
      * @param tenantId - The ID of the tenant.
      * @param config - The CredentialConfig entity to store.
+     * @param skipValidation - Skip IAE action validation (used during file imports).
      * @returns A promise that resolves to the stored CredentialConfig entity.
      */
-    async store(tenantId: string, config: CredentialConfigCreate) {
+    async store(
+        tenantId: string,
+        config: CredentialConfigCreate,
+        skipValidation = false,
+    ) {
         await this.replaceImageReferences(tenantId, config);
+        if (!skipValidation) {
+            await this.validateIaeActions(tenantId, config);
+        }
         return this.credentialConfigRepository.save({
             ...config,
             tenantId,
@@ -196,6 +252,7 @@ export class CredentialConfigService {
      * Only updates fields that are provided in the config.
      * Set fields to null to clear them.
      * Automatically replaces image references with public URLs.
+     * Validates IAE action references.
      * @param tenantId - The ID of the tenant.
      * @param id - The ID of the CredentialConfig entity to update.
      * @param config - The partial CredentialConfig to update.
@@ -203,6 +260,7 @@ export class CredentialConfigService {
      */
     async update(tenantId: string, id: string, config: CredentialConfigUpdate) {
         await this.replaceImageReferences(tenantId, config);
+        await this.validateIaeActions(tenantId, config);
         const existing = await this.getById(tenantId, id);
         return this.credentialConfigRepository.save({
             ...existing,

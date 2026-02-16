@@ -31,9 +31,20 @@ docker compose version
 
 The fastest way to get EUDIPLO running for quick testing.
 
-### Start Services
+### Setup
 
-From the repository root:
+From the repository root, create an `.env` file with required credentials:
+
+```bash
+cp .env.example .env
+
+# Generate required credentials
+echo "MASTER_SECRET=$(openssl rand -base64 32)" >> .env
+echo "AUTH_CLIENT_ID=demo" >> .env
+echo "AUTH_CLIENT_SECRET=demo-secret" >> .env
+```
+
+### Start Services
 
 ```bash
 docker compose up -d
@@ -209,9 +220,12 @@ MINIO_ROOT_USER=minioadmin
 MINIO_ROOT_PASSWORD=minioadmin-secure-password
 
 # Application Secrets
-JWT_SECRET=your-secret-jwt-key-change-in-production
+MASTER_SECRET=your-secret-jwt-key-change-in-production
 AUTH_CLIENT_ID=your-client-id
 AUTH_CLIENT_SECRET=your-client-secret
+
+# Metrics Protection (optional but recommended)
+METRICS_TOKEN=your-metrics-bearer-token
 
 # Logging
 LOG_LEVEL=info
@@ -451,20 +465,23 @@ docker compose exec vault vault status
 
 Common environment variables:
 
-| Variable      | Description                          | Default                 |
-| ------------- | ------------------------------------ | ----------------------- |
-| `PUBLIC_URL`  | Public URL for OAuth redirects       | `http://localhost:3000` |
-| `NODE_ENV`    | Environment (development/production) | `development`           |
-| `DB_TYPE`     | Database type (postgres/sqlite)      | `postgres`              |
-| `DB_HOST`     | Database hostname                    | `database`              |
-| `DB_PORT`     | Database port                        | `5432`                  |
-| `DB_USERNAME` | Database username                    | -                       |
-| `DB_PASSWORD` | Database password                    | -                       |
-| `DB_DATABASE` | Database name                        | `eudiplo`               |
-| `VAULT_TOKEN` | Vault root token                     | -                       |
-| `VAULT_ADDR`  | Vault address                        | `http://vault:8200`     |
-| `JWT_SECRET`  | JWT signing secret                   | -                       |
-| `LOG_LEVEL`   | Logging level                        | `info`                  |
+| Variable             | Description                          | Default                 |
+| -------------------- | ------------------------------------ | ----------------------- |
+| `PUBLIC_URL`         | Public URL for OAuth redirects       | `http://localhost:3000` |
+| `NODE_ENV`           | Environment (development/production) | `development`           |
+| `DB_TYPE`            | Database type (postgres/sqlite)      | `postgres`              |
+| `DB_HOST`            | Database hostname                    | `database`              |
+| `DB_PORT`            | Database port                        | `5432`                  |
+| `DB_USERNAME`        | Database username                    | -                       |
+| `DB_PASSWORD`        | Database password                    | -                       |
+| `DB_DATABASE`        | Database name                        | `eudiplo`               |
+| `VAULT_TOKEN`        | Vault root token                     | -                       |
+| `VAULT_ADDR`         | Vault address                        | `http://vault:8200`     |
+| `MASTER_SECRET`      | Master secret for JWT and encryption | - (required)            |
+| `AUTH_CLIENT_ID`     | OAuth client ID                      | - (required)            |
+| `AUTH_CLIENT_SECRET` | OAuth client secret                  | - (required)            |
+| `METRICS_TOKEN`      | Bearer token for /metrics endpoint   | - (unprotected)         |
+| `LOG_LEVEL`          | Logging level                        | `info`                  |
 
 See [Configuration Documentation](../architecture/index.md) for complete list.
 
@@ -626,6 +643,133 @@ Before deploying to production:
 4. **Use secrets management** instead of `.env` files
 5. **Regular security updates** for all images
 6. **Enable Docker Content Trust** for image verification
+7. **Configure `ENCRYPTION_KEY_SOURCE=vault`** so the encryption key is only in RAM, not in environment variables (see [Encryption at Rest](../architecture/database.md#encryption-key-sources))
+
+### Secret Management Strategies
+
+EUDIPLO requires several secrets (database credentials, JWT secret, encryption key, etc.). While the quick-start uses `.env` files, production deployments should use proper secret management.
+
+#### Credential Categories
+
+| Secret                 | Risk Level | Dev/Test Approach | Production Approach                |
+| ---------------------- | ---------- | ----------------- | ---------------------------------- |
+| `DB_PASSWORD`          | High       | `.env` file       | Docker Secrets / Vault Agent       |
+| `MASTER_SECRET`        | Critical   | `.env` file       | Docker Secrets / Vault Agent       |
+| `AUTH_CLIENT_SECRET`   | Critical   | `.env` file       | Docker Secrets / Vault Agent       |
+| `S3_SECRET_ACCESS_KEY` | High       | `.env` file       | Docker Secrets / IAM Role          |
+| `ENCRYPTION_KEY`       | Critical   | `.env` file       | Application-level fetch (built-in) |
+
+#### Option 1: Docker Secrets (Docker Swarm)
+
+Docker Secrets provide encrypted secret storage for Swarm mode:
+
+```bash
+# Create secrets
+echo "your-db-password" | docker secret create db_password -
+echo "your-jwt-secret" | docker secret create master_secret -
+echo "your-auth-client-secret" | docker secret create auth_client_secret -
+```
+
+Reference in `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+services:
+    eudiplo:
+        image: eudiplo/backend:latest
+        secrets:
+            - db_password
+            - master_secret
+            - auth_client_secret
+        environment:
+            DB_PASSWORD_FILE: /run/secrets/db_password
+            MASTER_SECRET_FILE: /run/secrets/master_secret
+            AUTH_CLIENT_SECRET_FILE: /run/secrets/auth_client_secret
+
+secrets:
+    db_password:
+        external: true
+    master_secret:
+        external: true
+    auth_client_secret:
+        external: true
+```
+
+!!! note "File-based Secrets"
+Docker Secrets are mounted as files at `/run/secrets/<secret_name>`. The application reads secret values from these files at startup.
+
+#### Option 2: Vault Agent Sidecar
+
+Run HashiCorp Vault Agent alongside the application to inject secrets:
+
+```yaml
+services:
+    vault-agent:
+        image: hashicorp/vault:latest
+        command: agent -config=/vault/config/agent.hcl
+        volumes:
+            - vault-secrets:/vault/secrets
+            - ./vault-agent-config.hcl:/vault/config/agent.hcl:ro
+
+    eudiplo:
+        image: eudiplo/backend:latest
+        depends_on:
+            - vault-agent
+        volumes:
+            - vault-secrets:/vault/secrets:ro
+        environment:
+            DB_PASSWORD_FILE: /vault/secrets/db_password
+            MASTER_SECRET_FILE: /vault/secrets/master_secret
+
+volumes:
+    vault-secrets:
+```
+
+Vault Agent config (`vault-agent-config.hcl`):
+
+```hcl
+vault {
+  address = "https://vault.example.com:8200"
+}
+
+auto_auth {
+  method "approle" {
+    config = {
+      role_id_file_path   = "/vault/config/role-id"
+      secret_id_file_path = "/vault/config/secret-id"
+    }
+  }
+}
+
+template {
+  source      = "/vault/config/secrets.ctmpl"
+  destination = "/vault/secrets/env"
+}
+```
+
+#### Option 3: Environment File Encryption
+
+For simpler setups, encrypt the `.env` file at rest:
+
+```bash
+# Encrypt .env with age or sops
+age -e -r age1... .env > .env.encrypted
+
+# Decrypt at deployment time
+age -d .env.encrypted > .env
+docker compose up -d
+rm .env  # Remove plaintext immediately
+```
+
+#### Why Encryption Key Is Different
+
+The `ENCRYPTION_KEY` uses application-level fetching (via `ENCRYPTION_KEY_SOURCE`) because:
+
+1. **TypeORM Transformer Singleton**: The encryption transformer must be initialized before any database operations
+2. **Runtime-Only Access**: The key is fetched once at startup and kept only in memory
+3. **Built-in Support**: Configure `ENCRYPTION_KEY_SOURCE=vault` in the Full deployment to fetch the key from Vault at runtime
+
+For all other secrets, infrastructure-level injection (Docker Secrets, Vault Agent) is preferred.
 
 ### High Availability
 

@@ -15,6 +15,7 @@ import {
 import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
 import { AuthorizeQueries } from "../../issuer/issuance/oid4vci/authorize/dto/authorize-request.dto";
 import { OfferRequestDto } from "../../issuer/issuance/oid4vci/dto/offer-request.dto";
+import { EncryptedJsonTransformer } from "../../shared/utils/encryption";
 import { WebhookConfig } from "../../shared/utils/webhook/webhook.dto";
 import { TransactionData } from "../../verifier/presentations/entities/presentation-config.entity";
 
@@ -118,14 +119,16 @@ export class Session {
     request_uri?: string;
     /**
      * Authorization queries associated with the session.
+     * Encrypted at rest.
      */
-    @Column("json", { nullable: true })
+    @Column("text", { nullable: true, transformer: EncryptedJsonTransformer })
     auth_queries?: AuthorizeQueries;
 
     /**
      * Credential offer object containing details about the credential offer or presentation request.
+     * Encrypted at rest.
      */
-    @Column("json", { nullable: true })
+    @Column("text", { nullable: true, transformer: EncryptedJsonTransformer })
     offer?: CredentialOfferObject;
 
     /**
@@ -136,8 +139,9 @@ export class Session {
 
     /**
      * Credential payload containing the offer request details.
+     * Encrypted at rest - may contain sensitive claim data.
      */
-    @Column("json", { nullable: true })
+    @Column("text", { nullable: true, transformer: EncryptedJsonTransformer })
     credentialPayload?: OfferRequestDto;
     /**
      * Webhook configuration to send the result of the notification response.
@@ -172,8 +176,9 @@ export class Session {
 
     /**
      * Verified credentials from the presentation process.
+     * Encrypted at rest - contains personal information.
      */
-    @Column("json", { nullable: true })
+    @Column("text", { nullable: true, transformer: EncryptedJsonTransformer })
     credentials?: VerificationResult[];
 
     /**
@@ -212,4 +217,20 @@ export class Session {
      */
     @Column("json", { nullable: true })
     transaction_data?: TransactionData[];
+
+    // External authorization server fields (for wallet-initiated flows with external AS like Keycloak)
+
+    /**
+     * The issuer (iss) of the external authorization server token.
+     * Set when a wallet presents a token from an external AS.
+     */
+    @Column("varchar", { nullable: true })
+    externalIssuer?: string;
+
+    /**
+     * The subject (sub) from the external authorization server token.
+     * Used to identify the user at the external AS.
+     */
+    @Column("varchar", { nullable: true })
+    externalSubject?: string;
 }

@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { InjectRepository } from "@nestjs/typeorm";
 import { InjectMetric } from "@willsoto/nestjs-prometheus/dist/injector";
@@ -9,6 +10,10 @@ import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity
 import { SessionCleanupMode } from "../auth/tenant/entitites/session-storage-config";
 import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
 import { Session, SessionStatus } from "./entities/session.entity";
+import {
+    SESSION_STATUS_CHANGED,
+    SessionStatusChangedEvent,
+} from "./session-events.service";
 
 @Injectable()
 export class SessionService implements OnApplicationBootstrap {
@@ -21,6 +26,7 @@ export class SessionService implements OnApplicationBootstrap {
         private readonly tenantRepository: Repository<TenantEntity>,
         private readonly configService: ConfigService,
         private readonly schedulerRegistry: SchedulerRegistry,
+        private readonly eventEmitter: EventEmitter2,
         @InjectMetric("sessions")
         private readonly sessionsCounter: Gauge<string>,
     ) {}
@@ -101,6 +107,7 @@ export class SessionService implements OnApplicationBootstrap {
 
     /**
      * Marks the session as successful or failed.
+     * Emits a session status change event for SSE subscribers.
      * @param session
      * @param status
      */
@@ -108,6 +115,15 @@ export class SessionService implements OnApplicationBootstrap {
         const sessionType = session.requestId ? "verification" : "issuance";
 
         await this.sessionRepository.update({ id: session.id }, { status });
+
+        // Emit status change event for SSE subscribers
+        const event: SessionStatusChangedEvent = {
+            sessionId: session.id,
+            status,
+            updatedAt: new Date(),
+            session: { ...session, status },
+        };
+        this.eventEmitter.emit(SESSION_STATUS_CHANGED, event);
 
         // Count completed sessions (success or failure)
         this.sessionsCounter.inc({
@@ -254,5 +270,50 @@ export class SessionService implements OnApplicationBootstrap {
      */
     delete(id: string, sub: string): Promise<any> {
         return this.sessionRepository.delete({ id, tenantId: sub });
+    }
+
+    /**
+     * Find or create a session by external authorization server identity.
+     * Used for wallet-initiated flows where the wallet presents a token from an external AS (e.g., Keycloak).
+     * @param tenantId The tenant ID
+     * @param externalIssuer The issuer (iss) from the external AS token
+     * @param externalSubject The subject (sub) from the external AS token
+     * @returns The existing or newly created session
+     */
+    async findOrCreateByExternalIdentity(
+        tenantId: string,
+        externalIssuer: string,
+        externalSubject: string,
+    ): Promise<Session> {
+        // Try to find existing session by external identity
+        const existingSession = await this.sessionRepository.findOne({
+            where: {
+                tenantId,
+                externalIssuer,
+                externalSubject,
+                status: SessionStatus.Active,
+            },
+        });
+
+        if (existingSession) {
+            return existingSession;
+        }
+
+        // Create new session for external identity
+        const { v4: uuidv4 } = await import("uuid");
+        const newSession = await this.create({
+            id: uuidv4(),
+            tenantId,
+            externalIssuer,
+            externalSubject,
+            status: SessionStatus.Active,
+            notifications: [],
+        });
+
+        this.logger.log(
+            `Created session for external identity: iss=${externalIssuer}, sub=${externalSubject}`,
+        );
+
+        return newSession;
     }
 }

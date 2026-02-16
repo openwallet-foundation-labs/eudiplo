@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InteractiveAuthorizationErrorResponseDto.schema.json",
+  "title": "InteractiveAuthorizationErrorResponseDto",
+  "type": "object",
+  "properties": {
+    "error": {
+      "type": "string",
+      "description": "OAuth error code",
+      "example": "invalid_request"
+    },
+    "error_description": {
+      "type": "string",
+      "description": "Human-readable error description",
+      "example": "Missing required parameter: interaction_types_supported"
+    }
+  },
+  "required": [
+    "error"
+  ]
+}

@@ -47,6 +47,29 @@ export interface ClaimsWebhookResult {
 }
 
 /**
+ * Context for external AS webhook requests.
+ * Contains all the information needed to identify and fetch claims for a user authenticated via external AS.
+ */
+export interface ExternalAsClaimsContext {
+    /**
+     * The issuer (iss) of the external authorization server
+     */
+    iss: string;
+    /**
+     * The subject (sub) from the external AS token - user identifier
+     */
+    sub: string;
+    /**
+     * The credential configuration ID being requested
+     */
+    credential_configuration_id: string;
+    /**
+     * Additional claims from the access token (e.g., email, preferred_username if included by AS)
+     */
+    token_claims: Record<string, unknown>;
+}
+
+/**
  * Service for managing credentials and their configurations.
  * Delegates actual credential issuance to format-specific services.
  */
@@ -70,6 +93,19 @@ export class CredentialsService {
         private readonly mdocIssuerService: MdocIssuerService,
         private readonly cryptoImplementationService: CryptoImplementationService,
     ) {}
+
+    /**
+     * Returns a single credential configuration by ID.
+     * @param id The credential configuration ID
+     * @param tenantId The tenant ID
+     * @returns The credential configuration or null if not found
+     */
+    async getCredentialConfig(
+        id: string,
+        tenantId: string,
+    ): Promise<CredentialConfig | null> {
+        return this.credentialConfigRepo.findOneBy({ id, tenantId });
+    }
 
     /**
      * Returns the credential configuration that is required for oid4vci
@@ -311,6 +347,75 @@ export class CredentialsService {
         }
 
         return Promise.resolve(undefined);
+    }
+
+    /**
+     * Fetches claims for a credential when the access token is from an external authorization server.
+     * This is used for wallet-initiated flows where the wallet authenticates directly with an external AS
+     * (e.g., Keycloak) and presents that token to EUDIPLO's credential endpoint.
+     *
+     * The webhook receives enriched context including the external AS issuer, subject, and token claims
+     * to enable proper identity mapping and claims resolution.
+     *
+     * @param context The external AS context (iss, sub, credential_configuration_id, token_claims)
+     * @param session The session associated with this request
+     * @returns The fetched claims result or throws if webhook is not configured
+     */
+    async getClaimsFromExternalAsWebhook(
+        context: ExternalAsClaimsContext,
+        session: Session,
+    ): Promise<ClaimsWebhookResult> {
+        // For external AS flows, we require a webhook on the credential configuration
+        const credentialConfiguration =
+            await this.credentialConfigRepo.findOneBy({
+                tenantId: session.tenantId,
+                id: context.credential_configuration_id,
+            });
+
+        if (!credentialConfiguration) {
+            throw new ConflictException(
+                `Credential configuration '${context.credential_configuration_id}' not found`,
+            );
+        }
+
+        const webhook = credentialConfiguration.claimsWebhook;
+        if (!webhook) {
+            throw new ConflictException(
+                `External AS flow requires claimsWebhook to be configured on credential '${context.credential_configuration_id}'. ` +
+                    `The webhook receives { iss, sub, credential_configuration_id, token_claims } to resolve claims.`,
+            );
+        }
+
+        const logContext: SessionLogContext = {
+            sessionId: session.id,
+            tenantId: session.tenantId,
+            flowType: "OID4VCI",
+            stage: "fetching-claims-external-as",
+        };
+
+        // Send webhook with external AS context
+        const response = await this.webhookService.sendExternalAsWebhook({
+            webhook,
+            logContext,
+            context,
+        });
+
+        // Check if the webhook response indicates deferred issuance
+        if (response.deferred) {
+            return {
+                deferred: true,
+                interval: response.interval ?? 5,
+            };
+        }
+
+        // Return claims for immediate issuance
+        return {
+            deferred: false,
+            claims: response[context.credential_configuration_id] as Record<
+                string,
+                any
+            >,
+        };
     }
 
     /**

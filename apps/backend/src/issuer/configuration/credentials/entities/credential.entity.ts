@@ -6,6 +6,7 @@ import {
 } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
+    IsArray,
     IsBoolean,
     IsEnum,
     IsNumber,
@@ -20,6 +21,13 @@ import { CertEntity } from "../../../../crypto/key/entities/cert.entity";
 import { WebhookConfig } from "../../../../shared/utils/webhook/webhook.dto";
 import { SchemaResponse } from "../../../issuance/oid4vci/metadata/dto/schema-response.dto";
 import { VCT } from "../../../issuance/oid4vci/metadata/dto/vct.dto";
+import {
+    IaeAction,
+    IaeActionBase,
+    IaeActionOpenid4vpPresentation,
+    IaeActionRedirectToWeb,
+    IaeActionType,
+} from "./iae-action.dto";
 import {
     AllowListPolicy,
     AttestationBasedPolicy,
@@ -108,6 +116,8 @@ export class IssuerMetadataCredentialConfig {
     AllowListPolicy,
     RootOfTrustPolicy,
     VCT,
+    IaeActionOpenid4vpPresentation,
+    IaeActionRedirectToWeb,
 )
 @Entity()
 export class CredentialConfig {
@@ -203,6 +213,57 @@ export class CredentialConfig {
     @Column("boolean", { default: false })
     @IsBoolean()
     statusManagement?: boolean;
+
+    /**
+     * List of Interactive Authorization Endpoint (IAE) actions to execute
+     * before credential issuance. Actions are executed in order.
+     *
+     * Each action can be:
+     * - `openid4vp_presentation`: Request a verifiable presentation from the wallet
+     * - `redirect_to_web`: Redirect user to a web page for additional interaction
+     *
+     * If empty or not set, no interactive authorization is required.
+     *
+     * @example
+     * [
+     *   { "type": "openid4vp_presentation", "presentationConfigId": "pid-config" },
+     *   { "type": "redirect_to_web", "url": "https://example.com/verify", "label": "Additional Verification" }
+     * ]
+     */
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => IaeActionBase, {
+        discriminator: {
+            property: "type",
+            subTypes: [
+                {
+                    name: IaeActionType.OPENID4VP_PRESENTATION,
+                    value: IaeActionOpenid4vpPresentation,
+                },
+                {
+                    name: IaeActionType.REDIRECT_TO_WEB,
+                    value: IaeActionRedirectToWeb,
+                },
+            ],
+        },
+        keepDiscriminatorProperty: true,
+    })
+    @ApiProperty({
+        description:
+            "List of IAE actions to execute before credential issuance",
+        type: "array",
+        items: {
+            oneOf: [
+                { $ref: getSchemaPath(IaeActionOpenid4vpPresentation) },
+                { $ref: getSchemaPath(IaeActionRedirectToWeb) },
+            ],
+        },
+        nullable: true,
+        required: false,
+    })
+    @Column("json", { nullable: true })
+    iaeActions?: IaeAction[] | null;
 
     @IsOptional()
     @Column("int", { nullable: true })

@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
+import { EventEmitterModule } from "@nestjs/event-emitter";
 import { MulterModule } from "@nestjs/platform-express";
 import { ScheduleModule } from "@nestjs/schedule";
 import { memoryStorage } from "multer";
@@ -14,6 +15,7 @@ import { RegistrarModule } from "./registrar/registrar.module";
 import { SessionModule } from "./session/session.module";
 import { ConfigImportModule } from "./shared/utils/config-import/config-import.module";
 import { VALIDATION_SCHEMA } from "./shared/utils/config-printer/combined.schema";
+import { EncryptionModule } from "./shared/utils/encryption/encryption.module";
 import { createLoggerOptions } from "./shared/utils/logger/logger.factory";
 import { StorageModule } from "./storage/storage.module";
 import { VerifierModule } from "./verifier/verifier.module";
@@ -25,11 +27,15 @@ import { VerifierModule } from "./verifier/verifier.module";
             isGlobal: true,
             expandVariables: true,
         }),
+        EventEmitterModule.forRoot(),
         LoggerModule.forRootAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
             useFactory: createLoggerOptions,
         }),
+        // EncryptionModule must be imported early to initialize transformers
+        // before TypeORM entities are loaded
+        EncryptionModule,
         CoreModule,
         AuthModule,
         KeyModule.forRoot(),

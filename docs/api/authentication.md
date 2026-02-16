@@ -108,10 +108,11 @@ PUBLIC_URL=https://your-api.example.com
 
 ```bash
 # Leave OIDC undefined for integrated OAuth2 server
+# All three values below are REQUIRED
 PUBLIC_URL=https://your-api.example.com
-JWT_SECRET=your-secret-key-here-minimum-32-characters
-AUTH_CLIENT_ID=root
-AUTH_CLIENT_SECRET=root
+MASTER_SECRET=your-secret-key-here-minimum-32-characters
+AUTH_CLIENT_ID=your-client-id
+AUTH_CLIENT_SECRET=your-client-secret
 ```
 
 !!! tip "Security: Secrets are hashed"
@@ -161,7 +162,7 @@ curl -X POST http://localhost:3000/clients \
 
 This client can only:
 
-- Create presentation offers for `age-verification` and `identity-check` configs
+- Create presentation requests for `age-verification` and `identity-check` configs
 - Create issuance offers for `partner-credential` config
 
 If the client attempts to use a config not in their allowed list, a `403 Forbidden` error is returned.
@@ -184,7 +185,7 @@ If the client attempts to use a config not in their allowed list, a `403 Forbidd
 
 ### Integrated OAuth2 Server Issues
 
-1. Verify `JWT_SECRET` is at least 32 characters
+1. Verify `MASTER_SECRET` is at least 32 characters
 2. Ensure client credentials (`AUTH_CLIENT_ID`/`AUTH_CLIENT_SECRET`) are
    configured correctly
 3. Check that `PUBLIC_URL` is accessible for OAuth2 flows

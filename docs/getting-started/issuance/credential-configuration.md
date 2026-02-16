@@ -56,6 +56,7 @@ For a complete configuration example, see the [Complete Configuration Example](#
 - `disclosureFrame`: **OPTIONAL** - Defines which claims should be selectively
   disclosable in SD-JWT format.
 - `embeddedDisclosurePolicy`: **OPTIONAL** - Defines the embedded disclosure policy for the credential. See [Embedded Disclosure Policy](#embedded-disclosure-policy) for details.
+- `iaeActions`: **OPTIONAL** - Sequence of Interactive Authorization actions required before credential issuance. See [Interactive Authorization Actions](#interactive-authorization-actions) for details.
 - `schema`: **OPTIONAL** - JSON schema for validating the credential claims.
 
 ---
@@ -544,6 +545,67 @@ When policy is set to `attestationBased`, only relying parties that can present 
     ]
 }
 ```
+
+---
+
+## Interactive Authorization Actions
+
+The `iaeActions` field allows you to define a sequence of authorization steps that must be completed before credential issuance. This is useful for:
+
+- **Identity verification** – Request a verifiable presentation from the wallet
+- **Web-based verification** – Redirect users to complete forms, payments, or external KYC
+- **Multi-step workflows** – Combine multiple actions in sequence
+
+For a complete overview of the Interactive Authorization Endpoint, see [IAE Architecture](../../architecture/iae.md).
+
+### Configuration
+
+```json
+{
+    "iaeActions": [
+        {
+            "type": "openid4vp_presentation",
+            "label": "Identity Verification",
+            "presentationConfigId": "pid-presentation-config"
+        },
+        {
+            "type": "redirect_to_web",
+            "label": "Complete Registration",
+            "url": "https://example.com/register?session={auth_session}",
+            "description": "Please complete the registration form"
+        }
+    ]
+}
+```
+
+### Supported Action Types
+
+| Action Type              | Description                                                       |
+| ------------------------ | ----------------------------------------------------------------- |
+| `openid4vp_presentation` | Request a verifiable presentation from the wallet using OpenID4VP |
+| `redirect_to_web`        | Redirect user to a web page for additional interaction            |
+
+### OpenID4VP Presentation Action
+
+| Field                  | Required | Description                                 |
+| ---------------------- | -------- | ------------------------------------------- |
+| `type`                 | Yes      | Must be `"openid4vp_presentation"`          |
+| `label`                | No       | Display label for this step                 |
+| `presentationConfigId` | Yes      | ID of the presentation configuration to use |
+
+### Redirect to Web Action
+
+| Field         | Required | Description                                                |
+| ------------- | -------- | ---------------------------------------------------------- |
+| `type`        | Yes      | Must be `"redirect_to_web"`                                |
+| `label`       | No       | Display label for this step                                |
+| `url`         | Yes      | URL to redirect to (supports `{auth_session}` placeholder) |
+| `callbackUrl` | No       | URL for the external service to redirect back to           |
+| `description` | No       | Instructions for the user (displayed in wallet)            |
+
+!!! tip "Fallback Behavior"
+
+    If no `iaeActions` are configured, EUDIPLO falls back to the wallet's `interaction_types_supported` preference when using the authorization code flow.
 
 ---
 

@@ -101,6 +101,309 @@ The response with the credential offer link will also provide the session ID. It
 
 ---
 
+## Supported Issuance Flows
+
+EUDIPLO supports three authentication patterns for OID4VCI credential issuance. Each pattern serves different use cases depending on how users are identified and authenticated.
+
+### Quick Reference
+
+| Authentication Pattern               | User is Known | User Authentication                              | Initiator        | Claims Source      |
+| ------------------------------------ | ------------- | ------------------------------------------------ | ---------------- | ------------------ |
+| **Pre-authorized code**              | Yes           | Already authenticated (before offer)             | Issuer only      | Offer or Webhook   |
+| **Authorization code + External AS** | No            | OIDC login at external IdP                       | Issuer or Wallet | Webhook (required) |
+| **Interactive Authorization (IAE)**  | No            | Credential presentation (OID4VP) or web redirect | Issuer or Wallet | Webhook (required) |
+
+### Understanding the Three Dimensions
+
+#### 1. Authentication Pattern (How is the user identified?)
+
+- **Pre-authorized code**: User was already authenticated _before_ the OID4VCI flow starts. You know who they are and can include their claims in the offer.
+- **Authorization code + External AS**: User authenticates during the flow at an external Identity Provider (Keycloak, Azure AD, Okta) via OIDC.
+- **Interactive Authorization (IAE)**: User proves their identity by presenting an existing credential (OID4VP) or completing a web-based flow.
+
+#### 2. Initiator (Who starts the flow?)
+
+- **Issuer-initiated**: The issuer creates an offer URI and presents it to the user (QR code, email link, push notification). Used when you want to proactively issue credentials.
+- **Wallet-initiated**: The wallet discovers available credentials via issuer metadata and initiates the request. Used for self-service scenarios where users browse available credentials.
+
+!!! info "Pre-authorized code is issuer-initiated only"
+Since the user must be known before creating the offer, pre-authorized code flows are always issuer-initiated. The other patterns support both.
+
+#### 3. Claims Source (Where do credential claims come from?)
+
+- **In the offer**: Claims are embedded in the credential offer when it's created. Only possible when the user is known upfront (pre-authorized code flow).
+- **Via webhook**: EUDIPLO calls your backend to fetch claims based on user identity information. Required when user identity is established during the flow.
+
+---
+
+### Flow Details
+
+#### Pre-authorized Code Flow
+
+**Use when:** You already know who the user is before starting the issuance flow.
+
+```mermaid
+sequenceDiagram
+    participant Portal as Your Portal
+    participant EUDIPLO
+    participant Wallet
+
+    Portal->>Portal: User authenticates
+    Portal->>EUDIPLO: Create offer with claims
+    EUDIPLO-->>Portal: Offer URI + QR code
+    Portal->>Wallet: Display QR / Send link
+    Wallet->>EUDIPLO: Redeem offer
+    EUDIPLO->>Wallet: Credential
+```
+
+**Examples:**
+
+- Employee onboarding portal creates badge credential after HR verification
+- University issues diploma after graduation is confirmed
+- Government portal issues ID after identity verification process
+
+**Configuration:**
+
+```json
+{
+    "claims": {
+        "given_name": "Alice",
+        "family_name": "Smith",
+        "employee_id": "EMP-12345"
+    }
+}
+```
+
+Or use a webhook if you don't want to embed claims in the offer:
+
+```json
+{
+    "claimsWebhook": {
+        "url": "https://your-service.example.com/claims"
+    }
+}
+```
+
+---
+
+#### Authorization Code Flow with External AS
+
+**Use when:** You have an existing Identity Provider and want users to authenticate via OIDC.
+
+```mermaid
+sequenceDiagram
+    participant Wallet
+    participant EUDIPLO
+    participant Keycloak as External AS (Keycloak)
+    participant Backend as Your Backend
+
+    alt Issuer-initiated
+        EUDIPLO->>Wallet: Credential offer
+    else Wallet-initiated
+        Wallet->>EUDIPLO: Discover metadata
+    end
+    Wallet->>Keycloak: Authorization request
+    Keycloak->>Keycloak: User login (OIDC)
+    Keycloak-->>Wallet: Authorization code
+    Wallet->>Keycloak: Token request
+    Keycloak-->>Wallet: Access token
+    Wallet->>EUDIPLO: Credential request + token
+    EUDIPLO->>EUDIPLO: Verify token against AS
+    EUDIPLO->>Backend: Webhook (iss, sub, token_claims)
+    Backend-->>EUDIPLO: Claims for credential
+    EUDIPLO-->>Wallet: Credential
+```
+
+**Examples:**
+
+- Enterprise deployment where employees authenticate via corporate Keycloak
+- Multi-tenant SaaS where each tenant uses their own IdP
+- Wallet-initiated flows where users browse available credentials
+
+**Configuration:**
+
+- Configure external authorization servers in issuance config:
+
+```json
+{
+    "authServers": ["https://keycloak.example.com/realms/myrealm"],
+    "dPopRequired": true
+}
+```
+
+- Configure claims webhook on the credential configuration:
+
+```json
+{
+    "claimsWebhook": {
+        "url": "https://your-service.example.com/claims",
+        "auth": {
+            "type": "apiKey",
+            "config": {
+                "headerName": "X-API-Key",
+                "value": "your-secret-key"
+            }
+        }
+    }
+}
+```
+
+Your webhook receives:
+
+```json
+{
+    "iss": "https://keycloak.example.com/realms/myrealm",
+    "sub": "user-uuid-from-keycloak",
+    "credential_configuration_id": "EmployeeBadge",
+    "token_claims": {
+        "email": "user@example.com",
+        "preferred_username": "jdoe"
+    }
+}
+```
+
+---
+
+#### Interactive Authorization Endpoint (IAE)
+
+**Use when:** You want users to prove their identity by presenting an existing credential or completing a web-based verification.
+
+The IAE supports two interaction types:
+
+| Interaction Type         | Description                                       | Use Case                                          |
+| ------------------------ | ------------------------------------------------- | ------------------------------------------------- |
+| `openid4vp_presentation` | User presents an existing credential via OID4VP   | Issue derived credentials based on existing ones  |
+| `redirect_to_web`        | User is redirected to a web page for verification | Custom verification flows, OIDC login, form entry |
+
+##### OID4VP Presentation Flow
+
+```mermaid
+sequenceDiagram
+    participant Wallet
+    participant EUDIPLO
+    participant Backend as Your Backend
+
+    Wallet->>EUDIPLO: Interactive authorization request
+    EUDIPLO-->>Wallet: Presentation request (OID4VP)
+    Wallet->>Wallet: User selects credential
+    Wallet->>EUDIPLO: Presentation response
+    EUDIPLO->>EUDIPLO: Verify presentation
+    EUDIPLO->>Backend: Webhook with presentation data
+    Backend-->>EUDIPLO: Claims for new credential
+    EUDIPLO-->>Wallet: Authorization code
+    Wallet->>EUDIPLO: Token request
+    EUDIPLO-->>Wallet: Access token
+    Wallet->>EUDIPLO: Credential request
+    EUDIPLO-->>Wallet: New credential
+```
+
+**Examples:**
+
+- Issue a loyalty card credential based on a presented membership credential
+- Issue a student discount credential based on a university ID credential
+- Age verification: issue age attestation based on presented ID
+
+**Configuration:**
+
+Configure IAE action on the credential configuration:
+
+```json
+{
+    "iaeAction": {
+        "type": "openid4vp_presentation",
+        "presentationDefinition": {
+            "id": "verify-membership",
+            "input_descriptors": [
+                {
+                    "id": "membership-credential",
+                    "constraints": {
+                        "fields": [
+                            {
+                                "path": ["$.vct"],
+                                "filter": {
+                                    "type": "string",
+                                    "const": "MembershipCredential"
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "claimsWebhook": {
+        "url": "https://your-service.example.com/iae-claims"
+    }
+}
+```
+
+##### Redirect to Web Flow
+
+```mermaid
+sequenceDiagram
+    participant Wallet
+    participant EUDIPLO
+    participant WebApp as Your Web App
+
+    Wallet->>EUDIPLO: Interactive authorization request
+    EUDIPLO-->>Wallet: Redirect URL
+    Wallet->>WebApp: Open browser
+    WebApp->>WebApp: User completes verification
+    WebApp->>EUDIPLO: Callback with result
+    EUDIPLO-->>Wallet: Authorization code
+    Wallet->>EUDIPLO: Token + Credential requests
+    EUDIPLO-->>Wallet: Credential
+```
+
+**Examples:**
+
+- Custom OIDC login flow with additional verification steps
+- Payment verification before issuing premium credentials
+- Terms acceptance or consent collection
+
+**Configuration:**
+
+```json
+{
+    "iaeAction": {
+        "type": "redirect_to_web",
+        "redirectUrl": "https://your-app.example.com/verify",
+        "callbackUrl": "https://issuer.example.com/{tenantId}/authorize/interactive/callback"
+    }
+}
+```
+
+---
+
+### Decision Flowchart
+
+```mermaid
+flowchart TD
+    A[Starting credential issuance] --> B{Do you know the user<br/>before the flow starts?}
+
+    B -->|Yes| C[Pre-authorized code flow]
+    B -->|No| D{How should the user<br/>prove their identity?}
+
+    D -->|Login at existing IdP| E[Authorization code + External AS]
+    D -->|Present existing credential| F[IAE: openid4vp_presentation]
+    D -->|Custom web verification| G[IAE: redirect_to_web]
+
+    C --> H{Where are claims?}
+    H -->|Known at offer creation| I[Include claims in offer]
+    H -->|Need to fetch later| J[Use webhook]
+
+    E --> K[Webhook required]
+    F --> L[Webhook required]
+    G --> M[Webhook required]
+
+    style C fill:#90EE90
+    style E fill:#87CEEB
+    style F fill:#DDA0DD
+    style G fill:#DDA0DD
+```
+
+---
+
 ## Deferred Credential Issuance
 
 EUDIPLO supports **deferred credential issuance** for scenarios where credentials cannot be issued immediately. This is useful when:

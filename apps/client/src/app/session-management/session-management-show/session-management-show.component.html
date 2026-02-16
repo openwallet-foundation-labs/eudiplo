@@ -3,7 +3,17 @@
     <!-- Header with navigation -->
     <div fxLayout="row" fxLayoutAlign="space-between center">
       <h2>Session Details: {{ session.id }}</h2>
-      <div>
+      <div fxLayout="row" fxLayoutGap="8px">
+        @if (canRecreateOffer()) {
+          <button
+            mat-button
+            (click)="recreateOffer()"
+            matTooltip="Create a new offer with the same parameters"
+          >
+            <mat-icon>replay</mat-icon>
+            Recreate Offer
+          </button>
+        }
         <button matIconButton (click)="goBack()" matTooltip="Go back">
           <mat-icon>arrow_back</mat-icon>
         </button>
@@ -108,7 +118,7 @@
             @if (isIssuanceSession()) {
               Issuance Offer QR Code
             } @else {
-              Presentation Offer QR Code
+              Presentation Request QR Code
             }
           }
         </mat-card-title>

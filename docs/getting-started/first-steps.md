@@ -50,20 +50,21 @@ flowchart TD
 1. Open the Web Client at **<http://localhost:4200>**
 2. Enter:
     - **EUDIPLO Instance**: `http://localhost:3000`
-    - **Client ID**: `root`
-    - **Client Secret**: `root`
+    - **Client ID**: Your configured `AUTH_CLIENT_ID`
+    - **Client Secret**: Your configured `AUTH_CLIENT_SECRET`
 3. Click **Login**
 
-!!! info "Root credentials are configured via environment variables"
+!!! warning "Credentials are REQUIRED"
 
-    The default credentials (`root`/`root`) come from these environment variables:
+    You must set these environment variables before starting the service:
 
     ```env
-    AUTH_CLIENT_ID=root
-    AUTH_CLIENT_SECRET=root
+    AUTH_CLIENT_ID=your-client-id
+    AUTH_CLIENT_SECRET=your-client-secret
+    MASTER_SECRET=your-32-character-minimum-secret
     ```
 
-    Change these in production! See [Authentication](../api/authentication.md) for details.
+    The application will fail to start without these values. See [Authentication](../api/authentication.md) for details.
 
 ---
 

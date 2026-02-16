@@ -18,8 +18,8 @@ Credential presentation enables verifiers to:
 - **Support multiple presentation flows** for different use cases
 
 EUDIPLO supports both standalone presentation flows and
-presentation-during-issuance scenarios, providing flexibility for various
-business requirements.
+presentation as part of credential issuance via the [Interactive Authorization Endpoint (IAE)](../../architecture/iae.md),
+providing flexibility for various business requirements.
 
 ---
 
@@ -34,10 +34,11 @@ EUDIPLO supports multiple presentation scenarios:
     - Used for access control and identity verification
     - Returns verified claims to the requesting service
 
-- Presentation During Issuance
-    - Credentials presented as prerequisites for new credential issuance
+- Presentation via Interactive Authorization (IAE)
+    - Credentials presented as part of the issuance authorization flow
     - Enables qualification-based credential issuance
-    - Supports complex identity verification workflows
+    - Supports multi-step workflows combining presentations with web-based verification
+    - See [Interactive Authorization Endpoint](../../architecture/iae.md) for details
 
 ### DCQL (Digital Credentials Query Language)
 
@@ -112,32 +113,33 @@ sequenceDiagram
     EUDIPLO->>Verifier: Send verified claims (webhook)
 ```
 
-### Presentation During Issuance
+### Presentation via Interactive Authorization (IAE)
 
-!!! Info
-
-    Presentation during issuance is temporarily removed to be aligned with the latest OID4VCI spec. It will be reintroduced in a future release.
+The Interactive Authorization Endpoint enables presentation requests as part of credential issuance.
+This flow uses OID4VCI 1.1's authorization code flow with interactive authorization.
 
 ```mermaid
 sequenceDiagram
     actor User
     participant Wallet
-    participant Issuer
     participant EUDIPLO
+    participant Backend as Your Backend
 
-    Issuer->>EUDIPLO: Request credential issuance
-    EUDIPLO-->>Issuer: Return offer URI
-    Issuer->>User: Present offer
-    User->>Wallet: Accept offer
-    Wallet->>EUDIPLO: Start issuance flow
-    EUDIPLO->>Wallet: Request presentation first
+    Wallet->>EUDIPLO: Authorization Request (interaction_types_supported)
+    EUDIPLO-->>Wallet: IAE Response (openid4vp)
     Wallet->>User: Request presentation consent
     User->>Wallet: Approve presentation
-    Wallet->>EUDIPLO: Submit required credentials
-    EUDIPLO->>Issuer: Send verified claims
-    Issuer->>EUDIPLO: Provide issuance data
-    EUDIPLO->>Wallet: Issue new credential
+    Wallet->>EUDIPLO: Submit OpenID4VP presentation
+    EUDIPLO->>Backend: Claims webhook (verified claims)
+    Backend-->>EUDIPLO: Return issuance claims
+    EUDIPLO-->>Wallet: Authorization Code
+    Wallet->>EUDIPLO: Token Request
+    EUDIPLO-->>Wallet: Access Token
+    Wallet->>EUDIPLO: Credential Request
+    EUDIPLO-->>Wallet: Issued Credential
 ```
+
+For multi-step flows and configuration details, see [Interactive Authorization Endpoint](../../architecture/iae.md).
 
 ---
 

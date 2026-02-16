@@ -61,14 +61,20 @@ Curious about EUDIPLO? Check out our recorded webinar (September 17, 2025) for a
 
 ### Demo Setup (Easiest)
 
-For quick testing and demos, you can run EUDIPLO with minimal configuration:
+For quick testing and demos:
 
 ```bash
 # Clone the repository
 git clone https://github.com/openwallet-foundation-labs/eudiplo.git
 cd eudiplo
 
-# Start with default demo credentials (includes security warnings)
+# Create .env with demo credentials
+cp .env.example .env
+echo "MASTER_SECRET=$(openssl rand -base64 32)" >> .env
+echo "AUTH_CLIENT_ID=demo" >> .env
+echo "AUTH_CLIENT_SECRET=demo-secret" >> .env
+
+# Start services
 docker compose up -d
 
 # Access the services
@@ -76,7 +82,7 @@ docker compose up -d
 # Client UI: http://localhost:4200
 ```
 
-⚠️ **Demo mode uses default credentials** - perfect for testing, but change them for production!
+⚠️ **Remember to change credentials for production!**
 
 ### Option 1: Using Docker Compose (Recommended for Production)
 
@@ -86,8 +92,9 @@ git clone https://github.com/openwallet-foundation-labs/eudiplo.git
 cd eudiplo
 cp .env.example .env
 
-# Configure secure authentication
-echo "JWT_SECRET=$(openssl rand -base64 32)" >> .env
+# Configure secure authentication (all three are REQUIRED)
+echo "MASTER_SECRET=$(openssl rand -base64 32)" >> .env
+echo "AUTH_CLIENT_ID=my-client" >> .env
 echo "AUTH_CLIENT_SECRET=$(openssl rand -base64 24)" >> .env
 
 # Start both backend and client with Docker Compose
@@ -104,8 +111,9 @@ docker compose up -d
 # Run just the backend
 docker run -p 3000:3000 \
   -e PUBLIC_URL=https://example.com \
-  -e JWT_SECRET=your-32-character-secret \
-  -e AUTH_CLIENT_SECRET=your-issuer-secret \
+  -e MASTER_SECRET=your-32-character-secret \
+  -e AUTH_CLIENT_ID=your-client-id \
+  -e AUTH_CLIENT_SECRET=your-client-secret \
   -v $(pwd)/assets:/app/config \
   ghcr.io/openwallet-foundation-labs/eudiplo:latest
 
@@ -132,11 +140,12 @@ pnpm --filter @eudiplo/client run dev
 
 ```bash
 # Get a token and start using the API
+# Replace with your configured AUTH_CLIENT_ID and AUTH_CLIENT_SECRET
 curl -X POST http://localhost:3000/oauth2/token \
   -H "Content-Type: application/json" \
   -d '{
-    "client_id": "root",
-    "client_secret": "root"
+    "client_id": "your-client-id",
+    "client_secret": "your-client-secret"
   }'
 ```
 

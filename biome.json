@@ -35,6 +35,9 @@
         "enabled": true,
         "rules": {
             "recommended": false,
+            "correctness": {
+                "noUnusedImports": "warn"
+            },
             "style": {
                 "useImportType": "off"
             }

@@ -302,6 +302,7 @@ export type KeyEntity = {
   tenant: TenantEntity;
   /**
    * The key material.
+   * Encrypted at rest using AES-256-GCM.
    */
   key: {
     [key: string]: unknown;
@@ -720,10 +721,12 @@ export type Session = {
   request_uri?: string;
   /**
    * Authorization queries associated with the session.
+   * Encrypted at rest.
    */
   auth_queries?: AuthorizeQueries;
   /**
    * Credential offer object containing details about the credential offer or presentation request.
+   * Encrypted at rest.
    */
   offer?: {
     [key: string]: unknown;
@@ -734,6 +737,7 @@ export type Session = {
   offerUrl?: string;
   /**
    * Credential payload containing the offer request details.
+   * Encrypted at rest - may contain sensitive claim data.
    */
   credentialPayload?: OfferRequestDto;
   /**
@@ -757,6 +761,7 @@ export type Session = {
   requestObject?: string;
   /**
    * Verified credentials from the presentation process.
+   * Encrypted at rest - contains personal information.
    */
   credentials?: Array<{
     [key: string]: unknown;
@@ -998,6 +1003,44 @@ export type Vct = {
   "schema_uri#integrity"?: string;
 };
 
+export type IaeActionOpenid4VpPresentation = {
+  /**
+   * Action type discriminator
+   */
+  type: "openid4vp_presentation";
+  /**
+   * Optional label for this step (for display purposes)
+   */
+  label?: string;
+  /**
+   * ID of the presentation configuration to use for this step
+   */
+  presentationConfigId: string;
+};
+
+export type IaeActionRedirectToWeb = {
+  /**
+   * Action type discriminator
+   */
+  type: "redirect_to_web";
+  /**
+   * Optional label for this step (for display purposes)
+   */
+  label?: string;
+  /**
+   * URL to redirect the user to for web-based interaction
+   */
+  url: string;
+  /**
+   * URL where the external service should redirect back after completion. If not provided, the service must call back to the IAE endpoint.
+   */
+  callbackUrl?: string;
+  /**
+   * Description of what the user should do on the web page (for wallet display)
+   */
+  description?: string;
+};
+
 export type EmbeddedDisclosurePolicy = {
   policy: string;
 };
@@ -1063,6 +1106,10 @@ export type CredentialConfig = {
    */
   vct?: string | Vct;
   /**
+   * List of IAE actions to execute before credential issuance
+   */
+  iaeActions?: Array<IaeActionOpenid4VpPresentation | IaeActionRedirectToWeb>;
+  /**
    * Embedded disclosure policy (discriminated union by `policy`).
    * The discriminator makes class-transformer instantiate the right subclass,
    * and then class-validator runs that subclass’s rules.
@@ -1109,6 +1156,10 @@ export type CredentialConfigCreate = {
    */
   vct?: string | Vct;
   /**
+   * List of IAE actions to execute before credential issuance
+   */
+  iaeActions?: Array<IaeActionOpenid4VpPresentation | IaeActionRedirectToWeb>;
+  /**
    * Embedded disclosure policy (discriminated union by `policy`).
    * The discriminator makes class-transformer instantiate the right subclass,
    * and then class-validator runs that subclass’s rules.
@@ -1150,6 +1201,10 @@ export type CredentialConfigUpdate = {
    */
   vct?: string | Vct;
   /**
+   * List of IAE actions to execute before credential issuance
+   */
+  iaeActions?: Array<IaeActionOpenid4VpPresentation | IaeActionRedirectToWeb>;
+  /**
    * Embedded disclosure policy (discriminated union by `policy`).
    * The discriminator makes class-transformer instantiate the right subclass,
    * and then class-validator runs that subclass’s rules.
@@ -1183,185 +1238,6 @@ export type CredentialConfigUpdate = {
   statusManagement?: boolean;
   lifeTime?: number;
   schema?: SchemaResponse;
-};
-
-export type DeferredCredentialRequestDto = {
-  /**
-   * The transaction identifier previously returned by the Credential Endpoint
-   */
-  transaction_id: string;
-};
-
-export type NotificationRequestDto = {
-  notification_id: string;
-  event: {
-    [key: string]: unknown;
-  };
-};
-
-export type ParResponseDto = {
-  /**
-   * The request URI for the Pushed Authorization Request.
-   */
-  request_uri: string;
-  /**
-   * The expiration time for the request URI in seconds.
-   */
-  expires_in: number;
-};
-
-export type OfferResponse = {
-  uri: string;
-  /**
-   * URI for cross-device flows (no redirect after completion)
-   */
-  crossDeviceUri?: string;
-  session: string;
-};
-
-export type CompleteDeferredDto = {
-  [key: string]: unknown;
-};
-
-export type DeferredOperationResponse = {
-  [key: string]: unknown;
-};
-
-export type FailDeferredDto = {
-  [key: string]: unknown;
-};
-
-export type EcPublic = {
-  /**
-   * The key type, which is always 'EC' for Elliptic Curve keys.
-   */
-  kty: string;
-  /**
-   * The algorithm intended for use with the key, such as 'ES256'.
-   */
-  crv: string;
-  /**
-   * The x coordinate of the EC public key.
-   */
-  x: string;
-  /**
-   * The y coordinate of the EC public key.
-   */
-  y: string;
-};
-
-export type JwksResponseDto = {
-  /**
-   * An array of EC public keys in JWK format.
-   */
-  keys: Array<EcPublic>;
-};
-
-export type AuthorizationResponse = {
-  /**
-   * The response string containing the authorization details.
-   */
-  response: string;
-  /**
-   * When set to true, the authorization response will be sent to the client.
-   */
-  sendResponse?: boolean;
-};
-
-export type RegistrarConfigEntity = {
-  /**
-   * The base URL of the registrar API
-   */
-  registrarUrl: string;
-  /**
-   * The OIDC issuer URL for authentication (e.g., Keycloak realm URL)
-   */
-  oidcUrl: string;
-  /**
-   * The OIDC client ID for the registrar
-   */
-  clientId: string;
-  /**
-   * The OIDC client secret (optional, for confidential clients)
-   */
-  clientSecret?: string;
-  /**
-   * The username for OIDC login
-   */
-  username: string;
-  /**
-   * The password for OIDC login (stored in plaintext)
-   */
-  password: string;
-  /**
-   * The tenant ID this configuration belongs to.
-   */
-  tenantId: string;
-  /**
-   * The tenant that owns this configuration.
-   */
-  tenant: TenantEntity;
-};
-
-export type CreateRegistrarConfigDto = {
-  /**
-   * The base URL of the registrar API
-   */
-  registrarUrl: string;
-  /**
-   * The OIDC issuer URL for authentication (e.g., Keycloak realm URL)
-   */
-  oidcUrl: string;
-  /**
-   * The OIDC client ID for the registrar
-   */
-  clientId: string;
-  /**
-   * The OIDC client secret (optional, for confidential clients)
-   */
-  clientSecret?: string;
-  /**
-   * The username for OIDC login
-   */
-  username: string;
-  /**
-   * The password for OIDC login (stored in plaintext)
-   */
-  password: string;
-};
-
-export type UpdateRegistrarConfigDto = {
-  /**
-   * The base URL of the registrar API
-   */
-  registrarUrl?: string;
-  /**
-   * The OIDC issuer URL for authentication (e.g., Keycloak realm URL)
-   */
-  oidcUrl?: string;
-  /**
-   * The OIDC client ID for the registrar
-   */
-  clientId?: string;
-  /**
-   * The OIDC client secret (optional, for confidential clients)
-   */
-  clientSecret?: string;
-  /**
-   * The username for OIDC login
-   */
-  username?: string;
-  /**
-   * The password for OIDC login (stored in plaintext)
-   */
-  password?: string;
-};
-
-export type CreateAccessCertificateDto = {
-  /**
-   * The ID of the key to create an access certificate for
-   */
-  keyId: string;
 };
 
 export type Dcql = {
@@ -1535,6 +1411,272 @@ export type PresentationConfigUpdateDto = {
    * at the application level in the service layer.
    */
   accessCertId?: string;
+};
+
+export type DeferredCredentialRequestDto = {
+  /**
+   * The transaction identifier previously returned by the Credential Endpoint
+   */
+  transaction_id: string;
+};
+
+export type NotificationRequestDto = {
+  notification_id: string;
+  event: {
+    [key: string]: unknown;
+  };
+};
+
+export type ParResponseDto = {
+  /**
+   * The request URI for the Pushed Authorization Request.
+   */
+  request_uri: string;
+  /**
+   * The expiration time for the request URI in seconds.
+   */
+  expires_in: number;
+};
+
+export type InteractiveAuthorizationRequestDto = {
+  /**
+   * Response type (for initial request)
+   */
+  response_type?: string;
+  /**
+   * Client identifier (for initial request)
+   */
+  client_id?: string;
+  /**
+   * Comma-separated list of supported interaction types (for initial request)
+   */
+  interaction_types_supported?: string;
+  /**
+   * Redirect URI (for initial request)
+   */
+  redirect_uri?: string;
+  /**
+   * OAuth scope
+   */
+  scope?: string;
+  /**
+   * PKCE code challenge
+   */
+  code_challenge?: string;
+  /**
+   * PKCE code challenge method
+   */
+  code_challenge_method?: string;
+  /**
+   * Authorization details
+   */
+  authorization_details?: {
+    [key: string]: unknown;
+  };
+  /**
+   * State parameter
+   */
+  state?: string;
+  /**
+   * Issuer state from credential offer
+   */
+  issuer_state?: string;
+  /**
+   * Auth session identifier (for follow-up request)
+   */
+  auth_session?: string;
+  /**
+   * OpenID4VP response (for follow-up request)
+   */
+  openid4vp_response?: string;
+  /**
+   * PKCE code verifier (for follow-up request)
+   */
+  code_verifier?: string;
+  /**
+   * JAR request JWT (by value)
+   */
+  request?: string;
+  /**
+   * JAR request URI (by reference)
+   */
+  request_uri?: string;
+};
+
+export type InteractiveAuthorizationCodeResponseDto = {
+  /**
+   * Response status
+   */
+  status: string;
+  /**
+   * Authorization code
+   */
+  code: string;
+};
+
+export type InteractiveAuthorizationErrorResponseDto = {
+  /**
+   * OAuth error code
+   */
+  error: string;
+  /**
+   * Human-readable error description
+   */
+  error_description?: string;
+};
+
+export type OfferResponse = {
+  uri: string;
+  /**
+   * URI for cross-device flows (no redirect after completion)
+   */
+  crossDeviceUri?: string;
+  session: string;
+};
+
+export type CompleteDeferredDto = {
+  [key: string]: unknown;
+};
+
+export type DeferredOperationResponse = {
+  [key: string]: unknown;
+};
+
+export type FailDeferredDto = {
+  [key: string]: unknown;
+};
+
+export type EcPublic = {
+  /**
+   * The key type, which is always 'EC' for Elliptic Curve keys.
+   */
+  kty: string;
+  /**
+   * The algorithm intended for use with the key, such as 'ES256'.
+   */
+  crv: string;
+  /**
+   * The x coordinate of the EC public key.
+   */
+  x: string;
+  /**
+   * The y coordinate of the EC public key.
+   */
+  y: string;
+};
+
+export type JwksResponseDto = {
+  /**
+   * An array of EC public keys in JWK format.
+   */
+  keys: Array<EcPublic>;
+};
+
+export type AuthorizationResponse = {
+  /**
+   * The response string containing the authorization details.
+   */
+  response: string;
+  /**
+   * When set to true, the authorization response will be sent to the client.
+   */
+  sendResponse?: boolean;
+};
+
+export type RegistrarConfigEntity = {
+  /**
+   * The base URL of the registrar API
+   */
+  registrarUrl: string;
+  /**
+   * The OIDC issuer URL for authentication (e.g., Keycloak realm URL)
+   */
+  oidcUrl: string;
+  /**
+   * The OIDC client ID for the registrar
+   */
+  clientId: string;
+  /**
+   * The OIDC client secret (optional, for confidential clients)
+   */
+  clientSecret?: string;
+  /**
+   * The username for OIDC login
+   */
+  username: string;
+  /**
+   * The password for OIDC login (stored in plaintext)
+   */
+  password: string;
+  /**
+   * The tenant ID this configuration belongs to.
+   */
+  tenantId: string;
+  /**
+   * The tenant that owns this configuration.
+   */
+  tenant: TenantEntity;
+};
+
+export type CreateRegistrarConfigDto = {
+  /**
+   * The base URL of the registrar API
+   */
+  registrarUrl: string;
+  /**
+   * The OIDC issuer URL for authentication (e.g., Keycloak realm URL)
+   */
+  oidcUrl: string;
+  /**
+   * The OIDC client ID for the registrar
+   */
+  clientId: string;
+  /**
+   * The OIDC client secret (optional, for confidential clients)
+   */
+  clientSecret?: string;
+  /**
+   * The username for OIDC login
+   */
+  username: string;
+  /**
+   * The password for OIDC login (stored in plaintext)
+   */
+  password: string;
+};
+
+export type UpdateRegistrarConfigDto = {
+  /**
+   * The base URL of the registrar API
+   */
+  registrarUrl?: string;
+  /**
+   * The OIDC issuer URL for authentication (e.g., Keycloak realm URL)
+   */
+  oidcUrl?: string;
+  /**
+   * The OIDC client ID for the registrar
+   */
+  clientId?: string;
+  /**
+   * The OIDC client secret (optional, for confidential clients)
+   */
+  clientSecret?: string;
+  /**
+   * The username for OIDC login
+   */
+  username?: string;
+  /**
+   * The password for OIDC login (stored in plaintext)
+   */
+  password?: string;
+};
+
+export type CreateAccessCertificateDto = {
+  /**
+   * The ID of the key to create an access certificate for
+   */
+  keyId: string;
 };
 
 export type TrustListCreateDto = {
@@ -2529,6 +2671,148 @@ export type CredentialConfigControllerUpdateCredentialConfigurationResponses = {
 export type CredentialConfigControllerUpdateCredentialConfigurationResponse =
   CredentialConfigControllerUpdateCredentialConfigurationResponses[keyof CredentialConfigControllerUpdateCredentialConfigurationResponses];
 
+export type PresentationManagementControllerConfigurationData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/verifier/config";
+};
+
+export type PresentationManagementControllerConfigurationResponses = {
+  200: Array<PresentationConfig>;
+};
+
+export type PresentationManagementControllerConfigurationResponse =
+  PresentationManagementControllerConfigurationResponses[keyof PresentationManagementControllerConfigurationResponses];
+
+export type PresentationManagementControllerStorePresentationConfigData = {
+  body: PresentationConfigCreateDto;
+  path?: never;
+  query?: never;
+  url: "/verifier/config";
+};
+
+export type PresentationManagementControllerStorePresentationConfigResponses = {
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type PresentationManagementControllerStorePresentationConfigResponse =
+  PresentationManagementControllerStorePresentationConfigResponses[keyof PresentationManagementControllerStorePresentationConfigResponses];
+
+export type PresentationManagementControllerDeleteConfigurationData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/verifier/config/{id}";
+};
+
+export type PresentationManagementControllerDeleteConfigurationResponses = {
+  200: unknown;
+};
+
+export type PresentationManagementControllerGetConfigurationData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/verifier/config/{id}";
+};
+
+export type PresentationManagementControllerGetConfigurationResponses = {
+  200: PresentationConfig;
+};
+
+export type PresentationManagementControllerGetConfigurationResponse =
+  PresentationManagementControllerGetConfigurationResponses[keyof PresentationManagementControllerGetConfigurationResponses];
+
+export type PresentationManagementControllerUpdateConfigurationData = {
+  body: PresentationConfigUpdateDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/verifier/config/{id}";
+};
+
+export type PresentationManagementControllerUpdateConfigurationResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type PresentationManagementControllerUpdateConfigurationResponse =
+  PresentationManagementControllerUpdateConfigurationResponses[keyof PresentationManagementControllerUpdateConfigurationResponses];
+
+export type CacheControllerGetStatsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/cache/stats";
+};
+
+export type CacheControllerGetStatsResponses = {
+  /**
+   * Cache statistics
+   */
+  200: unknown;
+};
+
+export type CacheControllerClearAllCachesData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/cache";
+};
+
+export type CacheControllerClearAllCachesResponses = {
+  /**
+   * All caches cleared successfully
+   */
+  204: void;
+};
+
+export type CacheControllerClearAllCachesResponse =
+  CacheControllerClearAllCachesResponses[keyof CacheControllerClearAllCachesResponses];
+
+export type CacheControllerClearTrustListCacheData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/cache/trust-list";
+};
+
+export type CacheControllerClearTrustListCacheResponses = {
+  /**
+   * Trust list cache cleared successfully
+   */
+  204: void;
+};
+
+export type CacheControllerClearTrustListCacheResponse =
+  CacheControllerClearTrustListCacheResponses[keyof CacheControllerClearTrustListCacheResponses];
+
+export type CacheControllerClearStatusListCacheData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/cache/status-list";
+};
+
+export type CacheControllerClearStatusListCacheResponses = {
+  /**
+   * Status list cache cleared successfully
+   */
+  204: void;
+};
+
+export type CacheControllerClearStatusListCacheResponse =
+  CacheControllerClearStatusListCacheResponses[keyof CacheControllerClearStatusListCacheResponses];
+
 export type Oid4VciControllerCredentialData = {
   body?: never;
   path: {
@@ -2658,6 +2942,66 @@ export type AuthorizeControllerAuthorizationChallengeEndpointData = {
 
 export type AuthorizeControllerAuthorizationChallengeEndpointResponses = {
   201: unknown;
+};
+
+export type InteractiveAuthorizationControllerInteractiveAuthorizationData = {
+  /**
+   * Interactive authorization request
+   */
+  body: InteractiveAuthorizationRequestDto;
+  headers: {
+    origin: string;
+  };
+  path: {
+    tenantId: string;
+  };
+  query?: never;
+  url: "/{tenantId}/authorize/interactive";
+};
+
+export type InteractiveAuthorizationControllerInteractiveAuthorizationErrors = {
+  /**
+   * Error response
+   */
+  400: InteractiveAuthorizationErrorResponseDto;
+};
+
+export type InteractiveAuthorizationControllerInteractiveAuthorizationError =
+  InteractiveAuthorizationControllerInteractiveAuthorizationErrors[keyof InteractiveAuthorizationControllerInteractiveAuthorizationErrors];
+
+export type InteractiveAuthorizationControllerInteractiveAuthorizationResponses =
+  {
+    /**
+     * Authorization code response (successful completion)
+     */
+    200: InteractiveAuthorizationCodeResponseDto;
+  };
+
+export type InteractiveAuthorizationControllerInteractiveAuthorizationResponse =
+  InteractiveAuthorizationControllerInteractiveAuthorizationResponses[keyof InteractiveAuthorizationControllerInteractiveAuthorizationResponses];
+
+export type InteractiveAuthorizationControllerCompleteWebAuthData = {
+  body?: never;
+  path: {
+    authSession: string;
+    tenantId: string;
+  };
+  query?: never;
+  url: "/{tenantId}/authorize/interactive/complete-web-auth/{authSession}";
+};
+
+export type InteractiveAuthorizationControllerCompleteWebAuthErrors = {
+  /**
+   * Auth session not found
+   */
+  404: unknown;
+};
+
+export type InteractiveAuthorizationControllerCompleteWebAuthResponses = {
+  /**
+   * Web authorization marked as completed
+   */
+  200: unknown;
 };
 
 export type CredentialOfferControllerGetOfferData = {
@@ -3035,148 +3379,6 @@ export type RegistrarControllerCreateAccessCertificateResponses = {
 
 export type RegistrarControllerCreateAccessCertificateResponse =
   RegistrarControllerCreateAccessCertificateResponses[keyof RegistrarControllerCreateAccessCertificateResponses];
-
-export type PresentationManagementControllerConfigurationData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/verifier/config";
-};
-
-export type PresentationManagementControllerConfigurationResponses = {
-  200: Array<PresentationConfig>;
-};
-
-export type PresentationManagementControllerConfigurationResponse =
-  PresentationManagementControllerConfigurationResponses[keyof PresentationManagementControllerConfigurationResponses];
-
-export type PresentationManagementControllerStorePresentationConfigData = {
-  body: PresentationConfigCreateDto;
-  path?: never;
-  query?: never;
-  url: "/verifier/config";
-};
-
-export type PresentationManagementControllerStorePresentationConfigResponses = {
-  201: {
-    [key: string]: unknown;
-  };
-};
-
-export type PresentationManagementControllerStorePresentationConfigResponse =
-  PresentationManagementControllerStorePresentationConfigResponses[keyof PresentationManagementControllerStorePresentationConfigResponses];
-
-export type PresentationManagementControllerDeleteConfigurationData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/verifier/config/{id}";
-};
-
-export type PresentationManagementControllerDeleteConfigurationResponses = {
-  200: unknown;
-};
-
-export type PresentationManagementControllerGetConfigurationData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/verifier/config/{id}";
-};
-
-export type PresentationManagementControllerGetConfigurationResponses = {
-  200: PresentationConfig;
-};
-
-export type PresentationManagementControllerGetConfigurationResponse =
-  PresentationManagementControllerGetConfigurationResponses[keyof PresentationManagementControllerGetConfigurationResponses];
-
-export type PresentationManagementControllerUpdateConfigurationData = {
-  body: PresentationConfigUpdateDto;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/verifier/config/{id}";
-};
-
-export type PresentationManagementControllerUpdateConfigurationResponses = {
-  200: {
-    [key: string]: unknown;
-  };
-};
-
-export type PresentationManagementControllerUpdateConfigurationResponse =
-  PresentationManagementControllerUpdateConfigurationResponses[keyof PresentationManagementControllerUpdateConfigurationResponses];
-
-export type CacheControllerGetStatsData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/cache/stats";
-};
-
-export type CacheControllerGetStatsResponses = {
-  /**
-   * Cache statistics
-   */
-  200: unknown;
-};
-
-export type CacheControllerClearAllCachesData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/cache";
-};
-
-export type CacheControllerClearAllCachesResponses = {
-  /**
-   * All caches cleared successfully
-   */
-  204: void;
-};
-
-export type CacheControllerClearAllCachesResponse =
-  CacheControllerClearAllCachesResponses[keyof CacheControllerClearAllCachesResponses];
-
-export type CacheControllerClearTrustListCacheData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/cache/trust-list";
-};
-
-export type CacheControllerClearTrustListCacheResponses = {
-  /**
-   * Trust list cache cleared successfully
-   */
-  204: void;
-};
-
-export type CacheControllerClearTrustListCacheResponse =
-  CacheControllerClearTrustListCacheResponses[keyof CacheControllerClearTrustListCacheResponses];
-
-export type CacheControllerClearStatusListCacheData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/cache/status-list";
-};
-
-export type CacheControllerClearStatusListCacheResponses = {
-  /**
-   * Status list cache cleared successfully
-   */
-  204: void;
-};
-
-export type CacheControllerClearStatusListCacheResponse =
-  CacheControllerClearStatusListCacheResponses[keyof CacheControllerClearStatusListCacheResponses];
 
 export type TrustListControllerGetAllTrustListsData = {
   body?: never;

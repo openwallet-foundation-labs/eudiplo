@@ -29,7 +29,7 @@ EUDIPLO:
 - **Issuance (OID4VCI)**
     - **Auth**: Authorization Code Flow
     - **Pre**: Pre-authorized Code Flow
-    - **PDI**: Presentation during issuance
+    - **IAE**: Interactive Authorization Endpoint (IAE) support
     - **DPoP**: DPoP proof of possession
     - **Att**: Client attestation
 - **Presentation (OID4VP)**
@@ -43,7 +43,7 @@ EUDIPLO:
 
 #### Feature Matrix
 
-| Wallet         | Auth | Pre | PDI | DPoP | Att | DC API | SD-JWT |
+| Wallet         | Auth | Pre | IAE | DPoP | Att | DC API | SD-JWT |
 | -------------- | ---- | --- | --- | ---- | --- | ------ | ------ |
 | Heidi Wallet   | ✅   | ✅  | n/a | ✅   | n/a | ✅     | ✅     |
 | Paradym Wallet | ✅   | ✅  | n/a | ✅   | n/a | ✅     | ✅     |
@@ -54,7 +54,7 @@ EUDIPLO:
 
 - **Version tested**: 1.0.4
 - **Last verified**: October 11, 2025
-- **Notes**: Got stuck in the presentation during issuance during the issuance process (credential got issued, but got not stored)
+- **Notes**: Not up to date with OID4VP response.
 
 ##### Paradym Wallet
 

@@ -93,10 +93,10 @@ MINIO_ROOT_USER=minioadmin
 MINIO_ROOT_PASSWORD=minioadmin123
 MINIO_BUCKET=uploads
 
-# Application Secrets
-JWT_SECRET=your-secret-jwt-key-change-in-production
-AUTH_CLIENT_ID=demo-client
-AUTH_CLIENT_SECRET=demo-secret
+# Application Secrets (ALL REQUIRED when not using external OIDC)
+MASTER_SECRET=your-secret-jwt-key-change-in-production
+AUTH_CLIENT_ID=your-client-id
+AUTH_CLIENT_SECRET=your-client-secret
 
 # Logging
 LOG_LEVEL=info
@@ -472,11 +472,198 @@ Before deploying to production, address these critical areas:
 
 ### 1. Security
 
-- **Change all default secrets** (JWT_SECRET, database passwords, MinIO credentials)
+- **Change all default secrets** (MASTER_SECRET, database passwords, MinIO credentials)
 - **Enable TLS/HTTPS** using cert-manager or LoadBalancer with TLS termination
 - **Implement network policies** to restrict pod-to-pod communication
 - **Apply Pod Security Standards** (restricted PSS to namespace)
 - **Use external secret management** (HashiCorp Vault, AWS Secrets Manager, Azure Key Vault)
+- **Configure `ENCRYPTION_KEY_SOURCE`** to `vault`, `aws`, or `azure` so the encryption key is only in RAM (see [Encryption at Rest](../architecture/database.md#encryption-key-sources))
+
+### Secret Management Strategies
+
+EUDIPLO requires several secrets (database credentials, JWT secret, encryption key, etc.). The recommended approach is to use **infrastructure-level secret injection** rather than storing secrets in `.env` files or passing them directly as environment variables.
+
+#### Credential Categories
+
+| Secret                 | Risk Level | Recommended Approach                       |
+| ---------------------- | ---------- | ------------------------------------------ |
+| `DB_PASSWORD`          | High       | External Secrets Operator / Vault Agent    |
+| `MASTER_SECRET`           | Critical   | External Secrets Operator / Vault Agent    |
+| `AUTH_CLIENT_SECRET`   | Critical   | External Secrets Operator / Vault Agent    |
+| `S3_SECRET_ACCESS_KEY` | High       | IRSA (AWS) / Workload Identity (Azure/GCP) |
+| `ENCRYPTION_KEY`       | Critical   | Application-level fetch (built-in support) |
+
+#### Option 1: External Secrets Operator (Recommended)
+
+The [External Secrets Operator](https://external-secrets.io/) syncs secrets from external providers into Kubernetes Secrets.
+
+```yaml
+# Install External Secrets Operator
+helm repo add external-secrets https://charts.external-secrets.io
+helm install external-secrets external-secrets/external-secrets \
+-n external-secrets --create-namespace
+```
+
+Example SecretStore for AWS Secrets Manager:
+
+```yaml
+apiVersion: external-secrets.io/v1beta1
+kind: SecretStore
+metadata:
+    name: aws-secrets-manager
+    namespace: eudiplo
+spec:
+    provider:
+        aws:
+            service: SecretsManager
+            region: eu-central-1
+            auth:
+                jwt:
+                    serviceAccountRef:
+                        name: eudiplo-sa
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+    name: eudiplo-secrets
+    namespace: eudiplo
+spec:
+    refreshInterval: 1h
+    secretStoreRef:
+        name: aws-secrets-manager
+        kind: SecretStore
+    target:
+        name: eudiplo-env
+        creationPolicy: Owner
+    data:
+        - secretKey: DB_PASSWORD
+          remoteRef:
+              key: eudiplo/production
+              property: db_password
+        - secretKey: MASTER_SECRET
+          remoteRef:
+              key: eudiplo/production
+              property: master_secret
+        - secretKey: AUTH_CLIENT_SECRET
+          remoteRef:
+              key: eudiplo/production
+              property: auth_client_secret
+```
+
+Example SecretStore for HashiCorp Vault:
+
+```yaml
+apiVersion: external-secrets.io/v1beta1
+kind: SecretStore
+metadata:
+    name: vault
+    namespace: eudiplo
+spec:
+    provider:
+        vault:
+            server: 'https://vault.example.com'
+            path: 'secret'
+            version: 'v2'
+            auth:
+                kubernetes:
+                    mountPath: 'kubernetes'
+                    role: 'eudiplo'
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+    name: eudiplo-secrets
+    namespace: eudiplo
+spec:
+    refreshInterval: 1h
+    secretStoreRef:
+        name: vault
+        kind: SecretStore
+    target:
+        name: eudiplo-env
+    data:
+        - secretKey: DB_PASSWORD
+          remoteRef:
+              key: eudiplo/credentials
+              property: db_password
+        - secretKey: MASTER_SECRET
+          remoteRef:
+              key: eudiplo/credentials
+              property: master_secret
+```
+
+#### Option 2: Vault Agent Sidecar
+
+Use the [Vault Agent Injector](https://developer.hashicorp.com/vault/docs/platform/k8s/injector) to inject secrets directly into pods:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: eudiplo
+spec:
+    template:
+        metadata:
+            annotations:
+                vault.hashicorp.com/agent-inject: 'true'
+                vault.hashicorp.com/role: 'eudiplo'
+                vault.hashicorp.com/agent-inject-secret-config: 'secret/eudiplo/credentials'
+                vault.hashicorp.com/agent-inject-template-config: |
+                    {{- with secret "secret/eudiplo/credentials" -}}
+                    export DB_PASSWORD="{{ .Data.data.db_password }}"
+                    export MASTER_SECRET="{{ .Data.data.master_secret }}"
+                    export AUTH_CLIENT_SECRET="{{ .Data.data.auth_client_secret }}"
+                    {{- end -}}
+```
+
+#### Option 3: Cloud-Native IAM (for S3/Storage)
+
+For S3 credentials, prefer IAM-based authentication:
+
+=== "AWS (IRSA)"
+
+    ```yaml
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: eudiplo-sa
+      annotations:
+        eks.amazonaws.com/role-arn: arn:aws:iam::123456789:role/eudiplo-s3-role
+    ```
+
+    No `S3_ACCESS_KEY_ID` or `S3_SECRET_ACCESS_KEY` needed—the SDK uses IRSA automatically.
+
+=== "Azure (Workload Identity)"
+
+    ```yaml
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: eudiplo-sa
+      annotations:
+        azure.workload.identity/client-id: "<managed-identity-client-id>"
+    ```
+
+=== "GCP (Workload Identity)"
+
+    ```yaml
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: eudiplo-sa
+      annotations:
+        iam.gke.io/gcp-service-account: eudiplo@project.iam.gserviceaccount.com
+    ```
+
+#### Why Encryption Key Is Different
+
+The `ENCRYPTION_KEY` uses application-level fetching (via `ENCRYPTION_KEY_SOURCE`) because:
+
+1. **TypeORM Transformer Singleton**: The encryption transformer must be initialized before any database operations, which happens during module bootstrap
+2. **Runtime-Only Access**: The key is fetched once at startup and kept only in memory—never written to disk or environment
+3. **Built-in Support**: EUDIPLO has native integrations for Vault, AWS Secrets Manager, and Azure Key Vault
+
+For all other secrets, rely on infrastructure-level injection as described above.
 
 ### 2. High Availability
 

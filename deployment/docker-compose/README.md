@@ -12,8 +12,9 @@ cp .env.standard.example .env  # For standard setup with Postgres + MinIO
 # OR
 cp .env.full.example .env      # For full setup with Vault
 
-# Edit .env with your configuration
+# Edit .env - MASTER_SECRET, AUTH_CLIENT_ID, AUTH_CLIENT_SECRET are required
 nano .env
+# Generate a secure MASTER_SECRET: openssl rand -base64 32
 
 # Start services
 docker compose up -d                      # Minimal (default)

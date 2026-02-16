@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { jwtVerify, SignJWT } from "jose";
-import { DEFAULT_JWT_SECRET } from "./auth-validation.schema";
 import { InternalTokenPayload, TokenPayload } from "./token.decorator";
 
 export interface GenerateTokenOptions {
@@ -12,15 +11,7 @@ export interface GenerateTokenOptions {
 
 @Injectable()
 export class JwtService {
-    constructor(private configService: ConfigService) {
-        if (
-            this.configService.get<string>("JWT_SECRET") === DEFAULT_JWT_SECRET
-        ) {
-            console.warn(
-                "Using default JWT secret. This is not secure for production environments.",
-            );
-        }
-    }
+    constructor(private configService: ConfigService) {}
 
     /**
      * Generate a JWT token for integrated OAuth2 server
@@ -35,7 +26,7 @@ export class JwtService {
             );
         }
 
-        const secret = this.configService.getOrThrow<string>("JWT_SECRET");
+        const secret = this.configService.getOrThrow<string>("MASTER_SECRET");
         const issuer = this.configService.getOrThrow<string>("JWT_ISSUER");
         const expiresIn =
             options.expiresIn ||
@@ -69,7 +60,7 @@ export class JwtService {
             );
         }
 
-        const secret = this.configService.getOrThrow<string>("JWT_SECRET");
+        const secret = this.configService.getOrThrow<string>("MASTER_SECRET");
         const issuer = this.configService.getOrThrow<string>("JWT_ISSUER");
 
         const secretKey = new TextEncoder().encode(secret);

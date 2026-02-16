@@ -507,7 +507,7 @@ export const KeyEntitySchema = {
     },
     key: {
       type: "object",
-      description: "The key material.",
+      description: "The key material.\nEncrypted at rest using AES-256-GCM.",
     },
     usage: {
       type: "object",
@@ -1257,7 +1257,8 @@ export const SessionSchema = {
       description: "Request URI from the authorization request.",
     },
     auth_queries: {
-      description: "Authorization queries associated with the session.",
+      description:
+        "Authorization queries associated with the session.\nEncrypted at rest.",
       allOf: [
         {
           $ref: "#/components/schemas/AuthorizeQueries",
@@ -1266,7 +1267,7 @@ export const SessionSchema = {
     },
     offer: {
       description:
-        "Credential offer object containing details about the credential offer or presentation request.",
+        "Credential offer object containing details about the credential offer or presentation request.\nEncrypted at rest.",
       type: "object",
     },
     offerUrl: {
@@ -1274,7 +1275,8 @@ export const SessionSchema = {
       description: "Offer URL for the credential offer.",
     },
     credentialPayload: {
-      description: "Credential payload containing the offer request details.",
+      description:
+        "Credential payload containing the offer request details.\nEncrypted at rest - may contain sensitive claim data.",
       allOf: [
         {
           $ref: "#/components/schemas/OfferRequestDto",
@@ -1309,7 +1311,8 @@ export const SessionSchema = {
       description: "Signed presentation auth request.",
     },
     credentials: {
-      description: "Verified credentials from the presentation process.",
+      description:
+        "Verified credentials from the presentation process.\nEncrypted at rest - contains personal information.",
       type: "array",
       items: {
         type: "object",
@@ -1821,6 +1824,67 @@ export const VCTSchema = {
   },
 } as const;
 
+export const IaeActionOpenid4vpPresentationSchema = {
+  type: "object",
+  properties: {
+    type: {
+      enum: ["openid4vp_presentation"],
+      type: "string",
+      description: "Action type discriminator",
+      example: "openid4vp_presentation",
+    },
+    label: {
+      type: "string",
+      description: "Optional label for this step (for display purposes)",
+      example: "Identity Verification",
+    },
+    presentationConfigId: {
+      type: "string",
+      description: "ID of the presentation configuration to use for this step",
+      example: "pid-presentation-config",
+    },
+  },
+  required: ["type", "presentationConfigId"],
+} as const;
+
+export const IaeActionRedirectToWebSchema = {
+  type: "object",
+  properties: {
+    type: {
+      enum: ["redirect_to_web"],
+      type: "string",
+      description: "Action type discriminator",
+      example: "redirect_to_web",
+    },
+    label: {
+      type: "string",
+      description: "Optional label for this step (for display purposes)",
+      example: "Identity Verification",
+    },
+    url: {
+      type: "string",
+      format: "uri",
+      description: "URL to redirect the user to for web-based interaction",
+      example: "https://example.com/verify?session={auth_session}",
+    },
+    callbackUrl: {
+      type: "string",
+      format: "uri",
+      description:
+        "URL where the external service should redirect back after completion. If not provided, the service must call back to the IAE endpoint.",
+      example:
+        "https://issuer.example.com/{tenantId}/authorize/interactive/callback",
+    },
+    description: {
+      type: "string",
+      description:
+        "Description of what the user should do on the web page (for wallet display)",
+      example: "Please complete the identity verification form",
+    },
+  },
+  required: ["type", "url"],
+} as const;
+
 export const EmbeddedDisclosurePolicySchema = {
   type: "object",
   properties: {
@@ -1949,6 +2013,22 @@ export const CredentialConfigSchema = {
         },
       ],
     },
+    iaeActions: {
+      type: "array",
+      nullable: true,
+      description: "List of IAE actions to execute before credential issuance",
+      example: "",
+      items: {
+        oneOf: [
+          {
+            $ref: "#/components/schemas/IaeActionOpenid4vpPresentation",
+          },
+          {
+            $ref: "#/components/schemas/IaeActionRedirectToWeb",
+          },
+        ],
+      },
+    },
     embeddedDisclosurePolicy: {
       nullable: true,
       description:
@@ -2063,6 +2143,22 @@ export const CredentialConfigCreateSchema = {
         },
       ],
     },
+    iaeActions: {
+      type: "array",
+      nullable: true,
+      description: "List of IAE actions to execute before credential issuance",
+      example: "",
+      items: {
+        oneOf: [
+          {
+            $ref: "#/components/schemas/IaeActionOpenid4vpPresentation",
+          },
+          {
+            $ref: "#/components/schemas/IaeActionRedirectToWeb",
+          },
+        ],
+      },
+    },
     embeddedDisclosurePolicy: {
       nullable: true,
       description:
@@ -2166,6 +2262,22 @@ export const CredentialConfigUpdateSchema = {
         },
       ],
     },
+    iaeActions: {
+      type: "array",
+      nullable: true,
+      description: "List of IAE actions to execute before credential issuance",
+      example: "",
+      items: {
+        oneOf: [
+          {
+            $ref: "#/components/schemas/IaeActionOpenid4vpPresentation",
+          },
+          {
+            $ref: "#/components/schemas/IaeActionRedirectToWeb",
+          },
+        ],
+      },
+    },
     embeddedDisclosurePolicy: {
       nullable: true,
       description:
@@ -2249,282 +2361,6 @@ export const CredentialConfigUpdateSchema = {
       ],
     },
   },
-} as const;
-
-export const DeferredCredentialRequestDtoSchema = {
-  type: "object",
-  properties: {
-    transaction_id: {
-      type: "string",
-      description:
-        "The transaction identifier previously returned by the Credential Endpoint",
-      example: "8xLOxBtZp8",
-    },
-  },
-  required: ["transaction_id"],
-} as const;
-
-export const NotificationRequestDtoSchema = {
-  type: "object",
-  properties: {
-    notification_id: {
-      type: "string",
-    },
-    event: {
-      type: "object",
-    },
-  },
-  required: ["notification_id", "event"],
-} as const;
-
-export const ParResponseDtoSchema = {
-  type: "object",
-  properties: {
-    request_uri: {
-      type: "string",
-      description: "The request URI for the Pushed Authorization Request.",
-    },
-    expires_in: {
-      type: "number",
-      description: "The expiration time for the request URI in seconds.",
-    },
-  },
-  required: ["request_uri", "expires_in"],
-} as const;
-
-export const OfferResponseSchema = {
-  type: "object",
-  properties: {
-    uri: {
-      type: "string",
-    },
-    crossDeviceUri: {
-      type: "string",
-      description: "URI for cross-device flows (no redirect after completion)",
-    },
-    session: {
-      type: "string",
-    },
-  },
-  required: ["uri", "session"],
-} as const;
-
-export const CompleteDeferredDtoSchema = {
-  type: "object",
-  properties: {},
-} as const;
-
-export const DeferredOperationResponseSchema = {
-  type: "object",
-  properties: {},
-} as const;
-
-export const FailDeferredDtoSchema = {
-  type: "object",
-  properties: {},
-} as const;
-
-export const EC_PublicSchema = {
-  type: "object",
-  properties: {
-    kty: {
-      type: "string",
-      description:
-        "The key type, which is always 'EC' for Elliptic Curve keys.",
-    },
-    crv: {
-      type: "string",
-      description:
-        "The algorithm intended for use with the key, such as 'ES256'.",
-    },
-    x: {
-      type: "string",
-      description: "The x coordinate of the EC public key.",
-    },
-    y: {
-      type: "string",
-      description: "The y coordinate of the EC public key.",
-    },
-  },
-  required: ["kty", "crv", "x", "y"],
-} as const;
-
-export const JwksResponseDtoSchema = {
-  type: "object",
-  properties: {
-    keys: {
-      description: "An array of EC public keys in JWK format.",
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/EC_Public",
-      },
-    },
-  },
-  required: ["keys"],
-} as const;
-
-export const AuthorizationResponseSchema = {
-  type: "object",
-  properties: {
-    response: {
-      type: "string",
-      description: "The response string containing the authorization details.",
-    },
-    sendResponse: {
-      type: "boolean",
-      description:
-        "When set to true, the authorization response will be sent to the client.",
-    },
-  },
-  required: ["response"],
-} as const;
-
-export const RegistrarConfigEntitySchema = {
-  type: "object",
-  properties: {
-    registrarUrl: {
-      type: "string",
-      description: "The base URL of the registrar API",
-      format: "uri",
-      example: "https://sandbox.eudi-wallet.org/api",
-    },
-    oidcUrl: {
-      type: "string",
-      description:
-        "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
-      format: "uri",
-      example: "https://auth.example.com/realms/my-realm",
-    },
-    clientId: {
-      type: "string",
-      description: "The OIDC client ID for the registrar",
-      example: "registrar-client",
-    },
-    clientSecret: {
-      type: "string",
-      description:
-        "The OIDC client secret (optional, for confidential clients)",
-    },
-    username: {
-      type: "string",
-      description: "The username for OIDC login",
-      example: "admin@example.com",
-    },
-    password: {
-      type: "string",
-      description: "The password for OIDC login (stored in plaintext)",
-    },
-    tenantId: {
-      type: "string",
-      description: "The tenant ID this configuration belongs to.",
-    },
-    tenant: {
-      description: "The tenant that owns this configuration.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/TenantEntity",
-        },
-      ],
-    },
-  },
-  required: [
-    "registrarUrl",
-    "oidcUrl",
-    "clientId",
-    "username",
-    "password",
-    "tenantId",
-    "tenant",
-  ],
-} as const;
-
-export const CreateRegistrarConfigDtoSchema = {
-  type: "object",
-  properties: {
-    registrarUrl: {
-      type: "string",
-      description: "The base URL of the registrar API",
-      format: "uri",
-      example: "https://sandbox.eudi-wallet.org/api",
-    },
-    oidcUrl: {
-      type: "string",
-      description:
-        "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
-      format: "uri",
-      example: "https://auth.example.com/realms/my-realm",
-    },
-    clientId: {
-      type: "string",
-      description: "The OIDC client ID for the registrar",
-      example: "registrar-client",
-    },
-    clientSecret: {
-      type: "string",
-      description:
-        "The OIDC client secret (optional, for confidential clients)",
-    },
-    username: {
-      type: "string",
-      description: "The username for OIDC login",
-      example: "admin@example.com",
-    },
-    password: {
-      type: "string",
-      description: "The password for OIDC login (stored in plaintext)",
-    },
-  },
-  required: ["registrarUrl", "oidcUrl", "clientId", "username", "password"],
-} as const;
-
-export const UpdateRegistrarConfigDtoSchema = {
-  type: "object",
-  properties: {
-    registrarUrl: {
-      type: "string",
-      description: "The base URL of the registrar API",
-      format: "uri",
-      example: "https://sandbox.eudi-wallet.org/api",
-    },
-    oidcUrl: {
-      type: "string",
-      description:
-        "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
-      format: "uri",
-      example: "https://auth.example.com/realms/my-realm",
-    },
-    clientId: {
-      type: "string",
-      description: "The OIDC client ID for the registrar",
-      example: "registrar-client",
-    },
-    clientSecret: {
-      type: "string",
-      description:
-        "The OIDC client secret (optional, for confidential clients)",
-    },
-    username: {
-      type: "string",
-      description: "The username for OIDC login",
-      example: "admin@example.com",
-    },
-    password: {
-      type: "string",
-      description: "The password for OIDC login (stored in plaintext)",
-    },
-  },
-} as const;
-
-export const CreateAccessCertificateDtoSchema = {
-  type: "object",
-  properties: {
-    keyId: {
-      type: "string",
-      description: "The ID of the key to create an access certificate for",
-      example: "my-signing-key",
-    },
-  },
-  required: ["keyId"],
 } as const;
 
 export const DCQLSchema = {
@@ -2817,6 +2653,383 @@ export const PresentationConfigUpdateDtoSchema = {
         "Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.\n\nNote: This is intentionally NOT a TypeORM relationship because CertEntity uses\na composite primary key (id + tenantId), and SQLite cannot create foreign keys\nthat reference only part of a composite primary key. The relationship is handled\nat the application level in the service layer.",
     },
   },
+} as const;
+
+export const DeferredCredentialRequestDtoSchema = {
+  type: "object",
+  properties: {
+    transaction_id: {
+      type: "string",
+      description:
+        "The transaction identifier previously returned by the Credential Endpoint",
+      example: "8xLOxBtZp8",
+    },
+  },
+  required: ["transaction_id"],
+} as const;
+
+export const NotificationRequestDtoSchema = {
+  type: "object",
+  properties: {
+    notification_id: {
+      type: "string",
+    },
+    event: {
+      type: "object",
+    },
+  },
+  required: ["notification_id", "event"],
+} as const;
+
+export const ParResponseDtoSchema = {
+  type: "object",
+  properties: {
+    request_uri: {
+      type: "string",
+      description: "The request URI for the Pushed Authorization Request.",
+    },
+    expires_in: {
+      type: "number",
+      description: "The expiration time for the request URI in seconds.",
+    },
+  },
+  required: ["request_uri", "expires_in"],
+} as const;
+
+export const InteractiveAuthorizationRequestDtoSchema = {
+  type: "object",
+  properties: {
+    response_type: {
+      type: "string",
+      description: "Response type (for initial request)",
+    },
+    client_id: {
+      type: "string",
+      description: "Client identifier (for initial request)",
+    },
+    interaction_types_supported: {
+      type: "string",
+      description:
+        "Comma-separated list of supported interaction types (for initial request)",
+    },
+    redirect_uri: {
+      type: "string",
+      description: "Redirect URI (for initial request)",
+    },
+    scope: {
+      type: "string",
+      description: "OAuth scope",
+    },
+    code_challenge: {
+      type: "string",
+      description: "PKCE code challenge",
+    },
+    code_challenge_method: {
+      type: "string",
+      description: "PKCE code challenge method",
+    },
+    authorization_details: {
+      type: "object",
+      description: "Authorization details",
+    },
+    state: {
+      type: "string",
+      description: "State parameter",
+    },
+    issuer_state: {
+      type: "string",
+      description: "Issuer state from credential offer",
+    },
+    auth_session: {
+      type: "string",
+      description: "Auth session identifier (for follow-up request)",
+    },
+    openid4vp_response: {
+      type: "string",
+      description: "OpenID4VP response (for follow-up request)",
+    },
+    code_verifier: {
+      type: "string",
+      description: "PKCE code verifier (for follow-up request)",
+    },
+    request: {
+      type: "string",
+      description: "JAR request JWT (by value)",
+    },
+    request_uri: {
+      type: "string",
+      description: "JAR request URI (by reference)",
+    },
+  },
+} as const;
+
+export const InteractiveAuthorizationCodeResponseDtoSchema = {
+  type: "object",
+  properties: {
+    status: {
+      type: "string",
+      description: "Response status",
+      example: "ok",
+    },
+    code: {
+      type: "string",
+      description: "Authorization code",
+      example: "auth-code-123",
+    },
+  },
+  required: ["status", "code"],
+} as const;
+
+export const InteractiveAuthorizationErrorResponseDtoSchema = {
+  type: "object",
+  properties: {
+    error: {
+      type: "string",
+      description: "OAuth error code",
+      example: "invalid_request",
+    },
+    error_description: {
+      type: "string",
+      description: "Human-readable error description",
+      example: "Missing required parameter: interaction_types_supported",
+    },
+  },
+  required: ["error"],
+} as const;
+
+export const OfferResponseSchema = {
+  type: "object",
+  properties: {
+    uri: {
+      type: "string",
+    },
+    crossDeviceUri: {
+      type: "string",
+      description: "URI for cross-device flows (no redirect after completion)",
+    },
+    session: {
+      type: "string",
+    },
+  },
+  required: ["uri", "session"],
+} as const;
+
+export const CompleteDeferredDtoSchema = {
+  type: "object",
+  properties: {},
+} as const;
+
+export const DeferredOperationResponseSchema = {
+  type: "object",
+  properties: {},
+} as const;
+
+export const FailDeferredDtoSchema = {
+  type: "object",
+  properties: {},
+} as const;
+
+export const EC_PublicSchema = {
+  type: "object",
+  properties: {
+    kty: {
+      type: "string",
+      description:
+        "The key type, which is always 'EC' for Elliptic Curve keys.",
+    },
+    crv: {
+      type: "string",
+      description:
+        "The algorithm intended for use with the key, such as 'ES256'.",
+    },
+    x: {
+      type: "string",
+      description: "The x coordinate of the EC public key.",
+    },
+    y: {
+      type: "string",
+      description: "The y coordinate of the EC public key.",
+    },
+  },
+  required: ["kty", "crv", "x", "y"],
+} as const;
+
+export const JwksResponseDtoSchema = {
+  type: "object",
+  properties: {
+    keys: {
+      description: "An array of EC public keys in JWK format.",
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/EC_Public",
+      },
+    },
+  },
+  required: ["keys"],
+} as const;
+
+export const AuthorizationResponseSchema = {
+  type: "object",
+  properties: {
+    response: {
+      type: "string",
+      description: "The response string containing the authorization details.",
+    },
+    sendResponse: {
+      type: "boolean",
+      description:
+        "When set to true, the authorization response will be sent to the client.",
+    },
+  },
+  required: ["response"],
+} as const;
+
+export const RegistrarConfigEntitySchema = {
+  type: "object",
+  properties: {
+    registrarUrl: {
+      type: "string",
+      description: "The base URL of the registrar API",
+      format: "uri",
+      example: "https://sandbox.eudi-wallet.org/api",
+    },
+    oidcUrl: {
+      type: "string",
+      description:
+        "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
+      format: "uri",
+      example: "https://auth.example.com/realms/my-realm",
+    },
+    clientId: {
+      type: "string",
+      description: "The OIDC client ID for the registrar",
+      example: "registrar-client",
+    },
+    clientSecret: {
+      type: "string",
+      description:
+        "The OIDC client secret (optional, for confidential clients)",
+    },
+    username: {
+      type: "string",
+      description: "The username for OIDC login",
+      example: "admin@example.com",
+    },
+    password: {
+      type: "string",
+      description: "The password for OIDC login (stored in plaintext)",
+    },
+    tenantId: {
+      type: "string",
+      description: "The tenant ID this configuration belongs to.",
+    },
+    tenant: {
+      description: "The tenant that owns this configuration.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/TenantEntity",
+        },
+      ],
+    },
+  },
+  required: [
+    "registrarUrl",
+    "oidcUrl",
+    "clientId",
+    "username",
+    "password",
+    "tenantId",
+    "tenant",
+  ],
+} as const;
+
+export const CreateRegistrarConfigDtoSchema = {
+  type: "object",
+  properties: {
+    registrarUrl: {
+      type: "string",
+      description: "The base URL of the registrar API",
+      format: "uri",
+      example: "https://sandbox.eudi-wallet.org/api",
+    },
+    oidcUrl: {
+      type: "string",
+      description:
+        "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
+      format: "uri",
+      example: "https://auth.example.com/realms/my-realm",
+    },
+    clientId: {
+      type: "string",
+      description: "The OIDC client ID for the registrar",
+      example: "registrar-client",
+    },
+    clientSecret: {
+      type: "string",
+      description:
+        "The OIDC client secret (optional, for confidential clients)",
+    },
+    username: {
+      type: "string",
+      description: "The username for OIDC login",
+      example: "admin@example.com",
+    },
+    password: {
+      type: "string",
+      description: "The password for OIDC login (stored in plaintext)",
+    },
+  },
+  required: ["registrarUrl", "oidcUrl", "clientId", "username", "password"],
+} as const;
+
+export const UpdateRegistrarConfigDtoSchema = {
+  type: "object",
+  properties: {
+    registrarUrl: {
+      type: "string",
+      description: "The base URL of the registrar API",
+      format: "uri",
+      example: "https://sandbox.eudi-wallet.org/api",
+    },
+    oidcUrl: {
+      type: "string",
+      description:
+        "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
+      format: "uri",
+      example: "https://auth.example.com/realms/my-realm",
+    },
+    clientId: {
+      type: "string",
+      description: "The OIDC client ID for the registrar",
+      example: "registrar-client",
+    },
+    clientSecret: {
+      type: "string",
+      description:
+        "The OIDC client secret (optional, for confidential clients)",
+    },
+    username: {
+      type: "string",
+      description: "The username for OIDC login",
+      example: "admin@example.com",
+    },
+    password: {
+      type: "string",
+      description: "The password for OIDC login (stored in plaintext)",
+    },
+  },
+} as const;
+
+export const CreateAccessCertificateDtoSchema = {
+  type: "object",
+  properties: {
+    keyId: {
+      type: "string",
+      description: "The ID of the key to create an access certificate for",
+      example: "my-signing-key",
+    },
+  },
+  required: ["keyId"],
 } as const;
 
 export const TrustListCreateDtoSchema = {

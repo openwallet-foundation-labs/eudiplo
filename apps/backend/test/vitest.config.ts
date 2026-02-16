@@ -9,6 +9,14 @@ export default defineConfig({
         globals: true,
         root: "./",
         fileParallelism: false,
+        env: {
+            // Required environment variables for E2E tests
+            MASTER_SECRET: "e2e-test-master-secret-do-not-use-in-production",
+            AUTH_CLIENT_ID: "e2e-test-client",
+            AUTH_CLIENT_SECRET: "e2e-test-secret",
+            ENCRYPTION_KEY:
+                "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+        },
     },
     plugins: [
         swc.vite(), // Put the Codecov vite plugin after all other plugins

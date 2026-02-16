@@ -506,7 +506,7 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
         )
         .expect(201);
 
-    // Import citizen presentation config (required for presentation during issuance)
+    // Import citizen presentation config
     await request(app.getHttpServer())
         .post("/verifier/config")
         .trustLocalhost()

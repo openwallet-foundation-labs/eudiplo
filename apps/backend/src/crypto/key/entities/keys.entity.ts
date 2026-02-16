@@ -9,6 +9,7 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
+import { EncryptedJsonTransformer } from "../../../shared/utils/encryption";
 import { CertEntity } from "./cert.entity";
 
 /**
@@ -47,8 +48,9 @@ export class KeyEntity {
 
     /**
      * The key material.
+     * Encrypted at rest using AES-256-GCM.
      */
-    @Column("json")
+    @Column("text", { transformer: EncryptedJsonTransformer })
     key!: JWK;
 
     /**

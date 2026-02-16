@@ -1,8 +1,9 @@
 # Sessions Management
 
-EUDIPLO manages sessions for credential issuance and verification and are bound
-to each tenant. In case for a presentation during issuance, both actions are
-handled in the same session. Sessions are stored in the database and can be
+EUDIPLO manages sessions for credential issuance and verification, bound
+to each tenant. When using the [Interactive Authorization Endpoint (IAE)](./iae.md),
+the session tracks the multi-step authorization flow, including completed steps
+and collected data. Sessions are stored in the database and can be
 managed via the `/sessions` endpoint. You can retrieve a specific session via
 `/sessions/{id}`.
 

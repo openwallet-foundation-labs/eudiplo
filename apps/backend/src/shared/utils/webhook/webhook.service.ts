@@ -104,11 +104,9 @@ export class WebhookService {
 
                 //check if a redirect URI is passed, we either expect a redirect or claims, but never both.
                 if (webhookResponse.data?.redirectUri) {
-                    //TODO: do we need to do something with it?
+                    // redirectUri is returned but no special handling needed here
                 } else if (webhookResponse.data && values.expectResponse) {
-                    //TODO: update this for presentation during issuance
-                    //session.credentialPayload!.credentialClaims!["id"].claims = webhookResponse.data;
-                    //store received webhook response
+                    // Store received webhook response
                     await this.sessionService.add(values.session.id, {
                         credentialPayload: values.session.credentialPayload,
                     });
@@ -189,6 +187,89 @@ export class WebhookService {
                     },
                 );
                 throw new Error(`Error sending webhook: ${err.message || err}`);
+            },
+        );
+    }
+
+    /**
+     * Sends a webhook with external authorization server context.
+     * Used for wallet-initiated flows where the wallet authenticates with an external AS (e.g., Keycloak).
+     * The webhook receives enriched context to enable identity mapping and claims resolution.
+     *
+     * @param values.webhook The webhook configuration
+     * @param values.logContext Logging context
+     * @param values.context External AS context (iss, sub, credential_configuration_id, token_claims)
+     * @returns WebhookResponse containing claims data or deferred issuance indicator
+     */
+    async sendExternalAsWebhook(values: {
+        webhook: WebhookConfig;
+        logContext: SessionLogContext;
+        context: {
+            iss: string;
+            sub: string;
+            credential_configuration_id: string;
+            token_claims: Record<string, unknown>;
+        };
+    }): Promise<WebhookResponse> {
+        const headers: Record<string, string> = {};
+
+        if (values.webhook.auth?.type === "apiKey") {
+            headers[values.webhook.auth.config.headerName] =
+                values.webhook.auth.config.value;
+        }
+
+        this.sessionLogger.logSession(
+            values.logContext,
+            "Sending external AS claims webhook",
+            {
+                webhookUrl: values.webhook.url,
+                authType: values.webhook.auth?.type || "none",
+                externalIss: values.context.iss,
+                externalSub: values.context.sub,
+                credentialConfigurationId:
+                    values.context.credential_configuration_id,
+            },
+        );
+
+        return firstValueFrom(
+            this.httpService.post(
+                values.webhook.url,
+                {
+                    // External AS context for identity resolution
+                    iss: values.context.iss,
+                    sub: values.context.sub,
+                    credential_configuration_id:
+                        values.context.credential_configuration_id,
+                    token_claims: values.context.token_claims,
+                },
+                {
+                    headers,
+                },
+            ),
+        ).then(
+            (webhookResponse) => {
+                this.sessionLogger.logSession(
+                    values.logContext,
+                    "External AS claims webhook sent successfully",
+                    {
+                        responseStatus: webhookResponse.status,
+                        hasResponseData: !!webhookResponse.data,
+                    },
+                );
+                return webhookResponse.data;
+            },
+            (err) => {
+                this.sessionLogger.logSessionError(
+                    values.logContext,
+                    err,
+                    "Error sending external AS claims webhook",
+                    {
+                        webhookUrl: values.webhook.url,
+                    },
+                );
+                throw new Error(
+                    `Error sending external AS claims webhook: ${err.message || err}`,
+                );
             },
         );
     }

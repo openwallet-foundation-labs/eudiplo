@@ -1,5 +1,5 @@
 import { HttpService } from "@nestjs/axios";
-import { of, throwError } from "rxjs";
+import { throwError } from "rxjs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
     StatusListVerifierService,

@@ -134,6 +134,7 @@ nav:
       - Sessions: architecture/sessions.md
       - Status Management: architecture/status-management.md
       - Webhooks: architecture/webhooks.md
+      - Interactive Authorization (IAE): architecture/iae.md
       - Config Import: architecture/configuration-import.md
       - Key Management: architecture/key-management.md
       - Database: architecture/database.md
@@ -141,6 +142,7 @@ nav:
   - API:
     - Overview: api/index.md
     - Authentication: api/authentication.md
+    - Session Events (SSE): api/session-events.md
     - OpenApi: api/openapi.md
   - Development:
       - development/index.md

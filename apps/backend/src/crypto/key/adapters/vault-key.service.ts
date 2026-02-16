@@ -1,5 +1,4 @@
 import { HttpService } from "@nestjs/axios";
-import { Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtPayload, Signer } from "@sd-jwt/types";
 import { exportJWK, importSPKI, JWK, JWTHeaderParameters } from "jose";

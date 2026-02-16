@@ -1,11 +1,6 @@
 import { X509Certificate } from "node:crypto";
 import { readFileSync } from "node:fs";
-import {
-    BadRequestException,
-    Inject,
-    Injectable,
-    OnApplicationBootstrap,
-} from "@nestjs/common";
+import { BadRequestException, Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
 import { JWTHeaderParameters } from "jose";

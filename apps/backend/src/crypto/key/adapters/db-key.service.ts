@@ -1,4 +1,3 @@
-import { Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Signer } from "@sd-jwt/types";
 import {
