@@ -2,13 +2,16 @@ import { client } from './api/client.gen';
 import {
   authControllerGetOAuth2Token,
   credentialOfferControllerGetOffer,
-  verifierOfferControllerGetOffer,
+  healthControllerCheck,
   sessionControllerGetSession,
+  verifierOfferControllerGetOffer,
 } from './api/sdk.gen';
 import type {
-  Session,
+  HealthControllerCheckError,
+  HealthControllerCheckResponse,
   OfferRequestDto,
   PresentationRequest,
+  Session,
 } from './api/types.gen';
 
 // ============================================================================
@@ -392,6 +395,22 @@ export class EudiploClient {
       crossDeviceUri: response.data.crossDeviceUri ?? response.data.uri,
       sessionId: response.data.session,
     };
+  }
+
+  /**
+   * Get the current health of the EUDIPLO connector.
+   * The status in the response is `ok`/`error`.
+   * The health of the components is listed in the response under `info`/`error`/`details`.
+   * If the EUDIPLO connector itself is unreachable, no components are listed.
+   */
+  async getHealth(): Promise<HealthControllerCheckResponse | HealthControllerCheckError> {
+    const response = await healthControllerCheck({ throwOnError: false });
+
+    if (!response.data) {
+      return { status: "error" };
+    }
+
+    return response.data;
   }
 
   /**
