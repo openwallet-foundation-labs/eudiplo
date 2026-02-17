@@ -297,7 +297,7 @@ importers:
         version: 17.3.0
       nock:
         specifier: ^14.0.10
-        version: 14.0.10
+        version: 14.0.11
       source-map-support:
         specifier: ^0.5.21
         version: 0.5.21
@@ -2938,8 +2938,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@mswjs/interceptors@0.39.8':
-    resolution: {integrity: sha512-2+BzZbjRO7Ct61k8fMNHEtoKjeWI9pIlHFTqBwZ5icHpqszIgEZbjb1MW5Z0+bITTCTl3gk4PDBxs9tA/csXvA==}
+  '@mswjs/interceptors@0.41.3':
+    resolution: {integrity: sha512-cXu86tF4VQVfwz8W1SPbhoRyHJkti6mjH/XJIxp40jhO4j2k1m4KYrEykxqWPkFF3vrK4rgQppBh//AwyGSXPA==}
     engines: {node: '>=18'}
 
   '@napi-rs/nice-android-arm-eabi@1.1.1':
@@ -7878,8 +7878,8 @@ packages:
       '@angular/core': ^20.3.2
       monaco-editor: ^0.52.2
 
-  nock@14.0.10:
-    resolution: {integrity: sha512-Q7HjkpyPeLa0ZVZC5qpxBt5EyLczFJ91MEewQiIi9taWuA0KB/MDJlUWtON+7dGouVdADTQsf9RA7TZk6D8VMw==}
+  nock@14.0.11:
+    resolution: {integrity: sha512-u5xUnYE+UOOBA6SpELJheMCtj2Laqx15Vl70QxKo43Wz/6nMHXS7PrEioXLjXAwhmawdEMNImwKCcPhBJWbKVw==}
     engines: {node: '>=18.20.0 <20 || >=20.12.1'}
 
   node-abi@3.87.0:
@@ -9374,6 +9374,7 @@ packages:
   tar@7.5.7:
     resolution: {integrity: sha512-fov56fJiRuThVFXD6o6/Q354S7pnWMJIVlDBYijsTNx6jKSE4pvrDTs6lUnmGvNyfJwFQQwWy3owKz1ucIhveQ==}
     engines: {node: '>=18'}
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   tdigest@0.1.2:
     resolution: {integrity: sha512-+G0LLgjjo9BZX2MfdvPfH+MKLCrxlXSYec5DaPYP1fe6Iyhf0/fSmJ0bFiZ1F8BT6cGXl2LpltQptzjXKWEkKA==}
@@ -13514,7 +13515,7 @@ snapshots:
   '@msgpackr-extract/msgpackr-extract-win32-x64@3.0.3':
     optional: true
 
-  '@mswjs/interceptors@0.39.8':
+  '@mswjs/interceptors@0.41.3':
     dependencies:
       '@open-draft/deferred-promise': 2.2.0
       '@open-draft/logger': 0.3.0
@@ -19231,9 +19232,9 @@ snapshots:
       monaco-editor: 0.55.1
       tslib: 2.8.1
 
-  nock@14.0.10:
+  nock@14.0.11:
     dependencies:
-      '@mswjs/interceptors': 0.39.8
+      '@mswjs/interceptors': 0.41.3
       json-stringify-safe: 5.0.1
       propagate: 2.0.1
 
