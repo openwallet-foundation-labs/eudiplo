@@ -38,15 +38,15 @@ If you don't have a realm yet:
 1. Go to **Clients** → **Create client**
 2. Configure the client:
 
-| Setting           | Value                                    |
-| ----------------- | ---------------------------------------- |
-| Client type       | OpenID Connect                           |
-| Client ID         | `eudiplo-chained-as`                     |
-| Client authentication | On (confidential client)             |
-| Valid redirect URIs | `https://your-eudiplo-url/*/chained-as/callback` |
+| Setting               | Value                                            |
+| --------------------- | ------------------------------------------------ |
+| Client type           | OpenID Connect                                   |
+| Client ID             | `eudiplo-chained-as`                             |
+| Client authentication | On (confidential client)                         |
+| Valid redirect URIs   | `https://your-eudiplo-url/*/chained-as/callback` |
 
 !!! tip "Redirect URI Pattern"
-    
+
     Use `*` as a wildcard for the tenant name, or specify exact tenant names like `https://eudiplo.example.com/prod/chained-as/callback`.
 
 3. Click **Save**
@@ -72,34 +72,34 @@ Add the `chainedAs` section to your issuance configuration:
 
 ```json
 {
-  "display": [
-    {
-      "name": "My Issuer",
-      "locale": "en"
+    "display": [
+        {
+            "name": "My Issuer",
+            "locale": "en"
+        }
+    ],
+    "chainedAs": {
+        "enabled": true,
+        "upstream": {
+            "issuer": "https://keycloak.example.com/realms/eudiplo",
+            "clientId": "eudiplo-chained-as",
+            "clientSecret": "paste-your-client-secret-here",
+            "scopes": ["openid", "profile", "email"]
+        },
+        "token": {
+            "lifetimeSeconds": 3600
+        },
+        "requireDPoP": false
     }
-  ],
-  "chainedAs": {
-    "enabled": true,
-    "upstream": {
-      "issuer": "https://keycloak.example.com/realms/eudiplo",
-      "clientId": "eudiplo-chained-as",
-      "clientSecret": "paste-your-client-secret-here",
-      "scopes": ["openid", "profile", "email"]
-    },
-    "token": {
-      "lifetimeSeconds": 3600
-    },
-    "requireDPoP": false
-  }
 }
 ```
 
-| Field               | Description                                                      |
-| ------------------- | ---------------------------------------------------------------- |
-| `upstream.issuer`   | Your Keycloak realm URL (must end with `/realms/{realm-name}`)   |
-| `upstream.clientId` | The client ID you created in Keycloak                            |
-| `upstream.clientSecret` | The client secret from Keycloak's Credentials tab            |
-| `upstream.scopes`   | Scopes to request from Keycloak                                  |
+| Field                   | Description                                                    |
+| ----------------------- | -------------------------------------------------------------- |
+| `upstream.issuer`       | Your Keycloak realm URL (must end with `/realms/{realm-name}`) |
+| `upstream.clientId`     | The client ID you created in Keycloak                          |
+| `upstream.clientSecret` | The client secret from Keycloak's Credentials tab              |
+| `upstream.scopes`       | Scopes to request from Keycloak                                |
 
 ### Configure Claims Webhook
 
@@ -107,17 +107,17 @@ To use the authenticated user's claims, configure a webhook on your credential c
 
 ```json
 {
-  "credentialConfigurationId": "EmployeeBadge",
-  "claimsWebhook": {
-    "url": "https://your-backend.example.com/claims",
-    "auth": {
-      "type": "apiKey",
-      "config": {
-        "headerName": "X-API-Key",
-        "value": "your-secret-key"
-      }
+    "credentialConfigurationId": "EmployeeBadge",
+    "claimsWebhook": {
+        "url": "https://your-backend.example.com/claims",
+        "auth": {
+            "type": "apiKey",
+            "config": {
+                "headerName": "X-API-Key",
+                "value": "your-secret-key"
+            }
+        }
     }
-  }
 }
 ```
 
@@ -125,19 +125,19 @@ Your webhook will receive the Keycloak user's claims in the `identity` object:
 
 ```json
 {
-  "session": "abc123",
-  "credential_configuration_id": "EmployeeBadge",
-  "identity": {
-    "iss": "https://keycloak.example.com/realms/eudiplo",
-    "sub": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-    "token_claims": {
-      "email": "john.doe@example.com",
-      "email_verified": true,
-      "preferred_username": "jdoe",
-      "given_name": "John",
-      "family_name": "Doe"
+    "session": "abc123",
+    "credential_configuration_id": "EmployeeBadge",
+    "identity": {
+        "iss": "https://keycloak.example.com/realms/eudiplo",
+        "sub": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+        "token_claims": {
+            "email": "john.doe@example.com",
+            "email_verified": true,
+            "preferred_username": "jdoe",
+            "given_name": "John",
+            "family_name": "Doe"
+        }
     }
-  }
 }
 ```
 
@@ -252,11 +252,11 @@ To pass custom user attributes (e.g., employee ID) to EUDIPLO:
 2. Name it (e.g., `employee`)
 3. Go to **Mappers** → **Add mapper** → **By configuration** → **User Attribute**
 4. Configure:
-   - Name: `employee_id`
-   - User Attribute: `employee_id`
-   - Token Claim Name: `employee_id`
-   - Add to ID token: On
-   - Add to access token: On
+    - Name: `employee_id`
+    - User Attribute: `employee_id`
+    - Token Claim Name: `employee_id`
+    - Add to ID token: On
+    - Add to access token: On
 5. Go to your client → **Client scopes** → **Add client scope** → Select `employee`
 
 ### In EUDIPLO
@@ -265,11 +265,11 @@ Add the scope to your issuance configuration:
 
 ```json
 {
-  "chainedAs": {
-    "upstream": {
-      "scopes": ["openid", "profile", "email", "employee"]
+    "chainedAs": {
+        "upstream": {
+            "scopes": ["openid", "profile", "email", "employee"]
+        }
     }
-  }
 }
 ```
 
