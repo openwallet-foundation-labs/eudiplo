@@ -140,6 +140,9 @@
                             <a href="#CertUsage" title="src/crypto/key/entities/cert-usage.entity.ts" ><b>CertUsage</b>&nbsp;&nbsp;&nbsp;(src/.../cert-usage.entity.ts)</a>
                         </li>
                         <li>
+                            <a href="#ChainedAsSessionStatus" title="src/issuer/issuance/oid4vci/chained-as/entities/chained-as-session.entity.ts" ><b>ChainedAsSessionStatus</b>&nbsp;&nbsp;&nbsp;(src/.../chained-as-session.entity.ts)</a>
+                        </li>
+                        <li>
                             <a href="#CredentialFormat" title="src/issuer/configuration/credentials/entities/credential.entity.ts" ><b>CredentialFormat</b>&nbsp;&nbsp;&nbsp;(src/.../credential.entity.ts)</a>
                         </li>
                         <li>
@@ -324,6 +327,75 @@
                         <tr>
                             <td class="col-md-4">
                                 <i>Value : </i><code>statusList</code>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
+    <h3>src/issuer/issuance/oid4vci/chained-as/entities/chained-as-session.entity.ts</h3>
+    <section data-compodoc="block-enums">
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="ChainedAsSessionStatus"></a>
+                        <span class="name "><b>ChainedAsSessionStatus</b><a href="#ChainedAsSessionStatus"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-description"><p>Status of a Chained AS session.</p>
+</div>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;PENDING_AUTHORIZE
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>pending_authorize</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;PENDING_UPSTREAM_CALLBACK
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>pending_upstream_callback</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;AUTHORIZED
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>authorized</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;TOKEN_ISSUED
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>token_issued</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;EXPIRED
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>expired</code>
                             </td>
                         </tr>
             </tbody>
@@ -833,12 +905,12 @@ Lower numbers run first.</p>
                         </tr>
                         <tr>
                             <td class="col-md-4">
-                                &nbsp;PresentationOffer
+                                &nbsp;PresentationRequest
                             </td>
                         </tr>
                         <tr>
                             <td class="col-md-4">
-                                <i>Value : </i><code>presentation:offer</code>
+                                <i>Value : </i><code>presentation:request</code>
                             </td>
                         </tr>
                         <tr>

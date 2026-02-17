@@ -933,6 +933,8 @@
       
         
       
+        
+      
     
     
     
@@ -979,6 +981,34 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/keycloak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Keycloak Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1230,6 +1260,8 @@
       
         
           
+        
+      
         
       
         
@@ -1576,6 +1608,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Claims Webhook">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#claims-webhook-request-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Claims Webhook Request Format
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identity-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Identity Object
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1735,6 +1795,34 @@
     
   
     Interactive Authorization (IAE)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chained-as/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chained Authorization Server
   
 
     
@@ -2434,6 +2522,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Claims Webhook">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#claims-webhook-request-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Claims Webhook Request Format
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identity-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Identity Object
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2712,6 +2828,114 @@ directory. It can be run locally or deployed to a Cloudflare Worker, and is a go
 <a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="p">}</span>
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="p">}</span>
 </code></pre></div>
+<h3 id="claims-webhook-request-format">Claims Webhook Request Format<a class="headerlink" href="#claims-webhook-request-format" title="Permanent link">¶</a></h3>
+<p>EUDIPLO sends an HTTP <code>POST</code> request with the following structure:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nt">"session"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a6318799-dff4-4b60-9d1d-58703611bd23"</span><span class="p">,</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nt">"credential_configuration_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EmployeeBadge"</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nt">"identity"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">        </span><span class="nt">"iss"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://idp.example.com/realms/myrealm"</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">        </span><span class="nt">"sub"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user-uuid-from-idp"</span><span class="p">,</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">        </span><span class="nt">"token_claims"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">            </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user@example.com"</span><span class="p">,</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">            </span><span class="nt">"preferred_username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"jdoe"</span><span class="p">,</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">            </span><span class="nt">"given_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"John"</span><span class="p">,</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">            </span><span class="nt">"family_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Doe"</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="nt">"credentials"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="p">}</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>session</code></td>
+<td>string</td>
+<td>The session ID identifying the issuance request</td>
+</tr>
+<tr>
+<td><code>credential_configuration_id</code></td>
+<td>string</td>
+<td>The ID of the credential configuration being requested</td>
+</tr>
+<tr>
+<td><code>identity</code></td>
+<td>object</td>
+<td>Identity context from the authorization flow (see below)</td>
+</tr>
+<tr>
+<td><code>credentials</code></td>
+<td>array</td>
+<td>Presented credentials (only for IAE with presentation flows)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="identity-object">Identity Object<a class="headerlink" href="#identity-object" title="Permanent link">¶</a></h3>
+<p>The <code>identity</code> object contains information about the authenticated user. Its contents depend on the authorization flow used:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>iss</code></td>
+<td>string</td>
+<td>The issuer URL of the authorization server</td>
+</tr>
+<tr>
+<td><code>sub</code></td>
+<td>string</td>
+<td>The subject identifier (user ID) from the authorization server</td>
+</tr>
+<tr>
+<td><code>token_claims</code></td>
+<td>object</td>
+<td>All available claims from the access token (and ID token for Chained AS)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="identity-sources-by-flow">Identity Sources by Flow<a class="headerlink" href="#identity-sources-by-flow" title="Permanent link">¶</a></h4>
+<table>
+<thead>
+<tr>
+<th>Flow</th>
+<th>Identity Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>External AS</strong></td>
+<td>Claims from the external authorization server's access token</td>
+</tr>
+<tr>
+<td><strong>Chained AS</strong></td>
+<td>Claims from the upstream OIDC provider (merged ID token + access token)</td>
+</tr>
+<tr>
+<td><strong>Pre-authenticated</strong></td>
+<td>Not available (no user authentication)</td>
+</tr>
+<tr>
+<td><strong>IAE</strong></td>
+<td>Identity from the IAE interaction (presentation or web redirect)</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Token Claims</p>
+<p>The <code>token_claims</code> field contains all available claims from the token—EUDIPLO does not filter them. This gives your webhook full flexibility to use any claim the authorization server provides. For Chained AS flows, ID token claims take precedence over access token claims when both contain the same field.</p>
+</div>
 <hr>
 <h2 id="deferred-credential-issuance">Deferred Credential Issuance<a class="headerlink" href="#deferred-credential-issuance" title="Permanent link">¶</a></h2>
 <p><strong>Deferred issuance</strong> allows your backend to signal that the credential cannot be issued immediately. This is useful when:</p>
@@ -2749,10 +2973,10 @@ directory. It can be run locally or deployed to a Cloudflare Worker, and is a go
     end</code></pre>
 <h3 id="webhook-response-for-deferred-issuance">Webhook Response for Deferred Issuance<a class="headerlink" href="#webhook-response-for-deferred-issuance" title="Permanent link">¶</a></h3>
 <p>To trigger deferred issuance, your webhook should return:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nt">"deferred"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nt">"interval"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nt">"deferred"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">"interval"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="p">}</span>
 </code></pre></div>
 <table>
 <thead>
@@ -2777,24 +3001,24 @@ directory. It can be run locally or deployed to a Cloudflare Worker, and is a go
 </table>
 <h3 id="completing-deferred-issuance">Completing Deferred Issuance<a class="headerlink" href="#completing-deferred-issuance" title="Permanent link">¶</a></h3>
 <p>Once your backend has completed processing, you need to call EUDIPLO's API to provide the credential:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Complete the deferred transaction with the credential</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>POST<span class="w"> </span>/issuer/deferred/<span class="o">{</span>transactionId<span class="o">}</span>/complete
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>Content-Type:<span class="w"> </span>application/json
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>Authorization:<span class="w"> </span>Bearer<span class="w"> </span>&lt;your-token&gt;
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="o">{</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="s2">"credential"</span>:<span class="w"> </span><span class="s2">"&lt;the-issued-credential-string&gt;"</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="o">}</span>
-</code></pre></div>
-<p>Or, if the issuance failed:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Mark the deferred transaction as failed</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>POST<span class="w"> </span>/issuer/deferred/<span class="o">{</span>transactionId<span class="o">}</span>/fail
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Complete the deferred transaction with the credential</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>POST<span class="w"> </span>/issuer/deferred/<span class="o">{</span>transactionId<span class="o">}</span>/complete
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>Content-Type:<span class="w"> </span>application/json
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>Authorization:<span class="w"> </span>Bearer<span class="w"> </span>&lt;your-token&gt;
 <a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
 <a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="o">{</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="s2">"errorMessage"</span>:<span class="w"> </span><span class="s2">"KYC verification failed"</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="s2">"credential"</span>:<span class="w"> </span><span class="s2">"&lt;the-issued-credential-string&gt;"</span>
 <a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="o">}</span>
+</code></pre></div>
+<p>Or, if the issuance failed:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Mark the deferred transaction as failed</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>POST<span class="w"> </span>/issuer/deferred/<span class="o">{</span>transactionId<span class="o">}</span>/fail
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>Content-Type:<span class="w"> </span>application/json
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>Authorization:<span class="w"> </span>Bearer<span class="w"> </span>&lt;your-token&gt;
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="o">{</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="s2">"errorMessage"</span>:<span class="w"> </span><span class="s2">"KYC verification failed"</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="o">}</span>
 </code></pre></div>
 <h3 id="deferred-credential-errors">Deferred Credential Errors<a class="headerlink" href="#deferred-credential-errors" title="Permanent link">¶</a></h3>
 <p>When the wallet polls the deferred credential endpoint, it may receive:</p>
@@ -2820,11 +3044,11 @@ directory. It can be run locally or deployed to a Cloudflare Worker, and is a go
 </tbody>
 </table>
 <p>The <code>issuance_pending</code> error includes an <code>interval</code> field indicating when to retry:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"issuance_pending"</span><span class="p">,</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nt">"error_description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The credential issuance is still pending"</span><span class="p">,</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">"interval"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"issuance_pending"</span><span class="p">,</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="nt">"error_description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The credential issuance is still pending"</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nt">"interval"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="p">}</span>
 </code></pre></div>
 <h3 id="transaction-lifecycle">Transaction Lifecycle<a class="headerlink" href="#transaction-lifecycle" title="Permanent link">¶</a></h3>
 <p>Deferred transactions have the following states:</p>
@@ -2866,25 +3090,8 @@ directory. It can be run locally or deployed to a Cloudflare Worker, and is a go
 <h2 id="notification-webhook">Notification Webhook<a class="headerlink" href="#notification-webhook" title="Permanent link">¶</a></h2>
 <p>The <strong>notification webhook</strong> receives the outcome of the issuance process (e.g., accepted or denied).<br>
 This confirms that the wallet has received and accepted the credential.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="nt">"notifyWebhook"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://localhost:8787/notify"</span><span class="p">,</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">        </span><span class="nt">"auth"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"apiKey"</span><span class="p">,</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">            </span><span class="nt">"config"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">                </span><span class="nt">"headerName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"x-api-key"</span><span class="p">,</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">                </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"your-api-key"</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">            </span><span class="p">}</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="p">}</span>
-</code></pre></div>
-<p>If no notification webhook is configured, you can fetch the session result by querying the <code>/session</code> endpoint with the <code>sessionId</code>.</p>
-<hr>
-<h2 id="presentation-webhook">Presentation Webhook<a class="headerlink" href="#presentation-webhook" title="Permanent link">¶</a></h2>
-<p>The <strong>presentation webhook</strong> receives verified claims from the wallet after a presentation flow completes.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="nt">"webhook"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="nt">"notifyWebhook"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://localhost:8787/notify"</span><span class="p">,</span>
 <a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">        </span><span class="nt">"auth"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"apiKey"</span><span class="p">,</span>
@@ -2895,6 +3102,23 @@ This confirms that the wallet has received and accepted the credential.</p>
 <a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">        </span><span class="p">}</span>
 <a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">    </span><span class="p">}</span>
 <a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="p">}</span>
+</code></pre></div>
+<p>If no notification webhook is configured, you can fetch the session result by querying the <code>/session</code> endpoint with the <code>sessionId</code>.</p>
+<hr>
+<h2 id="presentation-webhook">Presentation Webhook<a class="headerlink" href="#presentation-webhook" title="Permanent link">¶</a></h2>
+<p>The <strong>presentation webhook</strong> receives verified claims from the wallet after a presentation flow completes.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="nt">"webhook"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://localhost:8787/notify"</span><span class="p">,</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">        </span><span class="nt">"auth"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"apiKey"</span><span class="p">,</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">            </span><span class="nt">"config"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">                </span><span class="nt">"headerName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"x-api-key"</span><span class="p">,</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">                </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"your-api-key"</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="p">}</span>
 </code></pre></div>
 <h3 id="webhook-request-format">Webhook Request Format<a class="headerlink" href="#webhook-request-format" title="Permanent link">¶</a></h3>
 <p>EUDIPLO sends an HTTP <code>POST</code> request with the following structure:</p>
@@ -2910,28 +3134,28 @@ This confirms that the wallet has received and accepted the credential.</p>
 </li>
 <li><code>session</code>: The session ID identifying the request.</li>
 </ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="nt">"credentials"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">        </span><span class="p">{</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pid"</span><span class="p">,</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">            </span><span class="nt">"values"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">                </span><span class="nt">"iss"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://service.eudi-wallet.dev"</span><span class="p">,</span>
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">                </span><span class="nt">"iat"</span><span class="p">:</span><span class="w"> </span><span class="mi">1751884150</span><span class="p">,</span>
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">                </span><span class="nt">"vct"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://service.eudi-wallet.dev/credentials/vct/pid"</span><span class="p">,</span>
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">                </span><span class="nt">"address"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">                    </span><span class="nt">"locality"</span><span class="p">:</span><span class="w"> </span><span class="s2">"KÖLN"</span><span class="p">,</span>
-<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">                    </span><span class="nt">"postal_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"51147"</span><span class="p">,</span>
-<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">                    </span><span class="nt">"street_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"HEIDESTRAẞE 17"</span>
-<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">                </span><span class="p">}</span>
-<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="w">            </span><span class="p">}</span>
-<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="w">        </span><span class="p">{</span>
-<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="w">            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"citizen"</span><span class="p">,</span>
-<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="w">            </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Credential verification failed: invalid signature"</span>
-<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="w">    </span><span class="p">],</span>
-<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="w">    </span><span class="nt">"session"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a6318799-dff4-4b60-9d1d-58703611bd23"</span>
-<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="nt">"credentials"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pid"</span><span class="p">,</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">            </span><span class="nt">"values"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">                </span><span class="nt">"iss"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://service.eudi-wallet.dev"</span><span class="p">,</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">                </span><span class="nt">"iat"</span><span class="p">:</span><span class="w"> </span><span class="mi">1751884150</span><span class="p">,</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">                </span><span class="nt">"vct"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://service.eudi-wallet.dev/credentials/vct/pid"</span><span class="p">,</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">                </span><span class="nt">"address"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">                    </span><span class="nt">"locality"</span><span class="p">:</span><span class="w"> </span><span class="s2">"KÖLN"</span><span class="p">,</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">                    </span><span class="nt">"postal_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"51147"</span><span class="p">,</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">                    </span><span class="nt">"street_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"HEIDESTRAẞE 17"</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">                </span><span class="p">}</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="w">            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"citizen"</span><span class="p">,</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="w">            </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Credential verification failed: invalid signature"</span>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="w">    </span><span class="p">],</span>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="w">    </span><span class="nt">"session"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a6318799-dff4-4b60-9d1d-58703611bd23"</span>
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a><span class="p">}</span>
 </code></pre></div>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -2947,11 +3171,11 @@ This confirms that the wallet has received and accepted the credential.</p>
 <p>The response must be a JSON object keyed by the credential configuration ID. Each entry contains the <strong>claims</strong> to issue.</p>
 <h3 id="example-response">Example Response<a class="headerlink" href="#example-response" title="Permanent link">¶</a></h3>
 <p>Issuing a credential with ID <code>citizen</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="nt">"citizen"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">        </span><span class="nt">"town"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BERLIN"</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p">{</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="nt">"citizen"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">        </span><span class="nt">"town"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BERLIN"</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="p">}</span>
 </code></pre></div>
 <p>This response is injected into the issuance flow to create the final credential.</p>
 

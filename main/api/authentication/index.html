@@ -933,6 +933,8 @@
       
         
       
+        
+      
     
     
     
@@ -979,6 +981,34 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/keycloak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Keycloak Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1252,6 +1282,8 @@
       
         
       
+        
+      
     
     
     
@@ -1491,6 +1523,34 @@
     
   
     Interactive Authorization (IAE)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/chained-as/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chained Authorization Server
   
 
     
@@ -2830,7 +2890,7 @@ variables, see <a href="../../architecture/key-management/">Key Management</a> a
 <a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="c1">//to manage presentation resources</span>
 <a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="nx">Presentations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"presentation:manage"</span><span class="p">,</span>
 <a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="c1">// to create offers</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="nx">PresentationOffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"presentation:offer"</span><span class="p">,</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="nx">PresentationRequest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"presentation:request"</span><span class="p">,</span>
 <a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="c1">// to manage issuance resources</span>
 <a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="nx">Issuances</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"issuance:manage"</span><span class="p">,</span>
 <a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="c1">// to create offers</span>
@@ -2850,7 +2910,7 @@ variables, see <a href="../../architecture/key-management/">Key Management</a> a
 <a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Tenants</span><span class="p">,</span>
 <a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">IssuanceOffer</span><span class="p">,</span>
 <a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Issuances</span><span class="p">,</span>
-<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">PresentationOffer</span><span class="p">,</span>
+<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">PresentationRequest</span><span class="p">,</span>
 <a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Presentations</span><span class="p">,</span>
 <a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Clients</span><span class="p">,</span>
 <a id="__codelineno-5-31" name="__codelineno-5-31" href="#__codelineno-5-31"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Registrar</span><span class="p">,</span>
@@ -2870,7 +2930,7 @@ variables, see <a href="../../architecture/key-management/">Key Management</a> a
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
 <a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="s1">    "clientId": "partner-service",</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="s1">    "roles": ["presentation:offer", "issuance:offer"],</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="s1">    "roles": ["presentation:request", "issuance:offer"],</span>
 <a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="s1">    "allowedPresentationConfigs": ["age-verification", "identity-check"],</span>
 <a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="s1">    "allowedIssuanceConfigs": ["partner-credential"]</span>
 <a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="s1">  }'</span>

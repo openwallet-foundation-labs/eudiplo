@@ -195,6 +195,11 @@
                                 <a href="#failDeferredTransaction" >failDeferredTransaction</a>
                             </li>
                             <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getAuthorizationServer" >getAuthorizationServer</a>
+                            </li>
+                            <li>
                                     <span class="modifier">Async</span>
                                 <a href="#getCredential" >getCredential</a>
                             </li>
@@ -247,12 +252,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(authzService: <a href="../injectables/AuthorizeService.html" target="_self">AuthorizeService</a>, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, credentialsService: <a href="../injectables/CredentialsService.html" target="_self">CredentialsService</a>, configService: ConfigService, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, sessionLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>, issuanceService: <a href="../injectables/IssuanceService.html" target="_self">IssuanceService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, httpService: HttpService, statusListConfigService: <a href="../injectables/StatusListConfigService.html" target="_self">StatusListConfigService</a>, nonceRepository: <a href="../entitys/NonceEntity.html" target="_self">Repository&lt;NonceEntity&gt;</a>, deferredTransactionRepository: <a href="../entitys/DeferredTransactionEntity.html" target="_self">Repository&lt;DeferredTransactionEntity&gt;</a>)</code>
+<code>constructor(authzService: <a href="../injectables/AuthorizeService.html" target="_self">AuthorizeService</a>, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, credentialsService: <a href="../injectables/CredentialsService.html" target="_self">CredentialsService</a>, configService: ConfigService, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, sessionLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>, issuanceService: <a href="../injectables/IssuanceService.html" target="_self">IssuanceService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, httpService: HttpService, statusListConfigService: <a href="../injectables/StatusListConfigService.html" target="_self">StatusListConfigService</a>, chainedAsService: <a href="../injectables/ChainedAsService.html" target="_self">ChainedAsService</a>, nonceRepository: <a href="../entitys/NonceEntity.html" target="_self">Repository&lt;NonceEntity&gt;</a>, deferredTransactionRepository: <a href="../entitys/DeferredTransactionEntity.html" target="_self">Repository&lt;DeferredTransactionEntity&gt;</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="72" class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:72</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="74" class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:74</a></div>
                             </td>
                         </tr>
 
@@ -390,6 +395,18 @@
                                                     
                                                 </tr>
                                                 <tr>
+                                                        <td>chainedAsService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/ChainedAsService.html" target="_self" >ChainedAsService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
                                                         <td>nonceRepository</td>
                                                   
                                                         <td>
@@ -457,8 +474,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1084"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:1084</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1172"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:1172</a></div>
                         </td>
                     </tr>
 
@@ -498,8 +515,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="996"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:996</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1084"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:1084</a></div>
                         </td>
                     </tr>
 
@@ -608,8 +625,8 @@ This method is called when the external system completes processing.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="205"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:205</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="246"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:246</a></div>
                         </td>
                     </tr>
 
@@ -717,8 +734,8 @@ This method is called when the external system completes processing.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1050"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:1050</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1138"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:1138</a></div>
                         </td>
                     </tr>
 
@@ -808,6 +825,79 @@ This method is called when the external system completes processing.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="getAuthorizationServer"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getAuthorizationServer</b></span>
+                        <a href="#getAuthorizationServer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getAuthorizationServer(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="97"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:97</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get the authorization server URL for credential offers.
+Uses Chained AS if configured, otherwise falls back to the default AS.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="getCredential"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -826,8 +916,8 @@ This method is called when the external system completes processing.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="331"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:331</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="375"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:375</a></div>
                         </td>
                     </tr>
 
@@ -909,8 +999,8 @@ This method is called when the external system completes processing.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="844"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:844</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="932"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:932</a></div>
                         </td>
                     </tr>
 
@@ -1017,8 +1107,8 @@ Called when wallet polls with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="95"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:95</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="115"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:115</a></div>
                         </td>
                     </tr>
 
@@ -1092,8 +1182,8 @@ Called when wallet polls with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="107"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:107</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="127"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:127</a></div>
                         </td>
                     </tr>
 
@@ -1170,8 +1260,8 @@ Called when wallet polls with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="755"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:755</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="843"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:843</a></div>
                         </td>
                     </tr>
 
@@ -1312,8 +1402,8 @@ Creates a deferred transaction and returns HTTP 202 with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="647"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:647</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="735"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:735</a></div>
                         </td>
                     </tr>
 
@@ -1407,8 +1497,8 @@ Creates a deferred transaction and returns HTTP 202 with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="119"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:119</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="139"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:139</a></div>
                         </td>
                     </tr>
 
@@ -1498,8 +1588,8 @@ Creates a deferred transaction and returns HTTP 202 with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="318"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:318</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="362"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:362</a></div>
                         </td>
                     </tr>
 
@@ -1539,8 +1629,8 @@ Creates a deferred transaction and returns HTTP 202 with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="304"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:304</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="348"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:348</a></div>
                         </td>
                     </tr>
 
@@ -1615,7 +1705,7 @@ Creates a deferred transaction and returns HTTP 202 with transaction_id.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="76" class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:76</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="78" class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:78</a></div>
                         </td>
                     </tr>
 
@@ -1648,6 +1738,7 @@ import {
 } from &quot;@openid4vc/oauth2&quot;;
 import {
     CredentialOfferAuthorizationCodeGrant,
+    CredentialOfferPreAuthorizedCodeGrant,
     type CredentialResponse,
     type IssuerMetadataResult,
     Openid4vciIssuer,
@@ -1670,13 +1761,14 @@ import { SessionLoggerService } from &quot;../../../shared/utils/logger/session-
 import { SessionLogContext } from &quot;../../../shared/utils/logger/session-logger-context&quot;;
 import { WebhookService } from &quot;../../../shared/utils/webhook/webhook.service&quot;;
 import {
+    AuthorizationIdentity,
     ClaimsWebhookResult,
     CredentialsService,
-    ExternalAsClaimsContext,
 } from &quot;../../configuration/credentials/credentials.service&quot;;
 import { IssuanceService } from &quot;../../configuration/issuance/issuance.service&quot;;
 import { StatusListConfigService } from &quot;../../lifecycle/status/status-list-config.service&quot;;
 import { AuthorizeService } from &quot;./authorize/authorize.service&quot;;
+import { ChainedAsService } from &quot;./chained-as/chained-as.service&quot;;
 import { DeferredCredentialRequestDto } from &quot;./dto/deferred-credential-request.dto&quot;;
 import { NotificationRequestDto } from &quot;./dto/notification-request.dto&quot;;
 import {
@@ -1711,11 +1803,29 @@ export class Oid4vciService {
         private readonly webhookService: WebhookService,
         private readonly httpService: HttpService,
         private readonly statusListConfigService: StatusListConfigService,
+        private readonly chainedAsService: ChainedAsService,
         @InjectRepository(NonceEntity)
         private readonly nonceRepository: Repository&lt;NonceEntity&gt;,
         @InjectRepository(DeferredTransactionEntity)
         private readonly deferredTransactionRepository: Repository&lt;DeferredTransactionEntity&gt;,
     ) {}
+
+    /**
+     * Get the authorization server URL for credential offers.
+     * Uses Chained AS if configured, otherwise falls back to the default AS.
+     */
+    private async getAuthorizationServer(tenantId: string): Promise&lt;string&gt; {
+        const issuanceConfig &#x3D;
+            await this.issuanceService.getIssuanceConfiguration(tenantId);
+
+        if (issuanceConfig.chainedAs?.enabled) {
+            const publicUrl &#x3D;
+                this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
+            return &#x60;${publicUrl}/${tenantId}/chained-as&#x60;;
+        }
+
+        return this.authzService.getAuthzIssuer(tenantId);
+    }
 
     /**
      * Get the OID4VCI issuer instance for a specific tenant.
@@ -1788,6 +1898,27 @@ export class Oid4vciService {
                 ),
             );
         }
+
+        // Add Chained AS if enabled
+        if (issuanceConfig.chainedAs?.enabled) {
+            const chainedAsIssuer &#x3D; &#x60;${credential_issuer}/chained-as&#x60;;
+            authServers.push(chainedAsIssuer);
+            authorizationServers.push(
+                await firstValueFrom(
+                    this.httpService.get(
+                        &#x60;${chainedAsIssuer}/.well-known/oauth-authorization-server&#x60;,
+                    ),
+                ).then(
+                    (response) &#x3D;&gt; response.data,
+                    () &#x3D;&gt; {
+                        throw new BadRequestException(
+                            &quot;Failed to fetch Chained AS metadata&quot;,
+                        );
+                    },
+                ),
+            );
+        }
+
         authServers.push(this.authzService.getAuthzIssuer(tenantId));
         authorizationServers.push(this.authzService.authzMetadata(tenantId));
 
@@ -1854,21 +1985,24 @@ export class Oid4vciService {
                                   ? &quot;numeric&quot;
                                   : &quot;text&quot;,
                               length: body.tx_code.length,
-                              //TODO: should give the possiblity to pass a description
+                              description: body.tx_code_description,
                           }
                         : undefined,
+                    // Pre-authorized code flow always uses the built-in AS
+                    // since the pre-authorized code is generated by the issuer
                     authorization_server:
-                        body.authorization_server ??
                         this.authzService.getAuthzIssuer(tenantId),
-                },
+                } as CredentialOfferPreAuthorizedCodeGrant,
             };
         } else {
+            // For authorization code flow, use Chained AS if configured
+            const authServer &#x3D;
+                body.authorization_server ??
+                (await this.getAuthorizationServer(tenantId));
             grants &#x3D; {
                 [authorizationCodeGrantIdentifier]: {
                     issuer_state,
-                    authorization_server:
-                        body.authorization_server ??
-                        this.authzService.getAuthzIssuer(tenantId),
+                    authorization_server: authServer,
                 } as CredentialOfferAuthorizationCodeGrant,
             };
         }
@@ -2007,7 +2141,6 @@ export class Oid4vciService {
                 SupportedAuthenticationScheme.Bearer,
             );
         }
-        //TODO: check how the nonce for the dpop has to be passed
         const { tokenPayload } &#x3D; await resourceServer.verifyResourceRequest({
             authorizationServers: issuerMetadata.authorizationServers,
             request: {
@@ -2015,19 +2148,57 @@ export class Oid4vciService {
                 method: req.method as HttpMethod,
                 headers,
             },
-            //TODO: Keycloak is setting aud to &#x60;account&#x60;, but it should be the value of resource server
             resourceServer: issuerMetadata.credentialIssuer.credential_issuer,
             allowedAuthenticationSchemes,
         });
 
-        // Determine if this is a token from an external AS or our local AS
+        // Determine the token source: local AS, Chained AS, or external AS
         const localIssuer &#x3D; this.authzService.getAuthzIssuer(tenantId);
-        const isExternalAsToken &#x3D; tokenPayload.iss !&#x3D;&#x3D; localIssuer;
+        const publicUrl &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
+        const chainedAsIssuer &#x3D; &#x60;${publicUrl}/${tenantId}/chained-as&#x60;;
+
+        const isLocalAsToken &#x3D; tokenPayload.iss &#x3D;&#x3D;&#x3D; localIssuer;
+        const isChainedAsToken &#x3D; tokenPayload.iss &#x3D;&#x3D;&#x3D; chainedAsIssuer;
+        const isExternalAsToken &#x3D; !isLocalAsToken &amp;&amp; !isChainedAsToken;
 
         let session: Session;
         let claimsResult: ClaimsWebhookResult | undefined;
 
-        if (isExternalAsToken) {
+        if (isChainedAsToken) {
+            // Chained AS flow - EUDIPLO-issued token with issuer_state for session correlation
+            const issuerState &#x3D; tokenPayload.issuer_state as string | undefined;
+            if (!issuerState) {
+                throw new CredentialRequestException(
+                    &quot;credential_request_denied&quot;,
+                    &quot;Chained AS token is missing issuer_state claim&quot;,
+                );
+            }
+
+            // Look up session by issuer_state
+            session &#x3D; await this.sessionService.getBy({ id: issuerState });
+
+            // Get upstream identity claims from the Chained AS session
+            // This includes the full claims from the upstream OIDC provider (e.g., Keycloak)
+            const upstreamIdentity &#x3D;
+                await this.chainedAsService.getUpstreamIdentityByIssuerState(
+                    issuerState,
+                );
+
+            // Use upstream identity if available, fallback to chained AS token claims
+            const identity: AuthorizationIdentity &#x3D; upstreamIdentity ?? {
+                iss: tokenPayload.iss as string,
+                sub:
+                    (tokenPayload.upstream_sub as string) ??
+                    (tokenPayload.sub as string),
+                token_claims: tokenPayload as Record&lt;string, unknown&gt;,
+            };
+
+            claimsResult &#x3D; await this.credentialsService.getClaimsFromWebhook(
+                parsedCredentialRequest.credentialConfigurationId as string,
+                session,
+                { identity },
+            );
+        } else if (isExternalAsToken) {
             // External AS flow (e.g., Keycloak)
             // Verify that the token&#x27;s issuer is in the list of configured auth servers
             const configuredAuthServers &#x3D;
@@ -2046,20 +2217,18 @@ export class Oid4vciService {
                 tokenPayload.sub as string,
             );
 
-            // For external AS, claims must come from webhook
-            const externalAsContext: ExternalAsClaimsContext &#x3D; {
+            // For external AS, claims must come from webhook with identity context
+            const identity: AuthorizationIdentity &#x3D; {
                 iss: tokenPayload.iss as string,
                 sub: tokenPayload.sub as string,
-                credential_configuration_id:
-                    parsedCredentialRequest.credentialConfigurationId as string,
                 token_claims: tokenPayload as Record&lt;string, unknown&gt;,
             };
 
-            claimsResult &#x3D;
-                await this.credentialsService.getClaimsFromExternalAsWebhook(
-                    externalAsContext,
-                    session,
-                );
+            claimsResult &#x3D; await this.credentialsService.getClaimsFromWebhook(
+                parsedCredentialRequest.credentialConfigurationId as string,
+                session,
+                { identity, requireWebhook: true },
+            );
         } else {
             // Local AS flow - existing behavior
             session &#x3D; await this.sessionService.getBy({
@@ -2074,10 +2243,18 @@ export class Oid4vciService {
                 );
             }
 
-            // Get claims from webhook if configured (existing flow)
+            // Get claims from webhook if configured
+            // Pass identity info from internal AS token for consistency
+            const identity: AuthorizationIdentity &#x3D; {
+                iss: tokenPayload.iss as string,
+                sub: String(tokenPayload.sub),
+                token_claims: tokenPayload as Record&lt;string, unknown&gt;,
+            };
+
             claimsResult &#x3D; await this.credentialsService.getClaimsFromWebhook(
                 parsedCredentialRequest.credentialConfigurationId as string,
                 session,
+                { identity },
             );
         }
 
@@ -2094,6 +2271,7 @@ export class Oid4vciService {
                 parsedCredentialRequest.credentialConfigurationId,
             proofCount: parsedCredentialRequest.proofs?.jwt?.length || 0,
             isExternalAs: isExternalAsToken,
+            isChainedAs: isChainedAsToken,
         });
 
         try {

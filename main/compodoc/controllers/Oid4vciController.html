@@ -238,8 +238,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="43"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:43</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="44"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:44</a></div>
                         </td>
                     </tr>
 
@@ -342,8 +342,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="74"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:74</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="84"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:84</a></div>
                         </td>
                     </tr>
 
@@ -462,8 +462,8 @@ for credentials that were not immediately available.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="100"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:100</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="110"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:110</a></div>
                         </td>
                     </tr>
 
@@ -539,8 +539,8 @@ for credentials that were not immediately available.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="89"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:89</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="99"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:99</a></div>
                         </td>
                     </tr>
 
@@ -618,6 +618,7 @@ for credentials that were not immediately available.</p>
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
     Body,
+    ConflictException,
     Controller,
     Header,
     HttpCode,
@@ -665,14 +666,23 @@ export class Oid4vciController {
     ): Promise&lt;
         CredentialResponse | { transaction_id: string; interval?: number }
     &gt; {
-        const result &#x3D; await this.oid4vciService.getCredential(req, tenantId);
-        // Check if this is a deferred response (has non-null transaction_id)
-        // Note: Using truthiness check because CredentialResponse type may include
-        // transaction_id as optional property with undefined value
-        if (&quot;transaction_id&quot; in result &amp;&amp; result.transaction_id) {
-            res.status(HttpStatus.ACCEPTED);
-        }
-        return result;
+        return this.oid4vciService.getCredential(req, tenantId).then(
+            (result) &#x3D;&gt; {
+                // Check if this is a deferred response (has non-null transaction_id)
+                // Note: Using truthiness check because CredentialResponse type may include
+                // transaction_id as optional property with undefined value
+                if (&quot;transaction_id&quot; in result &amp;&amp; result.transaction_id) {
+                    res.status(HttpStatus.ACCEPTED);
+                }
+                return result;
+            },
+            (err) &#x3D;&gt; {
+                //TODO: implement errors according to: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-request-errors
+                throw new ConflictException(
+                    &#x60;Credential issuance failed: ${err.message}&#x60;,
+                );
+            },
+        );
     }
 
     /**

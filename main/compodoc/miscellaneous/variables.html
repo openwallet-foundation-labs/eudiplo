@@ -285,7 +285,7 @@
     Role.Tenants,
     Role.IssuanceOffer,
     Role.Issuances,
-    Role.PresentationOffer,
+    Role.PresentationRequest,
     Role.Presentations,
     Role.Clients,
     Role.Registrar,
@@ -640,6 +640,7 @@ This decorator can be used to determine the media type of the request.</p>
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>(configService: ConfigService) &#x3D;&gt; {
+    // Disable pino-http&#x27;s autoLogging - SessionLoggerService provides better structured logs
     const enableHttpLogger &#x3D; configService.get&lt;boolean&gt;(
         &quot;LOG_ENABLE_HTTP_LOGGER&quot;,
         false,

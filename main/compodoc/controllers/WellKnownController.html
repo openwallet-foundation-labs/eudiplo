@@ -165,6 +165,10 @@
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                <a href="#chainedAsMetadata" >chainedAsMetadata</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#getJwks" >getJwks</a>
                             </li>
@@ -273,6 +277,86 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="chainedAsMetadata"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                        <span ><b>chainedAsMetadata</b></span>
+                        <a href="#chainedAsMetadata"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>chainedAsMetadata(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;.well-known/oauth-authorization-server/:tenantId/chained-as&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="73"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.controller.ts:73</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Chained Authorization Server Metadata (RFC 8414 alternative path format).
+Supports discovery via <code>/.well-known/oauth-authorization-server/:tenantId/chained-as</code>
+for wallets that construct the discovery URL per RFC 8414.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="getJwks"></a>
                     <span class="name">
                             <span class="modifier"></span>
@@ -299,8 +383,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="72"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.controller.ts:72</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="83"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.controller.ts:83</a></div>
                         </td>
                     </tr>
 
@@ -507,6 +591,17 @@ export class WellKnownController {
     ])
     authzMetadata(@Param(&quot;tenantId&quot;) tenantId: string) {
         return this.wellKnownService.getAuthzMetadata(tenantId);
+    }
+
+    /**
+     * Chained Authorization Server Metadata (RFC 8414 alternative path format).
+     * Supports discovery via &#x60;/.well-known/oauth-authorization-server/:tenantId/chained-as&#x60;
+     * for wallets that construct the discovery URL per RFC 8414.
+     * @returns
+     */
+    @Get(&quot;.well-known/oauth-authorization-server/:tenantId/chained-as&quot;)
+    chainedAsMetadata(@Param(&quot;tenantId&quot;) tenantId: string) {
+        return this.wellKnownService.getChainedAsMetadata(tenantId);
     }
 
     /**
