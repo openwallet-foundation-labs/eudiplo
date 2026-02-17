@@ -1,4 +1,8 @@
-import { ApiExtraModels, ApiHideProperty } from "@nestjs/swagger";
+import {
+    ApiExtraModels,
+    ApiHideProperty,
+    ApiPropertyOptional,
+} from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
     IsArray,
@@ -21,6 +25,7 @@ import {
     AuthenticationMethodNone,
     AuthenticationMethodPresentation,
 } from "../dto/authentication-config.dto";
+import { ChainedAsConfig } from "../dto/chained-as-config.dto";
 import { DisplayInfo } from "../dto/display.dto";
 
 /**
@@ -90,6 +95,18 @@ export class IssuanceConfig {
     @IsOptional()
     @Column({ type: "json", nullable: true })
     walletProviderTrustLists?: string[];
+
+    /**
+     * Configuration for Chained Authorization Server mode.
+     * When enabled, EUDIPLO acts as an OAuth AS facade, delegating user authentication
+     * to an upstream OIDC provider while issuing its own tokens with issuer_state.
+     */
+    @ApiPropertyOptional({ type: () => ChainedAsConfig })
+    @ValidateNested()
+    @Type(() => ChainedAsConfig)
+    @IsOptional()
+    @Column({ type: "json", nullable: true })
+    chainedAs?: ChainedAsConfig;
 
     @ValidateNested({ each: true })
     @Type(() => DisplayInfo)

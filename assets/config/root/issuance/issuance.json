@@ -1,7 +1,5 @@
 {
-    "authServers": [
-        "https://auth.eudi-wallet.dev/realms/eudiplo"
-    ],
+    "authServers": [],
     "batchSize": 10,
     "dPopRequired": false,
     "display": [
@@ -12,5 +10,23 @@
                 "uri": "company.png"
             }
         }
-    ]
+    ],
+    "chainedAs": {
+        "enabled": true,
+        "upstream": {
+            "issuer": "https://auth.eudi-wallet.dev/realms/eudiplo",
+            "clientId": "eudiplo",
+            "clientSecret": "vw8VAJh9MaPSbcQ9Bv7dikykSd1UiUQS",
+            "scopes": [
+                "openid",
+                "profile",
+                "email"
+            ]
+        },
+        "token": {
+            "lifetimeSeconds": 3600,
+            "signingKeyId": ""
+        },
+        "requireDPoP": false
+    }
 }

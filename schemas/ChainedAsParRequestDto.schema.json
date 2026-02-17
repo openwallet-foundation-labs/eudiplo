@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsParRequestDto.schema.json",
+  "title": "ChainedAsParRequestDto",
+  "type": "object",
+  "properties": {
+    "response_type": {
+      "type": "string",
+      "description": "OAuth response type (must be 'code')",
+      "example": "code"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "Client identifier (wallet identifier)",
+      "example": "https://wallet.example.com"
+    },
+    "redirect_uri": {
+      "type": "string",
+      "description": "URI to redirect the wallet after authorization",
+      "example": "https://wallet.example.com/callback"
+    },
+    "code_challenge": {
+      "type": "string",
+      "description": "PKCE code challenge"
+    },
+    "code_challenge_method": {
+      "type": "string",
+      "description": "PKCE code challenge method (e.g., S256)",
+      "example": "S256"
+    },
+    "state": {
+      "type": "string",
+      "description": "State parameter (returned in redirect)"
+    },
+    "scope": {
+      "type": "string",
+      "description": "Scope requested",
+      "example": "openid credential"
+    },
+    "issuer_state": {
+      "type": "string",
+      "description": "Issuer state from credential offer"
+    },
+    "authorization_details": {
+      "description": "Authorization details (JSON array)",
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "required": [
+    "response_type",
+    "client_id",
+    "redirect_uri"
+  ]
+}

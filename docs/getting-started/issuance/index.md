@@ -252,15 +252,20 @@ Your webhook receives:
 
 ```json
 {
-    "iss": "https://keycloak.example.com/realms/myrealm",
-    "sub": "user-uuid-from-keycloak",
+    "session": "a6318799-dff4-4b60-9d1d-58703611bd23",
     "credential_configuration_id": "EmployeeBadge",
-    "token_claims": {
-        "email": "user@example.com",
-        "preferred_username": "jdoe"
+    "identity": {
+        "iss": "https://keycloak.example.com/realms/myrealm",
+        "sub": "user-uuid-from-keycloak",
+        "token_claims": {
+            "email": "user@example.com",
+            "preferred_username": "jdoe"
+        }
     }
 }
 ```
+
+See [Webhooks](../../architecture/webhooks.md#claims-webhook-request-format) for full payload details.
 
 ---
 

@@ -92,6 +92,58 @@ The **claims webhook** allows EUDIPLO to fetch attributes dynamically instead of
 }
 ```
 
+### Claims Webhook Request Format
+
+EUDIPLO sends an HTTP `POST` request with the following structure:
+
+```json
+{
+    "session": "a6318799-dff4-4b60-9d1d-58703611bd23",
+    "credential_configuration_id": "EmployeeBadge",
+    "identity": {
+        "iss": "https://idp.example.com/realms/myrealm",
+        "sub": "user-uuid-from-idp",
+        "token_claims": {
+            "email": "user@example.com",
+            "preferred_username": "jdoe",
+            "given_name": "John",
+            "family_name": "Doe"
+        }
+    },
+    "credentials": []
+}
+```
+
+| Field                         | Type   | Description                                                  |
+| ----------------------------- | ------ | ------------------------------------------------------------ |
+| `session`                     | string | The session ID identifying the issuance request              |
+| `credential_configuration_id` | string | The ID of the credential configuration being requested       |
+| `identity`                    | object | Identity context from the authorization flow (see below)     |
+| `credentials`                 | array  | Presented credentials (only for IAE with presentation flows) |
+
+### Identity Object
+
+The `identity` object contains information about the authenticated user. Its contents depend on the authorization flow used:
+
+| Field          | Type   | Description                                                              |
+| -------------- | ------ | ------------------------------------------------------------------------ |
+| `iss`          | string | The issuer URL of the authorization server                               |
+| `sub`          | string | The subject identifier (user ID) from the authorization server           |
+| `token_claims` | object | All available claims from the access token (and ID token for Chained AS) |
+
+#### Identity Sources by Flow
+
+| Flow                  | Identity Source                                                         |
+| --------------------- | ----------------------------------------------------------------------- |
+| **External AS**       | Claims from the external authorization server's access token            |
+| **Chained AS**        | Claims from the upstream OIDC provider (merged ID token + access token) |
+| **Pre-authenticated** | Not available (no user authentication)                                  |
+| **IAE**               | Identity from the IAE interaction (presentation or web redirect)        |
+
+!!! note "Token Claims"
+
+    The `token_claims` field contains all available claims from the token—EUDIPLO does not filter them. This gives your webhook full flexibility to use any claim the authorization server provides. For Chained AS flows, ID token claims take precedence over access token claims when both contain the same field.
+
 ---
 
 ## Deferred Credential Issuance

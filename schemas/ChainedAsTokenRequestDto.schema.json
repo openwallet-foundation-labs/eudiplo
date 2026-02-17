@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsTokenRequestDto.schema.json",
+  "title": "ChainedAsTokenRequestDto",
+  "type": "object",
+  "properties": {
+    "grant_type": {
+      "type": "string",
+      "description": "Grant type (must be 'authorization_code')",
+      "example": "authorization_code"
+    },
+    "code": {
+      "type": "string",
+      "description": "Authorization code received in the callback"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "Client identifier"
+    },
+    "redirect_uri": {
+      "type": "string",
+      "description": "Redirect URI (must match the one used in PAR)"
+    },
+    "code_verifier": {
+      "type": "string",
+      "description": "PKCE code verifier"
+    }
+  },
+  "required": [
+    "grant_type",
+    "code"
+  ]
+}

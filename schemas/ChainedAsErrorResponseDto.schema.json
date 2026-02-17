@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsErrorResponseDto.schema.json",
+  "title": "ChainedAsErrorResponseDto",
+  "type": "object",
+  "properties": {
+    "error": {
+      "type": "string",
+      "description": "Error code",
+      "example": "invalid_request"
+    },
+    "error_description": {
+      "type": "string",
+      "description": "Human-readable error description"
+    }
+  },
+  "required": [
+    "error"
+  ]
+}

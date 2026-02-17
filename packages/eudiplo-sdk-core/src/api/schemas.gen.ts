@@ -1163,6 +1163,11 @@ export const OfferRequestDtoSchema = {
       type: "string",
       description: "Transaction code for pre-authorized code flow.",
     },
+    tx_code_description: {
+      type: "string",
+      description:
+        'Description for the transaction code (e.g., "Please enter the PIN sent to your email").',
+    },
     credentialConfigurationIds: {
       description:
         "List of credential configuration ids to be included in the offer.",
@@ -1487,6 +1492,85 @@ export const AuthenticationMethodPresentationSchema = {
   required: ["method", "config"],
 } as const;
 
+export const UpstreamOidcConfigSchema = {
+  type: "object",
+  properties: {
+    issuer: {
+      type: "string",
+      description: "The OIDC issuer URL of the upstream provider",
+      example: "https://auth.example.com/realms/myrealm",
+      format: "uri",
+    },
+    clientId: {
+      type: "string",
+      description: "The client ID registered with the upstream provider",
+      example: "eudiplo-chained-as",
+    },
+    clientSecret: {
+      type: "string",
+      description: "The client secret for confidential clients",
+    },
+    scopes: {
+      description: "Scopes to request from the upstream provider",
+      default: ["openid", "profile"],
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+  },
+  required: ["issuer", "clientId"],
+} as const;
+
+export const ChainedAsTokenConfigSchema = {
+  type: "object",
+  properties: {
+    lifetimeSeconds: {
+      type: "number",
+      description: "Access token lifetime in seconds",
+      minimum: 60,
+      default: 3600,
+    },
+    signingKeyId: {
+      type: "string",
+      description: "Key ID for token signing",
+    },
+  },
+} as const;
+
+export const ChainedAsConfigSchema = {
+  type: "object",
+  properties: {
+    enabled: {
+      type: "boolean",
+      description: "Enable chained AS mode",
+      default: false,
+    },
+    upstream: {
+      description: "Upstream OIDC provider configuration",
+      allOf: [
+        {
+          $ref: "#/components/schemas/UpstreamOidcConfig",
+        },
+      ],
+    },
+    token: {
+      description: "Token configuration",
+      allOf: [
+        {
+          $ref: "#/components/schemas/ChainedAsTokenConfig",
+        },
+      ],
+    },
+    requireDPoP: {
+      type: "boolean",
+      description: "Require DPoP binding for tokens",
+      default: true,
+    },
+  },
+  required: ["enabled"],
+} as const;
+
 export const DisplayLogoSchema = {
   type: "object",
   properties: {
@@ -1518,6 +1602,15 @@ export const DisplayInfoSchema = {
 export const IssuanceConfigSchema = {
   type: "object",
   properties: {
+    chainedAs: {
+      description:
+        "Configuration for Chained Authorization Server mode.\nWhen enabled, EUDIPLO acts as an OAuth AS facade, delegating user authentication\nto an upstream OIDC provider while issuing its own tokens with issuer_state.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/ChainedAsConfig",
+        },
+      ],
+    },
     tenant: {
       description: "The tenant that owns this object.",
       allOf: [
@@ -1579,6 +1672,15 @@ export const IssuanceConfigSchema = {
 export const IssuanceDtoSchema = {
   type: "object",
   properties: {
+    chainedAs: {
+      description:
+        "Configuration for Chained Authorization Server mode.\nWhen enabled, EUDIPLO acts as an OAuth AS facade, delegating user authentication\nto an upstream OIDC provider while issuing its own tokens with issuer_state.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/ChainedAsConfig",
+        },
+      ],
+    },
     authServers: {
       description: "Authentication server URL for the issuance process.",
       type: "array",
@@ -2803,6 +2905,158 @@ export const InteractiveAuthorizationErrorResponseDtoSchema = {
     },
   },
   required: ["error"],
+} as const;
+
+export const ChainedAsParRequestDtoSchema = {
+  type: "object",
+  properties: {
+    response_type: {
+      type: "string",
+      description: "OAuth response type (must be 'code')",
+      example: "code",
+    },
+    client_id: {
+      type: "string",
+      description: "Client identifier (wallet identifier)",
+      example: "https://wallet.example.com",
+    },
+    redirect_uri: {
+      type: "string",
+      description: "URI to redirect the wallet after authorization",
+      example: "https://wallet.example.com/callback",
+    },
+    code_challenge: {
+      type: "string",
+      description: "PKCE code challenge",
+    },
+    code_challenge_method: {
+      type: "string",
+      description: "PKCE code challenge method (e.g., S256)",
+      example: "S256",
+    },
+    state: {
+      type: "string",
+      description: "State parameter (returned in redirect)",
+    },
+    scope: {
+      type: "string",
+      description: "Scope requested",
+      example: "openid credential",
+    },
+    issuer_state: {
+      type: "string",
+      description: "Issuer state from credential offer",
+    },
+    authorization_details: {
+      description: "Authorization details (JSON array)",
+      type: "array",
+      items: {
+        type: "object",
+      },
+    },
+  },
+  required: ["response_type", "client_id", "redirect_uri"],
+} as const;
+
+export const ChainedAsParResponseDtoSchema = {
+  type: "object",
+  properties: {
+    request_uri: {
+      type: "string",
+      description: "The request URI to use at the authorization endpoint",
+      example: "urn:ietf:params:oauth:request_uri:abc123",
+    },
+    expires_in: {
+      type: "number",
+      description: "The lifetime of the request URI in seconds",
+      example: 600,
+    },
+  },
+  required: ["request_uri", "expires_in"],
+} as const;
+
+export const ChainedAsErrorResponseDtoSchema = {
+  type: "object",
+  properties: {
+    error: {
+      type: "string",
+      description: "Error code",
+      example: "invalid_request",
+    },
+    error_description: {
+      type: "string",
+      description: "Human-readable error description",
+    },
+  },
+  required: ["error"],
+} as const;
+
+export const ChainedAsTokenRequestDtoSchema = {
+  type: "object",
+  properties: {
+    grant_type: {
+      type: "string",
+      description: "Grant type (must be 'authorization_code')",
+      example: "authorization_code",
+    },
+    code: {
+      type: "string",
+      description: "Authorization code received in the callback",
+    },
+    client_id: {
+      type: "string",
+      description: "Client identifier",
+    },
+    redirect_uri: {
+      type: "string",
+      description: "Redirect URI (must match the one used in PAR)",
+    },
+    code_verifier: {
+      type: "string",
+      description: "PKCE code verifier",
+    },
+  },
+  required: ["grant_type", "code"],
+} as const;
+
+export const ChainedAsTokenResponseDtoSchema = {
+  type: "object",
+  properties: {
+    access_token: {
+      type: "string",
+      description: "The access token",
+    },
+    token_type: {
+      type: "string",
+      description: "Token type (Bearer or DPoP)",
+      example: "DPoP",
+    },
+    expires_in: {
+      type: "number",
+      description: "Token lifetime in seconds",
+      example: 3600,
+    },
+    scope: {
+      type: "string",
+      description: "Scope granted",
+    },
+    authorization_details: {
+      description: "Authorized credential configurations",
+      type: "array",
+      items: {
+        type: "object",
+      },
+    },
+    c_nonce: {
+      type: "string",
+      description: "C_NONCE for credential request",
+    },
+    c_nonce_expires_in: {
+      type: "number",
+      description: "C_NONCE lifetime in seconds",
+    },
+  },
+  required: ["access_token", "token_type", "expires_in"],
 } as const;
 
 export const OfferResponseSchema = {

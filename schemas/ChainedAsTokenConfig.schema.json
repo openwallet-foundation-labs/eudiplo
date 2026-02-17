@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsTokenConfig.schema.json",
+  "title": "ChainedAsTokenConfig",
+  "type": "object",
+  "properties": {
+    "lifetimeSeconds": {
+      "type": "number",
+      "description": "Access token lifetime in seconds",
+      "minimum": 60,
+      "default": 3600
+    },
+    "signingKeyId": {
+      "type": "string",
+      "description": "Key ID for token signing"
+    }
+  }
+}

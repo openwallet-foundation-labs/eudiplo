@@ -4,6 +4,14 @@
   "title": "IssuanceConfig",
   "type": "object",
   "properties": {
+    "chainedAs": {
+      "description": "Configuration for Chained Authorization Server mode.\nWhen enabled, EUDIPLO acts as an OAuth AS facade, delegating user authentication\nto an upstream OIDC provider while issuing its own tokens with issuer_state.",
+      "allOf": [
+        {
+          "$ref": "./ChainedAsConfig.schema.json"
+        }
+      ]
+    },
     "tenant": {
       "description": "The tenant that owns this object.",
       "allOf": [

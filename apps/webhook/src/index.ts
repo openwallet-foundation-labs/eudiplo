@@ -1,82 +1,260 @@
+import {
+    ClaimsWebhookRequest,
+    hasCredentials,
+    hasIdentity,
+    NotificationWebhookRequest,
+    validateClaimsWebhookRequest,
+    validateNotificationWebhookRequest,
+} from "./schemas";
+import {
+    ClaimsWebhookResponse,
+    createClaimsResponse,
+    createDeferredResponse,
+    createNotificationSuccess,
+} from "./types";
+
 /**
- * Assuming we receive a PID credentials with the address selectivly disclosed
+ * Validates API key authentication.
  */
-interface PresentedData {
-    credentials: {
-        id: string;
-        values: {
-            address: {
-                locality: string;
-            };
-        }[];
-    }[];
+function validateApiKey(request: Request, expectedKey: string): boolean {
+    return request.headers.get("x-api-key") === expectedKey;
 }
 
 /**
- * Response for the citizen credential.
+ * Parse JSON request body with error handling.
  */
-type ProcessResponse = Record<string, Record<string, unknown>>;
+async function parseJsonBody<T>(request: Request): Promise<T | null> {
+    try {
+        return (await request.json()) as T;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Handle notification webhook.
+ * Called when wallet notifies about credential status (accepted, failed, deleted).
+ */
+function handleNotification(data: NotificationWebhookRequest): Response {
+    console.log("Received notification webhook:");
+    console.log(`  Session: ${data.session}`);
+    console.log(`  Notification ID: ${data.notification.id}`);
+    console.log(`  Event: ${data.notification.event}`);
+    console.log(
+        `  Credential Config: ${data.notification.credentialConfigurationId}`,
+    );
+
+    return Response.json(createNotificationSuccess(), { status: 200 });
+}
+
+/**
+ * Handle claims webhook for pre-authorized code flow with presentation.
+ * Called after wallet presents credentials to derive claims for new credential.
+ */
+function handleClaimsWithPresentation(data: ClaimsWebhookRequest): Response {
+    console.log("Received claims webhook (presentation flow):");
+    console.log(`  Session: ${data.session}`);
+    console.log(`  Credential Config: ${data.credential_configuration_id}`);
+
+    if (!hasCredentials(data)) {
+        return Response.json(
+            { error: "No credentials presented" },
+            { status: 400 },
+        );
+    }
+
+    // Example: Extract locality from presented address credential
+    const presentedCredential = data.credentials[0];
+    const disclosedValues = presentedCredential.values[0];
+
+    // Type-safe access with optional chaining
+    const address = disclosedValues?.address as
+        | { locality?: string }
+        | undefined;
+    const locality = address?.locality;
+
+    if (!locality) {
+        return Response.json(
+            { error: "Missing locality in presented credential" },
+            { status: 400 },
+        );
+    }
+
+    // Return claims for the requested credential configuration
+    const response: ClaimsWebhookResponse = createClaimsResponse(
+        data.credential_configuration_id,
+        {
+            town: `You live in ${locality}`,
+        },
+    );
+
+    return Response.json(response, { status: 200 });
+}
+
+/**
+ * Handle unified claims webhook.
+ * Supports both:
+ * - Authorization code flow with external AS (when identity is present)
+ * - Pre-authorized code flow with presentation (when credentials are present)
+ */
+function handleUnifiedClaims(data: ClaimsWebhookRequest): Response {
+    console.log("Received unified claims webhook:");
+    console.log(`  Session: ${data.session}`);
+    console.log(`  Credential Config: ${data.credential_configuration_id}`);
+
+    // Case 1: External AS flow - identity information is present
+    if (hasIdentity(data)) {
+        console.log(`  Identity from external AS:`);
+        console.log(`    Issuer: ${data.identity.iss}`);
+        console.log(`    Subject: ${data.identity.sub}`);
+        console.log(
+            `    Token Claims:`,
+            JSON.stringify(data.identity.token_claims, null, 2),
+        );
+
+        // Map external AS claims to credential claims
+        const claims: Record<string, unknown> = {};
+
+        if (data.identity.token_claims.given_name) {
+            claims.given_name = data.identity.token_claims.given_name;
+        }
+        if (data.identity.token_claims.family_name) {
+            claims.family_name = data.identity.token_claims.family_name;
+        }
+
+        const response: ClaimsWebhookResponse = createClaimsResponse(
+            data.credential_configuration_id,
+            claims,
+        );
+        return Response.json(response, { status: 200 });
+    }
+
+    // Case 2: Presentation flow - credentials are present
+    if (hasCredentials(data)) {
+        return handleClaimsWithPresentation(data);
+    }
+
+    // Case 3: No identity or credentials - return error or default claims
+    console.log("  No identity or credentials present");
+    return Response.json(
+        { error: "Missing identity or credentials in request" },
+        { status: 400 },
+    );
+}
+
+/**
+ * Handle deferred issuance claims webhook.
+ * Returns deferred response for async claims resolution.
+ */
+function handleDeferredClaims(): Response {
+    console.log(
+        "Returning deferred response (claims will be resolved asynchronously)",
+    );
+
+    const response = createDeferredResponse(10); // Poll every 10 seconds
+    return Response.json(response, { status: 200 });
+}
 
 async function handleRequest(request: Request): Promise<Response> {
     const url = new URL(request.url);
+
     if (request.method !== "POST") {
         return new Response("Method Not Allowed", { status: 405 });
     }
 
-    let presented: PresentedData | undefined;
-
-    // Only parse JSON for endpoints that expect it
-    if (
-        ["/notify", "/process", "/consume", "/request"].includes(url.pathname)
-    ) {
-        try {
-            presented = await request.json();
-        } catch (err) {
-            console.log(err);
-            return Response.json({ error: "Invalid JSON" }, { status: 400 });
-        }
+    // Parse JSON body for all POST endpoints
+    const body = await parseJsonBody<unknown>(request);
+    if (body === null) {
+        return Response.json({ error: "Invalid JSON" }, { status: 400 });
     }
 
     switch (url.pathname) {
+        // ============================================================
+        // Notification Endpoint
+        // ============================================================
         case "/notify": {
-            console.log("Received notification:");
-            console.log(JSON.stringify(presented, null, 2));
-            return Response.json({ status: "ok" }, { status: 200 });
-        }
-        case "/process": {
-            if (!presented?.credentials?.[0]?.values?.[0]?.address?.locality) {
+            const validation = validateNotificationWebhookRequest(body);
+            if (!validation.success) {
+                console.error("Notification webhook validation failed:");
+                console.error(`  Error: ${validation.error}`);
+                console.error(
+                    `  Details:`,
+                    JSON.stringify(validation.details, null, 2),
+                );
                 return Response.json(
-                    { error: "Missing locality" },
+                    {
+                        error: "Invalid notification webhook payload",
+                        message: validation.error,
+                        details: validation.details,
+                    },
                     { status: 400 },
                 );
             }
-            const res: ProcessResponse = {
-                citizen: {
-                    town: `You live in ${presented.credentials[0].values[0].address.locality}`,
-                },
-            };
-            return Response.json(res, { status: 200 });
+            return handleNotification(validation.data);
         }
+
+        // ============================================================
+        // Claims Endpoints (Unified - handles both internal and external AS flows)
+        // ============================================================
+        case "/process":
+        case "/claims": {
+            const validation = validateClaimsWebhookRequest(body);
+            if (!validation.success) {
+                console.error("Claims webhook validation failed:");
+                console.error(`  Error: ${validation.error}`);
+                console.error(
+                    `  Details:`,
+                    JSON.stringify(validation.details, null, 2),
+                );
+                return Response.json(
+                    {
+                        error: "Invalid claims webhook payload",
+                        message: validation.error,
+                        details: validation.details,
+                    },
+                    { status: 400 },
+                );
+            }
+            return handleUnifiedClaims(validation.data);
+        }
+
+        // ============================================================
+        // Deferred Claims Endpoint (for async workflows)
+        // ============================================================
+        case "/deferred-claims": {
+            return handleDeferredClaims();
+        }
+
+        // ============================================================
+        // Authenticated Endpoint Example
+        // ============================================================
         case "/consume": {
             const expectedApiKey = "foo-bar"; // Move to env/config in production
-            const apiKey = request.headers.get("x-api-key");
-            if (apiKey !== expectedApiKey) {
+            if (!validateApiKey(request, expectedApiKey)) {
                 return new Response("Unauthorized", { status: 401 });
             }
-            console.log("Received consume webhook:");
-            console.log(JSON.stringify(presented, null, 2));
+            console.log("Received authenticated webhook:");
+            console.log(JSON.stringify(body, null, 2));
             return Response.json({ status: "ok" }, { status: 200 });
         }
+
+        // ============================================================
+        // Legacy Endpoints (kept for backward compatibility)
+        // ============================================================
         case "/request": {
-            console.log("Received request webhook:");
-            console.log(JSON.stringify(presented, null, 2));
-            const res: ProcessResponse = {
-                citizen: {
+            console.log("Received request webhook (legacy):");
+            console.log(JSON.stringify(body, null, 2));
+
+            // Return static claims for citizen credential
+            const response: ClaimsWebhookResponse = createClaimsResponse(
+                "citizen",
+                {
                     town: "Köln",
                 },
-            };
-            return Response.json(res, { status: 200 });
+            );
+            return Response.json(response, { status: 200 });
         }
+
         default:
             return new Response("Not found", { status: 404 });
     }

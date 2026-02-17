@@ -8,10 +8,8 @@ import { Repository } from "typeorm";
 import { CryptoImplementationService } from "../../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { Session } from "../../../session/entities/session.entity";
 import { SessionLogContext } from "../../../shared/utils/logger/session-logger-context";
-import {
-    WebhookResponse,
-    WebhookService,
-} from "../../../shared/utils/webhook/webhook.service";
+import { WebhookConfig } from "../../../shared/utils/webhook/webhook.dto";
+import { WebhookService } from "../../../shared/utils/webhook/webhook.service";
 import { VCT } from "../../issuance/oid4vci/metadata/dto/vct.dto";
 import {
     CredentialConfig,
@@ -47,24 +45,19 @@ export interface ClaimsWebhookResult {
 }
 
 /**
- * Context for external AS webhook requests.
- * Contains all the information needed to identify and fetch claims for a user authenticated via external AS.
+ * Identity context from authorization server token (internal or external AS).
  */
-export interface ExternalAsClaimsContext {
+export interface AuthorizationIdentity {
     /**
-     * The issuer (iss) of the external authorization server
+     * The issuer (iss) of the authorization server
      */
     iss: string;
     /**
-     * The subject (sub) from the external AS token - user identifier
+     * The subject (sub) from the AS token - user identifier
      */
     sub: string;
     /**
-     * The credential configuration ID being requested
-     */
-    credential_configuration_id: string;
-    /**
-     * Additional claims from the access token (e.g., email, preferred_username if included by AS)
+     * Additional claims from the access token
      */
     token_claims: Record<string, unknown>;
 }
@@ -298,106 +291,95 @@ export class CredentialsService {
     }
 
     /**
-     * Fetches claims for a credential configuration from webhook if configured.
-     * This should be called once before batch processing to avoid redundant webhook calls.
-     * @param credentialConfigurationId
-     * @param session
+     * Fetches claims for a credential configuration from webhook.
+     * Unified method that works for both internal and external AS flows.
+     *
+     * Webhook resolution priority:
+     * 1. Webhook passed at offer time via session.credentialPayload.credentialClaims
+     * 2. claimsWebhook configured on the credential configuration
+     *
+     * The webhook receives a unified payload:
+     * - session: Session ID
+     * - credential_configuration_id: The credential being requested
+     * - identity: (optional) Identity context from AS token (iss, sub, token_claims)
+     * - credentials: (optional) Presented credentials from presentation flow
+     *
+     * @param credentialConfigurationId The credential configuration ID
+     * @param session The session associated with this request
+     * @param options Optional parameters for the webhook
+     * @param options.identity Identity context from authorization server (internal or external)
+     * @param options.credentials Presented credentials (for presentation flows)
+     * @param options.requireWebhook If true, throws if no webhook is configured (default: false)
      * @returns The fetched claims result including deferred flag, or undefined if no webhook is configured
      */
-    getClaimsFromWebhook(
+    async getClaimsFromWebhook(
         credentialConfigurationId: string,
         session: Session,
+        options?: {
+            identity?: AuthorizationIdentity;
+            credentials?: any[];
+            requireWebhook?: boolean;
+        },
     ): Promise<ClaimsWebhookResult | undefined> {
+        // First check for claims source passed at offer time via credentialClaims
         const claimsSource =
             session.credentialPayload?.credentialClaims?.[
                 credentialConfigurationId
             ];
+        let webhook: WebhookConfig | undefined | null;
+
+        // Handle inline claims - return directly without webhook call
+        if (claimsSource?.type === "inline") {
+            return {
+                deferred: false,
+                claims: claimsSource.claims,
+            };
+        }
 
         if (claimsSource?.type === "webhook") {
-            const logContext: SessionLogContext = {
-                sessionId: session.id,
-                tenantId: session.tenantId,
-                flowType: "OID4VCI",
-                stage: "fetching-claims-webhook",
-            };
-            return this.webhookService
-                .sendWebhook({
-                    webhook: claimsSource.webhook,
-                    logContext,
-                    session,
-                    expectResponse: true,
-                })
-                .then((response: WebhookResponse) => {
-                    // Check if the webhook response indicates deferred issuance
-                    if (response.deferred) {
-                        return {
-                            deferred: true,
-                            interval: response.interval ?? 5,
-                        };
-                    }
-                    // Return claims for immediate issuance
-                    return {
-                        deferred: false,
-                        claims: response[credentialConfigurationId] as Record<
-                            string,
-                            any
-                        >,
-                    };
+            webhook = claimsSource.webhook;
+        } else {
+            // Fall back to credential config's claimsWebhook
+            const credentialConfiguration =
+                await this.credentialConfigRepo.findOneBy({
+                    tenantId: session.tenantId,
+                    id: credentialConfigurationId,
                 });
+
+            if (!credentialConfiguration) {
+                throw new ConflictException(
+                    `Credential configuration '${credentialConfigurationId}' not found`,
+                );
+            }
+            webhook = credentialConfiguration.claimsWebhook;
         }
 
-        return Promise.resolve(undefined);
-    }
-
-    /**
-     * Fetches claims for a credential when the access token is from an external authorization server.
-     * This is used for wallet-initiated flows where the wallet authenticates directly with an external AS
-     * (e.g., Keycloak) and presents that token to EUDIPLO's credential endpoint.
-     *
-     * The webhook receives enriched context including the external AS issuer, subject, and token claims
-     * to enable proper identity mapping and claims resolution.
-     *
-     * @param context The external AS context (iss, sub, credential_configuration_id, token_claims)
-     * @param session The session associated with this request
-     * @returns The fetched claims result or throws if webhook is not configured
-     */
-    async getClaimsFromExternalAsWebhook(
-        context: ExternalAsClaimsContext,
-        session: Session,
-    ): Promise<ClaimsWebhookResult> {
-        // For external AS flows, we require a webhook on the credential configuration
-        const credentialConfiguration =
-            await this.credentialConfigRepo.findOneBy({
-                tenantId: session.tenantId,
-                id: context.credential_configuration_id,
-            });
-
-        if (!credentialConfiguration) {
-            throw new ConflictException(
-                `Credential configuration '${context.credential_configuration_id}' not found`,
-            );
-        }
-
-        const webhook = credentialConfiguration.claimsWebhook;
+        // No webhook configured
         if (!webhook) {
-            throw new ConflictException(
-                `External AS flow requires claimsWebhook to be configured on credential '${context.credential_configuration_id}'. ` +
-                    `The webhook receives { iss, sub, credential_configuration_id, token_claims } to resolve claims.`,
-            );
+            if (options?.requireWebhook) {
+                throw new ConflictException(
+                    `Authorization code flow requires claimsWebhook to be configured on credential '${credentialConfigurationId}' ` +
+                        `or provided at offer time.`,
+                );
+            }
+            return undefined;
         }
 
         const logContext: SessionLogContext = {
             sessionId: session.id,
             tenantId: session.tenantId,
             flowType: "OID4VCI",
-            stage: "fetching-claims-external-as",
+            stage: "fetching-claims-webhook",
         };
 
-        // Send webhook with external AS context
-        const response = await this.webhookService.sendExternalAsWebhook({
+        // Send webhook with unified payload
+        const response = await this.webhookService.sendClaimsWebhook({
             webhook,
             logContext,
-            context,
+            session: session.id,
+            credentialConfigurationId,
+            identity: options?.identity,
+            credentials: options?.credentials,
         });
 
         // Check if the webhook response indicates deferred issuance
@@ -411,10 +393,7 @@ export class CredentialsService {
         // Return claims for immediate issuance
         return {
             deferred: false,
-            claims: response[context.credential_configuration_id] as Record<
-                string,
-                any
-            >,
+            claims: response[credentialConfigurationId] as Record<string, any>,
         };
     }
 

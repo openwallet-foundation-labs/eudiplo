@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsParResponseDto.schema.json",
+  "title": "ChainedAsParResponseDto",
+  "type": "object",
+  "properties": {
+    "request_uri": {
+      "type": "string",
+      "description": "The request URI to use at the authorization endpoint",
+      "example": "urn:ietf:params:oauth:request_uri:abc123"
+    },
+    "expires_in": {
+      "type": "number",
+      "description": "The lifetime of the request URI in seconds",
+      "example": 600
+    }
+  },
+  "required": [
+    "request_uri",
+    "expires_in"
+  ]
+}

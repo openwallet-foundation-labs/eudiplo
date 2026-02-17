@@ -85,6 +85,10 @@
       "type": "string",
       "description": "Transaction code for pre-authorized code flow."
     },
+    "tx_code_description": {
+      "type": "string",
+      "description": "Description for the transaction code (e.g., \"Please enter the PIN sent to your email\")."
+    },
     "credentialConfigurationIds": {
       "description": "List of credential configuration ids to be included in the offer.",
       "type": "array",

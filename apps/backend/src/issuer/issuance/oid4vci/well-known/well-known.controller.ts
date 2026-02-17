@@ -64,6 +64,17 @@ export class WellKnownController {
     }
 
     /**
+     * Chained Authorization Server Metadata (RFC 8414 alternative path format).
+     * Supports discovery via `/.well-known/oauth-authorization-server/:tenantId/chained-as`
+     * for wallets that construct the discovery URL per RFC 8414.
+     * @returns
+     */
+    @Get(".well-known/oauth-authorization-server/:tenantId/chained-as")
+    chainedAsMetadata(@Param("tenantId") tenantId: string) {
+        return this.wellKnownService.getChainedAsMetadata(tenantId);
+    }
+
+    /**
      * Returns the JSON Web Key Set (JWKS) for the authorization server.
      * @returns
      */

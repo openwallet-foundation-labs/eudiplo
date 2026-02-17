@@ -43,6 +43,22 @@ import type {
   CertControllerGetCertificatesResponses,
   CertControllerUpdateCertificateData,
   CertControllerUpdateCertificateResponses,
+  ChainedAsControllerAuthorizeData,
+  ChainedAsControllerAuthorizeErrors,
+  ChainedAsControllerAuthorizeResponses,
+  ChainedAsControllerCallbackData,
+  ChainedAsControllerCallbackErrors,
+  ChainedAsControllerCallbackResponses,
+  ChainedAsControllerGetMetadataData,
+  ChainedAsControllerGetMetadataResponses,
+  ChainedAsControllerJwksData,
+  ChainedAsControllerJwksResponses,
+  ChainedAsControllerParData,
+  ChainedAsControllerParErrors,
+  ChainedAsControllerParResponses,
+  ChainedAsControllerTokenData,
+  ChainedAsControllerTokenErrors,
+  ChainedAsControllerTokenResponses,
   ClientControllerCreateClientData,
   ClientControllerCreateClientResponses,
   ClientControllerDeleteClientData,
@@ -1624,6 +1640,113 @@ export const interactiveAuthorizationControllerCompleteWebAuth = <
     ThrowOnError
   >({
     url: "/{tenantId}/authorize/interactive/complete-web-auth/{authSession}",
+    ...options,
+  });
+
+/**
+ * Pushed Authorization Request
+ *
+ * Submit authorization request parameters. Returns a request_uri for use at the authorization endpoint.
+ */
+export const chainedAsControllerPar = <ThrowOnError extends boolean = true>(
+  options: Options<ChainedAsControllerParData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    ChainedAsControllerParResponses,
+    ChainedAsControllerParErrors,
+    ThrowOnError
+  >({
+    url: "/{tenant}/chained-as/par",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Authorization endpoint
+ *
+ * Validates the request_uri from PAR and redirects to the upstream OIDC provider for authentication.
+ */
+export const chainedAsControllerAuthorize = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<ChainedAsControllerAuthorizeData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    ChainedAsControllerAuthorizeResponses,
+    ChainedAsControllerAuthorizeErrors,
+    ThrowOnError
+  >({ url: "/{tenant}/chained-as/authorize", ...options });
+
+/**
+ * Upstream OIDC callback
+ *
+ * Receives the authorization response from the upstream OIDC provider, exchanges the code, and redirects back to the wallet.
+ */
+export const chainedAsControllerCallback = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<ChainedAsControllerCallbackData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    ChainedAsControllerCallbackResponses,
+    ChainedAsControllerCallbackErrors,
+    ThrowOnError
+  >({ url: "/{tenant}/chained-as/callback", ...options });
+
+/**
+ * Token endpoint
+ *
+ * Exchanges the authorization code for an access token containing issuer_state.
+ */
+export const chainedAsControllerToken = <ThrowOnError extends boolean = true>(
+  options: Options<ChainedAsControllerTokenData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    ChainedAsControllerTokenResponses,
+    ChainedAsControllerTokenErrors,
+    ThrowOnError
+  >({
+    url: "/{tenant}/chained-as/token",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * JSON Web Key Set
+ *
+ * Returns the public keys for verifying tokens issued by this Chained AS.
+ */
+export const chainedAsControllerJwks = <ThrowOnError extends boolean = true>(
+  options: Options<ChainedAsControllerJwksData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    ChainedAsControllerJwksResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/{tenant}/chained-as/.well-known/jwks.json", ...options });
+
+/**
+ * OAuth AS Metadata
+ *
+ * Returns the OAuth Authorization Server metadata for the Chained AS.
+ */
+export const chainedAsControllerGetMetadata = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<ChainedAsControllerGetMetadataData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    ChainedAsControllerGetMetadataResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/{tenant}/chained-as/.well-known/oauth-authorization-server",
     ...options,
   });
 

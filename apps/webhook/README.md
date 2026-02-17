@@ -1,36 +1,86 @@
-# Webhook simulator
+# Webhook Reference Implementation
 
-To test the webhook functionality of the EUDIPLO service, you can use this
-simple webhook simulator.
+A reference webhook implementation for integrating with EUDIPLO credential issuance flows.
 
-It will spin up a local server with endpoints to receive webhook calls. You can also deploy it to cloudflare worker in case you want to test it with a hosted EUDIPLO instance that can not access your local machine.
+This serves as both:
+
+1. A **test server** for development
+2. A **reference implementation** showing how to handle webhook callbacks
+
+## API Specification
+
+The webhook API is documented in OpenAPI format: [`webhook-api.yaml`](./webhook-api.yaml)
+
+You can view the interactive documentation using:
+
+- [Swagger Editor](https://editor.swagger.io/) - paste the YAML content
+- [OpenAPI Preview VS Code Extension](https://marketplace.visualstudio.com/items?itemName=zoellner.openapi-preview)
+
+## Webhook Types
+
+### 1. Claims Webhook (Unified)
+
+**Endpoint**: `POST /claims`
+
+Unified endpoint for resolving credential claims in all issuance flows:
+
+- **Authorization Code Flow**: Receives `identity` field with token claims from AS
+- **Presentation Flow**: Receives `credentials` field with disclosed credential claims
+
+### 2. Notification Webhook
+
+**Endpoint**: `POST /notify`
+
+Called when the wallet notifies about credential status changes (`credential_accepted`, `credential_failure`, `credential_deleted`).
+
+## TypeScript Types
+
+TypeScript type definitions are available in [`src/types.ts`](./src/types.ts):
+
+```typescript
+import {
+  ClaimsWebhookRequest,
+  NotificationWebhookRequest,
+  ClaimsWebhookResponse,
+  AuthorizationIdentity,
+  PresentedCredential,
+  // Type guards
+  isClaimsWebhookRequest,
+  hasIdentity,
+  hasCredentials,
+  // Helpers
+  createClaimsResponse,
+  createDeferredResponse,
+} from './types';
+```
 
 ## Setup
 
-Make sure you have [Node.js](https://nodejs.org/) installed on your machine.
-
 ```bash
-npm install
+pnpm install
 ```
 
-This will also install `wrangler`, the Cloudflare Workers CLI, which is used to deploy the simulator to Cloudflare. You do not need a cloudflare account to run the simulator locally, but you will need one to deploy it.
-
-## Run locally
-
-You can start the simulator locally by running:
+## Run Locally
 
 ```bash
-npm start
+pnpm start
 ```
 
-This will start a local server on port 8787.
+Starts a local server on port 8787.
 
 ## Deploy to Cloudflare Worker
 
-To deploy the webhook simulator to a Cloudflare Worker, you can use the following command:
-
 ```bash
-npm run deploy
+pnpm run deploy
 ```
 
-It will print out the URL of the deployed worker, which you can use to test the webhook functionality with a hosted EUDIPLO instance or a local instance.
+## Available Endpoints
+
+| Endpoint                   | Description                                                   |
+| -------------------------- | ------------------------------------------------------------- |
+| `POST /claims`             | Unified claims webhook (auth code + presentation flows)       |
+| `POST /notify`             | Notification webhook                                          |
+| `POST /process`            | Alias for `/claims`                                           |
+| `POST /external-as-claims` | Alias for `/claims` (kept for compatibility)                  |
+| `POST /deferred-claims`    | Returns deferred response                                     |
+| `POST /consume`            | Authenticated webhook example (requires `x-api-key: foo-bar`) |

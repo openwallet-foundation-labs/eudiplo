@@ -12,212 +12,488 @@
     </div>
   }
 
-  <!-- Main Content -->
+  <!-- Main Content - Stepper -->
   @if (!loading) {
-    <!-- Form Section -->
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" fxLayout="column" fxLayoutGap="24px">
-      <!-- Configuration Selection Card -->
-      <mat-card class="form-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>settings</mat-icon>
-            Offer Configuration
-          </mat-card-title>
-          <mat-card-subtitle>
-            Select an issuance configuration to generate an offer
-          </mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content fxLayout="column" fxLayoutGap="16px">
-          <mat-form-field>
-            <mat-select formControlName="flow">
-              <mat-option value="authorization_code" [disabled]="availableAuthServers.length === 0">
-                Authorization Code
-                @if (availableAuthServers.length === 0) {
-                  (requires external AS)
-                }
-              </mat-option>
-              <mat-option value="pre_authorized_code">Pre Authorized Code</mat-option>
-            </mat-select>
-            @if (availableAuthServers.length === 0) {
-              <mat-hint>Authorization Code requires an external Authorization Server</mat-hint>
-            } @else {
-              <mat-hint>Select flow for the issuance offer</mat-hint>
-            }
-          </mat-form-field>
+    <mat-stepper #stepper linear fxLayout="column" class="offer-stepper">
+      <!-- Step 1: Flow Selection -->
+      <mat-step [stepControl]="flowStepForm" label="Select Flow">
+        <form [formGroup]="flowStepForm" fxLayout="column" fxLayoutGap="24px">
+          <div class="step-content">
+            <h3>Choose Issuance Flow Type</h3>
+            <p class="step-description">Select how the credential will be issued to the wallet.</p>
 
-          <!-- Authorization Server Selection (visible only for authorization_code flow) -->
-          @if (
-            form.get('flow')?.value === 'authorization_code' && availableAuthServers.length > 0
-          ) {
-            <mat-form-field>
-              <mat-label>Authorization Server (Optional)</mat-label>
-              <mat-select formControlName="authorization_server">
-                <mat-option value="">Use default (built-in)</mat-option>
-                @for (server of availableAuthServers; track server) {
-                  <mat-option [value]="server">{{ server }}</mat-option>
-                }
-              </mat-select>
-              <mat-icon matSuffix>dns</mat-icon>
-              <mat-hint
-                >Select an external authorization server or leave empty for built-in</mat-hint
-              >
-            </mat-form-field>
-          }
-
-          <!-- TX Code (visible only for pre-authorized flow) -->
-          @if (form.get('flow')?.value === 'pre_authorized_code') {
-            <mat-form-field>
-              <mat-label>Transaction Code (Optional)</mat-label>
-              <input matInput formControlName="tx_code" placeholder="Enter transaction code" />
-              <mat-icon matSuffix>password</mat-icon>
-              <mat-hint>Optional transaction code for pre-authorized code flow</mat-hint>
-            </mat-form-field>
-          }
-
-          <!-- Credential Configuration IDs -->
-          <mat-form-field>
-            <mat-label>Credential Configuration IDs</mat-label>
-            <mat-select formControlName="credentialConfigurationIds" multiple>
-              @for (binding of credentialConfigs; track binding.id) {
-                <mat-option [value]="binding.id">
-                  {{ binding.id }}
-                </mat-option>
-              }
-            </mat-select>
-            <mat-icon matSuffix>badge</mat-icon>
-            <mat-hint
-              >Leave empty to use all configurations from the selected issuance config</mat-hint
+            <mat-radio-group
+              formControlName="flow"
+              fxLayout="column"
+              fxLayoutGap="16px"
+              class="flow-selection"
             >
-          </mat-form-field>
-
-          @if (credentialConfigs.length === 0) {
-            <div class="no-configs-hint">
-              <mat-icon>info</mat-icon>
-              <span
-                >No credential configurations available.
-                <a routerLink="/credential-config/create">Create one</a> to get started.</span
-              >
-            </div>
-          }
-        </mat-card-content>
-      </mat-card>
-      @if (fields.length > 0) {
-        <mat-card>
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon>assignment</mat-icon>
-              Credential Claims Configuration
-            </mat-card-title>
-            <mat-card-subtitle> Configure the source for credential claims data </mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content fxLayout="column" fxLayoutGap="24px">
-            @for (element of elements; track element.id; let i = $index) {
-              <div class="credential-section" fxLayout="column" fxLayoutGap="16px">
-                <!-- Credential Header -->
-                <div class="credential-header" fxLayout="row" fxLayoutAlign="space-between center">
-                  <h3 class="credential-title">
-                    <mat-icon>badge</mat-icon>
-                    {{ element.id }}
-                  </h3>
+              <mat-radio-button value="pre_authorized_code" class="flow-option">
+                <div class="flow-option-content">
+                  <div class="flow-option-header">
+                    <mat-icon>flash_on</mat-icon>
+                    <strong>Pre-Authorized Code</strong>
+                  </div>
+                  <p class="flow-option-description">
+                    Claims are provided upfront. The wallet receives the credential immediately
+                    after scanning the QR code. Best for scenarios where user identity is already
+                    verified.
+                  </p>
                 </div>
+              </mat-radio-button>
 
-                <mat-divider></mat-divider>
+              <mat-radio-button value="authorization_code_external" class="flow-option">
+                <div class="flow-option-content">
+                  <div class="flow-option-header">
+                    <mat-icon>dns</mat-icon>
+                    <strong>Authorization Code (External AS)</strong>
+                  </div>
+                  <p class="flow-option-description">
+                    User authentication is handled by an external Authorization Server. The AS
+                    provides user claims after authentication.
+                  </p>
+                </div>
+              </mat-radio-button>
 
-                <!-- Claim Source Selection -->
-                <div class="claim-source-selection">
-                  <b class="source-label">Select claims data source:</b>
-                  <mat-radio-group
-                    [(ngModel)]="element.claimSource"
-                    (change)="onClaimSourceChange(element.id, element.claimSource)"
-                    [ngModelOptions]="{ standalone: true }"
-                    fxLayout="row"
-                    fxLayoutGap="16px"
+              <mat-radio-button value="authorization_code_iae" class="flow-option">
+                <div class="flow-option-content">
+                  <div class="flow-option-header">
+                    <mat-icon>verified_user</mat-icon>
+                    <strong>Authorization Code (IAE)</strong>
+                  </div>
+                  <p class="flow-option-description">
+                    User authentication is handled by the built-in Interactive Authorization
+                    Endpoint. Claims are collected through configured IAE actions.
+                  </p>
+                </div>
+              </mat-radio-button>
+            </mat-radio-group>
+          </div>
+
+          <div class="step-actions" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
+            <button mat-flat-button color="primary" matStepperNext type="button">
+              Next
+              <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- Step 2: Credential Configuration Selection -->
+      <mat-step [stepControl]="credentialStepForm" label="Select Credentials">
+        <form [formGroup]="credentialStepForm" fxLayout="column" fxLayoutGap="24px">
+          <div class="step-content">
+            <h3>Select Credential Configurations</h3>
+            <p class="step-description">Choose which credential types to include in this offer.</p>
+
+            @if (availableCredentialConfigs.length === 0) {
+              <div class="no-configs-hint">
+                <mat-icon>info</mat-icon>
+                @if (credentialConfigs.length === 0) {
+                  <span>
+                    No credential configurations available.
+                    <a routerLink="/credential-config/create">Create one</a> to get started.
+                  </span>
+                } @else if (isIaeFlow) {
+                  <span>
+                    No credential configurations with IAE available. This flow requires credential
+                    configurations with Interactive Authorization Endpoint (IAE) configured.
+                  </span>
+                } @else {
+                  <span>
+                    No credential configurations without IAE available. All existing configurations
+                    have IAE configured. Use the "Authorization Code (IAE)" flow instead.
+                  </span>
+                }
+              </div>
+            } @else {
+              <mat-form-field class="full-width">
+                <mat-label>Credential Configuration IDs</mat-label>
+                <mat-select formControlName="credentialConfigurationIds" multiple>
+                  @for (binding of availableCredentialConfigs; track binding.id) {
+                    <mat-option [value]="binding.id">
+                      {{ binding.id }}
+                      @if (binding.iaeActions?.length) {
+                        <span class="iae-badge">(IAE)</span>
+                      }
+                    </mat-option>
+                  }
+                </mat-select>
+                <mat-icon matSuffix>badge</mat-icon>
+                <mat-hint>Select one or more credential configurations</mat-hint>
+                @if (credentialStepForm.get('credentialConfigurationIds')?.errors) {
+                  <mat-error>At least one credential configuration is required</mat-error>
+                }
+              </mat-form-field>
+            }
+          </div>
+
+          <div class="step-actions" fxLayout="row" fxLayoutAlign="space-between center">
+            <button mat-button matStepperPrevious type="button">
+              <mat-icon>arrow_back</mat-icon>
+              Back
+            </button>
+            <button
+              mat-flat-button
+              color="primary"
+              matStepperNext
+              type="button"
+              [disabled]="credentialStepForm.invalid"
+            >
+              Next
+              <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- Step 3: Configuration (different for each flow) -->
+      <mat-step
+        [stepControl]="configStepForm"
+        [label]="
+          isPreAuthFlow
+            ? 'Configure Claims'
+            : isAuthCodeExternalFlow
+              ? 'Select Authorization Server'
+              : 'Review & Create'
+        "
+      >
+        <form [formGroup]="configStepForm" fxLayout="column" fxLayoutGap="24px">
+          <div class="step-content">
+            <!-- Pre-Authorized Code Flow: Claims Configuration -->
+            @if (isPreAuthFlow) {
+              <h3>Configure Credential Claims</h3>
+              <p class="step-description">
+                Provide the claims data for each selected credential configuration.
+              </p>
+
+              <!-- TX Code -->
+              <mat-form-field class="full-width">
+                <mat-label>Transaction Code (Optional)</mat-label>
+                <input matInput formControlName="tx_code" placeholder="Enter transaction code" />
+                <mat-icon matSuffix>password</mat-icon>
+                <mat-hint>Optional PIN code the user must enter to claim the credential</mat-hint>
+              </mat-form-field>
+
+              <!-- TX Code Description -->
+              @if (configStepForm.get('tx_code')?.value) {
+                <mat-form-field class="full-width">
+                  <mat-label>Transaction Code Description (Optional)</mat-label>
+                  <input
+                    matInput
+                    formControlName="tx_code_description"
+                    placeholder="e.g., Please enter the PIN sent to your email"
+                  />
+                  <mat-icon matSuffix>description</mat-icon>
+                  <mat-hint
+                    >Description shown to the user explaining how to obtain the PIN</mat-hint
                   >
-                    <mat-radio-button value="form">
-                      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-                        <mat-icon>edit_note</mat-icon>
-                        <span>Form Input</span>
-                      </div>
-                    </mat-radio-button>
-                    <mat-radio-button value="webhook" [disabled]="!element.webhookConfig?.url">
-                      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-                        <mat-icon>webhook</mat-icon>
-                        <span>Webhook</span>
-                      </div>
-                    </mat-radio-button>
-                  </mat-radio-group>
+                </mat-form-field>
+              }
 
-                  <!-- Help text based on availability -->
-                  @if (!element.webhookConfig?.url) {
-                    <p class="help-text info">
-                      <mat-icon>info</mat-icon>
-                      No webhook configured - form input will be used
-                    </p>
+              <!-- Claims for each credential config -->
+              @if (elements.length > 0) {
+                <div class="claims-container" fxLayout="column" fxLayoutGap="24px">
+                  @for (element of elements; track element.id; let i = $index) {
+                    <mat-card class="credential-claims-card">
+                      <mat-card-header>
+                        <mat-card-title>
+                          <mat-icon>badge</mat-icon>
+                          {{ element.id }}
+                        </mat-card-title>
+                      </mat-card-header>
+                      <mat-card-content fxLayout="column" fxLayoutGap="16px">
+                        <!-- Claim Source Selection -->
+                        <div class="claim-source-selection">
+                          <b class="source-label">Claims data source:</b>
+                          <mat-radio-group
+                            [(ngModel)]="element.claimSource"
+                            (change)="onClaimSourceChange(element.id, element.claimSource)"
+                            [ngModelOptions]="{ standalone: true }"
+                            fxLayout="row"
+                            fxLayoutGap="16px"
+                          >
+                            <mat-radio-button value="form">
+                              <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                                <mat-icon>edit_note</mat-icon>
+                                <span>Form Input</span>
+                              </div>
+                            </mat-radio-button>
+                            <mat-radio-button
+                              value="webhook"
+                              [disabled]="!element.webhookConfig?.url"
+                            >
+                              <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                                <mat-icon>webhook</mat-icon>
+                                <span>Webhook</span>
+                              </div>
+                            </mat-radio-button>
+                          </mat-radio-group>
+
+                          @if (!element.webhookConfig?.url) {
+                            <p class="help-text info">
+                              <mat-icon>info</mat-icon>
+                              No webhook configured - form input will be used
+                            </p>
+                          }
+                        </div>
+
+                        <!-- Content based on selected source -->
+                        @if (element.claimSource === 'webhook' && element.webhookConfig?.url) {
+                          <div class="webhook-info">
+                            <app-webhook-config-show
+                              [config]="element.webhookConfig"
+                              title="Claims"
+                              descriptions="to fetch claims during issuance"
+                            ></app-webhook-config-show>
+                            <p class="help-text">
+                              <mat-icon>info</mat-icon>
+                              Claims will be fetched from the configured webhook during issuance
+                            </p>
+                          </div>
+                        } @else if (element.claimSource === 'form') {
+                          <div class="form-input">
+                            <formly-form
+                              [form]="getForm(element.id)"
+                              [fields]="getFields(fields[i])"
+                              [model]="model"
+                            ></formly-form>
+                            @if (element.defaultClaims) {
+                              <button
+                                mat-button
+                                type="button"
+                                (click)="addPreConfigured(element)"
+                                class="pre-config-button"
+                              >
+                                <mat-icon>auto_fix_high</mat-icon>
+                                Use Pre-configured Default Values
+                              </button>
+                            }
+                          </div>
+                        }
+                      </mat-card-content>
+                    </mat-card>
                   }
                 </div>
 
-                <!-- Content based on selected source -->
-                @if (element.claimSource === 'webhook' && element.webhookConfig?.url) {
-                  <div class="webhook-info">
-                    <app-webhook-config-show
-                      [config]="element.webhookConfig"
-                      title="Claims"
-                      descriptions="to fetch claims during issuance"
-                    ></app-webhook-config-show>
-                    <p class="help-text">
-                      <mat-icon>info</mat-icon>
-                      Claims will be fetched from the configured webhook during issuance
-                    </p>
-                  </div>
-                } @else if (element.claimSource === 'form') {
-                  <div class="form-input">
-                    <formly-form
-                      [form]="getForm(element.id)"
-                      [fields]="getFields(fields[i])"
-                      [model]="model"
-                    ></formly-form>
-                    @if (element.defaultClaims) {
-                      <button
-                        mat-button
-                        type="button"
-                        (click)="addPreConfigured(element)"
-                        class="pre-config-button"
-                      >
-                        <mat-icon>auto_fix_high</mat-icon>
-                        Use Pre-configured Default Values
-                      </button>
-                    }
-                  </div>
-                }
-              </div>
-
-              @if (i < elements.length - 1) {
-                <mat-divider></mat-divider>
+                <div fxLayout="row" fxLayoutAlign="end center">
+                  <button mat-button type="button" (click)="importClaims()">
+                    <mat-icon>upload_file</mat-icon>
+                    Import Claims JSON
+                  </button>
+                </div>
               }
             }
-          </mat-card-content>
-          <mat-card-actions fxLayout="row" fxLayoutAlign="end center">
-            <button mat-button type="button" (click)="importClaims()">
-              <mat-icon>upload_file</mat-icon>
-              Import Claims JSON
+
+            <!-- Authorization Code External Flow: Select AS Type -->
+            @if (isAuthCodeExternalFlow) {
+              <h3>Select Authorization Server</h3>
+              <p class="step-description">
+                Choose which authorization server will handle user authentication.
+              </p>
+
+              <!-- AS Type Selection (only shown when chained AS is available) -->
+              @if (isChainedAsEnabled || availableAuthServers.length > 0) {
+                @if (isChainedAsEnabled && availableAuthServers.length > 0) {
+                  <!-- Both options available -->
+                  <mat-radio-group
+                    formControlName="as_type"
+                    fxLayout="column"
+                    fxLayoutGap="12px"
+                    class="as-type-selection"
+                  >
+                    <mat-radio-button value="chained" class="as-type-option">
+                      <div class="as-type-option-content">
+                        <div class="as-type-option-header">
+                          <mat-icon>account_tree</mat-icon>
+                          <strong>Chained Authorization Server</strong>
+                        </div>
+                        <p class="as-type-option-description">
+                          Use the built-in authorization server that delegates authentication to the
+                          configured upstream OIDC provider.
+                        </p>
+                      </div>
+                    </mat-radio-button>
+
+                    <mat-radio-button value="external" class="as-type-option">
+                      <div class="as-type-option-content">
+                        <div class="as-type-option-header">
+                          <mat-icon>dns</mat-icon>
+                          <strong>External Authorization Server</strong>
+                        </div>
+                        <p class="as-type-option-description">
+                          Use a directly configured external authorization server.
+                        </p>
+                      </div>
+                    </mat-radio-button>
+                  </mat-radio-group>
+                } @else if (isChainedAsEnabled) {
+                  <!-- Only chained AS available -->
+                  <div class="chained-as-confirmation">
+                    <mat-icon class="success-icon">account_tree</mat-icon>
+                    <div>
+                      <strong>Chained Authorization Server</strong>
+                      <p>
+                        User authentication will be handled by the built-in authorization server,
+                        which delegates to the configured upstream OIDC provider.
+                      </p>
+                    </div>
+                  </div>
+                }
+
+                <!-- External AS Selection (only shown when external type is selected) -->
+                @if (selectedAsType === 'external' && availableAuthServers.length > 0) {
+                  <mat-form-field class="full-width external-as-select">
+                    <mat-label>Authorization Server</mat-label>
+                    <mat-select formControlName="authorization_server" required>
+                      @for (server of availableAuthServers; track server) {
+                        <mat-option [value]="server">{{ server }}</mat-option>
+                      }
+                    </mat-select>
+                    <mat-icon matSuffix>dns</mat-icon>
+                    <mat-hint
+                      >The external AS will handle user authentication and provide claims</mat-hint
+                    >
+                  </mat-form-field>
+                }
+
+                <!-- Webhook configuration for each credential -->
+                <h4 class="webhook-section-title">
+                  <mat-icon>webhook</mat-icon>
+                  Claims Webhooks
+                </h4>
+                <p class="step-description">
+                  Configure a webhook for each credential to fetch claims based on AS
+                  authentication.
+                </p>
+
+                <div class="webhook-configs-container">
+                  @for (
+                    configId of credentialStepForm.get('credentialConfigurationIds')?.value;
+                    track configId
+                  ) {
+                    <mat-card class="webhook-config-card">
+                      <mat-card-header>
+                        <mat-card-title>
+                          <mat-icon>badge</mat-icon>
+                          {{ configId }}
+                        </mat-card-title>
+                      </mat-card-header>
+                      <mat-card-content>
+                        @if (getWebhookFormGroup(configId); as webhookForm) {
+                          <app-webhook-config-edit [group]="webhookForm"></app-webhook-config-edit>
+                        }
+                      </mat-card-content>
+                    </mat-card>
+                  }
+                </div>
+              } @else {
+                <div class="validation-error">
+                  <mat-icon>error</mat-icon>
+                  <span>
+                    No Authorization Servers configured. Please configure Chained AS or add an
+                    external AS in the issuance configuration.
+                  </span>
+                </div>
+              }
+
+              <!-- Info about claims in auth code flow -->
+              <div class="info-box">
+                <mat-icon>info</mat-icon>
+                @if (isChainedAsSelected) {
+                  <p>
+                    The chained AS will authenticate the user via the upstream OIDC provider. Your
+                    webhook will receive the user's identity (iss, sub) and token claims to resolve
+                    the credential claims.
+                  </p>
+                } @else {
+                  <p>
+                    The external AS will authenticate the user. Your webhook will receive the user's
+                    identity (iss, sub) and token claims to resolve the credential claims.
+                  </p>
+                }
+              </div>
+            }
+
+            <!-- IAE Flow: Built-in AS Confirmation -->
+            @if (isIaeFlow) {
+              <h3>Built-in Authorization Server</h3>
+              <p class="step-description">
+                The credential will be issued using the built-in authorization server with IAE
+                (Issuer Authenticated Endpoint).
+              </p>
+
+              <div class="iae-confirmation">
+                <mat-icon class="success-icon">check_circle</mat-icon>
+                <div>
+                  <strong>Ready to create offer</strong>
+                  <p>
+                    The built-in authorization server will guide users through the authentication
+                    steps defined in each credential's IAE configuration.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Webhook configuration for each credential -->
+              <h4 class="webhook-section-title">
+                <mat-icon>webhook</mat-icon>
+                Claims Webhooks (Optional)
+              </h4>
+              <p class="step-description">
+                Optionally configure a webhook to fetch claims after IAE completes. If not
+                configured, claims will be taken from the credential configuration or IAE results.
+              </p>
+
+              <div class="webhook-configs-container">
+                @for (
+                  configId of credentialStepForm.get('credentialConfigurationIds')?.value;
+                  track configId
+                ) {
+                  <mat-card class="webhook-config-card">
+                    <mat-card-header>
+                      <mat-card-title>
+                        <mat-icon>badge</mat-icon>
+                        {{ configId }}
+                      </mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                      @if (getWebhookFormGroup(configId); as webhookForm) {
+                        <app-webhook-config-edit [group]="webhookForm"></app-webhook-config-edit>
+                      }
+                    </mat-card-content>
+                  </mat-card>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="step-actions" fxLayout="row" fxLayoutAlign="space-between center">
+            <button mat-button matStepperPrevious type="button">
+              <mat-icon>arrow_back</mat-icon>
+              Back
             </button>
-          </mat-card-actions>
-        </mat-card>
-      }
-
-      <mat-divider></mat-divider>
-
-      <div fxLayout="row" fxLayoutAlign="end center">
-        <button mat-button type="button" (click)="resetForm()">Reset</button>
-        <button
-          mat-flat-button
-          color="primary"
-          type="submit"
-          [disabled]="form.invalid || generatingOffer"
-        >
-          Generate Offer
-        </button>
-      </div>
-    </form>
+            <div fxLayout="row" fxLayoutGap="8px">
+              <button mat-button type="button" (click)="resetForm()">Reset</button>
+              <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                (click)="onSubmit()"
+                [disabled]="
+                  generatingOffer ||
+                  (isAuthCodeExternalFlow &&
+                    ((selectedAsType === 'external' &&
+                      !configStepForm.get('authorization_server')?.value) ||
+                      !allExternalAsWebhooksValid))
+                "
+              >
+                <mat-icon>qr_code</mat-icon>
+                Generate Offer
+              </button>
+            </div>
+          </div>
+        </form>
+      </mat-step>
+    </mat-stepper>
   }
 </div>
