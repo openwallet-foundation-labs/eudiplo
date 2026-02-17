@@ -109,20 +109,20 @@ export const routes: Routes = [
       {
         path: 'presentation',
         canActivate: [RoleGuard],
-        data: { role: getRole('presentation:offer') },
+        data: { role: getRole('presentation:request') },
         children: [
           {
             path: '',
             loadComponent: () =>
-              import('./presentation/presentation-offer/presentation-offer.component').then(
-                (m) => m.PresentationOfferComponent
+              import('./presentation/presentation-request/presentation-request.component').then(
+                (m) => m.PresentationRequestComponent
               ),
           },
           {
             path: ':id',
             loadComponent: () =>
-              import('./presentation/presentation-offer/presentation-offer.component').then(
-                (m) => m.PresentationOfferComponent
+              import('./presentation/presentation-request/presentation-request.component').then(
+                (m) => m.PresentationRequestComponent
               ),
           },
         ],

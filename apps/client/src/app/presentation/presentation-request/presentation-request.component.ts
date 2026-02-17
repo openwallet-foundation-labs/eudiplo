@@ -25,7 +25,7 @@ import { EditorComponent, extractSchema } from '../../utils/editor/editor.compon
 import { transactionDataArraySchema } from '../../utils/schemas';
 
 @Component({
-  selector: 'app-presentation-offer',
+  selector: 'app-presentation-request',
   imports: [
     CommonModule,
     FormsModule,
@@ -44,10 +44,10 @@ import { transactionDataArraySchema } from '../../utils/schemas';
     MatSlideToggleModule,
     EditorComponent,
   ],
-  templateUrl: './presentation-offer.component.html',
-  styleUrl: './presentation-offer.component.scss',
+  templateUrl: './presentation-request.component.html',
+  styleUrl: './presentation-request.component.scss',
 })
-export class PresentationOfferComponent implements OnInit {
+export class PresentationRequestComponent implements OnInit {
   form: FormGroup;
   configs: PresentationConfig[] = [];
   loading = false;

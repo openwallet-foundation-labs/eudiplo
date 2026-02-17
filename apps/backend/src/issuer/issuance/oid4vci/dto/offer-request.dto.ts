@@ -115,6 +115,13 @@ export class OfferRequestDto {
     tx_code?: string;
 
     /**
+     * Description for the transaction code (e.g., "Please enter the PIN sent to your email").
+     */
+    @IsString()
+    @IsOptional()
+    tx_code_description?: string;
+
+    /**
      * List of credential configuration ids to be included in the offer.
      */
     @IsArray()

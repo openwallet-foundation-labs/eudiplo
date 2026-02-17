@@ -1,0 +1,243 @@
+import {
+    Controller,
+    Post,
+    Get,
+    Body,
+    Query,
+    Param,
+    Res,
+    Headers,
+    HttpCode,
+    HttpStatus,
+} from "@nestjs/common";
+import {
+    ApiTags,
+    ApiOperation,
+    ApiResponse,
+    ApiParam,
+    ApiHeader,
+} from "@nestjs/swagger";
+import type { Response } from "express";
+import { Public } from "../../../../auth/public.decorator";
+import { ChainedAsService, extractDpopJkt } from "./chained-as.service";
+import {
+    ChainedAsParRequestDto,
+    ChainedAsParResponseDto,
+    ChainedAsAuthorizeQueryDto,
+    ChainedAsTokenRequestDto,
+    ChainedAsTokenResponseDto,
+    ChainedAsErrorResponseDto,
+} from "./dto/chained-as.dto";
+
+/**
+ * Controller for Chained Authorization Server endpoints.
+ *
+ * Implements OAuth 2.0 AS endpoints where EUDIPLO acts as a facade,
+ * delegating user authentication to an upstream OIDC provider while
+ * issuing its own tokens containing issuer_state for session correlation.
+ *
+ * Flow:
+ * 1. Wallet → PAR (receives request_uri)
+ * 2. Wallet → Authorize (redirected to upstream OIDC)
+ * 3. User authenticates at upstream OIDC
+ * 4. Upstream → Callback (EUDIPLO exchanges code, redirects wallet with our code)
+ * 5. Wallet → Token (receives EUDIPLO-issued access token with issuer_state)
+ */
+@ApiTags("Chained AS")
+@Controller(":tenant/chained-as")
+export class ChainedAsController {
+    constructor(private readonly chainedAsService: ChainedAsService) {}
+
+    /**
+     * Pushed Authorization Request (PAR) endpoint.
+     * Wallets submit authorization parameters here before redirecting to authorize.
+     */
+    @Public()
+    @Post("par")
+    @HttpCode(HttpStatus.CREATED)
+    @ApiOperation({
+        summary: "Pushed Authorization Request",
+        description:
+            "Submit authorization request parameters. Returns a request_uri for use at the authorization endpoint.",
+    })
+    @ApiParam({ name: "tenant", description: "Tenant identifier" })
+    @ApiHeader({
+        name: "DPoP",
+        required: false,
+        description: "DPoP proof JWT",
+    })
+    @ApiResponse({
+        status: 201,
+        description: "PAR request accepted",
+        type: ChainedAsParResponseDto,
+    })
+    @ApiResponse({
+        status: 400,
+        description: "Invalid request",
+        type: ChainedAsErrorResponseDto,
+    })
+    async par(
+        @Param("tenant") tenantId: string,
+        @Body() body: ChainedAsParRequestDto,
+        @Headers("dpop") dpopJwt?: string,
+    ): Promise<ChainedAsParResponseDto> {
+        // DPoP JWK thumbprint extraction will be handled in service layer when DPoP is fully implemented
+        const dpopJkt = dpopJwt ? extractDpopJkt(dpopJwt) : undefined;
+
+        return this.chainedAsService.handlePar(tenantId, body, dpopJkt);
+    }
+
+    /**
+     * Authorization endpoint.
+     * Validates the request_uri and redirects to the upstream OIDC provider.
+     */
+    @Public()
+    @Get("authorize")
+    @ApiOperation({
+        summary: "Authorization endpoint",
+        description:
+            "Validates the request_uri from PAR and redirects to the upstream OIDC provider for authentication.",
+    })
+    @ApiParam({ name: "tenant", description: "Tenant identifier" })
+    @ApiResponse({
+        status: 302,
+        description: "Redirect to upstream OIDC provider",
+    })
+    @ApiResponse({
+        status: 400,
+        description: "Invalid request",
+        type: ChainedAsErrorResponseDto,
+    })
+    async authorize(
+        @Param("tenant") tenantId: string,
+        @Query() query: ChainedAsAuthorizeQueryDto,
+        @Res() res: Response,
+    ): Promise<void> {
+        const redirectUrl = await this.chainedAsService.handleAuthorize(
+            tenantId,
+            query.client_id,
+            query.request_uri,
+        );
+        res.redirect(redirectUrl);
+    }
+
+    /**
+     * Callback endpoint for upstream OIDC provider.
+     * Receives the authorization code from upstream and redirects the wallet.
+     */
+    @Public()
+    @Get("callback")
+    @ApiOperation({
+        summary: "Upstream OIDC callback",
+        description:
+            "Receives the authorization response from the upstream OIDC provider, exchanges the code, and redirects back to the wallet.",
+    })
+    @ApiParam({ name: "tenant", description: "Tenant identifier" })
+    @ApiResponse({
+        status: 302,
+        description: "Redirect to wallet with authorization code",
+    })
+    @ApiResponse({
+        status: 400,
+        description: "Invalid callback",
+        type: ChainedAsErrorResponseDto,
+    })
+    async callback(
+        @Param("tenant") tenantId: string,
+        @Res() res: Response,
+        @Query("code") code?: string,
+        @Query("state") state?: string,
+        @Query("error") error?: string,
+        @Query("error_description") errorDescription?: string,
+    ): Promise<void> {
+        const redirectUrl = await this.chainedAsService.handleUpstreamCallback(
+            tenantId,
+            code || "",
+            state || "",
+            error,
+            errorDescription,
+        );
+        res.redirect(redirectUrl);
+    }
+
+    /**
+     * Token endpoint.
+     * Exchanges the authorization code for an access token.
+     */
+    @Public()
+    @Post("token")
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({
+        summary: "Token endpoint",
+        description:
+            "Exchanges the authorization code for an access token containing issuer_state.",
+    })
+    @ApiParam({ name: "tenant", description: "Tenant identifier" })
+    @ApiHeader({
+        name: "DPoP",
+        required: false,
+        description: "DPoP proof JWT",
+    })
+    @ApiResponse({
+        status: 200,
+        description: "Token issued successfully",
+        type: ChainedAsTokenResponseDto,
+    })
+    @ApiResponse({
+        status: 400,
+        description: "Invalid request",
+        type: ChainedAsErrorResponseDto,
+    })
+    @ApiResponse({
+        status: 401,
+        description: "Invalid authorization code",
+        type: ChainedAsErrorResponseDto,
+    })
+    async token(
+        @Param("tenant") tenantId: string,
+        @Body() body: ChainedAsTokenRequestDto,
+        @Headers("dpop") dpopJwt?: string,
+    ): Promise<ChainedAsTokenResponseDto> {
+        return this.chainedAsService.handleToken(tenantId, body, dpopJwt);
+    }
+
+    /**
+     * JWKS endpoint for token verification.
+     */
+    @Public()
+    @Get(".well-known/jwks.json")
+    @ApiOperation({
+        summary: "JSON Web Key Set",
+        description:
+            "Returns the public keys for verifying tokens issued by this Chained AS.",
+    })
+    @ApiParam({ name: "tenant", description: "Tenant identifier" })
+    @ApiResponse({
+        status: 200,
+        description: "JWKS document",
+    })
+    async jwks(
+        @Param("tenant") tenantId: string,
+    ): Promise<{ keys: Record<string, unknown>[] }> {
+        return this.chainedAsService.getJwks(tenantId);
+    }
+
+    /**
+     * OAuth Authorization Server metadata.
+     */
+    @Public()
+    @Get(".well-known/oauth-authorization-server")
+    @ApiOperation({
+        summary: "OAuth AS Metadata",
+        description:
+            "Returns the OAuth Authorization Server metadata for the Chained AS.",
+    })
+    @ApiParam({ name: "tenant", description: "Tenant identifier" })
+    @ApiResponse({
+        status: 200,
+        description: "OAuth AS metadata",
+    })
+    getMetadata(@Param("tenant") tenantId: string): Record<string, unknown> {
+        return this.chainedAsService.getMetadata(tenantId);
+    }
+}

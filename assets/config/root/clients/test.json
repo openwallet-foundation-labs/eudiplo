@@ -6,7 +6,7 @@
         "clients:manage",
         "issuance:offer",
         "issuance:manage",
-        "presentation:offer",
+        "presentation:request",
         "presentation:manage"
     ]
 }

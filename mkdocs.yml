@@ -119,6 +119,7 @@ nav:
           - Presentation Configuration: getting-started/presentation/presentation-configuration.md
           - Transaction Data: getting-started/presentation/transaction-data.md
       - Advanced:
+        - Keycloak Integration: getting-started/keycloak.md
         - Registrar: getting-started/registrar.md
         - Monitor: getting-started/monitor.md
   - Deployment:
@@ -135,6 +136,7 @@ nav:
       - Status Management: architecture/status-management.md
       - Webhooks: architecture/webhooks.md
       - Interactive Authorization (IAE): architecture/iae.md
+      - Chained Authorization Server: architecture/chained-as.md
       - Config Import: architecture/configuration-import.md
       - Key Management: architecture/key-management.md
       - Database: architecture/database.md

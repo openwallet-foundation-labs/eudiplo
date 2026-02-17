@@ -93,7 +93,6 @@ export class SdjwtvcIssuerService {
                 iat,
                 exp,
                 vct,
-                iss: `${host}/${session.tenantId}`,
                 cnf,
                 ...claims,
                 ...status,

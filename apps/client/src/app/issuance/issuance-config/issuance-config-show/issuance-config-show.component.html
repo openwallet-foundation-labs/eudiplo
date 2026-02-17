@@ -7,9 +7,6 @@
         <button mat-icon-button [routerLink]="['../']" matTooltip="Back to list">
           <mat-icon>arrow_back</mat-icon>
         </button>
-        <button mat-icon-button [routerLink]="['/offer/issuance']" matTooltip="Create offer">
-          <mat-icon>add</mat-icon>
-        </button>
         <button mat-icon-button [routerLink]="['edit']" matTooltip="Edit configuration">
           <mat-icon>edit</mat-icon>
         </button>
@@ -87,9 +84,76 @@
               </span>
             </mat-list-item>
           }
+          <mat-list-item>
+            <mat-icon
+              matListItemIcon
+              [class]="config.chainedAs?.enabled ? 'icon-chained-as' : 'icon-disabled'"
+            >
+              {{ config.chainedAs?.enabled ? 'account_tree' : 'link_off' }}
+            </mat-icon>
+            <span matListItemTitle>Chained Authorization Server</span>
+            <span matListItemLine>{{ config.chainedAs?.enabled ? 'Enabled' : 'Disabled' }}</span>
+          </mat-list-item>
         </mat-list>
       </mat-card-content>
     </mat-card>
+
+    <!-- Chained AS Details Card -->
+    @if (config.chainedAs?.enabled) {
+      <mat-card class="chained-as-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>account_tree</mat-icon>
+            Chained Authorization Server Details
+          </mat-card-title>
+          <mat-card-subtitle>Upstream OIDC provider configuration</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-list class="config-list">
+            <mat-list-item>
+              <mat-icon matListItemIcon>cloud</mat-icon>
+              <span matListItemTitle>Upstream Issuer</span>
+              <span matListItemLine>{{
+                config.chainedAs?.upstream?.issuer || 'Not configured'
+              }}</span>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon matListItemIcon>fingerprint</mat-icon>
+              <span matListItemTitle>Client ID</span>
+              <span matListItemLine>{{
+                config.chainedAs?.upstream?.clientId || 'Not configured'
+              }}</span>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon matListItemIcon>schedule</mat-icon>
+              <span matListItemTitle>Token Lifetime</span>
+              <span matListItemLine
+                >{{ config.chainedAs?.token?.lifetimeSeconds || 3600 }} seconds</span
+              >
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon
+                matListItemIcon
+                [class]="config.chainedAs?.requireDPoP ? '' : 'icon-disabled'"
+              >
+                {{ config.chainedAs?.requireDPoP ? 'verified_user' : 'no_encryption' }}
+              </mat-icon>
+              <span matListItemTitle>DPoP Requirement</span>
+              <span matListItemLine>{{
+                config.chainedAs?.requireDPoP ? 'Required' : 'Not required'
+              }}</span>
+            </mat-list-item>
+            @if ((config.chainedAs?.upstream?.scopes?.length ?? 0) > 0) {
+              <mat-list-item>
+                <mat-icon matListItemIcon>list</mat-icon>
+                <span matListItemTitle>Requested Scopes</span>
+                <span matListItemLine>{{ config.chainedAs!.upstream!.scopes!.join(', ') }}</span>
+              </mat-list-item>
+            }
+          </mat-list>
+        </mat-card-content>
+      </mat-card>
+    }
 
     <!-- Issuer Preview Card -->
     @if (primaryDisplay) {

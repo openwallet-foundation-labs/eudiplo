@@ -83,3 +83,136 @@ The wallet attestation JWT may optionally contain a `status` claim that provides
 !!! info "EUDI Wallet Ecosystem"
 
     In the EUDI Wallet ecosystem, trust lists are typically published by EU member states or the European Commission, containing the certificates of approved wallet providers.
+
+---
+
+## Chained Authorization Server
+
+Chained AS mode allows EUDIPLO to act as an OAuth Authorization Server facade, delegating user authentication to an upstream OIDC provider (e.g., Keycloak) while issuing its own access tokens containing `issuer_state` for session correlation.
+
+This approach enables credential issuance flows that require user authentication without modifying your existing OIDC provider.
+
+### When to Use Chained AS
+
+| Use Case                                     | Recommendation              |
+| -------------------------------------------- | --------------------------- |
+| Need session correlation with `issuer_state` | ✅ Use Chained AS           |
+| Cannot modify upstream OIDC provider         | ✅ Use Chained AS           |
+| Want EUDIPLO to control token claims         | ✅ Use Chained AS           |
+| Upstream already includes `issuer_state`     | ❌ Use External AS directly |
+| Pre-authorized code flow only                | ❌ Not needed               |
+
+### How It Works
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Wallet as EUDI Wallet
+    participant EUDIPLO as EUDIPLO (Chained AS)
+    participant Upstream as Upstream OIDC (e.g., Keycloak)
+
+    Wallet->>EUDIPLO: PAR Request
+    EUDIPLO-->>Wallet: request_uri
+
+    Wallet->>EUDIPLO: Authorize (request_uri)
+    EUDIPLO->>Upstream: Redirect to upstream /authorize
+
+    Note over Upstream: User authenticates
+
+    Upstream->>EUDIPLO: Callback with authorization code
+    EUDIPLO->>Upstream: Exchange code for tokens
+    Upstream-->>EUDIPLO: ID token + access token
+
+    EUDIPLO->>EUDIPLO: Store upstream identity
+    EUDIPLO-->>Wallet: Redirect with EUDIPLO auth code
+
+    Wallet->>EUDIPLO: Token Request (code + PKCE)
+    EUDIPLO-->>Wallet: EUDIPLO access token (with issuer_state)
+
+    Wallet->>EUDIPLO: Credential Request
+    Note over EUDIPLO: Correlate session via issuer_state
+    EUDIPLO-->>Wallet: Credential
+```
+
+### Configuration
+
+Add the `chainedAs` object to your issuance configuration:
+
+```json
+{
+  "display": [...],
+  "chainedAs": {
+    "enabled": true,
+    "upstream": {
+      "issuer": "https://keycloak.example.com/realms/eudiplo",
+      "clientId": "eudiplo-chained-as",
+      "clientSecret": "your-client-secret",
+      "scopes": ["openid", "profile", "email"]
+    },
+    "token": {
+      "lifetimeSeconds": 3600,
+      "signingKeyId": "default"
+    },
+    "requireDPoP": false
+  }
+}
+```
+
+### Configuration Fields
+
+| Field                             | Type     | Required | Description                                                     |
+| --------------------------------- | -------- | -------- | --------------------------------------------------------------- |
+| `chainedAs.enabled`               | boolean  | Yes      | Enable Chained AS mode                                          |
+| `chainedAs.upstream.issuer`       | string   | Yes      | Upstream OIDC provider URL (must support discovery)             |
+| `chainedAs.upstream.clientId`     | string   | Yes      | Client ID registered at upstream provider                       |
+| `chainedAs.upstream.clientSecret` | string   | Yes      | Client secret for upstream provider                             |
+| `chainedAs.upstream.scopes`       | string[] | No       | Scopes to request (default: `["openid", "profile", "email"]`)   |
+| `chainedAs.token.lifetimeSeconds` | number   | No       | Access token lifetime in seconds (default: 3600)                |
+| `chainedAs.token.signingKeyId`    | string   | No       | Key ID for signing tokens (uses default signing key if omitted) |
+| `chainedAs.requireDPoP`           | boolean  | No       | Require DPoP proof from wallets (default: false)                |
+
+### Upstream OIDC Provider Setup
+
+Configure your upstream OIDC provider (e.g., Keycloak) with:
+
+1. **Client Type**: Confidential client with client credentials
+2. **Redirect URI**: `https://your-eudiplo-url/{tenant}/chained-as/callback`
+3. **Scopes**: Enable `openid`, `profile`, `email` (or as needed)
+
+### Endpoints
+
+When Chained AS is enabled, the following endpoints become available:
+
+| Endpoint                                                      | Method | Description                  |
+| ------------------------------------------------------------- | ------ | ---------------------------- |
+| `/{tenant}/chained-as/par`                                    | POST   | Pushed Authorization Request |
+| `/{tenant}/chained-as/authorize`                              | GET    | Authorization endpoint       |
+| `/{tenant}/chained-as/callback`                               | GET    | Upstream callback handler    |
+| `/{tenant}/chained-as/token`                                  | POST   | Token endpoint               |
+| `/{tenant}/chained-as/.well-known/oauth-authorization-server` | GET    | AS metadata                  |
+| `/{tenant}/chained-as/.well-known/jwks.json`                  | GET    | JSON Web Key Set             |
+
+### Token Claims
+
+Access tokens issued by the Chained AS include:
+
+```json
+{
+    "iss": "https://eudiplo.example.com/{tenant}/chained-as",
+    "sub": "{client_id}",
+    "aud": "https://eudiplo.example.com/{tenant}",
+    "issuer_state": "{session_id}",
+    "client_id": "{wallet_client_id}",
+    "upstream_sub": "{upstream_user_subject}",
+    "upstream_iss": "{upstream_issuer}",
+    "cnf": { "jkt": "{dpop_thumbprint}" }
+}
+```
+
+!!! tip "Session Correlation"
+
+    The `issuer_state` claim links the access token to the credential offer session, enabling EUDIPLO to correlate the credential request with the original offer without requiring the upstream OIDC provider to include custom claims.
+
+!!! warning "Client Secret Security"
+
+    Store the upstream client secret securely. Consider using environment variables or a secrets manager rather than storing it directly in configuration files.

@@ -73,6 +73,20 @@ export class IssuanceConfigCreateComponent implements OnInit {
       dPopRequired: new FormControl(false),
       walletAttestationRequired: new FormControl(false),
       walletProviderTrustLists: this.fb.array([]),
+      chainedAs: this.fb.group({
+        enabled: [false],
+        upstream: this.fb.group({
+          issuer: [''],
+          clientId: [''],
+          clientSecret: [''],
+          scopes: [['openid', 'profile', 'email']],
+        }),
+        token: this.fb.group({
+          lifetimeSeconds: [3600],
+          signingKeyId: [''],
+        }),
+        requireDPoP: [false],
+      }),
     } as { [k in keyof IssuanceDto]: any });
   }
 
@@ -132,6 +146,26 @@ export class IssuanceConfigCreateComponent implements OnInit {
         dPopRequired: config.dPopRequired,
         walletAttestationRequired: config.walletAttestationRequired ?? false,
       });
+
+      // Load Chained AS config if present
+      if (config.chainedAs) {
+        this.form.patchValue({
+          chainedAs: {
+            enabled: config.chainedAs.enabled ?? false,
+            upstream: {
+              issuer: config.chainedAs.upstream?.issuer ?? '',
+              clientId: config.chainedAs.upstream?.clientId ?? '',
+              clientSecret: config.chainedAs.upstream?.clientSecret ?? '',
+              scopes: config.chainedAs.upstream?.scopes ?? ['openid', 'profile', 'email'],
+            },
+            token: {
+              lifetimeSeconds: config.chainedAs.token?.lifetimeSeconds ?? 3600,
+              signingKeyId: config.chainedAs.token?.signingKeyId ?? '',
+            },
+            requireDPoP: config.chainedAs.requireDPoP ?? false,
+          },
+        });
+      }
     } catch (error) {
       console.error('Error loading config:', error);
       this.snackBar.open('Failed to load configuration', 'Close', {
@@ -144,6 +178,25 @@ export class IssuanceConfigCreateComponent implements OnInit {
     this.loading = true;
     const formValue = this.form.value;
 
+    // Build chainedAs config only if enabled
+    let chainedAsConfig = undefined;
+    if (formValue.chainedAs?.enabled) {
+      chainedAsConfig = {
+        enabled: true,
+        upstream: {
+          issuer: formValue.chainedAs.upstream.issuer,
+          clientId: formValue.chainedAs.upstream.clientId,
+          clientSecret: formValue.chainedAs.upstream.clientSecret,
+          scopes: formValue.chainedAs.upstream.scopes,
+        },
+        token: {
+          lifetimeSeconds: formValue.chainedAs.token.lifetimeSeconds || 3600,
+          signingKeyId: formValue.chainedAs.token.signingKeyId || undefined,
+        },
+        requireDPoP: formValue.chainedAs.requireDPoP,
+      };
+    }
+
     const issuanceDto: IssuanceDto = {
       batchSize: formValue.batchSize,
       display: formValue.display,
@@ -154,6 +207,7 @@ export class IssuanceConfigCreateComponent implements OnInit {
         formValue.walletProviderTrustLists?.length > 0
           ? formValue.walletProviderTrustLists
           : undefined,
+      chainedAs: chainedAsConfig,
     };
 
     this.issuanceConfigService
@@ -215,6 +269,14 @@ export class IssuanceConfigCreateComponent implements OnInit {
 
   get walletProviderTrustLists(): FormArray {
     return this.form.get('walletProviderTrustLists') as FormArray;
+  }
+
+  get chainedAs(): FormGroup {
+    return this.form.get('chainedAs') as FormGroup;
+  }
+
+  get chainedAsEnabled(): boolean {
+    return this.chainedAs.get('enabled')?.value ?? false;
   }
 
   addWalletProviderTrustList(): void {

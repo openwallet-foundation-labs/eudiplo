@@ -11,7 +11,7 @@
         "role": {
           "enum": [
             "presentation:manage",
-            "presentation:offer",
+            "presentation:request",
             "issuance:manage",
             "issuance:offer",
             "clients:manage",
@@ -263,7 +263,7 @@
             "type": "string",
             "enum": [
               "presentation:manage",
-              "presentation:offer",
+              "presentation:request",
               "issuance:manage",
               "issuance:offer",
               "clients:manage",
@@ -316,7 +316,7 @@
             "type": "string",
             "enum": [
               "presentation:manage",
-              "presentation:offer",
+              "presentation:request",
               "issuance:manage",
               "issuance:offer",
               "clients:manage",
@@ -381,7 +381,7 @@
             "type": "string",
             "enum": [
               "presentation:manage",
-              "presentation:offer",
+              "presentation:request",
               "issuance:manage",
               "issuance:offer",
               "clients:manage",
@@ -447,7 +447,7 @@
             "type": "string",
             "enum": [
               "presentation:manage",
-              "presentation:offer",
+              "presentation:request",
               "issuance:manage",
               "issuance:offer",
               "clients:manage",
@@ -506,7 +506,7 @@
             "type": "string",
             "enum": [
               "presentation:manage",
-              "presentation:offer",
+              "presentation:request",
               "issuance:manage",
               "issuance:offer",
               "clients:manage",
@@ -576,7 +576,7 @@
         },
         "key": {
           "type": "object",
-          "description": "The key material."
+          "description": "The key material.\nEncrypted at rest using AES-256-GCM."
         },
         "usage": {
           "type": "object",
@@ -1321,6 +1321,10 @@
           "type": "string",
           "description": "Transaction code for pre-authorized code flow."
         },
+        "tx_code_description": {
+          "type": "string",
+          "description": "Description for the transaction code (e.g., \"Please enter the PIN sent to your email\")."
+        },
         "credentialConfigurationIds": {
           "description": "List of credential configuration ids to be included in the offer.",
           "type": "array",
@@ -1423,7 +1427,7 @@
           "description": "Request URI from the authorization request."
         },
         "auth_queries": {
-          "description": "Authorization queries associated with the session.",
+          "description": "Authorization queries associated with the session.\nEncrypted at rest.",
           "allOf": [
             {
               "$ref": "./AuthorizeQueries.schema.json"
@@ -1431,7 +1435,7 @@
           ]
         },
         "offer": {
-          "description": "Credential offer object containing details about the credential offer or presentation request.",
+          "description": "Credential offer object containing details about the credential offer or presentation request.\nEncrypted at rest.",
           "type": "object"
         },
         "offerUrl": {
@@ -1439,7 +1443,7 @@
           "description": "Offer URL for the credential offer."
         },
         "credentialPayload": {
-          "description": "Credential payload containing the offer request details.",
+          "description": "Credential payload containing the offer request details.\nEncrypted at rest - may contain sensitive claim data.",
           "allOf": [
             {
               "$ref": "./OfferRequestDto.schema.json"
@@ -1473,7 +1477,7 @@
           "description": "Signed presentation auth request."
         },
         "credentials": {
-          "description": "Verified credentials from the presentation process.",
+          "description": "Verified credentials from the presentation process.\nEncrypted at rest - contains personal information.",
           "type": "array",
           "items": {
             "type": "object"
@@ -1510,6 +1514,13 @@
           "items": {
             "$ref": "./TransactionData.schema.json"
           }
+        },
+        "externalIssuer": {
+          "type": "string"
+        },
+        "externalSubject": {
+          "type": "string",
+          "description": "The subject (sub) from the external authorization server token.\nUsed to identify the user at the external AS."
         }
       },
       "required": [
@@ -1674,6 +1685,103 @@
     }
   },
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpstreamOidcConfig.schema.json",
+    "fileMatch": ["a://b/UpstreamOidcConfig*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpstreamOidcConfig.schema.json",
+      "title": "UpstreamOidcConfig",
+      "type": "object",
+      "properties": {
+        "issuer": {
+          "type": "string",
+          "description": "The OIDC issuer URL of the upstream provider",
+          "example": "https://auth.example.com/realms/myrealm",
+          "format": "uri"
+        },
+        "clientId": {
+          "type": "string",
+          "description": "The client ID registered with the upstream provider",
+          "example": "eudiplo-chained-as"
+        },
+        "clientSecret": {
+          "type": "string",
+          "description": "The client secret for confidential clients"
+        },
+        "scopes": {
+          "description": "Scopes to request from the upstream provider",
+          "default": ["openid", "profile"],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["issuer", "clientId"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsTokenConfig.schema.json",
+    "fileMatch": ["a://b/ChainedAsTokenConfig*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsTokenConfig.schema.json",
+      "title": "ChainedAsTokenConfig",
+      "type": "object",
+      "properties": {
+        "lifetimeSeconds": {
+          "type": "number",
+          "description": "Access token lifetime in seconds",
+          "minimum": 60,
+          "default": 3600
+        },
+        "signingKeyId": {
+          "type": "string",
+          "description": "Key ID for token signing"
+        }
+      }
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsConfig.schema.json",
+    "fileMatch": ["a://b/ChainedAsConfig*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsConfig.schema.json",
+      "title": "ChainedAsConfig",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable chained AS mode",
+          "default": false
+        },
+        "upstream": {
+          "description": "Upstream OIDC provider configuration",
+          "allOf": [
+            {
+              "$ref": "./UpstreamOidcConfig.schema.json"
+            }
+          ]
+        },
+        "token": {
+          "description": "Token configuration",
+          "allOf": [
+            {
+              "$ref": "./ChainedAsTokenConfig.schema.json"
+            }
+          ]
+        },
+        "requireDPoP": {
+          "type": "boolean",
+          "description": "Require DPoP binding for tokens",
+          "default": true
+        }
+      },
+      "required": ["enabled"]
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DisplayLogo.schema.json",
     "fileMatch": ["a://b/DisplayLogo*.schema.json"],
     "schema": {
@@ -1722,6 +1830,14 @@
       "title": "IssuanceConfig",
       "type": "object",
       "properties": {
+        "chainedAs": {
+          "description": "Configuration for Chained Authorization Server mode.\nWhen enabled, EUDIPLO acts as an OAuth AS facade, delegating user authentication\nto an upstream OIDC provider while issuing its own tokens with issuer_state.",
+          "allOf": [
+            {
+              "$ref": "./ChainedAsConfig.schema.json"
+            }
+          ]
+        },
         "tenant": {
           "description": "The tenant that owns this object.",
           "allOf": [
@@ -1785,6 +1901,14 @@
       "title": "IssuanceDto",
       "type": "object",
       "properties": {
+        "chainedAs": {
+          "description": "Configuration for Chained Authorization Server mode.\nWhen enabled, EUDIPLO acts as an OAuth AS facade, delegating user authentication\nto an upstream OIDC provider while issuing its own tokens with issuer_state.",
+          "allOf": [
+            {
+              "$ref": "./ChainedAsConfig.schema.json"
+            }
+          ]
+        },
         "authServers": {
           "description": "Authentication server URL for the issuance process.",
           "type": "array",
@@ -2685,474 +2809,6 @@
     }
   },
   {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DeferredCredentialRequestDto.schema.json",
-    "fileMatch": ["a://b/DeferredCredentialRequestDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DeferredCredentialRequestDto.schema.json",
-      "title": "DeferredCredentialRequestDto",
-      "type": "object",
-      "properties": {
-        "transaction_id": {
-          "type": "string",
-          "description": "The transaction identifier previously returned by the Credential Endpoint",
-          "example": "8xLOxBtZp8"
-        }
-      },
-      "required": ["transaction_id"]
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/NotificationRequestDto.schema.json",
-    "fileMatch": ["a://b/NotificationRequestDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/NotificationRequestDto.schema.json",
-      "title": "NotificationRequestDto",
-      "type": "object",
-      "properties": {
-        "notification_id": {
-          "type": "string"
-        },
-        "event": {
-          "type": "object"
-        }
-      },
-      "required": ["notification_id", "event"]
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ParResponseDto.schema.json",
-    "fileMatch": ["a://b/ParResponseDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ParResponseDto.schema.json",
-      "title": "ParResponseDto",
-      "type": "object",
-      "properties": {
-        "request_uri": {
-          "type": "string",
-          "description": "The request URI for the Pushed Authorization Request."
-        },
-        "expires_in": {
-          "type": "number",
-          "description": "The expiration time for the request URI in seconds."
-        }
-      },
-      "required": ["request_uri", "expires_in"]
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InteractiveAuthorizationRequestDto.schema.json",
-    "fileMatch": ["a://b/InteractiveAuthorizationRequestDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InteractiveAuthorizationRequestDto.schema.json",
-      "title": "InteractiveAuthorizationRequestDto",
-      "type": "object",
-      "properties": {
-        "response_type": {
-          "type": "string",
-          "description": "Response type (for initial request)"
-        },
-        "client_id": {
-          "type": "string",
-          "description": "Client identifier (for initial request)"
-        },
-        "interaction_types_supported": {
-          "type": "string",
-          "description": "Comma-separated list of supported interaction types (for initial request)"
-        },
-        "redirect_uri": {
-          "type": "string",
-          "description": "Redirect URI (for initial request)"
-        },
-        "scope": {
-          "type": "string",
-          "description": "OAuth scope"
-        },
-        "code_challenge": {
-          "type": "string",
-          "description": "PKCE code challenge"
-        },
-        "code_challenge_method": {
-          "type": "string",
-          "description": "PKCE code challenge method"
-        },
-        "authorization_details": {
-          "type": "object",
-          "description": "Authorization details"
-        },
-        "state": {
-          "type": "string",
-          "description": "State parameter"
-        },
-        "issuer_state": {
-          "type": "string",
-          "description": "Issuer state from credential offer"
-        },
-        "auth_session": {
-          "type": "string",
-          "description": "Auth session identifier (for follow-up request)"
-        },
-        "openid4vp_response": {
-          "type": "string",
-          "description": "OpenID4VP response (for follow-up request)"
-        },
-        "code_verifier": {
-          "type": "string",
-          "description": "PKCE code verifier (for follow-up request)"
-        },
-        "request": {
-          "type": "string",
-          "description": "JAR request JWT (by value)"
-        },
-        "request_uri": {
-          "type": "string",
-          "description": "JAR request URI (by reference)"
-        }
-      }
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InteractiveAuthorizationCodeResponseDto.schema.json",
-    "fileMatch": ["a://b/InteractiveAuthorizationCodeResponseDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InteractiveAuthorizationCodeResponseDto.schema.json",
-      "title": "InteractiveAuthorizationCodeResponseDto",
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "description": "Response status",
-          "example": "ok"
-        },
-        "code": {
-          "type": "string",
-          "description": "Authorization code",
-          "example": "auth-code-123"
-        }
-      },
-      "required": ["status", "code"]
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InteractiveAuthorizationErrorResponseDto.schema.json",
-    "fileMatch": ["a://b/InteractiveAuthorizationErrorResponseDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InteractiveAuthorizationErrorResponseDto.schema.json",
-      "title": "InteractiveAuthorizationErrorResponseDto",
-      "type": "object",
-      "properties": {
-        "error": {
-          "type": "string",
-          "description": "OAuth error code",
-          "example": "invalid_request"
-        },
-        "error_description": {
-          "type": "string",
-          "description": "Human-readable error description",
-          "example": "Missing required parameter: interaction_types_supported"
-        }
-      },
-      "required": ["error"]
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/OfferResponse.schema.json",
-    "fileMatch": ["a://b/OfferResponse*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/OfferResponse.schema.json",
-      "title": "OfferResponse",
-      "type": "object",
-      "properties": {
-        "uri": {
-          "type": "string"
-        },
-        "crossDeviceUri": {
-          "type": "string",
-          "description": "URI for cross-device flows (no redirect after completion)"
-        },
-        "session": {
-          "type": "string"
-        }
-      },
-      "required": ["uri", "session"]
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CompleteDeferredDto.schema.json",
-    "fileMatch": ["a://b/CompleteDeferredDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CompleteDeferredDto.schema.json",
-      "title": "CompleteDeferredDto",
-      "type": "object",
-      "properties": {}
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DeferredOperationResponse.schema.json",
-    "fileMatch": ["a://b/DeferredOperationResponse*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DeferredOperationResponse.schema.json",
-      "title": "DeferredOperationResponse",
-      "type": "object",
-      "properties": {}
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/FailDeferredDto.schema.json",
-    "fileMatch": ["a://b/FailDeferredDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/FailDeferredDto.schema.json",
-      "title": "FailDeferredDto",
-      "type": "object",
-      "properties": {}
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/EC_Public.schema.json",
-    "fileMatch": ["a://b/EC_Public*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/EC_Public.schema.json",
-      "title": "EC_Public",
-      "type": "object",
-      "properties": {
-        "kty": {
-          "type": "string",
-          "description": "The key type, which is always 'EC' for Elliptic Curve keys."
-        },
-        "crv": {
-          "type": "string",
-          "description": "The algorithm intended for use with the key, such as 'ES256'."
-        },
-        "x": {
-          "type": "string",
-          "description": "The x coordinate of the EC public key."
-        },
-        "y": {
-          "type": "string",
-          "description": "The y coordinate of the EC public key."
-        }
-      },
-      "required": ["kty", "crv", "x", "y"]
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/JwksResponseDto.schema.json",
-    "fileMatch": ["a://b/JwksResponseDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/JwksResponseDto.schema.json",
-      "title": "JwksResponseDto",
-      "type": "object",
-      "properties": {
-        "keys": {
-          "description": "An array of EC public keys in JWK format.",
-          "type": "array",
-          "items": {
-            "$ref": "./EC_Public.schema.json"
-          }
-        }
-      },
-      "required": ["keys"]
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthorizationResponse.schema.json",
-    "fileMatch": ["a://b/AuthorizationResponse*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthorizationResponse.schema.json",
-      "title": "AuthorizationResponse",
-      "type": "object",
-      "properties": {
-        "response": {
-          "type": "string",
-          "description": "The response string containing the authorization details."
-        },
-        "sendResponse": {
-          "type": "boolean",
-          "description": "When set to true, the authorization response will be sent to the client."
-        }
-      },
-      "required": ["response"]
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/RegistrarConfigEntity.schema.json",
-    "fileMatch": ["a://b/RegistrarConfigEntity*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/RegistrarConfigEntity.schema.json",
-      "title": "RegistrarConfigEntity",
-      "type": "object",
-      "properties": {
-        "registrarUrl": {
-          "type": "string",
-          "description": "The base URL of the registrar API",
-          "format": "uri",
-          "example": "https://sandbox.eudi-wallet.org/api"
-        },
-        "oidcUrl": {
-          "type": "string",
-          "description": "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
-          "format": "uri",
-          "example": "https://auth.example.com/realms/my-realm"
-        },
-        "clientId": {
-          "type": "string",
-          "description": "The OIDC client ID for the registrar",
-          "example": "registrar-client"
-        },
-        "clientSecret": {
-          "type": "string",
-          "description": "The OIDC client secret (optional, for confidential clients)"
-        },
-        "username": {
-          "type": "string",
-          "description": "The username for OIDC login",
-          "example": "admin@example.com"
-        },
-        "password": {
-          "type": "string",
-          "description": "The password for OIDC login (stored in plaintext)"
-        },
-        "tenantId": {
-          "type": "string",
-          "description": "The tenant ID this configuration belongs to."
-        },
-        "tenant": {
-          "description": "The tenant that owns this configuration.",
-          "allOf": [
-            {
-              "$ref": "./TenantEntity.schema.json"
-            }
-          ]
-        }
-      },
-      "required": [
-        "registrarUrl",
-        "oidcUrl",
-        "clientId",
-        "username",
-        "password",
-        "tenantId",
-        "tenant"
-      ]
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateRegistrarConfigDto.schema.json",
-    "fileMatch": ["a://b/CreateRegistrarConfigDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateRegistrarConfigDto.schema.json",
-      "title": "CreateRegistrarConfigDto",
-      "type": "object",
-      "properties": {
-        "registrarUrl": {
-          "type": "string",
-          "description": "The base URL of the registrar API",
-          "format": "uri",
-          "example": "https://sandbox.eudi-wallet.org/api"
-        },
-        "oidcUrl": {
-          "type": "string",
-          "description": "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
-          "format": "uri",
-          "example": "https://auth.example.com/realms/my-realm"
-        },
-        "clientId": {
-          "type": "string",
-          "description": "The OIDC client ID for the registrar",
-          "example": "registrar-client"
-        },
-        "clientSecret": {
-          "type": "string",
-          "description": "The OIDC client secret (optional, for confidential clients)"
-        },
-        "username": {
-          "type": "string",
-          "description": "The username for OIDC login",
-          "example": "admin@example.com"
-        },
-        "password": {
-          "type": "string",
-          "description": "The password for OIDC login (stored in plaintext)"
-        }
-      },
-      "required": ["registrarUrl", "oidcUrl", "clientId", "username", "password"]
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateRegistrarConfigDto.schema.json",
-    "fileMatch": ["a://b/UpdateRegistrarConfigDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateRegistrarConfigDto.schema.json",
-      "title": "UpdateRegistrarConfigDto",
-      "type": "object",
-      "properties": {
-        "registrarUrl": {
-          "type": "string",
-          "description": "The base URL of the registrar API",
-          "format": "uri",
-          "example": "https://sandbox.eudi-wallet.org/api"
-        },
-        "oidcUrl": {
-          "type": "string",
-          "description": "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
-          "format": "uri",
-          "example": "https://auth.example.com/realms/my-realm"
-        },
-        "clientId": {
-          "type": "string",
-          "description": "The OIDC client ID for the registrar",
-          "example": "registrar-client"
-        },
-        "clientSecret": {
-          "type": "string",
-          "description": "The OIDC client secret (optional, for confidential clients)"
-        },
-        "username": {
-          "type": "string",
-          "description": "The username for OIDC login",
-          "example": "admin@example.com"
-        },
-        "password": {
-          "type": "string",
-          "description": "The password for OIDC login (stored in plaintext)"
-        }
-      }
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateAccessCertificateDto.schema.json",
-    "fileMatch": ["a://b/CreateAccessCertificateDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateAccessCertificateDto.schema.json",
-      "title": "CreateAccessCertificateDto",
-      "type": "object",
-      "properties": {
-        "keyId": {
-          "type": "string",
-          "description": "The ID of the key to create an access certificate for",
-          "example": "my-signing-key"
-        }
-      },
-      "required": ["keyId"]
-    }
-  },
-  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DCQL.schema.json",
     "fileMatch": ["a://b/DCQL*.schema.json"],
     "schema": {
@@ -3465,6 +3121,656 @@
           "description": "Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.\n\nNote: This is intentionally NOT a TypeORM relationship because CertEntity uses\na composite primary key (id + tenantId), and SQLite cannot create foreign keys\nthat reference only part of a composite primary key. The relationship is handled\nat the application level in the service layer."
         }
       }
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DeferredCredentialRequestDto.schema.json",
+    "fileMatch": ["a://b/DeferredCredentialRequestDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DeferredCredentialRequestDto.schema.json",
+      "title": "DeferredCredentialRequestDto",
+      "type": "object",
+      "properties": {
+        "transaction_id": {
+          "type": "string",
+          "description": "The transaction identifier previously returned by the Credential Endpoint",
+          "example": "8xLOxBtZp8"
+        }
+      },
+      "required": ["transaction_id"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/NotificationRequestDto.schema.json",
+    "fileMatch": ["a://b/NotificationRequestDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/NotificationRequestDto.schema.json",
+      "title": "NotificationRequestDto",
+      "type": "object",
+      "properties": {
+        "notification_id": {
+          "type": "string"
+        },
+        "event": {
+          "type": "object"
+        }
+      },
+      "required": ["notification_id", "event"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ParResponseDto.schema.json",
+    "fileMatch": ["a://b/ParResponseDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ParResponseDto.schema.json",
+      "title": "ParResponseDto",
+      "type": "object",
+      "properties": {
+        "request_uri": {
+          "type": "string",
+          "description": "The request URI for the Pushed Authorization Request."
+        },
+        "expires_in": {
+          "type": "number",
+          "description": "The expiration time for the request URI in seconds."
+        }
+      },
+      "required": ["request_uri", "expires_in"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InteractiveAuthorizationRequestDto.schema.json",
+    "fileMatch": ["a://b/InteractiveAuthorizationRequestDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InteractiveAuthorizationRequestDto.schema.json",
+      "title": "InteractiveAuthorizationRequestDto",
+      "type": "object",
+      "properties": {
+        "response_type": {
+          "type": "string",
+          "description": "Response type (for initial request)"
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Client identifier (for initial request)"
+        },
+        "interaction_types_supported": {
+          "type": "string",
+          "description": "Comma-separated list of supported interaction types (for initial request)"
+        },
+        "redirect_uri": {
+          "type": "string",
+          "description": "Redirect URI (for initial request)"
+        },
+        "scope": {
+          "type": "string",
+          "description": "OAuth scope"
+        },
+        "code_challenge": {
+          "type": "string",
+          "description": "PKCE code challenge"
+        },
+        "code_challenge_method": {
+          "type": "string",
+          "description": "PKCE code challenge method"
+        },
+        "authorization_details": {
+          "type": "object",
+          "description": "Authorization details"
+        },
+        "state": {
+          "type": "string",
+          "description": "State parameter"
+        },
+        "issuer_state": {
+          "type": "string",
+          "description": "Issuer state from credential offer"
+        },
+        "auth_session": {
+          "type": "string",
+          "description": "Auth session identifier (for follow-up request)"
+        },
+        "openid4vp_response": {
+          "type": "string",
+          "description": "OpenID4VP response (for follow-up request)"
+        },
+        "code_verifier": {
+          "type": "string",
+          "description": "PKCE code verifier (for follow-up request)"
+        },
+        "request": {
+          "type": "string",
+          "description": "JAR request JWT (by value)"
+        },
+        "request_uri": {
+          "type": "string",
+          "description": "JAR request URI (by reference)"
+        }
+      }
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InteractiveAuthorizationCodeResponseDto.schema.json",
+    "fileMatch": ["a://b/InteractiveAuthorizationCodeResponseDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InteractiveAuthorizationCodeResponseDto.schema.json",
+      "title": "InteractiveAuthorizationCodeResponseDto",
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "Response status",
+          "example": "ok"
+        },
+        "code": {
+          "type": "string",
+          "description": "Authorization code",
+          "example": "auth-code-123"
+        }
+      },
+      "required": ["status", "code"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InteractiveAuthorizationErrorResponseDto.schema.json",
+    "fileMatch": ["a://b/InteractiveAuthorizationErrorResponseDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InteractiveAuthorizationErrorResponseDto.schema.json",
+      "title": "InteractiveAuthorizationErrorResponseDto",
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "description": "OAuth error code",
+          "example": "invalid_request"
+        },
+        "error_description": {
+          "type": "string",
+          "description": "Human-readable error description",
+          "example": "Missing required parameter: interaction_types_supported"
+        }
+      },
+      "required": ["error"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsParRequestDto.schema.json",
+    "fileMatch": ["a://b/ChainedAsParRequestDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsParRequestDto.schema.json",
+      "title": "ChainedAsParRequestDto",
+      "type": "object",
+      "properties": {
+        "response_type": {
+          "type": "string",
+          "description": "OAuth response type (must be 'code')",
+          "example": "code"
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Client identifier (wallet identifier)",
+          "example": "https://wallet.example.com"
+        },
+        "redirect_uri": {
+          "type": "string",
+          "description": "URI to redirect the wallet after authorization",
+          "example": "https://wallet.example.com/callback"
+        },
+        "code_challenge": {
+          "type": "string",
+          "description": "PKCE code challenge"
+        },
+        "code_challenge_method": {
+          "type": "string",
+          "description": "PKCE code challenge method (e.g., S256)",
+          "example": "S256"
+        },
+        "state": {
+          "type": "string",
+          "description": "State parameter (returned in redirect)"
+        },
+        "scope": {
+          "type": "string",
+          "description": "Scope requested",
+          "example": "openid credential"
+        },
+        "issuer_state": {
+          "type": "string",
+          "description": "Issuer state from credential offer"
+        },
+        "authorization_details": {
+          "description": "Authorization details (JSON array)",
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      },
+      "required": ["response_type", "client_id", "redirect_uri"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsParResponseDto.schema.json",
+    "fileMatch": ["a://b/ChainedAsParResponseDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsParResponseDto.schema.json",
+      "title": "ChainedAsParResponseDto",
+      "type": "object",
+      "properties": {
+        "request_uri": {
+          "type": "string",
+          "description": "The request URI to use at the authorization endpoint",
+          "example": "urn:ietf:params:oauth:request_uri:abc123"
+        },
+        "expires_in": {
+          "type": "number",
+          "description": "The lifetime of the request URI in seconds",
+          "example": 600
+        }
+      },
+      "required": ["request_uri", "expires_in"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsErrorResponseDto.schema.json",
+    "fileMatch": ["a://b/ChainedAsErrorResponseDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsErrorResponseDto.schema.json",
+      "title": "ChainedAsErrorResponseDto",
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "description": "Error code",
+          "example": "invalid_request"
+        },
+        "error_description": {
+          "type": "string",
+          "description": "Human-readable error description"
+        }
+      },
+      "required": ["error"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsTokenRequestDto.schema.json",
+    "fileMatch": ["a://b/ChainedAsTokenRequestDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsTokenRequestDto.schema.json",
+      "title": "ChainedAsTokenRequestDto",
+      "type": "object",
+      "properties": {
+        "grant_type": {
+          "type": "string",
+          "description": "Grant type (must be 'authorization_code')",
+          "example": "authorization_code"
+        },
+        "code": {
+          "type": "string",
+          "description": "Authorization code received in the callback"
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Client identifier"
+        },
+        "redirect_uri": {
+          "type": "string",
+          "description": "Redirect URI (must match the one used in PAR)"
+        },
+        "code_verifier": {
+          "type": "string",
+          "description": "PKCE code verifier"
+        }
+      },
+      "required": ["grant_type", "code"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsTokenResponseDto.schema.json",
+    "fileMatch": ["a://b/ChainedAsTokenResponseDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsTokenResponseDto.schema.json",
+      "title": "ChainedAsTokenResponseDto",
+      "type": "object",
+      "properties": {
+        "access_token": {
+          "type": "string",
+          "description": "The access token"
+        },
+        "token_type": {
+          "type": "string",
+          "description": "Token type (Bearer or DPoP)",
+          "example": "DPoP"
+        },
+        "expires_in": {
+          "type": "number",
+          "description": "Token lifetime in seconds",
+          "example": 3600
+        },
+        "scope": {
+          "type": "string",
+          "description": "Scope granted"
+        },
+        "authorization_details": {
+          "description": "Authorized credential configurations",
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "c_nonce": {
+          "type": "string",
+          "description": "C_NONCE for credential request"
+        },
+        "c_nonce_expires_in": {
+          "type": "number",
+          "description": "C_NONCE lifetime in seconds"
+        }
+      },
+      "required": ["access_token", "token_type", "expires_in"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/OfferResponse.schema.json",
+    "fileMatch": ["a://b/OfferResponse*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/OfferResponse.schema.json",
+      "title": "OfferResponse",
+      "type": "object",
+      "properties": {
+        "uri": {
+          "type": "string"
+        },
+        "crossDeviceUri": {
+          "type": "string",
+          "description": "URI for cross-device flows (no redirect after completion)"
+        },
+        "session": {
+          "type": "string"
+        }
+      },
+      "required": ["uri", "session"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CompleteDeferredDto.schema.json",
+    "fileMatch": ["a://b/CompleteDeferredDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CompleteDeferredDto.schema.json",
+      "title": "CompleteDeferredDto",
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DeferredOperationResponse.schema.json",
+    "fileMatch": ["a://b/DeferredOperationResponse*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DeferredOperationResponse.schema.json",
+      "title": "DeferredOperationResponse",
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/FailDeferredDto.schema.json",
+    "fileMatch": ["a://b/FailDeferredDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/FailDeferredDto.schema.json",
+      "title": "FailDeferredDto",
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/EC_Public.schema.json",
+    "fileMatch": ["a://b/EC_Public*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/EC_Public.schema.json",
+      "title": "EC_Public",
+      "type": "object",
+      "properties": {
+        "kty": {
+          "type": "string",
+          "description": "The key type, which is always 'EC' for Elliptic Curve keys."
+        },
+        "crv": {
+          "type": "string",
+          "description": "The algorithm intended for use with the key, such as 'ES256'."
+        },
+        "x": {
+          "type": "string",
+          "description": "The x coordinate of the EC public key."
+        },
+        "y": {
+          "type": "string",
+          "description": "The y coordinate of the EC public key."
+        }
+      },
+      "required": ["kty", "crv", "x", "y"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/JwksResponseDto.schema.json",
+    "fileMatch": ["a://b/JwksResponseDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/JwksResponseDto.schema.json",
+      "title": "JwksResponseDto",
+      "type": "object",
+      "properties": {
+        "keys": {
+          "description": "An array of EC public keys in JWK format.",
+          "type": "array",
+          "items": {
+            "$ref": "./EC_Public.schema.json"
+          }
+        }
+      },
+      "required": ["keys"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthorizationResponse.schema.json",
+    "fileMatch": ["a://b/AuthorizationResponse*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthorizationResponse.schema.json",
+      "title": "AuthorizationResponse",
+      "type": "object",
+      "properties": {
+        "response": {
+          "type": "string",
+          "description": "The response string containing the authorization details."
+        },
+        "sendResponse": {
+          "type": "boolean",
+          "description": "When set to true, the authorization response will be sent to the client."
+        }
+      },
+      "required": ["response"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/RegistrarConfigEntity.schema.json",
+    "fileMatch": ["a://b/RegistrarConfigEntity*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/RegistrarConfigEntity.schema.json",
+      "title": "RegistrarConfigEntity",
+      "type": "object",
+      "properties": {
+        "registrarUrl": {
+          "type": "string",
+          "description": "The base URL of the registrar API",
+          "format": "uri",
+          "example": "https://sandbox.eudi-wallet.org/api"
+        },
+        "oidcUrl": {
+          "type": "string",
+          "description": "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
+          "format": "uri",
+          "example": "https://auth.example.com/realms/my-realm"
+        },
+        "clientId": {
+          "type": "string",
+          "description": "The OIDC client ID for the registrar",
+          "example": "registrar-client"
+        },
+        "clientSecret": {
+          "type": "string",
+          "description": "The OIDC client secret (optional, for confidential clients)"
+        },
+        "username": {
+          "type": "string",
+          "description": "The username for OIDC login",
+          "example": "admin@example.com"
+        },
+        "password": {
+          "type": "string",
+          "description": "The password for OIDC login (stored in plaintext)"
+        },
+        "tenantId": {
+          "type": "string",
+          "description": "The tenant ID this configuration belongs to."
+        },
+        "tenant": {
+          "description": "The tenant that owns this configuration.",
+          "allOf": [
+            {
+              "$ref": "./TenantEntity.schema.json"
+            }
+          ]
+        }
+      },
+      "required": [
+        "registrarUrl",
+        "oidcUrl",
+        "clientId",
+        "username",
+        "password",
+        "tenantId",
+        "tenant"
+      ]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateRegistrarConfigDto.schema.json",
+    "fileMatch": ["a://b/CreateRegistrarConfigDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateRegistrarConfigDto.schema.json",
+      "title": "CreateRegistrarConfigDto",
+      "type": "object",
+      "properties": {
+        "registrarUrl": {
+          "type": "string",
+          "description": "The base URL of the registrar API",
+          "format": "uri",
+          "example": "https://sandbox.eudi-wallet.org/api"
+        },
+        "oidcUrl": {
+          "type": "string",
+          "description": "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
+          "format": "uri",
+          "example": "https://auth.example.com/realms/my-realm"
+        },
+        "clientId": {
+          "type": "string",
+          "description": "The OIDC client ID for the registrar",
+          "example": "registrar-client"
+        },
+        "clientSecret": {
+          "type": "string",
+          "description": "The OIDC client secret (optional, for confidential clients)"
+        },
+        "username": {
+          "type": "string",
+          "description": "The username for OIDC login",
+          "example": "admin@example.com"
+        },
+        "password": {
+          "type": "string",
+          "description": "The password for OIDC login (stored in plaintext)"
+        }
+      },
+      "required": ["registrarUrl", "oidcUrl", "clientId", "username", "password"]
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateRegistrarConfigDto.schema.json",
+    "fileMatch": ["a://b/UpdateRegistrarConfigDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateRegistrarConfigDto.schema.json",
+      "title": "UpdateRegistrarConfigDto",
+      "type": "object",
+      "properties": {
+        "registrarUrl": {
+          "type": "string",
+          "description": "The base URL of the registrar API",
+          "format": "uri",
+          "example": "https://sandbox.eudi-wallet.org/api"
+        },
+        "oidcUrl": {
+          "type": "string",
+          "description": "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
+          "format": "uri",
+          "example": "https://auth.example.com/realms/my-realm"
+        },
+        "clientId": {
+          "type": "string",
+          "description": "The OIDC client ID for the registrar",
+          "example": "registrar-client"
+        },
+        "clientSecret": {
+          "type": "string",
+          "description": "The OIDC client secret (optional, for confidential clients)"
+        },
+        "username": {
+          "type": "string",
+          "description": "The username for OIDC login",
+          "example": "admin@example.com"
+        },
+        "password": {
+          "type": "string",
+          "description": "The password for OIDC login (stored in plaintext)"
+        }
+      }
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateAccessCertificateDto.schema.json",
+    "fileMatch": ["a://b/CreateAccessCertificateDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateAccessCertificateDto.schema.json",
+      "title": "CreateAccessCertificateDto",
+      "type": "object",
+      "properties": {
+        "keyId": {
+          "type": "string",
+          "description": "The ID of the key to create an access certificate for",
+          "example": "my-signing-key"
+        }
+      },
+      "required": ["keyId"]
     }
   },
   {

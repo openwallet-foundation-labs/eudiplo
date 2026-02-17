@@ -238,6 +238,130 @@
       </mat-card-content>
     </mat-card>
 
+    <!-- Chained Authorization Server Card -->
+    <mat-card formGroupName="chainedAs">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>account_tree</mat-icon>
+          Chained Authorization Server
+        </mat-card-title>
+        <mat-card-subtitle
+          >Delegate user authentication to an upstream OIDC provider while issuing EUDIPLO
+          tokens</mat-card-subtitle
+        >
+      </mat-card-header>
+      <mat-card-content fxLayout="column" fxLayoutGap="16px">
+        <mat-slide-toggle formControlName="enabled">
+          <div fxLayout="column">
+            <span><strong>Enable Chained AS</strong></span>
+            <span class="toggle-description"
+              >When enabled, EUDIPLO acts as an OAuth AS facade, delegating authentication to an
+              upstream OIDC provider (e.g., Keycloak)</span
+            >
+          </div>
+        </mat-slide-toggle>
+
+        @if (chainedAsEnabled) {
+          <!-- Upstream OIDC Provider Section -->
+          <div
+            formGroupName="upstream"
+            fxLayout="column"
+            fxLayoutGap="16px"
+            class="chained-as-section"
+          >
+            <h4>
+              <mat-icon>cloud</mat-icon>
+              Upstream OIDC Provider
+            </h4>
+            <mat-form-field>
+              <mat-label>Issuer URL</mat-label>
+              <input
+                matInput
+                formControlName="issuer"
+                placeholder="https://keycloak.example.com/realms/my-realm"
+                type="url"
+                required
+              />
+              <mat-icon matSuffix>link</mat-icon>
+              <mat-hint>The upstream OIDC provider URL (must support discovery)</mat-hint>
+            </mat-form-field>
+
+            <div fxLayout="row" fxLayoutGap="16px">
+              <mat-form-field fxFlex>
+                <mat-label>Client ID</mat-label>
+                <input matInput formControlName="clientId" placeholder="eudiplo-client" required />
+                <mat-icon matSuffix>fingerprint</mat-icon>
+              </mat-form-field>
+              <mat-form-field fxFlex>
+                <mat-label>Client Secret</mat-label>
+                <input
+                  matInput
+                  formControlName="clientSecret"
+                  type="password"
+                  placeholder="••••••••"
+                  required
+                />
+                <mat-icon matSuffix>lock</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <p class="section-hint">
+              <mat-icon>info</mat-icon>
+              Configure your upstream OIDC provider with redirect URI:
+              <code>https://your-eudiplo-url/&#123;tenant&#125;/chained-as/callback</code>
+            </p>
+          </div>
+
+          <!-- Token Configuration Section -->
+          <div
+            formGroupName="token"
+            fxLayout="column"
+            fxLayoutGap="16px"
+            class="chained-as-section"
+          >
+            <h4>
+              <mat-icon>token</mat-icon>
+              Token Configuration
+            </h4>
+            <div fxLayout="row" fxLayoutGap="16px">
+              <mat-form-field fxFlex>
+                <mat-label>Token Lifetime (seconds)</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  formControlName="lifetimeSeconds"
+                  placeholder="3600"
+                  min="60"
+                />
+                <mat-icon matSuffix>schedule</mat-icon>
+                <mat-hint>Access token lifetime in seconds (default: 3600)</mat-hint>
+              </mat-form-field>
+              <mat-form-field fxFlex>
+                <mat-label>Signing Key ID (optional)</mat-label>
+                <input
+                  matInput
+                  formControlName="signingKeyId"
+                  placeholder="Leave empty for default"
+                />
+                <mat-icon matSuffix>key</mat-icon>
+                <mat-hint>Key ID for token signing (uses default if empty)</mat-hint>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- DPoP Requirement -->
+          <mat-slide-toggle formControlName="requireDPoP">
+            <div fxLayout="column">
+              <span><strong>Require DPoP</strong></span>
+              <span class="toggle-description"
+                >Require wallets to provide DPoP proof when requesting tokens</span
+              >
+            </div>
+          </mat-slide-toggle>
+        }
+      </mat-card-content>
+    </mat-card>
+
     <!-- Action Buttons -->
     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center">
       <button mat-button type="button" [routerLink]="['../']">Cancel</button>

@@ -7,6 +7,6 @@
         "issuance:manage",
         "issuance:offer",
         "presentation:manage",
-        "presentation:offer"
+        "presentation:request"
     ]
 }

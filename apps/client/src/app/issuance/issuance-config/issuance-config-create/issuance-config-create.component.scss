@@ -103,3 +103,33 @@ input[readonly] {
     color: #f57c00;
   }
 }
+
+.chained-as-section {
+  padding: 16px;
+  border-left: 3px solid #673ab7;
+  background-color: rgba(103, 58, 183, 0.04);
+  border-radius: 0 4px 4px 0;
+
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px 0;
+    font-weight: 500;
+    color: #673ab7;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  code {
+    background-color: rgba(0, 0, 0, 0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 12px;
+  }
+}

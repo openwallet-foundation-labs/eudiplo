@@ -1,5 +1,6 @@
 import {
     Body,
+    ConflictException,
     Controller,
     Header,
     HttpCode,
@@ -47,14 +48,23 @@ export class Oid4vciController {
     ): Promise<
         CredentialResponse | { transaction_id: string; interval?: number }
     > {
-        const result = await this.oid4vciService.getCredential(req, tenantId);
-        // Check if this is a deferred response (has non-null transaction_id)
-        // Note: Using truthiness check because CredentialResponse type may include
-        // transaction_id as optional property with undefined value
-        if ("transaction_id" in result && result.transaction_id) {
-            res.status(HttpStatus.ACCEPTED);
-        }
-        return result;
+        return this.oid4vciService.getCredential(req, tenantId).then(
+            (result) => {
+                // Check if this is a deferred response (has non-null transaction_id)
+                // Note: Using truthiness check because CredentialResponse type may include
+                // transaction_id as optional property with undefined value
+                if ("transaction_id" in result && result.transaction_id) {
+                    res.status(HttpStatus.ACCEPTED);
+                }
+                return result;
+            },
+            (err) => {
+                //TODO: implement errors according to: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-request-errors
+                throw new ConflictException(
+                    `Credential issuance failed: ${err.message}`,
+                );
+            },
+        );
     }
 
     /**

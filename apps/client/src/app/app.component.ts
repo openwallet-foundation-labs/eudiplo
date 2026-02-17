@@ -96,6 +96,15 @@ export class AppComponent implements OnInit, OnDestroy {
     this.sidenavOpened = !this.sidenavOpened;
   }
 
+  /**
+   * Close sidenav when navigating on mobile devices
+   */
+  closeSidenavOnMobile(): void {
+    if (this.sidenavMode === 'over') {
+      this.sidenavOpened = false;
+    }
+  }
+
   get canAutoRefresh(): boolean {
     return this.apiService.canRefreshToken();
   }

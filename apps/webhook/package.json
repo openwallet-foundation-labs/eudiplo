@@ -10,6 +10,9 @@
 		"delete": "wrangler delete",
 		"cf-typegen": "wrangler types"
 	},
+	"dependencies": {
+		"zod": "^3.24.0"
+	},
 	"devDependencies": {
 		"typescript": "^5.9.3",
 		"wrangler": "^4.63.0"

@@ -58,7 +58,7 @@
       "description": "Request URI from the authorization request."
     },
     "auth_queries": {
-      "description": "Authorization queries associated with the session.",
+      "description": "Authorization queries associated with the session.\nEncrypted at rest.",
       "allOf": [
         {
           "$ref": "./AuthorizeQueries.schema.json"
@@ -66,7 +66,7 @@
       ]
     },
     "offer": {
-      "description": "Credential offer object containing details about the credential offer or presentation request.",
+      "description": "Credential offer object containing details about the credential offer or presentation request.\nEncrypted at rest.",
       "type": "object"
     },
     "offerUrl": {
@@ -74,7 +74,7 @@
       "description": "Offer URL for the credential offer."
     },
     "credentialPayload": {
-      "description": "Credential payload containing the offer request details.",
+      "description": "Credential payload containing the offer request details.\nEncrypted at rest - may contain sensitive claim data.",
       "allOf": [
         {
           "$ref": "./OfferRequestDto.schema.json"
@@ -108,7 +108,7 @@
       "description": "Signed presentation auth request."
     },
     "credentials": {
-      "description": "Verified credentials from the presentation process.",
+      "description": "Verified credentials from the presentation process.\nEncrypted at rest - contains personal information.",
       "type": "array",
       "items": {
         "type": "object"
@@ -145,6 +145,13 @@
       "items": {
         "$ref": "./TransactionData.schema.json"
       }
+    },
+    "externalIssuer": {
+      "type": "string"
+    },
+    "externalSubject": {
+      "type": "string",
+      "description": "The subject (sub) from the external authorization server token.\nUsed to identify the user at the external AS."
     }
   },
   "required": [

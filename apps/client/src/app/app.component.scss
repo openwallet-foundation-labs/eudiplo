@@ -59,6 +59,21 @@
   }
 }
 
+// Subheader with icon styling
+[mat-subheader] {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+
+  .subheader-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    opacity: 0.7;
+  }
+}
+
 .warning-icon {
   color: #ff9800;
 }

@@ -8,6 +8,7 @@ import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { PresentationConfig } from '@eudiplo/sdk-core';
 import { PresentationManagementService } from '../presentation-management.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-presentation-list',
@@ -18,6 +19,7 @@ import { PresentationManagementService } from '../presentation-management.servic
     MatButtonModule,
     RouterModule,
     FlexLayoutModule,
+    MatTooltipModule,
   ],
   templateUrl: './presentation-list.component.html',
   styleUrl: './presentation-list.component.scss',

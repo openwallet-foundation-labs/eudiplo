@@ -10,7 +10,7 @@ export type RoleDto = {
    */
   role:
     | "presentation:manage"
-    | "presentation:offer"
+    | "presentation:request"
     | "issuance:manage"
     | "issuance:offer"
     | "clients:manage"
@@ -137,7 +137,7 @@ export type ClientEntity = {
    */
   roles: Array<
     | "presentation:manage"
-    | "presentation:offer"
+    | "presentation:request"
     | "issuance:manage"
     | "issuance:offer"
     | "clients:manage"
@@ -161,7 +161,7 @@ export type CreateTenantDto = {
   sessionConfig?: SessionStorageConfig;
   roles?: Array<
     | "presentation:manage"
-    | "presentation:offer"
+    | "presentation:request"
     | "issuance:manage"
     | "issuance:offer"
     | "clients:manage"
@@ -201,7 +201,7 @@ export type UpdateTenantDto = {
   description?: string;
   roles?: Array<
     | "presentation:manage"
-    | "presentation:offer"
+    | "presentation:request"
     | "issuance:manage"
     | "issuance:offer"
     | "clients:manage"
@@ -232,7 +232,7 @@ export type UpdateClientDto = {
    */
   roles: Array<
     | "presentation:manage"
-    | "presentation:offer"
+    | "presentation:request"
     | "issuance:manage"
     | "issuance:offer"
     | "clients:manage"
@@ -267,7 +267,7 @@ export type CreateClientDto = {
    */
   roles: Array<
     | "presentation:manage"
-    | "presentation:offer"
+    | "presentation:request"
     | "issuance:manage"
     | "issuance:offer"
     | "clients:manage"
@@ -663,6 +663,10 @@ export type OfferRequestDto = {
    */
   tx_code?: string;
   /**
+   * Description for the transaction code (e.g., "Please enter the PIN sent to your email").
+   */
+  tx_code_description?: string;
+  /**
    * List of credential configuration ids to be included in the offer.
    */
   credentialConfigurationIds: Array<string>;
@@ -791,6 +795,12 @@ export type Session = {
    * Can be overridden per-request from the presentation configuration.
    */
   transaction_data?: Array<TransactionData>;
+  externalIssuer?: string;
+  /**
+   * The subject (sub) from the external authorization server token.
+   * Used to identify the user at the external AS.
+   */
+  externalSubject?: string;
 };
 
 export type StatusUpdateDto = {
@@ -854,6 +864,55 @@ export type AuthenticationMethodPresentation = {
   config: PresentationDuringIssuanceConfig;
 };
 
+export type UpstreamOidcConfig = {
+  /**
+   * The OIDC issuer URL of the upstream provider
+   */
+  issuer: string;
+  /**
+   * The client ID registered with the upstream provider
+   */
+  clientId: string;
+  /**
+   * The client secret for confidential clients
+   */
+  clientSecret?: string;
+  /**
+   * Scopes to request from the upstream provider
+   */
+  scopes?: Array<string>;
+};
+
+export type ChainedAsTokenConfig = {
+  /**
+   * Access token lifetime in seconds
+   */
+  lifetimeSeconds?: number;
+  /**
+   * Key ID for token signing
+   */
+  signingKeyId?: string;
+};
+
+export type ChainedAsConfig = {
+  /**
+   * Enable chained AS mode
+   */
+  enabled: boolean;
+  /**
+   * Upstream OIDC provider configuration
+   */
+  upstream?: UpstreamOidcConfig;
+  /**
+   * Token configuration
+   */
+  token?: ChainedAsTokenConfig;
+  /**
+   * Require DPoP binding for tokens
+   */
+  requireDPoP?: boolean;
+};
+
 export type DisplayLogo = {
   uri: string;
   alt_text?: string;
@@ -866,6 +925,12 @@ export type DisplayInfo = {
 };
 
 export type IssuanceConfig = {
+  /**
+   * Configuration for Chained Authorization Server mode.
+   * When enabled, EUDIPLO acts as an OAuth AS facade, delegating user authentication
+   * to an upstream OIDC provider while issuing its own tokens with issuer_state.
+   */
+  chainedAs?: ChainedAsConfig;
   /**
    * The tenant that owns this object.
    */
@@ -907,6 +972,12 @@ export type IssuanceConfig = {
 };
 
 export type IssuanceDto = {
+  /**
+   * Configuration for Chained Authorization Server mode.
+   * When enabled, EUDIPLO acts as an OAuth AS facade, delegating user authentication
+   * to an upstream OIDC provider while issuing its own tokens with issuer_state.
+   */
+  chainedAs?: ChainedAsConfig;
   /**
    * Authentication server URL for the issuance process.
    */
@@ -1525,6 +1596,125 @@ export type InteractiveAuthorizationErrorResponseDto = {
   error_description?: string;
 };
 
+export type ChainedAsParRequestDto = {
+  /**
+   * OAuth response type (must be 'code')
+   */
+  response_type: string;
+  /**
+   * Client identifier (wallet identifier)
+   */
+  client_id: string;
+  /**
+   * URI to redirect the wallet after authorization
+   */
+  redirect_uri: string;
+  /**
+   * PKCE code challenge
+   */
+  code_challenge?: string;
+  /**
+   * PKCE code challenge method (e.g., S256)
+   */
+  code_challenge_method?: string;
+  /**
+   * State parameter (returned in redirect)
+   */
+  state?: string;
+  /**
+   * Scope requested
+   */
+  scope?: string;
+  /**
+   * Issuer state from credential offer
+   */
+  issuer_state?: string;
+  /**
+   * Authorization details (JSON array)
+   */
+  authorization_details?: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
+export type ChainedAsParResponseDto = {
+  /**
+   * The request URI to use at the authorization endpoint
+   */
+  request_uri: string;
+  /**
+   * The lifetime of the request URI in seconds
+   */
+  expires_in: number;
+};
+
+export type ChainedAsErrorResponseDto = {
+  /**
+   * Error code
+   */
+  error: string;
+  /**
+   * Human-readable error description
+   */
+  error_description?: string;
+};
+
+export type ChainedAsTokenRequestDto = {
+  /**
+   * Grant type (must be 'authorization_code')
+   */
+  grant_type: string;
+  /**
+   * Authorization code received in the callback
+   */
+  code: string;
+  /**
+   * Client identifier
+   */
+  client_id?: string;
+  /**
+   * Redirect URI (must match the one used in PAR)
+   */
+  redirect_uri?: string;
+  /**
+   * PKCE code verifier
+   */
+  code_verifier?: string;
+};
+
+export type ChainedAsTokenResponseDto = {
+  /**
+   * The access token
+   */
+  access_token: string;
+  /**
+   * Token type (Bearer or DPoP)
+   */
+  token_type: string;
+  /**
+   * Token lifetime in seconds
+   */
+  expires_in: number;
+  /**
+   * Scope granted
+   */
+  scope?: string;
+  /**
+   * Authorized credential configurations
+   */
+  authorization_details?: Array<{
+    [key: string]: unknown;
+  }>;
+  /**
+   * C_NONCE for credential request
+   */
+  c_nonce?: string;
+  /**
+   * C_NONCE lifetime in seconds
+   */
+  c_nonce_expires_in?: number;
+};
+
 export type OfferResponse = {
   uri: string;
   /**
@@ -1870,17 +2060,6 @@ export type HealthControllerCheckResponses = {
 
 export type HealthControllerCheckResponse =
   HealthControllerCheckResponses[keyof HealthControllerCheckResponses];
-
-export type PrometheusControllerIndexData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/metrics";
-};
-
-export type PrometheusControllerIndexResponses = {
-  200: unknown;
-};
 
 export type AuthControllerGetOAuth2TokenData = {
   body: ClientCredentialsDto;
@@ -2564,6 +2743,27 @@ export type SessionConfigControllerUpdateConfigResponses = {
 export type SessionConfigControllerUpdateConfigResponse =
   SessionConfigControllerUpdateConfigResponses[keyof SessionConfigControllerUpdateConfigResponses];
 
+export type SessionEventsControllerSubscribeToSessionEventsData = {
+  body?: never;
+  path: {
+    /**
+     * Session ID to subscribe to
+     */
+    id: string;
+  };
+  query: {
+    /**
+     * JWT access token for authentication
+     */
+    token: string;
+  };
+  url: "/session/{id}/events";
+};
+
+export type SessionEventsControllerSubscribeToSessionEventsResponses = {
+  200: unknown;
+};
+
 export type IssuanceConfigControllerGetIssuanceConfigurationsData = {
   body?: never;
   path?: never;
@@ -2931,19 +3131,6 @@ export type AuthorizeControllerTokenResponses = {
 export type AuthorizeControllerTokenResponse =
   AuthorizeControllerTokenResponses[keyof AuthorizeControllerTokenResponses];
 
-export type AuthorizeControllerAuthorizationChallengeEndpointData = {
-  body: AuthorizeQueries;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/{tenantId}/authorize/challenge";
-};
-
-export type AuthorizeControllerAuthorizationChallengeEndpointResponses = {
-  201: unknown;
-};
-
 export type InteractiveAuthorizationControllerInteractiveAuthorizationData = {
   /**
    * Interactive authorization request
@@ -3000,6 +3187,190 @@ export type InteractiveAuthorizationControllerCompleteWebAuthErrors = {
 export type InteractiveAuthorizationControllerCompleteWebAuthResponses = {
   /**
    * Web authorization marked as completed
+   */
+  200: unknown;
+};
+
+export type ChainedAsControllerParData = {
+  body: ChainedAsParRequestDto;
+  headers?: {
+    /**
+     * DPoP proof JWT
+     */
+    DPoP?: string;
+  };
+  path: {
+    /**
+     * Tenant identifier
+     */
+    tenant: string;
+  };
+  query?: never;
+  url: "/{tenant}/chained-as/par";
+};
+
+export type ChainedAsControllerParErrors = {
+  /**
+   * Invalid request
+   */
+  400: ChainedAsErrorResponseDto;
+};
+
+export type ChainedAsControllerParError =
+  ChainedAsControllerParErrors[keyof ChainedAsControllerParErrors];
+
+export type ChainedAsControllerParResponses = {
+  /**
+   * PAR request accepted
+   */
+  201: ChainedAsParResponseDto;
+};
+
+export type ChainedAsControllerParResponse =
+  ChainedAsControllerParResponses[keyof ChainedAsControllerParResponses];
+
+export type ChainedAsControllerAuthorizeData = {
+  body?: never;
+  path: {
+    /**
+     * Tenant identifier
+     */
+    tenant: string;
+  };
+  query: {
+    /**
+     * Client identifier
+     */
+    client_id: string;
+    /**
+     * Request URI from PAR response
+     */
+    request_uri: string;
+  };
+  url: "/{tenant}/chained-as/authorize";
+};
+
+export type ChainedAsControllerAuthorizeErrors = {
+  /**
+   * Invalid request
+   */
+  400: ChainedAsErrorResponseDto;
+};
+
+export type ChainedAsControllerAuthorizeError =
+  ChainedAsControllerAuthorizeErrors[keyof ChainedAsControllerAuthorizeErrors];
+
+export type ChainedAsControllerAuthorizeResponses = {
+  200: unknown;
+};
+
+export type ChainedAsControllerCallbackData = {
+  body?: never;
+  path: {
+    /**
+     * Tenant identifier
+     */
+    tenant: string;
+  };
+  query: {
+    code: string;
+    state: string;
+    error: string;
+    error_description: string;
+  };
+  url: "/{tenant}/chained-as/callback";
+};
+
+export type ChainedAsControllerCallbackErrors = {
+  /**
+   * Invalid callback
+   */
+  400: ChainedAsErrorResponseDto;
+};
+
+export type ChainedAsControllerCallbackError =
+  ChainedAsControllerCallbackErrors[keyof ChainedAsControllerCallbackErrors];
+
+export type ChainedAsControllerCallbackResponses = {
+  200: unknown;
+};
+
+export type ChainedAsControllerTokenData = {
+  body: ChainedAsTokenRequestDto;
+  headers?: {
+    /**
+     * DPoP proof JWT
+     */
+    DPoP?: string;
+  };
+  path: {
+    /**
+     * Tenant identifier
+     */
+    tenant: string;
+  };
+  query?: never;
+  url: "/{tenant}/chained-as/token";
+};
+
+export type ChainedAsControllerTokenErrors = {
+  /**
+   * Invalid request
+   */
+  400: ChainedAsErrorResponseDto;
+  /**
+   * Invalid authorization code
+   */
+  401: ChainedAsErrorResponseDto;
+};
+
+export type ChainedAsControllerTokenError =
+  ChainedAsControllerTokenErrors[keyof ChainedAsControllerTokenErrors];
+
+export type ChainedAsControllerTokenResponses = {
+  /**
+   * Token issued successfully
+   */
+  200: ChainedAsTokenResponseDto;
+};
+
+export type ChainedAsControllerTokenResponse =
+  ChainedAsControllerTokenResponses[keyof ChainedAsControllerTokenResponses];
+
+export type ChainedAsControllerJwksData = {
+  body?: never;
+  path: {
+    /**
+     * Tenant identifier
+     */
+    tenant: string;
+  };
+  query?: never;
+  url: "/{tenant}/chained-as/.well-known/jwks.json";
+};
+
+export type ChainedAsControllerJwksResponses = {
+  /**
+   * JWKS document
+   */
+  200: unknown;
+};
+
+export type ChainedAsControllerGetMetadataData = {
+  body?: never;
+  path: {
+    /**
+     * Tenant identifier
+     */
+    tenant: string;
+  };
+  query?: never;
+  url: "/{tenant}/chained-as/.well-known/oauth-authorization-server";
+};
+
+export type ChainedAsControllerGetMetadataResponses = {
+  /**
+   * OAuth AS metadata
    */
   200: unknown;
 };

@@ -5,6 +5,7 @@ import { CertUsage } from "../../../../crypto/key/entities/cert-usage.entity";
 import { KeyService } from "../../../../crypto/key/key.service";
 import { MediaType } from "../../../../shared/utils/mediaType/media-type.enum";
 import { AuthorizeService } from "../authorize/authorize.service";
+import { ChainedAsService } from "../chained-as/chained-as.service";
 import { Oid4vciService } from "../oid4vci.service";
 import { CredentialIssuerMetadataDto } from "./dto/credential-issuer-metadata.dto";
 import { EC_Public, JwksResponseDto } from "./dto/jwks-response.dto";
@@ -26,6 +27,7 @@ export class WellKnownService {
         @Inject("KeyService") public readonly keyService: KeyService,
         private readonly authorizeService: AuthorizeService,
         private readonly cryptoImplementationService: CryptoImplementationService,
+        private readonly chainedAsService: ChainedAsService,
     ) {}
 
     /**
@@ -84,5 +86,16 @@ export class WellKnownService {
         return this.keyService.getPublicKey("jwk", tenantId).then((key) => ({
             keys: [key as EC_Public],
         }));
+    }
+
+    /**
+     * Returns the OAuth 2.0 Authorization Server metadata for the Chained AS.
+     * This supports the RFC 8414 alternative discovery path format:
+     * `/.well-known/oauth-authorization-server/:tenantId/chained-as`
+     * @param tenantId
+     * @returns
+     */
+    getChainedAsMetadata(tenantId: string): Record<string, unknown> {
+        return this.chainedAsService.getMetadata(tenantId);
     }
 }

@@ -192,24 +192,28 @@ export class WebhookService {
     }
 
     /**
-     * Sends a webhook with external authorization server context.
-     * Used for wallet-initiated flows where the wallet authenticates with an external AS (e.g., Keycloak).
-     * The webhook receives enriched context to enable identity mapping and claims resolution.
+     * Unified webhook for fetching claims.
+     * Sends a consistent payload regardless of AS type (internal or external).
      *
      * @param values.webhook The webhook configuration
      * @param values.logContext Logging context
-     * @param values.context External AS context (iss, sub, credential_configuration_id, token_claims)
+     * @param values.session The session ID
+     * @param values.credentialConfigurationId The credential configuration being requested
+     * @param values.identity Optional identity context from authorization (works for both internal and external AS)
+     * @param values.credentials Optional presented credentials (for presentation flows)
      * @returns WebhookResponse containing claims data or deferred issuance indicator
      */
-    async sendExternalAsWebhook(values: {
+    async sendClaimsWebhook(values: {
         webhook: WebhookConfig;
         logContext: SessionLogContext;
-        context: {
+        session: string;
+        credentialConfigurationId: string;
+        identity?: {
             iss: string;
             sub: string;
-            credential_configuration_id: string;
             token_claims: Record<string, unknown>;
         };
+        credentials?: any[];
     }): Promise<WebhookResponse> {
         const headers: Record<string, string> = {};
 
@@ -220,37 +224,38 @@ export class WebhookService {
 
         this.sessionLogger.logSession(
             values.logContext,
-            "Sending external AS claims webhook",
+            "Sending claims webhook",
             {
                 webhookUrl: values.webhook.url,
                 authType: values.webhook.auth?.type || "none",
-                externalIss: values.context.iss,
-                externalSub: values.context.sub,
-                credentialConfigurationId:
-                    values.context.credential_configuration_id,
+                credentialConfigurationId: values.credentialConfigurationId,
+                hasIdentity: !!values.identity,
+                hasCredentials: !!values.credentials?.length,
             },
         );
 
+        const payload: Record<string, unknown> = {
+            session: values.session,
+            credential_configuration_id: values.credentialConfigurationId,
+        };
+
+        // Include identity context when available (from internal or external AS)
+        if (values.identity) {
+            payload.identity = values.identity;
+        }
+
+        // Include presented credentials when available (presentation flow)
+        if (values.credentials?.length) {
+            payload.credentials = values.credentials;
+        }
+
         return firstValueFrom(
-            this.httpService.post(
-                values.webhook.url,
-                {
-                    // External AS context for identity resolution
-                    iss: values.context.iss,
-                    sub: values.context.sub,
-                    credential_configuration_id:
-                        values.context.credential_configuration_id,
-                    token_claims: values.context.token_claims,
-                },
-                {
-                    headers,
-                },
-            ),
+            this.httpService.post(values.webhook.url, payload, { headers }),
         ).then(
             (webhookResponse) => {
                 this.sessionLogger.logSession(
                     values.logContext,
-                    "External AS claims webhook sent successfully",
+                    "Claims webhook sent successfully",
                     {
                         responseStatus: webhookResponse.status,
                         hasResponseData: !!webhookResponse.data,
@@ -262,13 +267,13 @@ export class WebhookService {
                 this.sessionLogger.logSessionError(
                     values.logContext,
                     err,
-                    "Error sending external AS claims webhook",
+                    "Error sending claims webhook",
                     {
                         webhookUrl: values.webhook.url,
                     },
                 );
                 throw new Error(
-                    `Error sending external AS claims webhook: ${err.message || err}`,
+                    `Error sending claims webhook: ${err.message || err}`,
                 );
             },
         );

@@ -24,7 +24,7 @@ export class PresentationManagementController {
      * Returns the presentation request configurations.
      * @returns
      */
-    @Secured([Role.Presentations, Role.PresentationOffer])
+    @Secured([Role.Presentations, Role.PresentationRequest])
     @Get()
     configuration(@Token() user: TokenPayload) {
         return this.presentationsService.getPresentationConfigs(
@@ -55,7 +55,7 @@ export class PresentationManagementController {
      * @param user
      * @returns
      */
-    @Secured([Role.Presentations, Role.PresentationOffer])
+    @Secured([Role.Presentations, Role.PresentationRequest])
     @Get(":id")
     getConfiguration(@Param("id") id: string, @Token() user: TokenPayload) {
         return this.presentationsService.getPresentationConfig(
