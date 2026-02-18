@@ -2903,6 +2903,7 @@
 <li><strong>Reuse existing Keycloak users and authentication flows</strong> — no need to duplicate identity infrastructure</li>
 <li><strong>Keep session correlation simple</strong> — EUDIPLO automatically includes <code>issuer_state</code> in tokens</li>
 <li><strong>Access full user claims in webhooks</strong> — ID token and access token claims from Keycloak are passed to your webhook</li>
+<li><strong>Validate wallet attestations</strong> — EUDIPLO validates wallet attestations against configured trust lists (not possible with External AS)</li>
 <li><strong>No Keycloak modifications required</strong> — unlike External AS mode, you don't need custom token mappers</li>
 </ul>
 <p>For the architecture details, see <a href="../../architecture/chained-as/">Chained AS</a>.</p>

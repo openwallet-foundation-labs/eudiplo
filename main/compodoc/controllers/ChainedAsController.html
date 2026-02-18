@@ -222,6 +222,8 @@ issuing its own tokens containing issuer_state for session correlation.</p>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#par" >par</a>
                             </li>
@@ -290,8 +292,8 @@ issuing its own tokens containing issuer_state for session correlation.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="111"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.controller.ts:111</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="135"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.controller.ts:135</a></div>
                         </td>
                     </tr>
 
@@ -399,8 +401,8 @@ Validates the request_uri and redirects to the upstream OIDC provider.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="145"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.controller.ts:145</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="169"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.controller.ts:169</a></div>
                         </td>
                     </tr>
 
@@ -542,8 +544,8 @@ Receives the authorization code from upstream and redirects the wallet.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="240"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.controller.ts:240</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="264"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.controller.ts:264</a></div>
                         </td>
                     </tr>
 
@@ -625,8 +627,8 @@ Receives the authorization code from upstream and redirects the wallet.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="219"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.controller.ts:219</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="243"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.controller.ts:243</a></div>
                         </td>
                     </tr>
 
@@ -688,6 +690,8 @@ Receives the authorization code from upstream and redirects the wallet.</p>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
                         <span ><b>par</b></span>
                         <a href="#par"><span class="icon ion-ios-link"></span></a>
@@ -697,7 +701,7 @@ Receives the authorization code from upstream and redirects the wallet.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>par(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: <a href="../classes/ChainedAsParRequestDto.html" target="_self">ChainedAsParRequestDto</a>, dpopJwt?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>par(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: <a href="../classes/ChainedAsParRequestDto.html" target="_self">ChainedAsParRequestDto</a>, dpopJwt?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientAttestationJwt?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientAttestationPopJwt?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -705,14 +709,14 @@ Receives the authorization code from upstream and redirects the wallet.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Public()<br />@Post(&#x27;par&#x27;)<br />@HttpCode(HttpStatus.CREATED)<br />@ApiOperation({summary: &#x27;Pushed Authorization Request&#x27;, description: &#x27;Submit authorization request parameters. Returns a request_uri for use at the authorization endpoint.&#x27;})<br />@ApiParam({name: &#x27;tenant&#x27;, description: &#x27;Tenant identifier&#x27;})<br />@ApiHeader({name: &#x27;DPoP&#x27;, required: false, description: &#x27;DPoP proof JWT&#x27;})<br />@ApiResponse({status: 201, description: &#x27;PAR request accepted&#x27;, type: ChainedAsParResponseDto})<br />@ApiResponse({status: 400, description: &#x27;Invalid request&#x27;, type: ChainedAsErrorResponseDto})<br /></code>
+                    <code>@Public()<br />@Post(&#x27;par&#x27;)<br />@HttpCode(HttpStatus.CREATED)<br />@ApiOperation({summary: &#x27;Pushed Authorization Request&#x27;, description: &#x27;Submit authorization request parameters. Returns a request_uri for use at the authorization endpoint.&#x27;})<br />@ApiParam({name: &#x27;tenant&#x27;, description: &#x27;Tenant identifier&#x27;})<br />@ApiHeader({name: &#x27;DPoP&#x27;, required: false, description: &#x27;DPoP proof JWT&#x27;})<br />@ApiHeader({name: &#x27;OAuth-Client-Attestation&#x27;, required: false, description: &#x27;Wallet attestation JWT&#x27;})<br />@ApiHeader({name: &#x27;OAuth-Client-Attestation-PoP&#x27;, required: false, description: &#x27;Wallet attestation proof-of-possession JWT&#x27;})<br />@ApiResponse({status: 201, description: &#x27;PAR request accepted&#x27;, type: ChainedAsParResponseDto})<br />@ApiResponse({status: 400, description: &#x27;Invalid request&#x27;, type: ChainedAsErrorResponseDto})<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="79"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.controller.ts:79</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="89"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.controller.ts:89</a></div>
                         </td>
                     </tr>
 
@@ -761,6 +765,30 @@ Wallets submit authorization parameters here before redirecting to authorize.</p
                                         </tr>
                                         <tr>
                                                 <td>dpopJwt</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>clientAttestationJwt</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>clientAttestationPopJwt</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -823,8 +851,8 @@ Wallets submit authorization parameters here before redirecting to authorize.</p
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="196"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.controller.ts:196</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="220"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.controller.ts:220</a></div>
                         </td>
                     </tr>
 
@@ -902,34 +930,34 @@ Exchanges the authorization code for an access token.</p>
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
-    Controller,
-    Post,
-    Get,
     Body,
-    Query,
-    Param,
-    Res,
+    Controller,
+    Get,
     Headers,
     HttpCode,
     HttpStatus,
+    Param,
+    Post,
+    Query,
+    Res,
 } from &quot;@nestjs/common&quot;;
 import {
-    ApiTags,
-    ApiOperation,
-    ApiResponse,
-    ApiParam,
     ApiHeader,
+    ApiOperation,
+    ApiParam,
+    ApiResponse,
+    ApiTags,
 } from &quot;@nestjs/swagger&quot;;
 import type { Response } from &quot;express&quot;;
 import { Public } from &quot;../../../../auth/public.decorator&quot;;
 import { ChainedAsService, extractDpopJkt } from &quot;./chained-as.service&quot;;
 import {
+    ChainedAsAuthorizeQueryDto,
+    ChainedAsErrorResponseDto,
     ChainedAsParRequestDto,
     ChainedAsParResponseDto,
-    ChainedAsAuthorizeQueryDto,
     ChainedAsTokenRequestDto,
     ChainedAsTokenResponseDto,
-    ChainedAsErrorResponseDto,
 } from &quot;./dto/chained-as.dto&quot;;
 
 /**
@@ -969,6 +997,16 @@ export class ChainedAsController {
         required: false,
         description: &quot;DPoP proof JWT&quot;,
     })
+    @ApiHeader({
+        name: &quot;OAuth-Client-Attestation&quot;,
+        required: false,
+        description: &quot;Wallet attestation JWT&quot;,
+    })
+    @ApiHeader({
+        name: &quot;OAuth-Client-Attestation-PoP&quot;,
+        required: false,
+        description: &quot;Wallet attestation proof-of-possession JWT&quot;,
+    })
     @ApiResponse({
         status: 201,
         description: &quot;PAR request accepted&quot;,
@@ -983,11 +1021,25 @@ export class ChainedAsController {
         @Param(&quot;tenant&quot;) tenantId: string,
         @Body() body: ChainedAsParRequestDto,
         @Headers(&quot;dpop&quot;) dpopJwt?: string,
+        @Headers(&quot;oauth-client-attestation&quot;) clientAttestationJwt?: string,
+        @Headers(&quot;oauth-client-attestation-pop&quot;)
+        clientAttestationPopJwt?: string,
     ): Promise&lt;ChainedAsParResponseDto&gt; {
         // DPoP JWK thumbprint extraction will be handled in service layer when DPoP is fully implemented
         const dpopJkt &#x3D; dpopJwt ? extractDpopJkt(dpopJwt) : undefined;
 
-        return this.chainedAsService.handlePar(tenantId, body, dpopJkt);
+        // Build client attestation object if both headers are provided
+        const clientAttestation &#x3D;
+            clientAttestationJwt &amp;&amp; clientAttestationPopJwt
+                ? { clientAttestationJwt, clientAttestationPopJwt }
+                : undefined;
+
+        return this.chainedAsService.handlePar(
+            tenantId,
+            body,
+            dpopJkt,
+            clientAttestation,
+        );
     }
 
     /**

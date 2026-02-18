@@ -231,11 +231,20 @@ the upstream OIDC provider (e.g., Keycloak).</p>
                                 <a href="#getChainedAsConfig" >getChainedAsConfig</a>
                             </li>
                             <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#getIssuer" >getIssuer</a>
+                            </li>
+                            <li>
                                     <span class="modifier">Async</span>
                                 <a href="#getJwks" >getJwks</a>
                             </li>
                             <li>
                                 <a href="#getMetadata" >getMetadata</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getThumbprint" >getThumbprint</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
@@ -268,7 +277,27 @@ the upstream OIDC provider (e.g., Keycloak).</p>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#validateWalletAttestationStatus" >validateWalletAttestationStatus</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#validateWalletProviderCertificate" >validateWalletProviderCertificate</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
                                 <a href="#verifyPkce" >verifyPkce</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#verifyStatusListSignature" >verifyStatusListSignature</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#verifyWalletAttestation" >verifyWalletAttestation</a>
                             </li>
                         </ul>
                     </td>
@@ -288,12 +317,12 @@ the upstream OIDC provider (e.g., Keycloak).</p>
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, httpService: HttpService, keyService: <a href="../classes/KeyService.html" target="_self">KeyService</a>, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, issuanceService: <a href="../injectables/IssuanceService.html" target="_self">IssuanceService</a>, sessionRepository: Repository<ChainedAsSessionEntity>)</code>
+<code>constructor(configService: ConfigService, httpService: HttpService, keyService: <a href="../classes/KeyService.html" target="_self">KeyService</a>, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, cryptoImplementationService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, issuanceService: <a href="../injectables/IssuanceService.html" target="_self">IssuanceService</a>, trustStoreService: <a href="../injectables/TrustStoreService.html" target="_self">TrustStoreService</a>, x509ValidationService: <a href="../injectables/X509ValidationService.html" target="_self">X509ValidationService</a>, statusListVerifierService: <a href="../injectables/StatusListVerifierService.html" target="_self">StatusListVerifierService</a>, sessionRepository: Repository<ChainedAsSessionEntity>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="103" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:103</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="125" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:125</a></div>
                             </td>
                         </tr>
 
@@ -347,6 +376,30 @@ the upstream OIDC provider (e.g., Keycloak).</p>
                                                     
                                                 </tr>
                                                 <tr>
+                                                        <td>cryptoService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/CryptoService.html" target="_self" >CryptoService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>cryptoImplementationService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/CryptoImplementationService.html" target="_self" >CryptoImplementationService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
                                                         <td>sessionService</td>
                                                   
                                                         <td>
@@ -363,6 +416,42 @@ the upstream OIDC provider (e.g., Keycloak).</p>
                                                   
                                                         <td>
                                                                         <code><a href="../injectables/IssuanceService.html" target="_self" >IssuanceService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>trustStoreService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/TrustStoreService.html" target="_self" >TrustStoreService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>x509ValidationService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/X509ValidationService.html" target="_self" >X509ValidationService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>statusListVerifierService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/StatusListVerifierService.html" target="_self" >StatusListVerifierService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -418,8 +507,8 @@ the upstream OIDC provider (e.g., Keycloak).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="341"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:341</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="741"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:741</a></div>
                         </td>
                     </tr>
 
@@ -525,8 +614,8 @@ the upstream OIDC provider (e.g., Keycloak).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="542"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:542</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="942"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:942</a></div>
                         </td>
                     </tr>
 
@@ -644,8 +733,8 @@ the upstream OIDC provider (e.g., Keycloak).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="728"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:728</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1128"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:1128</a></div>
                         </td>
                     </tr>
 
@@ -686,8 +775,8 @@ the upstream OIDC provider (e.g., Keycloak).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="387"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:387</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="787"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:787</a></div>
                         </td>
                     </tr>
 
@@ -805,8 +894,8 @@ the upstream OIDC provider (e.g., Keycloak).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="118"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:118</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="145"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:145</a></div>
                         </td>
                     </tr>
 
@@ -876,8 +965,8 @@ the upstream OIDC provider (e.g., Keycloak).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="127"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:127</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="154"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:154</a></div>
                         </td>
                     </tr>
 
@@ -929,6 +1018,78 @@ the upstream OIDC provider (e.g., Keycloak).</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="getIssuer"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>getIssuer</b></span>
+                        <a href="#getIssuer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getIssuer(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="171"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:171</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get the OID4VCI issuer instance for a specific tenant.
+Used for wallet attestation verification.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Openid4vciIssuer</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="getJwks"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -947,8 +1108,8 @@ the upstream OIDC provider (e.g., Keycloak).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="678"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:678</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1078"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:1078</a></div>
                         </td>
                     </tr>
 
@@ -1016,8 +1177,8 @@ the upstream OIDC provider (e.g., Keycloak).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="708"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:708</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1108"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:1108</a></div>
                         </td>
                     </tr>
 
@@ -1069,6 +1230,78 @@ the upstream OIDC provider (e.g., Keycloak).</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="getThumbprint"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getThumbprint</b></span>
+                        <a href="#getThumbprint"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getThumbprint(cert: x509.X509Certificate)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="519"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:519</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Calculate the SHA-256 thumbprint of an X.509 certificate.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>cert</td>
+                                            <td>
+                                                        <code>x509.X509Certificate</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="getUpstreamDiscovery"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -1087,8 +1320,8 @@ the upstream OIDC provider (e.g., Keycloak).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="144"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:144</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="528"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:528</a></div>
                         </td>
                     </tr>
 
@@ -1159,8 +1392,8 @@ Results are cached for 5 minutes.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="742"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:742</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1142"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:1142</a></div>
                         </td>
                     </tr>
 
@@ -1237,8 +1470,8 @@ Used to retrieve the upstream OIDC provider&#39;s claims for webhook calls.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="252"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:252</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="652"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:652</a></div>
                         </td>
                     </tr>
 
@@ -1326,15 +1559,15 @@ Validates the request_uri and redirects to the upstream OIDC provider.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>handlePar(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, request: <a href="../classes/ChainedAsParRequestDto.html" target="_self">ChainedAsParRequestDto</a>, dpopJkt?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>handlePar(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, request: <a href="../classes/ChainedAsParRequestDto.html" target="_self">ChainedAsParRequestDto</a>, dpopJkt?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientAttestation?: literal type)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="180"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:180</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="564"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:564</a></div>
                         </td>
                     </tr>
 
@@ -1393,6 +1626,18 @@ Creates a session and returns a request_uri for the authorize endpoint.</p>
 
 
                                         </tr>
+                                        <tr>
+                                                <td>clientAttestation</td>
+                                            <td>
+                                                        <code>literal type</code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -1429,8 +1674,8 @@ Creates a session and returns a request_uri for the authorize endpoint.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="574"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:574</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="974"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:974</a></div>
                         </td>
                     </tr>
 
@@ -1525,8 +1770,8 @@ Exchanges the authorization code for an access token.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="437"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:437</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="837"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:837</a></div>
                         </td>
                     </tr>
 
@@ -1646,8 +1891,8 @@ Exchanges the code for tokens and redirects back to the wallet.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="361"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:361</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="761"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:761</a></div>
                         </td>
                     </tr>
 
@@ -1735,6 +1980,187 @@ Exchanges the code for tokens and redirects back to the wallet.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="validateWalletAttestationStatus"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>validateWalletAttestationStatus</b></span>
+                        <a href="#validateWalletAttestationStatus"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>validateWalletAttestationStatus(clientAttestationJwt: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, matchedEntity: <a href="../interfaces/TrustedEntity.html" target="_self">MatchedTrustedEntity | null</a>, trustStore: <a href="../miscellaneous/typealiases.html#BuiltTrustStore" target="_self">BuiltTrustStore | null</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="334"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:334</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Validate the status of a wallet attestation JWT if it contains a status claim.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>clientAttestationJwt</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>matchedEntity</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TrustedEntity.html" target="_self" >MatchedTrustedEntity | null</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>trustStore</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#BuiltTrustStore" target="_self" >BuiltTrustStore | null</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="validateWalletProviderCertificate"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>validateWalletProviderCertificate</b></span>
+                        <a href="#validateWalletProviderCertificate"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>validateWalletProviderCertificate(clientAttestationJwt: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, trustListUrls: string[])</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="245"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:245</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Validate the wallet provider&#39;s X.509 certificate against configured trust lists.
+Returns the matched entity and trust store for use in status list verification.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>clientAttestationJwt</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>trustListUrls</td>
+                                            <td>
+                                                        <code>string[]</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;literal type&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="verifyPkce"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
@@ -1753,8 +2179,8 @@ Exchanges the code for tokens and redirects back to the wallet.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="520"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:520</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="920"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:920</a></div>
                         </td>
                     </tr>
 
@@ -1814,6 +2240,245 @@ Exchanges the code for tokens and redirects back to the wallet.</p>
             </tr>
         </tbody>
     </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="verifyStatusListSignature"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>verifyStatusListSignature</b></span>
+                        <a href="#verifyStatusListSignature"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>verifyStatusListSignature(statusListJwt: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, matchedEntity: <a href="../interfaces/TrustedEntity.html" target="_self">MatchedTrustedEntity | null</a>, trustStore: <a href="../miscellaneous/typealiases.html#BuiltTrustStore" target="_self">BuiltTrustStore | null</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="406"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:406</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Verify the signature of a status list JWT against the revocation certificate.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>statusListJwt</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>matchedEntity</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TrustedEntity.html" target="_self" >MatchedTrustedEntity | null</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>trustStore</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#BuiltTrustStore" target="_self" >BuiltTrustStore | null</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;boolean&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="verifyWalletAttestation"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>verifyWalletAttestation</b></span>
+                        <a href="#verifyWalletAttestation"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>verifyWalletAttestation(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientAttestation: literal type | undefined, authorizationServer: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, walletAttestationRequired: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank">boolean</a>, walletProviderTrustLists: string[])</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="186"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:186</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Verify wallet attestation if provided or required.
+Validates the attestation JWT signature, checks the X.509 certificate chain
+against configured trust lists, and verifies the status list if present.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The tenant ID</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>clientAttestation</td>
+                                            <td>
+                                                        <code>literal type | undefined</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The client attestation from the PAR request</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>authorizationServer</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The authorization server URL</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>walletAttestationRequired</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>Whether wallet attestation is required</p>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>walletProviderTrustLists</td>
+                                            <td>
+                                                        <code>string[]</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>URLs of trust lists containing trusted wallet providers</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>
             <section data-compodoc="block-properties">
     
@@ -1846,7 +2511,7 @@ Exchanges the code for tokens and redirects back to the wallet.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="103" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:103</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="125" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:125</a></div>
                         </td>
                     </tr>
 
@@ -1888,7 +2553,7 @@ Exchanges the code for tokens and redirects back to the wallet.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="91" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:91</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="113" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:113</a></div>
                         </td>
                     </tr>
 
@@ -1927,7 +2592,7 @@ Exchanges the code for tokens and redirects back to the wallet.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="88" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:88</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="110" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:110</a></div>
                         </td>
                     </tr>
 
@@ -1960,7 +2625,7 @@ Exchanges the code for tokens and redirects back to the wallet.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="97" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:97</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="119" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:119</a></div>
                         </td>
                     </tr>
 
@@ -1999,7 +2664,7 @@ Exchanges the code for tokens and redirects back to the wallet.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="100" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:100</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="122" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:122</a></div>
                         </td>
                     </tr>
 
@@ -2018,7 +2683,12 @@ Exchanges the code for tokens and redirects back to the wallet.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash, randomBytes, randomUUID } from &quot;node:crypto&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    createHash,
+    randomBytes,
+    randomUUID,
+    X509Certificate,
+} from &quot;node:crypto&quot;;
 import { HttpService } from &quot;@nestjs/axios&quot;;
 import {
     BadRequestException,
@@ -2030,12 +2700,29 @@ import {
 } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
-import { decodeJwt, decodeProtectedHeader } from &quot;jose&quot;;
+import { Openid4vciIssuer } from &quot;@openid4vc/openid4vci&quot;;
+import * as x509 from &quot;@peculiar/x509&quot;;
+import { decodeJwt, decodeProtectedHeader, JWK } from &quot;jose&quot;;
 import { firstValueFrom } from &quot;rxjs&quot;;
 import { LessThan, Repository } from &quot;typeorm&quot;;
 import { v4 } from &quot;uuid&quot;;
+import { CryptoService } from &quot;../../../../crypto/crypto.service&quot;;
+import { CryptoImplementationService } from &quot;../../../../crypto/key/crypto-implementation/crypto-implementation.service&quot;;
 import { KeyService } from &quot;../../../../crypto/key/key.service&quot;;
 import { SessionService } from &quot;../../../../session/session.service&quot;;
+import { StatusListVerifierService } from &quot;../../../../shared/trust/status-list-verifier.service&quot;;
+import {
+    BuiltTrustStore,
+    TrustStoreService,
+} from &quot;../../../../shared/trust/trust-store.service&quot;;
+import {
+    ServiceTypeIdentifiers,
+    TrustListSource,
+} from &quot;../../../../shared/trust/types&quot;;
+import {
+    MatchedTrustedEntity,
+    X509ValidationService,
+} from &quot;../../../../shared/trust/x509-validation.service&quot;;
 import { AuthorizationIdentity } from &quot;../../../configuration/credentials/credentials.service&quot;;
 import type { ChainedAsConfig } from &quot;../../../configuration/issuance/dto/chained-as-config.dto&quot;;
 import { IssuanceService } from &quot;../../../configuration/issuance/issuance.service&quot;;
@@ -2126,8 +2813,13 @@ export class ChainedAsService {
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
         @Inject(&quot;KeyService&quot;) private readonly keyService: KeyService,
+        private readonly cryptoService: CryptoService,
+        private readonly cryptoImplementationService: CryptoImplementationService,
         private readonly sessionService: SessionService,
         private readonly issuanceService: IssuanceService,
+        private readonly trustStoreService: TrustStoreService,
+        private readonly x509ValidationService: X509ValidationService,
+        private readonly statusListVerifierService: StatusListVerifierService,
         @InjectRepository(ChainedAsSessionEntity)
         private readonly sessionRepository: Repository&lt;ChainedAsSessionEntity&gt;,
     ) {}
@@ -2155,6 +2847,363 @@ export class ChainedAsService {
         }
 
         return issuanceConfig.chainedAs;
+    }
+
+    /**
+     * Get the OID4VCI issuer instance for a specific tenant.
+     * Used for wallet attestation verification.
+     */
+    private getIssuer(tenantId: string): Openid4vciIssuer {
+        const callbacks &#x3D; this.cryptoService.getCallbackContext(tenantId);
+        return new Openid4vciIssuer({ callbacks });
+    }
+
+    /**
+     * Verify wallet attestation if provided or required.
+     * Validates the attestation JWT signature, checks the X.509 certificate chain
+     * against configured trust lists, and verifies the status list if present.
+     * @param tenantId The tenant ID
+     * @param clientAttestation The client attestation from the PAR request
+     * @param authorizationServer The authorization server URL
+     * @param walletAttestationRequired Whether wallet attestation is required
+     * @param walletProviderTrustLists URLs of trust lists containing trusted wallet providers
+     */
+    private async verifyWalletAttestation(
+        tenantId: string,
+        clientAttestation:
+            | {
+                  clientAttestationJwt: string;
+                  clientAttestationPopJwt: string;
+              }
+            | undefined,
+        authorizationServer: string,
+        walletAttestationRequired: boolean,
+        walletProviderTrustLists: string[],
+    ): Promise&lt;void&gt; {
+        if (!clientAttestation) {
+            if (walletAttestationRequired) {
+                throw new UnauthorizedException(
+                    &quot;Wallet attestation is required but not provided&quot;,
+                );
+            }
+            return;
+        }
+
+        try {
+            // First verify the attestation JWT structure and PoP
+            await this.getIssuer(tenantId).verifyWalletAttestation({
+                authorizationServer,
+                clientAttestationJwt: clientAttestation.clientAttestationJwt,
+                clientAttestationPopJwt:
+                    clientAttestation.clientAttestationPopJwt,
+            });
+
+            // Then validate the X.509 certificate against trust lists and get the matched entity
+            const { matchedEntity, trustStore } &#x3D;
+                await this.validateWalletProviderCertificate(
+                    clientAttestation.clientAttestationJwt,
+                    walletProviderTrustLists,
+                );
+
+            // Check the status list if present in the attestation JWT
+            await this.validateWalletAttestationStatus(
+                clientAttestation.clientAttestationJwt,
+                matchedEntity,
+                trustStore,
+            );
+
+            this.logger.debug(&quot;Wallet attestation verified successfully&quot;);
+        } catch (err) {
+            if (err instanceof UnauthorizedException) {
+                throw err;
+            }
+            throw new UnauthorizedException(
+                &#x60;Wallet attestation verification failed: ${err instanceof Error ? err.message : &quot;Unknown error&quot;}&#x60;,
+            );
+        }
+    }
+
+    /**
+     * Validate the wallet provider&#x27;s X.509 certificate against configured trust lists.
+     * Returns the matched entity and trust store for use in status list verification.
+     */
+    private async validateWalletProviderCertificate(
+        clientAttestationJwt: string,
+        trustListUrls: string[],
+    ): Promise&lt;{
+        matchedEntity: MatchedTrustedEntity | null;
+        trustStore: BuiltTrustStore | null;
+    }&gt; {
+        if (trustListUrls.length &#x3D;&#x3D;&#x3D; 0) {
+            this.logger.warn(
+                &quot;No wallet provider trust lists configured - accepting attestation without certificate validation&quot;,
+            );
+            return { matchedEntity: null, trustStore: null };
+        }
+
+        // Extract X.509 certificate chain from JWT header
+        const header &#x3D; decodeProtectedHeader(clientAttestationJwt);
+        const x5c &#x3D; header.x5c;
+
+        if (!x5c || x5c.length &#x3D;&#x3D;&#x3D; 0) {
+            throw new UnauthorizedException(
+                &quot;Wallet attestation JWT does not contain X.509 certificate chain (x5c header)&quot;,
+            );
+        }
+
+        // Build trust list source from configured URLs
+        const trustListSource: TrustListSource &#x3D; {
+            lotes: trustListUrls.map((url) &#x3D;&gt; ({ url })),
+            acceptedServiceTypes: [ServiceTypeIdentifiers.WalletProvider],
+        };
+
+        // Fetch and build the trust store
+        const trustStore &#x3D;
+            await this.trustStoreService.getTrustStore(trustListSource);
+
+        if (trustStore.entities.length &#x3D;&#x3D;&#x3D; 0) {
+            throw new UnauthorizedException(
+                &quot;No trusted wallet providers found in configured trust lists&quot;,
+            );
+        }
+
+        // Parse the certificate chain
+        const certChain &#x3D; this.x509ValidationService.parseX5c(x5c);
+        const leaf &#x3D; certChain[0];
+
+        // Build and validate the certificate path against trust anchors
+        const trustAnchors &#x3D; this.x509ValidationService.parseTrustAnchors(
+            trustStore.entities.flatMap((e) &#x3D;&gt; e.services),
+        );
+
+        try {
+            const path &#x3D; await this.x509ValidationService.buildPath(
+                leaf,
+                certChain,
+                trustAnchors,
+            );
+
+            // Check if the path matches any trusted entity
+            const match &#x3D;
+                await this.x509ValidationService.pathMatchesTrustedEntities(
+                    path,
+                    trustStore.entities,
+                    &quot;leaf&quot;,
+                    ServiceTypeIdentifiers.WalletProvider,
+                );
+
+            if (!match) {
+                throw new UnauthorizedException(
+                    &quot;Wallet provider certificate is not trusted - no matching entity in trust list&quot;,
+                );
+            }
+
+            this.logger.debug(
+                &#x60;Wallet attestation validated against trusted entity: ${match.entity.entityId ?? &quot;unknown&quot;}&#x60;,
+            );
+
+            return { matchedEntity: match, trustStore };
+        } catch (err) {
+            if (err instanceof UnauthorizedException) {
+                throw err;
+            }
+            throw new UnauthorizedException(
+                &#x60;Certificate chain validation failed: ${err instanceof Error ? err.message : &quot;Unknown error&quot;}&#x60;,
+            );
+        }
+    }
+
+    /**
+     * Validate the status of a wallet attestation JWT if it contains a status claim.
+     */
+    private async validateWalletAttestationStatus(
+        clientAttestationJwt: string,
+        matchedEntity: MatchedTrustedEntity | null,
+        trustStore: BuiltTrustStore | null,
+    ): Promise&lt;void&gt; {
+        try {
+            // Get the status entry from the JWT
+            const statusEntry &#x3D;
+                this.statusListVerifierService.getStatusEntryFromJwt(
+                    clientAttestationJwt,
+                );
+
+            // No status claim in JWT - this is allowed per spec
+            if (!statusEntry) {
+                this.logger.debug(
+                    &quot;Wallet attestation does not contain status claim - skipping status check&quot;,
+                );
+                return;
+            }
+
+            // Fetch the status list JWT
+            const statusListJwt &#x3D;
+                await this.statusListVerifierService.getStatusListJwt(
+                    statusEntry.uri,
+                );
+
+            // Verify the status list JWT signature against the revocation cert
+            const signatureValid &#x3D; await this.verifyStatusListSignature(
+                statusListJwt,
+                matchedEntity,
+                trustStore,
+            );
+
+            if (!signatureValid) {
+                throw new UnauthorizedException(
+                    &quot;Status list JWT signature verification failed - not signed by trusted revocation certificate&quot;,
+                );
+            }
+
+            // Check the actual status value
+            const statusResult &#x3D;
+                await this.statusListVerifierService.checkStatus(
+                    statusEntry.uri,
+                    statusEntry.idx,
+                );
+
+            if (!statusResult.isValid) {
+                this.logger.warn(
+                    &#x60;Wallet attestation status check failed: ${statusResult.description}&#x60;,
+                );
+                throw new UnauthorizedException(
+                    &#x60;Wallet attestation is not valid: ${statusResult.description}&#x60;,
+                );
+            }
+
+            this.logger.debug(
+                &#x60;Wallet attestation status verified: ${statusResult.description}&#x60;,
+            );
+        } catch (err) {
+            if (err instanceof UnauthorizedException) {
+                throw err;
+            }
+            // Log the error but don&#x27;t fail - status checking is optional
+            this.logger.warn(
+                &#x60;Failed to check wallet attestation status: ${err instanceof Error ? err.message : &quot;Unknown error&quot;}&#x60;,
+            );
+        }
+    }
+
+    /**
+     * Verify the signature of a status list JWT against the revocation certificate.
+     */
+    private async verifyStatusListSignature(
+        statusListJwt: string,
+        matchedEntity: MatchedTrustedEntity | null,
+        trustStore: BuiltTrustStore | null,
+    ): Promise&lt;boolean&gt; {
+        try {
+            const header &#x3D; decodeProtectedHeader(statusListJwt);
+            const x5c &#x3D; header.x5c;
+
+            if (!x5c || x5c.length &#x3D;&#x3D;&#x3D; 0) {
+                if (!matchedEntity) {
+                    return true;
+                }
+                this.logger.warn(
+                    &quot;Status list JWT missing x5c header - cannot verify against trust chain&quot;,
+                );
+                return false;
+            }
+
+            // Verify the JWT signature
+            const cert &#x3D; new X509Certificate(Buffer.from(x5c[0], &quot;base64&quot;));
+            const publicKey &#x3D; cert.publicKey.export({ format: &quot;jwk&quot; }) as JWK;
+            const crypto &#x3D;
+                this.cryptoImplementationService.getCryptoFromJwk(publicKey);
+            const verifier &#x3D; await crypto.getVerifier(publicKey);
+
+            const [headerB64, payloadB64, signatureB64] &#x3D;
+                statusListJwt.split(&quot;.&quot;);
+            const data &#x3D; &#x60;${headerB64}.${payloadB64}&#x60;;
+
+            const sigOk &#x3D; await verifier(data, signatureB64)
+                .then(() &#x3D;&gt; true)
+                .catch((e) &#x3D;&gt; {
+                    this.logger.debug(
+                        &#x60;Status list JWT signature invalid: ${e?.message ?? e}&#x60;,
+                    );
+                    return false;
+                });
+
+            if (!sigOk) return false;
+
+            if (!matchedEntity || !trustStore) {
+                return true;
+            }
+
+            // Check if the matched entity has a revocation certificate
+            if (!matchedEntity.revocationCert) {
+                this.logger.warn(
+                    &#x60;TrustedEntity ${matchedEntity.entity.entityId ?? &quot;unknown&quot;} &#x60; +
+                        &#x60;has no revocation certificate configured - accepting status list&#x60;,
+                );
+                return true;
+            }
+
+            // Build and verify the status list&#x27;s certificate chain
+            const presented &#x3D; this.x509ValidationService.parseX5c(x5c);
+            const leaf &#x3D; presented[0];
+
+            const allCerts &#x3D; trustStore.entities.flatMap((e) &#x3D;&gt;
+                e.services.map((s) &#x3D;&gt; ({ certValue: s.certValue })),
+            );
+            const anchors &#x3D;
+                this.x509ValidationService.parseTrustAnchors(allCerts);
+
+            let path: x509.X509Certificate[];
+            try {
+                path &#x3D; await this.x509ValidationService.buildPath(
+                    leaf,
+                    presented,
+                    anchors,
+                );
+            } catch (e: any) {
+                this.logger.debug(
+                    &#x60;Status list chain build failed: ${e?.message ?? e}&#x60;,
+                );
+                return false;
+            }
+
+            // Get thumbprints for comparison
+            const statusLeafThumb &#x3D; await this.getThumbprint(presented[0]);
+            const statusEndThumb &#x3D; await this.getThumbprint(path.at(-1)!);
+
+            const revocationThumb &#x3D; matchedEntity.revocationThumbprint!;
+            const revocationIsCa &#x3D; this.x509ValidationService.isCaCert(
+                matchedEntity.revocationCert,
+            );
+
+            let statusMatchesRevocation &#x3D; false;
+            if (revocationIsCa) {
+                statusMatchesRevocation &#x3D; revocationThumb &#x3D;&#x3D;&#x3D; statusEndThumb;
+            } else {
+                statusMatchesRevocation &#x3D; revocationThumb &#x3D;&#x3D;&#x3D; statusLeafThumb;
+            }
+
+            if (!statusMatchesRevocation) {
+                this.logger.warn(
+                    &#x60;Status list is NOT signed by the revocation certificate from the same TrustedEntity&#x60;,
+                );
+                return false;
+            }
+
+            return true;
+        } catch (e: any) {
+            this.logger.error(
+                &#x60;Error verifying status list signature: ${e?.message ?? e}&#x60;,
+            );
+            return false;
+        }
+    }
+
+    /**
+     * Calculate the SHA-256 thumbprint of an X.509 certificate.
+     */
+    private async getThumbprint(cert: x509.X509Certificate): Promise&lt;string&gt; {
+        const thumbBuffer &#x3D; await cert.getThumbprint(&quot;SHA-256&quot;);
+        return Buffer.from(thumbBuffer).toString(&quot;hex&quot;).toLowerCase();
     }
 
     /**
@@ -2201,9 +3250,15 @@ export class ChainedAsService {
         tenantId: string,
         request: ChainedAsParRequestDto,
         dpopJkt?: string,
+        clientAttestation?: {
+            clientAttestationJwt: string;
+            clientAttestationPopJwt: string;
+        },
     ): Promise&lt;ChainedAsParResponseDto&gt; {
         // Validate configuration
         const config &#x3D; await this.getChainedAsConfig(tenantId);
+        const issuanceConfig &#x3D;
+            await this.issuanceService.getIssuanceConfiguration(tenantId);
 
         // Validate response_type
         if (request.response_type !&#x3D;&#x3D; &quot;code&quot;) {
@@ -2216,6 +3271,16 @@ export class ChainedAsService {
         if (config.requireDPoP &amp;&amp; !dpopJkt) {
             throw new BadRequestException(&quot;DPoP is required&quot;);
         }
+
+        // Verify wallet attestation if provided or required
+        const chainedAsUrl &#x3D; this.getChainedAsBaseUrl(tenantId);
+        await this.verifyWalletAttestation(
+            tenantId,
+            clientAttestation,
+            chainedAsUrl,
+            issuanceConfig.walletAttestationRequired ?? false,
+            issuanceConfig.walletProviderTrustLists ?? [],
+        );
 
         // Find the session for the issuer_state (if provided)
         let issuerState &#x3D; request.issuer_state;
