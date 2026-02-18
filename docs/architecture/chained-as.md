@@ -97,6 +97,7 @@ Access tokens issued by the Chained AS are JWTs signed by EUDIPLO containing:
 | Session correlation      | ✅ Native       | ⚠️ Via webhook            | ✅ Native         |
 | Modify external provider | N/A             | Required                  | Not required      |
 | DPoP support             | ✅              | Depends on provider       | ✅                |
+| Wallet attestation       | ✅              | ❌ Not possible           | ✅                |
 
 ## Security Considerations
 

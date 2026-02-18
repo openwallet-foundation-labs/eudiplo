@@ -9,6 +9,7 @@ Many organizations already use Keycloak for identity management. The Chained AS 
 - **Reuse existing Keycloak users and authentication flows** — no need to duplicate identity infrastructure
 - **Keep session correlation simple** — EUDIPLO automatically includes `issuer_state` in tokens
 - **Access full user claims in webhooks** — ID token and access token claims from Keycloak are passed to your webhook
+- **Validate wallet attestations** — EUDIPLO validates wallet attestations against configured trust lists (not possible with External AS)
 - **No Keycloak modifications required** — unlike External AS mode, you don't need custom token mappers
 
 For the architecture details, see [Chained AS](../architecture/chained-as.md).

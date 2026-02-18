@@ -1,32 +1,32 @@
 import {
-    Controller,
-    Post,
-    Get,
     Body,
-    Query,
-    Param,
-    Res,
+    Controller,
+    Get,
     Headers,
     HttpCode,
     HttpStatus,
+    Param,
+    Post,
+    Query,
+    Res,
 } from "@nestjs/common";
 import {
-    ApiTags,
-    ApiOperation,
-    ApiResponse,
-    ApiParam,
     ApiHeader,
+    ApiOperation,
+    ApiParam,
+    ApiResponse,
+    ApiTags,
 } from "@nestjs/swagger";
 import type { Response } from "express";
 import { Public } from "../../../../auth/public.decorator";
 import { ChainedAsService, extractDpopJkt } from "./chained-as.service";
 import {
+    ChainedAsAuthorizeQueryDto,
+    ChainedAsErrorResponseDto,
     ChainedAsParRequestDto,
     ChainedAsParResponseDto,
-    ChainedAsAuthorizeQueryDto,
     ChainedAsTokenRequestDto,
     ChainedAsTokenResponseDto,
-    ChainedAsErrorResponseDto,
 } from "./dto/chained-as.dto";
 
 /**
@@ -66,6 +66,16 @@ export class ChainedAsController {
         required: false,
         description: "DPoP proof JWT",
     })
+    @ApiHeader({
+        name: "OAuth-Client-Attestation",
+        required: false,
+        description: "Wallet attestation JWT",
+    })
+    @ApiHeader({
+        name: "OAuth-Client-Attestation-PoP",
+        required: false,
+        description: "Wallet attestation proof-of-possession JWT",
+    })
     @ApiResponse({
         status: 201,
         description: "PAR request accepted",
@@ -80,11 +90,25 @@ export class ChainedAsController {
         @Param("tenant") tenantId: string,
         @Body() body: ChainedAsParRequestDto,
         @Headers("dpop") dpopJwt?: string,
+        @Headers("oauth-client-attestation") clientAttestationJwt?: string,
+        @Headers("oauth-client-attestation-pop")
+        clientAttestationPopJwt?: string,
     ): Promise<ChainedAsParResponseDto> {
         // DPoP JWK thumbprint extraction will be handled in service layer when DPoP is fully implemented
         const dpopJkt = dpopJwt ? extractDpopJkt(dpopJwt) : undefined;
 
-        return this.chainedAsService.handlePar(tenantId, body, dpopJkt);
+        // Build client attestation object if both headers are provided
+        const clientAttestation =
+            clientAttestationJwt && clientAttestationPopJwt
+                ? { clientAttestationJwt, clientAttestationPopJwt }
+                : undefined;
+
+        return this.chainedAsService.handlePar(
+            tenantId,
+            body,
+            dpopJkt,
+            clientAttestation,
+        );
     }
 
     /**
