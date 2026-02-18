@@ -38,13 +38,13 @@ jobs:
               console.log(name + '@' + version);
             });
           ")
-          
+
           if [ -z "$OVERRIDES" ]; then
             echo "No pnpm overrides configured"
             echo "has_overrides=false" >> $GITHUB_OUTPUT
             exit 0
           fi
-          
+
           echo "has_overrides=true" >> $GITHUB_OUTPUT
           echo "## Current pnpm.overrides" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -65,9 +65,9 @@ jobs:
           script: |
             const pkg = require('./package.json');
             const overrides = pkg.pnpm?.overrides || {};
-            
+
             if (Object.keys(overrides).length === 0) return;
-            
+
             // Check if issue already exists
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
@@ -75,42 +75,46 @@ jobs:
               labels: 'stale-overrides',
               state: 'open'
             });
-            
+
             if (issues.data.length > 0) {
               console.log('Issue already exists, skipping');
               return;
             }
-            
+
             const overrideList = Object.entries(overrides)
-              .map(([name, version]) => `- \`${name}\`: ${version}`)
+              .map(([name, version]) => '- `' + name + '`: ' + version)
               .join('\n');
-            
+
+            const body = [
+              '## Stale Override Check',
+              '',
+              'The following subdependency overrides are configured in `package.json`:',
+              '',
+              overrideList,
+              '',
+              '### Action Required',
+              '',
+              '1. Check if the parent packages have been updated to include fixed versions',
+              '2. Remove any overrides that are no longer needed:',
+              '   - Edit `package.json` and remove the override from `pnpm.overrides`',
+              '   - Run `pnpm install` to update the lockfile',
+              '   - Verify the vulnerability is resolved with `pnpm audit`',
+              '',
+              '### Why This Matters',
+              '',
+              'Overrides pin subdependencies to specific versions. Once upstream packages are fixed, these overrides become stale and may:',
+              '- Prevent you from getting newer fixes',
+              '- Create version conflicts',
+              '- Make `pnpm audit` report false negatives',
+              '',
+              '---',
+              '*This issue was automatically created by the stale-overrides workflow.*'
+            ].join('\n');
+
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: 'Review pnpm.overrides for stale security fixes',
               labels: ['stale-overrides', 'dependencies'],
-              body: `## Stale Override Check
-
-The following subdependency overrides are configured in \`package.json\`:
-
-${overrideList}
-
-### Action Required
-
-1. Check if the parent packages have been updated to include fixed versions
-2. Remove any overrides that are no longer needed:
-   - Edit \`package.json\` and remove the override from \`pnpm.overrides\`
-   - Run \`pnpm install\` to update the lockfile
-   - Verify the vulnerability is resolved with \`pnpm audit\`
-
-### Why This Matters
-
-Overrides pin subdependencies to specific versions. Once upstream packages are fixed, these overrides become stale and may:
-- Prevent you from getting newer fixes
-- Create version conflicts
-- Make \`pnpm audit\` report false negatives
-
----
-*This issue was automatically created by the stale-overrides workflow.*`
+              body: body
             });
