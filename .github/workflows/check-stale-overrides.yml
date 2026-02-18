@@ -1,5 +1,9 @@
 name: Check Stale Overrides
 
+permissions:
+  contents: read
+  issues: write
+
 on:
   schedule:
     - cron: '0 6 * * 1' # Weekly on Monday 6 AM UTC
