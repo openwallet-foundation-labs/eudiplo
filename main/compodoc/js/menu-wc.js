@@ -857,6 +857,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/AuthResponse.html" data-type="entity-link" >AuthResponse</a>
                             </li>
                             <li class="link">
+                                <a href="classes/BaselineMigration1740000000000.html" data-type="entity-link" >BaselineMigration1740000000000</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/CertImportDto.html" data-type="entity-link" >CertImportDto</a>
                             </li>
                             <li class="link">

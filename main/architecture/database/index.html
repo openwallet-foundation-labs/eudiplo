@@ -1723,6 +1723,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#database-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Migrations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Database Migrations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-migrations-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Migrations Work
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manual-migration-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manual Migration Commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrading-from-pre-200" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Upgrading from Pre-2.0.0
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#encryption-at-rest" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2419,6 +2480,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#database-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Migrations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Database Migrations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-migrations-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Migrations Work
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#manual-migration-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manual Migration Commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrading-from-pre-200" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Upgrading from Pre-2.0.0
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#encryption-at-rest" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2613,6 +2735,16 @@ thanks to TypeORM’s flexible architecture.</p>
 <td><code>string</code></td>
 <td>Database name [when DB_TYPE is {"override":true} | "sqlite" → otherwise required]</td>
 </tr>
+<tr>
+<td><code>DB_SYNCHRONIZE</code></td>
+<td><code>boolean</code></td>
+<td>Enable TypeORM schema synchronization. Set to false in production after initial setup and rely on migrations instead.  (default: <code>true</code>)</td>
+</tr>
+<tr>
+<td><code>DB_MIGRATIONS_RUN</code></td>
+<td><code>boolean</code></td>
+<td>Run pending database migrations automatically on startup  (default: <code>true</code>)</td>
+</tr>
 </tbody>
 </table>
 <hr>
@@ -2644,6 +2776,68 @@ file-based SQLite database located at the path defined by the <code>FOLDER</code
 </ul>
 <p>Make sure your database is reachable and properly initialized before starting
 the service.</p>
+<hr>
+<h2 id="database-migrations">Database Migrations<a class="headerlink" href="#database-migrations" title="Permanent link">¶</a></h2>
+<p>Starting from v2.0.0, EUDIPLO uses TypeORM migrations for database schema management instead of automatic synchronization. This provides:</p>
+<ul>
+<li><strong>Safe upgrades</strong>: Schema changes are applied in a controlled manner</li>
+<li><strong>Rollback capability</strong>: Migrations can be reverted if needed</li>
+<li><strong>Production safety</strong>: No accidental schema changes in production</li>
+</ul>
+<h3 id="how-migrations-work">How Migrations Work<a class="headerlink" href="#how-migrations-work" title="Permanent link">¶</a></h3>
+<p>By default, migrations run automatically when the service starts (<code>DB_MIGRATIONS_RUN=true</code>). The migration system detects whether you're running a fresh installation or upgrading:</p>
+<ul>
+<li><strong>Fresh installation</strong>: The baseline migration creates all tables from scratch</li>
+<li><strong>Upgrading</strong>: If tables already exist (from previous <code>synchronize: true</code> mode), the baseline migration is skipped, and only new migrations are applied</li>
+</ul>
+<h3 id="configuration_1">Configuration<a class="headerlink" href="#configuration_1" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DB_MIGRATIONS_RUN</code></td>
+<td><code>true</code></td>
+<td>Run pending migrations on startup</td>
+</tr>
+<tr>
+<td><code>DB_SYNCHRONIZE</code></td>
+<td><code>false</code></td>
+<td>Auto-sync schema (⚠️ dev only)</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Production Safety</p>
+<p>Never set <code>DB_SYNCHRONIZE=true</code> in production. Use migrations instead to ensure controlled schema updates.</p>
+</div>
+<h3 id="manual-migration-commands">Manual Migration Commands<a class="headerlink" href="#manual-migration-commands" title="Permanent link">¶</a></h3>
+<p>From the <code>apps/backend</code> directory:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Generate a new migration based on entity changes</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pnpm<span class="w"> </span>migration:generate<span class="w"> </span>--name<span class="o">=</span>AddNewFeature
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Run pending migrations</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>pnpm<span class="w"> </span>migration:run
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># Revert the last migration</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>pnpm<span class="w"> </span>migration:revert
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="c1"># Show migration status</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>pnpm<span class="w"> </span>migration:show
+</code></pre></div>
+<h3 id="upgrading-from-pre-200">Upgrading from Pre-2.0.0<a class="headerlink" href="#upgrading-from-pre-200" title="Permanent link">¶</a></h3>
+<p>If you're upgrading from a version that used <code>synchronize: true</code>:</p>
+<ol>
+<li>Your existing database schema is already correct</li>
+<li>The baseline migration will detect existing tables and skip creation</li>
+<li>Your data is preserved, and the migration history starts fresh</li>
+</ol>
+<p>No action is required — just start the new version, and migrations will handle the rest.</p>
 <hr>
 <h2 id="encryption-at-rest">Encryption at Rest<a class="headerlink" href="#encryption-at-rest" title="Permanent link">¶</a></h2>
 <p>EUDIPLO encrypts sensitive data at rest using <strong>AES-256-GCM</strong> authenticated encryption. This protects cryptographic keys and personal information stored in the database from unauthorized access, even if the database itself is compromised.</p>
@@ -2743,39 +2937,39 @@ the service.</p>
 <p>When using <code>vault</code>, <code>aws</code>, or <code>azure</code>, the encryption key is <strong>only in RAM</strong> — it's never stored in environment variables. This means a compromised container cannot retrieve the key via <code>env</code> or <code>/proc/*/environ</code> commands.</p>
 </div>
 <h4 id="environment-based-key-development">Environment-based Key (Development)<a class="headerlink" href="#environment-based-key-development" title="Permanent link">¶</a></h4>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">ENCRYPTION_KEY_SOURCE</span><span class="o">=</span>env<span class="w">  </span><span class="c1"># default</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nv">MASTER_SECRET</span><span class="o">=</span>your-jwt-secret<span class="w">  </span><span class="c1"># key derived via HKDF</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nv">ENCRYPTION_KEY_SOURCE</span><span class="o">=</span>env<span class="w">  </span><span class="c1"># default</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nv">MASTER_SECRET</span><span class="o">=</span>your-jwt-secret<span class="w">  </span><span class="c1"># key derived via HKDF</span>
 </code></pre></div>
 <h4 id="hashicorp-vault">HashiCorp Vault<a class="headerlink" href="#hashicorp-vault" title="Permanent link">¶</a></h4>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nv">ENCRYPTION_KEY_SOURCE</span><span class="o">=</span>vault
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nv">VAULT_ADDR</span><span class="o">=</span>https://vault.example.com:8200
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nv">VAULT_TOKEN</span><span class="o">=</span>hvs.your-token
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="nv">VAULT_ENCRYPTION_KEY_PATH</span><span class="o">=</span>secret/data/eudiplo/encryption-key<span class="w">  </span><span class="c1"># optional, defaults shown</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="c1"># Create the key in Vault:</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>vault<span class="w"> </span>kv<span class="w"> </span>put<span class="w"> </span>secret/eudiplo/encryption-key<span class="w"> </span><span class="nv">key</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nv">ENCRYPTION_KEY_SOURCE</span><span class="o">=</span>vault
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nv">VAULT_ADDR</span><span class="o">=</span>https://vault.example.com:8200
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nv">VAULT_TOKEN</span><span class="o">=</span>hvs.your-token
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="nv">VAULT_ENCRYPTION_KEY_PATH</span><span class="o">=</span>secret/data/eudiplo/encryption-key<span class="w">  </span><span class="c1"># optional, defaults shown</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1"># Create the key in Vault:</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>vault<span class="w"> </span>kv<span class="w"> </span>put<span class="w"> </span>secret/eudiplo/encryption-key<span class="w"> </span><span class="nv">key</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
 </code></pre></div>
 <h4 id="aws-secrets-manager">AWS Secrets Manager<a class="headerlink" href="#aws-secrets-manager" title="Permanent link">¶</a></h4>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nv">ENCRYPTION_KEY_SOURCE</span><span class="o">=</span>aws
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nv">AWS_REGION</span><span class="o">=</span>us-east-1
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nv">AWS_ENCRYPTION_SECRET_NAME</span><span class="o">=</span>eudiplo/encryption-key
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="c1"># Create the key in AWS:</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>aws<span class="w"> </span>secretsmanager<span class="w"> </span>create-secret<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span>--name<span class="w"> </span>eudiplo/encryption-key<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span>--secret-string<span class="w"> </span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nv">ENCRYPTION_KEY_SOURCE</span><span class="o">=</span>aws
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nv">AWS_REGION</span><span class="o">=</span>us-east-1
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nv">AWS_ENCRYPTION_SECRET_NAME</span><span class="o">=</span>eudiplo/encryption-key
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="c1"># Create the key in AWS:</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>aws<span class="w"> </span>secretsmanager<span class="w"> </span>create-secret<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span>--name<span class="w"> </span>eudiplo/encryption-key<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span>--secret-string<span class="w"> </span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
 </code></pre></div>
 <p>Uses IAM roles automatically when running in EKS/ECS (no credentials needed).</p>
 <h4 id="azure-key-vault">Azure Key Vault<a class="headerlink" href="#azure-key-vault" title="Permanent link">¶</a></h4>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nv">ENCRYPTION_KEY_SOURCE</span><span class="o">=</span>azure
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nv">AZURE_KEYVAULT_URL</span><span class="o">=</span>https://myvault.vault.azure.net
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nv">AZURE_ENCRYPTION_SECRET_NAME</span><span class="o">=</span>eudiplo-encryption-key
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="c1"># Create the key in Azure:</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>az<span class="w"> </span>keyvault<span class="w"> </span>secret<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span>--vault-name<span class="w"> </span>myvault<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span>--name<span class="w"> </span>eudiplo-encryption-key<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span>--value<span class="w"> </span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nv">ENCRYPTION_KEY_SOURCE</span><span class="o">=</span>azure
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nv">AZURE_KEYVAULT_URL</span><span class="o">=</span>https://myvault.vault.azure.net
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="nv">AZURE_ENCRYPTION_SECRET_NAME</span><span class="o">=</span>eudiplo-encryption-key
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="c1"># Create the key in Azure:</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>az<span class="w"> </span>keyvault<span class="w"> </span>secret<span class="w"> </span><span class="nb">set</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span>--vault-name<span class="w"> </span>myvault<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span>--name<span class="w"> </span>eudiplo-encryption-key<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span>--value<span class="w"> </span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
 </code></pre></div>
 <p>Uses Managed Identity automatically when running in Azure (no credentials needed).</p>
 <h3 id="key-requirements">Key Requirements<a class="headerlink" href="#key-requirements" title="Permanent link">¶</a></h3>
@@ -2785,11 +2979,11 @@ the service.</p>
 <li><strong>Encoded as</strong>: Base64 (44 characters) or Hex (64 characters)</li>
 </ul>
 <p>Generate a secure key:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Base64 (recommended)</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Hex</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>openssl<span class="w"> </span>rand<span class="w"> </span>-hex<span class="w"> </span><span class="m">32</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Base64 (recommended)</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Hex</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>openssl<span class="w"> </span>rand<span class="w"> </span>-hex<span class="w"> </span><span class="m">32</span>
 </code></pre></div>
 <h3 id="migration-from-unencrypted-data">Migration from Unencrypted Data<a class="headerlink" href="#migration-from-unencrypted-data" title="Permanent link">¶</a></h3>
 <p>If upgrading from a version without encryption, EUDIPLO automatically handles migration:</p>
@@ -2838,37 +3032,37 @@ identifier.</p>
 all relevant entities:</p>
 <h4 id="core-entities-with-tenant-support">Core Entities with Tenant Support<a class="headerlink" href="#core-entities-with-tenant-support" title="Permanent link">¶</a></h4>
 <p><strong>Session Entity:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kd">@Entity</span><span class="p">()</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">Session</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="kd">@PrimaryColumn</span><span class="p">(</span><span class="s1">'uuid'</span><span class="p">)</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="kd">@Column</span><span class="p">(</span><span class="s1">'varchar'</span><span class="p">)</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"> </span><span class="c1">// Tenant ID for multi-tenancy support</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="c1">// ... other fields</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="p">}</span>
-</code></pre></div>
-<p><strong>Issuance Configuration Entity:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kd">@Entity</span><span class="p">()</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">IssuanceConfig</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="kd">@PrimaryColumn</span><span class="p">(</span><span class="s1">'varchar'</span><span class="p">)</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">Session</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="kd">@PrimaryColumn</span><span class="p">(</span><span class="s1">'uuid'</span><span class="p">)</span>
 <a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
 <a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
 <a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="kd">@Column</span><span class="p">(</span><span class="s1">'varchar'</span><span class="p">)</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"> </span><span class="c1">// Tenant ID for multi-tenancy support</span>
 <a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
 <a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">    </span><span class="c1">// ... other fields</span>
 <a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="p">}</span>
 </code></pre></div>
+<p><strong>Issuance Configuration Entity:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kd">@Entity</span><span class="p">()</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">IssuanceConfig</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="kd">@PrimaryColumn</span><span class="p">(</span><span class="s1">'varchar'</span><span class="p">)</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="kd">@Column</span><span class="p">(</span><span class="s1">'varchar'</span><span class="p">)</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">    </span><span class="c1">// ... other fields</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="p">}</span>
+</code></pre></div>
 <h3 id="database-queries">Database Queries<a class="headerlink" href="#database-queries" title="Permanent link">¶</a></h3>
 <p>All database operations automatically filter by <code>tenantId</code> when in multi-tenant
 mode:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1">// Example: Get sessions for specific tenant</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">sessionRepository</span><span class="p">.</span><span class="nx">findBy</span><span class="p">({</span><span class="w"> </span><span class="nx">tenantId</span><span class="w"> </span><span class="p">});</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1">// Example: Update session with tenant scope</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">sessionRepository</span><span class="p">.</span><span class="nx">update</span><span class="p">({</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">sessionId</span><span class="p">,</span><span class="w"> </span><span class="nx">tenantId</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="nx">updateData</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1">// Example: Get sessions for specific tenant</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">sessionRepository</span><span class="p">.</span><span class="nx">findBy</span><span class="p">({</span><span class="w"> </span><span class="nx">tenantId</span><span class="w"> </span><span class="p">});</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1">// Example: Update session with tenant scope</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">sessionRepository</span><span class="p">.</span><span class="nx">update</span><span class="p">({</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">sessionId</span><span class="p">,</span><span class="w"> </span><span class="nx">tenantId</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="nx">updateData</span><span class="p">);</span>
 </code></pre></div>
 
 

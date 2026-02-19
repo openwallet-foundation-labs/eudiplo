@@ -143,15 +143,61 @@
             </div>
         </div>
 
+        <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onModuleInit"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>onModuleInit</b></span>
+                        <a href="#onModuleInit"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>onModuleInit()</code>
+                </td>
+            </tr>
 
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="69"
+                                    class="link-to-prism">src/database/database.module.ts:69</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
     </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Logger, Module, OnModuleInit } from &quot;@nestjs/common&quot;;
 import { ConfigModule, ConfigService } from &quot;@nestjs/config&quot;;
 import { TypeOrmModule, TypeOrmModuleOptions } from &quot;@nestjs/typeorm&quot;;
 import { join } from &quot;path&quot;;
+import { DataSource } from &quot;typeorm&quot;;
+import * as migrations from &quot;./migrations&quot;;
 
 @Module({
     imports: [
@@ -165,9 +211,21 @@ import { join } from &quot;path&quot;;
                     &quot;DB_TYPE&quot;,
                 );
 
+                // Default synchronize to false for production safety
+                // Use DB_SYNCHRONIZE&#x3D;true only for development or fresh installs
+                const synchronize &#x3D;
+                    configService.getOrThrow&lt;boolean&gt;(&quot;DB_SYNCHRONIZE&quot;);
+
+                // Migrations are enabled by default, disable with DB_MIGRATIONS_RUN&#x3D;false
+                const migrationsRun &#x3D;
+                    configService.getOrThrow&lt;boolean&gt;(&quot;DB_MIGRATIONS_RUN&quot;);
+
                 const commonOptions &#x3D; {
-                    synchronize: true,
+                    synchronize,
                     autoLoadEntities: true,
+                    migrationsRun,
+                    migrations: Object.values(migrations),
+                    migrationsTableName: &quot;typeorm_migrations&quot;,
                 };
 
                 if (dbType &#x3D;&#x3D;&#x3D; &quot;postgres&quot;) {
@@ -197,7 +255,20 @@ import { join } from &quot;path&quot;;
         }),
     ],
 })
-export class DatabaseModule {}
+export class DatabaseModule implements OnModuleInit {
+    private readonly logger &#x3D; new Logger(DatabaseModule.name);
+
+    constructor(private readonly dataSource: DataSource) {}
+
+    async onModuleInit(): Promise&lt;void&gt; {
+        const pendingMigrations &#x3D; await this.dataSource.showMigrations();
+        if (pendingMigrations) {
+            this.logger.warn(
+                &quot;There are pending migrations. Run migrations to apply schema changes.&quot;,
+            );
+        }
+    }
+}
 </code></pre>
     </div>
 </div>
