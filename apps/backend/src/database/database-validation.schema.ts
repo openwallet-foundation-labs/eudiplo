@@ -46,4 +46,14 @@ export const DB_VALIDATION_SCHEMA = Joi.object({
         })
         .description("Database name")
         .meta({ group: "database", order: 50 }),
+    DB_SYNCHRONIZE: Joi.boolean()
+        .default(true)
+        .description(
+            "Enable TypeORM schema synchronization. Set to false in production after initial setup and rely on migrations instead.",
+        )
+        .meta({ group: "database", order: 60 }),
+    DB_MIGRATIONS_RUN: Joi.boolean()
+        .default(true)
+        .description("Run pending database migrations automatically on startup")
+        .meta({ group: "database", order: 70 }),
 });

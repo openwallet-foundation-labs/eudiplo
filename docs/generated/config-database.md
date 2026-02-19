@@ -6,3 +6,5 @@
 | `DB_USERNAME` | `string` | Database username [when DB_TYPE is {"override":true} \| "sqlite" → otherwise required] |
 | `DB_PASSWORD` | `string` | Database password [when DB_TYPE is {"override":true} \| "sqlite" → otherwise required] |
 | `DB_DATABASE` | `string` | Database name [when DB_TYPE is {"override":true} \| "sqlite" → otherwise required] |
+| `DB_SYNCHRONIZE` | `boolean` | Enable TypeORM schema synchronization. WARNING: Only use for development, never in production.  (default: `false`) |
+| `DB_MIGRATIONS_RUN` | `boolean` | Run pending database migrations automatically on startup  (default: `true`) |
