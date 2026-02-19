@@ -173,7 +173,7 @@ Full setup:
 
 **Key sections:**
 
-- [Architecture](https://openwallet-foundation-labs.github.io/eudiplo/latest/architecture/overview/)
+- [Architecture](https://openwallet-foundation-labs.github.io/eudiplo/latest/architecture/)
 - [Supported Protocols](https://openwallet-foundation-labs.github.io/eudiplo/latest/architecture/supported-protocols/)
 - [API Reference](https://openwallet-foundation-labs.github.io/eudiplo/latest/api/)
 - [Code Documentation](https://openwallet-foundation-labs.github.io/eudiplo/latest/compodoc/)
