@@ -53,11 +53,6 @@ export class TrustedAuthorityQuery {
     values!: string[];
 }
 
-export class Claim {
-    @IsArray()
-    path!: string[];
-}
-
 //TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-query
 export class CredentialQuery {
     @IsString()
@@ -72,8 +67,8 @@ export class CredentialQuery {
 
     @IsOptional()
     @ValidateNested({ each: true })
-    @Type(() => Claim)
-    claims?: Claim[];
+    @Type(() => ClaimsQuery)
+    claims?: ClaimsQuery[];
 
     @IsObject()
     meta: any;
@@ -85,17 +80,17 @@ export class CredentialQuery {
     trusted_authorities?: TrustedAuthorityQuery[];
 }
 
-//TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#claims_query
 export class ClaimsQuery {
     @IsString()
-    id!: string;
+    @IsOptional()
+    id?: string;
 
     @IsArray()
     path!: string[];
 
     @IsArray()
     @IsOptional()
-    values?: any[];
+    values?: string[];
 }
 
 //TODO: extend: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-credential-set-query
