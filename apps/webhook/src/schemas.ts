@@ -20,9 +20,9 @@ export const DisclosedClaimsSchema = z.record(z.string(), z.unknown());
  * Presented credential information sent in claims webhook.
  */
 export const PresentedCredentialSchema = z.object({
-    id: z.string({ required_error: "credentials[].id is required" }),
+    id: z.string({ message: "credentials[].id is required" }),
     values: z.array(DisclosedClaimsSchema, {
-        required_error: "credentials[].values is required",
+        message: "credentials[].values is required",
     }),
 });
 
@@ -30,10 +30,10 @@ export const PresentedCredentialSchema = z.object({
  * Identity context from authorization server.
  */
 export const AuthorizationIdentitySchema = z.object({
-    iss: z.string({ required_error: "identity.iss is required" }),
-    sub: z.string({ required_error: "identity.sub is required" }),
+    iss: z.string({ message: "identity.iss is required" }),
+    sub: z.string({ message: "identity.sub is required" }),
     token_claims: z.record(z.string(), z.unknown(), {
-        required_error: "identity.token_claims is required",
+        message: "identity.token_claims is required",
     }),
 });
 
@@ -45,9 +45,9 @@ export const AuthorizationIdentitySchema = z.object({
  * Schema for claims webhook request payload.
  */
 export const ClaimsWebhookRequestSchema = z.object({
-    session: z.string({ required_error: "session is required" }),
+    session: z.string({ message: "session is required" }),
     credential_configuration_id: z.string({
-        required_error: "credential_configuration_id is required",
+        message: "credential_configuration_id is required",
     }),
     identity: AuthorizationIdentitySchema.optional(),
     credentials: z.array(PresentedCredentialSchema).optional(),
@@ -70,10 +70,10 @@ export const NotificationEventSchema = z.enum([
  * Notification information.
  */
 export const NotificationSchema = z.object({
-    id: z.string({ required_error: "notification.id is required" }),
+    id: z.string({ message: "notification.id is required" }),
     event: NotificationEventSchema.optional(),
     credentialConfigurationId: z.string({
-        required_error: "notification.credentialConfigurationId is required",
+        message: "notification.credentialConfigurationId is required",
     }),
 });
 
@@ -82,7 +82,7 @@ export const NotificationSchema = z.object({
  */
 export const NotificationWebhookRequestSchema = z.object({
     notification: NotificationSchema,
-    session: z.string({ required_error: "session is required" }),
+    session: z.string({ message: "session is required" }),
 });
 
 // ============================================================================
@@ -105,7 +105,7 @@ export type PresentedCredential = z.infer<typeof PresentedCredentialSchema>;
  */
 export type ValidationResult<T> =
     | { success: true; data: T }
-    | { success: false; error: string; details: z.ZodIssue[] };
+    | { success: false; error: string; details: z.ZodError["issues"] };
 
 /**
  * Validates data against the ClaimsWebhookRequest schema.
