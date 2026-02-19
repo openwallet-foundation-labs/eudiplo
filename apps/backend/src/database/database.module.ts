@@ -1,7 +1,8 @@
-import { Module } from "@nestjs/common";
+import { Logger, Module, OnModuleInit } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { join } from "path";
+import { DataSource } from "typeorm";
 
 @Module({
     imports: [
@@ -15,9 +16,21 @@ import { join } from "path";
                     "DB_TYPE",
                 );
 
+                // Default synchronize to false for production safety
+                // Use DB_SYNCHRONIZE=true only for development or fresh installs
+                const synchronize =
+                    configService.getOrThrow<boolean>("DB_SYNCHRONIZE");
+
+                // Migrations are enabled by default, disable with DB_MIGRATIONS_RUN=false
+                const migrationsRun =
+                    configService.getOrThrow<boolean>("DB_MIGRATIONS_RUN");
+
                 const commonOptions = {
-                    synchronize: true,
+                    synchronize,
                     autoLoadEntities: true,
+                    migrationsRun,
+                    migrations: [join(__dirname, "migrations", "*.{ts,js}")],
+                    migrationsTableName: "typeorm_migrations",
                 };
 
                 if (dbType === "postgres") {
@@ -47,4 +60,17 @@ import { join } from "path";
         }),
     ],
 })
-export class DatabaseModule {}
+export class DatabaseModule implements OnModuleInit {
+    private readonly logger = new Logger(DatabaseModule.name);
+
+    constructor(private readonly dataSource: DataSource) {}
+
+    async onModuleInit(): Promise<void> {
+        const pendingMigrations = await this.dataSource.showMigrations();
+        if (pendingMigrations) {
+            this.logger.warn(
+                "There are pending migrations. Run migrations to apply schema changes.",
+            );
+        }
+    }
+}

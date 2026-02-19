@@ -49,6 +49,62 @@ the service.
 
 ---
 
+## Database Migrations
+
+Starting from v2.0.0, EUDIPLO uses TypeORM migrations for database schema management instead of automatic synchronization. This provides:
+
+- **Safe upgrades**: Schema changes are applied in a controlled manner
+- **Rollback capability**: Migrations can be reverted if needed
+- **Production safety**: No accidental schema changes in production
+
+### How Migrations Work
+
+By default, migrations run automatically when the service starts (`DB_MIGRATIONS_RUN=true`). The migration system detects whether you're running a fresh installation or upgrading:
+
+- **Fresh installation**: The baseline migration creates all tables from scratch
+- **Upgrading**: If tables already exist (from previous `synchronize: true` mode), the baseline migration is skipped, and only new migrations are applied
+
+### Configuration
+
+| Variable            | Default | Description                       |
+| ------------------- | ------- | --------------------------------- |
+| `DB_MIGRATIONS_RUN` | `true`  | Run pending migrations on startup |
+| `DB_SYNCHRONIZE`    | `false` | Auto-sync schema (⚠️ dev only)    |
+
+!!! warning "Production Safety"
+
+    Never set `DB_SYNCHRONIZE=true` in production. Use migrations instead to ensure controlled schema updates.
+
+### Manual Migration Commands
+
+From the `apps/backend` directory:
+
+```bash
+# Generate a new migration based on entity changes
+pnpm migration:generate --name=AddNewFeature
+
+# Run pending migrations
+pnpm migration:run
+
+# Revert the last migration
+pnpm migration:revert
+
+# Show migration status
+pnpm migration:show
+```
+
+### Upgrading from Pre-2.0.0
+
+If you're upgrading from a version that used `synchronize: true`:
+
+1. Your existing database schema is already correct
+2. The baseline migration will detect existing tables and skip creation
+3. Your data is preserved, and the migration history starts fresh
+
+No action is required — just start the new version, and migrations will handle the rest.
+
+---
+
 ## Encryption at Rest
 
 EUDIPLO encrypts sensitive data at rest using **AES-256-GCM** authenticated encryption. This protects cryptographic keys and personal information stored in the database from unauthorized access, even if the database itself is compromised.
