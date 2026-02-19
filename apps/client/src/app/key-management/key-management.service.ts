@@ -55,7 +55,7 @@ export class KeyManagementService {
       return response.data as { id: string };
     } catch (error) {
       console.error('Failed to import key:', error);
-      throw new Error('Failed to import key');
+      throw new Error('Failed to import key', { cause: error });
     }
   }
 

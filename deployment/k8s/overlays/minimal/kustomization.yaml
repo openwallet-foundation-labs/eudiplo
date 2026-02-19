@@ -17,4 +17,4 @@ configMapGenerator:
     literals:
       - DB_TYPE=sqlite
       - STORAGE_DRIVER=local
-      - KM_TYPE=file
+      - KM_TYPE=db

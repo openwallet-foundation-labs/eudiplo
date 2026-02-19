@@ -64,7 +64,12 @@ spec:
           volumeMounts:
             - name: uploads
               mountPath: /app/uploads
+            - name: config
+              mountPath: /app/config
       volumes:
         - name: uploads
           emptyDir:
             sizeLimit: 1Gi
+        - name: config
+          emptyDir:
+            sizeLimit: 500Mi

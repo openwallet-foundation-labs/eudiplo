@@ -20,7 +20,7 @@ export class SessionManagementService {
       return response.data || [];
     } catch (error) {
       console.error('Error fetching sessions:', error);
-      throw new Error('Failed to load sessions');
+      throw new Error('Failed to load sessions', { cause: error });
     }
   }
 
@@ -71,7 +71,7 @@ export class SessionManagementService {
       });
     } catch (error) {
       console.error('Error deleting session:', error);
-      throw new Error(`Failed to delete session ${sessionId}`);
+      throw new Error(`Failed to delete session ${sessionId}`, { cause: error });
     }
   }
 }
