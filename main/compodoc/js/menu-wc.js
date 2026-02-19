@@ -896,9 +896,6 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/ChainedAsTokenResponseDto.html" data-type="entity-link" >ChainedAsTokenResponseDto</a>
                             </li>
                             <li class="link">
-                                <a href="classes/Claim.html" data-type="entity-link" >Claim</a>
-                            </li>
-                            <li class="link">
                                 <a href="classes/ClaimsQuery.html" data-type="entity-link" >ClaimsQuery</a>
                             </li>
                             <li class="link">
