@@ -162,6 +162,10 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#sendClaimsWebhook" >sendClaimsWebhook</a>
+                            </li>
+                            <li>
                                 <a href="#sendWebhook" >sendWebhook</a>
                             </li>
                             <li>
@@ -260,6 +264,79 @@
     <h3 id="methods">
         Methods
     </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="sendClaimsWebhook"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>sendClaimsWebhook</b></span>
+                        <a href="#sendClaimsWebhook"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>sendClaimsWebhook(values: literal type)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="206"
+                                    class="link-to-prism">src/shared/utils/webhook/webhook.service.ts:206</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Unified webhook for fetching claims.
+Sends a consistent payload regardless of AS type (internal or external).</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>values</td>
+                                            <td>
+                                                        <code>literal type</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/WebhookResponse.html" target="_self" >Promise&lt;WebhookResponse&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>WebhookResponse containing claims data or deferred issuance indicator</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -620,6 +697,94 @@ export class WebhookService {
                     },
                 );
                 throw new Error(&#x60;Error sending webhook: ${err.message || err}&#x60;);
+            },
+        );
+    }
+
+    /**
+     * Unified webhook for fetching claims.
+     * Sends a consistent payload regardless of AS type (internal or external).
+     *
+     * @param values.webhook The webhook configuration
+     * @param values.logContext Logging context
+     * @param values.session The session ID
+     * @param values.credentialConfigurationId The credential configuration being requested
+     * @param values.identity Optional identity context from authorization (works for both internal and external AS)
+     * @param values.credentials Optional presented credentials (for presentation flows)
+     * @returns WebhookResponse containing claims data or deferred issuance indicator
+     */
+    async sendClaimsWebhook(values: {
+        webhook: WebhookConfig;
+        logContext: SessionLogContext;
+        session: string;
+        credentialConfigurationId: string;
+        identity?: {
+            iss: string;
+            sub: string;
+            token_claims: Record&lt;string, unknown&gt;;
+        };
+        credentials?: any[];
+    }): Promise&lt;WebhookResponse&gt; {
+        const headers: Record&lt;string, string&gt; &#x3D; {};
+
+        if (values.webhook.auth?.type &#x3D;&#x3D;&#x3D; &quot;apiKey&quot;) {
+            headers[values.webhook.auth.config.headerName] &#x3D;
+                values.webhook.auth.config.value;
+        }
+
+        this.sessionLogger.logSession(
+            values.logContext,
+            &quot;Sending claims webhook&quot;,
+            {
+                webhookUrl: values.webhook.url,
+                authType: values.webhook.auth?.type || &quot;none&quot;,
+                credentialConfigurationId: values.credentialConfigurationId,
+                hasIdentity: !!values.identity,
+                hasCredentials: !!values.credentials?.length,
+            },
+        );
+
+        const payload: Record&lt;string, unknown&gt; &#x3D; {
+            session: values.session,
+            credential_configuration_id: values.credentialConfigurationId,
+        };
+
+        // Include identity context when available (from internal or external AS)
+        if (values.identity) {
+            payload.identity &#x3D; values.identity;
+        }
+
+        // Include presented credentials when available (presentation flow)
+        if (values.credentials?.length) {
+            payload.credentials &#x3D; values.credentials;
+        }
+
+        return firstValueFrom(
+            this.httpService.post(values.webhook.url, payload, { headers }),
+        ).then(
+            (webhookResponse) &#x3D;&gt; {
+                this.sessionLogger.logSession(
+                    values.logContext,
+                    &quot;Claims webhook sent successfully&quot;,
+                    {
+                        responseStatus: webhookResponse.status,
+                        hasResponseData: !!webhookResponse.data,
+                    },
+                );
+                return webhookResponse.data;
+            },
+            (err) &#x3D;&gt; {
+                this.sessionLogger.logSessionError(
+                    values.logContext,
+                    err,
+                    &quot;Error sending claims webhook&quot;,
+                    {
+                        webhookUrl: values.webhook.url,
+                    },
+                );
+                throw new Error(
+                    &#x60;Error sending claims webhook: ${err.message || err}&#x60;,
+                );
             },
         );
     }

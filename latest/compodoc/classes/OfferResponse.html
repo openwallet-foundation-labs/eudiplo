@@ -207,7 +207,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="207" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:207</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="214" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:214</a></div>
                         </td>
                     </tr>
 
@@ -239,7 +239,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="208" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:208</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="215" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:215</a></div>
                         </td>
                     </tr>
 
@@ -265,7 +265,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="205" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:205</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="212" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:212</a></div>
                         </td>
                     </tr>
 
@@ -399,6 +399,13 @@ export class OfferRequestDto {
     @IsString()
     @IsOptional()
     tx_code?: string;
+
+    /**
+     * Description for the transaction code (e.g., &quot;Please enter the PIN sent to your email&quot;).
+     */
+    @IsString()
+    @IsOptional()
+    tx_code_description?: string;
 
     /**
      * List of credential configuration ids to be included in the offer.

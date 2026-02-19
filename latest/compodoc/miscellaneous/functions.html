@@ -149,10 +149,16 @@
                             <a href="#extractConditionsFromKeyDesc" title="src/shared/utils/config-printer/helpers.ts" ><b>extractConditionsFromKeyDesc</b>&nbsp;&nbsp;&nbsp;(src/.../helpers.ts)</a>
                         </li>
                         <li>
+                            <a href="#extractDpopJkt" title="src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts" ><b>extractDpopJkt</b>&nbsp;&nbsp;&nbsp;(src/.../chained-as.service.ts)</a>
+                        </li>
+                        <li>
                             <a href="#findServiceByType" title="src/shared/trust/types.ts" ><b>findServiceByType</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
                         </li>
                         <li>
                             <a href="#flattenMetas" title="src/shared/utils/config-printer/helpers.ts" ><b>flattenMetas</b>&nbsp;&nbsp;&nbsp;(src/.../helpers.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#getEncryptionService" title="src/shared/utils/encryption/encrypted-column.transformer.ts" ><b>getEncryptionService</b>&nbsp;&nbsp;&nbsp;(src/.../encrypted-column.transformer.ts)</a>
                         </li>
                         <li>
                             <a href="#getHeadersFromRequest" title="src/issuer/issuance/oid4vci/util.ts" ><b>getHeadersFromRequest</b>&nbsp;&nbsp;&nbsp;(src/.../util.ts)</a>
@@ -162,6 +168,9 @@
                         </li>
                         <li>
                             <a href="#getRevocationCert" title="src/shared/trust/types.ts" ><b>getRevocationCert</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#initializeEncryptionTransformer" title="src/shared/utils/encryption/encrypted-column.transformer.ts" ><b>initializeEncryptionTransformer</b>&nbsp;&nbsp;&nbsp;(src/.../encrypted-column.transformer.ts)</a>
                         </li>
                         <li>
                             <a href="#isEffectivelyRequired" title="src/shared/utils/config-printer/helpers.ts" ><b>isEffectivelyRequired</b>&nbsp;&nbsp;&nbsp;(src/.../helpers.ts)</a>
@@ -1206,6 +1215,72 @@ This is a type assertion helper since our types are derived from the SDK</p>
             </tr>
         </tbody>
     </table>
+</section>    <h3>src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts</h3>
+    <section data-compodoc="block-methods">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="extractDpopJkt"></a>
+                    <span class="name">
+                        <span ><b>extractDpopJkt</b></span>
+                        <a href="#extractDpopJkt"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>extractDpopJkt(dpopJwt?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Extract DPoP JWK thumbprint from DPoP JWT.
+Returns undefined if parsing fails or DPoP is not provided.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>dpopJwt</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>string | undefined</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>    <h3>src/shared/trust/types.ts</h3>
     <section data-compodoc="block-methods">
     <h3></h3>    <table class="table table-sm table-bordered">
@@ -1400,6 +1475,106 @@ This is a type assertion helper since our types are derived from the SDK</p>
                             </div>
                         <div class="io-description">
                             <b>Returns : </b>    <code>TrustedEntityServiceCert | undefined</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/shared/utils/encryption/encrypted-column.transformer.ts</h3>
+    <section data-compodoc="block-methods">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getEncryptionService"></a>
+                    <span class="name">
+                        <span ><b>getEncryptionService</b></span>
+                        <a href="#getEncryptionService"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getEncryptionService()</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get the encryption service instance.
+Throws if not initialized.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../injectables/EncryptionService.html" target="_self" >EncryptionService</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="initializeEncryptionTransformer"></a>
+                    <span class="name">
+                        <span ><b>initializeEncryptionTransformer</b></span>
+                        <a href="#initializeEncryptionTransformer"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>initializeEncryptionTransformer(service: <a href="../injectables/EncryptionService.html" target="_self">EncryptionService</a>)</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Initialize the encryption transformer with an EncryptionService instance.
+Must be called during application bootstrap before any database operations.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>service</td>
+                                            <td>
+                                                            <code><a href="../injectables/EncryptionService.html" target="_self" >EncryptionService</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
 
                         </div>
                             <div class="io-description">

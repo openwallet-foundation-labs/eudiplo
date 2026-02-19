@@ -168,10 +168,6 @@ This controller handles the authorization requests, token requests.</p>
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
-                                <a href="#authorizationChallengeEndpoint" >authorizationChallengeEndpoint</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#authorize" >authorize</a>
                             </li>
@@ -202,120 +198,6 @@ This controller handles the authorization requests, token requests.</p>
     <h3 id="methods">
         Methods
     </h3>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="authorizationChallengeEndpoint"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                        <span ><b>authorizationChallengeEndpoint</b></span>
-                        <a href="#authorizationChallengeEndpoint"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>authorizationChallengeEndpoint(req: Request, res: Response, body: <a href="../classes/AuthorizeQueries.html" target="_self">AuthorizeQueries</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <b>Decorators : </b>
-                    <br />
-                    <code>@Post(&#x27;challenge&#x27;)<br /></code>
-                </td>
-            </tr>
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="97"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:97</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Endpoint for the authorization challenge.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>req</td>
-                                            <td>
-                                                        <code>Request</code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>res</td>
-                                            <td>
-                                                        <code>Response</code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>body</td>
-                                            <td>
-                                                            <code><a href="../classes/AuthorizeQueries.html" target="_self" >AuthorizeQueries</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -693,28 +575,6 @@ export class AuthorizeController {
         @Param(&quot;tenantId&quot;) tenantId: string,
     ): Promise&lt;any&gt; {
         return this.authorizeService.validateTokenRequest(body, req, tenantId);
-    }
-
-    /**
-     * Endpoint for the authorization challenge.
-     * @param res
-     * @param body
-     * @returns
-     */
-    @Post(&quot;challenge&quot;)
-    authorizationChallengeEndpoint(
-        @Req() req: Request,
-        @Res() res: Response,
-        @Body() body: AuthorizeQueries,
-        @Param(&quot;tenantId&quot;) tenantId: string,
-    ) {
-        const origin &#x3D; req.headers.origin || &#x60;https://${req.headers.host}&#x60;;
-        return this.authorizeService.authorizationChallengeEndpoint(
-            res,
-            body,
-            tenantId,
-            origin,
-        );
     }
 }
 </code></pre>

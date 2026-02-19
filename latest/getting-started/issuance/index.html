@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
     
     
       
@@ -939,6 +939,8 @@
       
         
       
+        
+      
     
     
     
@@ -988,6 +990,34 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../keycloak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Keycloak Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1237,6 +1267,8 @@
       
         
           
+        
+      
         
       
         
@@ -1520,6 +1552,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../architecture/chained-as/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chained Authorization Server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../architecture/configuration-import/" class="md-nav__link">
         
   
@@ -1649,6 +1709,8 @@
       
         
       
+        
+      
     
     
     
@@ -1720,6 +1782,34 @@
     
   
     Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/session-events/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Session Events (SSE)
   
 
     
@@ -2172,6 +2262,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#supported-issuance-flows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported Issuance Flows
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Supported Issuance Flows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quick-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#understanding-the-three-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Understanding the Three Dimensions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#flow-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flow Details
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#decision-flowchart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision Flowchart
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#deferred-credential-issuance" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2435,6 +2586,304 @@ with the wallet. It also shows the interactions with <a href="../../architecture
         Service--&gt;&gt;EUDIPLO: 2xx ACK
     end</code></pre>
 <p>The response with the credential offer link will also provide the session ID. It is included in the requests from the optional webhooks to identify the specific issuance flow. You can also use the id to query the issuance status at the API.</p>
+<hr>
+<h2 id="supported-issuance-flows">Supported Issuance Flows<a class="headerlink" href="#supported-issuance-flows" title="Permanent link">¶</a></h2>
+<p>EUDIPLO supports three authentication patterns for OID4VCI credential issuance. Each pattern serves different use cases depending on how users are identified and authenticated.</p>
+<h3 id="quick-reference">Quick Reference<a class="headerlink" href="#quick-reference" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Authentication Pattern</th>
+<th>User is Known</th>
+<th>User Authentication</th>
+<th>Initiator</th>
+<th>Claims Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pre-authorized code</strong></td>
+<td>Yes</td>
+<td>Already authenticated (before offer)</td>
+<td>Issuer only</td>
+<td>Offer or Webhook</td>
+</tr>
+<tr>
+<td><strong>Authorization code + External AS</strong></td>
+<td>No</td>
+<td>OIDC login at external IdP</td>
+<td>Issuer or Wallet</td>
+<td>Webhook (required)</td>
+</tr>
+<tr>
+<td><strong>Interactive Authorization (IAE)</strong></td>
+<td>No</td>
+<td>Credential presentation (OID4VP) or web redirect</td>
+<td>Issuer or Wallet</td>
+<td>Webhook (required)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="understanding-the-three-dimensions">Understanding the Three Dimensions<a class="headerlink" href="#understanding-the-three-dimensions" title="Permanent link">¶</a></h3>
+<h4 id="1-authentication-pattern-how-is-the-user-identified">1. Authentication Pattern (How is the user identified?)<a class="headerlink" href="#1-authentication-pattern-how-is-the-user-identified" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Pre-authorized code</strong>: User was already authenticated <em>before</em> the OID4VCI flow starts. You know who they are and can include their claims in the offer.</li>
+<li><strong>Authorization code + External AS</strong>: User authenticates during the flow at an external Identity Provider (Keycloak, Azure AD, Okta) via OIDC.</li>
+<li><strong>Interactive Authorization (IAE)</strong>: User proves their identity by presenting an existing credential (OID4VP) or completing a web-based flow.</li>
+</ul>
+<h4 id="2-initiator-who-starts-the-flow">2. Initiator (Who starts the flow?)<a class="headerlink" href="#2-initiator-who-starts-the-flow" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>Issuer-initiated</strong>: The issuer creates an offer URI and presents it to the user (QR code, email link, push notification). Used when you want to proactively issue credentials.</li>
+<li><strong>Wallet-initiated</strong>: The wallet discovers available credentials via issuer metadata and initiates the request. Used for self-service scenarios where users browse available credentials.</li>
+</ul>
+<div class="admonition info">
+<p class="admonition-title">Pre-authorized code is issuer-initiated only</p>
+</div>
+<p>Since the user must be known before creating the offer, pre-authorized code flows are always issuer-initiated. The other patterns support both.</p>
+<h4 id="3-claims-source-where-do-credential-claims-come-from">3. Claims Source (Where do credential claims come from?)<a class="headerlink" href="#3-claims-source-where-do-credential-claims-come-from" title="Permanent link">¶</a></h4>
+<ul>
+<li><strong>In the offer</strong>: Claims are embedded in the credential offer when it's created. Only possible when the user is known upfront (pre-authorized code flow).</li>
+<li><strong>Via webhook</strong>: EUDIPLO calls your backend to fetch claims based on user identity information. Required when user identity is established during the flow.</li>
+</ul>
+<hr>
+<h3 id="flow-details">Flow Details<a class="headerlink" href="#flow-details" title="Permanent link">¶</a></h3>
+<h4 id="pre-authorized-code-flow">Pre-authorized Code Flow<a class="headerlink" href="#pre-authorized-code-flow" title="Permanent link">¶</a></h4>
+<p><strong>Use when:</strong> You already know who the user is before starting the issuance flow.</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant Portal as Your Portal
+    participant EUDIPLO
+    participant Wallet
+
+    Portal-&gt;&gt;Portal: User authenticates
+    Portal-&gt;&gt;EUDIPLO: Create offer with claims
+    EUDIPLO--&gt;&gt;Portal: Offer URI + QR code
+    Portal-&gt;&gt;Wallet: Display QR / Send link
+    Wallet-&gt;&gt;EUDIPLO: Redeem offer
+    EUDIPLO-&gt;&gt;Wallet: Credential</code></pre>
+<p><strong>Examples:</strong></p>
+<ul>
+<li>Employee onboarding portal creates badge credential after HR verification</li>
+<li>University issues diploma after graduation is confirmed</li>
+<li>Government portal issues ID after identity verification process</li>
+</ul>
+<p><strong>Configuration:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nt">"claims"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">        </span><span class="nt">"given_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Alice"</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">        </span><span class="nt">"family_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Smith"</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">        </span><span class="nt">"employee_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EMP-12345"</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">}</span>
+</code></pre></div>
+<p>Or use a webhook if you don't want to embed claims in the offer:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="nt">"claimsWebhook"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://your-service.example.com/claims"</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="p">}</span>
+</code></pre></div>
+<hr>
+<h4 id="authorization-code-flow-with-external-as">Authorization Code Flow with External AS<a class="headerlink" href="#authorization-code-flow-with-external-as" title="Permanent link">¶</a></h4>
+<p><strong>Use when:</strong> You have an existing Identity Provider and want users to authenticate via OIDC.</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant Wallet
+    participant EUDIPLO
+    participant Keycloak as External AS (Keycloak)
+    participant Backend as Your Backend
+
+    alt Issuer-initiated
+        EUDIPLO-&gt;&gt;Wallet: Credential offer
+    else Wallet-initiated
+        Wallet-&gt;&gt;EUDIPLO: Discover metadata
+    end
+    Wallet-&gt;&gt;Keycloak: Authorization request
+    Keycloak-&gt;&gt;Keycloak: User login (OIDC)
+    Keycloak--&gt;&gt;Wallet: Authorization code
+    Wallet-&gt;&gt;Keycloak: Token request
+    Keycloak--&gt;&gt;Wallet: Access token
+    Wallet-&gt;&gt;EUDIPLO: Credential request + token
+    EUDIPLO-&gt;&gt;EUDIPLO: Verify token against AS
+    EUDIPLO-&gt;&gt;Backend: Webhook (iss, sub, token_claims)
+    Backend--&gt;&gt;EUDIPLO: Claims for credential
+    EUDIPLO--&gt;&gt;Wallet: Credential</code></pre>
+<p><strong>Examples:</strong></p>
+<ul>
+<li>Enterprise deployment where employees authenticate via corporate Keycloak</li>
+<li>Multi-tenant SaaS where each tenant uses their own IdP</li>
+<li>Wallet-initiated flows where users browse available credentials</li>
+</ul>
+<p><strong>Configuration:</strong></p>
+<ul>
+<li>Configure external authorization servers in issuance config:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nt">"authServers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"https://keycloak.example.com/realms/myrealm"</span><span class="p">],</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nt">"dPopRequired"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="p">}</span>
+</code></pre></div>
+<ul>
+<li>Configure claims webhook on the credential configuration:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nt">"claimsWebhook"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://your-service.example.com/claims"</span><span class="p">,</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">        </span><span class="nt">"auth"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"apiKey"</span><span class="p">,</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">            </span><span class="nt">"config"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">                </span><span class="nt">"headerName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"X-API-Key"</span><span class="p">,</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">                </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"your-secret-key"</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">            </span><span class="p">}</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="p">}</span>
+</code></pre></div>
+<p>Your webhook receives:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nt">"session"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a6318799-dff4-4b60-9d1d-58703611bd23"</span><span class="p">,</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">"credential_configuration_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EmployeeBadge"</span><span class="p">,</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">"identity"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">        </span><span class="nt">"iss"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://keycloak.example.com/realms/myrealm"</span><span class="p">,</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">        </span><span class="nt">"sub"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user-uuid-from-keycloak"</span><span class="p">,</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">        </span><span class="nt">"token_claims"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">            </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user@example.com"</span><span class="p">,</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">            </span><span class="nt">"preferred_username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"jdoe"</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">}</span>
+</code></pre></div>
+<p>See <a href="../../architecture/webhooks/#claims-webhook-request-format">Webhooks</a> for full payload details.</p>
+<hr>
+<h4 id="interactive-authorization-endpoint-iae">Interactive Authorization Endpoint (IAE)<a class="headerlink" href="#interactive-authorization-endpoint-iae" title="Permanent link">¶</a></h4>
+<p><strong>Use when:</strong> You want users to prove their identity by presenting an existing credential or completing a web-based verification.</p>
+<p>The IAE supports two interaction types:</p>
+<table>
+<thead>
+<tr>
+<th>Interaction Type</th>
+<th>Description</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>openid4vp_presentation</code></td>
+<td>User presents an existing credential via OID4VP</td>
+<td>Issue derived credentials based on existing ones</td>
+</tr>
+<tr>
+<td><code>redirect_to_web</code></td>
+<td>User is redirected to a web page for verification</td>
+<td>Custom verification flows, OIDC login, form entry</td>
+</tr>
+</tbody>
+</table>
+<h5 id="oid4vp-presentation-flow">OID4VP Presentation Flow<a class="headerlink" href="#oid4vp-presentation-flow" title="Permanent link">¶</a></h5>
+<pre class="mermaid"><code>sequenceDiagram
+    participant Wallet
+    participant EUDIPLO
+    participant Backend as Your Backend
+
+    Wallet-&gt;&gt;EUDIPLO: Interactive authorization request
+    EUDIPLO--&gt;&gt;Wallet: Presentation request (OID4VP)
+    Wallet-&gt;&gt;Wallet: User selects credential
+    Wallet-&gt;&gt;EUDIPLO: Presentation response
+    EUDIPLO-&gt;&gt;EUDIPLO: Verify presentation
+    EUDIPLO-&gt;&gt;Backend: Webhook with presentation data
+    Backend--&gt;&gt;EUDIPLO: Claims for new credential
+    EUDIPLO--&gt;&gt;Wallet: Authorization code
+    Wallet-&gt;&gt;EUDIPLO: Token request
+    EUDIPLO--&gt;&gt;Wallet: Access token
+    Wallet-&gt;&gt;EUDIPLO: Credential request
+    EUDIPLO--&gt;&gt;Wallet: New credential</code></pre>
+<p><strong>Examples:</strong></p>
+<ul>
+<li>Issue a loyalty card credential based on a presented membership credential</li>
+<li>Issue a student discount credential based on a university ID credential</li>
+<li>Age verification: issue age attestation based on presented ID</li>
+</ul>
+<p><strong>Configuration:</strong></p>
+<p>Configure IAE action on the credential configuration:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nt">"iaeAction"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"openid4vp_presentation"</span><span class="p">,</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">        </span><span class="nt">"presentationDefinition"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"verify-membership"</span><span class="p">,</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">            </span><span class="nt">"input_descriptors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">                </span><span class="p">{</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">                    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"membership-credential"</span><span class="p">,</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">                    </span><span class="nt">"constraints"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">                        </span><span class="nt">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">                            </span><span class="p">{</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">                                </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"$.vct"</span><span class="p">],</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">                                </span><span class="nt">"filter"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">                                    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">                                    </span><span class="nt">"const"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MembershipCredential"</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">                                </span><span class="p">}</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">                            </span><span class="p">}</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">                        </span><span class="p">]</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="w">                    </span><span class="p">}</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="w">                </span><span class="p">}</span>
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="w">            </span><span class="p">]</span>
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a><span class="w">    </span><span class="nt">"claimsWebhook"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a><span class="w">        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://your-service.example.com/iae-claims"</span>
+<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a><span class="p">}</span>
+</code></pre></div>
+<h5 id="redirect-to-web-flow">Redirect to Web Flow<a class="headerlink" href="#redirect-to-web-flow" title="Permanent link">¶</a></h5>
+<pre class="mermaid"><code>sequenceDiagram
+    participant Wallet
+    participant EUDIPLO
+    participant WebApp as Your Web App
+
+    Wallet-&gt;&gt;EUDIPLO: Interactive authorization request
+    EUDIPLO--&gt;&gt;Wallet: Redirect URL
+    Wallet-&gt;&gt;WebApp: Open browser
+    WebApp-&gt;&gt;WebApp: User completes verification
+    WebApp-&gt;&gt;EUDIPLO: Callback with result
+    EUDIPLO--&gt;&gt;Wallet: Authorization code
+    Wallet-&gt;&gt;EUDIPLO: Token + Credential requests
+    EUDIPLO--&gt;&gt;Wallet: Credential</code></pre>
+<p><strong>Examples:</strong></p>
+<ul>
+<li>Custom OIDC login flow with additional verification steps</li>
+<li>Payment verification before issuing premium credentials</li>
+<li>Terms acceptance or consent collection</li>
+</ul>
+<p><strong>Configuration:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="nt">"iaeAction"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"redirect_to_web"</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">        </span><span class="nt">"redirectUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://your-app.example.com/verify"</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">        </span><span class="nt">"callbackUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://issuer.example.com/{tenantId}/authorize/interactive/callback"</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="p">}</span>
+</code></pre></div>
+<hr>
+<h3 id="decision-flowchart">Decision Flowchart<a class="headerlink" href="#decision-flowchart" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>flowchart TD
+    A[Starting credential issuance] --&gt; B{Do you know the user&lt;br/&gt;before the flow starts?}
+
+    B --&gt;|Yes| C[Pre-authorized code flow]
+    B --&gt;|No| D{How should the user&lt;br/&gt;prove their identity?}
+
+    D --&gt;|Login at existing IdP| E[Authorization code + External AS]
+    D --&gt;|Present existing credential| F[IAE: openid4vp_presentation]
+    D --&gt;|Custom web verification| G[IAE: redirect_to_web]
+
+    C --&gt; H{Where are claims?}
+    H --&gt;|Known at offer creation| I[Include claims in offer]
+    H --&gt;|Need to fetch later| J[Use webhook]
+
+    E --&gt; K[Webhook required]
+    F --&gt; L[Webhook required]
+    G --&gt; M[Webhook required]
+
+    style C fill:#90EE90
+    style E fill:#87CEEB
+    style F fill:#DDA0DD
+    style G fill:#DDA0DD</code></pre>
 <hr>
 <h2 id="deferred-credential-issuance">Deferred Credential Issuance<a class="headerlink" href="#deferred-credential-issuance" title="Permanent link">¶</a></h2>
 <p>EUDIPLO supports <strong>deferred credential issuance</strong> for scenarios where credentials cannot be issued immediately. This is useful when:</p>

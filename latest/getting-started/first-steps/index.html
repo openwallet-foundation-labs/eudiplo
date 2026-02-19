@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
     
     
       
@@ -1124,6 +1124,8 @@
       
         
       
+        
+      
     
     
     
@@ -1173,6 +1175,34 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../keycloak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Keycloak Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1422,6 +1452,8 @@
       
         
           
+        
+      
         
       
         
@@ -1705,6 +1737,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../architecture/chained-as/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chained Authorization Server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../architecture/configuration-import/" class="md-nav__link">
         
   
@@ -1834,6 +1894,8 @@
       
         
       
+        
+      
     
     
     
@@ -1905,6 +1967,34 @@
     
   
     Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/session-events/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Session Events (SSE)
   
 
     
@@ -2541,19 +2631,20 @@ see the <a href="../../api/">API Reference</a> and <a href="../issuance/">Issuan
 <li>Open the Web Client at <strong><a href="http://localhost:4200">http://localhost:4200</a></strong></li>
 <li>Enter:<ul>
 <li><strong>EUDIPLO Instance</strong>: <code>http://localhost:3000</code></li>
-<li><strong>Client ID</strong>: <code>root</code></li>
-<li><strong>Client Secret</strong>: <code>root</code></li>
+<li><strong>Client ID</strong>: Your configured <code>AUTH_CLIENT_ID</code></li>
+<li><strong>Client Secret</strong>: Your configured <code>AUTH_CLIENT_SECRET</code></li>
 </ul>
 </li>
 <li>Click <strong>Login</strong></li>
 </ol>
-<div class="admonition info">
-<p class="admonition-title">Root credentials are configured via environment variables</p>
-<p>The default credentials (<code>root</code>/<code>root</code>) come from these environment variables:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>AUTH_CLIENT_ID=root
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>AUTH_CLIENT_SECRET=root
+<div class="admonition warning">
+<p class="admonition-title">Credentials are REQUIRED</p>
+<p>You must set these environment variables before starting the service:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>AUTH_CLIENT_ID=your-client-id
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>AUTH_CLIENT_SECRET=your-client-secret
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>MASTER_SECRET=your-32-character-minimum-secret
 </code></pre></div>
-<p>Change these in production! See <a href="../../api/authentication/">Authentication</a> for details.</p>
+<p>The application will fail to start without these values. See <a href="../../api/authentication/">Authentication</a> for details.</p>
 </div>
 <hr>
 <h2 id="step-2-create-your-first-tenant">Step 2: Create Your First Tenant<a class="headerlink" href="#step-2-create-your-first-tenant" title="Permanent link">¶</a></h2>

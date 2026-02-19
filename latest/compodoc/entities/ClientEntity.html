@@ -318,7 +318,7 @@ Only relevant if the client has the &#39;issuance:offer&#39; role.</p>
                 <td class="col-md-4">
                     <div class="io-description"><p>Optional list of presentation config IDs this client is allowed to use.
 If null or empty, the client can use all presentation configs (backward compatible).
-Only relevant if the client has the &#39;presentation:offer&#39; role.</p>
+Only relevant if the client has the &#39;presentation:request&#39; role.</p>
 </div>
                 </td>
             </tr>
@@ -642,7 +642,7 @@ export class ClientEntity {
     /**
      * Optional list of presentation config IDs this client is allowed to use.
      * If null or empty, the client can use all presentation configs (backward compatible).
-     * Only relevant if the client has the &#x27;presentation:offer&#x27; role.
+     * Only relevant if the client has the &#x27;presentation:request&#x27; role.
      */
     @ApiPropertyOptional({
         type: [String],

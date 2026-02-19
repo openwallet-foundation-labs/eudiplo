@@ -1,0 +1,923 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>@eudiplo/backend documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+        <link rel="stylesheet" href="../styles/material.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content interface">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Interfaces</li>
+  <li class="breadcrumb-item"
+  >
+  AuthorizationIdentity</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/issuer/configuration/credentials/credentials.service.ts</code>
+        </p>
+
+
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Identity context from authorization server token (internal or external AS).</p>
+
+            </p>
+
+
+        <section data-compodoc="block-index">
+            <h3 id="index">Index</h3>
+            <table class="table table-sm table-bordered index-table">
+                <tbody>
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Properties</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                        <a href="#iss" 
+>
+                                            iss
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#sub" 
+>
+                                            sub
+                                        </a>
+                                </li>
+                                <li>
+                                        <a href="#token_claims" 
+>
+                                            token_claims
+                                        </a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+
+            <section data-compodoc="block-properties">
+                <h3 id="inputs">Properties</h3>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="iss"></a>
+                                        <span class="name "><b>iss</b>
+                                            <a href="#iss">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>iss:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>The issuer (iss) of the authorization server</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="sub"></a>
+                                        <span class="name "><b>sub</b>
+                                            <a href="#sub">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>sub:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>The subject (sub) from the AS token - user identifier</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm table-bordered">
+                        <tbody>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <a name="token_claims"></a>
+                                        <span class="name "><b>token_claims</b>
+                                            <a href="#token_claims">
+                                                <span class="icon ion-ios-link"></span>
+                                            </a>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="col-md-4">
+                                        <code>token_claims:     <code>Record&lt;string | unknown&gt;</code>
+</code>
+                                    </td>
+                                </tr>
+
+
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Type : </i>    <code>Record&lt;string | unknown&gt;</code>
+
+                                        </td>
+                                    </tr>
+
+
+
+
+
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-description"><p>Additional claims from the access token</p>
+</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </section>
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ConflictException, Injectable } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
+import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
+import type { Jwk } from &quot;@openid4vc/oauth2&quot;;
+import type { CredentialConfigurationSupported } from &quot;@openid4vc/openid4vci&quot;;
+import Ajv from &quot;ajv/dist/2020&quot;;
+import { Repository } from &quot;typeorm&quot;;
+import { CryptoImplementationService } from &quot;../../../crypto/key/crypto-implementation/crypto-implementation.service&quot;;
+import { Session } from &quot;../../../session/entities/session.entity&quot;;
+import { SessionLogContext } from &quot;../../../shared/utils/logger/session-logger-context&quot;;
+import { WebhookConfig } from &quot;../../../shared/utils/webhook/webhook.dto&quot;;
+import { WebhookService } from &quot;../../../shared/utils/webhook/webhook.service&quot;;
+import { VCT } from &quot;../../issuance/oid4vci/metadata/dto/vct.dto&quot;;
+import {
+    CredentialConfig,
+    CredentialFormat,
+} from &quot;./entities/credential.entity&quot;;
+import { MdocIssuerService } from &quot;./issuer/mdoc-issuer/mdoc-issuer.service&quot;;
+import { SdjwtvcIssuerService } from &quot;./issuer/sdjwtvc-issuer/sdjwtvc-issuer.service&quot;;
+import {
+    buildMsoMdocConfig,
+    buildSdJwtDcConfig,
+    MSO_MDOC_FORMAT,
+    type TypedCredentialConfig,
+    toCredentialConfigurationSupported,
+} from &quot;./types/credential-config-types&quot;;
+
+/**
+ * Result of fetching claims from webhook.
+ * Either contains claims for immediate issuance or indicates deferred issuance.
+ */
+export interface ClaimsWebhookResult {
+    /**
+     * Claims data for the credential (when not deferred).
+     */
+    claims?: Record&lt;string, any&gt;;
+    /**
+     * Whether the issuance should be deferred.
+     */
+    deferred: boolean;
+    /**
+     * Recommended polling interval in seconds for deferred issuance.
+     */
+    interval?: number;
+}
+
+/**
+ * Identity context from authorization server token (internal or external AS).
+ */
+export interface AuthorizationIdentity {
+    /**
+     * The issuer (iss) of the authorization server
+     */
+    iss: string;
+    /**
+     * The subject (sub) from the AS token - user identifier
+     */
+    sub: string;
+    /**
+     * Additional claims from the access token
+     */
+    token_claims: Record&lt;string, unknown&gt;;
+}
+
+/**
+ * Service for managing credentials and their configurations.
+ * Delegates actual credential issuance to format-specific services.
+ */
+@Injectable()
+export class CredentialsService {
+    /**
+     * Constructor for CredentialsService.
+     * @param configService
+     * @param credentialConfigRepo
+     * @param webhookService
+     * @param sdjwtvcIssuerService
+     * @param mdocIssuerService
+     * @param cryptoImplementationService
+     */
+    constructor(
+        private readonly configService: ConfigService,
+        @InjectRepository(CredentialConfig)
+        private readonly credentialConfigRepo: Repository&lt;CredentialConfig&gt;,
+        private readonly webhookService: WebhookService,
+        private readonly sdjwtvcIssuerService: SdjwtvcIssuerService,
+        private readonly mdocIssuerService: MdocIssuerService,
+        private readonly cryptoImplementationService: CryptoImplementationService,
+    ) {}
+
+    /**
+     * Returns a single credential configuration by ID.
+     * @param id The credential configuration ID
+     * @param tenantId The tenant ID
+     * @returns The credential configuration or null if not found
+     */
+    async getCredentialConfig(
+        id: string,
+        tenantId: string,
+    ): Promise&lt;CredentialConfig | null&gt; {
+        return this.credentialConfigRepo.findOneBy({ id, tenantId });
+    }
+
+    /**
+     * Returns the credential configuration that is required for oid4vci
+     * @param tenantId
+     * @returns
+     */
+    async getCredentialConfigurationSupported(
+        tenantId: string,
+    ): Promise&lt;Record&lt;string, CredentialConfigurationSupported&gt;&gt; {
+        const credentialConfigurationsSupported: Record&lt;
+            string,
+            CredentialConfigurationSupported
+        &gt; &#x3D; {};
+
+        const configs &#x3D; await this.credentialConfigRepo.findBy({
+            tenantId,
+        });
+
+        for (const entity of configs) {
+            const builtConfig &#x3D; this.buildCredentialConfiguration(
+                entity,
+                tenantId,
+            );
+            credentialConfigurationsSupported[entity.id] &#x3D;
+                toCredentialConfigurationSupported(
+                    builtConfig,
+                ) as CredentialConfigurationSupported;
+        }
+        return credentialConfigurationsSupported;
+    }
+
+    /**
+     * Builds a typed credential configuration from the stored entity.
+     * Uses format-specific builders for proper type safety.
+     * @param entity The credential config entity from the database
+     * @param tenantId The tenant ID for generating URLs
+     * @returns A properly typed credential configuration
+     */
+    private buildCredentialConfiguration(
+        entity: CredentialConfig,
+        tenantId: string,
+    ): TypedCredentialConfig &amp; { disclosure_policy?: unknown } {
+        const format &#x3D; entity.config.format;
+
+        if (format &#x3D;&#x3D;&#x3D; MSO_MDOC_FORMAT) {
+            // For mDOC, algorithms are COSE numbers
+            const algs &#x3D; this.cryptoImplementationService.getAlgs(
+                format,
+            ) as number[];
+            return this.buildMdocConfiguration(entity, algs);
+        } else {
+            // For SD-JWT, algorithms are JOSE strings
+            const algs &#x3D; this.cryptoImplementationService.getAlgs(
+                format,
+            ) as string[];
+            return this.buildSdJwtConfiguration(entity, tenantId, algs);
+        }
+    }
+
+    /**
+     * Builds an mDOC credential configuration
+     */
+    private buildMdocConfiguration(
+        entity: CredentialConfig,
+        algs: number[],
+    ): TypedCredentialConfig &amp; { disclosure_policy?: unknown } {
+        const doctype &#x3D; entity.config.docType;
+        if (!doctype) {
+            throw new ConflictException(
+                &#x60;mDOC credential configuration ${entity.id} missing required docType&#x60;,
+            );
+        }
+
+        const config &#x3D; buildMsoMdocConfig(
+            doctype,
+            {
+                signingAlgorithms: algs,
+                bindingMethods: [&quot;cose_key&quot;],
+                proofTypesSupported: {
+                    jwt: {
+                        proof_signing_alg_values_supported:
+                            this.cryptoImplementationService.getAlgs(
+                                CredentialFormat.SD_JWT,
+                            ) as string[],
+                    },
+                },
+            },
+            entity.config.display
+                ? { display: entity.config.display }
+                : undefined,
+            entity.config.scope,
+        );
+
+        // Add disclosure policy if present
+        if (entity.embeddedDisclosurePolicy) {
+            const policy &#x3D; { ...entity.embeddedDisclosurePolicy };
+            delete (policy as Record&lt;string, unknown&gt;)[&quot;$schema&quot;];
+            return { ...config, disclosure_policy: policy };
+        }
+
+        return config;
+    }
+
+    /**
+     * Builds an SD-JWT (dc+sd-jwt) credential configuration
+     */
+    private buildSdJwtConfiguration(
+        entity: CredentialConfig,
+        tenantId: string,
+        algs: string[],
+    ): TypedCredentialConfig &amp; { disclosure_policy?: unknown } {
+        // Resolve VCT - can be a string URI, an object (hosted by EUDIPLO), or null
+        let vct: string;
+        if (entity.vct &amp;&amp; typeof entity.vct &#x3D;&#x3D;&#x3D; &quot;object&quot;) {
+            // Generate URL for object-based vct hosted by EUDIPLO
+            vct &#x3D; &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${tenantId}/credentials-metadata/vct/${entity.id}&#x60;;
+        } else if (typeof entity.vct &#x3D;&#x3D;&#x3D; &quot;string&quot;) {
+            // Use the string URI directly
+            vct &#x3D; entity.vct;
+        } else {
+            throw new ConflictException(
+                &#x60;SD-JWT credential configuration ${entity.id} missing required vct&#x60;,
+            );
+        }
+
+        const config &#x3D; buildSdJwtDcConfig(
+            vct,
+            {
+                signingAlgorithms: algs,
+                bindingMethods: [&quot;jwk&quot;],
+                proofTypesSupported: {
+                    jwt: {
+                        proof_signing_alg_values_supported: algs,
+                    },
+                },
+            },
+            entity.config.display
+                ? { display: entity.config.display }
+                : undefined,
+            entity.config.scope,
+        );
+
+        // Add disclosure policy if present
+        if (entity.embeddedDisclosurePolicy) {
+            const policy &#x3D; { ...entity.embeddedDisclosurePolicy };
+            delete (policy as Record&lt;string, unknown&gt;)[&quot;$schema&quot;];
+            return { ...config, disclosure_policy: policy };
+        }
+
+        return config;
+    }
+
+    /**
+     * Validates the provided claims against the schema defined in the credential configuration.
+     * @param credentialConfigurationId
+     * @param claims
+     * @returns
+     */
+    validateClaimsForCredential(
+        credentialConfigurationId: string,
+        claims: Record&lt;string, unknown&gt;,
+    ) {
+        // AJV instance with draft 2020-12 meta-schema support.
+        // removeAdditional:&quot;all&quot; ensures only schema-declared properties remain on the claims object.
+        const ajv &#x3D; new Ajv({
+            allErrors: true,
+            strict: true,
+            removeAdditional: &quot;all&quot;, // strip properties not defined in the schema
+            useDefaults: true, // optionally apply default values from schema
+        });
+        //fetch the credential configuration
+        return this.credentialConfigRepo
+            .findOneByOrFail({ id: credentialConfigurationId })
+            .then((credentialConfiguration) &#x3D;&gt; {
+                //if a schema is defined, validate the claims against it
+                if (credentialConfiguration.schema) {
+                    const validate &#x3D; ajv.compile(
+                        credentialConfiguration.schema,
+                    );
+                    const valid &#x3D; validate(claims); // claims mutated: unknown props removed, defaults applied
+                    if (!valid) {
+                        throw new ConflictException(
+                            &#x60;Claims do not conform to the schema for credential configuration with id ${credentialConfigurationId}: ${ajv.errorsText(
+                                validate.errors,
+                            )}&#x60;,
+                        );
+                    }
+                }
+            });
+    }
+
+    /**
+     * Fetches claims for a credential configuration from webhook.
+     * Unified method that works for both internal and external AS flows.
+     *
+     * Webhook resolution priority:
+     * 1. Webhook passed at offer time via session.credentialPayload.credentialClaims
+     * 2. claimsWebhook configured on the credential configuration
+     *
+     * The webhook receives a unified payload:
+     * - session: Session ID
+     * - credential_configuration_id: The credential being requested
+     * - identity: (optional) Identity context from AS token (iss, sub, token_claims)
+     * - credentials: (optional) Presented credentials from presentation flow
+     *
+     * @param credentialConfigurationId The credential configuration ID
+     * @param session The session associated with this request
+     * @param options Optional parameters for the webhook
+     * @param options.identity Identity context from authorization server (internal or external)
+     * @param options.credentials Presented credentials (for presentation flows)
+     * @param options.requireWebhook If true, throws if no webhook is configured (default: false)
+     * @returns The fetched claims result including deferred flag, or undefined if no webhook is configured
+     */
+    async getClaimsFromWebhook(
+        credentialConfigurationId: string,
+        session: Session,
+        options?: {
+            identity?: AuthorizationIdentity;
+            credentials?: any[];
+            requireWebhook?: boolean;
+        },
+    ): Promise&lt;ClaimsWebhookResult | undefined&gt; {
+        // First check for claims source passed at offer time via credentialClaims
+        const claimsSource &#x3D;
+            session.credentialPayload?.credentialClaims?.[
+                credentialConfigurationId
+            ];
+        let webhook: WebhookConfig | undefined | null;
+
+        // Handle inline claims - return directly without webhook call
+        if (claimsSource?.type &#x3D;&#x3D;&#x3D; &quot;inline&quot;) {
+            return {
+                deferred: false,
+                claims: claimsSource.claims,
+            };
+        }
+
+        if (claimsSource?.type &#x3D;&#x3D;&#x3D; &quot;webhook&quot;) {
+            webhook &#x3D; claimsSource.webhook;
+        } else {
+            // Fall back to credential config&#x27;s claimsWebhook
+            const credentialConfiguration &#x3D;
+                await this.credentialConfigRepo.findOneBy({
+                    tenantId: session.tenantId,
+                    id: credentialConfigurationId,
+                });
+
+            if (!credentialConfiguration) {
+                throw new ConflictException(
+                    &#x60;Credential configuration &#x27;${credentialConfigurationId}&#x27; not found&#x60;,
+                );
+            }
+            webhook &#x3D; credentialConfiguration.claimsWebhook;
+        }
+
+        // No webhook configured
+        if (!webhook) {
+            if (options?.requireWebhook) {
+                throw new ConflictException(
+                    &#x60;Authorization code flow requires claimsWebhook to be configured on credential &#x27;${credentialConfigurationId}&#x27; &#x60; +
+                        &#x60;or provided at offer time.&#x60;,
+                );
+            }
+            return undefined;
+        }
+
+        const logContext: SessionLogContext &#x3D; {
+            sessionId: session.id,
+            tenantId: session.tenantId,
+            flowType: &quot;OID4VCI&quot;,
+            stage: &quot;fetching-claims-webhook&quot;,
+        };
+
+        // Send webhook with unified payload
+        const response &#x3D; await this.webhookService.sendClaimsWebhook({
+            webhook,
+            logContext,
+            session: session.id,
+            credentialConfigurationId,
+            identity: options?.identity,
+            credentials: options?.credentials,
+        });
+
+        // Check if the webhook response indicates deferred issuance
+        if (response.deferred) {
+            return {
+                deferred: true,
+                interval: response.interval ?? 5,
+            };
+        }
+
+        // Return claims for immediate issuance
+        return {
+            deferred: false,
+            claims: response[credentialConfigurationId] as Record&lt;string, any&gt;,
+        };
+    }
+
+    /**
+     * Issues a credential based on the provided configuration and session.
+     * Delegates to format-specific issuer services.
+     * @param credentialConfigurationId
+     * @param holderCnf
+     * @param session
+     * @param preloadedClaims Optional claims fetched from webhook (to avoid redundant calls in batch)
+     * @returns
+     */
+    async getCredential(
+        credentialConfigurationId: string,
+        holderCnf: Jwk,
+        session: Session,
+        preloadedClaims?: Record&lt;string, any&gt;,
+    ) {
+        const credentialConfiguration &#x3D;
+            await this.credentialConfigRepo.findOneByOrFail({
+                tenantId: session.tenantId,
+                id: credentialConfigurationId,
+            });
+
+        if (!credentialConfiguration)
+            throw new ConflictException(
+                &#x60;Credential configuration with id ${credentialConfigurationId} not found&#x60;,
+            );
+
+        /**
+         * Priority of the claims
+         * 1. fetched via passed webhook (preloadedClaims)
+         * 2. inline claims stored in the session
+         * 3. webhook from the credential configuration
+         * 4. static claims from the credential configuration
+         */
+        // Extract claims from the session&#x27;s credentialClaims (discriminated union)
+        let usedClaims &#x3D; credentialConfiguration.claims ?? {}; // default fallback
+
+        // Use preloaded claims if provided (from webhook or inline)
+        if (preloadedClaims) {
+            usedClaims &#x3D; preloadedClaims;
+        } else {
+            // Fallback: check if inline claims are in the session
+            const claimsSource &#x3D;
+                session.credentialPayload?.credentialClaims?.[
+                    credentialConfigurationId
+                ];
+            if (claimsSource?.type &#x3D;&#x3D;&#x3D; &quot;inline&quot;) {
+                usedClaims &#x3D; claimsSource.claims;
+            } else if (credentialConfiguration.claimsWebhook) {
+                const logContext: SessionLogContext &#x3D; {
+                    sessionId: session.id,
+                    tenantId: session.tenantId,
+                    flowType: &quot;OID4VCI&quot;,
+                    stage: &quot;fetching-claims-webhook&quot;,
+                };
+                const webhookResponse &#x3D; await this.webhookService.sendWebhook({
+                    webhook: credentialConfiguration.claimsWebhook,
+                    logContext,
+                    session,
+                    expectResponse: true,
+                });
+                if (webhookResponse?.[credentialConfigurationId]) {
+                    usedClaims &#x3D; webhookResponse[
+                        credentialConfigurationId
+                    ] as Record&lt;string, any&gt;;
+                }
+            }
+        }
+
+        // Delegate to format-specific issuer service
+        const format &#x3D; credentialConfiguration.config.format;
+
+        if (format &#x3D;&#x3D;&#x3D; &quot;mso_mdoc&quot;) {
+            // For mDOC, holderCnf is the device key
+            return this.mdocIssuerService.issue({
+                credentialConfiguration,
+                deviceKey: holderCnf,
+                session,
+                claims: usedClaims,
+            });
+        } else {
+            // Default to SD-JWT VC (handles &quot;dc+sd-jwt&quot; and &quot;vc+sd-jwt&quot; formats)
+            return this.sdjwtvcIssuerService.issue({
+                credentialConfiguration,
+                holderCnf,
+                session,
+                claims: usedClaims,
+            });
+        }
+    }
+
+    /**
+     * Retrieves the VCT (Verifiable Credential Type) for a specific credential configuration.
+     * @param credentialId
+     * @param tenantId
+     * @returns
+     */
+    async getVCT(credentialId: string, tenantId: string): Promise&lt;VCT&gt; {
+        const credentialConfig &#x3D; await this.credentialConfigRepo
+            .findOneByOrFail({
+                id: credentialId,
+                tenantId,
+            })
+            .catch(() &#x3D;&gt; {
+                throw new ConflictException(
+                    &#x60;Credential configuration with id ${credentialId} not found&#x60;,
+                );
+            });
+        if (!credentialConfig.vct) {
+            throw new ConflictException(
+                &#x60;VCT for credential configuration with id ${credentialId} not found&#x60;,
+            );
+        }
+        // If vct is a string URI, this endpoint doesn&#x27;t apply
+        if (typeof credentialConfig.vct &#x3D;&#x3D;&#x3D; &quot;string&quot;) {
+            throw new ConflictException(
+                &#x60;VCT for credential configuration with id ${credentialId} is a URI, not hosted by this server&#x60;,
+            );
+        }
+        const host &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
+        credentialConfig.vct.vct &#x3D; &#x60;${host}/${tenantId}/credentials-metadata/vct/${credentialConfig.id}&#x60;;
+        return credentialConfig.vct;
+    }
+}
+</code></pre>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
+            var COMPODOC_CURRENT_PAGE_URL = 'AuthorizationIdentity.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>

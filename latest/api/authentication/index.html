@@ -9,14 +9,14 @@
         <link rel="prev" href="../">
       
       
-        <link rel="next" href="../openapi/">
+        <link rel="next" href="../session-events/">
       
       
         
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
     
     
       
@@ -933,6 +933,8 @@
       
         
       
+        
+      
     
     
     
@@ -979,6 +981,34 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/keycloak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Keycloak Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1228,6 +1258,8 @@
       
         
           
+        
+      
         
       
         
@@ -1511,6 +1543,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../architecture/chained-as/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chained Authorization Server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../architecture/configuration-import/" class="md-nav__link">
         
   
@@ -1636,6 +1696,8 @@
       
         
           
+        
+      
         
       
         
@@ -1986,6 +2048,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../session-events/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Session Events (SSE)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2668,9 +2758,9 @@ for service-to-service communication without user interaction.</p>
 <td>Expected JWT alg [when OIDC is set → then default="RS256"]</td>
 </tr>
 <tr>
-<td><code>JWT_SECRET</code></td>
+<td><code>MASTER_SECRET</code></td>
 <td><code>any</code></td>
-<td>Local JWT secret (when OIDC is off) [when OIDC is set → otherwise default="supersecret"]</td>
+<td>Master secret for JWT signing and encryption key derivation - required, minimum 32 characters [when OIDC is set → otherwise required]</td>
 </tr>
 <tr>
 <td><code>JWT_ISSUER</code></td>
@@ -2685,12 +2775,12 @@ for service-to-service communication without user interaction.</p>
 <tr>
 <td><code>AUTH_CLIENT_SECRET</code></td>
 <td><code>any</code></td>
-<td>Client secret (local auth) [when OIDC is set → otherwise default="root"]</td>
+<td>Client secret (local auth) - required when OIDC is not enabled [when OIDC is set → otherwise required]</td>
 </tr>
 <tr>
 <td><code>AUTH_CLIENT_ID</code></td>
 <td><code>any</code></td>
-<td>Client ID (local auth) [when OIDC is set → otherwise default="root"]</td>
+<td>Client ID (local auth) - required when OIDC is not enabled [when OIDC is set → otherwise required]</td>
 </tr>
 </tbody>
 </table>
@@ -2775,10 +2865,11 @@ integrate with external OIDC providers like Keycloak, Auth0, or Azure AD.</p>
 </code></pre></div>
 <h3 id="integrated-oauth2-server">Integrated OAuth2 Server<a class="headerlink" href="#integrated-oauth2-server" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Leave OIDC undefined for integrated OAuth2 server</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nv">PUBLIC_URL</span><span class="o">=</span>https://your-api.example.com
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nv">JWT_SECRET</span><span class="o">=</span>your-secret-key-here-minimum-32-characters
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="nv">AUTH_CLIENT_ID</span><span class="o">=</span>root
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="nv">AUTH_CLIENT_SECRET</span><span class="o">=</span>root
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="c1"># All three values below are REQUIRED</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nv">PUBLIC_URL</span><span class="o">=</span>https://your-api.example.com
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="nv">MASTER_SECRET</span><span class="o">=</span>your-secret-key-here-minimum-32-characters
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="nv">AUTH_CLIENT_ID</span><span class="o">=</span>your-client-id
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="nv">AUTH_CLIENT_SECRET</span><span class="o">=</span>your-client-secret
 </code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Security: Secrets are hashed</p>
@@ -2799,7 +2890,7 @@ variables, see <a href="../../architecture/key-management/">Key Management</a> a
 <a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="c1">//to manage presentation resources</span>
 <a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="nx">Presentations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"presentation:manage"</span><span class="p">,</span>
 <a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="c1">// to create offers</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="nx">PresentationOffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"presentation:offer"</span><span class="p">,</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="nx">PresentationRequest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"presentation:request"</span><span class="p">,</span>
 <a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="c1">// to manage issuance resources</span>
 <a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="nx">Issuances</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"issuance:manage"</span><span class="p">,</span>
 <a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="c1">// to create offers</span>
@@ -2819,7 +2910,7 @@ variables, see <a href="../../architecture/key-management/">Key Management</a> a
 <a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Tenants</span><span class="p">,</span>
 <a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">IssuanceOffer</span><span class="p">,</span>
 <a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Issuances</span><span class="p">,</span>
-<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">PresentationOffer</span><span class="p">,</span>
+<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">PresentationRequest</span><span class="p">,</span>
 <a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Presentations</span><span class="p">,</span>
 <a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Clients</span><span class="p">,</span>
 <a id="__codelineno-5-31" name="__codelineno-5-31" href="#__codelineno-5-31"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Registrar</span><span class="p">,</span>
@@ -2839,14 +2930,14 @@ variables, see <a href="../../architecture/key-management/">Key Management</a> a
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
 <a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="s1">    "clientId": "partner-service",</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="s1">    "roles": ["presentation:offer", "issuance:offer"],</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="s1">    "roles": ["presentation:request", "issuance:offer"],</span>
 <a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="s1">    "allowedPresentationConfigs": ["age-verification", "identity-check"],</span>
 <a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="s1">    "allowedIssuanceConfigs": ["partner-credential"]</span>
 <a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="s1">  }'</span>
 </code></pre></div>
 <p>This client can only:</p>
 <ul>
-<li>Create presentation offers for <code>age-verification</code> and <code>identity-check</code> configs</li>
+<li>Create presentation requests for <code>age-verification</code> and <code>identity-check</code> configs</li>
 <li>Create issuance offers for <code>partner-credential</code> config</li>
 </ul>
 <p>If the client attempts to use a config not in their allowed list, a <code>403 Forbidden</code> error is returned.</p>
@@ -2866,7 +2957,7 @@ variables, see <a href="../../architecture/key-management/">Key Management</a> a
 </ol>
 <h3 id="integrated-oauth2-server-issues">Integrated OAuth2 Server Issues<a class="headerlink" href="#integrated-oauth2-server-issues" title="Permanent link">¶</a></h3>
 <ol>
-<li>Verify <code>JWT_SECRET</code> is at least 32 characters</li>
+<li>Verify <code>MASTER_SECRET</code> is at least 32 characters</li>
 <li>Ensure client credentials (<code>AUTH_CLIENT_ID</code>/<code>AUTH_CLIENT_SECRET</code>) are
    configured correctly</li>
 <li>Check that <code>PUBLIC_URL</code> is accessible for OAuth2 flows</li>
@@ -2931,13 +3022,13 @@ variables, see <a href="../../architecture/key-management/">Key Management</a> a
         
         
           
-          <a href="../openapi/" class="md-footer__link md-footer__link--next" aria-label="Next: OpenApi">
+          <a href="../session-events/" class="md-footer__link md-footer__link--next" aria-label="Next: Session Events (SSE)">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                OpenApi
+                Session Events (SSE)
               </div>
             </div>
             <div class="md-footer__button md-icon">
