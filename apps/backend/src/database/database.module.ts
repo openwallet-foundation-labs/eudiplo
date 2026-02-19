@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { join } from "path";
 import { DataSource } from "typeorm";
+import * as migrations from "./migrations";
 
 @Module({
     imports: [
@@ -29,7 +30,7 @@ import { DataSource } from "typeorm";
                     synchronize,
                     autoLoadEntities: true,
                     migrationsRun,
-                    migrations: [join(__dirname, "migrations", "*.{ts,js}")],
+                    migrations: Object.values(migrations),
                     migrationsTableName: "typeorm_migrations",
                 };
 
