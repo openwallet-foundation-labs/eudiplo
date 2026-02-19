@@ -46,7 +46,7 @@ spec:
             capabilities:
               drop:
                 - ALL
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: false
             runAsNonRoot: true
           readinessProbe:
             httpGet:
@@ -76,3 +76,10 @@ spec:
             limits:
               cpu: "250m"
               memory: "256Mi"
+          env:
+            - name: API_BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: eudiplo-env
+                  key: PUBLIC_URL
+                  optional: true

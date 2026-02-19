@@ -48,7 +48,7 @@ export class KeyModule {
                         tenantRepository: Repository<TenantEntity>,
                         configImportOrchestrator: ConfigImportOrchestratorService,
                     ) => {
-                        const kmType = configService.get<"vault" | "file">(
+                        const kmType = configService.get<"vault" | "db">(
                             "KM_TYPE",
                         );
                         if (kmType === "vault") {
