@@ -185,7 +185,7 @@ Full setup:
 We welcome PRs from wallet developers, institutions, and contributors interested
 in advancing the EUDI Wallet ecosystem.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.MD) for guidelines.
 
 💬 **Have questions?** Join our
 [Discord community](https://discord.gg/58ys8XfXDu) to ask questions, get help,
