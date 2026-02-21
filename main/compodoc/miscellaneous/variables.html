@@ -926,7 +926,7 @@ This decorator can be used to determine the media type of the request.</p>
     DB_HOST: Joi.string()
         .when(&quot;DB_TYPE&quot;, {
             is: &quot;sqlite&quot;,
-            then: Joi.optional(),
+            then: Joi.optional().allow(&quot;&quot;),
             otherwise: Joi.required(),
         })
         .description(&quot;Database host&quot;)
@@ -934,7 +934,7 @@ This decorator can be used to determine the media type of the request.</p>
     DB_PORT: Joi.number()
         .when(&quot;DB_TYPE&quot;, {
             is: &quot;sqlite&quot;,
-            then: Joi.optional(),
+            then: Joi.optional().allow(&quot;&quot;),
             otherwise: Joi.required(),
         })
         .description(&quot;Database port&quot;)
@@ -942,7 +942,7 @@ This decorator can be used to determine the media type of the request.</p>
     DB_USERNAME: Joi.string()
         .when(&quot;DB_TYPE&quot;, {
             is: &quot;sqlite&quot;,
-            then: Joi.optional(),
+            then: Joi.optional().allow(&quot;&quot;),
             otherwise: Joi.required(),
         })
         .description(&quot;Database username&quot;)
@@ -950,7 +950,7 @@ This decorator can be used to determine the media type of the request.</p>
     DB_PASSWORD: Joi.string()
         .when(&quot;DB_TYPE&quot;, {
             is: &quot;sqlite&quot;,
-            then: Joi.optional(),
+            then: Joi.optional().allow(&quot;&quot;),
             otherwise: Joi.required(),
         })
         .description(&quot;Database password&quot;)
@@ -958,7 +958,7 @@ This decorator can be used to determine the media type of the request.</p>
     DB_DATABASE: Joi.string()
         .when(&quot;DB_TYPE&quot;, {
             is: &quot;sqlite&quot;,
-            then: Joi.optional(),
+            then: Joi.optional().allow(&quot;&quot;),
             otherwise: Joi.required(),
         })
         .description(&quot;Database name&quot;)
