@@ -109,7 +109,7 @@ EUDIPLO supports two modes for matching certificates:
 Create a JSON file in `config/{tenant}/trust-lists/`:
 
 ```json
---8<-- "assets/config/root/trust-lists/pid.json"
+--8<-- "assets/config/demo/trust-lists/pid.json"
 ```
 
 ### Via API

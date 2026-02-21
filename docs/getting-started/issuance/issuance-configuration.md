@@ -9,7 +9,7 @@ Issuance configurations define the parameters and settings for the issuance of c
 **Example Issuance Configuration:**
 
 ```json
---8<-- "assets/config/root/issuance/issuance.json"
+--8<-- "assets/config/demo/issuance/issuance.json"
 ```
 
 !!! Info
