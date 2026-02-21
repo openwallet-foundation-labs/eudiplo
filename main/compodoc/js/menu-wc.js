@@ -256,13 +256,13 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="modules/EncryptionModule.html" data-type="entity-link" >EncryptionModule</a>
                                 <li class="chapter inner">
                                     <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
-                                        'data-bs-target="#injectables-links-module-EncryptionModule-31356cd6c121c5592f8982633af86a06bb9149c24762bb77c8fba336530a55e3fdc1e8d5e7dccce6ec8c2609507071e696b0a6c621195391c02c533b8f3475f9"' : 'data-bs-target="#xs-injectables-links-module-EncryptionModule-31356cd6c121c5592f8982633af86a06bb9149c24762bb77c8fba336530a55e3fdc1e8d5e7dccce6ec8c2609507071e696b0a6c621195391c02c533b8f3475f9"' }>
+                                        'data-bs-target="#injectables-links-module-EncryptionModule-fddb86254d3a580111ad753be5591f9b33d4febfd5b368129eafb329b16bcde6af663cd5a856f3aa556da2162430acf6fbdd3fd0a8347f2f09a639d639666d50"' : 'data-bs-target="#xs-injectables-links-module-EncryptionModule-fddb86254d3a580111ad753be5591f9b33d4febfd5b368129eafb329b16bcde6af663cd5a856f3aa556da2162430acf6fbdd3fd0a8347f2f09a639d639666d50"' }>
                                         <span class="icon ion-md-arrow-round-down"></span>
                                         <span>Injectables</span>
                                         <span class="icon ion-ios-arrow-down"></span>
                                     </div>
-                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-EncryptionModule-31356cd6c121c5592f8982633af86a06bb9149c24762bb77c8fba336530a55e3fdc1e8d5e7dccce6ec8c2609507071e696b0a6c621195391c02c533b8f3475f9"' :
-                                        'id="xs-injectables-links-module-EncryptionModule-31356cd6c121c5592f8982633af86a06bb9149c24762bb77c8fba336530a55e3fdc1e8d5e7dccce6ec8c2609507071e696b0a6c621195391c02c533b8f3475f9"' }>
+                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-EncryptionModule-fddb86254d3a580111ad753be5591f9b33d4febfd5b368129eafb329b16bcde6af663cd5a856f3aa556da2162430acf6fbdd3fd0a8347f2f09a639d639666d50"' :
+                                        'id="xs-injectables-links-module-EncryptionModule-fddb86254d3a580111ad753be5591f9b33d4febfd5b368129eafb329b16bcde6af663cd5a856f3aa556da2162430acf6fbdd3fd0a8347f2f09a639d639666d50"' }>
                                         <li class="link">
                                             <a href="injectables/EncryptionService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >EncryptionService</a>
                                         </li>

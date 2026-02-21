@@ -713,7 +713,7 @@ export class CryptoImplementationService {
     private readonly cryptoMap: Map&lt;CryptoType, CryptoImplementation&gt;;
     private cachedDefaultAlg: CryptoType | null &#x3D; null;
 
-    constructor(private configService: ConfigService) {
+    constructor(private readonly configService: ConfigService) {
         // Initialize the map of algorithms to implementations
         this.cryptoMap &#x3D; new Map([
             [&quot;ES256&quot;, ES256],

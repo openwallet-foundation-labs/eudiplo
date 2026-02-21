@@ -282,8 +282,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="33"
-                                    class="link-to-prism">src/auth/auth.service.ts:33</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="34"
+                                    class="link-to-prism">src/auth/auth.service.ts:34</a></div>
                         </td>
                     </tr>
 
@@ -363,8 +363,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="120"
-                                    class="link-to-prism">src/auth/auth.service.ts:120</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="121"
+                                    class="link-to-prism">src/auth/auth.service.ts:121</a></div>
                         </td>
                     </tr>
 
@@ -413,9 +413,10 @@ export class AuthService {
      * @param configService
      */
     constructor(
-        private jwtService: JwtService,
-        @Inject(CLIENTS_PROVIDER) private clients: InternalClientsProvider,
-        private configService: ConfigService,
+        private readonly jwtService: JwtService,
+        @Inject(CLIENTS_PROVIDER)
+        private readonly clients: InternalClientsProvider,
+        private readonly configService: ConfigService,
     ) {}
 
     /**

@@ -556,13 +556,13 @@
     mkdirSync,
     rmSync,
     statSync,
-} from &quot;fs&quot;;
-import { dirname, join } from &quot;path&quot;;
+} from &quot;node:fs&quot;;
+import { dirname, join } from &quot;node:path&quot;;
 import { Readable } from &quot;stream&quot;;
 import { FileStorage, PutOptions, StoredObject } from &quot;../storage.types&quot;;
 
 export class LocalFileStorage implements FileStorage {
-    constructor(private baseDir: string) {}
+    constructor(private readonly baseDir: string) {}
 
     async put(
         key: string,
