@@ -1,0 +1,4 @@
+{
+    "name": "HAIP Test Tenant",
+    "description": "Tenant for HAIP conformance tests with wallet attestation and DPoP"
+}

@@ -1,0 +1,15 @@
+{
+    "authServers": [],
+    "batchSize": 10,
+    "dPopRequired": true,
+    "walletAttestationRequired": true,
+    "display": [
+        {
+            "locale": "en-US",
+            "name": "HAIP Test Issuer",
+            "logo": {
+                "uri": "company.png"
+            }
+        }
+    ]
+}

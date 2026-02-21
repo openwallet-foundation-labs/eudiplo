@@ -74,7 +74,7 @@ export class WellKnownService {
      * Returns the OAuth 2.0 Authorization Server metadata for a given tenant.
      * @returns
      */
-    getAuthzMetadata(tenantId: string) {
+    async getAuthzMetadata(tenantId: string) {
         return this.authorizeService.authzMetadata(tenantId);
     }
 
@@ -95,7 +95,9 @@ export class WellKnownService {
      * @param tenantId
      * @returns
      */
-    getChainedAsMetadata(tenantId: string): Record<string, unknown> {
+    async getChainedAsMetadata(
+        tenantId: string,
+    ): Promise<Record<string, unknown>> {
         return this.chainedAsService.getMetadata(tenantId);
     }
 }

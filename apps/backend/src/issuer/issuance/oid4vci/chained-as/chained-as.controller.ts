@@ -261,7 +261,9 @@ export class ChainedAsController {
         status: 200,
         description: "OAuth AS metadata",
     })
-    getMetadata(@Param("tenant") tenantId: string): Record<string, unknown> {
+    getMetadata(
+        @Param("tenant") tenantId: string,
+    ): Promise<Record<string, unknown>> {
         return this.chainedAsService.getMetadata(tenantId);
     }
 }

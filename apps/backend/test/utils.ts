@@ -474,14 +474,14 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
         } as CertImportDto)
         .expect(201);
 
-    const configFolder = resolve(__dirname + "/../../../assets/config");
+    const configFolder = resolve(__dirname + "/fixtures");
 
     // Import image
     await request(app.getHttpServer())
         .post("/storage")
         .trustLocalhost()
         .set("Authorization", `Bearer ${authToken}`)
-        .attach("file", join(configFolder, "demo/images/company.png"))
+        .attach("file", join(configFolder, "basic/images/company.png"))
         .expect(201);
 
     // Import issuance config
@@ -491,7 +491,7 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
         .set("Authorization", `Bearer ${authToken}`)
         .send(
             readConfig<IssuanceDto>(
-                join(configFolder, "demo/issuance/issuance.json"),
+                join(configFolder, "basic/issuance/issuance.json"),
             ),
         )
         .expect(201);
@@ -503,7 +503,7 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
         .set("Authorization", `Bearer ${authToken}`)
         .send(
             readConfig<CredentialConfigCreate>(
-                join(configFolder, "demo/issuance/credentials/pid.json"),
+                join(configFolder, "basic/issuance/credentials/pid.json"),
             ),
         )
         .expect(201);
@@ -515,7 +515,7 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
         .set("Authorization", `Bearer ${authToken}`)
         .send(
             readConfig<PresentationConfigCreateDto>(
-                join(configFolder, "demo/presentation/pid.json"),
+                join(configFolder, "basic/presentation/pid.json"),
             ),
         )
         .expect(201);
@@ -527,7 +527,7 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
         .set("Authorization", `Bearer ${authToken}`)
         .send(
             readConfig<CredentialConfigCreate>(
-                join(configFolder, "demo/issuance/credentials/citizen.json"),
+                join(configFolder, "basic/issuance/credentials/citizen.json"),
             ),
         )
         .expect(201);
@@ -539,7 +539,7 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
         .set("Authorization", `Bearer ${authToken}`)
         .send(
             readConfig<CredentialConfigCreate>(
-                join(configFolder, "demo/issuance/credentials/pid-mdoc.json"),
+                join(configFolder, "basic/issuance/credentials/pid-mdoc.json"),
             ),
         )
         .expect(201);
@@ -577,7 +577,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
     app.useGlobalPipes(new ValidationPipe());
 
     const configService = app.get(ConfigService);
-    const configFolder = resolve(__dirname + "/../../../assets/config");
+    const configFolder = resolve(__dirname + "/fixtures");
     configService.set("CONFIG_FOLDER", configFolder);
     const host = configService.getOrThrow("PUBLIC_URL");
     const clientId = configService.getOrThrow<string>("AUTH_CLIENT_ID");
@@ -608,7 +608,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
 
     // Import signing key and cert
     const privateKey = readConfig<KeyImportDto>(
-        join(configFolder, "demo/keys/sign.json"),
+        join(configFolder, "basic/keys/sign.json"),
     );
 
     const privateIssuerKey = (await importJWK(privateKey.key, "ES256", {
@@ -624,7 +624,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
     );
 
     const cert = readConfig<CertImportDto>(
-        join(configFolder, "demo/certs/cert.json"),
+        join(configFolder, "basic/certs/cert.json"),
     );
     const issuerCert = cert.crt![0];
     await expectRequest(
@@ -643,7 +643,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
             .set("Authorization", `Bearer ${authToken}`)
             .send(
                 readConfig<PresentationConfigCreateDto>(
-                    join(configFolder, "demo/presentation/pid-no-hook.json"),
+                    join(configFolder, "basic/presentation/pid-no-hook.json"),
                 ),
             ),
         201,
@@ -651,7 +651,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
 
     // Import statuslist key and cert
     const statusListKey = readConfig<KeyImportDto>(
-        join(configFolder, "demo/keys/sign.json"),
+        join(configFolder, "basic/keys/sign.json"),
     );
 
     await expectRequest(
@@ -663,7 +663,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
     );
 
     const statusListCert = readConfig<CertImportDto>(
-        join(configFolder, "demo/certs/cert.json"),
+        join(configFolder, "basic/certs/cert.json"),
     );
 
     await expectRequest(
@@ -682,7 +682,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
             .set("Authorization", `Bearer ${authToken}`)
             .send(
                 readConfig<KeyImportDto>(
-                    join(configFolder, "demo/keys/trust-list.json"),
+                    join(configFolder, "basic/keys/trust-list.json"),
                 ),
             ),
         201,
@@ -695,7 +695,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
             .set("Authorization", `Bearer ${authToken}`)
             .send(
                 readConfig<CertImportDto>(
-                    join(configFolder, "demo/certs/cert.json"),
+                    join(configFolder, "basic/certs/cert.json"),
                 ),
             ),
         201,
@@ -711,7 +711,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
                 readConfig<TrustListCreateDto>(
                     join(
                         configFolder,
-                        "demo/trust-lists/trustlist-580831bc-ef11-43f4-a3be-a2b6bf1b29a3-config.json",
+                        "basic/trust-lists/trustlist-580831bc-ef11-43f4-a3be-a2b6bf1b29a3-config.json",
                     ),
                 ),
             ),
@@ -726,7 +726,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
             .set("Authorization", `Bearer ${authToken}`)
             .send(
                 readConfig<PresentationConfigCreateDto>(
-                    join(configFolder, "demo/presentation/pid-de.json"),
+                    join(configFolder, "basic/presentation/pid-de.json"),
                 ),
             ),
         201,
@@ -739,7 +739,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
             .set("Authorization", `Bearer ${authToken}`)
             .send(
                 readConfig<PresentationConfigCreateDto>(
-                    join(configFolder, "demo/presentation/pid.json"),
+                    join(configFolder, "basic/presentation/pid.json"),
                 ),
             ),
         201,

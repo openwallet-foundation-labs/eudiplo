@@ -1,0 +1,14 @@
+{
+    "authServers": [],
+    "batchSize": 10,
+    "dPopRequired": false,
+    "display": [
+        {
+            "locale": "en-US",
+            "name": "EUDI Wallet dev",
+            "logo": {
+                "uri": "company.png"
+            }
+        }
+    ]
+}

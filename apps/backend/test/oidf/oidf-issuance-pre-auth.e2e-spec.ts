@@ -119,7 +119,7 @@ describe("OIDF - issuance - pre auth", () => {
             },
             alias: "acme-vci-test-3",
             vci: {
-                credential_issuer_url: `https://${PUBLIC_DOMAIN}/demo`,
+                credential_issuer_url: `https://${PUBLIC_DOMAIN}/haip`,
                 credential_configuration_id: "pid",
                 client_attester_keys_jwks: {
                     keys: [
@@ -165,7 +165,7 @@ describe("OIDF - issuance - pre auth", () => {
         app.useGlobalPipes(new ValidationPipe());
 
         const configService = app.get(ConfigService);
-        const configFolder = resolve(__dirname + "/../../../../assets/config");
+        const configFolder = resolve(__dirname + "/../fixtures");
         const tmpFolder = resolve(__dirname, "../../../../tmp");
         configService.set("FOLDER", tmpFolder);
         configService.set("CONFIG_FOLDER", configFolder);
@@ -179,7 +179,7 @@ describe("OIDF - issuance - pre auth", () => {
 
         // Get client credentials
         const client = JSON.parse(
-            readFileSync(join(configFolder, "demo/clients/test.json"), "utf-8"),
+            readFileSync(join(configFolder, "haip/clients/test.json"), "utf-8"),
         );
         const clientId = client.clientId;
         const clientSecret = getDefaultSecret(client.secret);

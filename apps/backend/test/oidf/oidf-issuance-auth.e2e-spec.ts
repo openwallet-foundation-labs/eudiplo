@@ -145,7 +145,7 @@ describe("OIDF - issuance - auth code flow", () => {
                     "https://e0ea-2a02-8071-b781-bbe-ed43-c7cd-6384-7530.ngrok-free.app/credential",
             },
             vci: {
-                credential_issuer_url: `https://${PUBLIC_DOMAIN}/demo`,
+                credential_issuer_url: `https://${PUBLIC_DOMAIN}/haip`,
                 credential_configuration_id: "pid",
                 client_attester_keys_jwks: {
                     keys: [
@@ -198,7 +198,7 @@ describe("OIDF - issuance - auth code flow", () => {
         app.useGlobalPipes(new ValidationPipe());
 
         const configService = app.get(ConfigService);
-        const configFolder = resolve(__dirname + "/../../../../assets/config");
+        const configFolder = resolve(__dirname + "/../fixtures");
         const tmpFolder = resolve(__dirname, "../../../../tmp");
         console.log("Folder:", tmpFolder);
         configService.set("FOLDER", tmpFolder);
@@ -213,7 +213,7 @@ describe("OIDF - issuance - auth code flow", () => {
 
         // Get client credentials
         const client = JSON.parse(
-            readFileSync(join(configFolder, "demo/clients/test.json"), "utf-8"),
+            readFileSync(join(configFolder, "haip/clients/test.json"), "utf-8"),
         );
         const clientId = client.clientId;
         const clientSecret = getDefaultSecret(client.secret);
