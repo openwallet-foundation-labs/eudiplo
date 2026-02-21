@@ -10,8 +10,8 @@ import { InternalTokenPayload, TokenPayload } from "./token.decorator";
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
     constructor(
-        private configService: ConfigService,
-        private tenantService: TenantService,
+        private readonly configService: ConfigService,
+        private readonly tenantService: TenantService,
         @Inject(CLIENTS_PROVIDER)
         private readonly clientsProvider: ClientsProvider,
     ) {

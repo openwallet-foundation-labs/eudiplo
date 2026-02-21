@@ -26,7 +26,7 @@ import { ParResponseDto } from "./dto/par-response.dto";
 export class AuthorizeController {
     constructor(
         private readonly authorizeService: AuthorizeService,
-        private sessionService: SessionService,
+        private readonly sessionService: SessionService,
     ) {}
 
     /**

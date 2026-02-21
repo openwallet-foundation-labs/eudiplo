@@ -25,7 +25,7 @@ export class StorageController {
      * Constructor
      * @param filesService The files service
      */
-    constructor(private filesService: FilesService) {}
+    constructor(private readonly filesService: FilesService) {}
 
     /**
      * Upload files that belong to a tenant like images

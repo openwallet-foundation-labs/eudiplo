@@ -11,7 +11,7 @@ export interface GenerateTokenOptions {
 
 @Injectable()
 export class JwtService {
-    constructor(private configService: ConfigService) {}
+    constructor(private readonly configService: ConfigService) {}
 
     /**
      * Generate a JWT token for integrated OAuth2 server

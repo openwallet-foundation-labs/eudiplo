@@ -1,4 +1,4 @@
-import * as crypto from "crypto";
+import * as crypto from "node:crypto";
 import { CryptoImplementation } from "./crypto-implementation";
 
 const ED25519: CryptoImplementation = {
