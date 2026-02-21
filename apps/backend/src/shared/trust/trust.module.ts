@@ -1,11 +1,13 @@
 import * as https from "node:https";
 import { HttpModule } from "@nestjs/axios";
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
+import { CryptoModule } from "../../crypto/crypto.module";
 import { CacheController } from "./cache.controller";
 import { LoteParserService } from "./lote-parser.service";
 import { StatusListVerifierService } from "./status-list-verifier.service";
 import { TrustStoreService } from "./trust-store.service";
 import { TrustListJwtService } from "./trustlist-jwt.service";
+import { WalletAttestationService } from "./wallet-attestation.service";
 import { X509ValidationService } from "./x509-validation.service";
 
 @Module({
@@ -15,6 +17,7 @@ import { X509ValidationService } from "./x509-validation.service";
                 rejectUnauthorized: process.env.NODE_ENV === "production",
             }),
         }),
+        forwardRef(() => CryptoModule),
     ],
     controllers: [CacheController],
     providers: [
@@ -23,11 +26,13 @@ import { X509ValidationService } from "./x509-validation.service";
         TrustStoreService,
         X509ValidationService,
         StatusListVerifierService,
+        WalletAttestationService,
     ],
     exports: [
         TrustStoreService,
         X509ValidationService,
         StatusListVerifierService,
+        WalletAttestationService,
     ],
 })
 export class TrustModule {}

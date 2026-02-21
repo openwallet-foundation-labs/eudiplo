@@ -200,7 +200,9 @@ export class Oid4vciService {
         }
 
         authServers.push(this.authzService.getAuthzIssuer(tenantId));
-        authorizationServers.push(this.authzService.authzMetadata(tenantId));
+        authorizationServers.push(
+            await this.authzService.authzMetadata(tenantId),
+        );
 
         // Check if status list aggregation is enabled for this tenant
         const statusListConfig =
