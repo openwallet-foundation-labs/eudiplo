@@ -31,6 +31,26 @@ Have an idea to improve EUDIPLO?
 
 ---
 
+## Finding Issues to Work On
+
+Looking for a good first contribution? Here are some places to start:
+
+### Good First Issues
+
+Check our [GitHub issues labeled `good first issue`](https://github.com/openwallet-foundation-labs/eudiplo/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) for beginner-friendly tasks.
+
+### SonarCloud Code Quality Issues
+
+Our [SonarCloud dashboard](https://sonarcloud.io/project/overview?id=openwallet-foundation-labs_eudiplo) shows code quality issues that make excellent first contributions:
+
+- **Code Smells** – Small improvements to code readability and maintainability
+- **Bugs** – Potential issues detected by static analysis
+- **Security Hotspots** – Areas that need security review
+
+These issues are self-contained, have clear guidance, and help you learn the codebase while improving code quality.
+
+---
+
 ## Getting Started
 
 ### Option A: Local Development
