@@ -5,7 +5,14 @@ import { SchedulerRegistry } from "@nestjs/schedule";
 import { InjectRepository } from "@nestjs/typeorm";
 import { InjectMetric } from "@willsoto/nestjs-prometheus/dist/injector";
 import { Gauge } from "prom-client";
-import { DeepPartial, FindOptionsWhere, LessThan, Repository } from "typeorm";
+import {
+    DeepPartial,
+    FindOptionsWhere,
+    IsNull,
+    LessThan,
+    Not,
+    Repository,
+} from "typeorm";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity.js";
 import { SessionCleanupMode } from "../auth/tenant/entitites/session-storage-config";
 import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
@@ -46,8 +53,8 @@ export class SessionService implements OnApplicationBootstrap {
         const interval = setInterval(callback, intervalTime);
         this.schedulerRegistry.addInterval("tidyUpSessions", interval);
 
-        //set default values for session metrics
-        const tenantId = "root";
+        // Initialize session metrics for all tenants
+        const tenants = await this.tenantRepository.find();
         const states: SessionStatus[] = [
             SessionStatus.Active,
             SessionStatus.Fetched,
@@ -55,31 +62,38 @@ export class SessionService implements OnApplicationBootstrap {
             SessionStatus.Expired,
             SessionStatus.Failed,
         ];
-        for (const state of states) {
-            const issuanceCounter = await this.sessionRepository.countBy({
-                tenantId,
-                status: state,
-            });
-            this.sessionsCounter.set(
-                {
-                    tenant_id: tenantId,
-                    session_type: "issuance",
+
+        for (const tenant of tenants) {
+            for (const state of states) {
+                const issuanceCounter = await this.sessionRepository.countBy({
+                    tenantId: tenant.id,
                     status: state,
-                },
-                issuanceCounter,
-            );
-            const verificationCounter = await this.sessionRepository.countBy({
-                tenantId,
-                status: state,
-            });
-            this.sessionsCounter.set(
-                {
-                    tenant_id: tenantId,
-                    session_type: "verification",
-                    status: state,
-                },
-                verificationCounter,
-            );
+                    requestId: IsNull(), // issuance sessions don't have requestId
+                });
+                this.sessionsCounter.set(
+                    {
+                        tenant_id: tenant.id,
+                        session_type: "issuance",
+                        status: state,
+                    },
+                    issuanceCounter,
+                );
+
+                const verificationCounter =
+                    await this.sessionRepository.countBy({
+                        tenantId: tenant.id,
+                        status: state,
+                        requestId: Not(IsNull()), // verification sessions have requestId
+                    });
+                this.sessionsCounter.set(
+                    {
+                        tenant_id: tenant.id,
+                        session_type: "verification",
+                        status: state,
+                    },
+                    verificationCounter,
+                );
+            }
         }
 
         return this.tidyUpSessions();
