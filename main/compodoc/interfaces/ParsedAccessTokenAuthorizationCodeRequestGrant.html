@@ -253,13 +253,8 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID, X509Certificate } from &quot;node:crypto&quot;;
-import {
-    ConflictException,
-    Injectable,
-    Logger,
-    UnauthorizedException,
-} from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &quot;node:crypto&quot;;
+import { ConflictException, Injectable, Logger } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import {
     type AuthorizationCodeGrantIdentifier,
@@ -272,27 +267,11 @@ import {
     PreAuthorizedCodeGrantIdentifier,
     preAuthorizedCodeGrantIdentifier,
 } from &quot;@openid4vc/oauth2&quot;;
-import { Openid4vciIssuer } from &quot;@openid4vc/openid4vci&quot;;
-import * as x509 from &quot;@peculiar/x509&quot;;
 import type { Request } from &quot;express&quot;;
-import { decodeProtectedHeader, JWK } from &quot;jose&quot;;
 import { v4 } from &quot;uuid&quot;;
 import { CryptoService } from &quot;../../../../crypto/crypto.service&quot;;
-import { CryptoImplementationService } from &quot;../../../../crypto/key/crypto-implementation/crypto-implementation.service&quot;;
 import { SessionService } from &quot;../../../../session/session.service&quot;;
-import { StatusListVerifierService } from &quot;../../../../shared/trust/status-list-verifier.service&quot;;
-import {
-    BuiltTrustStore,
-    TrustStoreService,
-} from &quot;../../../../shared/trust/trust-store.service&quot;;
-import {
-    ServiceTypeIdentifiers,
-    TrustListSource,
-} from &quot;../../../../shared/trust/types&quot;;
-import {
-    MatchedTrustedEntity,
-    X509ValidationService,
-} from &quot;../../../../shared/trust/x509-validation.service&quot;;
+import { WalletAttestationService } from &quot;../../../../shared/trust/wallet-attestation.service&quot;;
 import { IssuanceService } from &quot;../../../configuration/issuance/issuance.service&quot;;
 import { TokenErrorException } from &quot;../exceptions&quot;;
 import { getHeadersFromRequest } from &quot;../util&quot;;
@@ -316,411 +295,10 @@ export class AuthorizeService {
     constructor(
         private readonly configService: ConfigService,
         private readonly cryptoService: CryptoService,
-        private readonly cryptoImplementationService: CryptoImplementationService,
         private readonly sessionService: SessionService,
         private readonly issuanceService: IssuanceService,
-        private readonly trustStoreService: TrustStoreService,
-        private readonly x509ValidationService: X509ValidationService,
-        private readonly statusListVerifierService: StatusListVerifierService,
+        private readonly walletAttestationService: WalletAttestationService,
     ) {}
-
-    /**
-     * Get the OID4VCI issuer instance for a specific tenant.
-     * Used for wallet attestation verification.
-     * @param tenantId The ID of the tenant.
-     * @returns The OID4VCI issuer instance.
-     */
-    private getIssuer(tenantId: string): Openid4vciIssuer {
-        const callbacks &#x3D; this.cryptoService.getCallbackContext(tenantId);
-        return new Openid4vciIssuer({
-            callbacks,
-        });
-    }
-
-    /**
-     * Verify wallet attestation if provided or required.
-     * Validates the attestation JWT signature, checks the X.509 certificate chain
-     * against configured trust lists, and verifies the status list if present.
-     * @param tenantId The tenant ID
-     * @param clientAttestation The client attestation from the token request
-     * @param authorizationServer The authorization server URL
-     * @param walletAttestationRequired Whether wallet attestation is required
-     * @param walletProviderTrustLists URLs of trust lists containing trusted wallet providers
-     * @throws UnauthorizedException if attestation is required but not provided, or if provided but invalid
-     */
-    private async verifyWalletAttestation(
-        tenantId: string,
-        clientAttestation:
-            | {
-                  clientAttestationJwt: string;
-                  clientAttestationPopJwt: string;
-              }
-            | undefined,
-        authorizationServer: string,
-        walletAttestationRequired: boolean,
-        walletProviderTrustLists: string[],
-    ): Promise&lt;void&gt; {
-        if (!clientAttestation) {
-            if (walletAttestationRequired) {
-                throw new UnauthorizedException(
-                    &quot;Wallet attestation is required but not provided&quot;,
-                );
-            }
-            return;
-        }
-
-        try {
-            // First verify the attestation JWT structure and PoP
-            await this.getIssuer(tenantId).verifyWalletAttestation({
-                authorizationServer,
-                clientAttestationJwt: clientAttestation.clientAttestationJwt,
-                clientAttestationPopJwt:
-                    clientAttestation.clientAttestationPopJwt,
-            });
-
-            // Then validate the X.509 certificate against trust lists and get the matched entity
-            const { matchedEntity, trustStore } &#x3D;
-                await this.validateWalletProviderCertificate(
-                    clientAttestation.clientAttestationJwt,
-                    walletProviderTrustLists,
-                );
-
-            // Check the status list if present in the attestation JWT
-            // Pass the matched entity and trust store for signature verification
-            await this.validateWalletAttestationStatus(
-                clientAttestation.clientAttestationJwt,
-                matchedEntity,
-                trustStore,
-            );
-        } catch (err) {
-            if (err instanceof UnauthorizedException) {
-                throw err;
-            }
-            throw new UnauthorizedException(
-                &#x60;Wallet attestation verification failed: ${err instanceof Error ? err.message : &quot;Unknown error&quot;}&#x60;,
-            );
-        }
-    }
-
-    /**
-     * Validate the status of a wallet attestation JWT if it contains a status claim.
-     * The status claim is optional per the spec, so if not present, validation passes.
-     * Also verifies that the status list JWT is signed by the revocation certificate
-     * from the same trusted entity that issued the wallet attestation.
-     * @param clientAttestationJwt The wallet attestation JWT
-     * @param matchedEntity The matched trusted entity from certificate validation
-     * @param trustStore The trust store used for validation
-     * @throws UnauthorizedException if the attestation has been revoked or suspended
-     */
-    private async validateWalletAttestationStatus(
-        clientAttestationJwt: string,
-        matchedEntity: MatchedTrustedEntity | null,
-        trustStore: BuiltTrustStore | null,
-    ): Promise&lt;void&gt; {
-        try {
-            // Get the status entry from the JWT
-            const statusEntry &#x3D;
-                this.statusListVerifierService.getStatusEntryFromJwt(
-                    clientAttestationJwt,
-                );
-
-            // No status claim in JWT - this is allowed per spec
-            if (!statusEntry) {
-                this.logger.debug(
-                    &quot;Wallet attestation does not contain status claim - skipping status check&quot;,
-                );
-                return;
-            }
-
-            // Fetch the status list JWT
-            const statusListJwt &#x3D;
-                await this.statusListVerifierService.getStatusListJwt(
-                    statusEntry.uri,
-                );
-
-            // Verify the status list JWT signature against the revocation cert
-            const signatureValid &#x3D; await this.verifyStatusListSignature(
-                statusListJwt,
-                matchedEntity,
-                trustStore,
-            );
-
-            if (!signatureValid) {
-                throw new UnauthorizedException(
-                    &quot;Status list JWT signature verification failed - not signed by trusted revocation certificate&quot;,
-                );
-            }
-
-            // Now check the actual status value
-            const statusResult &#x3D;
-                await this.statusListVerifierService.checkStatus(
-                    statusEntry.uri,
-                    statusEntry.idx,
-                );
-
-            // Check if the status indicates the attestation is valid
-            if (!statusResult.isValid) {
-                this.logger.warn(
-                    &#x60;Wallet attestation status check failed: ${statusResult.description}&#x60;,
-                );
-                throw new UnauthorizedException(
-                    &#x60;Wallet attestation is not valid: ${statusResult.description}&#x60;,
-                );
-            }
-
-            this.logger.debug(
-                &#x60;Wallet attestation status verified: ${statusResult.description}&#x60;,
-            );
-        } catch (err) {
-            if (err instanceof UnauthorizedException) {
-                throw err;
-            }
-            // Log the error but don&#x27;t fail - status checking is optional
-            // and network issues shouldn&#x27;t block valid attestations
-            this.logger.warn(
-                &#x60;Failed to check wallet attestation status: ${err instanceof Error ? err.message : &quot;Unknown error&quot;}&#x60;,
-            );
-        }
-    }
-
-    /**
-     * Verify the signature of a status list JWT against the revocation certificate
-     * from the matched trusted entity.
-     * @param statusListJwt The status list JWT to verify
-     * @param matchedEntity The matched trusted entity
-     * @param trustStore The trust store
-     * @returns true if the signature is valid and from the trusted revocation cert
-     */
-    private async verifyStatusListSignature(
-        statusListJwt: string,
-        matchedEntity: MatchedTrustedEntity | null,
-        trustStore: BuiltTrustStore | null,
-    ): Promise&lt;boolean&gt; {
-        try {
-            // Parse the status list JWT header
-            const header &#x3D; decodeProtectedHeader(statusListJwt);
-            const x5c &#x3D; header.x5c;
-
-            // Extract public key from x5c and verify signature
-            if (!x5c || x5c.length &#x3D;&#x3D;&#x3D; 0) {
-                // If no x5c in status list, we can&#x27;t verify against trust chain
-                // Accept if no trust validation is configured
-                if (!matchedEntity) {
-                    return true;
-                }
-                this.logger.warn(
-                    &quot;Status list JWT missing x5c header - cannot verify against trust chain&quot;,
-                );
-                return false;
-            }
-
-            // Verify the JWT signature
-            const cert &#x3D; new X509Certificate(Buffer.from(x5c[0], &quot;base64&quot;));
-            const publicKey &#x3D; cert.publicKey.export({ format: &quot;jwk&quot; }) as JWK;
-            const crypto &#x3D;
-                this.cryptoImplementationService.getCryptoFromJwk(publicKey);
-            const verifier &#x3D; await crypto.getVerifier(publicKey);
-
-            // Split JWT and verify
-            const [headerB64, payloadB64, signatureB64] &#x3D;
-                statusListJwt.split(&quot;.&quot;);
-            const data &#x3D; &#x60;${headerB64}.${payloadB64}&#x60;;
-
-            const sigOk &#x3D; await verifier(data, signatureB64)
-                .then(() &#x3D;&gt; true)
-                .catch((e) &#x3D;&gt; {
-                    this.logger.debug(
-                        &#x60;Status list JWT signature invalid: ${e?.message ?? e}&#x60;,
-                    );
-                    return false;
-                });
-
-            if (!sigOk) return false;
-
-            // If no entity was matched (no trust list configured), accept if signature is valid
-            if (!matchedEntity || !trustStore) {
-                return true;
-            }
-
-            // Check if the matched entity has a revocation certificate
-            if (!matchedEntity.revocationCert) {
-                this.logger.warn(
-                    &#x60;TrustedEntity ${matchedEntity.entity.entityId ?? &quot;unknown&quot;} &#x60; +
-                        &#x60;has no revocation certificate configured - accepting status list&#x60;,
-                );
-                return true;
-            }
-
-            // Build and verify the status list&#x27;s certificate chain
-            const presented &#x3D; this.x509ValidationService.parseX5c(x5c);
-            const leaf &#x3D; presented[0];
-
-            // Get all certs for path building
-            const allCerts &#x3D; trustStore.entities.flatMap((e) &#x3D;&gt;
-                e.services.map((s) &#x3D;&gt; ({ certValue: s.certValue })),
-            );
-            const anchors &#x3D;
-                this.x509ValidationService.parseTrustAnchors(allCerts);
-
-            let path: x509.X509Certificate[];
-            try {
-                path &#x3D; await this.x509ValidationService.buildPath(
-                    leaf,
-                    presented,
-                    anchors,
-                );
-            } catch (e: any) {
-                this.logger.debug(
-                    &#x60;Status list chain build failed: ${e?.message ?? e}&#x60;,
-                );
-                return false;
-            }
-
-            // Get thumbprints for comparison
-            const statusLeafThumb &#x3D; await this.getThumbprint(presented[0]);
-            const statusEndThumb &#x3D; await this.getThumbprint(path.at(-1)!);
-
-            // Check if the status list is signed by the revocation cert from the same entity
-            const revocationThumb &#x3D; matchedEntity.revocationThumbprint!;
-            const revocationIsCa &#x3D; this.x509ValidationService.isCaCert(
-                matchedEntity.revocationCert,
-            );
-
-            let statusMatchesRevocation &#x3D; false;
-
-            if (revocationIsCa) {
-                // Revocation cert is CA: path must terminate at this cert
-                statusMatchesRevocation &#x3D; revocationThumb &#x3D;&#x3D;&#x3D; statusEndThumb;
-            } else {
-                // Revocation cert is pinned (non-CA): leaf must match
-                statusMatchesRevocation &#x3D; revocationThumb &#x3D;&#x3D;&#x3D; statusLeafThumb;
-            }
-
-            if (!statusMatchesRevocation) {
-                this.logger.warn(
-                    &#x60;Status list is NOT signed by the revocation certificate from the same TrustedEntity. &#x60; +
-                        &#x60;Entity: ${matchedEntity.entity.entityId ?? &quot;unknown&quot;}, &#x60; +
-                        &#x60;Expected revocation cert: ${revocationThumb}, &#x60; +
-                        &#x60;Status list leaf cert: ${statusLeafThumb}, &#x60; +
-                        &#x60;Status list end cert: ${statusEndThumb}&#x60;,
-                );
-                return false;
-            }
-
-            this.logger.debug(
-                &#x60;Status list verified against revocation cert from entity: ${matchedEntity.entity.entityId ?? &quot;unknown&quot;}&#x60;,
-            );
-            return true;
-        } catch (e: any) {
-            this.logger.error(
-                &#x60;Error verifying status list signature: ${e?.message ?? e}&#x60;,
-            );
-            return false;
-        }
-    }
-
-    /**
-     * Calculate the SHA-256 thumbprint of an X.509 certificate.
-     */
-    private async getThumbprint(cert: x509.X509Certificate): Promise&lt;string&gt; {
-        const thumbBuffer &#x3D; await cert.getThumbprint(&quot;SHA-256&quot;);
-        return Buffer.from(thumbBuffer).toString(&quot;hex&quot;).toLowerCase();
-    }
-
-    /**
-     * Validate the wallet provider&#x27;s X.509 certificate against configured trust lists.
-     * Returns the matched entity and trust store for use in status list verification.
-     * @param clientAttestationJwt The wallet attestation JWT
-     * @param trustListUrls URLs of trust lists to validate against
-     * @returns The matched entity and trust store (both null if no trust lists configured)
-     * @throws UnauthorizedException if certificate is not trusted
-     */
-    private async validateWalletProviderCertificate(
-        clientAttestationJwt: string,
-        trustListUrls: string[],
-    ): Promise&lt;{
-        matchedEntity: MatchedTrustedEntity | null;
-        trustStore: BuiltTrustStore | null;
-    }&gt; {
-        if (trustListUrls.length &#x3D;&#x3D;&#x3D; 0) {
-            // No trust lists configured - accept any valid attestation
-            this.logger.warn(
-                &quot;No wallet provider trust lists configured - accepting attestation without certificate validation&quot;,
-            );
-            return { matchedEntity: null, trustStore: null };
-        }
-
-        // Extract X.509 certificate chain from JWT header
-        const header &#x3D; decodeProtectedHeader(clientAttestationJwt);
-        const x5c &#x3D; header.x5c;
-
-        if (!x5c || x5c.length &#x3D;&#x3D;&#x3D; 0) {
-            throw new UnauthorizedException(
-                &quot;Wallet attestation JWT does not contain X.509 certificate chain (x5c header)&quot;,
-            );
-        }
-
-        // Build trust list source from configured URLs
-        const trustListSource: TrustListSource &#x3D; {
-            lotes: trustListUrls.map((url) &#x3D;&gt; ({ url })),
-            acceptedServiceTypes: [ServiceTypeIdentifiers.WalletProvider],
-        };
-
-        // Fetch and build the trust store
-        const trustStore &#x3D;
-            await this.trustStoreService.getTrustStore(trustListSource);
-
-        if (trustStore.entities.length &#x3D;&#x3D;&#x3D; 0) {
-            throw new UnauthorizedException(
-                &quot;No trusted wallet providers found in configured trust lists&quot;,
-            );
-        }
-
-        // Parse the certificate chain
-        const certChain &#x3D; this.x509ValidationService.parseX5c(x5c);
-        const leaf &#x3D; certChain[0];
-
-        // Build and validate the certificate path against trust anchors
-        const trustAnchors &#x3D; this.x509ValidationService.parseTrustAnchors(
-            trustStore.entities.flatMap((e) &#x3D;&gt; e.services),
-        );
-
-        try {
-            const path &#x3D; await this.x509ValidationService.buildPath(
-                leaf,
-                certChain,
-                trustAnchors,
-            );
-
-            // Check if the path matches any trusted entity (using WalletProvider service type)
-            const match &#x3D;
-                await this.x509ValidationService.pathMatchesTrustedEntities(
-                    path,
-                    trustStore.entities,
-                    &quot;leaf&quot;,
-                    ServiceTypeIdentifiers.WalletProvider,
-                );
-
-            if (!match) {
-                throw new UnauthorizedException(
-                    &quot;Wallet provider certificate is not trusted - no matching entity in trust list&quot;,
-                );
-            }
-
-            this.logger.debug(
-                &#x60;Wallet attestation validated against trusted entity: ${match.entity.entityId ?? &quot;unknown&quot;}&#x60;,
-            );
-
-            return { matchedEntity: match, trustStore };
-        } catch (err) {
-            if (err instanceof UnauthorizedException) {
-                throw err;
-            }
-            throw new UnauthorizedException(
-                &#x60;Certificate chain validation failed: ${err instanceof Error ? err.message : &quot;Unknown error&quot;}&#x60;,
-            );
-        }
-    }
 
     getAuthorizationServer(tenantId: string): Oauth2AuthorizationServer {
         const callbacks &#x3D; this.cryptoService.getCallbackContext(tenantId);
@@ -771,14 +349,19 @@ export class AuthorizeService {
         return &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${tenantId}&#x60;;
     }
 
-    authzMetadata(tenantId: string): AuthorizationServerMetadata {
+    async authzMetadata(
+        tenantId: string,
+    ): Promise&lt;AuthorizationServerMetadata&gt; {
         //TODO: read from config
         const useDpop &#x3D; true;
 
+        const issuanceConfig &#x3D;
+            await this.issuanceService.getIssuanceConfiguration(tenantId);
+        const walletAttestationRequired &#x3D;
+            issuanceConfig.walletAttestationRequired ?? false;
+
         const authServer &#x3D; this.getAuthzIssuer(tenantId);
-        return this.getAuthorizationServer(
-            tenantId,
-        ).createAuthorizationServerMetadata({
+        const metadata: Record&lt;string, unknown&gt; &#x3D; {
             issuer: authServer,
             token_endpoint: &#x60;${authServer}/authorize/token&#x60;,
             authorization_endpoint: &#x60;${authServer}/authorize&#x60;,
@@ -789,12 +372,27 @@ export class AuthorizeService {
             require_pushed_authorization_requests: true,
             pushed_authorization_request_endpoint: &#x60;${authServer}/authorize/par&#x60;,
             code_challenge_methods_supported: [PkceCodeChallengeMethod.S256],
-            client_attestation_pop_nonce_required: true,
             authorization_details_types_supported: [&quot;openid_credential&quot;],
-            token_endpoint_auth_methods_supported: [&quot;attest_jwt_client_auth&quot;],
-            client_attestation_signing_alg_values_supported: [&quot;ES256&quot;],
-            client_attestation_pop_signing_alg_values_supported: [&quot;ES256&quot;],
-        } as AuthorizationServerMetadata);
+        };
+
+        if (walletAttestationRequired) {
+            metadata.token_endpoint_auth_methods_supported &#x3D; [
+                &quot;attest_jwt_client_auth&quot;,
+            ];
+            metadata.client_attestation_pop_nonce_required &#x3D; true;
+            metadata.client_attestation_signing_alg_values_supported &#x3D; [
+                &quot;ES256&quot;,
+            ];
+            metadata.client_attestation_pop_signing_alg_values_supported &#x3D; [
+                &quot;ES256&quot;,
+            ];
+        }
+
+        return this.getAuthorizationServer(
+            tenantId,
+        ).createAuthorizationServerMetadata(
+            metadata as any,
+        ) as AuthorizationServerMetadata;
     }
 
     sendAuthorizationResponse(values: AuthorizeQueries, tenantId) {
@@ -880,7 +478,7 @@ export class AuthorizeService {
         const authorizationServerMetadata &#x3D; await this.authzMetadata(tenantId);
 
         // Verify wallet attestation if required or provided
-        await this.verifyWalletAttestation(
+        await this.walletAttestationService.verifyWalletAttestation(
             tenantId,
             parsedAccessTokenRequest.clientAttestation,
             authorizationServerMetadata.issuer,
