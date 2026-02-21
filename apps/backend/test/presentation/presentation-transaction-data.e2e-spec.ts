@@ -115,7 +115,7 @@ async function preparePresentationWithTransactionData(
 
     const credential = await createCredentialWithStatus({
         claims: {
-            vct: "http://localhost:3000/root/credentials-metadata/vct/pid",
+            vct: "http://localhost:3000/demo/credentials-metadata/vct/pid",
             status,
         },
         privateKey,
@@ -303,7 +303,7 @@ describe("Presentation - Transaction Data", () => {
                             format: "dc+sd-jwt",
                             meta: {
                                 vct_values: [
-                                    `${host}/root/credentials-metadata/vct/pid`,
+                                    `${host}/demo/credentials-metadata/vct/pid`,
                                 ],
                             },
                             claims: [
@@ -315,7 +315,7 @@ describe("Presentation - Transaction Data", () => {
                                 {
                                     type: TrustedAuthorityType.ETSI_TL,
                                     values: [
-                                        `${host}/root/trust-list/580831bc-ef11-43f4-a3be-a2b6bf1b29a3`,
+                                        `${host}/demo/trust-list/580831bc-ef11-43f4-a3be-a2b6bf1b29a3`,
                                     ],
                                 },
                             ],

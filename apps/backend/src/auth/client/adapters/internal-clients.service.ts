@@ -5,7 +5,7 @@ import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import * as bcrypt from "bcrypt";
 import { plainToClass } from "class-transformer";
-import { Repository } from "typeorm";
+import { IsNull, Repository } from "typeorm";
 import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
 import { ConfigImportOrchestratorService } from "../../../shared/utils/config-import/config-import-orchestrator.service";
 import { Role } from "../../roles/role.enum";
@@ -32,20 +32,27 @@ export class InternalClientsProvider
     }
 
     async onApplicationBootstrap() {
-        //add the root user
+        // Add the root admin user (tenant-less, for managing tenants)
         const clientId = this.configService.getOrThrow("AUTH_CLIENT_ID");
         const clientSecret =
             this.configService.getOrThrow("AUTH_CLIENT_SECRET");
-        await this.getClient("root", clientId).catch(async () => {
+
+        // Check if admin client already exists (no tenant association)
+        const existingAdmin = await this.repo.findOne({
+            where: { clientId, tenantId: IsNull() },
+        });
+
+        if (!existingAdmin) {
             // Hash the root client secret before storing
             const hashedSecret = await bcrypt.hash(clientSecret, BCRYPT_ROUNDS);
-            return this.repo.save({
+            await this.repo.save({
                 clientId,
                 secret: hashedSecret,
-                description: "Internal client",
+                description: "Admin client for tenant management",
                 roles: [Role.Tenants],
+                // No tenant - this is the bootstrap admin
             });
-        });
+        }
     }
 
     async importForTenant(tenantId: string) {

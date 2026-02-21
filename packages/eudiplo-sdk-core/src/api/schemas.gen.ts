@@ -900,7 +900,7 @@ export const StatusListResponseDtoSchema = {
       type: "string",
       description: "The public URI for this status list",
       example:
-        "https://example.com/root/status-management/status-list/550e8400-e29b-41d4-a716-446655440000",
+        "https://example.com/demo/status-management/status-list/550e8400-e29b-41d4-a716-446655440000",
     },
     createdAt: {
       format: "date-time",

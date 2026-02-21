@@ -72,6 +72,13 @@ flowchart TD
 
 Tenants provide isolation—each tenant has its own keys, credentials, and configurations.
 
+!!! tip "Demo Configuration Available"
+
+    EUDIPLO includes demo configuration files in `assets/config/demo/` that can be
+    automatically imported on startup. Set `CONFIG_IMPORT=true` and `CONFIG_FOLDER`
+    to the config directory to import keys, certificates, credential configs, and
+    presentation configs automatically. This is useful for development and testing.
+
 1. Navigate to **Tenants** in the sidebar
 2. Click **+ Create Tenant**
 3. Fill in:
