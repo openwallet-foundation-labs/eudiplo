@@ -119,7 +119,7 @@ describe("OIDF - issuance - pre auth", () => {
             },
             alias: "acme-vci-test-3",
             vci: {
-                credential_issuer_url: `https://${PUBLIC_DOMAIN}/root`,
+                credential_issuer_url: `https://${PUBLIC_DOMAIN}/demo`,
                 credential_configuration_id: "pid",
                 client_attester_keys_jwks: {
                     keys: [
@@ -179,7 +179,7 @@ describe("OIDF - issuance - pre auth", () => {
 
         // Get client credentials
         const client = JSON.parse(
-            readFileSync(join(configFolder, "root/clients/test.json"), "utf-8"),
+            readFileSync(join(configFolder, "demo/clients/test.json"), "utf-8"),
         );
         const clientId = client.clientId;
         const clientSecret = getDefaultSecret(client.secret);

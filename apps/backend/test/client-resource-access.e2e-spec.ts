@@ -30,7 +30,7 @@ describe("Client Resource-Level Access Control (e2e)", () => {
             .set("Authorization", `Bearer ${adminToken}`)
             .send(
                 readConfig<PresentationConfigCreateDto>(
-                    join(configFolder, "root/presentation/pid-no-hook.json"),
+                    join(configFolder, "demo/presentation/pid-no-hook.json"),
                 ),
             )
             .expect(201);
@@ -41,7 +41,7 @@ describe("Client Resource-Level Access Control (e2e)", () => {
             .set("Authorization", `Bearer ${adminToken}`)
             .send(
                 readConfig<PresentationConfigCreateDto>(
-                    join(configFolder, "root/presentation/pid.json"),
+                    join(configFolder, "demo/presentation/pid.json"),
                 ),
             )
             .expect(201);

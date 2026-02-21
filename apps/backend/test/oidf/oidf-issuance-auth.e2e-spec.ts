@@ -3,7 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { Test, TestingModule } from "@nestjs/testing";
 import * as axios from "axios";
-import { readFileSync } from "fs";
+import { existsSync, readFileSync, rmSync } from "fs";
 import * as https from "https";
 import { Logger } from "nestjs-pino";
 import { join, resolve } from "path";
@@ -145,7 +145,7 @@ describe("OIDF - issuance - auth code flow", () => {
                     "https://e0ea-2a02-8071-b781-bbe-ed43-c7cd-6384-7530.ngrok-free.app/credential",
             },
             vci: {
-                credential_issuer_url: `https://${PUBLIC_DOMAIN}/root`,
+                credential_issuer_url: `https://${PUBLIC_DOMAIN}/demo`,
                 credential_configuration_id: "pid",
                 client_attester_keys_jwks: {
                     keys: [
@@ -170,6 +170,12 @@ describe("OIDF - issuance - auth code flow", () => {
         };
 
         PLAN_ID = await oidfSuite.createPlan(planId, variant, body);
+
+        // Clean up previous database to avoid stale tenant references
+        const dbPath = resolve(__dirname, "../../../../tmp/service.db");
+        if (existsSync(dbPath)) {
+            rmSync(dbPath, { force: true });
+        }
 
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [AppModule],
@@ -207,7 +213,7 @@ describe("OIDF - issuance - auth code flow", () => {
 
         // Get client credentials
         const client = JSON.parse(
-            readFileSync(join(configFolder, "root/clients/test.json"), "utf-8"),
+            readFileSync(join(configFolder, "demo/clients/test.json"), "utf-8"),
         );
         const clientId = client.clientId;
         const clientSecret = getDefaultSecret(client.secret);
