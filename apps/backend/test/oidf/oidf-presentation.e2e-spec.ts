@@ -44,15 +44,11 @@ describe("OIDF", () => {
     beforeAll(async () => {
         //use existing keys from the config folder
         const key = readConfig<KeyImportDto>(
-            resolve(
-                __dirname + "/../../../../assets/config/demo/keys/sign.json",
-            ),
+            resolve(__dirname + "/../fixtures/haip/keys/sign.json"),
         );
 
         const issuerCert = readConfig<CertImportDto>(
-            resolve(
-                __dirname + "/../../../../assets/config/demo/certs/cert.json",
-            ),
+            resolve(__dirname + "/../fixtures/haip/certs/cert.json"),
         ).crt!;
 
         const planId = "oid4vp-1final-verifier-test-plan";
@@ -102,7 +98,7 @@ describe("OIDF", () => {
         app.useGlobalPipes(new ValidationPipe());
 
         const configService = app.get(ConfigService);
-        const configFolder = resolve(__dirname + "/../../../../assets/config");
+        const configFolder = resolve(__dirname + "/../fixtures");
         const tmpFolder = resolve(__dirname, "../../../../tmp");
         configService.set("FOLDER", tmpFolder);
         configService.set("CONFIG_FOLDER", configFolder);
@@ -116,7 +112,7 @@ describe("OIDF", () => {
 
         // Get client credentials
         const client = JSON.parse(
-            readFileSync(join(configFolder, "demo/clients/test.json"), "utf-8"),
+            readFileSync(join(configFolder, "haip/clients/test.json"), "utf-8"),
         );
         const clientId = client.clientId;
         const clientSecret = getDefaultSecret(client.secret);

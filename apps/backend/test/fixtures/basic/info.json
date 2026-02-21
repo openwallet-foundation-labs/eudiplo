@@ -1,0 +1,4 @@
+{
+    "name": "Basic Test Tenant",
+    "description": "Tenant for basic E2E tests without wallet attestation"
+}

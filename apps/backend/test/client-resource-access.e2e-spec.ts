@@ -21,7 +21,7 @@ describe("Client Resource-Level Access Control (e2e)", () => {
         adminToken = ctx.authToken;
 
         // Add some presentation configs that are needed for the tests
-        const configFolder = resolve(__dirname + "/../../../assets/config");
+        const configFolder = resolve(__dirname + "/fixtures");
 
         // Import presentation configs
         await request(ctx.app.getHttpServer())
@@ -30,7 +30,7 @@ describe("Client Resource-Level Access Control (e2e)", () => {
             .set("Authorization", `Bearer ${adminToken}`)
             .send(
                 readConfig<PresentationConfigCreateDto>(
-                    join(configFolder, "demo/presentation/pid-no-hook.json"),
+                    join(configFolder, "basic/presentation/pid-no-hook.json"),
                 ),
             )
             .expect(201);
@@ -41,7 +41,7 @@ describe("Client Resource-Level Access Control (e2e)", () => {
             .set("Authorization", `Bearer ${adminToken}`)
             .send(
                 readConfig<PresentationConfigCreateDto>(
-                    join(configFolder, "demo/presentation/pid.json"),
+                    join(configFolder, "basic/presentation/pid.json"),
                 ),
             )
             .expect(201);

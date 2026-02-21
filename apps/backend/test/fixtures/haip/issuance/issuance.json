@@ -1,11 +1,12 @@
 {
     "authServers": [],
     "batchSize": 10,
-    "dPopRequired": false,
+    "dPopRequired": true,
+    "walletAttestationRequired": true,
     "display": [
         {
             "locale": "en-US",
-            "name": "EUDI Wallet dev",
+            "name": "HAIP Test Issuer",
             "logo": {
                 "uri": "company.png"
             }

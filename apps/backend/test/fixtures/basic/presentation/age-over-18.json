@@ -1,0 +1,33 @@
+{
+    "id": "age-over-18",
+    "description": "Age Over 18 Presentation Definition with German PID MSO mDoc",
+    "dcql_query": {
+        "credentials": [
+            {
+                "id": "pid-mso-mdoc",
+                "format": "mso_mdoc",
+                "claims": [
+                    {
+                        "path": [
+                            "eu.europa.ec.eudi.pid.1",
+                            "age_over_18"
+                        ]
+                    }
+                ],
+                "meta": {
+                    "doctype_value": "eu.europa.ec.eudi.pid.1"
+                },
+                "trusted_authorities": [
+                    {
+                        "type": "etsi_tl",
+                        "values": [
+                            "https://bmi.usercontent.opencode.de/eudi-wallet/test-trust-lists/pid-provider.jwt"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "accessCertId": "4ac8eea5-877c-4768-af84-a8f43eba2727",
+    "lifeTime": 300
+}
