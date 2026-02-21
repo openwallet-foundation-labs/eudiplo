@@ -11,7 +11,7 @@ be requested from users.
 **Example Presentation Configuration (PID):**
 
 ```json
---8<-- "assets/config/root/presentation/pid.json"
+--8<-- "assets/config/demo/presentation/pid.json"
 ```
 
 ---

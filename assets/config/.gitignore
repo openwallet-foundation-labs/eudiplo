@@ -1,0 +1,5 @@
+# Ignore all tenant configurations except demo
+*
+!.gitignore
+!demo/
+!demo/**

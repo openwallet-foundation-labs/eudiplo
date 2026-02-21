@@ -614,7 +614,7 @@ For a complete overview of the Interactive Authorization Endpoint, see [IAE Arch
 Here's a complete example of a credential configuration (PID - Personal Identity Document) that demonstrates many of the available features:
 
 ```json
---8<-- "assets/config/root/issuance/credentials/pid.json"
+--8<-- "assets/config/demo/issuance/credentials/pid.json"
 ```
 
 This example includes:

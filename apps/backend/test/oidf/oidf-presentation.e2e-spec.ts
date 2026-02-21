@@ -45,13 +45,13 @@ describe("OIDF", () => {
         //use existing keys from the config folder
         const key = readConfig<KeyImportDto>(
             resolve(
-                __dirname + "/../../../../assets/config/root/keys/sign.json",
+                __dirname + "/../../../../assets/config/demo/keys/sign.json",
             ),
         );
 
         const issuerCert = readConfig<CertImportDto>(
             resolve(
-                __dirname + "/../../../../assets/config/root/certs/cert.json",
+                __dirname + "/../../../../assets/config/demo/certs/cert.json",
             ),
         ).crt!;
 
@@ -116,7 +116,7 @@ describe("OIDF", () => {
 
         // Get client credentials
         const client = JSON.parse(
-            readFileSync(join(configFolder, "root/clients/test.json"), "utf-8"),
+            readFileSync(join(configFolder, "demo/clients/test.json"), "utf-8"),
         );
         const clientId = client.clientId;
         const clientSecret = getDefaultSecret(client.secret);
