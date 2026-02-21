@@ -12,9 +12,9 @@ import { FileStorage, PutOptions, StoredObject } from "../storage.types";
 
 export class S3FileStorage implements FileStorage {
     constructor(
-        private s3: S3Client,
-        private bucket: string,
-        private publicBaseUrl?: string, // e.g. CloudFront URL (optional)
+        private readonly s3: S3Client,
+        private readonly bucket: string,
+        private readonly publicBaseUrl?: string, // e.g. CloudFront URL (optional)
     ) {}
 
     private removeTrailingSlashes(url: string): string {

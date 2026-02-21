@@ -1,5 +1,5 @@
+import { resolve } from "node:path";
 import * as Joi from "joi";
-import { resolve } from "path";
 
 /**
  * Validation schema for configuration

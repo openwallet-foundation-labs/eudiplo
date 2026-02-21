@@ -5,13 +5,13 @@ import {
     mkdirSync,
     rmSync,
     statSync,
-} from "fs";
-import { dirname, join } from "path";
+} from "node:fs";
+import { dirname, join } from "node:path";
 import { Readable } from "stream";
 import { FileStorage, PutOptions, StoredObject } from "../storage.types";
 
 export class LocalFileStorage implements FileStorage {
-    constructor(private baseDir: string) {}
+    constructor(private readonly baseDir: string) {}
 
     async put(
         key: string,

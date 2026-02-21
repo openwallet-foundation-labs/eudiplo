@@ -1,7 +1,7 @@
+import { join } from "node:path";
 import { Logger, Module, OnModuleInit } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm";
-import { join } from "path";
 import { DataSource } from "typeorm";
 import * as migrations from "./migrations";
 

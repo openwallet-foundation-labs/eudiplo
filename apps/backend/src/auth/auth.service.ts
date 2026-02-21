@@ -19,9 +19,10 @@ export class AuthService {
      * @param configService
      */
     constructor(
-        private jwtService: JwtService,
-        @Inject(CLIENTS_PROVIDER) private clients: InternalClientsProvider,
-        private configService: ConfigService,
+        private readonly jwtService: JwtService,
+        @Inject(CLIENTS_PROVIDER)
+        private readonly clients: InternalClientsProvider,
+        private readonly configService: ConfigService,
     ) {}
 
     /**
