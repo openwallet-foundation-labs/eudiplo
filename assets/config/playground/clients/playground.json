@@ -1,9 +1,0 @@
-{
-    "clientId": "playground",
-    "secret": "dj29vds3vdMj3nc8ief",
-    "description": "Client for playground.eudi-wallet.dev",
-    "roles": [
-        "presentation:request",
-        "issuance:offer"
-    ]
-}
