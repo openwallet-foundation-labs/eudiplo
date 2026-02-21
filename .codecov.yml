@@ -19,6 +19,8 @@ comment:
 
 ignore:
   - "test/"
+  - "**/test/**"
+  - "apps/backend/test/**"
   - "docs/"
   - "*.config.ts"
   - "*.config.js"
