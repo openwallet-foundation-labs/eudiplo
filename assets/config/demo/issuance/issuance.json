@@ -2,6 +2,7 @@
     "authServers": [],
     "batchSize": 10,
     "dPopRequired": false,
+    "walletAttestationRequired": true,
     "display": [
         {
             "locale": "en-US",
