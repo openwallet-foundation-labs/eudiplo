@@ -9,7 +9,7 @@ export const DB_VALIDATION_SCHEMA = Joi.object({
     DB_HOST: Joi.string()
         .when("DB_TYPE", {
             is: "sqlite",
-            then: Joi.optional(),
+            then: Joi.optional().allow(""),
             otherwise: Joi.required(),
         })
         .description("Database host")
@@ -17,7 +17,7 @@ export const DB_VALIDATION_SCHEMA = Joi.object({
     DB_PORT: Joi.number()
         .when("DB_TYPE", {
             is: "sqlite",
-            then: Joi.optional(),
+            then: Joi.optional().allow(""),
             otherwise: Joi.required(),
         })
         .description("Database port")
@@ -25,7 +25,7 @@ export const DB_VALIDATION_SCHEMA = Joi.object({
     DB_USERNAME: Joi.string()
         .when("DB_TYPE", {
             is: "sqlite",
-            then: Joi.optional(),
+            then: Joi.optional().allow(""),
             otherwise: Joi.required(),
         })
         .description("Database username")
@@ -33,7 +33,7 @@ export const DB_VALIDATION_SCHEMA = Joi.object({
     DB_PASSWORD: Joi.string()
         .when("DB_TYPE", {
             is: "sqlite",
-            then: Joi.optional(),
+            then: Joi.optional().allow(""),
             otherwise: Joi.required(),
         })
         .description("Database password")
@@ -41,7 +41,7 @@ export const DB_VALIDATION_SCHEMA = Joi.object({
     DB_DATABASE: Joi.string()
         .when("DB_TYPE", {
             is: "sqlite",
-            then: Joi.optional(),
+            then: Joi.optional().allow(""),
             otherwise: Joi.required(),
         })
         .description("Database name")
