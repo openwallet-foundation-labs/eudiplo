@@ -108,6 +108,7 @@ nav:
       - Quick Start: getting-started/quick-start.md
       - First Steps: getting-started/first-steps.md
       - Wallet Compatibility: getting-started/wallet-compatibility.md
+      - EUDIPLO in Production: getting-started/usage.md
       - Web Client: getting-started/web-client.md
       - Flows:
         - Issuance:

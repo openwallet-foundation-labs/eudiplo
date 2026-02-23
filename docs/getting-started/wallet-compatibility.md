@@ -12,6 +12,18 @@ guidance for testing new wallets with EUDIPLO.
 
 ---
 
+## Conformance Testing
+
+With the rapidly evolving EUDI wallet ecosystem and frequent updates across multiple wallets, it is not feasible to manually test every wallet with every EUDIPLO release. Instead, EUDIPLO ensures interoperability through **automated conformance testing**.
+
+EUDIPLO is tested with every code change against the [OpenID Foundation Conformance Test Suite](https://openid.net/certification/about-conformance-suite/) for both **issuance (OID4VCI)** and **presentation (OID4VP)**. This ensures that EUDIPLO consistently adheres to the official specifications.
+
+!!! success "Compatibility Guarantee"
+
+    Any wallet that also passes the OIDF Conformance Test Suite should be compatible with EUDIPLO out of the box. If you encounter issues with a conformant wallet, please [report it](https://github.com/openwallet-foundation-labs/eudiplo/issues/new) so we can investigate.
+
+---
+
 ## Tested Wallets
 
 The following wallets have been tested and verified to work with
