@@ -11,49 +11,12 @@ import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Role } from "../../../auth/roles/role.enum";
 import { Secured } from "../../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../../auth/token.decorator";
-import { DeferredTransactionStatus } from "./entities/deferred-transaction.entity";
+import {
+    CompleteDeferredDto,
+    DeferredOperationResponse,
+    FailDeferredDto,
+} from "./dto/complete-deferred.dto";
 import { Oid4vciService } from "./oid4vci.service";
-
-/**
- * DTO for completing a deferred transaction
- */
-export class CompleteDeferredDto {
-    /**
-     * Claims to include in the credential.
-     * The structure should match the credential configuration's expected claims.
-     */
-    claims: Record<string, unknown>;
-}
-
-/**
- * DTO for failing a deferred transaction
- */
-export class FailDeferredDto {
-    /**
-     * Optional error message explaining why the issuance failed
-     */
-    error?: string;
-}
-
-/**
- * Response for deferred transaction operations
- */
-export class DeferredOperationResponse {
-    /**
-     * The transaction ID
-     */
-    transactionId: string;
-
-    /**
-     * The new status of the transaction
-     */
-    status: DeferredTransactionStatus;
-
-    /**
-     * Optional message
-     */
-    message?: string;
-}
 
 @ApiTags("Issuer")
 @Secured([Role.IssuanceOffer])

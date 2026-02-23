@@ -18,7 +18,7 @@ import { CryptoService } from "../../../../crypto/crypto.service";
 import { KeyService } from "../../../../crypto/key/key.service";
 import { SessionService } from "../../../../session/session.service";
 import { WalletAttestationService } from "../../../../shared/trust/wallet-attestation.service";
-import { AuthorizationIdentity } from "../../../configuration/credentials/credentials.service";
+import { AuthorizationIdentity } from "../../../configuration/credentials/dto/authorization-identity";
 import type { ChainedAsConfig } from "../../../configuration/issuance/dto/chained-as-config.dto";
 import { IssuanceService } from "../../../configuration/issuance/issuance.service";
 import {

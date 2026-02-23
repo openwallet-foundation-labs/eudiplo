@@ -8,7 +8,14 @@ import {
     type Jwk,
     SignJwtCallback,
 } from "@openid4vc/oauth2";
-import { exportJWK, importJWK, importX509, type JWK, jwtVerify } from "jose";
+import {
+    CompactEncrypt,
+    exportJWK,
+    importJWK,
+    importX509,
+    type JWK,
+    jwtVerify,
+} from "jose";
 import { KeyService } from "./key/key.service";
 
 /**
@@ -58,9 +65,7 @@ export class CryptoService {
      * @param tenantId
      * @returns
      */
-    getCallbackContext(
-        tenantId: string,
-    ): Omit<CallbackContext, "encryptJwe" | "decryptJwe"> {
+    getCallbackContext(tenantId: string): Omit<CallbackContext, "decryptJwe"> {
         return {
             hash: (data, alg) =>
                 createHash(alg.replace("-", "").toLowerCase())
@@ -70,6 +75,21 @@ export class CryptoService {
             clientAuthentication: clientAuthenticationNone({
                 clientId: "some-random",
             }),
+            encryptJwe: async (encryptor, payload) => {
+                const josePublicKey = await importJWK(
+                    encryptor.publicJwk as JWK,
+                    encryptor.alg,
+                );
+                const jwe = await new CompactEncrypt(
+                    new TextEncoder().encode(payload),
+                )
+                    .setProtectedHeader({
+                        alg: encryptor.alg,
+                        enc: encryptor.enc,
+                    })
+                    .encrypt(josePublicKey);
+                return { jwe, encryptionJwk: encryptor.publicJwk };
+            },
             signJwt: this.getSignJwtCallback(tenantId),
             verifyJwt: async (signer, { compact, payload }) => {
                 if (signer.method === "jwk") {

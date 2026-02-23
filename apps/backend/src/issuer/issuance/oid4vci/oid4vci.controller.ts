@@ -12,7 +12,11 @@ import {
     UseInterceptors,
 } from "@nestjs/common";
 import { ApiExcludeController, ApiParam, ApiTags } from "@nestjs/swagger";
-import type { CredentialResponse } from "@openid4vc/openid4vci";
+import type {
+    CreateCredentialResponseReturn,
+    CredentialResponse,
+    DeferredCredentialResponse,
+} from "@openid4vc/openid4vci";
 import type { Request, Response } from "express";
 import { SessionLogger } from "../../../shared/utils/logger/session-logger.decorator";
 import { SessionLoggerInterceptor } from "../../../shared/utils/logger/session-logger.interceptor";
@@ -45,9 +49,7 @@ export class Oid4vciController {
         @Req() req: Request,
         @Res({ passthrough: true }) res: Response,
         @Param("tenantId") tenantId: string,
-    ): Promise<
-        CredentialResponse | { transaction_id: string; interval?: number }
-    > {
+    ): Promise<CreateCredentialResponseReturn | DeferredCredentialResponse> {
         return this.oid4vciService.getCredential(req, tenantId).then(
             (result) => {
                 // Check if this is a deferred response (has non-null transaction_id)

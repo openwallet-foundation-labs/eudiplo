@@ -17,9 +17,11 @@ import {
     SupportedAuthenticationScheme,
 } from "@openid4vc/oauth2";
 import {
+    CreateCredentialResponseReturn,
     CredentialOfferAuthorizationCodeGrant,
     CredentialOfferPreAuthorizedCodeGrant,
     type CredentialResponse,
+    DeferredCredentialResponse,
     type IssuerMetadataResult,
     Openid4vciIssuer,
     Openid4vciVersion,
@@ -40,15 +42,14 @@ import { SessionService } from "../../../session/session.service";
 import { SessionLoggerService } from "../../../shared/utils/logger/session-logger.service";
 import { SessionLogContext } from "../../../shared/utils/logger/session-logger-context";
 import { WebhookService } from "../../../shared/utils/webhook/webhook.service";
-import {
-    AuthorizationIdentity,
-    ClaimsWebhookResult,
-    CredentialsService,
-} from "../../configuration/credentials/credentials.service";
+import { CredentialsService } from "../../configuration/credentials/credentials.service";
+import { AuthorizationIdentity } from "../../configuration/credentials/dto/authorization-identity";
+import { ClaimsWebhookResult } from "../../configuration/credentials/dto/claims-webhook-result";
 import { IssuanceService } from "../../configuration/issuance/issuance.service";
 import { StatusListConfigService } from "../../lifecycle/status/status-list-config.service";
 import { AuthorizeService } from "./authorize/authorize.service";
 import { ChainedAsService } from "./chained-as/chained-as.service";
+import { DeferredCredentialService } from "./deferred-credential.service";
 import { DeferredCredentialRequestDto } from "./dto/deferred-credential-request.dto";
 import { NotificationRequestDto } from "./dto/notification-request.dto";
 import {
@@ -56,16 +57,29 @@ import {
     OfferRequestDto,
     OfferResponse,
 } from "./dto/offer-request.dto";
-import {
-    DeferredTransactionEntity,
-    DeferredTransactionStatus,
-} from "./entities/deferred-transaction.entity";
+import { DeferredTransactionEntity } from "./entities/deferred-transaction.entity";
 import { NonceEntity } from "./entities/nonces.entity";
-import {
-    CredentialRequestException,
-    DeferredCredentialException,
-} from "./exceptions";
+import { CredentialRequestException } from "./exceptions";
 import { getHeadersFromRequest } from "./util";
+
+/**
+ * Type alias for the OAuth2 access token payload returned by resource server verification.
+ * This is distinct from the internal TokenPayload used for authenticated API requests.
+ */
+type OAuth2TokenPayload = {
+    [x: string]: unknown;
+    iss: string;
+    exp: number;
+    iat: number;
+    aud: string | string[];
+    sub: string;
+    jti: string;
+    client_id?: string;
+    scope?: string;
+    nbf?: number;
+    nonce?: string;
+    cnf?: { jwk?: Jwk };
+};
 
 /**
  * Service for handling OID4VCI (OpenID 4 Verifiable Credential Issuance) operations.
@@ -84,10 +98,9 @@ export class Oid4vciService {
         private readonly httpService: HttpService,
         private readonly statusListConfigService: StatusListConfigService,
         private readonly chainedAsService: ChainedAsService,
+        private readonly deferredCredentialService: DeferredCredentialService,
         @InjectRepository(NonceEntity)
         private readonly nonceRepository: Repository<NonceEntity>,
-        @InjectRepository(DeferredTransactionEntity)
-        private readonly deferredTransactionRepository: Repository<DeferredTransactionEntity>,
     ) {}
 
     /**
@@ -369,49 +382,18 @@ export class Oid4vciService {
     }
 
     /**
-     * Get a credential for a specific session.
-     * @param req
-     * @param session
-     * @returns
+     * Verify the resource access token from the request.
+     * Supports both DPoP and Bearer authentication schemes based on configuration.
      */
-    async getCredential(
+    private async verifyResourceAccessToken(
         req: Request,
         tenantId: string,
-    ): Promise<CredentialResponse> {
-        const issuer = this.getIssuer(tenantId);
-        const issuerMetadata = await this.issuerMetadata(tenantId, issuer);
+        issuerMetadata: IssuerMetadataResult,
+        issuanceConfig: Awaited<
+            ReturnType<IssuanceService["getIssuanceConfiguration"]>
+        >,
+    ): Promise<OAuth2TokenPayload> {
         const resourceServer = this.getResourceServer(tenantId);
-        const issuanceConfig =
-            await this.issuanceService.getIssuanceConfiguration(tenantId);
-
-        let parsedCredentialRequest: ParseCredentialRequestReturn;
-        const known = issuer.getKnownCredentialConfigurationsSupported(
-            issuerMetadata.credentialIssuer,
-        );
-        issuerMetadata.knownCredentialConfigurations = known;
-        try {
-            parsedCredentialRequest = issuer.parseCredentialRequest({
-                issuerMetadata,
-                credentialRequest: req.body as Record<string, unknown>,
-            });
-        } catch (err) {
-            // OID4VCI spec Section 8.3.1.2: invalid_credential_request
-            throw new CredentialRequestException(
-                "invalid_credential_request",
-                err instanceof Error
-                    ? err.message
-                    : "The Credential Request is malformed or missing required parameters",
-            );
-        }
-
-        if (parsedCredentialRequest?.proofs?.jwt === undefined) {
-            // OID4VCI spec Section 8.3.1.2: invalid_proof
-            throw new CredentialRequestException(
-                "invalid_proof",
-                "The proofs parameter is missing or does not contain required JWT proofs",
-            );
-        }
-
         const headers = getHeadersFromRequest(req);
 
         const allowedAuthenticationSchemes = [
@@ -423,6 +405,7 @@ export class Oid4vciService {
                 SupportedAuthenticationScheme.Bearer,
             );
         }
+
         const { tokenPayload } = await resourceServer.verifyResourceRequest({
             authorizationServers: issuerMetadata.authorizationServers,
             request: {
@@ -434,7 +417,26 @@ export class Oid4vciService {
             allowedAuthenticationSchemes,
         });
 
-        // Determine the token source: local AS, Chained AS, or external AS
+        return tokenPayload as OAuth2TokenPayload;
+    }
+
+    /**
+     * Resolve the session and claims based on the token source.
+     * Handles Local AS, Chained AS, and External AS flows.
+     */
+    private async resolveSessionAndClaims(
+        tokenPayload: OAuth2TokenPayload,
+        tenantId: string,
+        credentialConfigurationId: string,
+        issuanceConfig: Awaited<
+            ReturnType<IssuanceService["getIssuanceConfiguration"]>
+        >,
+    ): Promise<{
+        session: Session;
+        claimsResult: ClaimsWebhookResult | undefined;
+        isExternalAsToken: boolean;
+        isChainedAsToken: boolean;
+    }> {
         const localIssuer = this.authzService.getAuthzIssuer(tenantId);
         const publicUrl = this.configService.getOrThrow<string>("PUBLIC_URL");
         const chainedAsIssuer = `${publicUrl}/${tenantId}/chained-as`;
@@ -456,58 +458,55 @@ export class Oid4vciService {
                 );
             }
 
-            // Look up session by issuer_state
             session = await this.sessionService.getBy({ id: issuerState });
 
-            // Get upstream identity claims from the Chained AS session
-            // This includes the full claims from the upstream OIDC provider (e.g., Keycloak)
             const upstreamIdentity =
                 await this.chainedAsService.getUpstreamIdentityByIssuerState(
                     issuerState,
                 );
 
-            // Use upstream identity if available, fallback to chained AS token claims
             const identity: AuthorizationIdentity = upstreamIdentity ?? {
-                iss: tokenPayload.iss as string,
-                sub:
-                    (tokenPayload.upstream_sub as string) ??
-                    (tokenPayload.sub as string),
-                token_claims: tokenPayload as Record<string, unknown>,
+                iss: tokenPayload.iss,
+                sub: (tokenPayload.upstream_sub as string) ?? tokenPayload.sub,
+                token_claims: tokenPayload as unknown as Record<
+                    string,
+                    unknown
+                >,
             };
 
             claimsResult = await this.credentialsService.getClaimsFromWebhook(
-                parsedCredentialRequest.credentialConfigurationId as string,
+                credentialConfigurationId,
                 session,
                 { identity },
             );
         } else if (isExternalAsToken) {
             // External AS flow (e.g., Keycloak)
-            // Verify that the token's issuer is in the list of configured auth servers
             const configuredAuthServers =
                 issuanceConfig.authServers?.map((url) => url) ?? [];
-            if (!configuredAuthServers.includes(tokenPayload.iss as string)) {
+            if (!configuredAuthServers.includes(tokenPayload.iss)) {
                 throw new CredentialRequestException(
                     "credential_request_denied",
                     `Token issuer '${tokenPayload.iss}' is not a configured authorization server`,
                 );
             }
 
-            // Find or create session by external identity
             session = await this.sessionService.findOrCreateByExternalIdentity(
                 tenantId,
-                tokenPayload.iss as string,
-                tokenPayload.sub as string,
+                tokenPayload.iss,
+                tokenPayload.sub,
             );
 
-            // For external AS, claims must come from webhook with identity context
             const identity: AuthorizationIdentity = {
-                iss: tokenPayload.iss as string,
-                sub: tokenPayload.sub as string,
-                token_claims: tokenPayload as Record<string, unknown>,
+                iss: tokenPayload.iss,
+                sub: tokenPayload.sub,
+                token_claims: tokenPayload as unknown as Record<
+                    string,
+                    unknown
+                >,
             };
 
             claimsResult = await this.credentialsService.getClaimsFromWebhook(
-                parsedCredentialRequest.credentialConfigurationId as string,
+                credentialConfigurationId,
                 session,
                 { identity, requireWebhook: true },
             );
@@ -518,27 +517,235 @@ export class Oid4vciService {
             });
 
             if (tokenPayload.sub !== session.id) {
-                // OID4VCI spec Section 8.3.1.2: credential_request_denied
                 throw new CredentialRequestException(
                     "credential_request_denied",
                     "The access token is not associated with a valid session",
                 );
             }
 
-            // Get claims from webhook if configured
-            // Pass identity info from internal AS token for consistency
             const identity: AuthorizationIdentity = {
-                iss: tokenPayload.iss as string,
-                sub: String(tokenPayload.sub),
-                token_claims: tokenPayload as Record<string, unknown>,
+                iss: tokenPayload.iss,
+                sub: tokenPayload.sub,
+                token_claims: tokenPayload as unknown as Record<
+                    string,
+                    unknown
+                >,
             };
 
             claimsResult = await this.credentialsService.getClaimsFromWebhook(
-                parsedCredentialRequest.credentialConfigurationId as string,
+                credentialConfigurationId,
                 session,
                 { identity },
             );
         }
+
+        return { session, claimsResult, isExternalAsToken, isChainedAsToken };
+    }
+
+    /**
+     * Extract and validate nonces from JWT proofs.
+     * Ensures all proofs contain valid, non-expired nonces and consumes them.
+     */
+    private async validateAndConsumeNonces(
+        proofs: string[],
+        tenantId: string,
+        logContext: SessionLogContext,
+        credentialConfigurationId: string,
+    ): Promise<void> {
+        // OID4VCI spec Section 8.3.1.2: When the Credential Issuer has a Nonce Endpoint,
+        // all key proofs MUST contain a c_nonce value.
+        const uniqueNonces = new Set<string>();
+        for (const jwt of proofs) {
+            const payload = decodeJwt(jwt);
+            if (!payload.nonce) {
+                throw new CredentialRequestException(
+                    "invalid_proof",
+                    "All key proofs must contain a nonce when the nonce endpoint is offered",
+                );
+            }
+            uniqueNonces.add(payload.nonce as string);
+        }
+
+        // Validate and consume all unique nonces upfront
+        for (const nonce of uniqueNonces) {
+            const nonceEntity = await this.nonceRepository.findOne({
+                where: { nonce, tenantId },
+            });
+
+            if (!nonceEntity) {
+                const nonceError = new CredentialRequestException(
+                    "invalid_nonce",
+                    "The nonce in the key proof is invalid or has already been used",
+                );
+                this.sessionLogger.logFlowError(logContext, nonceError, {
+                    credentialConfigurationId,
+                });
+                throw nonceError;
+            }
+
+            if (nonceEntity.expiresAt < new Date()) {
+                await this.nonceRepository.delete({ nonce, tenantId });
+                const nonceError = new CredentialRequestException(
+                    "invalid_nonce",
+                    "The nonce in the key proof has expired",
+                );
+                this.sessionLogger.logFlowError(logContext, nonceError, {
+                    credentialConfigurationId,
+                });
+                throw nonceError;
+            }
+
+            // Consume the nonce (delete it so it can't be reused)
+            await this.nonceRepository.delete({ nonce, tenantId });
+        }
+    }
+
+    /**
+     * Verify proofs and issue credentials for each JWT proof.
+     */
+    private async issueCredentialsForProofs(
+        proofs: string[],
+        issuer: Openid4vciIssuer,
+        session: Session,
+        credentialConfigurationId: string,
+        claimsResult: ClaimsWebhookResult | undefined,
+        logContext: SessionLogContext,
+    ): Promise<{ credential: string }[]> {
+        const credentials: { credential: string }[] = [];
+
+        for (const jwt of proofs) {
+            const payload = decodeJwt(jwt);
+            const expectedNonce = payload.nonce! as string;
+
+            const verifiedProof = await issuer.verifyCredentialRequestJwtProof({
+                expectedNonce,
+                issuerMetadata: await this.issuerMetadata(session.tenantId),
+                jwt,
+            });
+
+            const cnf = verifiedProof.signer.publicJwk;
+            const cred = await this.credentialsService.getCredential(
+                credentialConfigurationId,
+                cnf,
+                session,
+                claimsResult?.claims,
+            );
+
+            credentials.push({ credential: cred });
+
+            this.sessionLogger.logCredentialIssuance(
+                logContext,
+                credentialConfigurationId,
+                {
+                    credentialSize: cred.length,
+                    proofVerified: true,
+                },
+            );
+        }
+
+        return credentials;
+    }
+
+    /**
+     * Map generic errors to OID4VCI-compliant credential request exceptions.
+     */
+    private mapToCredentialRequestException(error: unknown): never {
+        if (error instanceof CredentialRequestException) {
+            throw error;
+        }
+
+        if (
+            error instanceof ConflictException &&
+            (error.message?.includes("not found") ||
+                error.message?.includes("Credential configuration"))
+        ) {
+            throw new CredentialRequestException(
+                "unknown_credential_configuration",
+                error.message,
+            );
+        }
+
+        if (
+            error instanceof Error &&
+            (error.message?.toLowerCase().includes("proof") ||
+                error.message?.toLowerCase().includes("signature") ||
+                error.message?.toLowerCase().includes("jwt"))
+        ) {
+            throw new CredentialRequestException(
+                "invalid_proof",
+                error.message,
+            );
+        }
+
+        throw new CredentialRequestException(
+            "credential_request_denied",
+            error instanceof Error
+                ? error.message
+                : "An unexpected error occurred",
+        );
+    }
+
+    /**
+     * Get a credential for a specific session.
+     * @param req The incoming HTTP request
+     * @param tenantId The tenant identifier
+     * @returns The credential response or deferred response
+     */
+    async getCredential(
+        req: Request,
+        tenantId: string,
+    ): Promise<CreateCredentialResponseReturn | DeferredCredentialResponse> {
+        const issuer = this.getIssuer(tenantId);
+        const issuerMetadata = await this.issuerMetadata(tenantId, issuer);
+        const issuanceConfig =
+            await this.issuanceService.getIssuanceConfiguration(tenantId);
+
+        // Parse and validate the credential request
+        const known = issuer.getKnownCredentialConfigurationsSupported(
+            issuerMetadata.credentialIssuer,
+        );
+        issuerMetadata.knownCredentialConfigurations = known;
+
+        let parsedCredentialRequest: ParseCredentialRequestReturn;
+        try {
+            parsedCredentialRequest = issuer.parseCredentialRequest({
+                issuerMetadata,
+                credentialRequest: req.body as Record<string, unknown>,
+            });
+        } catch (err) {
+            throw new CredentialRequestException(
+                "invalid_credential_request",
+                err instanceof Error
+                    ? err.message
+                    : "The Credential Request is malformed or missing required parameters",
+            );
+        }
+
+        if (parsedCredentialRequest?.proofs?.jwt === undefined) {
+            throw new CredentialRequestException(
+                "invalid_proof",
+                "The proofs parameter is missing or does not contain required JWT proofs",
+            );
+        }
+
+        // Verify access token
+        const tokenPayload = await this.verifyResourceAccessToken(
+            req,
+            tenantId,
+            issuerMetadata,
+            issuanceConfig,
+        );
+
+        // Resolve session and claims based on token source
+        const credentialConfigurationId =
+            parsedCredentialRequest.credentialConfigurationId as string;
+        const { session, claimsResult, isExternalAsToken, isChainedAsToken } =
+            await this.resolveSessionAndClaims(
+                tokenPayload,
+                tenantId,
+                credentialConfigurationId,
+                issuanceConfig,
+            );
 
         // Create session logging context
         const logContext: SessionLogContext = {
@@ -549,122 +756,55 @@ export class Oid4vciService {
         };
 
         this.sessionLogger.logFlowStart(logContext, {
-            credentialConfigurationId:
-                parsedCredentialRequest.credentialConfigurationId,
-            proofCount: parsedCredentialRequest.proofs?.jwt?.length || 0,
+            credentialConfigurationId,
+            proofCount: parsedCredentialRequest.proofs.jwt.length,
             isExternalAs: isExternalAsToken,
             isChainedAs: isChainedAsToken,
         });
 
         try {
-            const credentials: { credential: string }[] = [];
-
             // Check if the webhook indicated deferred issuance
             if (claimsResult?.deferred) {
-                return this.handleDeferredIssuance(
-                    parsedCredentialRequest,
-                    session,
-                    tenantId,
-                    claimsResult,
-                    logContext,
-                );
-            }
-
-            // OID4VCI spec Section 8.3.1.2: When the Credential Issuer has a Nonce Endpoint,
-            // all key proofs MUST contain a c_nonce value. If any proof is missing a nonce,
-            // return invalid_proof error.
-            // Section 13.8: A Wallet can continue using a given nonce until it is rejected
-            // by the Credential Issuer. For batch issuance, all proofs typically use the same nonce.
-            const uniqueNonces = new Set<string>();
-            for (const jwt of parsedCredentialRequest.proofs.jwt) {
-                const payload = decodeJwt(jwt);
-                if (!payload.nonce) {
-                    // OID4VCI spec Section 8.3.1.2: invalid_proof
-                    // "if at least one of the key proofs does not contain a c_nonce value"
-                    throw new CredentialRequestException(
-                        "invalid_proof",
-                        "All key proofs must contain a nonce when the nonce endpoint is offered",
-                    );
-                }
-                uniqueNonces.add(payload.nonce as string);
-            }
-
-            // Validate and consume all unique nonces upfront
-            for (const nonce of uniqueNonces) {
-                // Find the nonce and verify it hasn't expired
-                const nonceEntity = await this.nonceRepository.findOne({
-                    where: { nonce, tenantId },
-                });
-
-                if (!nonceEntity) {
-                    // OID4VCI spec Section 8.3.1.2: invalid_nonce
-                    const nonceError = new CredentialRequestException(
-                        "invalid_nonce",
-                        "The nonce in the key proof is invalid or has already been used",
-                    );
-                    this.sessionLogger.logFlowError(logContext, nonceError, {
-                        credentialConfigurationId:
-                            parsedCredentialRequest.credentialConfigurationId,
-                    });
-                    throw nonceError;
-                }
-
-                if (nonceEntity.expiresAt < new Date()) {
-                    // Nonce exists but has expired - clean it up and reject
-                    await this.nonceRepository.delete({ nonce, tenantId });
-                    const nonceError = new CredentialRequestException(
-                        "invalid_nonce",
-                        "The nonce in the key proof has expired",
-                    );
-                    this.sessionLogger.logFlowError(logContext, nonceError, {
-                        credentialConfigurationId:
-                            parsedCredentialRequest.credentialConfigurationId,
-                    });
-                    throw nonceError;
-                }
-
-                // Consume the nonce (delete it so it can't be reused)
-                await this.nonceRepository.delete({ nonce, tenantId });
-            }
-
-            for (const jwt of parsedCredentialRequest.proofs.jwt) {
-                const payload = decodeJwt(jwt);
-                const expectedNonce = payload.nonce! as string;
-
-                const verifiedProof =
-                    await issuer.verifyCredentialRequestJwtProof({
-                        expectedNonce,
-                        issuerMetadata: await this.issuerMetadata(
-                            session.tenantId,
-                        ),
-                        jwt,
-                    });
-                const cnf = verifiedProof.signer.publicJwk;
-                const cred = await this.credentialsService.getCredential(
-                    parsedCredentialRequest.credentialConfigurationId as string,
-                    cnf as any,
-                    session,
-                    claimsResult?.claims,
-                );
-                credentials.push({
-                    credential: cred,
-                });
-
-                this.sessionLogger.logCredentialIssuance(
-                    logContext,
-                    parsedCredentialRequest.credentialConfigurationId as string,
+                return this.deferredCredentialService.createDeferredTransaction(
                     {
-                        credentialSize: cred.length,
-                        proofVerified: true,
+                        parsedCredentialRequest: {
+                            proofs: {
+                                jwt: parsedCredentialRequest.proofs.jwt!,
+                            },
+                            credentialConfigurationId,
+                        },
+                        session,
+                        tenantId,
+                        interval: claimsResult.interval,
+                        issuerMetadata,
                     },
+                    logContext,
                 );
             }
 
+            // Validate and consume nonces
+            await this.validateAndConsumeNonces(
+                parsedCredentialRequest.proofs.jwt,
+                tenantId,
+                logContext,
+                credentialConfigurationId,
+            );
+
+            // Issue credentials for each proof
+            const credentials = await this.issueCredentialsForProofs(
+                parsedCredentialRequest.proofs.jwt,
+                issuer,
+                session,
+                credentialConfigurationId,
+                claimsResult,
+                logContext,
+            );
+
+            // Update session with notification
             const notificationId = v4();
             session.notifications.push({
                 id: notificationId,
-                credentialConfigurationId:
-                    parsedCredentialRequest.credentialConfigurationId as string,
+                credentialConfigurationId,
             });
             await this.sessionService.add(session.id, {
                 notifications: session.notifications,
@@ -680,52 +820,13 @@ export class Oid4vciService {
                 credentials,
                 credentialRequest: parsedCredentialRequest,
                 cNonce: tokenPayload.nonce as string,
-                //this should be stored in the session in case this endpoint is requested multiple times, but the response is differnt.
                 notificationId,
             });
         } catch (error) {
             this.sessionLogger.logFlowError(logContext, error as Error, {
-                credentialConfigurationId:
-                    parsedCredentialRequest.credentialConfigurationId,
+                credentialConfigurationId,
             });
-
-            // If it's already a CredentialRequestException, re-throw it
-            if (error instanceof CredentialRequestException) {
-                throw error;
-            }
-
-            // Check for credential configuration not found
-            if (
-                error instanceof ConflictException &&
-                (error.message?.includes("not found") ||
-                    error.message?.includes("Credential configuration"))
-            ) {
-                throw new CredentialRequestException(
-                    "unknown_credential_configuration",
-                    error.message,
-                );
-            }
-
-            // Check for proof verification errors
-            if (
-                error instanceof Error &&
-                (error.message?.toLowerCase().includes("proof") ||
-                    error.message?.toLowerCase().includes("signature") ||
-                    error.message?.toLowerCase().includes("jwt"))
-            ) {
-                throw new CredentialRequestException(
-                    "invalid_proof",
-                    error.message,
-                );
-            }
-
-            // Default: credential_request_denied for unrecoverable errors
-            throw new CredentialRequestException(
-                "credential_request_denied",
-                error instanceof Error
-                    ? error.message
-                    : "An unexpected error occurred",
-            );
+            this.mapToCredentialRequestException(error);
         }
     }
 
@@ -745,9 +846,6 @@ export class Oid4vciService {
         const issuanceConfig =
             await this.issuanceService.getIssuanceConfiguration(tenantId);
         const headers = getHeadersFromRequest(req);
-        const protocol = new URL(
-            this.configService.getOrThrow<string>("PUBLIC_URL"),
-        ).protocol;
 
         const allowedAuthenticationSchemes: SupportedAuthenticationScheme[] = [
             SupportedAuthenticationScheme.DPoP,
@@ -833,97 +931,6 @@ export class Oid4vciService {
     }
 
     /**
-     * Handle deferred credential issuance.
-     * Creates a deferred transaction and returns HTTP 202 with transaction_id.
-     * @param parsedCredentialRequest The parsed credential request
-     * @param session The session
-     * @param tenantId The tenant ID
-     * @param claimsResult The claims webhook result indicating deferral
-     * @param logContext The logging context
-     * @returns A deferred credential response
-     */
-    private async handleDeferredIssuance(
-        parsedCredentialRequest: any,
-        session: any,
-        tenantId: string,
-        claimsResult: ClaimsWebhookResult,
-        logContext: SessionLogContext,
-    ): Promise<{
-        transaction_id: string;
-        interval?: number;
-    }> {
-        // For deferred issuance, we need to store the holder's proof(s) for later verification
-        // We'll verify the first proof and store the CNF for when the credential is ready
-        const issuer = this.getIssuer(tenantId);
-
-        // Verify the first proof to get the holder's public key
-        const jwt = parsedCredentialRequest.proofs.jwt[0];
-        const payload = decodeJwt(jwt);
-        const expectedNonce = payload.nonce! as string;
-
-        // Delete the nonce to prevent reuse
-        const nonceResult = await this.nonceRepository.delete({
-            nonce: expectedNonce,
-            tenantId,
-        });
-        if (nonceResult.affected === 0) {
-            throw new CredentialRequestException(
-                "invalid_nonce",
-                "The nonce in the key proof is invalid or has already been used",
-            );
-        }
-
-        const verifiedProof = await issuer.verifyCredentialRequestJwtProof({
-            expectedNonce,
-            issuerMetadata: await this.issuerMetadata(session.tenantId),
-            jwt,
-        });
-
-        const transactionId = v4();
-        const interval = claimsResult.interval ?? 5;
-
-        // Calculate expiration (default 24 hours)
-        const expiresAt = new Date();
-        expiresAt.setHours(expiresAt.getHours() + 24);
-
-        // Create deferred transaction record
-        const deferredTransaction = this.deferredTransactionRepository.create({
-            transactionId,
-            tenantId,
-            sessionId: session.id,
-            credentialConfigurationId:
-                parsedCredentialRequest.credentialConfigurationId as string,
-            holderCnf: verifiedProof.signer.publicJwk as Record<
-                string,
-                unknown
-            >,
-            status: DeferredTransactionStatus.Pending,
-            interval,
-            expiresAt,
-        });
-
-        await this.deferredTransactionRepository.save(deferredTransaction);
-
-        this.sessionLogger.logSession(
-            logContext,
-            "Deferred credential issuance initiated",
-            {
-                transactionId,
-                credentialConfigurationId:
-                    parsedCredentialRequest.credentialConfigurationId,
-                interval,
-                expiresAt: expiresAt.toISOString(),
-            },
-        );
-
-        // Return response with HTTP 202 (handled by controller)
-        return {
-            transaction_id: transactionId,
-            interval,
-        };
-    }
-
-    /**
      * Handle deferred credential request.
      * Called when wallet polls with transaction_id.
      * @param req The request
@@ -937,147 +944,17 @@ export class Oid4vciService {
         tenantId: string,
     ): Promise<CredentialResponse> {
         const issuer = this.getIssuer(tenantId);
-        const resourceServer = this.getResourceServer(tenantId);
         const issuerMetadata = await this.issuerMetadata(tenantId, issuer);
-        const issuanceConfig =
-            await this.issuanceService.getIssuanceConfiguration(tenantId);
-        const headers = getHeadersFromRequest(req);
-
-        const allowedAuthenticationSchemes = [
-            SupportedAuthenticationScheme.DPoP,
-        ];
-
-        if (!issuanceConfig.dPopRequired) {
-            allowedAuthenticationSchemes.push(
-                SupportedAuthenticationScheme.Bearer,
-            );
-        }
-
-        // Verify the access token
-        await resourceServer.verifyResourceRequest({
-            authorizationServers: issuerMetadata.authorizationServers,
-            request: {
-                url: `${this.configService.getOrThrow<string>("PUBLIC_URL")}${req.url}`,
-                method: req.method as HttpMethod,
-                headers,
-            },
-            resourceServer: issuerMetadata.credentialIssuer.credential_issuer,
-            allowedAuthenticationSchemes,
-        });
-
-        // Find the deferred transaction
-        const deferredTransaction =
-            await this.deferredTransactionRepository.findOneBy({
-                transactionId: body.transaction_id,
-                tenantId,
-            });
-
-        if (!deferredTransaction) {
-            throw new DeferredCredentialException(
-                "invalid_transaction_id",
-                "The transaction_id is invalid or has expired",
-            );
-        }
-
-        // Check if transaction has expired
-        if (new Date() > deferredTransaction.expiresAt) {
-            await this.deferredTransactionRepository.update(
-                { transactionId: body.transaction_id },
-                { status: DeferredTransactionStatus.Expired },
-            );
-            throw new DeferredCredentialException(
-                "invalid_transaction_id",
-                "The transaction has expired",
-            );
-        }
-
-        // Create logging context
-        const logContext: SessionLogContext = {
-            sessionId: deferredTransaction.sessionId,
+        return this.deferredCredentialService.getDeferredCredential(
+            req,
+            body,
             tenantId,
-            flowType: "OID4VCI",
-            stage: "deferred_credential",
-        };
-
-        // Check the status of the deferred transaction
-        switch (deferredTransaction.status) {
-            case DeferredTransactionStatus.Pending:
-                // Credential is still being processed
-                this.sessionLogger.logSession(
-                    logContext,
-                    "Deferred credential still pending",
-                    {
-                        transactionId: body.transaction_id,
-                        interval: deferredTransaction.interval,
-                    },
-                );
-                throw new DeferredCredentialException(
-                    "issuance_pending",
-                    "The credential issuance is still pending",
-                    deferredTransaction.interval,
-                );
-
-            case DeferredTransactionStatus.Failed:
-                throw new DeferredCredentialException(
-                    "invalid_transaction_id",
-                    deferredTransaction.errorMessage ||
-                        "The credential issuance has failed",
-                );
-
-            case DeferredTransactionStatus.Expired:
-                throw new DeferredCredentialException(
-                    "invalid_transaction_id",
-                    "The transaction has expired",
-                );
-
-            case DeferredTransactionStatus.Retrieved:
-                throw new DeferredCredentialException(
-                    "invalid_transaction_id",
-                    "The credential has already been retrieved",
-                );
-
-            case DeferredTransactionStatus.Ready:
-                // Credential is ready - return it
-                if (!deferredTransaction.credential) {
-                    throw new DeferredCredentialException(
-                        "invalid_transaction_id",
-                        "Credential is marked as ready but not available",
-                    );
-                }
-
-                // Mark as retrieved
-                await this.deferredTransactionRepository.update(
-                    { transactionId: body.transaction_id },
-                    { status: DeferredTransactionStatus.Retrieved },
-                );
-
-                this.sessionLogger.logSession(
-                    logContext,
-                    "Deferred credential retrieved",
-                    {
-                        transactionId: body.transaction_id,
-                        credentialConfigurationId:
-                            deferredTransaction.credentialConfigurationId,
-                    },
-                );
-
-                // Return the credential response directly
-                // Per OID4VCI Section 9.2, the response has the same format as the Credential Response
-                return {
-                    credential: deferredTransaction.credential,
-                } as CredentialResponse;
-
-            default:
-                throw new DeferredCredentialException(
-                    "invalid_transaction_id",
-                    "Unknown transaction status",
-                );
-        }
+            issuerMetadata,
+        );
     }
 
     /**
      * Mark a deferred transaction as ready with the issued credential.
-     * This method is called when the external system completes processing.
      * @param tenantId The tenant ID
      * @param transactionId The transaction ID
      * @param claims The claims to include in the credential
@@ -1088,46 +965,11 @@ export class Oid4vciService {
         transactionId: string,
         claims: Record<string, unknown>,
     ): Promise<DeferredTransactionEntity | null> {
-        // Find the deferred transaction
-        const transaction = await this.deferredTransactionRepository.findOneBy({
-            transactionId,
+        return this.deferredCredentialService.completeDeferredTransaction(
             tenantId,
-            status: DeferredTransactionStatus.Pending,
-        });
-
-        if (!transaction) {
-            return null;
-        }
-
-        // Get the session to issue the credential
-        const session = await this.sessionService.get(transaction.sessionId);
-        if (!session) {
-            throw new ConflictException(
-                `Session ${transaction.sessionId} not found for deferred transaction ${transactionId}`,
-            );
-        }
-
-        // Issue the credential
-        const credential = await this.credentialsService.getCredential(
-            transaction.credentialConfigurationId,
-            transaction.holderCnf as Jwk,
-            session,
-            claims as Record<string, any>,
+            transactionId,
+            claims,
         );
-
-        // Update the transaction
-        await this.deferredTransactionRepository.update(
-            { transactionId, tenantId },
-            {
-                status: DeferredTransactionStatus.Ready,
-                credential,
-            },
-        );
-
-        transaction.status = DeferredTransactionStatus.Ready;
-        transaction.credential = credential;
-
-        return transaction;
     }
 
     /**
@@ -1142,38 +984,10 @@ export class Oid4vciService {
         transactionId: string,
         errorMessage?: string,
     ): Promise<DeferredTransactionEntity | null> {
-        // Find the deferred transaction
-        const transaction = await this.deferredTransactionRepository.findOneBy({
-            transactionId,
+        return this.deferredCredentialService.failDeferredTransaction(
             tenantId,
-        });
-
-        if (!transaction) {
-            return null;
-        }
-
-        await this.deferredTransactionRepository.update(
-            { transactionId, tenantId },
-            {
-                status: DeferredTransactionStatus.Failed,
-                errorMessage: errorMessage ?? "Transaction marked as failed",
-            },
+            transactionId,
+            errorMessage,
         );
-
-        transaction.status = DeferredTransactionStatus.Failed;
-        transaction.errorMessage =
-            errorMessage ?? "Transaction marked as failed";
-
-        return transaction;
-    }
-
-    /**
-     * Cleanup expired deferred transactions.
-     */
-    @Cron(CronExpression.EVERY_HOUR)
-    async cleanupExpiredDeferredTransactions() {
-        await this.deferredTransactionRepository.delete({
-            expiresAt: LessThan(new Date()),
-        });
     }
 }
