@@ -122,6 +122,7 @@ export class AuthorizeService {
             pushed_authorization_request_endpoint: `${authServer}/authorize/par`,
             code_challenge_methods_supported: [PkceCodeChallengeMethod.S256],
             authorization_details_types_supported: ["openid_credential"],
+            token_endpoint_auth_methods_supported: ["none"],
         };
 
         if (walletAttestationRequired) {

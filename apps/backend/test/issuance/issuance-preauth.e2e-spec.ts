@@ -87,8 +87,6 @@ describe("Issuance - Pre-authorized Code Flow", () => {
             credentialOffer.credential_issuer,
         );
 
-        console.log(credentialOffer);
-
         const { accessTokenResponse } =
             await client.retrievePreAuthorizedCodeAccessTokenFromOffer({
                 credentialOffer,

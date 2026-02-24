@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { CredentialIssuerMetadataDisplayEntry } from "@openid4vc/openid4vci";
 import { plainToClass } from "class-transformer";
 import { Repository } from "typeorm";
 import { KeyService } from "../../../crypto/key/key.service";
@@ -10,7 +11,6 @@ import {
     ImportPhase,
 } from "../../../shared/utils/config-import/config-import-orchestrator.service";
 import { FilesService } from "../../../storage/files.service";
-import { DisplayInfo } from "./dto/display.dto";
 import { IssuanceDto } from "./dto/issuance.dto";
 import { IssuanceConfig } from "./entities/issuance-config.entity";
 
@@ -81,7 +81,10 @@ export class IssuanceService {
         );
     }
 
-    private replaceUrl(display: DisplayInfo[], tenantId: string) {
+    private replaceUrl(
+        display: CredentialIssuerMetadataDisplayEntry[],
+        tenantId: string,
+    ) {
         return Promise.all(
             display.map(async (display) => {
                 if (display.logo?.uri) {
@@ -104,19 +107,12 @@ export class IssuanceService {
     }
 
     /**
-     * Returns the issuance configuration for this tenant. If not found, creates a default one.
+     * Returns the issuance configuration for this tenant.
      * @param tenantId
      * @returns
      */
     public getIssuanceConfiguration(tenantId: string) {
-        return this.issuanceConfigRepo
-            .findOneByOrFail({ tenantId })
-            .catch(() => {
-                const defaultConfig = this.issuanceConfigRepo.create({
-                    tenantId,
-                });
-                return this.issuanceConfigRepo.save(defaultConfig);
-            });
+        return this.issuanceConfigRepo.findOneByOrFail({ tenantId });
     }
 
     /**

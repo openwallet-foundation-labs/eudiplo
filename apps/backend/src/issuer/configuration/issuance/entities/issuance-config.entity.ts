@@ -3,6 +3,7 @@ import {
     ApiHideProperty,
     ApiPropertyOptional,
 } from "@nestjs/swagger";
+import { CredentialIssuerMetadataDisplayEntry } from "@openid4vc/openid4vci";
 import { Type } from "class-transformer";
 import {
     IsArray,
@@ -111,7 +112,7 @@ export class IssuanceConfig {
     @ValidateNested({ each: true })
     @Type(() => DisplayInfo)
     @Column("json", { nullable: true })
-    display!: DisplayInfo[];
+    display!: CredentialIssuerMetadataDisplayEntry[];
 
     /**
      * The timestamp when the VP request was created.
