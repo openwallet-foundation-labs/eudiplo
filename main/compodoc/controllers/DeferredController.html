@@ -230,8 +230,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="105"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/deferred.controller.ts:105</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="68"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/deferred.controller.ts:68</a></div>
                         </td>
                     </tr>
 
@@ -353,8 +353,8 @@ This will generate the credential and mark it as ready for retrieval.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="168"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/deferred.controller.ts:168</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="131"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/deferred.controller.ts:131</a></div>
                         </td>
                     </tr>
 
@@ -458,49 +458,12 @@ import { ApiBody, ApiOperation, ApiResponse, ApiTags } from &quot;@nestjs/swagge
 import { Role } from &quot;../../../auth/roles/role.enum&quot;;
 import { Secured } from &quot;../../../auth/secure.decorator&quot;;
 import { Token, TokenPayload } from &quot;../../../auth/token.decorator&quot;;
-import { DeferredTransactionStatus } from &quot;./entities/deferred-transaction.entity&quot;;
+import {
+    CompleteDeferredDto,
+    DeferredOperationResponse,
+    FailDeferredDto,
+} from &quot;./dto/complete-deferred.dto&quot;;
 import { Oid4vciService } from &quot;./oid4vci.service&quot;;
-
-/**
- * DTO for completing a deferred transaction
- */
-export class CompleteDeferredDto {
-    /**
-     * Claims to include in the credential.
-     * The structure should match the credential configuration&#x27;s expected claims.
-     */
-    claims: Record&lt;string, unknown&gt;;
-}
-
-/**
- * DTO for failing a deferred transaction
- */
-export class FailDeferredDto {
-    /**
-     * Optional error message explaining why the issuance failed
-     */
-    error?: string;
-}
-
-/**
- * Response for deferred transaction operations
- */
-export class DeferredOperationResponse {
-    /**
-     * The transaction ID
-     */
-    transactionId: string;
-
-    /**
-     * The new status of the transaction
-     */
-    status: DeferredTransactionStatus;
-
-    /**
-     * Optional message
-     */
-    message?: string;
-}
 
 @ApiTags(&quot;Issuer&quot;)
 @Secured([Role.IssuanceOffer])

@@ -225,12 +225,12 @@ and status list verification for wallet providers.</p>
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, cryptoImplementationService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, trustStoreService: <a href="../injectables/TrustStoreService.html" target="_self">TrustStoreService</a>, x509ValidationService: <a href="../injectables/X509ValidationService.html" target="_self">X509ValidationService</a>, statusListVerifierService: <a href="../injectables/StatusListVerifierService.html" target="_self">StatusListVerifierService</a>)</code>
+<code>constructor(cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, cryptoImplementationService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, trustStoreService: <a href="../injectables/TrustStoreService.html" target="_self">TrustStoreService</a>, x509ValidationService: <a href="../injectables/X509ValidationService.html" target="_self">X509ValidationService</a>, statusListVerifierService: <a href="../injectables/StatusListVerifierService.html" target="_self">StatusListVerifierService</a>, configService: ConfigService)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="28" class="link-to-prism">src/shared/trust/wallet-attestation.service.ts:28</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/shared/trust/wallet-attestation.service.ts:29</a></div>
                             </td>
                         </tr>
 
@@ -307,6 +307,18 @@ and status list verification for wallet providers.</p>
                                                     </td>
                                                     
                                                 </tr>
+                                                <tr>
+                                                        <td>configService</td>
+                                                  
+                                                        <td>
+                                                                    <code>ConfigService</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -343,8 +355,8 @@ and status list verification for wallet providers.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="44"
-                                    class="link-to-prism">src/shared/trust/wallet-attestation.service.ts:44</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="46"
+                                    class="link-to-prism">src/shared/trust/wallet-attestation.service.ts:46</a></div>
                         </td>
                     </tr>
 
@@ -422,8 +434,8 @@ Used for wallet attestation verification.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="428"
-                                    class="link-to-prism">src/shared/trust/wallet-attestation.service.ts:428</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="433"
+                                    class="link-to-prism">src/shared/trust/wallet-attestation.service.ts:433</a></div>
                         </td>
                     </tr>
 
@@ -494,8 +506,8 @@ Used for wallet attestation verification.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="218"
-                                    class="link-to-prism">src/shared/trust/wallet-attestation.service.ts:218</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="223"
+                                    class="link-to-prism">src/shared/trust/wallet-attestation.service.ts:223</a></div>
                         </td>
                     </tr>
 
@@ -606,8 +618,8 @@ from the same trusted entity that issued the wallet attestation.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="121"
-                                    class="link-to-prism">src/shared/trust/wallet-attestation.service.ts:121</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="126"
+                                    class="link-to-prism">src/shared/trust/wallet-attestation.service.ts:126</a></div>
                         </td>
                     </tr>
 
@@ -701,8 +713,8 @@ Returns the matched entity and trust store for use in status list verification.<
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="297"
-                                    class="link-to-prism">src/shared/trust/wallet-attestation.service.ts:297</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="302"
+                                    class="link-to-prism">src/shared/trust/wallet-attestation.service.ts:302</a></div>
                         </td>
                     </tr>
 
@@ -811,8 +823,8 @@ from the matched trusted entity.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="62"
-                                    class="link-to-prism">src/shared/trust/wallet-attestation.service.ts:62</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="64"
+                                    class="link-to-prism">src/shared/trust/wallet-attestation.service.ts:64</a></div>
                         </td>
                     </tr>
 
@@ -963,7 +975,7 @@ against configured trust lists, and verifies the status list if present.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="28" class="link-to-prism">src/shared/trust/wallet-attestation.service.ts:28</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/shared/trust/wallet-attestation.service.ts:29</a></div>
                         </td>
                     </tr>
 
@@ -978,6 +990,7 @@ against configured trust lists, and verifies the status list if present.</p>
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { X509Certificate } from &quot;node:crypto&quot;;
 import { Injectable, Logger, UnauthorizedException } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
 import { Openid4vciIssuer } from &quot;@openid4vc/openid4vci&quot;;
 import * as x509 from &quot;@peculiar/x509&quot;;
 import { decodeProtectedHeader, JWK } from &quot;jose&quot;;
@@ -1011,6 +1024,7 @@ export class WalletAttestationService {
         private readonly trustStoreService: TrustStoreService,
         private readonly x509ValidationService: X509ValidationService,
         private readonly statusListVerifierService: StatusListVerifierService,
+        private readonly configService: ConfigService,
     ) {}
 
     /**
@@ -1060,6 +1074,8 @@ export class WalletAttestationService {
                 clientAttestationJwt: clientAttestation.clientAttestationJwt,
                 clientAttestationPopJwt:
                     clientAttestation.clientAttestationPopJwt,
+                allowedSkewInSeconds:
+                    this.configService.getOrThrow&lt;number&gt;(&quot;CRYPTO_TOLERANCE&quot;),
             });
 
             // Then validate the X.509 certificate against trust lists and get the matched entity
@@ -1084,6 +1100,7 @@ export class WalletAttestationService {
             }
             throw new UnauthorizedException(
                 &#x60;Wallet attestation verification failed: ${err instanceof Error ? err.message : &quot;Unknown error&quot;}&#x60;,
+                { cause: err instanceof Error ? err : undefined },
             );
         }
     }

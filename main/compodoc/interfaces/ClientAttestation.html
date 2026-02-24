@@ -255,6 +255,7 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { X509Certificate } from &quot;node:crypto&quot;;
 import { Injectable, Logger, UnauthorizedException } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
 import { Openid4vciIssuer } from &quot;@openid4vc/openid4vci&quot;;
 import * as x509 from &quot;@peculiar/x509&quot;;
 import { decodeProtectedHeader, JWK } from &quot;jose&quot;;
@@ -288,6 +289,7 @@ export class WalletAttestationService {
         private readonly trustStoreService: TrustStoreService,
         private readonly x509ValidationService: X509ValidationService,
         private readonly statusListVerifierService: StatusListVerifierService,
+        private readonly configService: ConfigService,
     ) {}
 
     /**
@@ -337,6 +339,8 @@ export class WalletAttestationService {
                 clientAttestationJwt: clientAttestation.clientAttestationJwt,
                 clientAttestationPopJwt:
                     clientAttestation.clientAttestationPopJwt,
+                allowedSkewInSeconds:
+                    this.configService.getOrThrow&lt;number&gt;(&quot;CRYPTO_TOLERANCE&quot;),
             });
 
             // Then validate the X.509 certificate against trust lists and get the matched entity
@@ -361,6 +365,7 @@ export class WalletAttestationService {
             }
             throw new UnauthorizedException(
                 &#x60;Wallet attestation verification failed: ${err instanceof Error ? err.message : &quot;Unknown error&quot;}&#x60;,
+                { cause: err instanceof Error ? err : undefined },
             );
         }
     }

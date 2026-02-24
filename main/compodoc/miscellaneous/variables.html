@@ -888,6 +888,10 @@ This decorator can be used to determine the media type of the request.</p>
         .default(&quot;ES256&quot;)
         .description(&quot;The signing algorithm to use&quot;)
         .meta({ group: &quot;crypto&quot;, order: 10 }),
+    CRYPTO_TOLERANCE: Joi.number()
+        .default(5)
+        .description(&quot;Clock tolerance in seconds for JWT verification&quot;)
+        .meta({ group: &quot;crypto&quot;, order: 20 }),
 })</code>
                     </td>
                 </tr>

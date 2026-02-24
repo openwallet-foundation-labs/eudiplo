@@ -615,8 +615,8 @@ According to OID4VCI Section 6.3:</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="143"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:143</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="148"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:148</a></div>
                         </td>
                     </tr>
 
@@ -696,8 +696,8 @@ According to OID4VCI Section 6.3:</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="341"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:341</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="346"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:346</a></div>
                         </td>
                     </tr>
 
@@ -767,8 +767,8 @@ According to OID4VCI Section 6.3:</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="178"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:178</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="183"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:183</a></div>
                         </td>
                     </tr>
 
@@ -1001,12 +1001,17 @@ export class AuthorizeService {
             authorization_endpoint: &#x60;${authServer}/authorize&#x60;,
             interactive_authorization_endpoint: &#x60;${authServer}/authorize/interactive&#x60;,
             jwks_uri: &#x60;${authServer}/.well-known/jwks.json&#x60;,
+            grant_types_supported: [
+                &quot;authorization_code&quot;,
+                &quot;urn:ietf:params:oauth:grant-type:pre-authorized_code&quot;,
+            ],
             dpop_signing_alg_values_supported: useDpop ? [&quot;ES256&quot;] : undefined,
             // TODO: verify this on the server
             require_pushed_authorization_requests: true,
             pushed_authorization_request_endpoint: &#x60;${authServer}/authorize/par&#x60;,
             code_challenge_methods_supported: [PkceCodeChallengeMethod.S256],
             authorization_details_types_supported: [&quot;openid_credential&quot;],
+            token_endpoint_auth_methods_supported: [&quot;none&quot;],
         };
 
         if (walletAttestationRequired) {

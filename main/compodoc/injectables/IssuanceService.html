@@ -339,15 +339,15 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="111"
-                                    class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:111</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="114"
+                                    class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:114</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Returns the issuance configuration for this tenant. If not found, creates a default one.</p>
+                        <div class="io-description"><p>Returns the issuance configuration for this tenant.</p>
 </div>
 
                             <div class="io-description">
@@ -475,7 +475,7 @@ It provides methods to get, store, and delete issuance configurations.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>replaceUrl(display: DisplayInfo[], tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>replaceUrl(display: <a href="../interfaces/IssuerMetadata.html" target="_self">CredentialIssuerMetadataDisplayEntry[]</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -506,7 +506,7 @@ It provides methods to get, store, and delete issuance configurations.</p>
                                         <tr>
                                                 <td>display</td>
                                             <td>
-                                                        <code>DisplayInfo[]</code>
+                                                            <code><a href="../interfaces/IssuerMetadata.html" target="_self" >CredentialIssuerMetadataDisplayEntry[]</a></code>
                                             </td>
 
                                             <td>
@@ -563,8 +563,8 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="128"
-                                    class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:128</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="124"
+                                    class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:124</a></div>
                         </td>
                     </tr>
 
@@ -710,6 +710,7 @@ It provides methods to get, store, and delete issuance configurations.</p>
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { readFileSync } from &quot;node:fs&quot;;
 import { Inject, Injectable, Logger } from &quot;@nestjs/common&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
+import { CredentialIssuerMetadataDisplayEntry } from &quot;@openid4vc/openid4vci&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { KeyService } from &quot;../../../crypto/key/key.service&quot;;
@@ -719,7 +720,6 @@ import {
     ImportPhase,
 } from &quot;../../../shared/utils/config-import/config-import-orchestrator.service&quot;;
 import { FilesService } from &quot;../../../storage/files.service&quot;;
-import { DisplayInfo } from &quot;./dto/display.dto&quot;;
 import { IssuanceDto } from &quot;./dto/issuance.dto&quot;;
 import { IssuanceConfig } from &quot;./entities/issuance-config.entity&quot;;
 
@@ -790,7 +790,10 @@ export class IssuanceService {
         );
     }
 
-    private replaceUrl(display: DisplayInfo[], tenantId: string) {
+    private replaceUrl(
+        display: CredentialIssuerMetadataDisplayEntry[],
+        tenantId: string,
+    ) {
         return Promise.all(
             display.map(async (display) &#x3D;&gt; {
                 if (display.logo?.uri) {
@@ -813,19 +816,12 @@ export class IssuanceService {
     }
 
     /**
-     * Returns the issuance configuration for this tenant. If not found, creates a default one.
+     * Returns the issuance configuration for this tenant.
      * @param tenantId
      * @returns
      */
     public getIssuanceConfiguration(tenantId: string) {
-        return this.issuanceConfigRepo
-            .findOneByOrFail({ tenantId })
-            .catch(() &#x3D;&gt; {
-                const defaultConfig &#x3D; this.issuanceConfigRepo.create({
-                    tenantId,
-                });
-                return this.issuanceConfigRepo.save(defaultConfig);
-            });
+        return this.issuanceConfigRepo.findOneByOrFail({ tenantId });
     }
 
     /**
