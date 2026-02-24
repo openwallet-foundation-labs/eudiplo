@@ -112,6 +112,10 @@ export class AuthorizeService {
             authorization_endpoint: `${authServer}/authorize`,
             interactive_authorization_endpoint: `${authServer}/authorize/interactive`,
             jwks_uri: `${authServer}/.well-known/jwks.json`,
+            grant_types_supported: [
+                "authorization_code",
+                "urn:ietf:params:oauth:grant-type:pre-authorized_code",
+            ],
             dpop_signing_alg_values_supported: useDpop ? ["ES256"] : undefined,
             // TODO: verify this on the server
             require_pushed_authorization_requests: true,

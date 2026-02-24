@@ -66,8 +66,11 @@ describe("Presentation - SD-JWT Credential", () => {
             authorizationRequest: res.body.uri,
         });
 
+        console.log(authRequest);
+
         const resolved = await client.resolveOpenId4vpAuthorizationRequest({
             authorizationRequestPayload: authRequest.params,
+            responseMode: { type: "direct_post" },
         });
 
         const x5c = [
@@ -164,6 +167,7 @@ describe("Presentation - SD-JWT Credential", () => {
 
         const resolved = await client.resolveOpenId4vpAuthorizationRequest({
             authorizationRequestPayload: authRequest.params,
+            responseMode: { type: "direct_post" },
         });
 
         const x5c = [
