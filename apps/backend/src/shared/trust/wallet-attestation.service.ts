@@ -106,6 +106,7 @@ export class WalletAttestationService {
             }
             throw new UnauthorizedException(
                 `Wallet attestation verification failed: ${err instanceof Error ? err.message : "Unknown error"}`,
+                { cause: err instanceof Error ? err : undefined },
             );
         }
     }

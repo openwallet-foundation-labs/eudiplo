@@ -32,10 +32,7 @@
             <span matListItemLine>{{ formatDate(config.createdAt) }}</span>
           </mat-list-item>
           <mat-list-item>
-            <mat-icon
-              matListItemIcon
-              [class]="config.dPopRequired ? 'icon-enabled' : 'icon-disabled'"
-            >
+            <mat-icon matListItemIcon>
               {{ config.dPopRequired ? 'verified_user' : 'no_encryption' }}
             </mat-icon>
             <span matListItemTitle>DPoP</span>

@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { Inject, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import {
     type CallbackContext,
     calculateJwkThumbprint,
@@ -29,31 +30,40 @@ export class CryptoService {
     folder!: string;
 
     /**
+     * Clock tolerance in seconds for JWT verification.
+     * Configured via CRYPTO_TOLERANCE env var, defaults to 5s.
+     */
+    private readonly clockTolerance: number;
+
+    /**
      * Constructor for CryptoService.
      * @param keyService
+     * @param configService
      */
-    constructor(@Inject("KeyService") public readonly keyService: KeyService) {}
+    constructor(
+        @Inject("KeyService") public readonly keyService: KeyService,
+        private readonly configService: ConfigService,
+    ) {
+        this.clockTolerance =
+            this.configService.getOrThrow<number>("CRYPTO_TOLERANCE");
+    }
 
     /**
      * Verify a JWT with the key service.
      * @param compact
      * @param tenantId
-     * @param payload
      * @returns
      */
     async verifyJwt(
         compact: string,
         tenantId: string,
-        payload?: Record<string, any>,
     ): Promise<{ verified: boolean }> {
         const publicJwk = await this.keyService.getPublicKey("jwk", tenantId);
         const publicCryptoKey = await importJWK(publicJwk, "ES256");
 
         try {
             await jwtVerify(compact, publicCryptoKey, {
-                currentDate: payload?.exp
-                    ? new Date((payload.exp - 300) * 1000)
-                    : undefined,
+                clockTolerance: this.clockTolerance,
             });
             return { verified: true };
         } catch {
@@ -91,7 +101,7 @@ export class CryptoService {
                 return { jwe, encryptionJwk: encryptor.publicJwk };
             },
             signJwt: this.getSignJwtCallback(tenantId),
-            verifyJwt: async (signer, { compact, payload }) => {
+            verifyJwt: async (signer, { compact }) => {
                 if (signer.method === "jwk") {
                     const josePublicKey = await importJWK(
                         signer.publicJwk as JWK,
@@ -99,12 +109,11 @@ export class CryptoService {
                     );
                     try {
                         await jwtVerify(compact, josePublicKey, {
-                            currentDate: payload?.exp
-                                ? new Date((payload.exp - 300) * 1000)
-                                : undefined,
+                            clockTolerance: this.clockTolerance,
                         });
                         return { verified: true, signerJwk: signer.publicJwk };
-                    } catch {
+                    } catch (e) {
+                        console.log(e);
                         return { verified: false };
                     }
                 } else if (signer.method === "x5c") {
@@ -120,9 +129,7 @@ export class CryptoService {
                             signer.alg,
                         );
                         await jwtVerify(compact, josePublicKey, {
-                            currentDate: payload?.exp
-                                ? new Date((payload.exp - 300) * 1000)
-                                : undefined,
+                            clockTolerance: this.clockTolerance,
                         });
                         // Extract the public JWK from the certificate for the return value
                         const signerJwk = await exportJWK(josePublicKey);

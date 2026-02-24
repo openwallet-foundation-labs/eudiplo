@@ -49,16 +49,26 @@ export class Oid4vciController {
         @Req() req: Request,
         @Res({ passthrough: true }) res: Response,
         @Param("tenantId") tenantId: string,
-    ): Promise<CreateCredentialResponseReturn | DeferredCredentialResponse> {
+    ): Promise<CredentialResponse | DeferredCredentialResponse | string> {
         return this.oid4vciService.getCredential(req, tenantId).then(
             (result) => {
                 // Check if this is a deferred response (has non-null transaction_id)
-                // Note: Using truthiness check because CredentialResponse type may include
-                // transaction_id as optional property with undefined value
                 if ("transaction_id" in result && result.transaction_id) {
                     res.status(HttpStatus.ACCEPTED);
+                    return result;
                 }
-                return result;
+
+                const credentialResult =
+                    result as CreateCredentialResponseReturn;
+
+                // If the response is encrypted, return the JWE string directly
+                // See: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-response
+                if (credentialResult.credentialResponseJwt) {
+                    res.setHeader("Content-Type", "application/jwt");
+                    return credentialResult.credentialResponseJwt;
+                }
+
+                return credentialResult.credentialResponse;
             },
             (err) => {
                 //TODO: implement errors according to: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-request-errors
