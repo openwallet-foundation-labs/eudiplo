@@ -112,12 +112,17 @@ export class AuthorizeService {
             authorization_endpoint: `${authServer}/authorize`,
             interactive_authorization_endpoint: `${authServer}/authorize/interactive`,
             jwks_uri: `${authServer}/.well-known/jwks.json`,
+            grant_types_supported: [
+                "authorization_code",
+                "urn:ietf:params:oauth:grant-type:pre-authorized_code",
+            ],
             dpop_signing_alg_values_supported: useDpop ? ["ES256"] : undefined,
             // TODO: verify this on the server
             require_pushed_authorization_requests: true,
             pushed_authorization_request_endpoint: `${authServer}/authorize/par`,
             code_challenge_methods_supported: [PkceCodeChallengeMethod.S256],
             authorization_details_types_supported: ["openid_credential"],
+            token_endpoint_auth_methods_supported: ["none"],
         };
 
         if (walletAttestationRequired) {

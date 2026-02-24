@@ -11,6 +11,8 @@ import { SessionLogContext } from "../../../shared/utils/logger/session-logger-c
 import { WebhookConfig } from "../../../shared/utils/webhook/webhook.dto";
 import { WebhookService } from "../../../shared/utils/webhook/webhook.service";
 import { VCT } from "../../issuance/oid4vci/metadata/dto/vct.dto";
+import { AuthorizationIdentity } from "./dto/authorization-identity";
+import { ClaimsWebhookResult } from "./dto/claims-webhook-result";
 import {
     CredentialConfig,
     CredentialFormat,
@@ -24,43 +26,6 @@ import {
     type TypedCredentialConfig,
     toCredentialConfigurationSupported,
 } from "./types/credential-config-types";
-
-/**
- * Result of fetching claims from webhook.
- * Either contains claims for immediate issuance or indicates deferred issuance.
- */
-export interface ClaimsWebhookResult {
-    /**
-     * Claims data for the credential (when not deferred).
-     */
-    claims?: Record<string, any>;
-    /**
-     * Whether the issuance should be deferred.
-     */
-    deferred: boolean;
-    /**
-     * Recommended polling interval in seconds for deferred issuance.
-     */
-    interval?: number;
-}
-
-/**
- * Identity context from authorization server token (internal or external AS).
- */
-export interface AuthorizationIdentity {
-    /**
-     * The issuer (iss) of the authorization server
-     */
-    iss: string;
-    /**
-     * The subject (sub) from the AS token - user identifier
-     */
-    sub: string;
-    /**
-     * Additional claims from the access token
-     */
-    token_claims: Record<string, unknown>;
-}
 
 /**
  * Service for managing credentials and their configurations.

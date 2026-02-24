@@ -69,6 +69,7 @@ describe("Presentation - Webhook Integration", () => {
 
         const resolved = await client.resolveOpenId4vpAuthorizationRequest({
             authorizationRequestPayload: authRequest.params,
+            responseMode: { type: "direct_post" },
         });
 
         const x5c = [

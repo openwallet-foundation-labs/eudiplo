@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
 import { CryptoService } from "./crypto.service";
@@ -11,6 +12,7 @@ import { KeyController } from "./key/key.controller";
 
 @Module({
     imports: [
+        ConfigModule,
         TypeOrmModule.forFeature([
             CertEntity,
             CertUsageEntity,

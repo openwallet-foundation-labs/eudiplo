@@ -64,6 +64,7 @@ describe("Presentation - mDOC Credential", () => {
 
         const resolved = await client.resolveOpenId4vpAuthorizationRequest({
             authorizationRequestPayload: authRequest.params,
+            responseMode: { type: "direct_post" },
         });
 
         const vp_token = await prepareMdocPresentation(
