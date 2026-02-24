@@ -101,7 +101,7 @@
         "@biomejs/biome": "2.4.2",
         "@codecov/vite-plugin": "^1.9.1",
         "@compodoc/compodoc": "^1.2.1",
-        "@hey-api/openapi-ts": "^0.92.4",
+        "@hey-api/openapi-ts": "^0.93.0",
         "@nestjs/cli": "^11.0.16",
         "@nestjs/schematics": "^11.0.9",
         "@nestjs/testing": "^11.1.14",
