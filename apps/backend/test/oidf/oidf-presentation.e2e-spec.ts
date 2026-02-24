@@ -104,7 +104,6 @@ describe("OIDF", () => {
         configService.set("CONFIG_FOLDER", configFolder);
         configService.set("PUBLIC_URL", `https://${PUBLIC_DOMAIN}`);
         configService.set("CONFIG_IMPORT", true);
-        configService.set("CONFIG_IMPORT_FORCE", true);
         configService.set("LOG_LEVEL", "debug");
 
         await app.init();

@@ -119,7 +119,6 @@ describe("Issuance - Chained AS Flow", () => {
 
         const configService = app.get(ConfigService);
         configService.set("CONFIG_IMPORT", false);
-        configService.set("CONFIG_IMPORT_FORCE", true);
         configService.set("LOG_LEVEL", "debug");
 
         clientId = configService.getOrThrow<string>("AUTH_CLIENT_ID");
