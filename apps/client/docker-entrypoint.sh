@@ -38,6 +38,7 @@ cat > /usr/share/nginx/html/env.js << EOF
 })(this);
 EOF
 
+echo "index.html base href set to: ${BASE_HREF}"
 echo "env.js configured with API_BASE_URL: ${API_BASE_URL}, VERSION: ${VERSION}, timestamp: ${TIMESTAMP}"
 
 # Start nginx
