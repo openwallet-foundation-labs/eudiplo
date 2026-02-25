@@ -23,12 +23,12 @@ esac
 
 # Validate CLIENT_BASE_HREF contains only safe characters
 if ! echo "$CLIENT_BASE_HREF" | grep -qE '^/[a-zA-Z0-9/_-]*/$'; then
-  echo "Error: CLIENT_BASE_HREF contains invalid characters"
+  echo "Error: CLIENT_BASE_HREF contains invalid characters" >&2
   exit 1
 fi
 
 if ! sed -i 's|<base href="[^"]*"[^>]*>|<base href="'"${CLIENT_BASE_HREF}"'">|g' /usr/share/nginx/html/index.html; then
-  echo "Error: Failed to update base href in /usr/share/nginx/html/index.html"
+  echo "Error: Failed to update base href in /usr/share/nginx/html/index.html" >&2
   exit 1
 fi
 
