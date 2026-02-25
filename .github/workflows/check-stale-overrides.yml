@@ -60,7 +60,7 @@ jobs:
 
       - name: Create issue if overrides exist
         if: steps.check.outputs.has_overrides == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const pkg = require('./package.json');
