@@ -21,6 +21,13 @@ case "$CLIENT_BASE_HREF" in
   *) CLIENT_BASE_HREF="$CLIENT_BASE_HREF/" ;;
 esac
 
+# Validate CLIENT_BASE_HREF contains only safe characters
+if ! echo "$CLIENT_BASE_HREF" | grep -qE '^/[a-zA-Z0-9/_-]*/$'; then
+  echo "Error: CLIENT_BASE_HREF contains invalid characters"
+  exit 1
+fi
+
+
 # Generate timestamp for cache busting
 TIMESTAMP=$(date +%s)
 
