@@ -27,6 +27,10 @@ if ! echo "$CLIENT_BASE_HREF" | grep -qE '^/[a-zA-Z0-9/_-]*/$'; then
   exit 1
 fi
 
+if ! sed -i 's|<base href="[^"]*"[^>]*>|<base href="'"${CLIENT_BASE_HREF}"'">|g' /usr/share/nginx/html/index.html; then
+  echo "Error: Failed to update base href in /usr/share/nginx/html/index.html"
+  exit 1
+fi
 
 # Generate timestamp for cache busting
 TIMESTAMP=$(date +%s)
