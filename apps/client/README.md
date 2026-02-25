@@ -158,7 +158,7 @@ The application includes a health check endpoint at `/health` that returns:
 The application can be configured using environment variables:
 
 - `API_BASE_URL`: Default API base URL
-- `CLIENT_BASE_HREF`: HTML base href (`<base href="<CLIENT_BASE_HREF>" />`). Useful for reverse proxy setups where the client is served from a subpath.
+- `CLIENT_BASE_HREF`: HTML base href (`<base href="<CLIENT_BASE_HREF>" />`). Useful for reverse proxy setups where the client is served from a subpath. For example, if the client is served from `https://example.com/client/`, set `CLIENT_BASE_HREF=/client/` to ensure correct routing and asset loading.
 
 #### URL Query Parameters
 
