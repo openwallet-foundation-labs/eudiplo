@@ -171,6 +171,21 @@ volumes:
     letsencrypt:
 ```
 
+### Serving the Client from a Subpath
+
+When serving the EUDIPLO client from a subpath (e.g., `https://example.com/eudiplo-client/`), configure the `CLIENT_BASE_HREF` environment variable to ensure correct routing and asset loading:
+
+```yaml
+services:
+    eudiplo-client:
+        image: ghcr.io/openwallet-foundation-labs/eudiplo-client:latest
+        environment:
+            CLIENT_BASE_HREF: /eudiplo-client/
+```
+
+!!! note "Automatic Normalization"
+The `CLIENT_BASE_HREF` value is automatically normalized to ensure it starts and ends with `/`. For example, `eudiplo-client` becomes `/eudiplo-client/`.
+
 ## Security Considerations
 
 !!! warning "Production Security" - **Never use self-signed certificates in production**. Use certificates from trusted CAs. - **Keep private keys secure**. Restrict file permissions (`chmod 600 key.pem`). - **Use strong TLS configuration**. Prefer TLS 1.2+ and modern cipher suites. - **Rotate certificates regularly**. Set up automated renewal for Let's Encrypt.

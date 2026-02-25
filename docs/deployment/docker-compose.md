@@ -485,6 +485,17 @@ Common environment variables:
 
 See [Configuration Documentation](../architecture/index.md) for complete list.
 
+#### Client Environment Variables
+
+The client container supports the following environment variables:
+
+| Variable           | Description                                                                                                                                                                                                                                  | Default |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `CLIENT_BASE_HREF` | HTML base href (`<base href="..." />`). Useful for reverse proxy setups where the client is served from a subpath. For example, if the client is served from `https://example.com/eudiplo-client/`, set `CLIENT_BASE_HREF=/eudiplo-client/`. | `/`     |
+
+!!! note "Base Href Normalization"
+The `CLIENT_BASE_HREF` value is automatically normalized to ensure it starts and ends with `/`. For example, `eudiplo-client` becomes `/eudiplo-client/`.
+
 ### Custom Ports
 
 Edit `docker-compose.yml` to change exposed ports:
