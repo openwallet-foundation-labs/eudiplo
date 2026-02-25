@@ -6,6 +6,11 @@ API_BASE_URL=${API_BASE_URL:-http://localhost:3000}
 VERSION=${VERSION:-dev}
 CLIENT_BASE_HREF=${CLIENT_BASE_HREF:-/}
 
+# Handle empty string case
+if [ -z "$CLIENT_BASE_HREF" ]; then
+  CLIENT_BASE_HREF="/"
+fi
+
 # Normalize CLIENT_BASE_HREF: must start and end with /
 case "$CLIENT_BASE_HREF" in
   /*) ;;
