@@ -45,7 +45,6 @@ export class StorageModule {
                                     },
                                 }),
                                 cfg.get<string>("S3_BUCKET")!,
-                                cfg.get<string>("S3_PUBLIC_BASE_URL"),
                             );
                         }
                         // local

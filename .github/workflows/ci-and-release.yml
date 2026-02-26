@@ -325,6 +325,7 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           report_type: test_results
+          files: ./apps/backend/test-report.junit.xml
 
       - name: Upload OIDF test results
         if: ${{ !cancelled() }}

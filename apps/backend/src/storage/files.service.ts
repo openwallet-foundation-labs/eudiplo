@@ -108,7 +108,7 @@ export class FilesService {
         isPublic = false,
     ): Promise<StoredObject> {
         const key = randomUUID();
-        const response = await this.storage.put(key, file.buffer, {
+        await this.storage.put(key, file.buffer, {
             contentType: file.mimetype,
             acl: isPublic ? "public" : "private",
             metadata: { originalName: file.originalname },
@@ -118,10 +118,9 @@ export class FilesService {
             filename: file.originalname,
             tenantId,
         });
-        const url = await this.getDownloadUrl(response.key);
         return {
-            key: response.key,
-            url,
+            key,
+            url: `${this.configService.get<string>("PUBLIC_URL")}/storage/${key}`,
         };
     }
 
@@ -141,13 +140,6 @@ export class FilesService {
      */
     delete(key: string) {
         return Promise.resolve(this.storage.delete(key));
-    }
-
-    getDownloadUrl(key: string) {
-        if (this.storage.getSignedUrl) return this.storage.getSignedUrl(key);
-        return Promise.resolve(
-            `${this.configService.get<string>("PUBLIC_URL")}/storage/${key}`,
-        );
     }
 
     /**

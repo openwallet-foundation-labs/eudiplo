@@ -18,11 +18,7 @@ export type StoredObject = {
 };
 
 export interface FileStorage {
-    put(
-        key: string,
-        body: Buffer | Readable,
-        opts?: PutOptions,
-    ): Promise<StoredObject>;
+    put(key: string, body: Buffer | Readable, opts?: PutOptions): Promise<void>;
 
     getStream(
         key: string,
@@ -31,8 +27,6 @@ export interface FileStorage {
     delete(key: string): Promise<void>;
 
     exists(key: string): Promise<boolean>;
-
-    getSignedUrl?(key: string): Promise<string>; // optional for local
 }
 
 export const FILE_STORAGE = Symbol("FILE_STORAGE");
