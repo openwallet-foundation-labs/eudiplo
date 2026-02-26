@@ -2670,10 +2670,10 @@ EUDIPLO:</p>
 </thead>
 <tbody>
 <tr>
-<td>Heidi Wallet</td>
-<td><a href="https://ubique.ch">Ubique</a></td>
-<td><a href="https://play.google.com/store/apps/details?id=ch.ubique.heidi.android">Android</a> / <a href="https://apps.apple.com/ch/app/heidi-wallet/id6741428702">iOS</a></td>
-<td><a href="#heidi-wallet">Details</a></td>
+<td>EU Reference Implementation</td>
+<td><a href="https://github.com/eu-digital-identity-wallet/eudi-app-android-wallet-ui">EC</a></td>
+<td><a href="https://github.com/eu-digital-identity-wallet/eudi-app-android-wallet-ui/releases">Android</a></td>
+<td><a href="#reference-implementation">Details</a></td>
 </tr>
 <tr>
 <td>Paradym Wallet</td>
@@ -2691,7 +2691,7 @@ EUDIPLO:</p>
 <li><strong>Pre</strong>: Pre-authorized Code Flow</li>
 <li><strong>IAE</strong>: Interactive Authorization Endpoint (IAE) support</li>
 <li><strong>DPoP</strong>: DPoP proof of possession</li>
-<li><strong>Att</strong>: Client attestation</li>
+<li><strong>Att</strong>: Wallet attestation support</li>
 </ul>
 </li>
 <li><strong>Presentation (OID4VP)</strong><ul>
@@ -2723,13 +2723,13 @@ EUDIPLO:</p>
 </thead>
 <tbody>
 <tr>
-<td>Heidi Wallet</td>
+<td>Reference Implementation</td>
 <td>✅</td>
 <td>✅</td>
 <td>n/a</td>
 <td>✅</td>
-<td>n/a</td>
 <td>✅</td>
+<td>n/a</td>
 <td>✅</td>
 </tr>
 <tr>
@@ -2745,17 +2745,25 @@ EUDIPLO:</p>
 </tbody>
 </table>
 <h4 id="individual-wallet-details">Individual Wallet Details<a class="headerlink" href="#individual-wallet-details" title="Permanent link">¶</a></h4>
-<h5 id="heidi-wallet">Heidi Wallet<a class="headerlink" href="#heidi-wallet" title="Permanent link">¶</a></h5>
+<h5 id="reference-implementation">Reference Implementation<a class="headerlink" href="#reference-implementation" title="Permanent link">¶</a></h5>
 <ul>
-<li><strong>Version tested</strong>: 1.0.4</li>
-<li><strong>Last verified</strong>: October 11, 2025</li>
-<li><strong>Notes</strong>: Not up to date with OID4VP response.</li>
+<li><strong>Version tested</strong>: 2026.02.35-Demo</li>
+<li><strong>Last verified</strong>: February 26, 2026</li>
+<li><strong>Notes</strong>:<ul>
+<li>Forces Wallet attestation</li>
+</ul>
+</li>
+<li><strong>Log access</strong>: Inside the app, go to "Setting" &gt; "Retrieve Logs"</li>
 </ul>
 <h5 id="paradym-wallet">Paradym Wallet<a class="headerlink" href="#paradym-wallet" title="Permanent link">¶</a></h5>
 <ul>
 <li><strong>Version tested</strong>: 1.16.2</li>
 <li><strong>Last verified</strong>: January 7, 2026</li>
-<li><strong>Notes</strong>: Needs to use the same certificate for status list and signed credential. Cannot handle different <code>trusted_authorities</code> in the DCQL during presentation yet (which result in no match).</li>
+<li><strong>Notes</strong>:<ul>
+<li>Needs to use the same certificate for status list and signed credential. Cannot handle different <code>trusted_authorities</code> in the DCQL during presentation yet (which result in no match).</li>
+</ul>
+</li>
+<li><strong>Log access</strong>: Inside the app, go to "Settings" &gt; "Export Logs"</li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Help us expand this list!</p>
