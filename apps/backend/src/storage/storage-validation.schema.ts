@@ -60,11 +60,4 @@ export const STORAGE_VALIDATION_SCHEMA = Joi.object({
         })
         .description("Whether to force path-style URLs for S3")
         .meta({ group: "storage", order: 80 }),
-    S3_PUBLIC_BASE_URL: Joi.string()
-        .when(Joi.ref("STORAGE_DRIVER"), {
-            is: "s3",
-            then: Joi.required(),
-        })
-        .description("The public base URL for the S3 bucket")
-        .meta({ group: "storage", order: 90 }),
 });
