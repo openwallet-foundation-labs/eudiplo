@@ -9,6 +9,10 @@ export default defineConfig({
         globals: true,
         root: "./",
         fileParallelism: false,
+        reporters: ["default", "junit"],
+        outputFile: {
+            junit: "../test-report.junit.xml",
+        },
         env: {
             // Required environment variables for E2E tests
             MASTER_SECRET: "e2e-test-master-secret-do-not-use-in-production",
