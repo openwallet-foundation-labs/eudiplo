@@ -29,10 +29,10 @@ EUDIPLO is tested with every code change against the [OpenID Foundation Conforma
 The following wallets have been tested and verified to work with
 EUDIPLO:
 
-| Wallet         | Provider                    | Download                                                                                                                                              | Features                   |
-| -------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| Heidi Wallet   | [Ubique](https://ubique.ch) | [Android](https://play.google.com/store/apps/details?id=ch.ubique.heidi.android) / [iOS](https://apps.apple.com/ch/app/heidi-wallet/id6741428702)     | [Details](#heidi-wallet)   |
-| Paradym Wallet | [Animo](https://animo.id)   | [Android](https://play.google.com/store/apps/details?id=id.paradym.wallet) / [iOS](https://apps.apple.com/nl/app/paradym-wallet/id6449846111?l=en-GB) | [Details](#paradym-wallet) |
+| Wallet                      | Provider                                                                       | Download                                                                                                                                              | Features                             |
+| --------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| EU Reference Implementation | [EC](https://github.com/eu-digital-identity-wallet/eudi-app-android-wallet-ui) | [Android](https://github.com/eu-digital-identity-wallet/eudi-app-android-wallet-ui/releases)                                                          | [Details](#reference-implementation) |
+| Paradym Wallet              | [Animo](https://animo.id)                                                      | [Android](https://play.google.com/store/apps/details?id=id.paradym.wallet) / [iOS](https://apps.apple.com/nl/app/paradym-wallet/id6449846111?l=en-GB) | [Details](#paradym-wallet)           |
 
 ### Feature Support Details
 
@@ -43,7 +43,7 @@ EUDIPLO:
     - **Pre**: Pre-authorized Code Flow
     - **IAE**: Interactive Authorization Endpoint (IAE) support
     - **DPoP**: DPoP proof of possession
-    - **Att**: Client attestation
+    - **Att**: Wallet attestation support
 - **Presentation (OID4VP)**
     - **DC API**: Digital Credentials API support
 - **Credential Format**
@@ -55,24 +55,28 @@ EUDIPLO:
 
 #### Feature Matrix
 
-| Wallet         | Auth | Pre | IAE | DPoP | Att | DC API | SD-JWT |
-| -------------- | ---- | --- | --- | ---- | --- | ------ | ------ |
-| Heidi Wallet   | ✅   | ✅  | n/a | ✅   | n/a | ✅     | ✅     |
-| Paradym Wallet | ✅   | ✅  | n/a | ✅   | n/a | ✅     | ✅     |
+| Wallet                   | Auth | Pre | IAE | DPoP | Att | DC API | SD-JWT |
+| ------------------------ | ---- | --- | --- | ---- | --- | ------ | ------ |
+| Reference Implementation | ✅   | ✅  | n/a | ✅   | ✅  | n/a    | ✅     |
+| Paradym Wallet           | ✅   | ✅  | n/a | ✅   | n/a | ✅     | ✅     |
 
 #### Individual Wallet Details
 
-##### Heidi Wallet
+##### Reference Implementation
 
-- **Version tested**: 1.0.4
-- **Last verified**: October 11, 2025
-- **Notes**: Not up to date with OID4VP response.
+- **Version tested**: 2026.02.35-Demo
+- **Last verified**: February 26, 2026
+- **Notes**:
+    - Forces Wallet attestation
+- **Log access**: Inside the app, go to "Setting" > "Retrieve Logs"
 
 ##### Paradym Wallet
 
 - **Version tested**: 1.16.2
 - **Last verified**: January 7, 2026
-- **Notes**: Needs to use the same certificate for status list and signed credential. Cannot handle different `trusted_authorities` in the DCQL during presentation yet (which result in no match).
+- **Notes**:
+    - Needs to use the same certificate for status list and signed credential. Cannot handle different `trusted_authorities` in the DCQL during presentation yet (which result in no match).
+- **Log access**: Inside the app, go to "Settings" > "Export Logs"
 
 !!! note "Help us expand this list!"
 
