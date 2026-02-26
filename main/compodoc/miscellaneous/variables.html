@@ -2394,13 +2394,6 @@ Defines the required environment variables and their types.</p>
         })
         .description(&quot;Whether to force path-style URLs for S3&quot;)
         .meta({ group: &quot;storage&quot;, order: 80 }),
-    S3_PUBLIC_BASE_URL: Joi.string()
-        .when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
-            is: &quot;s3&quot;,
-            then: Joi.required(),
-        })
-        .description(&quot;The public base URL for the S3 bucket&quot;)
-        .meta({ group: &quot;storage&quot;, order: 90 }),
 })</code>
                     </td>
                 </tr>

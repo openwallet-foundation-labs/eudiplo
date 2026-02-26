@@ -142,6 +142,13 @@
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>S3 file storage implementation using AWS SDK v3.</p>
+
+            </p>
 
 
             <p class="comment">
@@ -174,19 +181,12 @@
                                 <a href="#exists" >exists</a>
                             </li>
                             <li>
-                                <a href="#getSignedUrl" >getSignedUrl</a>
-                            </li>
-                            <li>
                                     <span class="modifier">Async</span>
                                 <a href="#getStream" >getStream</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
                                 <a href="#put" >put</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Private</span>
-                                <a href="#removeTrailingSlashes" >removeTrailingSlashes</a>
                             </li>
                         </ul>
                     </td>
@@ -206,17 +206,19 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(s3: S3Client, bucket: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, publicBaseUrl?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>constructor(s3: S3Client, bucket: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/storage/adapters/s3.storage.ts:13</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/storage/adapters/s3.storage.ts:17</a></div>
                             </td>
                         </tr>
 
                 <tr>
                     <td class="col-md-4">
+                            <div class="io-description"><p>Creates a new instance of S3FileStorage.</p>
+</div>
                             <div>
                                     <b>Parameters :</b>
                                     <table class="params">
@@ -249,18 +251,6 @@
                                                   
                                                     <td>
                                                             No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>publicBaseUrl</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            Yes
                                                     </td>
                                                     
                                                 </tr>
@@ -301,14 +291,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="76"
-                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:76</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="72"
+                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:72</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Deletes a file from S3 storage.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -370,14 +362,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="82"
-                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:82</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="83"
+                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:83</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Checks if a file exists in S3 storage.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -407,74 +401,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>unknown</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getSignedUrl"></a>
-                    <span class="name">
-                        <span ><b>getSignedUrl</b></span>
-                        <a href="#getSignedUrl"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getSignedUrl(key: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="93"
-                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:93</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>key</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>Promise&lt;boolean&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -506,14 +433,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="64"
-                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:64</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="57"
+                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:57</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Retrieves a file stream from S3 storage.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -575,14 +504,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="28"
-                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:28</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="34"
+                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:34</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Saves a file to S3 storage.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -636,76 +567,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#StoredObject" target="_self" >Promise&lt;StoredObject&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="removeTrailingSlashes"></a>
-                    <span class="name">
-                            <span class="modifier">Private</span>
-                        <span ><b>removeTrailingSlashes</b></span>
-                        <a href="#removeTrailingSlashes"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>removeTrailingSlashes(url: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="20"
-                                    class="link-to-prism">src/storage/adapters/s3.storage.ts:20</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>url</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -729,33 +591,39 @@
     DeleteObjectCommand,
     GetObjectCommand,
     HeadObjectCommand,
+    NoSuchKey,
+    NotFound,
     PutObjectCommand,
     S3Client,
 } from &quot;@aws-sdk/client-s3&quot;;
-import { getSignedUrl as sign } from &quot;@aws-sdk/s3-request-presigner&quot;;
 import { Readable } from &quot;stream&quot;;
-import { FileStorage, PutOptions, StoredObject } from &quot;../storage.types&quot;;
+import { FileStorage, PutOptions } from &quot;../storage.types&quot;;
 
+/**
+ * S3 file storage implementation using AWS SDK v3.
+ */
 export class S3FileStorage implements FileStorage {
+    /**
+     * Creates a new instance of S3FileStorage.
+     * @param s3
+     * @param bucket
+     */
     constructor(
         private readonly s3: S3Client,
         private readonly bucket: string,
-        private readonly publicBaseUrl?: string, // e.g. CloudFront URL (optional)
     ) {}
 
-    private removeTrailingSlashes(url: string): string {
-        // Remove trailing slashes without regex (avoids ReDoS warnings)
-        while (url.endsWith(&quot;/&quot;)) {
-            url &#x3D; url.slice(0, -1);
-        }
-        return url;
-    }
-
+    /**
+     * Saves a file to S3 storage.
+     * @param key
+     * @param body
+     * @param opts
+     */
     async put(
         key: string,
         body: Buffer | Readable,
         opts?: PutOptions,
-    ): Promise&lt;StoredObject&gt; {
+    ): Promise&lt;void&gt; {
         await this.s3.send(
             new PutObjectCommand({
                 Bucket: this.bucket,
@@ -764,65 +632,62 @@ export class S3FileStorage implements FileStorage {
                 ContentType: opts?.contentType,
                 Metadata: opts?.metadata,
                 ACL: opts?.acl &#x3D;&#x3D;&#x3D; &quot;public&quot; ? &quot;public-read&quot; : undefined,
-                ChecksumSHA256: opts?.checksum, // optional if you computed it
+                ChecksumSHA256: opts?.checksum,
             }),
         );
-
-        const head &#x3D; await this.s3.send(
-            new HeadObjectCommand({ Bucket: this.bucket, Key: key }),
-        );
-        const url &#x3D;
-            opts?.acl &#x3D;&#x3D;&#x3D; &quot;public&quot;
-                ? this.publicBaseUrl
-                    ? &#x60;${this.removeTrailingSlashes(this.publicBaseUrl)}/${encodeURI(key)}&#x60;
-                    : &#x60;https://${this.bucket}.s3.amazonaws.com/${encodeURI(key)}&#x60;
-                : undefined;
-
-        return {
-            key,
-            etag: head.ETag,
-            size: head.ContentLength,
-            url,
-            contentType: head.ContentType || opts?.contentType,
-        };
     }
 
+    /**
+     * Retrieves a file stream from S3 storage.
+     * @param key
+     * @returns
+     */
     async getStream(key: string) {
         const obj &#x3D; await this.s3.send(
             new GetObjectCommand({ Bucket: this.bucket, Key: key }),
         );
-        const stream &#x3D; obj.Body as Readable;
         return {
-            stream,
+            stream: obj.Body as Readable,
             contentType: obj.ContentType,
             size: obj.ContentLength,
         };
     }
 
+    /**
+     * Deletes a file from S3 storage.
+     * @param key
+     */
     async delete(key: string) {
         await this.s3.send(
             new DeleteObjectCommand({ Bucket: this.bucket, Key: key }),
         );
     }
 
-    async exists(key: string) {
+    /**
+     * Checks if a file exists in S3 storage.
+     * @param key
+     * @returns
+     */
+    async exists(key: string): Promise&lt;boolean&gt; {
         try {
             await this.s3.send(
                 new HeadObjectCommand({ Bucket: this.bucket, Key: key }),
             );
             return true;
-        } catch {
-            return false;
+        } catch (error) {
+            // Only treat NotFound/NoSuchKey as &quot;not exists&quot;, rethrow other errors
+            if (error instanceof NotFound || error instanceof NoSuchKey) {
+                return false;
+            }
+            // Also check error name for compatibility with different SDK versions
+            if (
+                error instanceof Error &amp;&amp;
+                (error.name &#x3D;&#x3D;&#x3D; &quot;NotFound&quot; || error.name &#x3D;&#x3D;&#x3D; &quot;NoSuchKey&quot;)
+            ) {
+                return false;
+            }
+            throw error;
         }
-    }
-
-    getSignedUrl(key: string) {
-        return Promise.resolve(
-            sign(
-                this.s3,
-                new GetObjectCommand({ Bucket: this.bucket, Key: key }),
-            ),
-        );
     }
 }
 </code></pre>

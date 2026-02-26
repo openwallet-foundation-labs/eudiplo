@@ -142,6 +142,13 @@
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Local file storage implementation for development and testing.</p>
+
+            </p>
 
 
             <p class="comment">
@@ -201,12 +208,14 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/storage/adapters/local.storage.ts:13</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/storage/adapters/local.storage.ts:15</a></div>
                             </td>
                         </tr>
 
                 <tr>
                     <td class="col-md-4">
+                            <div class="io-description"><p>Creates a new instance of LocalFileStorage.</p>
+</div>
                             <div>
                                     <b>Parameters :</b>
                                     <table class="params">
@@ -265,14 +274,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="42"
-                                    class="link-to-prism">src/storage/adapters/local.storage.ts:42</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="55"
+                                    class="link-to-prism">src/storage/adapters/local.storage.ts:55</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Deletes a file from the local storage.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -332,14 +343,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="46"
-                                    class="link-to-prism">src/storage/adapters/local.storage.ts:46</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="64"
+                                    class="link-to-prism">src/storage/adapters/local.storage.ts:64</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Checks if a file exists in the local storage.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -399,14 +412,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="37"
-                                    class="link-to-prism">src/storage/adapters/local.storage.ts:37</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="45"
+                                    class="link-to-prism">src/storage/adapters/local.storage.ts:45</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Retrieves a file stream from the local storage.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -461,21 +476,23 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>put(key: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: Buffer | Readable, opts?: <a href="../miscellaneous/typealiases.html#PutOptions" target="_self">PutOptions</a>)</code>
+                    <code>put(key: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: Buffer | Readable)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="16"
-                                    class="link-to-prism">src/storage/adapters/local.storage.ts:16</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="27"
+                                    class="link-to-prism">src/storage/adapters/local.storage.ts:27</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Saves a file to the local storage.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -513,23 +530,11 @@
 
 
                                         </tr>
-                                        <tr>
-                                                <td>opts</td>
-                                            <td>
-                                                            <code><a href="../miscellaneous/typealiases.html#PutOptions" target="_self" >PutOptions</a></code>
-                                            </td>
-
-                                            <td>
-                                                    Yes
-                                            </td>
-
-
-                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#StoredObject" target="_self" >Promise&lt;StoredObject&gt;</a></code>
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -555,20 +560,27 @@
     existsSync,
     mkdirSync,
     rmSync,
-    statSync,
 } from &quot;node:fs&quot;;
 import { dirname, join } from &quot;node:path&quot;;
 import { Readable } from &quot;stream&quot;;
-import { FileStorage, PutOptions, StoredObject } from &quot;../storage.types&quot;;
+import { FileStorage } from &quot;../storage.types&quot;;
 
+/**
+ * Local file storage implementation for development and testing.
+ */
 export class LocalFileStorage implements FileStorage {
+    /**
+     * Creates a new instance of LocalFileStorage.
+     * @param baseDir
+     */
     constructor(private readonly baseDir: string) {}
 
-    async put(
-        key: string,
-        body: Buffer | Readable,
-        opts?: PutOptions,
-    ): Promise&lt;StoredObject&gt; {
+    /**
+     * Saves a file to the local storage.
+     * @param key
+     * @param body
+     */
+    async put(key: string, body: Buffer | Readable): Promise&lt;void&gt; {
         const fullPath &#x3D; join(this.baseDir, key);
         mkdirSync(dirname(fullPath), { recursive: true });
 
@@ -579,21 +591,32 @@ export class LocalFileStorage implements FileStorage {
                 .on(&quot;finish&quot;, () &#x3D;&gt; resolve())
                 .on(&quot;error&quot;, reject);
         });
-
-        const st &#x3D; statSync(fullPath);
-
-        return { key, size: st.size, contentType: opts?.contentType };
     }
 
+    /**
+     * Retrieves a file stream from the local storage.
+     * @param key
+     * @returns
+     */
     getStream(key: string) {
         const fullPath &#x3D; join(this.baseDir, key);
         return Promise.resolve({ stream: createReadStream(fullPath) });
     }
 
+    /**
+     * Deletes a file from the local storage.
+     * @param key
+     * @returns
+     */
     delete(key: string) {
         return Promise.resolve(rmSync(join(this.baseDir, key)));
     }
 
+    /**
+     * Checks if a file exists in the local storage.
+     * @param key
+     * @returns
+     */
     exists(key: string) {
         return Promise.resolve(existsSync(join(this.baseDir, key)));
     }

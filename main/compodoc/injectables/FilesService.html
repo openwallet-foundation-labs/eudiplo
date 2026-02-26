@@ -162,9 +162,6 @@
                                 <a href="#deleteByTenant" >deleteByTenant</a>
                             </li>
                             <li>
-                                <a href="#getDownloadUrl" >getDownloadUrl</a>
-                            </li>
-                            <li>
                                 <a href="#getStream" >getStream</a>
                             </li>
                             <li>
@@ -312,8 +309,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="142"
-                                    class="link-to-prism">src/storage/files.service.ts:142</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="141"
+                                    class="link-to-prism">src/storage/files.service.ts:141</a></div>
                         </td>
                     </tr>
 
@@ -389,8 +386,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="157"
-                                    class="link-to-prism">src/storage/files.service.ts:157</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="149"
+                                    class="link-to-prism">src/storage/files.service.ts:149</a></div>
                         </td>
                     </tr>
 
@@ -447,73 +444,6 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getDownloadUrl"></a>
-                    <span class="name">
-                        <span ><b>getDownloadUrl</b></span>
-                        <a href="#getDownloadUrl"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getDownloadUrl(key: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="146"
-                                    class="link-to-prism">src/storage/files.service.ts:146</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>key</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="getStream"></a>
                     <span class="name">
                         <span ><b>getStream</b></span>
@@ -530,8 +460,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="133"
-                                    class="link-to-prism">src/storage/files.service.ts:133</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="132"
+                                    class="link-to-prism">src/storage/files.service.ts:132</a></div>
                         </td>
                     </tr>
 
@@ -970,7 +900,7 @@ export class FilesService {
         isPublic &#x3D; false,
     ): Promise&lt;StoredObject&gt; {
         const key &#x3D; randomUUID();
-        const response &#x3D; await this.storage.put(key, file.buffer, {
+        await this.storage.put(key, file.buffer, {
             contentType: file.mimetype,
             acl: isPublic ? &quot;public&quot; : &quot;private&quot;,
             metadata: { originalName: file.originalname },
@@ -980,10 +910,9 @@ export class FilesService {
             filename: file.originalname,
             tenantId,
         });
-        const url &#x3D; await this.getDownloadUrl(response.key);
         return {
-            key: response.key,
-            url,
+            key,
+            url: &#x60;${this.configService.get&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/storage/${key}&#x60;,
         };
     }
 
@@ -1003,13 +932,6 @@ export class FilesService {
      */
     delete(key: string) {
         return Promise.resolve(this.storage.delete(key));
-    }
-
-    getDownloadUrl(key: string) {
-        if (this.storage.getSignedUrl) return this.storage.getSignedUrl(key);
-        return Promise.resolve(
-            &#x60;${this.configService.get&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/storage/${key}&#x60;,
-        );
     }
 
     /**
