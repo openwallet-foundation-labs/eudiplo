@@ -78,7 +78,7 @@ services:
       - eudiplo-network
 
   minio:
-    image: quay.io/minio/minio:RELEASE.2024-12-18T13-15-44Z
+    image: quay.io/minio/minio:latest
     restart: always
     profiles: ['standard', 'full']
     ports:
@@ -101,7 +101,7 @@ services:
 
   # MinIO bucket initialization job
   minio-init:
-    image: quay.io/minio/mc:RELEASE.2025-02-28T09-52-04Z
+    image: quay.io/minio/mc:latest
     profiles: ['standard', 'full']
     depends_on:
       minio:

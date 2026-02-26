@@ -32,7 +32,6 @@ S3_REGION=your-region
 S3_BUCKET=your-bucket
 S3_ACCESS_KEY_ID=your-access-key
 S3_SECRET_ACCESS_KEY=your-secret-key
-S3_PUBLIC_BASE_URL=https://your-bucket.s3.amazonaws.com/
 # Optional for custom endpoints:
 S3_ENDPOINT=https://minio.example.com
 S3_FORCE_PATH_STYLE=true
@@ -66,9 +65,7 @@ Contact us if you need help integrating additional storage providers.
 
 Files can be uploaded via the `/storage` endpoint, an access token is required to protect this endpoint and to associate files with the correct tenant. You can also use the Web Client to upload the images or logos for the issuer metadata or for the credential configuration.
 
-When using the `local` storage driver, files are served via `/storage/<file-id>`. In case of S3, files are served via the S3 public base URL without an expiration date.
-
-> TODO: we may add an expiration date for S3 URLs in the future since the issuer metadata are not long lived and just session based.
+All files are served via `/storage/<file-id>` regardless of storage driver. The backend streams files from the configured storage backend (local or S3).
 
 ---
 
@@ -85,13 +82,13 @@ Files are stored with metadata indicating the owning tenant. All file operations
 ```typescript
 @Entity()
 export class FileEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
-  @Column('varchar')
-  tenantId: string; // Tenant ID for multi-tenancy support
+    @Column('varchar')
+    tenantId: string; // Tenant ID for multi-tenancy support
 
-  // ... other fields
+    // ... other fields
 }
 ```
 
