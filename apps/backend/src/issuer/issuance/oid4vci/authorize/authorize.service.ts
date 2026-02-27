@@ -15,6 +15,7 @@ import {
 import type { Request } from "express";
 import { v4 } from "uuid";
 import { CryptoService } from "../../../../crypto/crypto.service";
+import { KeyService } from "../../../../crypto/key/key.service";
 import { SessionService } from "../../../../session/session.service";
 import { WalletAttestationService } from "../../../../shared/trust/wallet-attestation.service";
 import { IssuanceService } from "../../../configuration/issuance/issuance.service";
@@ -43,6 +44,7 @@ export class AuthorizeService {
         private readonly sessionService: SessionService,
         private readonly issuanceService: IssuanceService,
         private readonly walletAttestationService: WalletAttestationService,
+        private readonly keyService: KeyService,
     ) {}
 
     getAuthorizationServer(tenantId: string): Oauth2AuthorizationServer {
@@ -310,17 +312,25 @@ export class AuthorizeService {
             dpopValue = dpop;
         }
 
+        // Use pinned key from issuance config, or fall back to first available key
+        const signingKeyId =
+            issuanceConfig.signingKeyId ||
+            (await this.keyService.getKid(tenantId));
+
+        const publicKey = await this.keyService.getPublicKey(
+            "jwk",
+            tenantId,
+            signingKeyId,
+        );
+
         return this.getAuthorizationServer(tenantId)
             .createAccessTokenResponse({
                 audience: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${tenantId}`,
                 signer: {
                     method: "jwk",
                     alg: "ES256",
-                    publicJwk:
-                        (await this.cryptoService.keyService.getPublicKey(
-                            "jwk",
-                            tenantId,
-                        )) as Jwk,
+                    publicJwk: publicKey as Jwk,
+                    kid: signingKeyId,
                 },
                 subject: session.id,
                 expiresInSeconds: 300,

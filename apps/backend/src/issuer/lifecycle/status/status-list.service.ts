@@ -42,7 +42,7 @@ export class StatusListService {
     constructor(
         private readonly configService: ConfigService,
         private readonly certService: CertService,
-        @Inject("KeyService") public readonly keyService: KeyService,
+        public readonly keyService: KeyService,
         @InjectRepository(StatusMapping)
         private readonly statusMappingRepository: Repository<StatusMapping>,
         @InjectRepository(StatusListEntity)

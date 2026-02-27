@@ -7,6 +7,7 @@ import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
 import { CertService } from "../../../../../crypto/key/cert/cert.service";
 import { CryptoImplementationService } from "../../../../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { CertUsage } from "../../../../../crypto/key/entities/cert-usage.entity";
+import { KeyService } from "../../../../../crypto/key/key.service";
 import { Session } from "../../../../../session/entities/session.entity";
 import { StatusListService } from "../../../../lifecycle/status/status-list.service";
 import { CredentialConfig } from "../../entities/credential.entity";
@@ -28,6 +29,7 @@ export class SdjwtvcIssuerService {
         private readonly configService: ConfigService,
         private readonly statusListService: StatusListService,
         private readonly cryptoImplementationService: CryptoImplementationService,
+        private readonly keyService: KeyService,
     ) {}
 
     /**
@@ -45,7 +47,7 @@ export class SdjwtvcIssuerService {
         });
 
         const sdjwt = new SDJwtVcInstance({
-            signer: await this.certService.keyService.signer(
+            signer: await this.keyService.signer(
                 session.tenantId,
                 certificate.keyId,
             ),
