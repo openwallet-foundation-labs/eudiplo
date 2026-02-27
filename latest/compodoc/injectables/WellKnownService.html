@@ -179,9 +179,11 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#getAuthzMetadata" >getAuthzMetadata</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#getChainedAsMetadata" >getChainedAsMetadata</a>
                             </li>
                             <li>
@@ -325,6 +327,7 @@
                 <td class="col-md-4">
                     <a name="getAuthzMetadata"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>getAuthzMetadata</b></span>
                         <a href="#getAuthzMetadata"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -332,7 +335,8 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getAuthzMetadata(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getAuthzMetadata(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -378,7 +382,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>unknown</code>
 
                         </div>
                             <div class="io-description">
@@ -394,6 +398,7 @@
                 <td class="col-md-4">
                     <a name="getChainedAsMetadata"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>getChainedAsMetadata</b></span>
                         <a href="#getChainedAsMetadata"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -401,7 +406,8 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getChainedAsMetadata(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getChainedAsMetadata(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -449,7 +455,7 @@ This supports the RFC 8414 alternative discovery path format:
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>Record&lt;string, unknown&gt;</code>
+                            <b>Returns : </b>    <code>Promise&lt;Record&lt;string, unknown&gt;&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -742,7 +748,7 @@ export class WellKnownService {
      * Returns the OAuth 2.0 Authorization Server metadata for a given tenant.
      * @returns
      */
-    getAuthzMetadata(tenantId: string) {
+    async getAuthzMetadata(tenantId: string) {
         return this.authorizeService.authzMetadata(tenantId);
     }
 
@@ -763,7 +769,9 @@ export class WellKnownService {
      * @param tenantId
      * @returns
      */
-    getChainedAsMetadata(tenantId: string): Record&lt;string, unknown&gt; {
+    async getChainedAsMetadata(
+        tenantId: string,
+    ): Promise&lt;Record&lt;string, unknown&gt;&gt; {
         return this.chainedAsService.getMetadata(tenantId);
     }
 }

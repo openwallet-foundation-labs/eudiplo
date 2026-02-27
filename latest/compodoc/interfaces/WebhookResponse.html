@@ -418,9 +418,9 @@ export class WebhookService {
      * @param sessionLogger
      */
     constructor(
-        private httpService: HttpService,
-        private sessionService: SessionService,
-        private sessionLogger: SessionLoggerService,
+        private readonly httpService: HttpService,
+        private readonly sessionService: SessionService,
+        private readonly sessionLogger: SessionLoggerService,
     ) {}
 
     /**

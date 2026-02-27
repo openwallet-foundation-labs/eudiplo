@@ -515,12 +515,13 @@ export class CrlValidationService {
         const str &#x3D; new TextDecoder(&quot;utf-8&quot;, { fatal: false }).decode(bytes);
 
         // Simple regex to find HTTP URLs in the raw data
-        const urlRegex &#x3D; /https?:\/\/[^\x00-\x1f\x7f-\xff]+/g;
+        // Match only printable ASCII characters (space 0x20 to tilde 0x7E)
+        const urlRegex &#x3D; /https?:\/\/[\u0020-\u007E]+/g;
         const matches &#x3D; str.match(urlRegex);
         if (matches) {
             for (const match of matches) {
-                // Clean up any trailing garbage
-                const cleanUrl &#x3D; match.replace(/[^\x20-\x7e]/g, &quot;&quot;);
+                // Clean up any trailing non-printable characters
+                const cleanUrl &#x3D; match.replace(/[^\u0020-\u007E]/g, &quot;&quot;);
                 if (
                     cleanUrl.startsWith(&quot;http://&quot;) ||
                     cleanUrl.startsWith(&quot;https://&quot;)

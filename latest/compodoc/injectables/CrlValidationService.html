@@ -329,8 +329,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="341"
-                                    class="link-to-prism">src/crypto/key/cert/crl-validation.service.ts:341</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="342"
+                                    class="link-to-prism">src/crypto/key/cert/crl-validation.service.ts:342</a></div>
                         </td>
                     </tr>
 
@@ -401,8 +401,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="212"
-                                    class="link-to-prism">src/crypto/key/cert/crl-validation.service.ts:212</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="213"
+                                    class="link-to-prism">src/crypto/key/cert/crl-validation.service.ts:213</a></div>
                         </td>
                     </tr>
 
@@ -561,8 +561,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="381"
-                                    class="link-to-prism">src/crypto/key/cert/crl-validation.service.ts:381</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="382"
+                                    class="link-to-prism">src/crypto/key/cert/crl-validation.service.ts:382</a></div>
                         </td>
                     </tr>
 
@@ -847,8 +847,8 @@ This is a fallback when the library doesn&#39;t parse it for us.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="265"
-                                    class="link-to-prism">src/crypto/key/cert/crl-validation.service.ts:265</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="266"
+                                    class="link-to-prism">src/crypto/key/cert/crl-validation.service.ts:266</a></div>
                         </td>
                     </tr>
 
@@ -916,8 +916,8 @@ This is a fallback when the library doesn&#39;t parse it for us.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="389"
-                                    class="link-to-prism">src/crypto/key/cert/crl-validation.service.ts:389</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="390"
+                                    class="link-to-prism">src/crypto/key/cert/crl-validation.service.ts:390</a></div>
                         </td>
                     </tr>
 
@@ -957,8 +957,8 @@ This is a fallback when the library doesn&#39;t parse it for us.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="326"
-                                    class="link-to-prism">src/crypto/key/cert/crl-validation.service.ts:326</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="327"
+                                    class="link-to-prism">src/crypto/key/cert/crl-validation.service.ts:327</a></div>
                         </td>
                     </tr>
 
@@ -1028,8 +1028,8 @@ This is a fallback when the library doesn&#39;t parse it for us.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="350"
-                                    class="link-to-prism">src/crypto/key/cert/crl-validation.service.ts:350</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="351"
+                                    class="link-to-prism">src/crypto/key/cert/crl-validation.service.ts:351</a></div>
                         </td>
                     </tr>
 
@@ -1425,12 +1425,13 @@ export class CrlValidationService {
         const str &#x3D; new TextDecoder(&quot;utf-8&quot;, { fatal: false }).decode(bytes);
 
         // Simple regex to find HTTP URLs in the raw data
-        const urlRegex &#x3D; /https?:\/\/[^\x00-\x1f\x7f-\xff]+/g;
+        // Match only printable ASCII characters (space 0x20 to tilde 0x7E)
+        const urlRegex &#x3D; /https?:\/\/[\u0020-\u007E]+/g;
         const matches &#x3D; str.match(urlRegex);
         if (matches) {
             for (const match of matches) {
-                // Clean up any trailing garbage
-                const cleanUrl &#x3D; match.replace(/[^\x20-\x7e]/g, &quot;&quot;);
+                // Clean up any trailing non-printable characters
+                const cleanUrl &#x3D; match.replace(/[^\u0020-\u007E]/g, &quot;&quot;);
                 if (
                     cleanUrl.startsWith(&quot;http://&quot;) ||
                     cleanUrl.startsWith(&quot;https://&quot;)

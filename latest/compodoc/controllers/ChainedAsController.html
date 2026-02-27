@@ -583,7 +583,7 @@ Receives the authorization code from upstream and redirects the wallet.</p>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>Record&lt;string, unknown&gt;</code>
+                            <b>Returns : </b>    <code>Promise&lt;Record&lt;string, unknown&gt;&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -1192,7 +1192,9 @@ export class ChainedAsController {
         status: 200,
         description: &quot;OAuth AS metadata&quot;,
     })
-    getMetadata(@Param(&quot;tenant&quot;) tenantId: string): Record&lt;string, unknown&gt; {
+    getMetadata(
+        @Param(&quot;tenant&quot;) tenantId: string,
+    ): Promise&lt;Record&lt;string, unknown&gt;&gt; {
         return this.chainedAsService.getMetadata(tenantId);
     }
 }

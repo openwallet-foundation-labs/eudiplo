@@ -242,7 +242,7 @@ export class KeyModule {
                         tenantRepository: Repository&lt;TenantEntity&gt;,
                         configImportOrchestrator: ConfigImportOrchestratorService,
                     ) &#x3D;&gt; {
-                        const kmType &#x3D; configService.get&lt;&quot;vault&quot; | &quot;file&quot;&gt;(
+                        const kmType &#x3D; configService.get&lt;&quot;vault&quot; | &quot;db&quot;&gt;(
                             &quot;KM_TYPE&quot;,
                         );
                         if (kmType &#x3D;&#x3D;&#x3D; &quot;vault&quot;) {

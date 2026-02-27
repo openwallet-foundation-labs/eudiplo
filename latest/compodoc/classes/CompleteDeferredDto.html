@@ -138,7 +138,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/issuance/oid4vci/deferred.controller.ts</code>
+            <code>src/issuer/issuance/oid4vci/dto/complete-deferred.dto.ts</code>
         </p>
 
 
@@ -166,6 +166,8 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#claims" >claims</a>
                             </li>
                         </ul>
@@ -193,6 +195,8 @@
                 <td class="col-md-4">
                     <a name="claims"></a>
                     <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>claims</b></span>
                         <a href="#claims"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -204,9 +208,18 @@
 
                     </td>
                 </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @ApiProperty({description: &#x27;Claims to include in the credential. The structure should match the credential configuration&#x27;s expected claims.&#x27;, example: undefined})<br />@IsObject()<br />
+                        </code>
+                    </td>
+                </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/issuer/issuance/oid4vci/deferred.controller.ts:25</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/issuer/issuance/oid4vci/dto/complete-deferred.dto.ts:23</a></div>
                         </td>
                     </tr>
 
@@ -232,21 +245,9 @@ The structure should match the credential configuration&#39;s expected claims.</
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
-    Body,
-    Controller,
-    HttpCode,
-    HttpStatus,
-    NotFoundException,
-    Param,
-    Post,
-} from &quot;@nestjs/common&quot;;
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from &quot;@nestjs/swagger&quot;;
-import { Role } from &quot;../../../auth/roles/role.enum&quot;;
-import { Secured } from &quot;../../../auth/secure.decorator&quot;;
-import { Token, TokenPayload } from &quot;../../../auth/token.decorator&quot;;
-import { DeferredTransactionStatus } from &quot;./entities/deferred-transaction.entity&quot;;
-import { Oid4vciService } from &quot;./oid4vci.service&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty } from &quot;@nestjs/swagger&quot;;
+import { IsObject, IsOptional, IsString } from &quot;class-validator&quot;;
+import { DeferredTransactionStatus } from &quot;../entities/deferred-transaction.entity&quot;;
 
 /**
  * DTO for completing a deferred transaction
@@ -256,7 +257,17 @@ export class CompleteDeferredDto {
      * Claims to include in the credential.
      * The structure should match the credential configuration&#x27;s expected claims.
      */
-    claims: Record&lt;string, unknown&gt;;
+    @ApiProperty({
+        description:
+            &quot;Claims to include in the credential. The structure should match the credential configuration&#x27;s expected claims.&quot;,
+        example: {
+            given_name: &quot;John&quot;,
+            family_name: &quot;Doe&quot;,
+            birthdate: &quot;1990-01-15&quot;,
+        },
+    })
+    @IsObject()
+    claims!: Record&lt;string, unknown&gt;;
 }
 
 /**
@@ -266,6 +277,14 @@ export class FailDeferredDto {
     /**
      * Optional error message explaining why the issuance failed
      */
+    @ApiProperty({
+        description:
+            &quot;Optional error message explaining why the issuance failed&quot;,
+        required: false,
+        example: &quot;Identity verification failed&quot;,
+    })
+    @IsOptional()
+    @IsString()
     error?: string;
 }
 
@@ -276,152 +295,28 @@ export class DeferredOperationResponse {
     /**
      * The transaction ID
      */
-    transactionId: string;
+    @ApiProperty({
+        description: &quot;The transaction ID&quot;,
+    })
+    transactionId!: string;
 
     /**
      * The new status of the transaction
      */
-    status: DeferredTransactionStatus;
+    @ApiProperty({
+        description: &quot;The new status of the transaction&quot;,
+        enum: DeferredTransactionStatus,
+    })
+    status!: DeferredTransactionStatus;
 
     /**
      * Optional message
      */
-    message?: string;
-}
-
-@ApiTags(&quot;Issuer&quot;)
-@Secured([Role.IssuanceOffer])
-@Controller(&quot;issuer/deferred&quot;)
-export class DeferredController {
-    constructor(private readonly oid4vciService: Oid4vciService) {}
-
-    /**
-     * Complete a deferred credential transaction by providing the claims.
-     * This will generate the credential and mark it as ready for retrieval.
-     *
-     * @param transactionId The transaction ID returned when issuance was deferred
-     * @param body The claims to include in the credential
-     * @param user The authenticated user
-     * @returns The updated transaction status
-     */
-    @ApiOperation({
-        summary: &quot;Complete a deferred credential transaction&quot;,
-        description:
-            &quot;Completes a pending deferred credential transaction by providing the claims. &quot; +
-            &quot;The credential will be generated and marked as ready for wallet retrieval.&quot;,
-    })
-    @ApiBody({
-        type: CompleteDeferredDto,
-        examples: {
-            example: {
-                summary: &quot;Complete with claims&quot;,
-                value: {
-                    claims: {
-                        given_name: &quot;John&quot;,
-                        family_name: &quot;Doe&quot;,
-                        birthdate: &quot;1990-01-15&quot;,
-                    },
-                },
-            },
-        },
-    })
-    @ApiResponse({
-        status: 200,
-        description: &quot;Transaction completed successfully&quot;,
-        type: DeferredOperationResponse,
-    })
-    @ApiResponse({
-        status: 404,
-        description: &quot;Transaction not found&quot;,
-    })
-    @HttpCode(HttpStatus.OK)
-    @Post(&quot;:transactionId/complete&quot;)
-    async completeDeferred(
-        @Param(&quot;transactionId&quot;) transactionId: string,
-        @Body() body: CompleteDeferredDto,
-        @Token() user: TokenPayload,
-    ): Promise&lt;DeferredOperationResponse&gt; {
-        const transaction &#x3D;
-            await this.oid4vciService.completeDeferredTransaction(
-                user.entity!.id,
-                transactionId,
-                body.claims,
-            );
-
-        if (!transaction) {
-            throw new NotFoundException(
-                &#x60;Deferred transaction not found: ${transactionId}&#x60;,
-            );
-        }
-
-        return {
-            transactionId: transaction.transactionId,
-            status: transaction.status,
-            message: &quot;Credential generated and ready for retrieval&quot;,
-        };
-    }
-
-    /**
-     * Fail a deferred credential transaction.
-     * The wallet will receive an error when it tries to retrieve the credential.
-     *
-     * @param transactionId The transaction ID returned when issuance was deferred
-     * @param body Optional error message
-     * @param user The authenticated user
-     * @returns The updated transaction status
-     */
-    @ApiOperation({
-        summary: &quot;Fail a deferred credential transaction&quot;,
-        description:
-            &quot;Marks a deferred credential transaction as failed. &quot; +
-            &quot;The wallet will receive an invalid_transaction_id error when attempting retrieval.&quot;,
-    })
-    @ApiBody({
-        type: FailDeferredDto,
+    @ApiProperty({
+        description: &quot;Optional message&quot;,
         required: false,
-        examples: {
-            example: {
-                summary: &quot;Fail with error message&quot;,
-                value: {
-                    error: &quot;Identity verification failed&quot;,
-                },
-            },
-        },
     })
-    @ApiResponse({
-        status: 200,
-        description: &quot;Transaction marked as failed&quot;,
-        type: DeferredOperationResponse,
-    })
-    @ApiResponse({
-        status: 404,
-        description: &quot;Transaction not found&quot;,
-    })
-    @HttpCode(HttpStatus.OK)
-    @Post(&quot;:transactionId/fail&quot;)
-    async failDeferred(
-        @Param(&quot;transactionId&quot;) transactionId: string,
-        @Body() body: FailDeferredDto,
-        @Token() user: TokenPayload,
-    ): Promise&lt;DeferredOperationResponse&gt; {
-        const transaction &#x3D; await this.oid4vciService.failDeferredTransaction(
-            user.entity!.id,
-            transactionId,
-            body.error,
-        );
-
-        if (!transaction) {
-            throw new NotFoundException(
-                &#x60;Deferred transaction not found: ${transactionId}&#x60;,
-            );
-        }
-
-        return {
-            transactionId: transaction.transactionId,
-            status: transaction.status,
-            message: body.error || &quot;Transaction marked as failed&quot;,
-        };
-    }
+    message?: string;
 }
 </code></pre>
     </div>

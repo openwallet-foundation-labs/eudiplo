@@ -134,6 +134,9 @@
                             <a href="#allRoles" title="src/auth/roles/role.enum.ts" ><b>allRoles</b>&nbsp;&nbsp;&nbsp;(src/.../role.enum.ts)</a>
                         </li>
                         <li>
+                            <a href="#AppDataSource" title="src/database/data-source.ts" ><b>AppDataSource</b>&nbsp;&nbsp;&nbsp;(src/.../data-source.ts)</a>
+                        </li>
+                        <li>
                             <a href="#AUTH_VALIDATION_SCHEMA" title="src/auth/auth-validation.schema.ts" ><b>AUTH_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../auth-validation.schema.ts)</a>
                         </li>
                         <li>
@@ -144,6 +147,9 @@
                         </li>
                         <li>
                             <a href="#CLIENTS_PROVIDER" title="src/auth/client/client.provider.ts" ><b>CLIENTS_PROVIDER</b>&nbsp;&nbsp;&nbsp;(src/.../client.provider.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#commonOptions" title="src/database/data-source.ts" ><b>commonOptions</b>&nbsp;&nbsp;&nbsp;(src/.../data-source.ts)</a>
                         </li>
                         <li>
                             <a href="#CONFIG_VALIDATION_SCHEMA" title="src/shared/utils/config-printer/config-validation.schema.ts" ><b>CONFIG_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../config-validation.schema.ts)</a>
@@ -158,7 +164,13 @@
                             <a href="#CRYPTO_VALIDATION_SCHEMA" title="src/crypto/key/crypto-implementation/crypto-validation.schema.ts" ><b>CRYPTO_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../crypto-validation.schema.ts)</a>
                         </li>
                         <li>
+                            <a href="#dataSourceOptions" title="src/database/data-source.ts" ><b>dataSourceOptions</b>&nbsp;&nbsp;&nbsp;(src/.../data-source.ts)</a>
+                        </li>
+                        <li>
                             <a href="#DB_VALIDATION_SCHEMA" title="src/database/database-validation.schema.ts" ><b>DB_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../database-validation.schema.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#dbType" title="src/database/data-source.ts" ><b>dbType</b>&nbsp;&nbsp;&nbsp;(src/.../data-source.ts)</a>
                         </li>
                         <li>
                             <a href="#DEFAULT_LANG" title="src/issuer/trust-list/trustlist.service.ts" ><b>DEFAULT_LANG</b>&nbsp;&nbsp;&nbsp;(src/.../trustlist.service.ts)</a>
@@ -299,6 +311,115 @@
 </div>
                 </td>
             </tr>
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/database/data-source.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="AppDataSource"></a>
+                    <span class="name">
+                        <span ><b>AppDataSource</b></span>
+                        <a href="#AppDataSource"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new DataSource(dataSourceOptions)</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="commonOptions"></a>
+                    <span class="name">
+                        <span ><b>commonOptions</b></span>
+                        <a href="#commonOptions"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>Partial&lt;DataSourceOptions&gt;</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    synchronize: false,
+    logging: process.env.DB_LOGGING &#x3D;&#x3D;&#x3D; &quot;true&quot;,
+    migrations: [join(__dirname, &quot;migrations&quot;, &quot;*.{ts,js}&quot;)],
+    migrationsTableName: &quot;typeorm_migrations&quot;,
+    // Entity patterns - TypeORM CLI needs explicit patterns
+    entities: [join(__dirname, &quot;..&quot;, &quot;**&quot;, &quot;*.entity.{ts,js}&quot;)],
+}</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="dataSourceOptions"></a>
+                    <span class="name">
+                        <span ><b>dataSourceOptions</b></span>
+                        <a href="#dataSourceOptions"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>DataSourceOptions</code>
+
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="dbType"></a>
+                    <span class="name">
+                        <span ><b>dbType</b></span>
+                        <a href="#dbType"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>process.env.DB_TYPE as &quot;sqlite&quot; | &quot;postgres&quot; | undefined</code>
+                    </td>
+                </tr>
+
 
         </tbody>
     </table>
@@ -767,6 +888,10 @@ This decorator can be used to determine the media type of the request.</p>
         .default(&quot;ES256&quot;)
         .description(&quot;The signing algorithm to use&quot;)
         .meta({ group: &quot;crypto&quot;, order: 10 }),
+    CRYPTO_TOLERANCE: Joi.number()
+        .default(5)
+        .description(&quot;Clock tolerance in seconds for JWT verification&quot;)
+        .meta({ group: &quot;crypto&quot;, order: 20 }),
 })</code>
                     </td>
                 </tr>
@@ -805,7 +930,7 @@ This decorator can be used to determine the media type of the request.</p>
     DB_HOST: Joi.string()
         .when(&quot;DB_TYPE&quot;, {
             is: &quot;sqlite&quot;,
-            then: Joi.optional(),
+            then: Joi.optional().allow(&quot;&quot;),
             otherwise: Joi.required(),
         })
         .description(&quot;Database host&quot;)
@@ -813,7 +938,7 @@ This decorator can be used to determine the media type of the request.</p>
     DB_PORT: Joi.number()
         .when(&quot;DB_TYPE&quot;, {
             is: &quot;sqlite&quot;,
-            then: Joi.optional(),
+            then: Joi.optional().allow(&quot;&quot;),
             otherwise: Joi.required(),
         })
         .description(&quot;Database port&quot;)
@@ -821,7 +946,7 @@ This decorator can be used to determine the media type of the request.</p>
     DB_USERNAME: Joi.string()
         .when(&quot;DB_TYPE&quot;, {
             is: &quot;sqlite&quot;,
-            then: Joi.optional(),
+            then: Joi.optional().allow(&quot;&quot;),
             otherwise: Joi.required(),
         })
         .description(&quot;Database username&quot;)
@@ -829,7 +954,7 @@ This decorator can be used to determine the media type of the request.</p>
     DB_PASSWORD: Joi.string()
         .when(&quot;DB_TYPE&quot;, {
             is: &quot;sqlite&quot;,
-            then: Joi.optional(),
+            then: Joi.optional().allow(&quot;&quot;),
             otherwise: Joi.required(),
         })
         .description(&quot;Database password&quot;)
@@ -837,11 +962,21 @@ This decorator can be used to determine the media type of the request.</p>
     DB_DATABASE: Joi.string()
         .when(&quot;DB_TYPE&quot;, {
             is: &quot;sqlite&quot;,
-            then: Joi.optional(),
+            then: Joi.optional().allow(&quot;&quot;),
             otherwise: Joi.required(),
         })
         .description(&quot;Database name&quot;)
         .meta({ group: &quot;database&quot;, order: 50 }),
+    DB_SYNCHRONIZE: Joi.boolean()
+        .default(true)
+        .description(
+            &quot;Enable TypeORM schema synchronization. Set to false in production after initial setup and rely on migrations instead.&quot;,
+        )
+        .meta({ group: &quot;database&quot;, order: 60 }),
+    DB_MIGRATIONS_RUN: Joi.boolean()
+        .default(true)
+        .description(&quot;Run pending database migrations automatically on startup&quot;)
+        .meta({ group: &quot;database&quot;, order: 70 }),
 })</code>
                     </td>
                 </tr>
@@ -2259,13 +2394,6 @@ Defines the required environment variables and their types.</p>
         })
         .description(&quot;Whether to force path-style URLs for S3&quot;)
         .meta({ group: &quot;storage&quot;, order: 80 }),
-    S3_PUBLIC_BASE_URL: Joi.string()
-        .when(Joi.ref(&quot;STORAGE_DRIVER&quot;), {
-            is: &quot;s3&quot;,
-            then: Joi.required(),
-        })
-        .description(&quot;The public base URL for the S3 bucket&quot;)
-        .meta({ group: &quot;storage&quot;, order: 90 }),
 })</code>
                     </td>
                 </tr>

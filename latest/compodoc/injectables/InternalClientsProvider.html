@@ -327,7 +327,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:128</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:135</a></code>
 </div>
                         </td>
                     </tr>
@@ -432,7 +432,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:107</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:114</a></code>
 </div>
                         </td>
                     </tr>
@@ -519,7 +519,7 @@
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:124</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:131</a></code>
 </div>
                         </td>
                     </tr>
@@ -595,7 +595,7 @@ Used for JWT validation to fetch client restrictions.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:92</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:99</a></code>
 </div>
                         </td>
                     </tr>
@@ -670,7 +670,7 @@ Used for JWT validation to fetch client restrictions.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:51</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:58</a></code>
 </div>
                         </td>
                     </tr>
@@ -784,7 +784,7 @@ Used for JWT validation to fetch client restrictions.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:186</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:193</a></code>
 </div>
                         </td>
                     </tr>
@@ -871,7 +871,7 @@ Used for JWT validation to fetch client restrictions.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:156</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:163</a></code>
 </div>
                         </td>
                     </tr>
@@ -972,7 +972,7 @@ Returns the new plain secret for one-time display.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:175</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:182</a></code>
 </div>
                         </td>
                     </tr>
@@ -1071,7 +1071,7 @@ Returns the new plain secret for one-time display.</p>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:190</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:197</a></code>
 </div>
                         </td>
                     </tr>
@@ -1143,7 +1143,7 @@ import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import * as bcrypt from &quot;bcrypt&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
-import { Repository } from &quot;typeorm&quot;;
+import { IsNull, Repository } from &quot;typeorm&quot;;
 import { ConfigImportService } from &quot;../../../shared/utils/config-import/config-import.service&quot;;
 import { ConfigImportOrchestratorService } from &quot;../../../shared/utils/config-import/config-import-orchestrator.service&quot;;
 import { Role } from &quot;../../roles/role.enum&quot;;
@@ -1170,20 +1170,27 @@ export class InternalClientsProvider
     }
 
     async onApplicationBootstrap() {
-        //add the root user
+        // Add the root admin user (tenant-less, for managing tenants)
         const clientId &#x3D; this.configService.getOrThrow(&quot;AUTH_CLIENT_ID&quot;);
         const clientSecret &#x3D;
             this.configService.getOrThrow(&quot;AUTH_CLIENT_SECRET&quot;);
-        await this.getClient(&quot;root&quot;, clientId).catch(async () &#x3D;&gt; {
+
+        // Check if admin client already exists (no tenant association)
+        const existingAdmin &#x3D; await this.repo.findOne({
+            where: { clientId, tenantId: IsNull() },
+        });
+
+        if (!existingAdmin) {
             // Hash the root client secret before storing
             const hashedSecret &#x3D; await bcrypt.hash(clientSecret, BCRYPT_ROUNDS);
-            return this.repo.save({
+            await this.repo.save({
                 clientId,
                 secret: hashedSecret,
-                description: &quot;Internal client&quot;,
+                description: &quot;Admin client for tenant management&quot;,
                 roles: [Role.Tenants],
+                // No tenant - this is the bootstrap admin
             });
-        });
+        }
     }
 
     async importForTenant(tenantId: string) {

@@ -172,13 +172,6 @@
                                     </a>
                                 </li>
                                 <li>
-                                        <span class="modifier">Optional</span>
-                                    <a href="#getSignedUrl" 
->
-                                        getSignedUrl
-                                    </a>
-                                </li>
-                                <li>
                                     <a href="#getStream" 
 >
                                         getStream
@@ -222,8 +215,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="31"
-                                    class="link-to-prism">src/storage/storage.types.ts:31</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="27"
+                                    class="link-to-prism">src/storage/storage.types.ts:27</a></div>
                         </td>
                     </tr>
 
@@ -289,8 +282,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="33"
-                                    class="link-to-prism">src/storage/storage.types.ts:33</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="29"
+                                    class="link-to-prism">src/storage/storage.types.ts:29</a></div>
                         </td>
                     </tr>
 
@@ -340,74 +333,6 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getSignedUrl"></a>
-                    <span class="name">
-                            <span class="modifier">Optional</span>
-                        <span ><b>getSignedUrl</b></span>
-                        <a href="#getSignedUrl"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getSignedUrl(key: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="35"
-                                    class="link-to-prism">src/storage/storage.types.ts:35</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>key</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="getStream"></a>
                     <span class="name">
                         <span ><b>getStream</b></span>
@@ -424,8 +349,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="27"
-                                    class="link-to-prism">src/storage/storage.types.ts:27</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="23"
+                                    class="link-to-prism">src/storage/storage.types.ts:23</a></div>
                         </td>
                     </tr>
 
@@ -552,7 +477,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../miscellaneous/typealiases.html#StoredObject" target="_self" >Promise&lt;StoredObject&gt;</a></code>
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -587,11 +512,7 @@ export type StoredObject &#x3D; {
 };
 
 export interface FileStorage {
-    put(
-        key: string,
-        body: Buffer | Readable,
-        opts?: PutOptions,
-    ): Promise&lt;StoredObject&gt;;
+    put(key: string, body: Buffer | Readable, opts?: PutOptions): Promise&lt;void&gt;;
 
     getStream(
         key: string,
@@ -600,8 +521,6 @@ export interface FileStorage {
     delete(key: string): Promise&lt;void&gt;;
 
     exists(key: string): Promise&lt;boolean&gt;;
-
-    getSignedUrl?(key: string): Promise&lt;string&gt;; // optional for local
 }
 
 export const FILE_STORAGE &#x3D; Symbol(&quot;FILE_STORAGE&quot;);

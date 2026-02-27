@@ -363,7 +363,7 @@ export class FilesService {
         isPublic &#x3D; false,
     ): Promise&lt;StoredObject&gt; {
         const key &#x3D; randomUUID();
-        const response &#x3D; await this.storage.put(key, file.buffer, {
+        await this.storage.put(key, file.buffer, {
             contentType: file.mimetype,
             acl: isPublic ? &quot;public&quot; : &quot;private&quot;,
             metadata: { originalName: file.originalname },
@@ -373,10 +373,9 @@ export class FilesService {
             filename: file.originalname,
             tenantId,
         });
-        const url &#x3D; await this.getDownloadUrl(response.key);
         return {
-            key: response.key,
-            url,
+            key,
+            url: &#x60;${this.configService.get&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/storage/${key}&#x60;,
         };
     }
 
@@ -396,13 +395,6 @@ export class FilesService {
      */
     delete(key: string) {
         return Promise.resolve(this.storage.delete(key));
-    }
-
-    getDownloadUrl(key: string) {
-        if (this.storage.getSignedUrl) return this.storage.getSignedUrl(key);
-        return Promise.resolve(
-            &#x60;${this.configService.get&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/storage/${key}&#x60;,
-        );
     }
 
     /**

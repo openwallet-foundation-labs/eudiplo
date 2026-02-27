@@ -350,12 +350,12 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ValidationPipe } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { existsSync, readFileSync, writeFileSync } from &quot;node:fs&quot;;
+import { ValidationPipe } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { NestFactory } from &quot;@nestjs/core&quot;;
 import { NestExpressApplication } from &quot;@nestjs/platform-express&quot;;
 import { DocumentBuilder, SwaggerModule } from &quot;@nestjs/swagger&quot;;
-import { existsSync, readFileSync, writeFileSync } from &quot;fs&quot;;
 import { Logger } from &quot;nestjs-pino&quot;;
 import { cleanupOpenApiDoc } from &quot;nestjs-zod&quot;;
 import { AllExceptionsFilter } from &quot;./all-exceptions.filter&quot;;
