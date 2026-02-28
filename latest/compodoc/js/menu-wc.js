@@ -216,30 +216,27 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="modules/CryptoModule.html" data-type="entity-link" >CryptoModule</a>
                                     <li class="chapter inner">
                                         <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
-                                            'data-bs-target="#controllers-links-module-CryptoModule-089de733c23f3c8cd7c8aa859d7865a72d86a2cf75e2f99c94aa627f20e87ce64f5e35e40e4925458729fad2a9f5d4bab2b9f314f3c979bf48730161af8c4d75"' : 'data-bs-target="#xs-controllers-links-module-CryptoModule-089de733c23f3c8cd7c8aa859d7865a72d86a2cf75e2f99c94aa627f20e87ce64f5e35e40e4925458729fad2a9f5d4bab2b9f314f3c979bf48730161af8c4d75"' }>
+                                            'data-bs-target="#controllers-links-module-CryptoModule-205c3b21b66908192b2b69a050bfda56d0a47bd5c6406aee2c0dbb0174899377f338e6afa601e5608bf7418ee91f9d6a1e99d4ce87d918ae8903499a8a176f5f"' : 'data-bs-target="#xs-controllers-links-module-CryptoModule-205c3b21b66908192b2b69a050bfda56d0a47bd5c6406aee2c0dbb0174899377f338e6afa601e5608bf7418ee91f9d6a1e99d4ce87d918ae8903499a8a176f5f"' }>
                                             <span class="icon ion-md-swap"></span>
                                             <span>Controllers</span>
                                             <span class="icon ion-ios-arrow-down"></span>
                                         </div>
-                                        <ul class="links collapse" ${ isNormalMode ? 'id="controllers-links-module-CryptoModule-089de733c23f3c8cd7c8aa859d7865a72d86a2cf75e2f99c94aa627f20e87ce64f5e35e40e4925458729fad2a9f5d4bab2b9f314f3c979bf48730161af8c4d75"' :
-                                            'id="xs-controllers-links-module-CryptoModule-089de733c23f3c8cd7c8aa859d7865a72d86a2cf75e2f99c94aa627f20e87ce64f5e35e40e4925458729fad2a9f5d4bab2b9f314f3c979bf48730161af8c4d75"' }>
+                                        <ul class="links collapse" ${ isNormalMode ? 'id="controllers-links-module-CryptoModule-205c3b21b66908192b2b69a050bfda56d0a47bd5c6406aee2c0dbb0174899377f338e6afa601e5608bf7418ee91f9d6a1e99d4ce87d918ae8903499a8a176f5f"' :
+                                            'id="xs-controllers-links-module-CryptoModule-205c3b21b66908192b2b69a050bfda56d0a47bd5c6406aee2c0dbb0174899377f338e6afa601e5608bf7418ee91f9d6a1e99d4ce87d918ae8903499a8a176f5f"' }>
                                             <li class="link">
                                                 <a href="controllers/CertController.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >CertController</a>
-                                            </li>
-                                            <li class="link">
-                                                <a href="controllers/KeyController.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >KeyController</a>
                                             </li>
                                         </ul>
                                     </li>
                                 <li class="chapter inner">
                                     <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
-                                        'data-bs-target="#injectables-links-module-CryptoModule-089de733c23f3c8cd7c8aa859d7865a72d86a2cf75e2f99c94aa627f20e87ce64f5e35e40e4925458729fad2a9f5d4bab2b9f314f3c979bf48730161af8c4d75"' : 'data-bs-target="#xs-injectables-links-module-CryptoModule-089de733c23f3c8cd7c8aa859d7865a72d86a2cf75e2f99c94aa627f20e87ce64f5e35e40e4925458729fad2a9f5d4bab2b9f314f3c979bf48730161af8c4d75"' }>
+                                        'data-bs-target="#injectables-links-module-CryptoModule-205c3b21b66908192b2b69a050bfda56d0a47bd5c6406aee2c0dbb0174899377f338e6afa601e5608bf7418ee91f9d6a1e99d4ce87d918ae8903499a8a176f5f"' : 'data-bs-target="#xs-injectables-links-module-CryptoModule-205c3b21b66908192b2b69a050bfda56d0a47bd5c6406aee2c0dbb0174899377f338e6afa601e5608bf7418ee91f9d6a1e99d4ce87d918ae8903499a8a176f5f"' }>
                                         <span class="icon ion-md-arrow-round-down"></span>
                                         <span>Injectables</span>
                                         <span class="icon ion-ios-arrow-down"></span>
                                     </div>
-                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-CryptoModule-089de733c23f3c8cd7c8aa859d7865a72d86a2cf75e2f99c94aa627f20e87ce64f5e35e40e4925458729fad2a9f5d4bab2b9f314f3c979bf48730161af8c4d75"' :
-                                        'id="xs-injectables-links-module-CryptoModule-089de733c23f3c8cd7c8aa859d7865a72d86a2cf75e2f99c94aa627f20e87ce64f5e35e40e4925458729fad2a9f5d4bab2b9f314f3c979bf48730161af8c4d75"' }>
+                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-CryptoModule-205c3b21b66908192b2b69a050bfda56d0a47bd5c6406aee2c0dbb0174899377f338e6afa601e5608bf7418ee91f9d6a1e99d4ce87d918ae8903499a8a176f5f"' :
+                                        'id="xs-injectables-links-module-CryptoModule-205c3b21b66908192b2b69a050bfda56d0a47bd5c6406aee2c0dbb0174899377f338e6afa601e5608bf7418ee91f9d6a1e99d4ce87d918ae8903499a8a176f5f"' }>
                                         <li class="link">
                                             <a href="injectables/CryptoService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >CryptoService</a>
                                         </li>
@@ -358,9 +355,6 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="modules/IssuerModule.html" data-type="entity-link" >IssuerModule</a>
-                            </li>
-                            <li class="link">
-                                <a href="modules/KeyModule.html" data-type="entity-link" >KeyModule</a>
                             </li>
                             <li class="link">
                                 <a href="modules/LifecycleModule.html" data-type="entity-link" >LifecycleModule</a>
@@ -738,6 +732,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </div>
                             <ul class="links collapse " ${ isNormalMode ? 'id="controllers-links"' : 'id="xs-controllers-links"' }>
                                 <li class="link">
+                                    <a href="controllers/KeyController.html" data-type="entity-link" >KeyController</a>
+                                </li>
+                                <li class="link">
                                     <a href="controllers/MetricsController.html" data-type="entity-link" >MetricsController</a>
                                 </li>
                                 <li class="link">
@@ -823,6 +820,12 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             <span class="icon ion-ios-arrow-down"></span>
                         </div>
                         <ul class="links collapse " ${ isNormalMode ? 'id="classes-links"' : 'id="xs-classes-links"' }>
+                            <li class="link">
+                                <a href="classes/AddKmsProvider1740500000000.html" data-type="entity-link" >AddKmsProvider1740500000000</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/AddSigningKeyIdToIssuanceConfig1741000000000.html" data-type="entity-link" >AddSigningKeyIdToIssuanceConfig1741000000000</a>
+                            </li>
                             <li class="link">
                                 <a href="classes/AllExceptionsFilter.html" data-type="entity-link" >AllExceptionsFilter</a>
                             </li>
@@ -962,6 +965,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/DBKeyService.html" data-type="entity-link" >DBKeyService</a>
                             </li>
                             <li class="link">
+                                <a href="classes/DbKmsConfigDto.html" data-type="entity-link" >DbKmsConfigDto</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/DCQL.html" data-type="entity-link" >DCQL</a>
                             </li>
                             <li class="link">
@@ -1058,7 +1064,13 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/Key.html" data-type="entity-link" >Key</a>
                             </li>
                             <li class="link">
+                                <a href="classes/KeyGenerateDto.html" data-type="entity-link" >KeyGenerateDto</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/KeyImportDto.html" data-type="entity-link" >KeyImportDto</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/KeyModule.html" data-type="entity-link" >KeyModule</a>
                             </li>
                             <li class="link">
                                 <a href="classes/KeyObj.html" data-type="entity-link" >KeyObj</a>
@@ -1067,7 +1079,19 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/KeyResponseDto.html" data-type="entity-link" >KeyResponseDto</a>
                             </li>
                             <li class="link">
-                                <a href="classes/KeyService.html" data-type="entity-link" >KeyService</a>
+                                <a href="classes/KmsAdapter.html" data-type="entity-link" >KmsAdapter</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/KmsConfigDto.html" data-type="entity-link" >KmsConfigDto</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/KmsProviderCapabilitiesDto.html" data-type="entity-link" >KmsProviderCapabilitiesDto</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/KmsProviderInfoDto.html" data-type="entity-link" >KmsProviderInfoDto</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/KmsProvidersResponseDto.html" data-type="entity-link" >KmsProvidersResponseDto</a>
                             </li>
                             <li class="link">
                                 <a href="classes/LocalFileStorage.html" data-type="entity-link" >LocalFileStorage</a>
@@ -1190,6 +1214,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/VaultKeyService.html" data-type="entity-link" >VaultKeyService</a>
                             </li>
                             <li class="link">
+                                <a href="classes/VaultKmsConfigDto.html" data-type="entity-link" >VaultKmsConfigDto</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/VCT.html" data-type="entity-link" >VCT</a>
                             </li>
                             <li class="link">
@@ -1243,6 +1270,12 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 </li>
                                 <li class="link">
                                     <a href="injectables/KeycloakClientsProvider.html" data-type="entity-link" >KeycloakClientsProvider</a>
+                                </li>
+                                <li class="link">
+                                    <a href="injectables/KeyService.html" data-type="entity-link" >KeyService</a>
+                                </li>
+                                <li class="link">
+                                    <a href="injectables/KmsRegistry.html" data-type="entity-link" >KmsRegistry</a>
                                 </li>
                                 <li class="link">
                                     <a href="injectables/SessionLoggerInterceptor.html" data-type="entity-link" >SessionLoggerInterceptor</a>
@@ -1368,6 +1401,12 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="interfaces/Jwk.html" data-type="entity-link" >Jwk</a>
+                            </li>
+                            <li class="link">
+                                <a href="interfaces/KmsAdapterDeps.html" data-type="entity-link" >KmsAdapterDeps</a>
+                            </li>
+                            <li class="link">
+                                <a href="interfaces/KmsProviderCapabilities.html" data-type="entity-link" >KmsProviderCapabilities</a>
                             </li>
                             <li class="link">
                                 <a href="interfaces/ListAndSchemeInformation.html" data-type="entity-link" >ListAndSchemeInformation</a>

@@ -261,9 +261,6 @@
                                 class="icon ion-ios-information-circle-outline"></a></h3>
                     <ul class="list-group">
                         <li class="list-group-item">
-                            <a href="../controllers/KeyController.html">KeyController</a>
-                        </li>
-                        <li class="list-group-item">
                             <a href="../controllers/CertController.html">CertController</a>
                         </li>
                     </ul>
@@ -299,7 +296,6 @@ import { CertController } from &quot;./key/cert/cert.controller&quot;;
 import { CertEntity } from &quot;./key/entities/cert.entity&quot;;
 import { CertUsageEntity } from &quot;./key/entities/cert-usage.entity&quot;;
 import { KeyEntity } from &quot;./key/entities/keys.entity&quot;;
-import { KeyController } from &quot;./key/key.controller&quot;;
 
 @Module({
     imports: [
@@ -311,7 +307,7 @@ import { KeyController } from &quot;./key/key.controller&quot;;
             TenantEntity,
         ]),
     ],
-    controllers: [KeyController, CertController],
+    controllers: [CertController],
     providers: [CryptoService, EncryptionService],
     exports: [CryptoService, EncryptionService],
 })

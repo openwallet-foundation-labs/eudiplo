@@ -1650,17 +1650,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#custom-ports" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Custom Ports
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#resource-limits" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3492,17 +3481,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#custom-ports" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Custom Ports
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#resource-limits" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4409,8 +4387,32 @@
 </tbody>
 </table>
 <p>See <a href="../../architecture/">Configuration Documentation</a> for complete list.</p>
-<h3 id="custom-ports">Custom Ports<a class="headerlink" href="#custom-ports" title="Permanent link">¶</a></h3>
-<p>Edit <code>docker-compose.yml</code> to change exposed ports:</p>
+<h4 id="client-environment-variables">Client Environment Variables<a class="headerlink" href="#client-environment-variables" title="Permanent link">¶</a></h4>
+<p>The client container supports the following environment variables:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CLIENT_BASE_HREF</code></td>
+<td>HTML base href (<code>&lt;base href="..." /&gt;</code>). Useful for reverse proxy setups where the client is served from a subpath. For example, if the client is served from <code>https://example.com/eudiplo-client/</code>, set <code>CLIENT_BASE_HREF=/eudiplo-client/</code>.</td>
+<td><code>/</code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Base Href Normalization</p>
+</div>
+<p>The <code>CLIENT_BASE_HREF</code> value is automatically normalized to ensure it starts and ends with <code>/</code>. For example, <code>eudiplo-client</code> becomes <code>/eudiplo-client/</code>.</p>
+<div class="admonition tip">
+<p class="admonition-title">Reverse Proxy Setup Required</p>
+</div>
+<p>Setting <code>CLIENT_BASE_HREF</code> alone is not enough — the reverse proxy must also be configured to forward the subpath to the client container. See <a href="../tls/#serving-the-client-from-a-subpath">Serving the Client from a Subpath</a> for complete Nginx and Traefik examples.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="nt">services</span><span class="p">:</span>
 <a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a><span class="w">    </span><span class="nt">eudiplo</span><span class="p">:</span>
 <a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a><span class="w">        </span><span class="nt">ports</span><span class="p">:</span>

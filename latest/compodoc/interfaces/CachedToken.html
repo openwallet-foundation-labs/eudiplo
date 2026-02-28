@@ -277,6 +277,7 @@ import { TenantEntity } from &quot;../auth/tenant/entitites/tenant.entity&quot;;
 import { CryptoService } from &quot;../crypto/crypto.service&quot;;
 import { CertService } from &quot;../crypto/key/cert/cert.service&quot;;
 import { CertUsage } from &quot;../crypto/key/entities/cert-usage.entity&quot;;
+import { KeyService } from &quot;../crypto/key/key.service&quot;;
 import {
     ConfigImportOrchestratorService,
     ImportPhase,
@@ -325,6 +326,7 @@ export class RegistrarService {
         @InjectRepository(RegistrarConfigEntity)
         private readonly configRepository: Repository&lt;RegistrarConfigEntity&gt;,
         private readonly certService: CertService,
+        private readonly keyService: KeyService,
     ) {
         // Register for config import at CORE phase (same as certificates)
         configImportOrchestrator.register(
@@ -666,7 +668,7 @@ export class RegistrarService {
             this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
         ).hostname;
 
-        const publicKey &#x3D; await this.cryptoService.keyService.getPublicKey(
+        const publicKey &#x3D; await this.keyService.getPublicKey(
             &quot;pem&quot;,
             tenantId,
             dto.keyId,

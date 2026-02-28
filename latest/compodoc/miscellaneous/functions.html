@@ -146,6 +146,9 @@
                             <a href="#certFromBase64Der" title="src/shared/trust/x509-validation.service.ts" ><b>certFromBase64Der</b>&nbsp;&nbsp;&nbsp;(src/.../x509-validation.service.ts)</a>
                         </li>
                         <li>
+                            <a href="#createKmsAdapter" title="src/crypto/key/adapters/kms-adapter.factory.ts" ><b>createKmsAdapter</b>&nbsp;&nbsp;&nbsp;(src/.../kms-adapter.factory.ts)</a>
+                        </li>
+                        <li>
                             <a href="#extractConditionsFromKeyDesc" title="src/shared/utils/config-printer/helpers.ts" ><b>extractConditionsFromKeyDesc</b>&nbsp;&nbsp;&nbsp;(src/.../helpers.ts)</a>
                         </li>
                         <li>
@@ -774,6 +777,114 @@ This is a type assertion helper since our types are derived from the SDK</p>
                             </div>
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="../classes/CredentialConfig.html" target="_self" >CredentialConfigurationSupportedWithFormats</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/crypto/key/adapters/kms-adapter.factory.ts</h3>
+    <section data-compodoc="block-methods">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="createKmsAdapter"></a>
+                    <span class="name">
+                        <span ><b>createKmsAdapter</b></span>
+                        <a href="#createKmsAdapter"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>createKmsAdapter(type: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, config: Record, deps: <a href="../interfaces/KmsAdapterDeps.html" target="_self">KmsAdapterDeps</a>)</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Create a KeyService adapter instance from a kms.json provider entry.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>type</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The provider type (key from the providers object, e.g., &quot;db&quot;, &quot;vault&quot;)</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>config</td>
+                                            <td>
+                                                        <code>Record</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The provider-specific config object</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>deps</td>
+                                            <td>
+                                                            <code><a href="../interfaces/KmsAdapterDeps.html" target="_self" >KmsAdapterDeps</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>Shared NestJS dependencies</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
 
                         </div>
                             <div class="io-description">

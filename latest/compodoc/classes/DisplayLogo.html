@@ -264,6 +264,24 @@
 </section>
 
 
+            <section data-compodoc="block-indexables">
+    <h3 id="inputs">Indexable</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <code>[key: string]:    <code>unknown</code>
+</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/issuer/configuration/issuance/dto/display.dto.ts:10</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
 
 
 
@@ -283,11 +301,14 @@ class DisplayLogo {
     @IsString()
     @IsOptional()
     alt_text?: string;
+
+    [key: string]: unknown;
 }
 export class DisplayInfo {
     @IsString()
     @IsOptional()
     name?: string;
+
     @IsString()
     @IsOptional()
     locale?: string;
@@ -296,6 +317,8 @@ export class DisplayInfo {
     @IsOptional()
     @Type(() &#x3D;&gt; DisplayLogo)
     logo?: DisplayLogo;
+
+    [key: string]: unknown;
 }
 </code></pre>
     </div>

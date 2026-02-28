@@ -227,7 +227,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="18" class="link-to-prism">src/issuer/configuration/issuance/dto/display.dto.ts:18</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="21" class="link-to-prism">src/issuer/configuration/issuance/dto/display.dto.ts:21</a></div>
                         </td>
                     </tr>
 
@@ -266,7 +266,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/issuer/configuration/issuance/dto/display.dto.ts:23</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/issuer/configuration/issuance/dto/display.dto.ts:26</a></div>
                         </td>
                     </tr>
 
@@ -304,7 +304,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/issuer/configuration/issuance/dto/display.dto.ts:15</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/issuer/configuration/issuance/dto/display.dto.ts:17</a></div>
                         </td>
                     </tr>
 
@@ -314,6 +314,24 @@
 </section>
 
 
+            <section data-compodoc="block-indexables">
+    <h3 id="inputs">Indexable</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <code>[key: string]:    <code>unknown</code>
+</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/issuer/configuration/issuance/dto/display.dto.ts:26</a></div>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
 
 
 
@@ -333,11 +351,14 @@ class DisplayLogo {
     @IsString()
     @IsOptional()
     alt_text?: string;
+
+    [key: string]: unknown;
 }
 export class DisplayInfo {
     @IsString()
     @IsOptional()
     name?: string;
+
     @IsString()
     @IsOptional()
     locale?: string;
@@ -346,6 +367,8 @@ export class DisplayInfo {
     @IsOptional()
     @Type(() &#x3D;&gt; DisplayLogo)
     logo?: DisplayLogo;
+
+    [key: string]: unknown;
 }
 </code></pre>
     </div>

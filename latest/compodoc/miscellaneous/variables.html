@@ -131,6 +131,9 @@
                 <td class="col-md-4">
                     <ul class="index-list">
                         <li>
+                            <a href="#ADAPTER_FACTORIES" title="src/crypto/key/adapters/kms-adapter.factory.ts" ><b>ADAPTER_FACTORIES</b>&nbsp;&nbsp;&nbsp;(src/.../kms-adapter.factory.ts)</a>
+                        </li>
+                        <li>
                             <a href="#allRoles" title="src/auth/roles/role.enum.ts" ><b>allRoles</b>&nbsp;&nbsp;&nbsp;(src/.../role.enum.ts)</a>
                         </li>
                         <li>
@@ -206,10 +209,13 @@
                             <a href="#ISSUER_VALIDATION_SCHEMA" title="src/issuer/issuer-validation.schema.ts" ><b>ISSUER_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../issuer-validation.schema.ts)</a>
                         </li>
                         <li>
-                            <a href="#KEY_VALIDATION_SCHEMA" title="src/crypto/key/key-validation.schema.ts" ><b>KEY_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../key-validation.schema.ts)</a>
+                            <a href="#KMS_ADAPTER_TYPES" title="src/crypto/key/adapters/kms-adapter.factory.ts" ><b>KMS_ADAPTER_TYPES</b>&nbsp;&nbsp;&nbsp;(src/.../kms-adapter.factory.ts)</a>
                         </li>
                         <li>
                             <a href="#LOG_VALIDATION_SCHEMA" title="src/shared/utils/logger/log-validation.schema.ts" ><b>LOG_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../log-validation.schema.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#logger" title="src/crypto/key/adapters/kms-adapter.factory.ts" ><b>logger</b>&nbsp;&nbsp;&nbsp;(src/.../kms-adapter.factory.ts)</a>
                         </li>
                         <li>
                             <a href="#mdocContext" title="src/verifier/presentations/mdoc-context.ts" ><b>mdocContext</b>&nbsp;&nbsp;&nbsp;(src/.../mdoc-context.ts)</a>
@@ -272,6 +278,130 @@
     </table>
 </section>
 
+    <h3>src/crypto/key/adapters/kms-adapter.factory.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ADAPTER_FACTORIES"></a>
+                    <span class="name">
+                        <span ><b>ADAPTER_FACTORIES</b></span>
+                        <a href="#ADAPTER_FACTORIES"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../classes/KmsAdapter.html" target="_self" >Record&lt;string, KmsAdapterFactoryFn&gt;</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>{
+    db: (_config, deps) &#x3D;&gt;
+        new DBKeyService(deps.cryptoService, deps.keyRepository),
+
+    vault: (config, deps) &#x3D;&gt; {
+        const vaultUrl &#x3D; config.vaultUrl as string;
+        const vaultToken &#x3D; config.vaultToken as string;
+
+        if (!vaultUrl || !vaultToken) {
+            throw new Error(
+                &#x27;Vault KMS provider requires &quot;vaultUrl&quot; and &quot;vaultToken&quot; in kms.json.&#x27;,
+            );
+        }
+
+        return new VaultKeyService(
+            deps.httpService,
+            vaultUrl,
+            vaultToken,
+            deps.cryptoService,
+            deps.keyRepository,
+        );
+    },
+}</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Registry of adapter factory functions, keyed by the provider type used in kms.json.</p>
+<p>To add a new KMS adapter:</p>
+<ol>
+<li>Create a class extending KmsAdapter in /adapters/</li>
+<li>Add the type name to KMS_ADAPTER_TYPES above</li>
+<li>Create a typed config DTO in dto/kms-config.dto.ts</li>
+<li>Register a factory function here under that type name</li>
+<li>Add the provider entry in kms.json</li>
+</ol>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="KMS_ADAPTER_TYPES"></a>
+                    <span class="name">
+                        <span ><b>KMS_ADAPTER_TYPES</b></span>
+                        <a href="#KMS_ADAPTER_TYPES"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[&quot;db&quot;, &quot;vault&quot;] as const</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Supported KMS adapter type names.
+When adding a new adapter, add its type here and register its factory below.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="logger"></a>
+                    <span class="name">
+                        <span ><b>logger</b></span>
+                        <a href="#logger"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new Logger(&quot;KmsAdapterFactory&quot;)</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
     <h3>src/auth/roles/role.enum.ts</h3>
     <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
@@ -1571,60 +1701,6 @@ This is necessary because TypeORM transformers don&#39;t support dependency inje
         </tbody>
     </table>
 </section>
-    <h3>src/crypto/key/key-validation.schema.ts</h3>
-    <section data-compodoc="block-properties">
-    <h3></h3>    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="KEY_VALIDATION_SCHEMA"></a>
-                    <span class="name">
-                        <span ><b>KEY_VALIDATION_SCHEMA</b></span>
-                        <a href="#KEY_VALIDATION_SCHEMA"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>    <code>unknown</code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>Joi.object({
-    KM_TYPE: Joi.string()
-        .valid(&quot;db&quot;, &quot;vault&quot;)
-        .default(&quot;db&quot;)
-        .description(&quot;The key management type&quot;)
-        .meta({ group: &quot;key&quot;, order: 10 }),
-
-    // Vault-related config
-    VAULT_URL: Joi.string()
-        .uri()
-        .when(&quot;KM_TYPE&quot;, {
-            is: &quot;vault&quot;,
-            then: Joi.required(),
-            otherwise: Joi.optional(),
-        })
-        .description(&quot;The URL of the Vault server&quot;)
-        .meta({ group: &quot;key&quot;, order: 20 }),
-    VAULT_TOKEN: Joi.string()
-        .when(&quot;KM_TYPE&quot;, {
-            is: &quot;vault&quot;,
-            then: Joi.required(),
-            otherwise: Joi.optional(),
-        })
-        .description(&quot;The token for accessing the Vault&quot;)
-        .meta({ group: &quot;key&quot;, order: 30 }),
-})</code>
-                    </td>
-                </tr>
-
-
-        </tbody>
-    </table>
-</section>
     <h3>src/shared/utils/logger/log-validation.schema.ts</h3>
     <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
@@ -2509,7 +2585,6 @@ use Uint8Array<ArrayBufferLike> which is not assignable to BufferSource.</p>
     .concat(DB_VALIDATION_SCHEMA)
     .concat(CONFIG_VALIDATION_SCHEMA)
     .concat(LOG_VALIDATION_SCHEMA)
-    .concat(KEY_VALIDATION_SCHEMA)
     .concat(CRYPTO_VALIDATION_SCHEMA)
     .concat(ISSUER_VALIDATION_SCHEMA)
     .concat(SESSION_VALIDATION_SCHEMA)

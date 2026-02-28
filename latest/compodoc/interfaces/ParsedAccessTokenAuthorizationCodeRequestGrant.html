@@ -270,6 +270,7 @@ import {
 import type { Request } from &quot;express&quot;;
 import { v4 } from &quot;uuid&quot;;
 import { CryptoService } from &quot;../../../../crypto/crypto.service&quot;;
+import { KeyService } from &quot;../../../../crypto/key/key.service&quot;;
 import { SessionService } from &quot;../../../../session/session.service&quot;;
 import { WalletAttestationService } from &quot;../../../../shared/trust/wallet-attestation.service&quot;;
 import { IssuanceService } from &quot;../../../configuration/issuance/issuance.service&quot;;
@@ -298,6 +299,7 @@ export class AuthorizeService {
         private readonly sessionService: SessionService,
         private readonly issuanceService: IssuanceService,
         private readonly walletAttestationService: WalletAttestationService,
+        private readonly keyService: KeyService,
     ) {}
 
     getAuthorizationServer(tenantId: string): Oauth2AuthorizationServer {
@@ -565,17 +567,25 @@ export class AuthorizeService {
             dpopValue &#x3D; dpop;
         }
 
+        // Use pinned key from issuance config, or fall back to first available key
+        const signingKeyId &#x3D;
+            issuanceConfig.signingKeyId ||
+            (await this.keyService.getKid(tenantId));
+
+        const publicKey &#x3D; await this.keyService.getPublicKey(
+            &quot;jwk&quot;,
+            tenantId,
+            signingKeyId,
+        );
+
         return this.getAuthorizationServer(tenantId)
             .createAccessTokenResponse({
                 audience: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${tenantId}&#x60;,
                 signer: {
                     method: &quot;jwk&quot;,
                     alg: &quot;ES256&quot;,
-                    publicJwk:
-                        (await this.cryptoService.keyService.getPublicKey(
-                            &quot;jwk&quot;,
-                            tenantId,
-                        )) as Jwk,
+                    publicJwk: publicKey as Jwk,
+                    kid: signingKeyId,
                 },
                 subject: session.id,
                 expiresInSeconds: 300,

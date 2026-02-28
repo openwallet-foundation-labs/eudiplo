@@ -154,7 +154,6 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                    <span class="modifier"></span>
                                     <span class="modifier">Public</span>
                                     <span class="modifier">Readonly</span>
                                 <a href="#keyService" >keyService</a>
@@ -261,7 +260,7 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(trustListRepo: <a href="../entitys/TrustList.html" target="_self">Repository&lt;TrustList&gt;</a>, trustListVersionRepo: Repository<TrustListVersion>, keyService: <a href="../classes/KeyService.html" target="_self">KeyService</a>, certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>)</code>
+<code>constructor(trustListRepo: <a href="../entitys/TrustList.html" target="_self">Repository&lt;TrustList&gt;</a>, trustListVersionRepo: Repository<TrustListVersion>, keyService: <a href="../injectables/KeyService.html" target="_self">KeyService</a>, certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>)</code>
                     </td>
                 </tr>
                         <tr>
@@ -311,7 +310,7 @@
                                                         <td>keyService</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                                                                        <code><a href="../injectables/KeyService.html" target="_self" >KeyService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -2070,7 +2069,6 @@ Increments the sequence number and stores a version for audit</p>
                 <td class="col-md-4">
                     <a name="keyService"></a>
                     <span class="name">
-                            <span class="modifier"></span>
                             <span class="modifier">Public</span>
                             <span class="modifier">Readonly</span>
                         <span ><b>keyService</b></span>
@@ -2080,17 +2078,8 @@ Increments the sequence number and stores a version for audit</p>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                        <i>Type : </i>        <code><a href="../injectables/KeyService.html" target="_self" >KeyService</a></code>
 
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @Inject(&#x27;KeyService&#x27;)<br />
-                        </code>
                     </td>
                 </tr>
                     <tr>
@@ -2110,7 +2099,7 @@ Increments the sequence number and stores a version for audit</p>
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { X509Certificate } from &quot;node:crypto&quot;;
 import { readFileSync } from &quot;node:fs&quot;;
-import { BadRequestException, Inject, Injectable } from &quot;@nestjs/common&quot;;
+import { BadRequestException, Injectable } from &quot;@nestjs/common&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
 import { JWTHeaderParameters } from &quot;jose&quot;;
@@ -2151,7 +2140,7 @@ export class TrustListService {
         private readonly trustListRepo: Repository&lt;TrustList&gt;,
         @InjectRepository(TrustListVersion)
         private readonly trustListVersionRepo: Repository&lt;TrustListVersion&gt;,
-        @Inject(&quot;KeyService&quot;) public readonly keyService: KeyService,
+        public readonly keyService: KeyService,
         private readonly certService: CertService,
         private readonly configImportService: ConfigImportService,
         @InjectRepository(TenantEntity)
