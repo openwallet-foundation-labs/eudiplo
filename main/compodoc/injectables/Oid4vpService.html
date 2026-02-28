@@ -154,7 +154,6 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                    <span class="modifier"></span>
                                     <span class="modifier">Public</span>
                                     <span class="modifier">Readonly</span>
                                 <a href="#keyService" >keyService</a>
@@ -201,7 +200,7 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, keyService: <a href="../classes/KeyService.html" target="_self">KeyService</a>, encryptionService: <a href="../injectables/EncryptionService.html" target="_self">EncryptionService</a>, configService: ConfigService, presentationsService: <a href="../injectables/PresentationsService.html" target="_self">PresentationsService</a>, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, sessionLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, cryptoImplementationService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>)</code>
+<code>constructor(certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, keyService: <a href="../injectables/KeyService.html" target="_self">KeyService</a>, encryptionService: <a href="../injectables/EncryptionService.html" target="_self">EncryptionService</a>, configService: ConfigService, presentationsService: <a href="../injectables/PresentationsService.html" target="_self">PresentationsService</a>, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, sessionLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, cryptoImplementationService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>)</code>
                     </td>
                 </tr>
                         <tr>
@@ -239,7 +238,7 @@
                                                         <td>keyService</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                                                                        <code><a href="../injectables/KeyService.html" target="_self" >KeyService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -664,7 +663,6 @@ It initializes the session logging context and logs the start of the flow.</p>
                 <td class="col-md-4">
                     <a name="keyService"></a>
                     <span class="name">
-                            <span class="modifier"></span>
                             <span class="modifier">Public</span>
                             <span class="modifier">Readonly</span>
                         <span ><b>keyService</b></span>
@@ -674,17 +672,8 @@ It initializes the session logging context and logs the start of the flow.</p>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                        <i>Type : </i>        <code><a href="../injectables/KeyService.html" target="_self" >KeyService</a></code>
 
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @Inject(&#x27;KeyService&#x27;)<br />
-                        </code>
                     </td>
                 </tr>
                     <tr>
@@ -703,7 +692,7 @@ It initializes the session logging context and logs the start of the flow.</p>
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &quot;node:crypto&quot;;
-import { BadRequestException, Inject, Injectable } from &quot;@nestjs/common&quot;;
+import { BadRequestException, Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { plainToInstance } from &quot;class-transformer&quot;;
 import { validateOrReject } from &quot;class-validator&quot;;
@@ -729,7 +718,7 @@ import { PresentationRequestOptions } from &quot;./dto/presentation-request-opti
 export class Oid4vpService {
     constructor(
         private readonly certService: CertService,
-        @Inject(&quot;KeyService&quot;) public readonly keyService: KeyService,
+        public readonly keyService: KeyService,
         private readonly encryptionService: EncryptionService,
         private readonly configService: ConfigService,
         private readonly presentationsService: PresentationsService,

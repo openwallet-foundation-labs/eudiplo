@@ -169,7 +169,6 @@
                                 <a href="#folder" >folder</a>
                             </li>
                             <li>
-                                    <span class="modifier"></span>
                                     <span class="modifier">Public</span>
                                     <span class="modifier">Readonly</span>
                                 <a href="#keyService" >keyService</a>
@@ -192,10 +191,6 @@
                             <li>
                                 <a href="#getSignJwtCallback" >getSignJwtCallback</a>
                             </li>
-                            <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#verifyJwt" >verifyJwt</a>
-                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -214,7 +209,7 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(keyService: <a href="../classes/KeyService.html" target="_self">KeyService</a>, configService: ConfigService)</code>
+<code>constructor(keyService: <a href="../injectables/KeyService.html" target="_self">KeyService</a>, configService: ConfigService)</code>
                     </td>
                 </tr>
                         <tr>
@@ -242,7 +237,7 @@
                                                         <td>keyService</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                                                                        <code><a href="../injectables/KeyService.html" target="_self" >KeyService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -296,8 +291,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="78"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:78</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="56"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:56</a></div>
                         </td>
                     </tr>
 
@@ -365,8 +360,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="150"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:150</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="128"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:128</a></div>
                         </td>
                     </tr>
 
@@ -403,89 +398,6 @@
                             </div>
                         <div class="io-description">
                             <b>Returns : </b>    <code>SignJwtCallback</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="verifyJwt"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>verifyJwt</b></span>
-                        <a href="#verifyJwt"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>verifyJwt(compact: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="57"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:57</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Verify a JWT with the key service.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>compact</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;literal type&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -574,7 +486,6 @@ Configured via CRYPTO_TOLERANCE env var, defaults to 5s.</p>
                 <td class="col-md-4">
                     <a name="keyService"></a>
                     <span class="name">
-                            <span class="modifier"></span>
                             <span class="modifier">Public</span>
                             <span class="modifier">Readonly</span>
                         <span ><b>keyService</b></span>
@@ -584,17 +495,8 @@ Configured via CRYPTO_TOLERANCE env var, defaults to 5s.</p>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                        <i>Type : </i>        <code><a href="../injectables/KeyService.html" target="_self" >KeyService</a></code>
 
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @Inject(&#x27;KeyService&#x27;)<br />
-                        </code>
                     </td>
                 </tr>
                     <tr>
@@ -613,7 +515,7 @@ Configured via CRYPTO_TOLERANCE env var, defaults to 5s.</p>
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash, randomBytes } from &quot;node:crypto&quot;;
-import { Inject, Injectable } from &quot;@nestjs/common&quot;;
+import { Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import {
     type CallbackContext,
@@ -655,35 +557,13 @@ export class CryptoService {
      * @param configService
      */
     constructor(
-        @Inject(&quot;KeyService&quot;) public readonly keyService: KeyService,
+        public readonly keyService: KeyService,
         private readonly configService: ConfigService,
     ) {
         this.clockTolerance &#x3D;
             this.configService.getOrThrow&lt;number&gt;(&quot;CRYPTO_TOLERANCE&quot;);
     }
 
-    /**
-     * Verify a JWT with the key service.
-     * @param compact
-     * @param tenantId
-     * @returns
-     */
-    async verifyJwt(
-        compact: string,
-        tenantId: string,
-    ): Promise&lt;{ verified: boolean }&gt; {
-        const publicJwk &#x3D; await this.keyService.getPublicKey(&quot;jwk&quot;, tenantId);
-        const publicCryptoKey &#x3D; await importJWK(publicJwk, &quot;ES256&quot;);
-
-        try {
-            await jwtVerify(compact, publicCryptoKey, {
-                clockTolerance: this.clockTolerance,
-            });
-            return { verified: true };
-        } catch {
-            return { verified: false };
-        }
-    }
     /**
      * Get the callback context for the key service.
      * @param tenantId
@@ -777,6 +657,7 @@ export class CryptoService {
                 jwk: (await this.keyService.getPublicKey(
                     &quot;jwk&quot;,
                     tenantId,
+                    signer.kid!,
                 )) as Jwk,
                 hashAlgorithm: HashAlgorithm.Sha256,
                 hashCallback,
@@ -792,6 +673,7 @@ export class CryptoService {
                 payload,
                 header,
                 tenantId,
+                signer.kid!,
             );
 
             return {

@@ -183,12 +183,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, configService: ConfigService, statusListService: <a href="../injectables/StatusListService.html" target="_self">StatusListService</a>, cryptoImplementationService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>)</code>
+<code>constructor(certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, configService: ConfigService, statusListService: <a href="../injectables/StatusListService.html" target="_self">StatusListService</a>, cryptoImplementationService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, keyService: <a href="../injectables/KeyService.html" target="_self">KeyService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/issuer/configuration/credentials/issuer/sdjwtvc-issuer/sdjwtvc-issuer.service.ts:25</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/issuer/configuration/credentials/issuer/sdjwtvc-issuer/sdjwtvc-issuer.service.ts:26</a></div>
                             </td>
                         </tr>
 
@@ -253,6 +253,18 @@
                                                     </td>
                                                     
                                                 </tr>
+                                                <tr>
+                                                        <td>keyService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/KeyService.html" target="_self" >KeyService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -289,8 +301,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="38"
-                                    class="link-to-prism">src/issuer/configuration/credentials/issuer/sdjwtvc-issuer/sdjwtvc-issuer.service.ts:38</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="40"
+                                    class="link-to-prism">src/issuer/configuration/credentials/issuer/sdjwtvc-issuer/sdjwtvc-issuer.service.ts:40</a></div>
                         </td>
                     </tr>
 
@@ -361,6 +373,7 @@ import { SDJwtVcInstance } from &quot;@sd-jwt/sd-jwt-vc&quot;;
 import { CertService } from &quot;../../../../../crypto/key/cert/cert.service&quot;;
 import { CryptoImplementationService } from &quot;../../../../../crypto/key/crypto-implementation/crypto-implementation.service&quot;;
 import { CertUsage } from &quot;../../../../../crypto/key/entities/cert-usage.entity&quot;;
+import { KeyService } from &quot;../../../../../crypto/key/key.service&quot;;
 import { Session } from &quot;../../../../../session/entities/session.entity&quot;;
 import { StatusListService } from &quot;../../../../lifecycle/status/status-list.service&quot;;
 import { CredentialConfig } from &quot;../../entities/credential.entity&quot;;
@@ -382,6 +395,7 @@ export class SdjwtvcIssuerService {
         private readonly configService: ConfigService,
         private readonly statusListService: StatusListService,
         private readonly cryptoImplementationService: CryptoImplementationService,
+        private readonly keyService: KeyService,
     ) {}
 
     /**
@@ -399,7 +413,7 @@ export class SdjwtvcIssuerService {
         });
 
         const sdjwt &#x3D; new SDJwtVcInstance({
-            signer: await this.certService.keyService.signer(
+            signer: await this.keyService.signer(
                 session.tenantId,
                 certificate.keyId,
             ),

@@ -1703,15 +1703,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#database-based-key-management" class="md-nav__link">
+  <a href="#database-key-management-db" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Database based Key Management
+        Database Key Management (db)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Database based Key Management">
+    <nav class="md-nav" aria-label="Database Key Management (db)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1749,6 +1749,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Vault (HashiCorp Vault)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#transit-mount-auto-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transit Mount Auto-Creation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2538,15 +2555,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#database-based-key-management" class="md-nav__link">
+  <a href="#database-key-management-db" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Database based Key Management
+        Database Key Management (db)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Database based Key Management">
+    <nav class="md-nav" aria-label="Database Key Management (db)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2584,6 +2601,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Vault (HashiCorp Vault)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#transit-mount-auto-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transit Mount Auto-Creation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2821,53 +2855,64 @@
 
 
 <h1 id="key-management">Key Management<a class="headerlink" href="#key-management" title="Permanent link">¶</a></h1>
-<p>The keys used for <strong>signing operations</strong> in EUDIPLO can be managed in multiple
-ways, depending on the selected key management type (<code>KM_TYPE</code>).</p>
+<p>The keys used for <strong>signing operations</strong> in EUDIPLO can be managed by one or
+more KMS (Key Management System) providers running simultaneously. Providers are
+configured in a single <code>kms.json</code> file inside the config folder.</p>
 <blockquote>
-<p>💡 <strong>Encryption operations</strong> are always proceed with database stored keys for not and independent from the used KeyManagement Module.</p>
+<p>💡 <strong>Encryption operations</strong> always use database-stored keys and are independent from the KMS providers configured for signing.</p>
 </blockquote>
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¶</a></h2>
+<p>KMS providers are configured in <code>&lt;CONFIG_FOLDER&gt;/kms.json</code>. If no file is found,
+a single <code>db</code> provider is registered automatically.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nt">"defaultProvider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"db"</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">"providers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">        </span><span class="nt">"db"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">        </span><span class="nt">"vault"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">            </span><span class="nt">"vaultUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://localhost:8200"</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">            </span><span class="nt">"vaultToken"</span><span class="p">:</span><span class="w"> </span><span class="s2">"your-vault-token"</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">}</span>
+</code></pre></div>
 <table>
 <thead>
 <tr>
-<th>Key</th>
-<th>Type</th>
-<th>Notes</th>
+<th>Field</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>KM_TYPE</code></td>
-<td><code>string</code></td>
-<td>The key management type  (default: <code>db</code>)</td>
+<td><code>defaultProvider</code></td>
+<td>Name of the provider used when no explicit <code>kmsProvider</code> is specified (default: <code>db</code>).</td>
 </tr>
 <tr>
-<td><code>VAULT_URL</code></td>
-<td><code>string</code></td>
-<td>The URL of the Vault server [when KM_TYPE is {"override":true} | "vault" → then required]</td>
-</tr>
-<tr>
-<td><code>VAULT_TOKEN</code></td>
-<td><code>string</code></td>
-<td>The token for accessing the Vault [when KM_TYPE is {"override":true} | "vault" → then required]</td>
+<td><code>providers</code></td>
+<td>Object where each key is a provider name and the value is its configuration.</td>
 </tr>
 </tbody>
 </table>
+<p>Environment-variable placeholders (<code>${VAULT_URL}</code>, <code>${VAULT_TOKEN:default}</code>) are
+resolved at startup, so secrets can still be injected through the environment.</p>
+<p>When generating or importing a key through the API, include the <code>kmsProvider</code>
+field to select a specific provider. If omitted, the <code>defaultProvider</code> is used.</p>
 <hr>
-<h2 id="database-based-key-management">Database based Key Management<a class="headerlink" href="#database-based-key-management" title="Permanent link">¶</a></h2>
-<p>When <code>KM_TYPE=db</code> (default), keys are stored unencrypted in the database. This mode is ideal for development or testing.</p>
+<h2 id="database-key-management-db">Database Key Management (<code>db</code>)<a class="headerlink" href="#database-key-management-db" title="Permanent link">¶</a></h2>
+<p>When the <code>db</code> provider is configured (the default), keys are stored encrypted in the
+database. This mode is ideal for development or testing.</p>
 <h3 id="multiple-key-support">Multiple Key Support<a class="headerlink" href="#multiple-key-support" title="Permanent link">¶</a></h3>
 <p>Each tenant can manage multiple cryptographic keys simultaneously. Each key has a unique key id and is also isolated via the <code>tenant_id</code> field.</p>
 <p>Each key file contains the private key in JWK format:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="nt">"kty"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EC"</span><span class="p">,</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho"</span><span class="p">,</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nt">"y"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o"</span><span class="p">,</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nt">"crv"</span><span class="p">:</span><span class="w"> </span><span class="s2">"P-256"</span><span class="p">,</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">"d"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU"</span><span class="p">,</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">"kid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"039af178-3ca0-48f4-a2e4-7b1209f30376"</span><span class="p">,</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">"alg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ES256"</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="nt">"kty"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EC"</span><span class="p">,</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho"</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nt">"y"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o"</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nt">"crv"</span><span class="p">:</span><span class="w"> </span><span class="s2">"P-256"</span><span class="p">,</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="nt">"d"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU"</span><span class="p">,</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="nt">"kid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"039af178-3ca0-48f4-a2e4-7b1209f30376"</span><span class="p">,</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nt">"alg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ES256"</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">}</span>
 </code></pre></div>
 <h3 id="automatic-key-generation">Automatic Key Generation<a class="headerlink" href="#automatic-key-generation" title="Permanent link">¶</a></h3>
 <p>On startup, if no keys are found for a tenant, the service will automatically
@@ -2875,20 +2920,57 @@ generate a new key pair. Even when using the database mode, the private key will
 <hr>
 <h2 id="vault-hashicorp-vault">Vault (HashiCorp Vault)<a class="headerlink" href="#vault-hashicorp-vault" title="Permanent link">¶</a></h2>
 <p>To use <a href="https://www.vaultproject.io/">HashiCorp Vault</a> for key management,
-configure the following:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>KM_TYPE=vault
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>VAULT_URL=http://localhost:8200/v1/transit
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>VAULT_TOKEN=your-vault-token
+add a <code>vault</code> entry to the <code>providers</code> section of <code>kms.json</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nt">"defaultProvider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vault"</span><span class="p">,</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nt">"providers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">        </span><span class="nt">"db"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">        </span><span class="nt">"vault"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">            </span><span class="nt">"vaultUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://localhost:8200"</span><span class="p">,</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">            </span><span class="nt">"vaultToken"</span><span class="p">:</span><span class="w"> </span><span class="s2">"your-vault-token"</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="p">}</span>
 </code></pre></div>
-<p>For each tenant, a new secret engine is created in Vault with the path
-<code>{tenantId}</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>vaultUrl</code></td>
+<td>Base URL of the Vault server (without <code>/v1/…</code>).</td>
+</tr>
+<tr>
+<td><code>vaultToken</code></td>
+<td>Authentication token for Vault API access.</td>
+</tr>
+</tbody>
+</table>
+<p>You can use environment-variable placeholders to avoid storing secrets in the
+config file:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nt">"vaultUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"${VAULT_URL}"</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">"vaultToken"</span><span class="p">:</span><span class="w"> </span><span class="s2">"${VAULT_TOKEN}"</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="transit-mount-auto-creation">Transit Mount Auto-Creation<a class="headerlink" href="#transit-mount-auto-creation" title="Permanent link">¶</a></h3>
+<p>For each tenant, a <strong>transit secret engine</strong> mount is created automatically on
+first use. If the mount already exists the creation step is silently skipped
+(idempotent). If a Vault API call returns <strong>404</strong> (mount not found), the service
+retries the operation once after creating the mount.</p>
 <p>To issue credentials, you need to have a signed certificate for the public key
 that is bound to your domain.</p>
 <p>In this mode:</p>
 <ul>
 <li>All <strong>signing operations</strong> are delegated to Vault via its API.</li>
 <li>The <strong>private key never leaves</strong> the Vault server.</li>
-<li>Access can be tightly controlled using Vault’s policies and authentication
+<li>A <strong>stub key entity</strong> is stored in the database for tracking purposes (no
+  private key material).</li>
+<li>Access can be tightly controlled using Vault's policies and authentication
   mechanisms.</li>
 </ul>
 <p>Vault is well-suited for production environments where secure, auditable key
@@ -2904,12 +2986,20 @@ other key management backends such as:</p>
 <li>🔐 Hardware Security Modules (HSMs)</li>
 </ul>
 <p>To add a new backend:</p>
-<ul>
-<li>Implement the key service interface.</li>
-<li>Extend the module factory to support a new <code>KM_TYPE</code>.</li>
-</ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">// Example (in code):</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nx">KM_TYPE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">awskms</span><span class="p">;</span>
+<ol>
+<li>Create a new class extending <code>KmsAdapter</code> (see <code>vault-key.service.ts</code> for
+   reference).</li>
+<li>Register a factory function for the new type in <code>kms-adapter.factory.ts</code>.</li>
+<li>Add the provider entry to <code>kms.json</code>:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nt">"providers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">        </span><span class="nt">"awskms"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">            </span><span class="nt">"region"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eu-central-1"</span><span class="p">,</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">            </span><span class="nt">"keyArn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"arn:aws:kms:..."</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="p">}</span>
 </code></pre></div>
 <p>If you need help integrating a new provider, feel free to open an issue or
 contact the maintainers.</p>
@@ -2948,20 +3038,20 @@ contact the maintainers.</p>
 <h3 id="certificate-import-via-configuration">Certificate Import via Configuration<a class="headerlink" href="#certificate-import-via-configuration" title="Permanent link">¶</a></h3>
 <p>Certificates can be imported during application startup using the configuration system.</p>
 <p><strong>Directory Structure</strong>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>assets/config/
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>└──<span class="w"> </span>tenant-1/
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span>└──<span class="w"> </span>certs/
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">        </span>├──<span class="w"> </span>signing-cert.json
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">        </span>└──<span class="w"> </span>access-cert.json
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>assets/config/
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>└──<span class="w"> </span>tenant-1/
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span>└──<span class="w"> </span>certs/
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">        </span>├──<span class="w"> </span>signing-cert.json
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">        </span>└──<span class="w"> </span>access-cert.json
 </code></pre></div>
 <p><strong>Certificate File Format</strong>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nt">"keyId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"039af178-3ca0-48f4-a2e4-7b1209f30376"</span><span class="p">,</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">"isAccessCert"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">"isSigningCert"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Production certificate"</span><span class="p">,</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="nt">"crt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"-----BEGIN CERTIFICATE-----\nMIIBYTCCAQigAwIB...\n-----END CERTIFICATE-----"</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="nt">"keyId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"039af178-3ca0-48f4-a2e4-7b1209f30376"</span><span class="p">,</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="nt">"isAccessCert"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nt">"isSigningCert"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Production certificate"</span><span class="p">,</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nt">"crt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"-----BEGIN CERTIFICATE-----\nMIIBYTCCAQigAwIB...\n-----END CERTIFICATE-----"</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="p">}</span>
 </code></pre></div>
 <p>See <a href="../configuration-import/#certificates">Configuration Import</a> for more details.</p>
 <h3 id="certificate-chain-support">Certificate Chain Support<a class="headerlink" href="#certificate-chain-support" title="Permanent link">¶</a></h3>
@@ -3004,56 +3094,56 @@ different deployment scenarios and security requirements.</p>
 <p>Import keys through the REST API using authenticated requests:</p>
 <p><strong>Endpoint</strong>: <code>POST /key</code></p>
 <p><strong>Request Body</strong>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nt">"privateKey"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">        </span><span class="nt">"kty"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EC"</span><span class="p">,</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">        </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho"</span><span class="p">,</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">        </span><span class="nt">"y"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o"</span><span class="p">,</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">        </span><span class="nt">"crv"</span><span class="p">:</span><span class="w"> </span><span class="s2">"P-256"</span><span class="p">,</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">        </span><span class="nt">"d"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU"</span><span class="p">,</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">        </span><span class="nt">"kid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"039af178-3ca0-48f4-a2e4-7b1209f30376"</span><span class="p">,</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">        </span><span class="nt">"alg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ES256"</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional key description"</span><span class="p">,</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="nt">"crt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"-----BEGIN CERTIFICATE-----\n...optional certificate...\n-----END CERTIFICATE-----"</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="nt">"privateKey"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">        </span><span class="nt">"kty"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EC"</span><span class="p">,</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">        </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho"</span><span class="p">,</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">        </span><span class="nt">"y"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o"</span><span class="p">,</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">        </span><span class="nt">"crv"</span><span class="p">:</span><span class="w"> </span><span class="s2">"P-256"</span><span class="p">,</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">        </span><span class="nt">"d"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU"</span><span class="p">,</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">        </span><span class="nt">"kid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"039af178-3ca0-48f4-a2e4-7b1209f30376"</span><span class="p">,</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">        </span><span class="nt">"alg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ES256"</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional key description"</span><span class="p">,</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">    </span><span class="nt">"crt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"-----BEGIN CERTIFICATE-----\n...optional certificate...\n-----END CERTIFICATE-----"</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="p">}</span>
 </code></pre></div>
 <p><strong>Response</strong>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"039af178-3ca0-48f4-a2e4-7b1209f30376"</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"039af178-3ca0-48f4-a2e4-7b1209f30376"</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="p">}</span>
 </code></pre></div>
 <h3 id="configuration-based-key-import">Configuration-Based Key Import<a class="headerlink" href="#configuration-based-key-import" title="Permanent link">¶</a></h3>
 <p>Import keys automatically during application startup using the configuration
 import system.</p>
 <p><strong>Environment Variables</strong>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nv">CONFIG_IMPORT</span><span class="o">=</span><span class="nb">true</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nv">CONFIG_IMPORT_FORCE</span><span class="o">=</span><span class="nb">false</span><span class="w">  </span><span class="c1"># Set to true to overwrite existing keys</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nv">CONFIG_IMPORT</span><span class="o">=</span><span class="nb">true</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nv">CONFIG_IMPORT_FORCE</span><span class="o">=</span><span class="nb">false</span><span class="w">  </span><span class="c1"># Set to true to overwrite existing keys</span>
 </code></pre></div>
 <p><strong>Directory Structure</strong>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>assets/config/
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>├──<span class="w"> </span>tenant-1/
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>│<span class="w">   </span>└──<span class="w"> </span>keys/
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>│<span class="w">       </span>├──<span class="w"> </span>primary-key.json
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>│<span class="w">       </span>├──<span class="w"> </span>backup-key.json
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>│<span class="w">       </span>└──<span class="w"> </span>legacy-key.json
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>└──<span class="w"> </span>tenant-2/
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">    </span>└──<span class="w"> </span>keys/
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">        </span>└──<span class="w"> </span>signing-key.json
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>assets/config/
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>├──<span class="w"> </span>tenant-1/
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>│<span class="w">   </span>└──<span class="w"> </span>keys/
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>│<span class="w">       </span>├──<span class="w"> </span>primary-key.json
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>│<span class="w">       </span>├──<span class="w"> </span>backup-key.json
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>│<span class="w">       </span>└──<span class="w"> </span>legacy-key.json
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>└──<span class="w"> </span>tenant-2/
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">    </span>└──<span class="w"> </span>keys/
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">        </span>└──<span class="w"> </span>signing-key.json
 </code></pre></div>
 <p><strong>Key File Format</strong>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="nt">"privateKey"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">        </span><span class="nt">"kty"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EC"</span><span class="p">,</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">        </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">        </span><span class="nt">"y"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">        </span><span class="nt">"crv"</span><span class="p">:</span><span class="w"> </span><span class="s2">"P-256"</span><span class="p">,</span>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">        </span><span class="nt">"d"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">        </span><span class="nt">"kid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unique-key-identifier"</span><span class="p">,</span>
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">        </span><span class="nt">"alg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ES256"</span>
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">    </span><span class="nt">"crt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"</span>
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">{</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="nt">"privateKey"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">        </span><span class="nt">"kty"</span><span class="p">:</span><span class="w"> </span><span class="s2">"EC"</span><span class="p">,</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">        </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">        </span><span class="nt">"y"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">        </span><span class="nt">"crv"</span><span class="p">:</span><span class="w"> </span><span class="s2">"P-256"</span><span class="p">,</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">        </span><span class="nt">"d"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">        </span><span class="nt">"kid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unique-key-identifier"</span><span class="p">,</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">        </span><span class="nt">"alg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ES256"</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">    </span><span class="nt">"crt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="p">}</span>
 </code></pre></div>
 <h3 id="key-management-operations">Key Management Operations<a class="headerlink" href="#key-management-operations" title="Permanent link">¶</a></h3>
 <p>For detailed key management endpoints, parameters, and request/response schemas, see:</p>

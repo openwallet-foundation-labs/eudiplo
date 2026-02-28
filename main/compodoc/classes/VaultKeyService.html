@@ -147,7 +147,7 @@
                 <h3>Extends</h3>
             </p>
             <p class="comment">
-                            <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                            <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
             </p>
 
 
@@ -172,7 +172,7 @@
                             <li>
                                     <span class="modifier">Private</span>
                                     <span class="modifier">Readonly</span>
-                                <a href="#vaultUrl" >vaultUrl</a>
+                                <a href="#verifiedMounts" >verifiedMounts</a>
                             </li>
                             <li>
                                     <span class="modifier">Protected</span>
@@ -198,6 +198,11 @@
                             <li>
                                     <span class="modifier">Async</span>
                                 <a href="#deleteKey" >deleteKey</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#ensureMountExists" >ensureMountExists</a>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
@@ -237,17 +242,9 @@
                                 <a href="#signJWT" >signJWT</a>
                             </li>
                             <li>
-                                <a href="#getKey" >getKey</a>
-                            </li>
-                            <li>
-                                <a href="#getKeys" >getKeys</a>
-                            </li>
-                            <li>
+                                    <span class="modifier">Private</span>
                                     <span class="modifier">Async</span>
-                                <a href="#importForTenant" >importForTenant</a>
-                            </li>
-                            <li>
-                                <a href="#update" >update</a>
+                                <a href="#withMountRetry" >withMountRetry</a>
                             </li>
                         </ul>
                     </td>
@@ -257,6 +254,20 @@
 
 
 
+                    <tr>
+                        <td class="col-md-4">
+                            <h6><b>Accessors</b></h6>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <ul class="index-list">
+                                <li>
+                                    <a href="#capabilities" >capabilities</a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
         </tbody>
     </table>
 </section>
@@ -267,12 +278,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(httpService: HttpService, configService: ConfigService, cryptoService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, keyRepository: <a href="../classes/Key.html" target="_self">Repository&lt;KeyEntity&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, certRepository: <a href="../entitys/CertEntity.html" target="_self">Repository&lt;CertEntity&gt;</a>, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>)</code>
+<code>constructor(httpService: HttpService, vaultUrl: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, vaultToken: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, cryptoService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, keyRepository: <a href="../classes/Key.html" target="_self">Repository&lt;KeyEntity&gt;</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/crypto/key/adapters/vault-key.service.ts:24</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/crypto/key/adapters/vault-key.service.ts:27</a></div>
                             </td>
                         </tr>
 
@@ -302,10 +313,22 @@
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>configService</td>
+                                                        <td>vaultUrl</td>
                                                   
                                                         <td>
-                                                                    <code>ConfigService</code>
+                                                                        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>vaultToken</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -330,54 +353,6 @@
                                                   
                                                         <td>
                                                                         <code><a href="../classes/Key.html" target="_self" >Repository&lt;KeyEntity&gt;</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>configImportService</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/ConfigImportService.html" target="_self" >ConfigImportService</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>certRepository</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../entitys/CertEntity.html" target="_self" >Repository&lt;CertEntity&gt;</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>tenantRepository</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../entitys/TenantEntity.html" target="_self" >Repository&lt;TenantEntity&gt;</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>configImportOrchestrator</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/ConfigImportOrchestratorService.html" target="_self" >ConfigImportOrchestratorService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -420,7 +395,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/crypto/key/adapters/vault-key.service.ts:24</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/crypto/key/adapters/vault-key.service.ts:17</a></div>
                         </td>
                     </tr>
 
@@ -431,27 +406,39 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="vaultUrl"></a>
+                    <a name="verifiedMounts"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
                             <span class="modifier">Readonly</span>
-                        <span ><b>vaultUrl</b></span>
-                        <a href="#vaultUrl"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>verifiedMounts</b></span>
+                        <a href="#verifiedMounts"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                        <i>Type : </i>    <code>unknown</code>
 
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new Set&lt;string&gt;()</code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="22" class="link-to-prism">src/crypto/key/adapters/vault-key.service.ts:22</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="23" class="link-to-prism">src/crypto/key/adapters/vault-key.service.ts:23</a></div>
                         </td>
                     </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Tracks tenants whose transit mount has been verified during this process lifetime.
+Avoids repeated mount-creation attempts after a successful retry.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>
@@ -476,18 +463,18 @@
                 </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Default value : </i><code>new Logger(KeyService.name)</code>
+                        <i>Default value : </i><code>new Logger(this.constructor.name)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                                <div class="io-line">Inherited from         <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
 </div>
                             </td>
                         </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:23</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KmsAdapter.html#source" target="_self" >KmsAdapter:25</a></code>
 </div>
                         </td>
                     </tr>
@@ -524,13 +511,13 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                            <div class="io-line">Inherited from         <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
 </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:119</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KmsAdapter.html#source" target="_self" >KmsAdapter:142</a></code>
 </div>
                         </td>
                     </tr>
@@ -538,7 +525,8 @@
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Creates a new keypair in the vault</p>
+                        <div class="io-description"><p>Creates a new keypair in the vault.
+Automatically creates the transit mount if Vault returns 404.</p>
 </div>
 
                             <div class="io-description">
@@ -573,7 +561,8 @@
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>the new key ID</p>
+
                             </div>
                 </td>
             </tr>
@@ -601,13 +590,13 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                            <div class="io-line">Inherited from         <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
 </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:270</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KmsAdapter.html#source" target="_self" >KmsAdapter:319</a></code>
 </div>
                         </td>
                     </tr>
@@ -670,6 +659,79 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="ensureMountExists"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>ensureMountExists</b></span>
+                        <a href="#ensureMountExists"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>ensureMountExists(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="48"
+                                    class="link-to-prism">src/crypto/key/adapters/vault-key.service.ts:48</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Ensure the Vault transit mount exists for the given tenant.
+Idempotent — silently succeeds if the mount already exists.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="getJWK"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
@@ -688,8 +750,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="204"
-                                    class="link-to-prism">src/crypto/key/adapters/vault-key.service.ts:204</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="251"
+                                    class="link-to-prism">src/crypto/key/adapters/vault-key.service.ts:251</a></div>
                         </td>
                     </tr>
 
@@ -767,13 +829,13 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                            <div class="io-line">Inherited from         <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
 </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:141</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KmsAdapter.html#source" target="_self" >KmsAdapter:184</a></code>
 </div>
                         </td>
                     </tr>
@@ -844,13 +906,13 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                            <div class="io-line">Inherited from         <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
 </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:170</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KmsAdapter.html#source" target="_self" >KmsAdapter:215</a></code>
 </div>
                         </td>
                     </tr>
@@ -945,8 +1007,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="175"
-                                    class="link-to-prism">src/crypto/key/adapters/vault-key.service.ts:175</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="220"
+                                    class="link-to-prism">src/crypto/key/adapters/vault-key.service.ts:220</a></div>
                         </td>
                     </tr>
 
@@ -1038,8 +1100,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="180"
-                                    class="link-to-prism">src/crypto/key/adapters/vault-key.service.ts:180</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="225"
+                                    class="link-to-prism">src/crypto/key/adapters/vault-key.service.ts:225</a></div>
                         </td>
                     </tr>
 
@@ -1122,20 +1184,20 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>import(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: <a href="../classes/KeyImportDto.html" target="_self">KeyImportDto</a>)</code>
+<code>import(_tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, _body: <a href="../classes/KeyImportDto.html" target="_self">KeyImportDto</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                            <div class="io-line">Inherited from         <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
 </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:75</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KmsAdapter.html#source" target="_self" >KmsAdapter:124</a></code>
 </div>
                         </td>
                     </tr>
@@ -1157,7 +1219,7 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>tenantId</td>
+                                                <td>_tenantId</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -1169,7 +1231,7 @@
 
                                         </tr>
                                         <tr>
-                                                <td>body</td>
+                                                <td>_body</td>
                                             <td>
                                                             <code><a href="../classes/KeyImportDto.html" target="_self" >KeyImportDto</a></code>
                                             </td>
@@ -1216,13 +1278,13 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                            <div class="io-line">Inherited from         <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
 </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:58</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KmsAdapter.html#source" target="_self" >KmsAdapter:119</a></code>
 </div>
                         </td>
                     </tr>
@@ -1230,7 +1292,7 @@
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Create a new transit for the tenant.</p>
+                        <div class="io-description"><p>Create a new transit mount for the tenant and generate the first key.</p>
 </div>
 
                             <div class="io-description">
@@ -1293,8 +1355,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="220"
-                                    class="link-to-prism">src/crypto/key/adapters/vault-key.service.ts:220</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="267"
+                                    class="link-to-prism">src/crypto/key/adapters/vault-key.service.ts:267</a></div>
                         </td>
                     </tr>
 
@@ -1386,13 +1448,13 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                            <div class="io-line">Inherited from         <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
 </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:108</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KmsAdapter.html#source" target="_self" >KmsAdapter:131</a></code>
 </div>
                         </td>
                     </tr>
@@ -1463,13 +1525,13 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                            <div class="io-line">Inherited from         <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
 </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:245</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KmsAdapter.html#source" target="_self" >KmsAdapter:294</a></code>
 </div>
                         </td>
                     </tr>
@@ -1558,272 +1620,45 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getKey"></a>
+                    <a name="withMountRetry"></a>
                     <span class="name">
-                        <span ><b>getKey</b></span>
-                        <a href="#getKey"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getKey(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, keyId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
-</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:116</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>keyId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../classes/Key.html" target="_self" >Promise&lt;KeyEntity&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getKeys"></a>
-                    <span class="name">
-                        <span ><b>getKeys</b></span>
-                        <a href="#getKeys"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getKeys(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
-</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:112</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>id</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../classes/Key.html" target="_self" >Promise&lt;KeyEntity[]&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="importForTenant"></a>
-                    <span class="name">
+                            <span class="modifier">Private</span>
                             <span class="modifier">Async</span>
-                        <span ><b>importForTenant</b></span>
-                        <a href="#importForTenant"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>withMountRetry</b></span>
+                        <a href="#withMountRetry"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>importForTenant(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>withMountRetry(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, operation: () => void)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
-</div>
+                            <div class="io-line">Defined in <a href="" data-line="92"
+                                    class="link-to-prism">src/crypto/key/adapters/vault-key.service.ts:92</a></div>
                         </td>
                     </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:131</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Imports keys for a specific tenant from the file system.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="update"></a>
-                    <span class="name">
-                        <span ><b>update</b></span>
-                        <a href="#update"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>update(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: <a href="../classes/UpdateKeyDto.html" target="_self">UpdateKeyDto</a>)</code>
-                </td>
-            </tr>
-
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
-</div>
+                            <b>Type parameters :</b>
+                            <ul class="type-parameters">
+                                    <li>T</li>
+                            </ul>
                         </td>
                     </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:61</a></code>
-</div>
-                        </td>
-                    </tr>
-
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Update key metadata</p>
+                        <div class="io-description"><p>Execute a Vault operation with automatic mount-initialisation retry.</p>
+<p>If the operation fails with HTTP 404 (mount or path not found) and we
+have not already verified the mount for this tenant, the transit mount
+is created and the operation is retried <strong>exactly once</strong>.</p>
 </div>
 
                             <div class="io-description">
@@ -1851,21 +1686,9 @@
 
                                         </tr>
                                         <tr>
-                                                <td>id</td>
+                                                <td>operation</td>
                                             <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>body</td>
-                                            <td>
-                                                            <code><a href="../classes/UpdateKeyDto.html" target="_self" >UpdateKeyDto</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
                                             </td>
 
                                             <td>
@@ -1878,7 +1701,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>Promise&lt;T&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -1894,113 +1717,163 @@
 
 
 
+            <section data-compodoc="block-accessors">
+    <h3 id="accessors">
+        Accessors
+    </h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="capabilities"></a>
+                        <span class="name"><b>capabilities</b><a href="#capabilities"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <span class="accessor"><b>get</b><code>capabilities()</code></span>
+                    </td>
+                </tr>
+                            <tr>
+                                <td class="col-md-4">
+                                    <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/crypto/key/adapters/vault-key.service.ts:25</a></div>
+                                </td>
+                            </tr>
+
+            </tbody>
+        </table>
+</section>
     </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpService } from &quot;@nestjs/axios&quot;;
-import { ConfigService } from &quot;@nestjs/config&quot;;
 import { JwtPayload, Signer } from &quot;@sd-jwt/types&quot;;
 import { exportJWK, importSPKI, JWK, JWTHeaderParameters } from &quot;jose&quot;;
 import { firstValueFrom } from &quot;rxjs&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { v4 } from &quot;uuid&quot;;
-import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
-import { ConfigImportService } from &quot;../../../shared/utils/config-import/config-import.service&quot;;
-import { ConfigImportOrchestratorService } from &quot;../../../shared/utils/config-import/config-import-orchestrator.service&quot;;
 import {
     CryptoImplementationService,
     CryptoType,
 } from &quot;../crypto-implementation/crypto-implementation.service&quot;;
 import { KeyImportDto } from &quot;../dto/key-import.dto&quot;;
-import { CertEntity } from &quot;../entities/cert.entity&quot;;
 import { KeyEntity } from &quot;../entities/keys.entity&quot;;
-import { KeyService } from &quot;../key.service&quot;;
+import { KmsAdapter } from &quot;../kms-adapter&quot;;
 
-export class VaultKeyService extends KeyService {
-    // url to the vault instance
-    private readonly vaultUrl: string;
+export class VaultKeyService extends KmsAdapter {
     // headers for the vault api
     private readonly headers: { headers: { &quot;X-Vault-Token&quot;: string } };
 
+    /**
+     * Tracks tenants whose transit mount has been verified during this process lifetime.
+     * Avoids repeated mount-creation attempts after a successful retry.
+     */
+    private readonly verifiedMounts &#x3D; new Set&lt;string&gt;();
+
+    override get capabilities() {
+        return { canImport: false, canCreate: true, canDelete: true };
+    }
+
     constructor(
         private readonly httpService: HttpService,
-        configService: ConfigService,
+        private readonly vaultUrl: string,
+        vaultToken: string,
         private readonly cryptoService: CryptoImplementationService,
-        keyRepository: Repository&lt;KeyEntity&gt;,
-        configImportService: ConfigImportService,
-        certRepository: Repository&lt;CertEntity&gt;,
-        tenantRepository: Repository&lt;TenantEntity&gt;,
-        configImportOrchestrator: ConfigImportOrchestratorService,
+        private readonly keyRepository: Repository&lt;KeyEntity&gt;,
     ) {
-        super(
-            configService,
-            keyRepository,
-            configImportService,
-            certRepository,
-            tenantRepository,
-            configImportOrchestrator,
-        );
-        this.vaultUrl &#x3D; this.configService.get&lt;string&gt;(&quot;VAULT_URL&quot;) as string;
+        super();
         this.headers &#x3D; {
-            headers: {
-                &quot;X-Vault-Token&quot;: this.configService.get&lt;string&gt;(
-                    &quot;VAULT_TOKEN&quot;,
-                ) as string,
-            },
+            headers: { &quot;X-Vault-Token&quot;: vaultToken },
         };
     }
 
+    // ──────────────── mount lifecycle helpers ────────────────
+
     /**
-     * Create a new transit for the tenant.
+     * Ensure the Vault transit mount exists for the given tenant.
+     * Idempotent — silently succeeds if the mount already exists.
+     */
+    private async ensureMountExists(tenantId: string): Promise&lt;void&gt; {
+        const mountUrl &#x3D; &#x60;${this.vaultUrl}/v1/sys/mounts/${tenantId}&#x60;;
+        this.logger.log(
+            &#x60;Ensuring transit mount exists for tenant ${tenantId} at ${mountUrl}&#x60;,
+        );
+        try {
+            await firstValueFrom(
+                this.httpService.post(
+                    mountUrl,
+                    { type: &quot;transit&quot; },
+                    this.headers,
+                ),
+            );
+            this.logger.log(&#x60;Created transit mount for tenant ${tenantId}&#x60;);
+        } catch (err: any) {
+            const status &#x3D; err?.response?.status;
+            // 400 &#x3D; &quot;path is already in use&quot; — mount exists, which is fine
+            if (status &#x3D;&#x3D;&#x3D; 400) {
+                this.logger.debug(
+                    &#x60;Transit mount for tenant ${tenantId} already exists&#x60;,
+                );
+                this.verifiedMounts.add(tenantId);
+                return;
+            }
+            this.logger.error(
+                {
+                    url: mountUrl,
+                    status,
+                    response: err?.response?.data,
+                },
+                &#x60;Failed to create transit mount for tenant ${tenantId}&#x60;,
+            );
+            throw err;
+        }
+        this.verifiedMounts.add(tenantId);
+    }
+
+    /**
+     * Execute a Vault operation with automatic mount-initialisation retry.
+     *
+     * If the operation fails with HTTP 404 (mount or path not found) and we
+     * have not already verified the mount for this tenant, the transit mount
+     * is created and the operation is retried **exactly once**.
+     */
+    private async withMountRetry&lt;T&gt;(
+        tenantId: string,
+        operation: () &#x3D;&gt; Promise&lt;T&gt;,
+    ): Promise&lt;T&gt; {
+        try {
+            return await operation();
+        } catch (err: any) {
+            if (
+                err?.response?.status &#x3D;&#x3D;&#x3D; 404 &amp;&amp;
+                !this.verifiedMounts.has(tenantId)
+            ) {
+                this.logger.warn(
+                    &#x60;Vault returned 404 for tenant ${tenantId} — initialising transit mount and retrying&#x60;,
+                );
+                await this.ensureMountExists(tenantId);
+                return operation();
+            }
+            throw err;
+        }
+    }
+
+    // ──────────────── KmsAdapter interface ────────────────
+
+    /**
+     * Create a new transit mount for the tenant and generate the first key.
      * @param tenantId
      */
     async init(tenantId: string) {
-        //TODO: what to do when it throws an error e.g. when the transit already exists
-        await firstValueFrom(
-            this.httpService.post(
-                &#x60;${this.vaultUrl}/v1/sys/mounts/${tenantId}&#x60;,
-                {
-                    type: &quot;transit&quot;,
-                },
-                this.headers,
-            ),
-        ).catch((err) &#x3D;&gt; {
-            console.error(JSON.stringify(err.response.data, null, 2));
-        });
+        await this.ensureMountExists(tenantId);
         return this.create(tenantId);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    import(tenantId: string, body: KeyImportDto): Promise&lt;string&gt; {
+    import(_tenantId: string, _body: KeyImportDto): Promise&lt;string&gt; {
         throw new Error(&quot;Importing not supported by VaultKeyService&quot;);
     }
-
-    /* getKeys(tenantId: string): Promise&lt;KeyObj[]&gt; {
-        return firstValueFrom(
-            this.httpService.get&lt;any&gt;(
-                &#x60;${this.vaultUrl}/v1/${tenantId}/keys?list&#x3D;true&#x60;,
-                this.headers,
-            ),
-        ).then((res) &#x3D;&gt; {
-            //TODO: get all the public keys from the vault
-            return Promise.all(
-                res.data.data.keys.map(async (id: string) &#x3D;&gt; {
-                    const publicKey &#x3D; await this.getPublicKey(
-                        &quot;jwk&quot;,
-                        tenantId,
-                        id,
-                    );
-                    const crt &#x3D; await this.getCertificate(tenantId, id);
-                    return {
-                        id,
-                        publicKey,
-                        crt,
-                    } as KeyObj;
-                }),
-            );
-        });
-    } */
 
     /**
      * Get the signer for the key service
@@ -2011,26 +1884,46 @@ export class VaultKeyService extends KeyService {
     }
 
     /**
-     * Creates a new keypair in the vault
-     * @param createKeyDto
-     * @param user
-     * @returns
+     * Creates a new keypair in the vault.
+     * Automatically creates the transit mount if Vault returns 404.
+     * @param tenantId
+     * @returns the new key ID
      */
     async create(tenantId: string) {
-        const types: Map&lt;CryptoType, string&gt; &#x3D; new Map();
-        types.set(&quot;ES256&quot;, &quot;ecdsa-p256&quot;);
-        const id &#x3D; v4();
-        await firstValueFrom(
-            this.httpService.post(
-                &#x60;${this.vaultUrl}/v1/${tenantId}/keys/${id}&#x60;,
-                {
-                    exportable: false,
-                    type: types.get(this.cryptoService.getAlg()),
-                },
-                this.headers,
-            ),
-        );
-        return id;
+        return this.withMountRetry(tenantId, async () &#x3D;&gt; {
+            const types: Map&lt;CryptoType, string&gt; &#x3D; new Map();
+            types.set(&quot;ES256&quot;, &quot;ecdsa-p256&quot;);
+            const id &#x3D; v4();
+            this.logger.debug(
+                &#x60;Creating key at ${this.vaultUrl}/v1/${tenantId}/keys/${id}&#x60;,
+            );
+            await firstValueFrom(
+                this.httpService.post(
+                    &#x60;${this.vaultUrl}/v1/${tenantId}/keys/${id}&#x60;,
+                    {
+                        exportable: false,
+                        type: types.get(this.cryptoService.getAlg()),
+                    },
+                    this.headers,
+                ),
+            ).catch((err) &#x3D;&gt; {
+                this.logger.error(
+                    &#x60;Error creating key for tenant ${tenantId}: ${err.message}&#x60;,
+                );
+                throw err;
+            });
+
+            // Persist a KeyEntity stub so the key is discoverable by the rest of the system.
+            // No private key material is stored — the actual key lives in Vault.
+            await this.keyRepository.save({
+                id,
+                tenantId,
+                key: { kid: id, kty: &quot;EC&quot;, crv: &quot;P-256&quot; } as JWK,
+                kmsProvider: &quot;vault&quot;,
+            });
+
+            return id;
+        });
     }
 
     /**
@@ -2039,26 +1932,28 @@ export class VaultKeyService extends KeyService {
      * @returns
      */
     getKid(tenantId: string): Promise&lt;string&gt; {
-        return firstValueFrom(
-            this.httpService.get&lt;any&gt;(
-                &#x60;${this.vaultUrl}/v1/${tenantId}/keys?list&#x3D;true&#x60;,
-                this.headers,
+        return this.withMountRetry(tenantId, () &#x3D;&gt;
+            firstValueFrom(
+                this.httpService.get&lt;any&gt;(
+                    &#x60;${this.vaultUrl}/v1/${tenantId}/keys?list&#x3D;true&#x60;,
+                    this.headers,
+                ),
+            ).then(
+                (res) &#x3D;&gt; {
+                    if (
+                        !res.data.data.keys ||
+                        (res.data.data.keys as string[]).length &#x3D;&#x3D;&#x3D; 0
+                    ) {
+                        throw new Error(&quot;No keys found&quot;);
+                    }
+                    return (res.data.data.keys as string[])[0];
+                },
+                (err) &#x3D;&gt; {
+                    throw new Error(
+                        &#x60;Error getting keys for tenant ${tenantId}: ${err.message}&#x60;,
+                    );
+                },
             ),
-        ).then(
-            (res) &#x3D;&gt; {
-                if (
-                    !res.data.data.keys ||
-                    (res.data.data.keys as string[]).length &#x3D;&#x3D;&#x3D; 0
-                ) {
-                    throw new Error(&quot;No keys found&quot;);
-                }
-                return (res.data.data.keys as string[])[0];
-            },
-            (err) &#x3D;&gt; {
-                throw new Error(
-                    &#x60;Error getting keys for tenant ${tenantId}: ${err.message}&#x60;,
-                );
-            },
         );
     }
 
@@ -2086,19 +1981,21 @@ export class VaultKeyService extends KeyService {
             keyId &#x3D; await this.getKid(tenantId);
         }
 
-        return firstValueFrom(
-            this.httpService.get&lt;any&gt;(
-                &#x60;${this.vaultUrl}/v1/${tenantId}/keys/${keyId}&#x60;,
-                this.headers,
-            ),
-        ).then(async (res) &#x3D;&gt; {
-            return type &#x3D;&#x3D;&#x3D; &quot;pem&quot;
-                ? (res.data.data.keys[&quot;1&quot;].public_key as string)
-                : await this.getJWK(
-                      res.data.data.keys[&quot;1&quot;].public_key,
-                      tenantId,
-                  );
-        });
+        return this.withMountRetry(tenantId, () &#x3D;&gt;
+            firstValueFrom(
+                this.httpService.get&lt;any&gt;(
+                    &#x60;${this.vaultUrl}/v1/${tenantId}/keys/${keyId}&#x60;,
+                    this.headers,
+                ),
+            ).then(async (res) &#x3D;&gt; {
+                return type &#x3D;&#x3D;&#x3D; &quot;pem&quot;
+                    ? (res.data.data.keys[&quot;1&quot;].public_key as string)
+                    : await this.getJWK(
+                          res.data.data.keys[&quot;1&quot;].public_key,
+                          tenantId,
+                      );
+            }),
+        );
     }
 
     private getJWK(key: string, tenantId: string): Promise&lt;JWK&gt; {
@@ -2125,16 +2022,18 @@ export class VaultKeyService extends KeyService {
         if (!keyId) {
             keyId &#x3D; await this.getKid(tenantId);
         }
-        return firstValueFrom(
-            this.httpService.post(
-                &#x60;${this.vaultUrl}/v1/${tenantId}/sign/${keyId}&#x60;,
-                {
-                    input: Buffer.from(value).toString(&quot;base64&quot;),
-                    marshaling_algorithm: &quot;jws&quot;,
-                },
-                this.headers,
-            ),
-        ).then((res) &#x3D;&gt; res.data.data.signature.split(&quot;:&quot;)[2]);
+        return this.withMountRetry(tenantId, () &#x3D;&gt;
+            firstValueFrom(
+                this.httpService.post(
+                    &#x60;${this.vaultUrl}/v1/${tenantId}/sign/${keyId}&#x60;,
+                    {
+                        input: Buffer.from(value).toString(&quot;base64&quot;),
+                        marshaling_algorithm: &quot;jws&quot;,
+                    },
+                    this.headers,
+                ),
+            ).then((res) &#x3D;&gt; res.data.data.signature.split(&quot;:&quot;)[2]),
+        );
     }
 
     /**
@@ -2162,18 +2061,30 @@ export class VaultKeyService extends KeyService {
             const signature &#x3D; await this.sign(signingInput, tenantId, keyId);
             return &#x60;${encodedHeader}.${encodedPayload}.${signature}&#x60;;
         } catch (error) {
-            console.error(&quot;Error signing JWT with Vault:&quot;, error);
+            this.logger.error(&quot;Error signing JWT with Vault:&quot;);
             throw error;
         }
     }
 
     async deleteKey(tenantId: string, keyId: string): Promise&lt;void&gt; {
-        await firstValueFrom(
-            this.httpService.delete(
-                &#x60;${this.vaultUrl}/v1/${tenantId}/keys/${keyId}&#x60;,
-                this.headers,
-            ),
-        );
+        await this.withMountRetry(tenantId, async () &#x3D;&gt; {
+            // Vault transit keys require deletion_allowed&#x3D;true before they can be deleted
+            await firstValueFrom(
+                this.httpService.post(
+                    &#x60;${this.vaultUrl}/v1/${tenantId}/keys/${keyId}/config&#x60;,
+                    { deletion_allowed: true },
+                    this.headers,
+                ),
+            );
+            await firstValueFrom(
+                this.httpService.delete(
+                    &#x60;${this.vaultUrl}/v1/${tenantId}/keys/${keyId}&#x60;,
+                    this.headers,
+                ),
+            );
+        });
+        // Remove the KeyEntity stub from the database
+        await this.keyRepository.delete({ tenantId, id: keyId });
     }
 }
 </code></pre>

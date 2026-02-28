@@ -484,7 +484,7 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash } from &quot;node:crypto&quot;;
 import { readFileSync } from &quot;node:fs&quot;;
-import { Inject, Injectable, Logger, Optional } from &quot;@nestjs/common&quot;;
+import { Injectable, Logger } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import * as x509 from &quot;@peculiar/x509&quot;;
@@ -553,13 +553,12 @@ export class CertService {
         private readonly certRepository: Repository&lt;CertEntity&gt;,
         @InjectRepository(CertUsageEntity)
         private readonly certUsageRepository: Repository&lt;CertUsageEntity&gt;,
-        @Inject(&quot;KeyService&quot;) public readonly keyService: KeyService,
         private readonly configService: ConfigService,
         @InjectRepository(TenantEntity)
         private readonly tenantRepository: Repository&lt;TenantEntity&gt;,
         private readonly configImportService: ConfigImportService,
         configImportOrchestrator: ConfigImportOrchestratorService,
-        @Optional()
+        private readonly keyService: KeyService,
         private readonly crlValidationService?: CrlValidationService,
     ) {
         configImportOrchestrator.register(
@@ -957,7 +956,7 @@ export class CertService {
      */
     findOrCreate(value: FindCertOptions): Promise&lt;CertEntity&gt; {
         return this.find(value).catch(async () &#x3D;&gt; {
-            // Create a new key
+            // Create a new key using the default KMS provider
             const keyId &#x3D; await this.keyService.create(value.tenantId);
 
             const dto: CertImportDto &#x3D; {

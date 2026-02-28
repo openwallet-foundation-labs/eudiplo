@@ -167,22 +167,45 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#addKey" >addKey</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#deleteKey" >deleteKey</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#generateKey" >generateKey</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#getKey" >getKey</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#getKeys" >getKeys</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                <a href="#getProviders" >getProviders</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#updateKey" >updateKey</a>
@@ -211,6 +234,8 @@
                     <a name="addKey"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
                         <span ><b>addKey</b></span>
                         <a href="#addKey"><span class="icon ion-ios-link"></span></a>
@@ -228,14 +253,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post()<br /></code>
+                    <code>@Post()<br />@ApiOperation({summary: &#x27;Import a key&#x27;})<br />@ApiResponse({status: 201, description: &#x27;Key imported successfully&#x27;})<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="60"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:60</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="115"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:115</a></div>
                         </td>
                     </tr>
 
@@ -302,6 +327,8 @@
                     <a name="deleteKey"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>deleteKey</b></span>
                         <a href="#deleteKey"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -318,14 +345,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Delete(&#x27;:id&#x27;)<br /></code>
+                    <code>@Delete(&#x27;:id&#x27;)<br />@ApiOperation({summary: &#x27;Delete a key&#x27;})<br />@ApiResponse({status: 200, description: &#x27;Key deleted successfully&#x27;})<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="89"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:89</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="148"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:148</a></div>
                         </td>
                     </tr>
 
@@ -375,7 +402,100 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="generateKey"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>generateKey</b></span>
+                        <a href="#generateKey"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>generateKey(token: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>, body: <a href="../classes/KeyGenerateDto.html" target="_self">KeyGenerateDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Post(&#x27;generate&#x27;)<br />@ApiOperation({summary: &#x27;Generate a key on the server&#x27;})<br />@ApiResponse({status: 201, description: &#x27;Key generated successfully&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="98"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:98</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Generate a new key on the server (no private key upload required).</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>token</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>body</td>
+                                            <td>
+                                                            <code><a href="../classes/KeyGenerateDto.html" target="_self" >KeyGenerateDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;literal type&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -391,6 +511,8 @@
                 <td class="col-md-4">
                     <a name="getKey"></a>
                     <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier"></span>
                         <span ><b>getKey</b></span>
                         <a href="#getKey"><span class="icon ion-ios-link"></span></a>
@@ -408,14 +530,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get(&#x27;:id&#x27;)<br /></code>
+                    <code>@Get(&#x27;:id&#x27;)<br />@ApiOperation({summary: &#x27;Get a key by ID&#x27;})<br />@ApiResponse({status: 200, type: KeyEntity})<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="46"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:46</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="80"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:80</a></div>
                         </td>
                     </tr>
 
@@ -482,6 +604,8 @@
                     <a name="getKeys"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>getKeys</b></span>
                         <a href="#getKeys"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -498,14 +622,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get()<br /></code>
+                    <code>@Get()<br />@ApiOperation({summary: &#x27;List all keys for the tenant&#x27;})<br />@ApiResponse({status: 200, type: undefined})<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="35"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:35</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="67"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:67</a></div>
                         </td>
                     </tr>
 
@@ -557,8 +681,64 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="getProviders"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>getProviders</b></span>
+                        <a href="#getProviders"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getProviders()</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;providers&#x27;)<br />@ApiOperation({summary: &#x27;List available KMS providers&#x27;})<br />@ApiResponse({status: 200, description: &#x27;List of available KMS providers&#x27;, type: KmsProvidersResponseDto})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="52"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:52</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get all available KMS providers.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/KmsProvidersResponseDto.html" target="_self" >KmsProvidersResponseDto</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>List of available KMS provider names and the default.</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="updateKey"></a>
                     <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier">Async</span>
                         <span ><b>updateKey</b></span>
@@ -577,14 +757,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Put(&#x27;:id&#x27;)<br /></code>
+                    <code>@Put(&#x27;:id&#x27;)<br />@ApiOperation({summary: &#x27;Update key metadata&#x27;})<br />@ApiResponse({status: 200, description: &#x27;Key updated successfully&#x27;})<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="75"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:75</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="132"
+                                    class="link-to-prism">src/crypto/key/key.controller.ts:132</a></div>
                         </td>
                     </tr>
 
@@ -665,28 +845,58 @@
     Controller,
     Delete,
     Get,
-    Inject,
     Param,
     Post,
     Put,
 } from &quot;@nestjs/common&quot;;
-import { ApiTags } from &quot;@nestjs/swagger&quot;;
+import {
+    ApiExtraModels,
+    ApiOperation,
+    ApiResponse,
+    ApiTags,
+} from &quot;@nestjs/swagger&quot;;
 import { Role } from &quot;../../auth/roles/role.enum&quot;;
 import { Secured } from &quot;../../auth/secure.decorator&quot;;
 import { Token, TokenPayload } from &quot;../../auth/token.decorator&quot;;
+import { KeyGenerateDto } from &quot;./dto/key-generate.dto&quot;;
 import { KeyImportDto } from &quot;./dto/key-import.dto&quot;;
 import { UpdateKeyDto } from &quot;./dto/key-update.dto&quot;;
+import { KmsConfigDto } from &quot;./dto/kms-config.dto&quot;;
+import { KmsProvidersResponseDto } from &quot;./dto/kms-providers-response.dto&quot;;
 import { KeyEntity } from &quot;./entities/keys.entity&quot;;
 import { KeyService } from &quot;./key.service&quot;;
+import { KmsRegistry } from &quot;./kms-registry.service&quot;;
 
 /**
  * KeyController is responsible for managing keys in the system.
  */
+@ApiExtraModels(KmsConfigDto)
 @ApiTags(&quot;Key&quot;)
 @Secured([Role.Issuances, Role.Presentations])
 @Controller(&quot;key&quot;)
 export class KeyController {
-    constructor(@Inject(&quot;KeyService&quot;) public readonly keyService: KeyService) {}
+    constructor(
+        private readonly keyService: KeyService,
+        private readonly kmsRegistry: KmsRegistry,
+    ) {}
+
+    /**
+     * Get all available KMS providers.
+     * @returns List of available KMS provider names and the default.
+     */
+    @Get(&quot;providers&quot;)
+    @ApiOperation({ summary: &quot;List available KMS providers&quot; })
+    @ApiResponse({
+        status: 200,
+        description: &quot;List of available KMS providers&quot;,
+        type: KmsProvidersResponseDto,
+    })
+    getProviders(): KmsProvidersResponseDto {
+        return {
+            providers: this.kmsRegistry.getProviderInfoList(),
+            default: this.kmsRegistry.getDefaultProviderName(),
+        };
+    }
 
     /**
      * Get all keys for the tenant.
@@ -694,6 +904,8 @@ export class KeyController {
      * @returns
      */
     @Get()
+    @ApiOperation({ summary: &quot;List all keys for the tenant&quot; })
+    @ApiResponse({ status: 200, type: [KeyEntity] })
     getKeys(@Token() token: TokenPayload): Promise&lt;KeyEntity[]&gt; {
         return this.keyService.getKeys(token.entity!.id);
     }
@@ -705,11 +917,32 @@ export class KeyController {
      * @returns
      */
     @Get(&quot;:id&quot;)
+    @ApiOperation({ summary: &quot;Get a key by ID&quot; })
+    @ApiResponse({ status: 200, type: KeyEntity })
     getKey(
         @Token() token: TokenPayload,
         @Param(&quot;id&quot;) id: string,
     ): Promise&lt;KeyEntity&gt; {
         return this.keyService.getKey(token.entity!.id, id);
+    }
+
+    /**
+     * Generate a new key on the server (no private key upload required).
+     * @param token
+     * @param body
+     */
+    @Post(&quot;generate&quot;)
+    @ApiOperation({ summary: &quot;Generate a key on the server&quot; })
+    @ApiResponse({
+        status: 201,
+        description: &quot;Key generated successfully&quot;,
+    })
+    async generateKey(
+        @Token() token: TokenPayload,
+        @Body() body: KeyGenerateDto,
+    ): Promise&lt;{ id: string }&gt; {
+        const id &#x3D; await this.keyService.create(token.entity!.id, body);
+        return { id };
     }
 
     /**
@@ -719,6 +952,8 @@ export class KeyController {
      * @returns
      */
     @Post()
+    @ApiOperation({ summary: &quot;Import a key&quot; })
+    @ApiResponse({ status: 201, description: &quot;Key imported successfully&quot; })
     async addKey(
         @Token() token: TokenPayload,
         @Body() body: KeyImportDto,
@@ -734,6 +969,8 @@ export class KeyController {
      * @param body
      */
     @Put(&quot;:id&quot;)
+    @ApiOperation({ summary: &quot;Update key metadata&quot; })
+    @ApiResponse({ status: 200, description: &quot;Key updated successfully&quot; })
     async updateKey(
         @Token() token: TokenPayload,
         @Param(&quot;id&quot;) id: string,
@@ -748,7 +985,12 @@ export class KeyController {
      * @param id
      */
     @Delete(&quot;:id&quot;)
-    deleteKey(@Token() token: TokenPayload, @Param(&quot;id&quot;) id: string) {
+    @ApiOperation({ summary: &quot;Delete a key&quot; })
+    @ApiResponse({ status: 200, description: &quot;Key deleted successfully&quot; })
+    deleteKey(
+        @Token() token: TokenPayload,
+        @Param(&quot;id&quot;) id: string,
+    ): Promise&lt;void&gt; {
         return this.keyService.deleteKey(token.entity!.id, id);
     }
 }

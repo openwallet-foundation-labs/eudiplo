@@ -146,7 +146,8 @@
                 <h3>Description</h3>
             </p>
             <p class="comment">
-                <p>The key service is responsible for managing the keys of the issuer.</p>
+                <p>Database-backed KMS adapter.
+Key material is stored encrypted in the application database.</p>
 
             </p>
 
@@ -154,7 +155,7 @@
                 <h3>Extends</h3>
             </p>
             <p class="comment">
-                            <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                            <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
             </p>
 
 
@@ -237,19 +238,6 @@
                                     <span class="modifier">Async</span>
                                 <a href="#signJWT" >signJWT</a>
                             </li>
-                            <li>
-                                <a href="#getKey" >getKey</a>
-                            </li>
-                            <li>
-                                <a href="#getKeys" >getKeys</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#importForTenant" >importForTenant</a>
-                            </li>
-                            <li>
-                                <a href="#update" >update</a>
-                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -268,12 +256,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, keyRepository: <a href="../classes/Key.html" target="_self">Repository&lt;KeyEntity&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, certRepository: <a href="../entitys/CertEntity.html" target="_self">Repository&lt;CertEntity&gt;</a>, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>)</code>
+<code>constructor(cryptoService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, keyRepository: <a href="../classes/Key.html" target="_self">Repository&lt;KeyEntity&gt;</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:31</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:27</a></div>
                             </td>
                         </tr>
 
@@ -291,18 +279,6 @@
                                         </thead>
                                         <tbody>
                                                 <tr>
-                                                        <td>configService</td>
-                                                  
-                                                        <td>
-                                                                    <code>ConfigService</code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
                                                         <td>cryptoService</td>
                                                   
                                                         <td>
@@ -319,54 +295,6 @@
                                                   
                                                         <td>
                                                                         <code><a href="../classes/Key.html" target="_self" >Repository&lt;KeyEntity&gt;</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>configImportService</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/ConfigImportService.html" target="_self" >ConfigImportService</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>certRepository</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../entitys/CertEntity.html" target="_self" >Repository&lt;CertEntity&gt;</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>tenantRepository</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../entitys/TenantEntity.html" target="_self" >Repository&lt;TenantEntity&gt;</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>configImportOrchestrator</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/ConfigImportOrchestratorService.html" target="_self" >ConfigImportOrchestratorService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -409,7 +337,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:31</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:27</a></div>
                         </td>
                     </tr>
 
@@ -437,18 +365,18 @@
                 </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Default value : </i><code>new Logger(KeyService.name)</code>
+                        <i>Default value : </i><code>new Logger(this.constructor.name)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                                <div class="io-line">Inherited from         <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
 </div>
                             </td>
                         </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:23</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KmsAdapter.html#source" target="_self" >KmsAdapter:25</a></code>
 </div>
                         </td>
                     </tr>
@@ -485,13 +413,13 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                            <div class="io-line">Inherited from         <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
 </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:101</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KmsAdapter.html#source" target="_self" >KmsAdapter:88</a></code>
 </div>
                         </td>
                     </tr>
@@ -563,13 +491,13 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                            <div class="io-line">Inherited from         <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
 </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:222</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KmsAdapter.html#source" target="_self" >KmsAdapter:210</a></code>
 </div>
                         </td>
                     </tr>
@@ -648,13 +576,13 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                            <div class="io-line">Inherited from         <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
 </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:151</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KmsAdapter.html#source" target="_self" >KmsAdapter:139</a></code>
 </div>
                         </td>
                     </tr>
@@ -727,8 +655,8 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="133"
-                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:133</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="121"
+                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:121</a></div>
                         </td>
                     </tr>
 
@@ -810,8 +738,8 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="73"
-                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:73</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="59"
+                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:59</a></div>
                         </td>
                     </tr>
 
@@ -879,13 +807,13 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                            <div class="io-line">Inherited from         <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
 </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:163</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KmsAdapter.html#source" target="_self" >KmsAdapter:151</a></code>
 </div>
                         </td>
                     </tr>
@@ -978,8 +906,8 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="164"
-                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:164</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="152"
+                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:152</a></div>
                         </td>
                     </tr>
 
@@ -1071,8 +999,8 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="169"
-                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:169</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="157"
+                                    class="link-to-prism">src/crypto/key/adapters/db-key.service.ts:157</a></div>
                         </td>
                     </tr>
 
@@ -1162,13 +1090,13 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                            <div class="io-line">Inherited from         <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
 </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:59</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KmsAdapter.html#source" target="_self" >KmsAdapter:44</a></code>
 </div>
                         </td>
                     </tr>
@@ -1249,13 +1177,13 @@ If no key exists, it will throw an error.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                            <div class="io-line">Inherited from         <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
 </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:92</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KmsAdapter.html#source" target="_self" >KmsAdapter:78</a></code>
 </div>
                         </td>
                     </tr>
@@ -1327,13 +1255,13 @@ This will create the keys if they do not exist.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                            <div class="io-line">Inherited from         <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
 </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:124</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KmsAdapter.html#source" target="_self" >KmsAdapter:112</a></code>
 </div>
                         </td>
                     </tr>
@@ -1416,13 +1344,13 @@ This will create the keys if they do not exist.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
+                            <div class="io-line">Inherited from         <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
 </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:206</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/KmsAdapter.html#source" target="_self" >KmsAdapter:194</a></code>
 </div>
                         </td>
                     </tr>
@@ -1505,340 +1433,6 @@ This will create the keys if they do not exist.</p>
             </tr>
         </tbody>
     </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getKey"></a>
-                    <span class="name">
-                        <span ><b>getKey</b></span>
-                        <a href="#getKey"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getKey(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, keyId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
-</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:116</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>keyId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../classes/Key.html" target="_self" >Promise&lt;KeyEntity&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getKeys"></a>
-                    <span class="name">
-                        <span ><b>getKeys</b></span>
-                        <a href="#getKeys"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getKeys(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
-</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:112</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>id</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../classes/Key.html" target="_self" >Promise&lt;KeyEntity[]&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="importForTenant"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>importForTenant</b></span>
-                        <a href="#importForTenant"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>importForTenant(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
-</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:131</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Imports keys for a specific tenant from the file system.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="update"></a>
-                    <span class="name">
-                        <span ><b>update</b></span>
-                        <a href="#update"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>update(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: <a href="../classes/UpdateKeyDto.html" target="_self">UpdateKeyDto</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/KeyService.html" target="_self" >KeyService</a></code>
-</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/KeyService.html#source" target="_self" >KeyService:61</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Update key metadata</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>id</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>body</td>
-                                            <td>
-                                                            <code><a href="../classes/UpdateKeyDto.html" target="_self" >UpdateKeyDto</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
 </section>
 
 
@@ -1849,8 +1443,7 @@ This will create the keys if they do not exist.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ConfigService } from &quot;@nestjs/config&quot;;
-import { Signer } from &quot;@sd-jwt/types&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Signer } from &quot;@sd-jwt/types&quot;;
 import {
     CryptoKey,
     exportJWK,
@@ -1864,40 +1457,25 @@ import {
 } from &quot;jose&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { v4 } from &quot;uuid&quot;;
-import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
 import { EC_Public } from &quot;../../../issuer/issuance/oid4vci/well-known/dto/jwks-response.dto&quot;;
-import { ConfigImportService } from &quot;../../../shared/utils/config-import/config-import.service&quot;;
-import { ConfigImportOrchestratorService } from &quot;../../../shared/utils/config-import/config-import-orchestrator.service&quot;;
 import { CryptoImplementation } from &quot;../crypto-implementation/crypto-implementation&quot;;
 import { CryptoImplementationService } from &quot;../crypto-implementation/crypto-implementation.service&quot;;
 import { KeyImportDto } from &quot;../dto/key-import.dto&quot;;
-import { CertEntity } from &quot;../entities/cert.entity&quot;;
 import { KeyEntity } from &quot;../entities/keys.entity&quot;;
-import { KeyService } from &quot;../key.service&quot;;
+import { KmsAdapter } from &quot;../kms-adapter&quot;;
 
 /**
- * The key service is responsible for managing the keys of the issuer.
+ * Database-backed KMS adapter.
+ * Key material is stored encrypted in the application database.
  */
-export class DBKeyService extends KeyService {
+export class DBKeyService extends KmsAdapter {
     private readonly crypto: CryptoImplementation;
 
     constructor(
-        configService: ConfigService,
         private readonly cryptoService: CryptoImplementationService,
-        keyRepository: Repository&lt;KeyEntity&gt;,
-        configImportService: ConfigImportService,
-        certRepository: Repository&lt;CertEntity&gt;,
-        tenantRepository: Repository&lt;TenantEntity&gt;,
-        configImportOrchestrator: ConfigImportOrchestratorService,
+        private readonly keyRepository: Repository&lt;KeyEntity&gt;,
     ) {
-        super(
-            configService,
-            keyRepository,
-            configImportService,
-            certRepository,
-            tenantRepository,
-            configImportOrchestrator,
-        );
+        super();
         this.crypto &#x3D; cryptoService.getCrypto();
     }
 
@@ -1905,6 +1483,7 @@ export class DBKeyService extends KeyService {
      * Import a key into the key service.
      * @param tenantId
      * @param body
+     * @param _kmsProvider
      * @returns
      */
     import(tenantId: string, body: KeyImportDto): Promise&lt;string&gt; {
@@ -1912,6 +1491,7 @@ export class DBKeyService extends KeyService {
             .save({
                 ...body,
                 tenantId,
+                kmsProvider: &quot;db&quot;,
             })
             .then(() &#x3D;&gt; body.id);
     }
@@ -1947,6 +1527,7 @@ export class DBKeyService extends KeyService {
     /**
      * Creates a new keypair and wrtites the private key to the file system.
      * @param tenantId
+     * @param _kmsProvider
      * @returns key id of the generated key.
      */
     async create(tenantId: string): Promise&lt;string&gt; {
@@ -1965,6 +1546,7 @@ export class DBKeyService extends KeyService {
                 id: privateKey.kid,
                 tenantId,
                 key: privateKey,
+                kmsProvider: &quot;db&quot;,
             })
             .then(() &#x3D;&gt; privateKey.kid!);
     }

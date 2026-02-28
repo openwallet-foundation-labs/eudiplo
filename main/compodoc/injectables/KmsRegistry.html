@@ -1,0 +1,1516 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>@eudiplo/backend documentation</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+	   <link rel="stylesheet" href="../styles/style.css">
+        <link rel="stylesheet" href="../styles/dark.css">
+        <link rel="stylesheet" href="../styles/material.css">
+    </head>
+    <body>
+          <script>
+               // Blocking script to avoid flickering dark mode
+               // Dark mode toggle button
+               var useDark = window.matchMedia('(prefers-color-scheme: dark)');
+               var darkModeState = useDark.matches;
+               var $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               var $darkModeToggles = document.querySelectorAll('.dark-mode-switch');
+               var darkModeStateLocal = localStorage.getItem('compodoc_darkmode-state');
+
+               function checkToggle(check) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].checked = check;
+                    }
+               }
+
+               function toggleDarkMode(state) {
+                    if (window.localStorage) {
+                         localStorage.setItem('compodoc_darkmode-state', state);
+                    }
+
+                    checkToggle(state);
+
+                    const hasClass = document.body.classList.contains('dark');
+
+                    if (state) {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.add('dark');
+                         }
+                         if (!hasClass) {
+                              document.body.classList.add('dark');
+                         }
+                    } else {
+                         for (var i = 0; i < $darkModeToggles.length; i++) {
+                              $darkModeToggles[i].classList.remove('dark');
+                         }
+                         if (hasClass) {
+                              document.body.classList.remove('dark');
+                         }
+                    }
+               }
+
+               useDark.addEventListener('change', function (evt) {
+                    toggleDarkMode(evt.matches);
+               });
+               if (darkModeStateLocal) {
+                    darkModeState = darkModeStateLocal === 'true';
+               }
+               toggleDarkMode(darkModeState);
+          </script>
+          <script>
+              // --- Iframe navigation tracking for Template Playground ---
+              function sendCurrentUrlToParent() {
+                  if (window.parent && window.parent !== window) {
+                      window.parent.postMessage({
+                          type: 'compodoc-iframe-navigate',
+                          url: window.location.pathname + window.location.hash
+                      }, '*');
+                  }
+              }
+              window.addEventListener('hashchange', sendCurrentUrlToParent, false);
+              window.addEventListener('popstate', sendCurrentUrlToParent, false);
+              window.addEventListener('DOMContentLoaded', sendCurrentUrlToParent, false);
+          </script>
+
+        <div class="navbar navbar-default navbar-fixed-top d-md-none p-0">
+               <div class="d-flex">
+                    <a href="../" class="navbar-brand">@eudiplo/backend documentation</a>
+                    <button type="button" class="btn btn-default btn-menu ion-ios-menu" id="btn-menu"></button>
+               </div>
+        </div>
+
+        <div class="xs-menu menu" id="mobile-menu">
+                <div id="book-search-input" role="search"><input type="text" placeholder="Type to search"></div>            <compodoc-menu></compodoc-menu>
+        </div>
+
+        <div class="container-fluid main">
+           <div class="row main">
+               <div class="d-none d-md-block menu">
+                   <compodoc-menu mode="normal"></compodoc-menu>
+               </div>
+               <!-- START CONTENT -->
+               <div class="content injectable">
+                   <div class="content-data">
+
+
+
+
+
+
+
+
+
+
+
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Injectables</li>
+  <li class="breadcrumb-item" >KmsRegistry</li>
+</ol>
+
+<ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a href="#info" 
+                class="nav-link"
+                class="nav-link active"
+                role="tab" id="info-tab" data-bs-toggle="tab" data-link="info">Info</a>
+        </li>
+        <li class="nav-item">
+            <a href="#source" 
+                class="nav-link"
+                
+                role="tab" id="source-tab" data-bs-toggle="tab" data-link="source">Source</a>
+        </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade active in" id="info">
+        <p class="comment">
+            <h3>File</h3>
+        </p>
+        <p class="comment">
+            <code>src/crypto/key/kms-registry.service.ts</code>
+        </p>
+
+
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>KmsRegistry holds all configured KMS providers and resolves the correct one per key.</p>
+<p>Providers are loaded from <code>kms.json</code> in the config folder at startup.
+If no config file exists, a default &quot;db&quot; provider is registered automatically.</p>
+<p>The config file lives at <code>&lt;CONFIG_FOLDER&gt;/kms.json</code> (global, not per-tenant).</p>
+<p>Example kms.json:</p>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-json">{
+  &quot;defaultProvider&quot;: &quot;db&quot;,
+  &quot;providers&quot;: {
+    &quot;db&quot;: {},
+    &quot;vault&quot;: {
+      &quot;vaultUrl&quot;: &quot;${VAULT_URL}&quot;,
+      &quot;vaultToken&quot;: &quot;${VAULT_TOKEN}&quot;
+    }
+  }
+}</code></pre></div>
+            </p>
+
+
+
+            <section data-compodoc="block-index">
+    <h3 id="index">Index</h3>
+    <table class="table table-sm table-bordered index-table">
+        <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Properties</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#defaultProviderName" >defaultProviderName</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#logger" >logger</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#providers" >providers</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                        <h6><b>Methods</b></h6>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <ul class="index-list">
+                            <li>
+                                <a href="#getDefaultProvider" >getDefaultProvider</a>
+                            </li>
+                            <li>
+                                <a href="#getDefaultProviderName" >getDefaultProviderName</a>
+                            </li>
+                            <li>
+                                <a href="#getProvider" >getProvider</a>
+                            </li>
+                            <li>
+                                <a href="#getProviderInfoList" >getProviderInfoList</a>
+                            </li>
+                            <li>
+                                <a href="#hasProvider" >hasProvider</a>
+                            </li>
+                            <li>
+                                <a href="#listProviders" >listProviders</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#loadFromConfig" >loadFromConfig</a>
+                            </li>
+                            <li>
+                                <a href="#onModuleInit" >onModuleInit</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#registerDefaultDbProvider" >registerDefaultDbProvider</a>
+                            </li>
+                            <li>
+                                <a href="#registerProvider" >registerProvider</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#replacePlaceholders" >replacePlaceholders</a>
+                            </li>
+                            <li>
+                                <a href="#setDefault" >setDefault</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+
+
+
+
+
+        </tbody>
+    </table>
+</section>
+
+            <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(configService: ConfigService, httpService: HttpService, cryptoService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, keyRepository: <a href="../classes/Key.html" target="_self">Repository&lt;KeyEntity&gt;</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">src/crypto/key/kms-registry.service.ts:50</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>configService</td>
+                                                  
+                                                        <td>
+                                                                    <code>ConfigService</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>httpService</td>
+                                                  
+                                                        <td>
+                                                                    <code>HttpService</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>cryptoService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/CryptoImplementationService.html" target="_self" >CryptoImplementationService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>keyRepository</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../classes/Key.html" target="_self" >Repository&lt;KeyEntity&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
+            <section data-compodoc="block-methods">
+    
+    <h3 id="methods">
+        Methods
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getDefaultProvider"></a>
+                    <span class="name">
+                        <span ><b>getDefaultProvider</b></span>
+                        <a href="#getDefaultProvider"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getDefaultProvider()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="195"
+                                    class="link-to-prism">src/crypto/key/kms-registry.service.ts:195</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get the default KMS provider.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getDefaultProviderName"></a>
+                    <span class="name">
+                        <span ><b>getDefaultProviderName</b></span>
+                        <a href="#getDefaultProviderName"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getDefaultProviderName()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="202"
+                                    class="link-to-prism">src/crypto/key/kms-registry.service.ts:202</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get the name of the default provider.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getProvider"></a>
+                    <span class="name">
+                        <span ><b>getProvider</b></span>
+                        <a href="#getProvider"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getProvider(name: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="182"
+                                    class="link-to-prism">src/crypto/key/kms-registry.service.ts:182</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get a KMS provider by name.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>name</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getProviderInfoList"></a>
+                    <span class="name">
+                        <span ><b>getProviderInfoList</b></span>
+                        <a href="#getProviderInfoList"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>getProviderInfoList()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="216"
+                                    class="link-to-prism">src/crypto/key/kms-registry.service.ts:216</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Get detailed info (name + capabilities) for every registered provider.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>literal type[]</code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="hasProvider"></a>
+                    <span class="name">
+                        <span ><b>hasProvider</b></span>
+                        <a href="#hasProvider"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>hasProvider(name: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="233"
+                                    class="link-to-prism">src/crypto/key/kms-registry.service.ts:233</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Check if a provider is registered.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>name</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="listProviders"></a>
+                    <span class="name">
+                        <span ><b>listProviders</b></span>
+                        <a href="#listProviders"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>listProviders()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="209"
+                                    class="link-to-prism">src/crypto/key/kms-registry.service.ts:209</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>List all registered provider names.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>string[]</code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="loadFromConfig"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>loadFromConfig</b></span>
+                        <a href="#loadFromConfig"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>loadFromConfig(deps: <a href="../interfaces/KmsAdapterDeps.html" target="_self">KmsAdapterDeps</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="76"
+                                    class="link-to-prism">src/crypto/key/kms-registry.service.ts:76</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Load KMS providers from the config file (kms.json) if it exists.
+Falls back to registering a single &quot;db&quot; provider if no file is found.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>deps</td>
+                                            <td>
+                                                            <code><a href="../interfaces/KmsAdapterDeps.html" target="_self" >KmsAdapterDeps</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>Shared NestJS dependencies needed by adapter factories</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onModuleInit"></a>
+                    <span class="name">
+                        <span ><b>onModuleInit</b></span>
+                        <a href="#onModuleInit"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>onModuleInit()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="60"
+                                    class="link-to-prism">src/crypto/key/kms-registry.service.ts:60</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="registerDefaultDbProvider"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>registerDefaultDbProvider</b></span>
+                        <a href="#registerDefaultDbProvider"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>registerDefaultDbProvider(deps: <a href="../interfaces/KmsAdapterDeps.html" target="_self">KmsAdapterDeps</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="152"
+                                    class="link-to-prism">src/crypto/key/kms-registry.service.ts:152</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Register a single &quot;db&quot; provider as the default fallback.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>deps</td>
+                                            <td>
+                                                            <code><a href="../interfaces/KmsAdapterDeps.html" target="_self" >KmsAdapterDeps</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="registerProvider"></a>
+                    <span class="name">
+                        <span ><b>registerProvider</b></span>
+                        <a href="#registerProvider"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>registerProvider(name: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, provider: <a href="../classes/KmsAdapter.html" target="_self">KmsAdapter</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="161"
+                                    class="link-to-prism">src/crypto/key/kms-registry.service.ts:161</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Register a KMS provider by name.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>name</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>provider</td>
+                                            <td>
+                                                            <code><a href="../classes/KmsAdapter.html" target="_self" >KmsAdapter</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="replacePlaceholders"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>replacePlaceholders</b></span>
+                        <a href="#replacePlaceholders"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>replacePlaceholders(input: T)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="240"
+                                    class="link-to-prism">src/crypto/key/kms-registry.service.ts:240</a></div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <b>Type parameters :</b>
+                            <ul class="type-parameters">
+                                    <li>T</li>
+                            </ul>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Replace <code>${ENV_VAR}</code> and <code>${ENV_VAR:default}</code> placeholders in config values.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>input</td>
+                                            <td>
+                                                        <code>T</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>T</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="setDefault"></a>
+                    <span class="name">
+                        <span ><b>setDefault</b></span>
+                        <a href="#setDefault"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>setDefault(name: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="169"
+                                    class="link-to-prism">src/crypto/key/kms-registry.service.ts:169</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Set the default provider name.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>name</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+            <section data-compodoc="block-properties">
+    
+    <h3 id="inputs">
+        Properties
+    </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="defaultProviderName"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>defaultProviderName</b></span>
+                        <a href="#defaultProviderName"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>&quot;db&quot;</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">src/crypto/key/kms-registry.service.ts:50</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="logger"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Readonly</span>
+                        <span ><b>logger</b></span>
+                        <a href="#logger"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new Logger(KmsRegistry.name)</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/crypto/key/kms-registry.service.ts:48</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="providers"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Readonly</span>
+                        <span ><b>providers</b></span>
+                        <a href="#providers"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>new Map&lt;string, KmsAdapter&gt;()</code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">src/crypto/key/kms-registry.service.ts:49</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+</section>
+
+    </div>
+
+
+    <div class="tab-pane fade  tab-source-code" id="source">
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { existsSync, readFileSync } from &quot;node:fs&quot;;
+import { join } from &quot;node:path&quot;;
+import { HttpService } from &quot;@nestjs/axios&quot;;
+import {
+    Injectable,
+    Logger,
+    NotFoundException,
+    OnModuleInit,
+} from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
+import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
+import { plainToClass } from &quot;class-transformer&quot;;
+import { validateSync } from &quot;class-validator&quot;;
+import { Repository } from &quot;typeorm&quot;;
+import {
+    createKmsAdapter,
+    type KmsAdapterDeps,
+} from &quot;./adapters/kms-adapter.factory&quot;;
+import { CryptoImplementationService } from &quot;./crypto-implementation/crypto-implementation.service&quot;;
+import { KmsConfigDto } from &quot;./dto/kms-config.dto&quot;;
+import { KeyEntity } from &quot;./entities/keys.entity&quot;;
+import { KmsAdapter } from &quot;./kms-adapter&quot;;
+
+/**
+ * KmsRegistry holds all configured KMS providers and resolves the correct one per key.
+ *
+ * Providers are loaded from &#x60;kms.json&#x60; in the config folder at startup.
+ * If no config file exists, a default &quot;db&quot; provider is registered automatically.
+ *
+ * The config file lives at &#x60;&lt;CONFIG_FOLDER&gt;/kms.json&#x60; (global, not per-tenant).
+ *
+ * Example kms.json:
+ * &#x60;&#x60;&#x60;json
+ * {
+ *   &quot;defaultProvider&quot;: &quot;db&quot;,
+ *   &quot;providers&quot;: {
+ *     &quot;db&quot;: {},
+ *     &quot;vault&quot;: {
+ *       &quot;vaultUrl&quot;: &quot;${VAULT_URL}&quot;,
+ *       &quot;vaultToken&quot;: &quot;${VAULT_TOKEN}&quot;
+ *     }
+ *   }
+ * }
+ * &#x60;&#x60;&#x60;
+ */
+@Injectable()
+export class KmsRegistry implements OnModuleInit {
+    private readonly logger &#x3D; new Logger(KmsRegistry.name);
+    private readonly providers &#x3D; new Map&lt;string, KmsAdapter&gt;();
+    private defaultProviderName &#x3D; &quot;db&quot;;
+
+    constructor(
+        private readonly configService: ConfigService,
+        private readonly httpService: HttpService,
+        private readonly cryptoService: CryptoImplementationService,
+        @InjectRepository(KeyEntity)
+        private readonly keyRepository: Repository&lt;KeyEntity&gt;,
+    ) {}
+
+    onModuleInit(): void {
+        const deps: KmsAdapterDeps &#x3D; {
+            configService: this.configService,
+            httpService: this.httpService,
+            cryptoService: this.cryptoService,
+            keyRepository: this.keyRepository,
+        };
+        this.loadFromConfig(deps);
+    }
+
+    /**
+     * Load KMS providers from the config file (kms.json) if it exists.
+     * Falls back to registering a single &quot;db&quot; provider if no file is found.
+     *
+     * @param deps - Shared NestJS dependencies needed by adapter factories
+     */
+    private loadFromConfig(deps: KmsAdapterDeps): void {
+        const configFolder &#x3D;
+            this.configService.get&lt;string&gt;(&quot;CONFIG_FOLDER&quot;) || &quot;&quot;;
+        const kmsConfigPath &#x3D; join(configFolder, &quot;kms.json&quot;);
+
+        if (!existsSync(kmsConfigPath)) {
+            this.logger.log(
+                &quot;No kms.json found — falling back to default DB provider&quot;,
+            );
+            this.registerDefaultDbProvider(deps);
+            return;
+        }
+
+        this.logger.log(&#x60;Loading KMS config from ${kmsConfigPath}&#x60;);
+
+        try {
+            let rawData &#x3D; JSON.parse(readFileSync(kmsConfigPath, &quot;utf8&quot;));
+            rawData &#x3D; this.replacePlaceholders(rawData);
+
+            const kmsConfig &#x3D; plainToClass(KmsConfigDto, rawData);
+            const errors &#x3D; validateSync(kmsConfig, {
+                whitelist: true,
+                forbidNonWhitelisted: false,
+            });
+
+            if (errors.length &gt; 0) {
+                const errorMessages &#x3D; errors.map(
+                    (e) &#x3D;&gt;
+                        &#x60;${e.property}: ${Object.values(e.constraints || {}).join(&quot;, &quot;)}&#x60;,
+                );
+                throw new Error(
+                    &#x60;Invalid kms.json: ${errorMessages.join(&quot;; &quot;)}&#x60;,
+                );
+            }
+
+            // Register each provider (key &#x3D; type, value &#x3D; type-specific config)
+            for (const [type, providerConfig] of Object.entries(
+                kmsConfig.providers,
+            )) {
+                const config &#x3D; (providerConfig || {}) as Record&lt;
+                    string,
+                    unknown
+                &gt;;
+                const adapter &#x3D; createKmsAdapter(type, config, deps);
+                this.registerProvider(type, adapter);
+            }
+
+            // Set default (from config or &quot;db&quot;)
+            const defaultName &#x3D; kmsConfig.defaultProvider || &quot;db&quot;;
+
+            if (this.hasProvider(defaultName)) {
+                this.setDefault(defaultName);
+            } else {
+                this.logger.warn(
+                    &#x60;Default provider &quot;${defaultName}&quot; not found in kms.json providers — using first registered provider&#x60;,
+                );
+                const firstProvider &#x3D; this.listProviders()[0];
+                if (firstProvider) {
+                    this.setDefault(firstProvider);
+                }
+            }
+
+            this.logger.log(
+                &#x60;KMS providers loaded: [${this.listProviders().join(&quot;, &quot;)}], default: ${this.defaultProviderName}&#x60;,
+            );
+        } catch (error: any) {
+            this.logger.error(
+                &#x60;Failed to load kms.json: ${error.message}. Falling back to default DB provider.&#x60;,
+            );
+            this.registerDefaultDbProvider(deps);
+        }
+    }
+
+    /**
+     * Register a single &quot;db&quot; provider as the default fallback.
+     */
+    private registerDefaultDbProvider(deps: KmsAdapterDeps): void {
+        const adapter &#x3D; createKmsAdapter(&quot;db&quot;, {}, deps);
+        this.registerProvider(&quot;db&quot;, adapter);
+        this.setDefault(&quot;db&quot;);
+    }
+
+    /**
+     * Register a KMS provider by name.
+     */
+    registerProvider(name: string, provider: KmsAdapter): void {
+        this.providers.set(name, provider);
+        this.logger.log(&#x60;Registered KMS provider: ${name}&#x60;);
+    }
+
+    /**
+     * Set the default provider name.
+     */
+    setDefault(name: string): void {
+        if (!this.providers.has(name)) {
+            throw new Error(
+                &#x60;Cannot set default KMS provider to &quot;${name}&quot; — not registered&#x60;,
+            );
+        }
+        this.defaultProviderName &#x3D; name;
+    }
+
+    /**
+     * Get a KMS provider by name.
+     * @throws NotFoundException if the provider is not registered.
+     */
+    getProvider(name: string): KmsAdapter {
+        const provider &#x3D; this.providers.get(name);
+        if (!provider) {
+            throw new NotFoundException(
+                &#x60;KMS provider &quot;${name}&quot; is not configured. Available providers: ${this.listProviders().join(&quot;, &quot;)}&#x60;,
+            );
+        }
+        return provider;
+    }
+
+    /**
+     * Get the default KMS provider.
+     */
+    getDefaultProvider(): KmsAdapter {
+        return this.getProvider(this.defaultProviderName);
+    }
+
+    /**
+     * Get the name of the default provider.
+     */
+    getDefaultProviderName(): string {
+        return this.defaultProviderName;
+    }
+
+    /**
+     * List all registered provider names.
+     */
+    listProviders(): string[] {
+        return Array.from(this.providers.keys());
+    }
+
+    /**
+     * Get detailed info (name + capabilities) for every registered provider.
+     */
+    getProviderInfoList(): {
+        name: string;
+        capabilities: {
+            canImport: boolean;
+            canCreate: boolean;
+            canDelete: boolean;
+        };
+    }[] {
+        return this.listProviders().map((name) &#x3D;&gt; ({
+            name,
+            capabilities: this.getProvider(name).capabilities,
+        }));
+    }
+
+    /**
+     * Check if a provider is registered.
+     */
+    hasProvider(name: string): boolean {
+        return this.providers.has(name);
+    }
+
+    /**
+     * Replace &#x60;${ENV_VAR}&#x60; and &#x60;${ENV_VAR:default}&#x60; placeholders in config values.
+     */
+    private replacePlaceholders&lt;T&gt;(input: T): T {
+        const recurse &#x3D; (val: unknown): unknown &#x3D;&gt; {
+            if (typeof val &#x3D;&#x3D;&#x3D; &quot;string&quot;) {
+                return val.replace(
+                    /\$\{([^}:]+)(?::([^}]*))?\}/g,
+                    (_match, envVar: string, defaultVal?: string) &#x3D;&gt; {
+                        return process.env[envVar] ?? defaultVal ?? &quot;&quot;;
+                    },
+                );
+            }
+            if (Array.isArray(val)) {
+                return val.map(recurse);
+            }
+            if (val !&#x3D;&#x3D; null &amp;&amp; typeof val &#x3D;&#x3D;&#x3D; &quot;object&quot;) {
+                const result: Record&lt;string, unknown&gt; &#x3D; {};
+                for (const key of Object.keys(val as Record&lt;string, unknown&gt;)) {
+                    result[key] &#x3D; recurse(
+                        (val as Record&lt;string, unknown&gt;)[key],
+                    );
+                }
+                return result;
+            }
+            return val;
+        };
+        return recurse(input) as T;
+    }
+}
+</code></pre>
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+                   </div><div class="search-results">
+    <div class="has-results">
+        <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+        <ul class="search-results-list"></ul>
+    </div>
+    <div class="no-results">
+        <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+    </div>
+</div>
+</div>
+               <!-- END CONTENT -->
+           </div>
+       </div>
+
+          <label class="dark-mode-switch">
+               <input type="checkbox">
+               <span class="slider">
+                    <svg class="slider-icon" viewBox="0 0 24 24" fill="none" height="20" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+               </span>
+          </label>
+
+       <script>
+            var COMPODOC_CURRENT_PAGE_DEPTH = 1;
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
+            var COMPODOC_CURRENT_PAGE_URL = 'KmsRegistry.html';
+            var MAX_SEARCH_RESULTS = 15;
+       </script>
+
+       <script>
+               $darkModeToggleSwitchers = document.querySelectorAll('.dark-mode-switch input');
+               checkToggle(darkModeState);
+               if ($darkModeToggleSwitchers.length > 0) {
+                    for (var i = 0; i < $darkModeToggleSwitchers.length; i++) {
+                         $darkModeToggleSwitchers[i].addEventListener('change', function (event) {
+                              darkModeState = !darkModeState;
+                              toggleDarkMode(darkModeState);
+                         });
+                    }
+               }
+          </script>
+
+       <script src="../js/libs/custom-elements.min.js"></script>
+       <script src="../js/libs/lit-html.js"></script>
+
+       <script src="../js/menu-wc.js" defer></script>
+       <script nomodule src="../js/menu-wc_es5.js" defer></script>
+
+       <script src="../js/libs/bootstrap-native.js"></script>
+
+       <script src="../js/libs/es6-shim.min.js"></script>
+       <script src="../js/libs/EventDispatcher.js"></script>
+       <script src="../js/libs/promise.min.js"></script>
+
+       <script src="../js/compodoc.js"></script>
+
+       <script src="../js/tabs.js"></script>
+       <script src="../js/menu.js"></script>
+       <script src="../js/libs/clipboard.min.js"></script>
+       <script src="../js/libs/prism.js"></script>
+       <script src="../js/sourceCode.js"></script>
+          <script src="../js/search/search.js"></script>
+          <script src="../js/search/lunr.min.js"></script>
+          <script src="../js/search/search-lunr.js"></script>
+          <script src="../js/search/search_index.js"></script>
+       <script src="../js/lazy-load-graphs.js"></script>
+
+
+    </body>
+</html>
