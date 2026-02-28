@@ -496,9 +496,8 @@ The client container supports the following environment variables:
 !!! note "Base Href Normalization"
 The `CLIENT_BASE_HREF` value is automatically normalized to ensure it starts and ends with `/`. For example, `eudiplo-client` becomes `/eudiplo-client/`.
 
-### Custom Ports
-
-Edit `docker-compose.yml` to change exposed ports:
+!!! tip "Reverse Proxy Setup Required"
+    Setting `CLIENT_BASE_HREF` alone is not enough — the reverse proxy must also be configured to forward the subpath to the client container. See [Serving the Client from a Subpath](../deployment/tls.md#serving-the-client-from-a-subpath) for complete Nginx and Traefik examples.
 
 ```yaml
 services:
