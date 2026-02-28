@@ -56,6 +56,24 @@
               <mat-error>Description is required</mat-error>
             }
           </mat-form-field>
+
+          @if (!keyId && kmsProviders.length > 0) {
+            <mat-form-field appearance="outline">
+              <mat-label>KMS Provider</mat-label>
+              <mat-select formControlName="kmsProvider">
+                @for (provider of kmsProviders; track provider.name) {
+                  <mat-option [value]="provider.name">
+                    {{ provider.name }}
+                    @if (provider.name === kmsDefault) {
+                      (default)
+                    }
+                  </mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>key</mat-icon>
+              <mat-hint>Select the key management backend for this key</mat-hint>
+            </mat-form-field>
+          }
         </div>
       </mat-card-content>
     </mat-card>
@@ -71,13 +89,28 @@
       </mat-card-header>
 
       <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        @if (!keyId) {
+        @if (!keyId && selectedProviderCanImport) {
           <h4>Private Key (JSON Web Key)</h4>
           <app-editor
             formControlName="privateKey"
             [schema]="jwkSchema"
             [errors]="form.get('privateKey')?.errors"
           ></app-editor>
+        } @else if (!keyId && !selectedProviderCanImport) {
+          <mat-card class="info-card">
+            <mat-card-content>
+              <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+                <mat-icon class="info-icon">vpn_key</mat-icon>
+                <div>
+                  <strong>Server-side key generation</strong>
+                  <p class="info-text">
+                    This provider does not support importing keys. A new key will be generated on
+                    the server when you submit.
+                  </p>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
         } @else {
           <mat-card class="info-card">
             <mat-card-content>
@@ -95,7 +128,7 @@
           </mat-card>
         }
       </mat-card-content>
-      @if (!keyId) {
+      @if (!keyId && selectedProviderCanImport) {
         <mat-card-actions align="end">
           <button
             mat-stroked-button

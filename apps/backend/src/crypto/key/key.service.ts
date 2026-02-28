@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
-import { Logger } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+import { Injectable, Logger } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
 import { Signer } from "@sd-jwt/types";
 import { plainToClass } from "class-transformer";
 import { JWK, JWSHeaderParameters, JWTPayload } from "jose";
@@ -11,22 +11,38 @@ import {
     ConfigImportOrchestratorService,
     ImportPhase,
 } from "../../shared/utils/config-import/config-import-orchestrator.service";
+import { KeyGenerateDto } from "./dto/key-generate.dto";
 import { KeyImportDto } from "./dto/key-import.dto";
 import { UpdateKeyDto } from "./dto/key-update.dto";
 import { CertEntity } from "./entities/cert.entity";
 import { KeyEntity, KeyUsage } from "./entities/keys.entity";
+import { KmsAdapter } from "./kms-adapter";
+import { KmsRegistry } from "./kms-registry.service";
 
 /**
- * Generic interface for a key service
+ * KeyService is the **single facade** every consumer injects.
+ *
+ * Routing logic:
+ * - **Create / Import** → resolve the {@link KmsAdapter} by provider name
+ *   from the request body (or fall back to the default), delegate, then stamp
+ *   `kmsProvider` on the persisted {@link KeyEntity}.
+ * - **Use (sign, getPublicKey, signer, …)** → look up the key from the DB,
+ *   read its `kmsProvider` column, resolve the matching adapter, delegate.
+ * - **Metadata (getKeys, getKey, update)** → direct DB operations.
+ * - **Config import** → orchestrated via {@link ConfigImportOrchestratorService}.
  */
-export abstract class KeyService {
-    protected readonly logger = new Logger(KeyService.name);
+@Injectable()
+export class KeyService {
+    private readonly logger = new Logger(KeyService.name);
 
     constructor(
-        protected configService: ConfigService,
-        protected keyRepository: Repository<KeyEntity>,
-        protected configImportService: ConfigImportService,
+        private readonly kmsRegistry: KmsRegistry,
+        @InjectRepository(KeyEntity)
+        private readonly keyRepository: Repository<KeyEntity>,
+        private readonly configImportService: ConfigImportService,
+        @InjectRepository(CertEntity)
         private readonly certRepository: Repository<CertEntity>,
+        @InjectRepository(TenantEntity)
         private readonly tenantRepository: Repository<TenantEntity>,
         configImportOrchestrator: ConfigImportOrchestratorService,
     ) {
@@ -37,93 +53,178 @@ export abstract class KeyService {
         );
     }
 
-    /**
-     * Initialize the key service
-     * @param tenantId
-     * @returns key id of the initialized key.
-     */
-    abstract init(tenantId): Promise<string>;
+    // ───────────────────────────── helpers ──────────────────────────────
 
     /**
-     * Creates a new keypair
-     * @param tenantId
-     * @return key id of the generated key.
+     * Resolve the adapter for an existing key by looking up its kmsProvider.
      */
-    abstract create(tenantId): Promise<string>;
-
-    /**
-     * Update key metadata
-     * @param tenantId
-     * @param id
-     * @param body
-     * @returns
-     */
-    update(tenantId: string, id: string, body: UpdateKeyDto) {
-        return this.keyRepository.update({ tenantId, id }, body);
+    private async resolveAdapterForKey(
+        tenantId: string,
+        keyId: string,
+    ): Promise<KmsAdapter> {
+        const key = await this.keyRepository.findOneByOrFail({
+            tenantId,
+            id: keyId,
+        });
+        return this.kmsRegistry.getProvider(
+            key.kmsProvider || this.kmsRegistry.getDefaultProviderName(),
+        );
     }
 
     /**
-     * Import a key into the key service.
-     * @param tenantId
-     * @param body
+     * Resolve an adapter by explicit name or fall back to the default.
      */
-    abstract import(tenantId: string, body: KeyImportDto): Promise<string>;
+    private resolveAdapterByName(kmsProvider?: string): KmsAdapter {
+        return kmsProvider
+            ? this.kmsRegistry.getProvider(kmsProvider)
+            : this.kmsRegistry.getDefaultProvider();
+    }
+
+    // ───────────────────────── create / import ─────────────────────────
 
     /**
-     * Get the callback for the signer function
-     * @param tenantId
+     * Initialise the default KMS for a tenant.
      */
-    abstract signer(tenantId: string, keyId?: string): Promise<Signer>;
+    async init(tenantId: string): Promise<string> {
+        return this.kmsRegistry.getDefaultProvider().init(tenantId);
+    }
 
     /**
-     * Get the key id
-     * @returns
+     * Generate a new key on the server.
+     * Delegates to the adapter matching `body.kmsProvider` (or default),
+     * then stamps the provider name and description on the entity.
      */
-    abstract getKid(tenantId: string, usage: KeyUsage): Promise<string>;
-
-    /**
-     * Get the public key
-     * @returns
-     */
-    abstract getPublicKey(
-        type: "jwk",
+    async create(
         tenantId: string,
-        keyId?: string,
-    ): Promise<JWK>;
-    abstract getPublicKey(
+        body: KeyGenerateDto = {} as KeyGenerateDto,
+    ): Promise<string> {
+        const providerName =
+            body.kmsProvider || this.kmsRegistry.getDefaultProviderName();
+        const adapter = this.resolveAdapterByName(providerName);
+        const keyId = await adapter.create(tenantId);
+        await this.keyRepository.update(
+            { tenantId, id: keyId },
+            {
+                kmsProvider: providerName,
+                ...(body.description ? { description: body.description } : {}),
+            },
+        );
+        return keyId;
+    }
+
+    /**
+     * Import existing key material.
+     */
+    async import(
+        tenantId: string,
+        body: KeyImportDto,
+        kmsProvider?: string,
+    ): Promise<string> {
+        const providerName =
+            kmsProvider ||
+            body.kmsProvider ||
+            this.kmsRegistry.getDefaultProviderName();
+        const adapter = this.kmsRegistry.getProvider(providerName);
+        const keyId = await adapter.import(tenantId, body);
+        await this.keyRepository.update(
+            { tenantId, id: keyId },
+            { kmsProvider: providerName },
+        );
+        return keyId;
+    }
+
+    // ──────────────────────── crypto operations ────────────────────────
+
+    /**
+     * Get a signer callback. If `keyId` is provided the correct adapter is
+     * resolved from the DB; otherwise the default adapter is used.
+     */
+    async signer(tenantId: string, keyId?: string): Promise<Signer> {
+        if (keyId) {
+            const adapter = await this.resolveAdapterForKey(tenantId, keyId);
+            return adapter.signer(tenantId, keyId);
+        }
+        return this.kmsRegistry.getDefaultProvider().signer(tenantId, keyId);
+    }
+
+    /**
+     * Get the first available key ID for a tenant.
+     */
+    async getKid(tenantId: string, usage: KeyUsage = "sign"): Promise<string> {
+        const key = await this.keyRepository.findOneByOrFail({
+            tenantId,
+            usage,
+        });
+        return key.id;
+    }
+
+    /** Get the public key in JWK format. */
+    getPublicKey(type: "jwk", tenantId: string, keyId?: string): Promise<JWK>;
+    /** Get the public key in PEM format. */
+    getPublicKey(
         type: "pem",
         tenantId: string,
         keyId?: string,
     ): Promise<string>;
-    abstract getPublicKey(
+    async getPublicKey(
         type: "pem" | "jwk",
         tenantId: string,
         keyId?: string,
-    ): Promise<JWK | string>;
+    ): Promise<JWK | string> {
+        if (keyId) {
+            const adapter = await this.resolveAdapterForKey(tenantId, keyId);
+            return adapter.getPublicKey(type as "jwk", tenantId, keyId);
+        }
+        return this.kmsRegistry
+            .getDefaultProvider()
+            .getPublicKey(type as "jwk", tenantId, keyId);
+    }
 
-    //TODO: this can be handled via the signer callback
-    abstract signJWT(
+    /**
+     * Sign a JWT. Resolves the correct adapter from the key's kmsProvider.
+     */
+    async signJWT(
         payload: JWTPayload,
         header: JWSHeaderParameters,
         tenantId: string,
         keyId?: string,
-    ): Promise<string>;
-
-    getKeys(id: string): Promise<KeyEntity[]> {
-        return this.keyRepository.findBy({ tenantId: id, usage: "sign" });
+    ): Promise<string> {
+        if (keyId) {
+            const adapter = await this.resolveAdapterForKey(tenantId, keyId);
+            return adapter.signJWT(payload, header, tenantId, keyId);
+        }
+        return this.kmsRegistry
+            .getDefaultProvider()
+            .signJWT(payload, header, tenantId, keyId);
     }
 
+    // ──────────────────────── metadata / CRUD ──────────────────────────
+
+    /** List all signing keys for a tenant. */
+    getKeys(tenantId: string): Promise<KeyEntity[]> {
+        return this.keyRepository.findBy({ tenantId, usage: "sign" });
+    }
+
+    /** Get a single key with certificates. */
     getKey(tenantId: string, keyId: string): Promise<KeyEntity> {
         return this.keyRepository.findOneOrFail({
-            where: {
-                tenantId,
-                id: keyId,
-            },
+            where: { tenantId, id: keyId },
             relations: ["certificates"],
         });
     }
 
-    abstract deleteKey(tenantId: string, id: string): Promise<void>;
+    /** Update key metadata (description, etc.). */
+    update(tenantId: string, id: string, body: UpdateKeyDto) {
+        return this.keyRepository.update({ tenantId, id }, body);
+    }
+
+    /** Delete a key — delegates to the adapter so it can clean up KMS resources. */
+    async deleteKey(tenantId: string, keyId: string): Promise<void> {
+        const adapter = await this.resolveAdapterForKey(tenantId, keyId);
+        return adapter.deleteKey(tenantId, keyId);
+    }
+
+    // ───────────────────────── config import ───────────────────────────
 
     /**
      * Imports keys for a specific tenant from the file system.
@@ -141,15 +242,12 @@ export abstract class KeyService {
                     return plainToClass(KeyImportDto, payload);
                 },
                 checkExists: async (tid, data) => {
-                    // Get all keys and check if any match the key material
                     const keys = await this.getKeys(tid);
-                    // Compare key material (x, y coordinates for EC keys)
                     return keys.some(
                         (k) => k.key.x === data.key.x && k.key.y === data.key.y,
                     );
                 },
                 deleteExisting: async (tid, data) => {
-                    // Find and delete matching key
                     const keys = await this.getKeys(tid);
                     const existingKey = keys.find(
                         (k) => k.key.x === data.key.x && k.key.y === data.key.y,

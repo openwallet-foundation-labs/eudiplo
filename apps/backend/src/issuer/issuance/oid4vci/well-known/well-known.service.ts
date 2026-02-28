@@ -1,9 +1,10 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { CertService } from "../../../../crypto/key/cert/cert.service";
 import { CryptoImplementationService } from "../../../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { CertUsage } from "../../../../crypto/key/entities/cert-usage.entity";
 import { KeyService } from "../../../../crypto/key/key.service";
 import { MediaType } from "../../../../shared/utils/mediaType/media-type.enum";
+import { IssuanceService } from "../../../configuration/issuance/issuance.service";
 import { AuthorizeService } from "../authorize/authorize.service";
 import { ChainedAsService } from "../chained-as/chained-as.service";
 import { Oid4vciService } from "../oid4vci.service";
@@ -24,10 +25,11 @@ export class WellKnownService {
     constructor(
         private readonly oid4vciService: Oid4vciService,
         private readonly certService: CertService,
-        @Inject("KeyService") public readonly keyService: KeyService,
+        public readonly keyService: KeyService,
         private readonly authorizeService: AuthorizeService,
         private readonly cryptoImplementationService: CryptoImplementationService,
         private readonly chainedAsService: ChainedAsService,
+        private readonly issuanceService: IssuanceService,
     ) {}
 
     /**
@@ -80,12 +82,30 @@ export class WellKnownService {
 
     /**
      * Returns the JSON Web Key Set (JWKS) for a given tenant.
+     * Resolves the signing key from issuance config (or default) and
+     * includes the `kid` so that JWT verification can match keys.
      * @returns
      */
-    getJwks(tenantId: string): Promise<JwksResponseDto> {
-        return this.keyService.getPublicKey("jwk", tenantId).then((key) => ({
-            keys: [key as EC_Public],
-        }));
+    async getJwks(tenantId: string): Promise<JwksResponseDto> {
+        const issuanceConfig =
+            await this.issuanceService.getIssuanceConfiguration(tenantId);
+
+        const signingKeyId =
+            issuanceConfig.signingKeyId ||
+            (await this.keyService.getKid(tenantId));
+
+        const publicKey = await this.keyService.getPublicKey(
+            "jwk",
+            tenantId,
+            signingKeyId,
+        );
+
+        const keyWithKid = {
+            ...publicKey,
+            kid: (publicKey as { kid?: string }).kid || signingKeyId,
+        };
+
+        return { keys: [keyWithKid as EC_Public] };
     }
 
     /**

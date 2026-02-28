@@ -16,12 +16,11 @@
     "values": {
       "type": "array",
       "items": {
-        "type": "object"
+        "type": "string"
       }
     }
   },
   "required": [
-    "id",
     "path"
   ]
 }

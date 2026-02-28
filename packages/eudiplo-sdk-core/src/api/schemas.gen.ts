@@ -462,26 +462,6 @@ export const CreateClientDtoSchema = {
   required: ["clientId", "roles"],
 } as const;
 
-export const CertUsageEntitySchema = {
-  type: "object",
-  properties: {
-    tenantId: {
-      type: "string",
-    },
-    certId: {
-      type: "string",
-    },
-    usage: {
-      type: "string",
-      enum: ["access", "signing", "trustList", "statusList"],
-    },
-    cert: {
-      $ref: "#/components/schemas/CertEntity",
-    },
-  },
-  required: ["tenantId", "certId", "usage", "cert"],
-} as const;
-
 export const KeyEntitySchema = {
   type: "object",
   properties: {
@@ -513,6 +493,11 @@ export const KeyEntitySchema = {
       type: "object",
       description: "The usage type of the key.",
     },
+    kmsProvider: {
+      type: "string",
+      description:
+        "The KMS provider used for this key.\nReferences a configured KMS provider name.",
+    },
     certificates: {
       description: "Certificates associated with this key.",
       type: "array",
@@ -537,6 +522,7 @@ export const KeyEntitySchema = {
     "tenant",
     "key",
     "usage",
+    "kmsProvider",
     "certificates",
     "createdAt",
     "updatedAt",
@@ -612,67 +598,24 @@ export const CertEntitySchema = {
   ],
 } as const;
 
-export const KeySchema = {
+export const CertUsageEntitySchema = {
   type: "object",
   properties: {
-    kty: {
+    tenantId: {
       type: "string",
     },
-    x: {
+    certId: {
       type: "string",
     },
-    y: {
+    usage: {
       type: "string",
+      enum: ["access", "signing", "trustList", "statusList"],
     },
-    crv: {
-      type: "string",
-    },
-    d: {
-      type: "string",
-    },
-    alg: {
-      type: "string",
+    cert: {
+      $ref: "#/components/schemas/CertEntity",
     },
   },
-  required: ["kty", "x", "y", "crv", "d", "alg"],
-} as const;
-
-export const KeyImportDtoSchema = {
-  type: "object",
-  properties: {
-    key: {
-      description: "The private key in JWK format.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/Key",
-        },
-      ],
-    },
-    id: {
-      type: "string",
-      description: "Unique identifier for the key.",
-    },
-    description: {
-      type: "string",
-      description: "Description of the key.",
-    },
-  },
-  required: ["key", "id"],
-} as const;
-
-export const UpdateKeyDtoSchema = {
-  type: "object",
-  properties: {
-    id: {
-      type: "string",
-      description: "Unique identifier for the key.",
-    },
-    description: {
-      type: "string",
-      description: "Description of the key.",
-    },
-  },
-  required: ["id"],
+  required: ["tenantId", "certId", "usage", "cert"],
 } as const;
 
 export const CertImportDtoSchema = {
@@ -1736,19 +1679,6 @@ export const ClaimsQuerySchema = {
     values: {
       type: "array",
       items: {
-        type: "object",
-      },
-    },
-  },
-  required: ["id", "path"],
-} as const;
-
-export const ClaimSchema = {
-  type: "object",
-  properties: {
-    path: {
-      type: "array",
-      items: {
         type: "string",
       },
     },
@@ -1788,7 +1718,7 @@ export const CredentialQuerySchema = {
     claims: {
       type: "array",
       items: {
-        $ref: "#/components/schemas/Claim",
+        $ref: "#/components/schemas/ClaimsQuery",
       },
     },
     meta: {
@@ -3078,17 +3008,50 @@ export const OfferResponseSchema = {
 
 export const CompleteDeferredDtoSchema = {
   type: "object",
-  properties: {},
+  properties: {
+    claims: {
+      type: "object",
+      description:
+        "Claims to include in the credential. The structure should match the credential configuration's expected claims.",
+      example: {
+        given_name: "John",
+        family_name: "Doe",
+        birthdate: "1990-01-15",
+      },
+    },
+  },
+  required: ["claims"],
 } as const;
 
 export const DeferredOperationResponseSchema = {
   type: "object",
-  properties: {},
+  properties: {
+    transactionId: {
+      type: "string",
+      description: "The transaction ID",
+    },
+    status: {
+      description: "The new status of the transaction",
+      enum: ["pending", "ready", "retrieved", "expired", "failed"],
+      type: "string",
+    },
+    message: {
+      type: "string",
+      description: "Optional message",
+    },
+  },
+  required: ["transactionId", "status"],
 } as const;
 
 export const FailDeferredDtoSchema = {
   type: "object",
-  properties: {},
+  properties: {
+    error: {
+      type: "string",
+      description: "Optional error message explaining why the issuance failed",
+      example: "Identity verification failed",
+    },
+  },
 } as const;
 
 export const EC_PublicSchema = {
@@ -3437,6 +3400,207 @@ export const TrustListVersionSchema = {
     "jwt",
     "createdAt",
   ],
+} as const;
+
+export const DbKmsConfigDtoSchema = {
+  type: "object",
+  properties: {},
+} as const;
+
+export const VaultKmsConfigDtoSchema = {
+  type: "object",
+  properties: {
+    vaultUrl: {
+      type: "string",
+      description:
+        "URL of the HashiCorp Vault instance. Supports ${ENV_VAR} placeholders.",
+      example: "${VAULT_URL}",
+    },
+    vaultToken: {
+      type: "string",
+      description:
+        "Authentication token for HashiCorp Vault. Supports ${ENV_VAR} placeholders.",
+      example: "${VAULT_TOKEN}",
+    },
+  },
+  required: ["vaultUrl", "vaultToken"],
+} as const;
+
+export const KmsConfigDtoSchema = {
+  type: "object",
+  properties: {
+    defaultProvider: {
+      type: "string",
+      description:
+        'Name of the default KMS provider. Defaults to "db" if not set.',
+      example: "db",
+    },
+    providers: {
+      type: "object",
+      properties: {
+        db: {
+          $ref: "#/components/schemas/DbKmsConfigDto",
+        },
+        vault: {
+          $ref: "#/components/schemas/VaultKmsConfigDto",
+        },
+      },
+      required: [],
+    },
+  },
+  required: ["providers"],
+} as const;
+
+export const KmsProviderCapabilitiesDtoSchema = {
+  type: "object",
+  properties: {
+    canImport: {
+      type: "boolean",
+      description: "Whether the provider supports importing existing keys.",
+      example: true,
+    },
+    canCreate: {
+      type: "boolean",
+      description: "Whether the provider supports generating new keys.",
+      example: true,
+    },
+    canDelete: {
+      type: "boolean",
+      description: "Whether the provider supports deleting keys.",
+      example: true,
+    },
+  },
+  required: ["canImport", "canCreate", "canDelete"],
+} as const;
+
+export const KmsProviderInfoDtoSchema = {
+  type: "object",
+  properties: {
+    name: {
+      type: "string",
+      description: "Unique provider name (matches the key in kms.json).",
+      example: "db",
+    },
+    capabilities: {
+      description: "Capabilities of this provider.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/KmsProviderCapabilitiesDto",
+        },
+      ],
+    },
+  },
+  required: ["name", "capabilities"],
+} as const;
+
+export const KmsProvidersResponseDtoSchema = {
+  type: "object",
+  properties: {
+    providers: {
+      description: "Detailed info for each registered KMS provider.",
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/KmsProviderInfoDto",
+      },
+    },
+    default: {
+      type: "string",
+      description: "The default KMS provider name.",
+      example: "db",
+    },
+  },
+  required: ["providers", "default"],
+} as const;
+
+export const KeyGenerateDtoSchema = {
+  type: "object",
+  properties: {
+    kmsProvider: {
+      type: "string",
+      description:
+        "KMS provider to use (defaults to the configured default provider).",
+      example: "vault",
+    },
+    description: {
+      type: "string",
+      description: "Optional human-readable description for the key.",
+    },
+  },
+} as const;
+
+export const KeySchema = {
+  type: "object",
+  properties: {
+    kty: {
+      type: "string",
+    },
+    x: {
+      type: "string",
+    },
+    y: {
+      type: "string",
+    },
+    crv: {
+      type: "string",
+    },
+    d: {
+      type: "string",
+    },
+    alg: {
+      type: "string",
+    },
+  },
+  required: ["kty", "x", "y", "crv", "d", "alg"],
+} as const;
+
+export const KeyImportDtoSchema = {
+  type: "object",
+  properties: {
+    kmsProvider: {
+      type: "string",
+      description:
+        "KMS provider name to use for this key. Defaults to the configured default.",
+      example: "db",
+    },
+    key: {
+      description: "The private key in JWK format.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/Key",
+        },
+      ],
+    },
+    id: {
+      type: "string",
+      description: "Unique identifier for the key.",
+    },
+    description: {
+      type: "string",
+      description: "Description of the key.",
+    },
+  },
+  required: ["key", "id"],
+} as const;
+
+export const UpdateKeyDtoSchema = {
+  type: "object",
+  properties: {
+    kmsProvider: {
+      type: "string",
+      description:
+        "KMS provider name to use for this key. Defaults to the configured default.",
+      example: "db",
+    },
+    id: {
+      type: "string",
+      description: "Unique identifier for the key.",
+    },
+    description: {
+      type: "string",
+      description: "Description of the key.",
+    },
+  },
+  required: ["id"],
 } as const;
 
 export const PresentationRequestSchema = {

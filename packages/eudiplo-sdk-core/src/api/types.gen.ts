@@ -276,13 +276,6 @@ export type CreateClientDto = {
   >;
 };
 
-export type CertUsageEntity = {
-  tenantId: string;
-  certId: string;
-  usage: "access" | "signing" | "trustList" | "statusList";
-  cert: CertEntity;
-};
-
 export type KeyEntity = {
   /**
    * Unique identifier for the key.
@@ -313,6 +306,11 @@ export type KeyEntity = {
   usage: {
     [key: string]: unknown;
   };
+  /**
+   * The KMS provider used for this key.
+   * References a configured KMS provider name.
+   */
+  kmsProvider: string;
   /**
    * Certificates associated with this key.
    */
@@ -364,39 +362,11 @@ export type CertEntity = {
   updatedAt: string;
 };
 
-export type Key = {
-  kty: string;
-  x: string;
-  y: string;
-  crv: string;
-  d: string;
-  alg: string;
-};
-
-export type KeyImportDto = {
-  /**
-   * The private key in JWK format.
-   */
-  key: Key;
-  /**
-   * Unique identifier for the key.
-   */
-  id: string;
-  /**
-   * Description of the key.
-   */
-  description?: string;
-};
-
-export type UpdateKeyDto = {
-  /**
-   * Unique identifier for the key.
-   */
-  id: string;
-  /**
-   * Description of the key.
-   */
-  description?: string;
+export type CertUsageEntity = {
+  tenantId: string;
+  certId: string;
+  usage: "access" | "signing" | "trustList" | "statusList";
+  cert: CertEntity;
 };
 
 export type CertImportDto = {
@@ -1007,15 +977,9 @@ export type IssuanceDto = {
 };
 
 export type ClaimsQuery = {
-  id: string;
+  id?: string;
   path: Array<string>;
-  values?: Array<{
-    [key: string]: unknown;
-  }>;
-};
-
-export type Claim = {
-  path: Array<string>;
+  values?: Array<string>;
 };
 
 export type TrustedAuthorityQuery = {
@@ -1027,7 +991,7 @@ export type CredentialQuery = {
   id: string;
   format: string;
   multiple?: boolean;
-  claims?: Array<Claim>;
+  claims?: Array<ClaimsQuery>;
   meta: {
     [key: string]: unknown;
   };
@@ -1725,15 +1689,34 @@ export type OfferResponse = {
 };
 
 export type CompleteDeferredDto = {
-  [key: string]: unknown;
+  /**
+   * Claims to include in the credential. The structure should match the credential configuration's expected claims.
+   */
+  claims: {
+    [key: string]: unknown;
+  };
 };
 
 export type DeferredOperationResponse = {
-  [key: string]: unknown;
+  /**
+   * The transaction ID
+   */
+  transactionId: string;
+  /**
+   * The new status of the transaction
+   */
+  status: "pending" | "ready" | "retrieved" | "expired" | "failed";
+  /**
+   * Optional message
+   */
+  message?: string;
 };
 
 export type FailDeferredDto = {
-  [key: string]: unknown;
+  /**
+   * Optional error message explaining why the issuance failed
+   */
+  error?: string;
 };
 
 export type EcPublic = {
@@ -1951,6 +1934,123 @@ export type TrustListVersion = {
    */
   jwt: string;
   createdAt: string;
+};
+
+export type DbKmsConfigDto = {
+  [key: string]: unknown;
+};
+
+export type VaultKmsConfigDto = {
+  /**
+   * URL of the HashiCorp Vault instance. Supports ${ENV_VAR} placeholders.
+   */
+  vaultUrl: string;
+  /**
+   * Authentication token for HashiCorp Vault. Supports ${ENV_VAR} placeholders.
+   */
+  vaultToken: string;
+};
+
+export type KmsConfigDto = {
+  /**
+   * Name of the default KMS provider. Defaults to "db" if not set.
+   */
+  defaultProvider?: string;
+  providers: {
+    db?: DbKmsConfigDto;
+    vault?: VaultKmsConfigDto;
+  };
+};
+
+export type KmsProviderCapabilitiesDto = {
+  /**
+   * Whether the provider supports importing existing keys.
+   */
+  canImport: boolean;
+  /**
+   * Whether the provider supports generating new keys.
+   */
+  canCreate: boolean;
+  /**
+   * Whether the provider supports deleting keys.
+   */
+  canDelete: boolean;
+};
+
+export type KmsProviderInfoDto = {
+  /**
+   * Unique provider name (matches the key in kms.json).
+   */
+  name: string;
+  /**
+   * Capabilities of this provider.
+   */
+  capabilities: KmsProviderCapabilitiesDto;
+};
+
+export type KmsProvidersResponseDto = {
+  /**
+   * Detailed info for each registered KMS provider.
+   */
+  providers: Array<KmsProviderInfoDto>;
+  /**
+   * The default KMS provider name.
+   */
+  default: string;
+};
+
+export type KeyGenerateDto = {
+  /**
+   * KMS provider to use (defaults to the configured default provider).
+   */
+  kmsProvider?: string;
+  /**
+   * Optional human-readable description for the key.
+   */
+  description?: string;
+};
+
+export type Key = {
+  kty: string;
+  x: string;
+  y: string;
+  crv: string;
+  d: string;
+  alg: string;
+};
+
+export type KeyImportDto = {
+  /**
+   * KMS provider name to use for this key. Defaults to the configured default.
+   */
+  kmsProvider?: string;
+  /**
+   * The private key in JWK format.
+   */
+  key: Key;
+  /**
+   * Unique identifier for the key.
+   */
+  id: string;
+  /**
+   * Description of the key.
+   */
+  description?: string;
+};
+
+export type UpdateKeyDto = {
+  /**
+   * KMS provider name to use for this key. Defaults to the configured default.
+   */
+  kmsProvider?: string;
+  /**
+   * Unique identifier for the key.
+   */
+  id: string;
+  /**
+   * Description of the key.
+   */
+  description?: string;
 };
 
 export type PresentationRequest = {
@@ -2295,73 +2395,6 @@ export type ClientControllerRotateClientSecretResponses = {
 
 export type ClientControllerRotateClientSecretResponse =
   ClientControllerRotateClientSecretResponses[keyof ClientControllerRotateClientSecretResponses];
-
-export type KeyControllerGetKeysData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/key";
-};
-
-export type KeyControllerGetKeysResponses = {
-  200: Array<KeyEntity>;
-};
-
-export type KeyControllerGetKeysResponse =
-  KeyControllerGetKeysResponses[keyof KeyControllerGetKeysResponses];
-
-export type KeyControllerAddKeyData = {
-  body: KeyImportDto;
-  path?: never;
-  query?: never;
-  url: "/key";
-};
-
-export type KeyControllerAddKeyResponses = {
-  201: unknown;
-};
-
-export type KeyControllerDeleteKeyData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/key/{id}";
-};
-
-export type KeyControllerDeleteKeyResponses = {
-  200: unknown;
-};
-
-export type KeyControllerGetKeyData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/key/{id}";
-};
-
-export type KeyControllerGetKeyResponses = {
-  200: KeyEntity;
-};
-
-export type KeyControllerGetKeyResponse =
-  KeyControllerGetKeyResponses[keyof KeyControllerGetKeyResponses];
-
-export type KeyControllerUpdateKeyData = {
-  body: UpdateKeyDto;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/key/{id}";
-};
-
-export type KeyControllerUpdateKeyResponses = {
-  200: unknown;
-};
 
 export type CertControllerGetCertificatesData = {
   body?: never;
@@ -3198,6 +3231,14 @@ export type ChainedAsControllerParData = {
      * DPoP proof JWT
      */
     DPoP?: string;
+    /**
+     * Wallet attestation JWT
+     */
+    "OAuth-Client-Attestation"?: string;
+    /**
+     * Wallet attestation proof-of-possession JWT
+     */
+    "OAuth-Client-Attestation-PoP"?: string;
   };
   path: {
     /**
@@ -3522,6 +3563,24 @@ export type WellKnownControllerAuthzMetadata1Data = {
 export type WellKnownControllerAuthzMetadata1Responses = {
   200: unknown;
 };
+
+export type WellKnownControllerChainedAsMetadataData = {
+  body?: never;
+  path: {
+    tenantId: string;
+  };
+  query?: never;
+  url: "/.well-known/oauth-authorization-server/{tenantId}/chained-as";
+};
+
+export type WellKnownControllerChainedAsMetadataResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type WellKnownControllerChainedAsMetadataResponse =
+  WellKnownControllerChainedAsMetadataResponses[keyof WellKnownControllerChainedAsMetadataResponses];
 
 export type WellKnownControllerGetJwks0Data = {
   body?: never;
@@ -3889,6 +3948,113 @@ export type TrustListPublicControllerGetTrustListJwtResponses = {
 
 export type TrustListPublicControllerGetTrustListJwtResponse =
   TrustListPublicControllerGetTrustListJwtResponses[keyof TrustListPublicControllerGetTrustListJwtResponses];
+
+export type KeyControllerGetProvidersData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/key/providers";
+};
+
+export type KeyControllerGetProvidersResponses = {
+  /**
+   * List of available KMS providers
+   */
+  200: KmsProvidersResponseDto;
+};
+
+export type KeyControllerGetProvidersResponse =
+  KeyControllerGetProvidersResponses[keyof KeyControllerGetProvidersResponses];
+
+export type KeyControllerGetKeysData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/key";
+};
+
+export type KeyControllerGetKeysResponses = {
+  200: Array<KeyEntity>;
+};
+
+export type KeyControllerGetKeysResponse =
+  KeyControllerGetKeysResponses[keyof KeyControllerGetKeysResponses];
+
+export type KeyControllerAddKeyData = {
+  body: KeyImportDto;
+  path?: never;
+  query?: never;
+  url: "/key";
+};
+
+export type KeyControllerAddKeyResponses = {
+  /**
+   * Key imported successfully
+   */
+  201: unknown;
+};
+
+export type KeyControllerDeleteKeyData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/key/{id}";
+};
+
+export type KeyControllerDeleteKeyResponses = {
+  /**
+   * Key deleted successfully
+   */
+  200: unknown;
+};
+
+export type KeyControllerGetKeyData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/key/{id}";
+};
+
+export type KeyControllerGetKeyResponses = {
+  200: KeyEntity;
+};
+
+export type KeyControllerGetKeyResponse =
+  KeyControllerGetKeyResponses[keyof KeyControllerGetKeyResponses];
+
+export type KeyControllerUpdateKeyData = {
+  body: UpdateKeyDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/key/{id}";
+};
+
+export type KeyControllerUpdateKeyResponses = {
+  /**
+   * Key updated successfully
+   */
+  200: unknown;
+};
+
+export type KeyControllerGenerateKeyData = {
+  body: KeyGenerateDto;
+  path?: never;
+  query?: never;
+  url: "/key/generate";
+};
+
+export type KeyControllerGenerateKeyResponses = {
+  /**
+   * Key generated successfully
+   */
+  201: unknown;
+};
 
 export type VerifierOfferControllerGetOfferData = {
   body: PresentationRequest;

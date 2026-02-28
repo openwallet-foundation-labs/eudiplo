@@ -1,6 +1,6 @@
 import { X509Certificate } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { BadRequestException, Inject, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
 import { JWTHeaderParameters } from "jose";
@@ -41,7 +41,7 @@ export class TrustListService {
         private readonly trustListRepo: Repository<TrustList>,
         @InjectRepository(TrustListVersion)
         private readonly trustListVersionRepo: Repository<TrustListVersion>,
-        @Inject("KeyService") public readonly keyService: KeyService,
+        public readonly keyService: KeyService,
         private readonly certService: CertService,
         private readonly configImportService: ConfigImportService,
         @InjectRepository(TenantEntity)

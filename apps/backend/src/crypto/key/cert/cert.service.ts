@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { Inject, Injectable, Logger, Optional } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import * as x509 from "@peculiar/x509";
@@ -69,13 +69,12 @@ export class CertService {
         private readonly certRepository: Repository<CertEntity>,
         @InjectRepository(CertUsageEntity)
         private readonly certUsageRepository: Repository<CertUsageEntity>,
-        @Inject("KeyService") public readonly keyService: KeyService,
         private readonly configService: ConfigService,
         @InjectRepository(TenantEntity)
         private readonly tenantRepository: Repository<TenantEntity>,
         private readonly configImportService: ConfigImportService,
         configImportOrchestrator: ConfigImportOrchestratorService,
-        @Optional()
+        private readonly keyService: KeyService,
         private readonly crlValidationService?: CrlValidationService,
     ) {
         configImportOrchestrator.register(
@@ -473,7 +472,7 @@ export class CertService {
      */
     findOrCreate(value: FindCertOptions): Promise<CertEntity> {
         return this.find(value).catch(async () => {
-            // Create a new key
+            // Create a new key using the default KMS provider
             const keyId = await this.keyService.create(value.tenantId);
 
             const dto: CertImportDto = {

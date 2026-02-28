@@ -5,6 +5,7 @@ import { X509Certificate } from "@peculiar/x509";
 import { exportJWK } from "jose";
 import { CertService } from "../../../../../crypto/key/cert/cert.service";
 import { CertUsage } from "../../../../../crypto/key/entities/cert-usage.entity";
+import { KeyService } from "../../../../../crypto/key/key.service";
 import { Session } from "../../../../../session/entities/session.entity";
 import { mdocContext } from "../../../../../verifier/presentations/mdoc-context";
 import { CredentialConfig } from "../../entities/credential.entity";
@@ -23,7 +24,10 @@ export interface MdocIssueOptions {
 export class MdocIssuerService {
     private readonly logger = new Logger(MdocIssuerService.name);
 
-    constructor(private readonly certService: CertService) {}
+    constructor(
+        private readonly certService: CertService,
+        private readonly keyService: KeyService,
+    ) {}
 
     /**
      * Issues an mDOC credential.
@@ -71,7 +75,7 @@ export class MdocIssuerService {
         });
 
         // Get the private key for signing
-        const keyEntity = await this.certService.keyService.getKey(
+        const keyEntity = await this.keyService.getKey(
             session.tenantId,
             certificate.keyId,
         );

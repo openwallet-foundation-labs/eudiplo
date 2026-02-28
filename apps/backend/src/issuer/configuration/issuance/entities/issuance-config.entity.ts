@@ -3,13 +3,13 @@ import {
     ApiHideProperty,
     ApiPropertyOptional,
 } from "@nestjs/swagger";
-import { CredentialIssuerMetadataDisplayEntry } from "@openid4vc/openid4vci";
 import { Type } from "class-transformer";
 import {
     IsArray,
     IsBoolean,
     IsNumber,
     IsOptional,
+    IsString,
     ValidateNested,
 } from "class-validator";
 import {
@@ -98,6 +98,20 @@ export class IssuanceConfig {
     walletProviderTrustLists?: string[];
 
     /**
+     * Optional key ID to use for signing access tokens.
+     * Must reference an existing key managed by the key service.
+     * If not set, the first available signing key for the tenant is used.
+     */
+    @ApiPropertyOptional({
+        description:
+            "Key ID for signing access tokens. If unset, the default signing key is used.",
+    })
+    @IsOptional()
+    @IsString()
+    @Column({ type: "varchar", nullable: true })
+    signingKeyId?: string;
+
+    /**
      * Configuration for Chained Authorization Server mode.
      * When enabled, EUDIPLO acts as an OAuth AS facade, delegating user authentication
      * to an upstream OIDC provider while issuing its own tokens with issuer_state.
@@ -112,7 +126,7 @@ export class IssuanceConfig {
     @ValidateNested({ each: true })
     @Type(() => DisplayInfo)
     @Column("json", { nullable: true })
-    display!: CredentialIssuerMetadataDisplayEntry[];
+    display!: DisplayInfo[];
 
     /**
      * The timestamp when the VP request was created.

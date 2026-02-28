@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/KmsProviderInfoDto.schema.json",
+  "title": "KmsProviderInfoDto",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Unique provider name (matches the key in kms.json).",
+      "example": "db"
+    },
+    "capabilities": {
+      "description": "Capabilities of this provider.",
+      "allOf": [
+        {
+          "$ref": "./KmsProviderCapabilitiesDto.schema.json"
+        }
+      ]
+    }
+  },
+  "required": [
+    "name",
+    "capabilities"
+  ]
+}

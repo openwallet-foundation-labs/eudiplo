@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/KmsConfigDto.schema.json",
+  "title": "KmsConfigDto",
+  "type": "object",
+  "properties": {
+    "defaultProvider": {
+      "type": "string",
+      "description": "Name of the default KMS provider. Defaults to \"db\" if not set.",
+      "example": "db"
+    },
+    "providers": {
+      "type": "object",
+      "properties": {
+        "db": {
+          "$ref": "./DbKmsConfigDto.schema.json"
+        },
+        "vault": {
+          "$ref": "./VaultKmsConfigDto.schema.json"
+        }
+      },
+      "required": []
+    }
+  },
+  "required": [
+    "providers"
+  ]
+}
