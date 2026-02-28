@@ -220,7 +220,7 @@
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Returns the issuance configurations for this tenant.</p>
+                        <div class="io-description"><p>Returns the issuance configurations for this tenant. Creates a default one if it does not exist.</p>
 </div>
 
                             <div class="io-description">
@@ -290,8 +290,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="30"
-                                    class="link-to-prism">src/issuer/configuration/issuance/issuance-config.controller.ts:30</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="37"
+                                    class="link-to-prism">src/issuer/configuration/issuance/issuance-config.controller.ts:37</a></div>
                         </td>
                     </tr>
 
@@ -370,12 +370,19 @@ export class IssuanceConfigController {
     constructor(private readonly issuanceService: IssuanceService) {}
 
     /**
-     * Returns the issuance configurations for this tenant.
+     * Returns the issuance configurations for this tenant. Creates a default one if it does not exist.
      * @returns
      */
     @Get()
     getIssuanceConfigurations(@Token() user: TokenPayload) {
-        return this.issuanceService.getIssuanceConfiguration(user.entity!.id);
+        return this.issuanceService
+            .getIssuanceConfiguration(user.entity!.id)
+            .catch(() &#x3D;&gt;
+                this.issuanceService.storeIssuanceConfiguration(
+                    user.entity!.id,
+                    {} as IssuanceDto,
+                ),
+            );
     }
 
     /**
