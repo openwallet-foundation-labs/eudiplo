@@ -179,6 +179,7 @@ When serving the EUDIPLO client behind a reverse proxy on a subpath (e.g., `http
 2. **Configure the reverse proxy** to forward the subpath to the client container.
 
 !!! warning "Backend Subpath Not Supported"
+
     Only the **client** can be served from a subpath. The backend (OID4VCI/OID4VP endpoints) must be served from the root of its hostname, because the OID4VCI specification interprets path segments as tenant identifiers.
 
 #### 1. Client Container
@@ -193,7 +194,7 @@ services:
 ```
 
 !!! note "Automatic Normalization"
-    The `CLIENT_BASE_HREF` value is automatically normalized to ensure it starts and ends with `/`. For example, `eudiplo-client` becomes `/eudiplo-client/`.
+The `CLIENT_BASE_HREF` value is automatically normalized to ensure it starts and ends with `/`. For example, `eudiplo-client` becomes `/eudiplo-client/`.
 
 #### 2. Reverse Proxy (Nginx)
 
