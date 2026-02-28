@@ -1,0 +1,26 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:4200",
+      "localStorage": [
+        {
+          "name": "oauth_client_secret",
+          "value": "root"
+        },
+        {
+          "name": "token_expiration",
+          "value": "1772407002734"
+        },
+        {
+          "name": "oauth_config",
+          "value": "{\"server\":\"https://service.eudi-wallet.dev\",\"clientId\":\"root\",\"baseUrl\":\"http://localhost:3000\"}"
+        },
+        {
+          "name": "access_token",
+          "value": "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJ0ZW5hbnRzOm1hbmFnZSJdLCJ0ZW5hbnRfaWQiOm51bGwsImlhdCI6MTc3MjMyMDYwMiwiaXNzIjoiZXVkaXBsby1zZXJ2aWNlIiwic3ViIjoicm9vdCIsImV4cCI6MTc3MjQwNzAwMiwiYXVkIjoiZXVkaXBsby1zZXJ2aWNlIn0.tpDXTm3C-MxPT4zwYJNKiv6EmziLdhqSB5GPL74OwU0"
+        }
+      ]
+    }
+  ]
+}

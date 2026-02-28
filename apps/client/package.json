@@ -14,7 +14,9 @@
     "format": "prettier --write \"src/**/*.{ts,html,css,scss,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,html,css,scss,json}\"",
     "check": "npm run lint:fix && npm run format",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "e2e:headed": "npx playwright test --headed",
+    "e2e:ui": "npx playwright test --ui"
   },
   "dependencies": {
     "@angular/animations": "^21.1.5",
