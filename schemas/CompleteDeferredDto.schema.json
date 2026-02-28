@@ -3,5 +3,18 @@
   "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CompleteDeferredDto.schema.json",
   "title": "CompleteDeferredDto",
   "type": "object",
-  "properties": {}
+  "properties": {
+    "claims": {
+      "type": "object",
+      "description": "Claims to include in the credential. The structure should match the credential configuration's expected claims.",
+      "example": {
+        "given_name": "John",
+        "family_name": "Doe",
+        "birthdate": "1990-01-15"
+      }
+    }
+  },
+  "required": [
+    "claims"
+  ]
 }

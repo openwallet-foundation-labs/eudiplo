@@ -60,6 +60,15 @@ export class KeyEntity {
     usage!: KeyUsage;
 
     /**
+     * The KMS provider used for this key.
+     * References a configured KMS provider name.
+     */
+    @IsString()
+    @IsOptional()
+    @Column("varchar", { default: "db" })
+    kmsProvider!: string;
+
+    /**
      * Certificates associated with this key.
      */
     @OneToMany(

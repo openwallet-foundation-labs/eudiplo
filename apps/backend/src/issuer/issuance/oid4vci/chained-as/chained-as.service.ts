@@ -2,7 +2,6 @@ import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { HttpService } from "@nestjs/axios";
 import {
     BadRequestException,
-    Inject,
     Injectable,
     Logger,
     NotFoundException,
@@ -14,7 +13,6 @@ import { decodeJwt, decodeProtectedHeader } from "jose";
 import { firstValueFrom } from "rxjs";
 import { LessThan, Repository } from "typeorm";
 import { v4 } from "uuid";
-import { CryptoService } from "../../../../crypto/crypto.service";
 import { KeyService } from "../../../../crypto/key/key.service";
 import { SessionService } from "../../../../session/session.service";
 import { WalletAttestationService } from "../../../../shared/trust/wallet-attestation.service";
@@ -107,8 +105,7 @@ export class ChainedAsService {
     constructor(
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
-        @Inject("KeyService") private readonly keyService: KeyService,
-        private readonly cryptoService: CryptoService,
+        private readonly keyService: KeyService,
         private readonly sessionService: SessionService,
         private readonly issuanceService: IssuanceService,
         private readonly walletAttestationService: WalletAttestationService,

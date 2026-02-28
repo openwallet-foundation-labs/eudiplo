@@ -1,19 +1,17 @@
 import { readFileSync } from "node:fs";
-import { Inject, Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { CredentialIssuerMetadataDisplayEntry } from "@openid4vc/openid4vci";
 import { plainToClass } from "class-transformer";
 import { Repository } from "typeorm";
-import { KeyService } from "../../../crypto/key/key.service";
 import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
 import {
     ConfigImportOrchestratorService,
     ImportPhase,
 } from "../../../shared/utils/config-import/config-import-orchestrator.service";
 import { FilesService } from "../../../storage/files.service";
+import { DisplayInfo } from "./dto/display.dto";
 import { IssuanceDto } from "./dto/issuance.dto";
 import { IssuanceConfig } from "./entities/issuance-config.entity";
-
 /**
  * Service for managing issuance configurations.
  * It provides methods to get, store, and delete issuance configurations.
@@ -33,7 +31,6 @@ export class IssuanceService {
         private readonly filesService: FilesService,
         private readonly configImportService: ConfigImportService,
         private readonly configImportOrchestrator: ConfigImportOrchestratorService,
-        @Inject("KeyService") public readonly keyService: KeyService,
     ) {
         this.configImportOrchestrator.register(
             "issuance",
@@ -81,10 +78,7 @@ export class IssuanceService {
         );
     }
 
-    private replaceUrl(
-        display: CredentialIssuerMetadataDisplayEntry[],
-        tenantId: string,
-    ) {
+    private replaceUrl(display: DisplayInfo[], tenantId: string) {
         return Promise.all(
             display.map(async (display) => {
                 if (display.logo?.uri) {

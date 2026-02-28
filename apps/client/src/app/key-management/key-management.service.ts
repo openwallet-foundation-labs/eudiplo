@@ -7,11 +7,19 @@ import {
   keyControllerGetKey,
   keyControllerGetKeys,
   keyControllerUpdateKey,
+  keyControllerGetProviders,
+  keyControllerGenerateKey,
+  type KmsProviderInfoDto,
 } from '@eudiplo/sdk-core';
 
 interface JWKwithKey extends JsonWebKey {
   kid?: string;
   alg: string;
+}
+
+export interface KmsProvidersResponse {
+  providers: KmsProviderInfoDto[];
+  default: string;
 }
 
 @Injectable({
@@ -39,6 +47,24 @@ export class KeyManagementService {
         jwkWithAlg.alg = 'ES256';
         return jwk;
       });
+  }
+
+  /**
+   * Fetch available KMS providers from the server.
+   */
+  getProviders() {
+    return keyControllerGetProviders().then((res) => res.data);
+  }
+
+  /**
+   * Generate a key on the server (for providers that don't support importing).
+   */
+  async generateKeyOnServer(options: {
+    kmsProvider?: string;
+    description?: string;
+  }): Promise<{ id: string }> {
+    const response = await keyControllerGenerateKey({ body: options });
+    return response.data as { id: string };
   }
 
   loadKeys() {

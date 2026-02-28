@@ -1,6 +1,12 @@
-import { OmitType } from "@nestjs/swagger";
+import { ApiPropertyOptional, OmitType } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsEnum, IsObject, IsString, ValidateNested } from "class-validator";
+import {
+    IsEnum,
+    IsObject,
+    IsOptional,
+    IsString,
+    ValidateNested,
+} from "class-validator";
 import { JWK } from "jose";
 import { KeyEntity } from "../entities/keys.entity";
 
@@ -29,6 +35,7 @@ export class KeyImportDto extends OmitType(KeyEntity, [
     "createdAt",
     "updatedAt",
     "usage",
+    "kmsProvider",
 ] as const) {
     /**
      * The private key in JWK format.
@@ -37,4 +44,17 @@ export class KeyImportDto extends OmitType(KeyEntity, [
     @ValidateNested()
     @Type(() => Key)
     key!: Key;
+
+    /**
+     * Optional KMS provider name to use for this key.
+     * If not specified, the default KMS provider will be used.
+     */
+    @ApiPropertyOptional({
+        description:
+            "KMS provider name to use for this key. Defaults to the configured default.",
+        example: "db",
+    })
+    @IsString()
+    @IsOptional()
+    kmsProvider?: string;
 }

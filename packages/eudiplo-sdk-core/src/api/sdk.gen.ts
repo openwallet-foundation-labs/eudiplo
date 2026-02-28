@@ -108,10 +108,14 @@ import type {
   KeyControllerAddKeyResponses,
   KeyControllerDeleteKeyData,
   KeyControllerDeleteKeyResponses,
+  KeyControllerGenerateKeyData,
+  KeyControllerGenerateKeyResponses,
   KeyControllerGetKeyData,
   KeyControllerGetKeyResponses,
   KeyControllerGetKeysData,
   KeyControllerGetKeysResponses,
+  KeyControllerGetProvidersData,
+  KeyControllerGetProvidersResponses,
   KeyControllerUpdateKeyData,
   KeyControllerUpdateKeyResponses,
   Oid4VciControllerCredentialData,
@@ -230,6 +234,8 @@ import type {
   WellKnownControllerAuthzMetadata0Responses,
   WellKnownControllerAuthzMetadata1Data,
   WellKnownControllerAuthzMetadata1Responses,
+  WellKnownControllerChainedAsMetadataData,
+  WellKnownControllerChainedAsMetadataResponses,
   WellKnownControllerGetJwks0Data,
   WellKnownControllerGetJwks0Responses,
   WellKnownControllerGetJwks1Data,
@@ -556,94 +562,6 @@ export const clientControllerRotateClientSecret = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/client/{id}/rotate-secret",
     ...options,
-  });
-
-/**
- * Get all keys for the tenant.
- */
-export const keyControllerGetKeys = <ThrowOnError extends boolean = true>(
-  options?: Options<KeyControllerGetKeysData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    KeyControllerGetKeysResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/key",
-    ...options,
-  });
-
-/**
- * Add a new key to the key service.
- */
-export const keyControllerAddKey = <ThrowOnError extends boolean = true>(
-  options: Options<KeyControllerAddKeyData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    KeyControllerAddKeyResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/key",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Delete a key from the key service.
- */
-export const keyControllerDeleteKey = <ThrowOnError extends boolean = true>(
-  options: Options<KeyControllerDeleteKeyData, ThrowOnError>,
-) =>
-  (options.client ?? client).delete<
-    KeyControllerDeleteKeyResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/key/{id}",
-    ...options,
-  });
-
-/**
- * Get a specific key by ID
- */
-export const keyControllerGetKey = <ThrowOnError extends boolean = true>(
-  options: Options<KeyControllerGetKeyData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    KeyControllerGetKeyResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/key/{id}",
-    ...options,
-  });
-
-/**
- * Updates an existing key in the key service.
- */
-export const keyControllerUpdateKey = <ThrowOnError extends boolean = true>(
-  options: Options<KeyControllerUpdateKeyData, ThrowOnError>,
-) =>
-  (options.client ?? client).put<
-    KeyControllerUpdateKeyResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/key/{id}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
   });
 
 /**
@@ -1895,6 +1813,25 @@ export const wellKnownControllerAuthzMetadata1 = <
   >({ url: "/{tenantId}/.well-known/oauth-authorization-server", ...options });
 
 /**
+ * Chained Authorization Server Metadata (RFC 8414 alternative path format).
+ * Supports discovery via `/.well-known/oauth-authorization-server/:tenantId/chained-as`
+ * for wallets that construct the discovery URL per RFC 8414.
+ */
+export const wellKnownControllerChainedAsMetadata = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<WellKnownControllerChainedAsMetadataData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    WellKnownControllerChainedAsMetadataResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/.well-known/oauth-authorization-server/{tenantId}/chained-as",
+    ...options,
+  });
+
+/**
  * Returns the JSON Web Key Set (JWKS) for the authorization server.
  */
 export const wellKnownControllerGetJwks0 = <
@@ -2261,6 +2198,130 @@ export const trustListPublicControllerGetTrustListJwt = <
     unknown,
     ThrowOnError
   >({ url: "/{tenantId}/trust-list/{id}", ...options });
+
+/**
+ * List available KMS providers
+ */
+export const keyControllerGetProviders = <ThrowOnError extends boolean = true>(
+  options?: Options<KeyControllerGetProvidersData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    KeyControllerGetProvidersResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/key/providers",
+    ...options,
+  });
+
+/**
+ * List all keys for the tenant
+ */
+export const keyControllerGetKeys = <ThrowOnError extends boolean = true>(
+  options?: Options<KeyControllerGetKeysData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    KeyControllerGetKeysResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/key",
+    ...options,
+  });
+
+/**
+ * Import a key
+ */
+export const keyControllerAddKey = <ThrowOnError extends boolean = true>(
+  options: Options<KeyControllerAddKeyData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    KeyControllerAddKeyResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/key",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete a key
+ */
+export const keyControllerDeleteKey = <ThrowOnError extends boolean = true>(
+  options: Options<KeyControllerDeleteKeyData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    KeyControllerDeleteKeyResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/key/{id}",
+    ...options,
+  });
+
+/**
+ * Get a key by ID
+ */
+export const keyControllerGetKey = <ThrowOnError extends boolean = true>(
+  options: Options<KeyControllerGetKeyData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    KeyControllerGetKeyResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/key/{id}",
+    ...options,
+  });
+
+/**
+ * Update key metadata
+ */
+export const keyControllerUpdateKey = <ThrowOnError extends boolean = true>(
+  options: Options<KeyControllerUpdateKeyData, ThrowOnError>,
+) =>
+  (options.client ?? client).put<
+    KeyControllerUpdateKeyResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/key/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Generate a key on the server
+ */
+export const keyControllerGenerateKey = <ThrowOnError extends boolean = true>(
+  options: Options<KeyControllerGenerateKeyData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    KeyControllerGenerateKeyResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/key/generate",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
 
 /**
  * Create an presentation request that can be sent to the user

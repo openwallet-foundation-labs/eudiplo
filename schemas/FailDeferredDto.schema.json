@@ -3,5 +3,11 @@
   "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/FailDeferredDto.schema.json",
   "title": "FailDeferredDto",
   "type": "object",
-  "properties": {}
+  "properties": {
+    "error": {
+      "type": "string",
+      "description": "Optional error message explaining why the issuance failed",
+      "example": "Identity verification failed"
+    }
+  }
 }

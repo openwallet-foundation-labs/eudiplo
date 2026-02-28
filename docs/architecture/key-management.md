@@ -1,19 +1,46 @@
 # Key Management
 
-The keys used for **signing operations** in EUDIPLO can be managed in multiple
-ways, depending on the selected key management type (`KM_TYPE`).
+The keys used for **signing operations** in EUDIPLO can be managed by one or
+more KMS (Key Management System) providers running simultaneously. Providers are
+configured in a single `kms.json` file inside the config folder.
 
-> 💡 **Encryption operations** are always proceed with database stored keys for not and independent from the used KeyManagement Module.
+> 💡 **Encryption operations** always use database-stored keys and are independent from the KMS providers configured for signing.
 
 ## Configuration
 
---8<-- "docs/generated/config-key.md"
+KMS providers are configured in `<CONFIG_FOLDER>/kms.json`. If no file is found,
+a single `db` provider is registered automatically.
+
+```json
+{
+    "defaultProvider": "db",
+    "providers": {
+        "db": {},
+        "vault": {
+            "vaultUrl": "http://localhost:8200",
+            "vaultToken": "your-vault-token"
+        }
+    }
+}
+```
+
+| Field             | Description                                                                            |
+| ----------------- | -------------------------------------------------------------------------------------- |
+| `defaultProvider` | Name of the provider used when no explicit `kmsProvider` is specified (default: `db`). |
+| `providers`       | Object where each key is a provider name and the value is its configuration.           |
+
+Environment-variable placeholders (`${VAULT_URL}`, `${VAULT_TOKEN:default}`) are
+resolved at startup, so secrets can still be injected through the environment.
+
+When generating or importing a key through the API, include the `kmsProvider`
+field to select a specific provider. If omitted, the `defaultProvider` is used.
 
 ---
 
-## Database based Key Management
+## Database Key Management (`db`)
 
-When `KM_TYPE=db` (default), keys are stored unencrypted in the database. This mode is ideal for development or testing.
+When the `db` provider is configured (the default), keys are stored encrypted in the
+database. This mode is ideal for development or testing.
 
 ### Multiple Key Support
 
@@ -43,16 +70,42 @@ generate a new key pair. Even when using the database mode, the private key will
 ## Vault (HashiCorp Vault)
 
 To use [HashiCorp Vault](https://www.vaultproject.io/) for key management,
-configure the following:
+add a `vault` entry to the `providers` section of `kms.json`:
 
-```env
-KM_TYPE=vault
-VAULT_URL=http://localhost:8200/v1/transit
-VAULT_TOKEN=your-vault-token
+```json
+{
+    "defaultProvider": "vault",
+    "providers": {
+        "db": {},
+        "vault": {
+            "vaultUrl": "http://localhost:8200",
+            "vaultToken": "your-vault-token"
+        }
+    }
+}
 ```
 
-For each tenant, a new secret engine is created in Vault with the path
-`{tenantId}`.
+| Field        | Description                                     |
+| ------------ | ----------------------------------------------- |
+| `vaultUrl`   | Base URL of the Vault server (without `/v1/…`). |
+| `vaultToken` | Authentication token for Vault API access.      |
+
+You can use environment-variable placeholders to avoid storing secrets in the
+config file:
+
+```json
+{
+    "vaultUrl": "${VAULT_URL}",
+    "vaultToken": "${VAULT_TOKEN}"
+}
+```
+
+### Transit Mount Auto-Creation
+
+For each tenant, a **transit secret engine** mount is created automatically on
+first use. If the mount already exists the creation step is silently skipped
+(idempotent). If a Vault API call returns **404** (mount not found), the service
+retries the operation once after creating the mount.
 
 To issue credentials, you need to have a signed certificate for the public key
 that is bound to your domain.
@@ -61,7 +114,9 @@ In this mode:
 
 - All **signing operations** are delegated to Vault via its API.
 - The **private key never leaves** the Vault server.
-- Access can be tightly controlled using Vault’s policies and authentication
+- A **stub key entity** is stored in the database for tracking purposes (no
+  private key material).
+- Access can be tightly controlled using Vault's policies and authentication
   mechanisms.
 
 Vault is well-suited for production environments where secure, auditable key
@@ -81,12 +136,20 @@ other key management backends such as:
 
 To add a new backend:
 
-- Implement the key service interface.
-- Extend the module factory to support a new `KM_TYPE`.
+1. Create a new class extending `KmsAdapter` (see `vault-key.service.ts` for
+   reference).
+2. Register a factory function for the new type in `kms-adapter.factory.ts`.
+3. Add the provider entry to `kms.json`:
 
-```ts
-// Example (in code):
-KM_TYPE = awskms;
+```json
+{
+    "providers": {
+        "awskms": {
+            "region": "eu-central-1",
+            "keyArn": "arn:aws:kms:..."
+        }
+    }
+}
 ```
 
 If you need help integrating a new provider, feel free to open an issue or
