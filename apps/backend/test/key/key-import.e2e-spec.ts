@@ -4,14 +4,12 @@ import { Test, TestingModule } from "@nestjs/testing";
 import request from "supertest";
 import { v4 } from "uuid";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import { AppModule } from "../src/app.module";
-import { KeyImportDto } from "../src/crypto/key/dto/key-import.dto";
-import { getToken } from "./utils";
+import { AppModule } from "../../src/app.module";
+import { KeyImportDto } from "../../src/crypto/key/dto/key-import.dto";
+import { getToken } from "../utils";
 
-describe("Key (e2e)", () => {
+describe("Key — Import (e2e)", () => {
     let app: INestApplication;
-    let clientId: string;
-    let clientSecret: string;
     let authToken: string;
 
     beforeAll(async () => {
@@ -21,12 +19,12 @@ describe("Key (e2e)", () => {
 
         app = moduleFixture.createNestApplication();
         app.useGlobalPipes(new ValidationPipe());
-
         await app.init();
-        const configService = app.get(ConfigService);
-        clientId = configService.getOrThrow<string>("AUTH_CLIENT_ID");
-        clientSecret = configService.getOrThrow<string>("AUTH_CLIENT_SECRET");
 
+        const configService = app.get(ConfigService);
+        const clientId = configService.getOrThrow<string>("AUTH_CLIENT_ID");
+        const clientSecret =
+            configService.getOrThrow<string>("AUTH_CLIENT_SECRET");
         authToken = await getToken(app, clientId, clientSecret);
     });
 

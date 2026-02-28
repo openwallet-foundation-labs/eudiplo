@@ -8,11 +8,14 @@ class DisplayLogo {
     @IsString()
     @IsOptional()
     alt_text?: string;
+
+    [key: string]: unknown;
 }
 export class DisplayInfo {
     @IsString()
     @IsOptional()
     name?: string;
+
     @IsString()
     @IsOptional()
     locale?: string;
@@ -21,4 +24,6 @@ export class DisplayInfo {
     @IsOptional()
     @Type(() => DisplayLogo)
     logo?: DisplayLogo;
+
+    [key: string]: unknown;
 }

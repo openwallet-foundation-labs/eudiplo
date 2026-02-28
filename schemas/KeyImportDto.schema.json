@@ -4,6 +4,11 @@
   "title": "KeyImportDto",
   "type": "object",
   "properties": {
+    "kmsProvider": {
+      "type": "string",
+      "description": "KMS provider name to use for this key. Defaults to the configured default.",
+      "example": "db"
+    },
     "key": {
       "description": "The private key in JWK format.",
       "allOf": [

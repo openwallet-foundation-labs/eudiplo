@@ -32,6 +32,10 @@
       "type": "object",
       "description": "The usage type of the key."
     },
+    "kmsProvider": {
+      "type": "string",
+      "description": "The KMS provider used for this key.\nReferences a configured KMS provider name."
+    },
     "certificates": {
       "description": "Certificates associated with this key.",
       "type": "array",
@@ -56,6 +60,7 @@
     "tenant",
     "key",
     "usage",
+    "kmsProvider",
     "certificates",
     "createdAt",
     "updatedAt"

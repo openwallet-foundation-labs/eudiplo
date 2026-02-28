@@ -1,4 +1,3 @@
-import { ConfigService } from "@nestjs/config";
 import { Signer } from "@sd-jwt/types";
 import {
     CryptoKey,
@@ -13,40 +12,25 @@ import {
 } from "jose";
 import { Repository } from "typeorm";
 import { v4 } from "uuid";
-import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { EC_Public } from "../../../issuer/issuance/oid4vci/well-known/dto/jwks-response.dto";
-import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
-import { ConfigImportOrchestratorService } from "../../../shared/utils/config-import/config-import-orchestrator.service";
 import { CryptoImplementation } from "../crypto-implementation/crypto-implementation";
 import { CryptoImplementationService } from "../crypto-implementation/crypto-implementation.service";
 import { KeyImportDto } from "../dto/key-import.dto";
-import { CertEntity } from "../entities/cert.entity";
 import { KeyEntity } from "../entities/keys.entity";
-import { KeyService } from "../key.service";
+import { KmsAdapter } from "../kms-adapter";
 
 /**
- * The key service is responsible for managing the keys of the issuer.
+ * Database-backed KMS adapter.
+ * Key material is stored encrypted in the application database.
  */
-export class DBKeyService extends KeyService {
+export class DBKeyService extends KmsAdapter {
     private readonly crypto: CryptoImplementation;
 
     constructor(
-        configService: ConfigService,
         private readonly cryptoService: CryptoImplementationService,
-        keyRepository: Repository<KeyEntity>,
-        configImportService: ConfigImportService,
-        certRepository: Repository<CertEntity>,
-        tenantRepository: Repository<TenantEntity>,
-        configImportOrchestrator: ConfigImportOrchestratorService,
+        private readonly keyRepository: Repository<KeyEntity>,
     ) {
-        super(
-            configService,
-            keyRepository,
-            configImportService,
-            certRepository,
-            tenantRepository,
-            configImportOrchestrator,
-        );
+        super();
         this.crypto = cryptoService.getCrypto();
     }
 
@@ -54,6 +38,7 @@ export class DBKeyService extends KeyService {
      * Import a key into the key service.
      * @param tenantId
      * @param body
+     * @param _kmsProvider
      * @returns
      */
     import(tenantId: string, body: KeyImportDto): Promise<string> {
@@ -61,6 +46,7 @@ export class DBKeyService extends KeyService {
             .save({
                 ...body,
                 tenantId,
+                kmsProvider: "db",
             })
             .then(() => body.id);
     }
@@ -96,6 +82,7 @@ export class DBKeyService extends KeyService {
     /**
      * Creates a new keypair and wrtites the private key to the file system.
      * @param tenantId
+     * @param _kmsProvider
      * @returns key id of the generated key.
      */
     async create(tenantId: string): Promise<string> {
@@ -114,6 +101,7 @@ export class DBKeyService extends KeyService {
                 id: privateKey.kid,
                 tenantId,
                 key: privateKey,
+                kmsProvider: "db",
             })
             .then(() => privateKey.kid!);
     }

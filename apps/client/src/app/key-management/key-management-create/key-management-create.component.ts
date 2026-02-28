@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -17,7 +18,7 @@ import { KeyManagementService } from '../key-management.service';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { EditorComponent } from '../../utils/editor/editor.component';
 import { jwkSchema } from '../../utils/schemas';
-import { KeyImportDto } from '@eudiplo/sdk-core';
+import { KeyImportDto, KmsProvidersResponseDto, KmsProviderInfoDto } from '@eudiplo/sdk-core';
 import { v4 } from 'uuid';
 import { KeyDownloadDialogComponent } from './key-download-dialog/key-download-dialog.component';
 
@@ -33,6 +34,7 @@ import { KeyDownloadDialogComponent } from './key-download-dialog/key-download-d
     MatFormFieldModule,
     MatInputModule,
     MatProgressSpinnerModule,
+    MatSelectModule,
     MatSnackBarModule,
     MatTooltipModule,
     FlexLayoutModule,
@@ -47,6 +49,9 @@ import { KeyDownloadDialogComponent } from './key-download-dialog/key-download-d
 export class KeyManagementCreateComponent implements OnInit {
   public form: FormGroup;
   public keyId?: string;
+  public kmsProviders: KmsProviderInfoDto[] = [];
+  public kmsDefault = 'db';
+  public selectedProviderCanImport = true;
 
   jwkSchema = jwkSchema;
 
@@ -61,9 +66,30 @@ export class KeyManagementCreateComponent implements OnInit {
     this.keyId = this.route.snapshot.params['id'];
     this.form = this.fb.group({
       description: [''],
+      kmsProvider: [''],
+    });
+
+    // React to provider changes
+    this.form.get('kmsProvider')?.valueChanges.subscribe((providerName: string) => {
+      this.updateProviderCapabilities(providerName);
     });
   }
   ngOnInit(): void {
+    // Load available KMS providers
+    this.keyManagementService.getProviders().then(
+      (response: KmsProvidersResponseDto) => {
+        this.kmsProviders = response.providers;
+        this.kmsDefault = response.default;
+        if (!this.keyId) {
+          this.form.get('kmsProvider')?.setValue(this.kmsDefault);
+          this.updateProviderCapabilities(this.kmsDefault);
+        }
+      },
+      (error) => {
+        console.error('Error loading KMS providers:', error);
+      }
+    );
+
     if (this.keyId) {
       this.keyManagementService.getKey(this.route.snapshot.params['id']).then(
         (key: any) => {
@@ -84,6 +110,26 @@ export class KeyManagementCreateComponent implements OnInit {
       );
     } else {
       this.form.addControl('privateKey', this.fb.control('', [Validators.required]));
+    }
+  }
+
+  /**
+   * Update capability flags based on the selected provider.
+   */
+  updateProviderCapabilities(providerName: string) {
+    const provider = this.kmsProviders.find((p) => p.name === providerName);
+    this.selectedProviderCanImport = provider?.capabilities?.canImport ?? true;
+
+    if (!this.keyId) {
+      if (this.selectedProviderCanImport) {
+        // Ensure the privateKey control exists
+        if (!this.form.get('privateKey')) {
+          this.form.addControl('privateKey', this.fb.control('', [Validators.required]));
+        }
+      } else {
+        // Remove the privateKey control — server will generate the key
+        this.form.removeControl('privateKey');
+      }
     }
   }
 
@@ -112,6 +158,16 @@ export class KeyManagementCreateComponent implements OnInit {
         });
 
         this.router.navigate(['../'], { relativeTo: this.route });
+      } else if (!this.selectedProviderCanImport) {
+        // Provider does not support importing — generate key on the server
+        const result = await this.keyManagementService.generateKeyOnServer({
+          kmsProvider: this.form.value.kmsProvider || undefined,
+          description: this.form.value.description || undefined,
+        });
+        this.snackBar.open('Key generated successfully', 'Close', {
+          duration: 3000,
+        });
+        this.router.navigate(['/keys', result.id]);
       } else {
         // Parse and validate the private key
         let privateKey: any;
@@ -131,6 +187,7 @@ export class KeyManagementCreateComponent implements OnInit {
           id: v4(),
           key: privateKey,
           description: this.form.value.description,
+          kmsProvider: this.form.value.kmsProvider || undefined,
         };
 
         const result = await this.keyManagementService.importKey(keyImportDto);

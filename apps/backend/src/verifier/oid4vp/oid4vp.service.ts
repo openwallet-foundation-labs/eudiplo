@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { BadRequestException, Inject, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { plainToInstance } from "class-transformer";
 import { validateOrReject } from "class-validator";
@@ -25,7 +25,7 @@ import { PresentationRequestOptions } from "./dto/presentation-request-options.d
 export class Oid4vpService {
     constructor(
         private readonly certService: CertService,
-        @Inject("KeyService") public readonly keyService: KeyService,
+        public readonly keyService: KeyService,
         private readonly encryptionService: EncryptionService,
         private readonly configService: ConfigService,
         private readonly presentationsService: PresentationsService,

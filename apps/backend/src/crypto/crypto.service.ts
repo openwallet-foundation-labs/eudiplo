@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import {
     type CallbackContext,
@@ -41,35 +41,13 @@ export class CryptoService {
      * @param configService
      */
     constructor(
-        @Inject("KeyService") public readonly keyService: KeyService,
+        public readonly keyService: KeyService,
         private readonly configService: ConfigService,
     ) {
         this.clockTolerance =
             this.configService.getOrThrow<number>("CRYPTO_TOLERANCE");
     }
 
-    /**
-     * Verify a JWT with the key service.
-     * @param compact
-     * @param tenantId
-     * @returns
-     */
-    async verifyJwt(
-        compact: string,
-        tenantId: string,
-    ): Promise<{ verified: boolean }> {
-        const publicJwk = await this.keyService.getPublicKey("jwk", tenantId);
-        const publicCryptoKey = await importJWK(publicJwk, "ES256");
-
-        try {
-            await jwtVerify(compact, publicCryptoKey, {
-                clockTolerance: this.clockTolerance,
-            });
-            return { verified: true };
-        } catch {
-            return { verified: false };
-        }
-    }
     /**
      * Get the callback context for the key service.
      * @param tenantId
@@ -163,6 +141,7 @@ export class CryptoService {
                 jwk: (await this.keyService.getPublicKey(
                     "jwk",
                     tenantId,
+                    signer.kid!,
                 )) as Jwk,
                 hashAlgorithm: HashAlgorithm.Sha256,
                 hashCallback,
@@ -178,6 +157,7 @@ export class CryptoService {
                 payload,
                 header,
                 tenantId,
+                signer.kid!,
             );
 
             return {

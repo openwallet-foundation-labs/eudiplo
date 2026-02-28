@@ -8,7 +8,6 @@ import { CertController } from "./key/cert/cert.controller";
 import { CertEntity } from "./key/entities/cert.entity";
 import { CertUsageEntity } from "./key/entities/cert-usage.entity";
 import { KeyEntity } from "./key/entities/keys.entity";
-import { KeyController } from "./key/key.controller";
 
 @Module({
     imports: [
@@ -20,7 +19,7 @@ import { KeyController } from "./key/key.controller";
             TenantEntity,
         ]),
     ],
-    controllers: [KeyController, CertController],
+    controllers: [CertController],
     providers: [CryptoService, EncryptionService],
     exports: [CryptoService, EncryptionService],
 })
