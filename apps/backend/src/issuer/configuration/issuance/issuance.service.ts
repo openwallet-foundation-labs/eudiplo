@@ -116,7 +116,9 @@ export class IssuanceService {
      * @returns
      */
     async storeIssuanceConfiguration(tenantId: string, value: IssuanceDto) {
-        value.display = await this.replaceUrl(value.display, tenantId);
+        if (value.display) {
+            value.display = await this.replaceUrl(value.display, tenantId);
+        }
         return this.issuanceConfigRepo.save({
             ...value,
             tenantId,
