@@ -171,7 +171,89 @@ volumes:
     letsencrypt:
 ```
 
-## Security Considerations
+### Serving the Client from a Subpath
+
+When serving the EUDIPLO client behind a reverse proxy on a subpath (e.g., `https://example.com/eudiplo-client/`), two things are required:
+
+1. **Set `CLIENT_BASE_HREF`** on the client container so Angular resolves routes and assets correctly.
+2. **Configure the reverse proxy** to forward the subpath to the client container.
+
+!!! warning "Backend Subpath Not Supported"
+
+    Only the **client** can be served from a subpath. The backend (OID4VCI/OID4VP endpoints) must be served from the root of its hostname, because the OID4VCI specification interprets path segments as tenant identifiers.
+
+#### 1. Client Container
+
+```yaml
+services:
+    eudiplo-client:
+        image: ghcr.io/openwallet-foundation-labs/eudiplo-client:latest
+        environment:
+            API_BASE_URL: http://eudiplo:3000
+            CLIENT_BASE_HREF: /eudiplo-client/
+```
+
+!!! note "Automatic Normalization"
+The `CLIENT_BASE_HREF` value is automatically normalized to ensure it starts and ends with `/`. For example, `eudiplo-client` becomes `/eudiplo-client/`.
+
+#### 2. Reverse Proxy (Nginx)
+
+The reverse proxy must strip the subpath prefix before forwarding to the client container. The trailing slash on `proxy_pass` is important — it causes Nginx to strip the `/eudiplo-client/` prefix from the request URI.
+
+```nginx
+server {
+    listen 443 ssl http2;
+    server_name example.com;
+
+    ssl_certificate     /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+
+    # Backend API — served from root (required by OID4VCI spec)
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Redirect /eudiplo-client to /eudiplo-client/ (trailing slash)
+    location = /eudiplo-client {
+        return 301 /eudiplo-client/;
+    }
+
+    # Client UI — served from subpath
+    location /eudiplo-client/ {
+        proxy_pass http://localhost:4200/;  # trailing slash strips the prefix
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+#### 3. Reverse Proxy (Traefik)
+
+With Traefik, use a `StripPrefix` middleware:
+
+```yaml
+services:
+    eudiplo-client:
+        image: ghcr.io/openwallet-foundation-labs/eudiplo-client:latest
+        environment:
+            API_BASE_URL: http://eudiplo:3000
+            CLIENT_BASE_HREF: /eudiplo-client/
+        labels:
+            - 'traefik.enable=true'
+            - 'traefik.http.routers.client.rule=Host(`example.com`) && PathPrefix(`/eudiplo-client`)'
+            - 'traefik.http.routers.client.entrypoints=websecure'
+            - 'traefik.http.routers.client.tls.certresolver=letsencrypt'
+            - 'traefik.http.middlewares.client-strip.stripprefix.prefixes=/eudiplo-client'
+            - 'traefik.http.routers.client.middlewares=client-strip'
+```
 
 !!! warning "Production Security" - **Never use self-signed certificates in production**. Use certificates from trusted CAs. - **Keep private keys secure**. Restrict file permissions (`chmod 600 key.pem`). - **Use strong TLS configuration**. Prefer TLS 1.2+ and modern cipher suites. - **Rotate certificates regularly**. Set up automated renewal for Let's Encrypt.
 
