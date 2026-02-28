@@ -13,12 +13,19 @@ export class IssuanceConfigController {
     constructor(private readonly issuanceService: IssuanceService) {}
 
     /**
-     * Returns the issuance configurations for this tenant.
+     * Returns the issuance configurations for this tenant. Creates a default one if it does not exist.
      * @returns
      */
     @Get()
     getIssuanceConfigurations(@Token() user: TokenPayload) {
-        return this.issuanceService.getIssuanceConfiguration(user.entity!.id);
+        return this.issuanceService
+            .getIssuanceConfiguration(user.entity!.id)
+            .catch(() =>
+                this.issuanceService.storeIssuanceConfiguration(
+                    user.entity!.id,
+                    {} as IssuanceDto,
+                ),
+            );
     }
 
     /**
