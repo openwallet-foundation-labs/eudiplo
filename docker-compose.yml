@@ -29,6 +29,8 @@ services:
         condition: service_healthy
     environment:
       - API_BASE_URL=http://eudiplo:3000
+      # Uncomment to serve the client from a subpath behind a reverse proxy:
+      # - CLIENT_BASE_HREF=/eudiplo-client/
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:80']
       interval: 30s
