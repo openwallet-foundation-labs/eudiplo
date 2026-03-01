@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@adobe/jsonschema2md": "^8.0.10",
-    "@apidevtools/json-schema-ref-parser": "^15.2.2",
+    "@apidevtools/json-schema-ref-parser": "^15.3.1",
     "@codedependant/semantic-release-docker": "^5.1.1",
     "@openapi-contrib/openapi-schema-to-json-schema": "^5.1.0",
     "@semantic-release/changelog": "^6.0.3",
@@ -38,7 +38,7 @@
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^12.0.6",
     "@semantic-release/npm": "^13.1.4",
-    "@types/node": "^25.3.0",
+    "@types/node": "^25.3.3",
     "@types/unzipper": "^0.10.11",
     "cross-fetch": "^4.1.0",
     "husky": "^9.1.7",
