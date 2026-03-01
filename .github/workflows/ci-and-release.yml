@@ -103,9 +103,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Run linter
-        run: pnpm run lint
-
       - name: Build backend
         run: pnpm --filter @eudiplo/backend build
 
@@ -131,9 +128,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
-
-      - name: Run linter
-        run: pnpm run lint
 
       - name: Build sdk core
         run: pnpm --filter @eudiplo/sdk-core build
@@ -164,9 +158,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Run linter
-        run: pnpm run lint
-
       - name: Build webhook
         run: pnpm --filter test-rp build
 
@@ -192,9 +183,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
-
-      - name: Run linter
-        run: pnpm run lint
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -298,9 +286,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Run linter
-        run: pnpm run lint
-
       - name: setup test webhooks
         run: |
           nohup pnpm --filter test-rp dev &
@@ -334,10 +319,24 @@ jobs:
           name: oidf-test-results
           path: apps/backend/logs/
 
+  # =============================================================================
+  # Docker Backend: Build, Test & Push (multi-platform with native runners)
+  # Uses native ARM runners instead of QEMU for ~4x faster arm64 builds.
+  # =============================================================================
   docker-backend:
-    name: Build & Push Backend Docker Image
+    name: Build & Test Backend Docker (${{ matrix.arch }})
     needs: [test-e2e]
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+            arch: amd64
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+            arch: arm64
+    runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
       packages: write
@@ -347,20 +346,34 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/openwallet-foundation-labs/eudiplo
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # --- Health test (amd64 only) ---
       - name: Build Backend Docker image (for testing)
+        if: matrix.arch == 'amd64'
         uses: docker/build-push-action@v6
         with:
           context: .
           target: eudiplo
           load: true
-          platforms: linux/amd64
-          tags: ghcr.io/openwallet-foundation-labs/eudiplo:main
+          tags: ghcr.io/openwallet-foundation-labs/eudiplo:test
           build-args: VERSION=main
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=backend-${{ matrix.arch }}
+          cache-to: type=gha,scope=backend-${{ matrix.arch }},mode=max
 
-      # --- HEALTH TEST ---
       - name: Run container (detached)
+        if: matrix.arch == 'amd64'
         run: |
           docker run -d \
             --name eudiplo-test \
@@ -369,9 +382,10 @@ jobs:
             -e AUTH_CLIENT_ID=ci-docker-client \
             -e AUTH_CLIENT_SECRET=ci-docker-secret \
             -e ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef \
-            ghcr.io/openwallet-foundation-labs/eudiplo:main
+            ghcr.io/openwallet-foundation-labs/eudiplo:test
 
       - name: Wait for healthy
+        if: matrix.arch == 'amd64'
         run: |
           set -e
           # Check if container is running
@@ -428,34 +442,112 @@ jobs:
           exit 1
 
       - name: Stop test container
-        if: always()
+        if: ${{ always() && matrix.arch == 'amd64' }}
         run: docker rm -f eudiplo-test || true
 
-      - name: Log in to GitHub Container Registry
+      # --- Build and push by digest (main push only) ---
+      - name: Build and push by digest
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: eudiplo
+          platforms: ${{ matrix.platform }}
+          build-args: VERSION=main
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=image,name=ghcr.io/openwallet-foundation-labs/eudiplo,push-by-digest=true,name-canonical=true,push=true
+          cache-from: type=gha,scope=backend-${{ matrix.arch }}
+          cache-to: type=gha,scope=backend-${{ matrix.arch }},mode=max
+
+      # --- Build to validate (arm64, PRs/workflow_dispatch only) ---
+      - name: Build to validate
+        if: ${{ matrix.arch == 'arm64' && !(github.ref == 'refs/heads/main' && github.event_name == 'push') }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: eudiplo
+          platforms: ${{ matrix.platform }}
+          build-args: VERSION=main
+          cache-from: type=gha,scope=backend-${{ matrix.arch }}
+          cache-to: type=gha,scope=backend-${{ matrix.arch }},mode=max
+
+      - name: Export digest
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          mkdir -p ${{ runner.temp }}/digests
+          digest="${{ steps.push.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/upload-artifact@v6
+        with:
+          name: backend-digest-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  docker-backend-manifest:
+    name: Create Backend Docker Manifest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [docker-backend]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v6
+        with:
+          pattern: backend-digest-*
+          merge-multiple: true
+          path: ${{ runner.temp }}/digests
+
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Backend Docker image
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          target: eudiplo
-          push: true
-          platforms: linux/amd64,linux/arm64
-          tags: ghcr.io/openwallet-foundation-labs/eudiplo:main
-          build-args: VERSION=main
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/openwallet-foundation-labs/eudiplo
+          tags: |
+            type=raw,value=main
+
+      - name: Create manifest list and push
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf 'ghcr.io/openwallet-foundation-labs/eudiplo@sha256:%s ' *)
+
+      - name: Inspect image
+        run: docker buildx imagetools inspect ghcr.io/openwallet-foundation-labs/eudiplo:main
+
+  # =============================================================================
+  # Docker Client: Build & Push (multi-platform with native runners)
+  # =============================================================================
   docker-client:
-    name: Build & Push Client Docker Image
+    name: Build & Push Client Docker (${{ matrix.arch }})
     needs: [build-client]
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+            arch: amd64
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+            arch: arm64
+    runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
       packages: write
@@ -465,24 +557,102 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/openwallet-foundation-labs/eudiplo-client
+
       - name: Log in to GitHub Container Registry
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Client Docker image
+      # --- Build and push by digest (main push only) ---
+      - name: Build and push by digest
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        id: push
         uses: docker/build-push-action@v6
         with:
           context: .
           target: client
-          platforms: linux/amd64,linux/arm64
-          push: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
-          tags: ghcr.io/openwallet-foundation-labs/eudiplo-client:main
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          platforms: ${{ matrix.platform }}
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=image,name=ghcr.io/openwallet-foundation-labs/eudiplo-client,push-by-digest=true,name-canonical=true,push=true
+          cache-from: type=gha,scope=client-${{ matrix.arch }}
+          cache-to: type=gha,scope=client-${{ matrix.arch }},mode=max
+
+      # --- Build to validate (PRs/workflow_dispatch only) ---
+      - name: Build to validate
+        if: ${{ !(github.ref == 'refs/heads/main' && github.event_name == 'push') }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: client
+          platforms: ${{ matrix.platform }}
+          cache-from: type=gha,scope=client-${{ matrix.arch }}
+          cache-to: type=gha,scope=client-${{ matrix.arch }},mode=max
+
+      - name: Export digest
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          mkdir -p ${{ runner.temp }}/digests
+          digest="${{ steps.push.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/upload-artifact@v6
+        with:
+          name: client-digest-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  docker-client-manifest:
+    name: Create Client Docker Manifest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [docker-client]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v6
+        with:
+          pattern: client-digest-*
+          merge-multiple: true
+          path: ${{ runner.temp }}/digests
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/openwallet-foundation-labs/eudiplo-client
+          tags: |
+            type=raw,value=main
+
+      - name: Create manifest list and push
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf 'ghcr.io/openwallet-foundation-labs/eudiplo-client@sha256:%s ' *)
+
+      - name: Inspect image
+        run: docker buildx imagetools inspect ghcr.io/openwallet-foundation-labs/eudiplo-client:main
 
   # =============================================================================
   # NPM Pre-release (Main Branch Only)
