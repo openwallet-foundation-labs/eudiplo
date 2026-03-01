@@ -22,7 +22,7 @@ case "$CLIENT_BASE_HREF" in
 esac
 
 # Validate CLIENT_BASE_HREF contains only safe characters
-if ! echo "$CLIENT_BASE_HREF" | grep -qE '^/[a-zA-Z0-9/_-]*/$'; then
+if ! echo "$CLIENT_BASE_HREF" | grep -qE '^/([a-zA-Z0-9/_-]+/)?$'; then
   echo "Error: CLIENT_BASE_HREF contains invalid characters" >&2
   exit 1
 fi
