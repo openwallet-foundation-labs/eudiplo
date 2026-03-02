@@ -1,4 +1,4 @@
-import { Component, type OnInit } from '@angular/core';
+import { Component, type OnInit, type OnDestroy } from '@angular/core';
 import {
   FormArray,
   FormControl,
@@ -7,8 +7,8 @@ import {
   Validators,
   FormBuilder,
 } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -28,6 +28,7 @@ import { JsonViewDialogComponent } from '../../credential-config/credential-conf
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggle, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ImageFieldComponent } from '../../../utils/image-field/image-field.component';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-issuance-config-create',
@@ -54,9 +55,10 @@ import { ImageFieldComponent } from '../../../utils/image-field/image-field.comp
   templateUrl: './issuance-config-create.component.html',
   styleUrl: './issuance-config-create.component.scss',
 })
-export class IssuanceConfigCreateComponent implements OnInit {
+export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
   public form: FormGroup;
   public loading = false;
+  private chainedAsEnabledSub?: Subscription;
 
   constructor(
     private readonly issuanceConfigService: IssuanceConfigService,
@@ -91,7 +93,43 @@ export class IssuanceConfigCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.setupChainedAsValidation();
     this.loadConfigForEdit();
+  }
+
+  ngOnDestroy(): void {
+    this.chainedAsEnabledSub?.unsubscribe();
+  }
+
+  /**
+   * Dynamically add/remove required validators on chained AS upstream fields
+   * based on the enabled toggle.
+   */
+  private setupChainedAsValidation(): void {
+    const enabledControl = this.chainedAs.get('enabled');
+    const upstreamGroup = this.chainedAs.get('upstream') as FormGroup;
+    const issuerControl = upstreamGroup.get('issuer')!;
+    const clientIdControl = upstreamGroup.get('clientId')!;
+
+    const updateValidators = (enabled: boolean) => {
+      if (enabled) {
+        issuerControl.setValidators([Validators.required]);
+        clientIdControl.setValidators([Validators.required]);
+      } else {
+        issuerControl.clearValidators();
+        clientIdControl.clearValidators();
+      }
+      issuerControl.updateValueAndValidity();
+      clientIdControl.updateValueAndValidity();
+    };
+
+    // Set initial state
+    updateValidators(enabledControl?.value ?? false);
+
+    // React to toggle changes
+    this.chainedAsEnabledSub = enabledControl?.valueChanges.subscribe((enabled: boolean) => {
+      updateValidators(enabled);
+    });
   }
 
   private async loadConfigForEdit(): Promise<void> {

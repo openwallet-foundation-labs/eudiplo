@@ -280,7 +280,6 @@
                 formControlName="issuer"
                 placeholder="https://keycloak.example.com/realms/my-realm"
                 type="url"
-                required
               />
               <mat-icon matSuffix>link</mat-icon>
               <mat-hint>The upstream OIDC provider URL (must support discovery)</mat-hint>
@@ -289,7 +288,7 @@
             <div fxLayout="row" fxLayoutGap="16px">
               <mat-form-field fxFlex>
                 <mat-label>Client ID</mat-label>
-                <input matInput formControlName="clientId" placeholder="eudiplo-client" required />
+                <input matInput formControlName="clientId" placeholder="eudiplo-client" />
                 <mat-icon matSuffix>fingerprint</mat-icon>
               </mat-form-field>
               <mat-form-field fxFlex>
@@ -299,7 +298,6 @@
                   formControlName="clientSecret"
                   type="password"
                   placeholder="••••••••"
-                  required
                 />
                 <mat-icon matSuffix>lock</mat-icon>
               </mat-form-field>
