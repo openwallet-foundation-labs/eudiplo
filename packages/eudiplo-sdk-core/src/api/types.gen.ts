@@ -896,6 +896,10 @@ export type DisplayInfo = {
 
 export type IssuanceConfig = {
   /**
+   * Key ID for signing access tokens. If unset, the default signing key is used.
+   */
+  signingKeyId?: string;
+  /**
    * Configuration for Chained Authorization Server mode.
    * When enabled, EUDIPLO acts as an OAuth AS facade, delegating user authentication
    * to an upstream OIDC provider while issuing its own tokens with issuer_state.
@@ -930,6 +934,13 @@ export type IssuanceConfig = {
    * If empty and walletAttestationRequired is true, all wallet providers are rejected.
    */
   walletProviderTrustLists?: Array<string>;
+  /**
+   * The URL of the preferred authorization server for wallet-initiated flows.
+   * When set, this AS is placed first in the `authorization_servers` array
+   * of the credential issuer metadata, signaling wallets to use it by default.
+   * Must match one of the configured auth servers, the chained AS URL, or "built-in".
+   */
+  preferredAuthServer?: string;
   display: Array<DisplayInfo>;
   /**
    * The timestamp when the VP request was created.
@@ -942,6 +953,10 @@ export type IssuanceConfig = {
 };
 
 export type IssuanceDto = {
+  /**
+   * Key ID for signing access tokens. If unset, the default signing key is used.
+   */
+  signingKeyId?: string;
   /**
    * Configuration for Chained Authorization Server mode.
    * When enabled, EUDIPLO acts as an OAuth AS facade, delegating user authentication
@@ -973,6 +988,13 @@ export type IssuanceDto = {
    * If empty and walletAttestationRequired is true, all wallet providers are rejected.
    */
   walletProviderTrustLists?: Array<string>;
+  /**
+   * The URL of the preferred authorization server for wallet-initiated flows.
+   * When set, this AS is placed first in the `authorization_servers` array
+   * of the credential issuer metadata, signaling wallets to use it by default.
+   * Must match one of the configured auth servers, the chained AS URL, or "built-in".
+   */
+  preferredAuthServer?: string;
   display: Array<DisplayInfo>;
 };
 
@@ -2110,19 +2132,19 @@ export type HealthControllerCheckErrors = {
     info?: {
       [key: string]: {
         status: string;
-        [key: string]: unknown | string;
+        [key: string]: unknown;
       };
     };
     error?: {
       [key: string]: {
         status: string;
-        [key: string]: unknown | string;
+        [key: string]: unknown;
       };
     };
     details?: {
       [key: string]: {
         status: string;
-        [key: string]: unknown | string;
+        [key: string]: unknown;
       };
     };
   };
@@ -2140,19 +2162,19 @@ export type HealthControllerCheckResponses = {
     info?: {
       [key: string]: {
         status: string;
-        [key: string]: unknown | string;
+        [key: string]: unknown;
       };
     };
     error?: {
       [key: string]: {
         status: string;
-        [key: string]: unknown | string;
+        [key: string]: unknown;
       };
     };
     details?: {
       [key: string]: {
         status: string;
-        [key: string]: unknown | string;
+        [key: string]: unknown;
       };
     };
   };

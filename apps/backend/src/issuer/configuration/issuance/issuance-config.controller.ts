@@ -4,6 +4,7 @@ import { Role } from "../../../auth/roles/role.enum";
 import { Secured } from "../../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../../auth/token.decorator";
 import { IssuanceDto } from "./dto/issuance.dto";
+import { IssuanceConfig } from "./entities/issuance-config.entity";
 import { IssuanceService } from "./issuance.service";
 
 @ApiTags("Issuer")
@@ -17,7 +18,9 @@ export class IssuanceConfigController {
      * @returns
      */
     @Get()
-    getIssuanceConfigurations(@Token() user: TokenPayload) {
+    getIssuanceConfigurations(
+        @Token() user: TokenPayload,
+    ): Promise<IssuanceConfig> {
         return this.issuanceService
             .getIssuanceConfiguration(user.entity!.id)
             .catch(() =>

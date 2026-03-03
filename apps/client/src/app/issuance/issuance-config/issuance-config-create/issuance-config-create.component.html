@@ -93,6 +93,22 @@
             <mat-icon>add</mat-icon> Add Authorization Server
           </button>
         </div>
+
+        <!-- Preferred Authorization Server -->
+        <mat-form-field>
+          <mat-label>Preferred Authorization Server</mat-label>
+          <mat-select formControlName="preferredAuthServer">
+            <mat-option value="">None (use default order)</mat-option>
+            @for (option of availableAuthServerOptions; track option.value) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+          </mat-select>
+          <mat-icon matSuffix>star</mat-icon>
+          <mat-hint
+            >The preferred AS is placed first in the issuer metadata. Wallets typically use the
+            first AS for wallet-initiated flows.</mat-hint
+          >
+        </mat-form-field>
       </mat-card-content>
     </mat-card>
 

@@ -217,6 +217,27 @@ export class Oid4vciService {
             await this.authzService.authzMetadata(tenantId),
         );
 
+        // Reorder so the preferred authorization server is first
+        if (issuanceConfig.preferredAuthServer) {
+            let preferred: string;
+            if (issuanceConfig.preferredAuthServer === "built-in") {
+                preferred = this.authzService.getAuthzIssuer(tenantId);
+            } else if (issuanceConfig.preferredAuthServer === "chained-as") {
+                preferred = `${credential_issuer}/chained-as`;
+            } else {
+                preferred = issuanceConfig.preferredAuthServer;
+            }
+
+            const idx = authServers.indexOf(preferred);
+            if (idx > 0) {
+                // Move the preferred AS (and its metadata) to the front
+                const [url] = authServers.splice(idx, 1);
+                const [meta] = authorizationServers.splice(idx, 1);
+                authServers.unshift(url);
+                authorizationServers.unshift(meta);
+            }
+        }
+
         // Check if status list aggregation is enabled for this tenant
         const statusListConfig =
             await this.statusListConfigService.getEffectiveConfig(tenantId);

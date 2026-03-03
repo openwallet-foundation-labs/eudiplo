@@ -1045,7 +1045,7 @@ export const sessionEventsControllerSubscribeToSessionEvents = <
   >({ url: "/session/{id}/events", ...options });
 
 /**
- * Returns the issuance configurations for this tenant.
+ * Returns the issuance configurations for this tenant. Creates a default one if it does not exist.
  */
 export const issuanceConfigControllerGetIssuanceConfigurations = <
   ThrowOnError extends boolean = true,
