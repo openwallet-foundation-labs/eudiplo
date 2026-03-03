@@ -212,8 +212,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="20"
-                                    class="link-to-prism">src/issuer/configuration/issuance/issuance-config.controller.ts:20</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="21"
+                                    class="link-to-prism">src/issuer/configuration/issuance/issuance-config.controller.ts:21</a></div>
                         </td>
                     </tr>
 
@@ -251,7 +251,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>        <code><a href="../classes/IssuanceConfig.html" target="_self" >Promise&lt;IssuanceConfig&gt;</a></code>
 
                         </div>
                             <div class="io-description">
@@ -290,8 +290,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="37"
-                                    class="link-to-prism">src/issuer/configuration/issuance/issuance-config.controller.ts:37</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="40"
+                                    class="link-to-prism">src/issuer/configuration/issuance/issuance-config.controller.ts:40</a></div>
                         </td>
                     </tr>
 
@@ -361,6 +361,7 @@ import { Role } from &quot;../../../auth/roles/role.enum&quot;;
 import { Secured } from &quot;../../../auth/secure.decorator&quot;;
 import { Token, TokenPayload } from &quot;../../../auth/token.decorator&quot;;
 import { IssuanceDto } from &quot;./dto/issuance.dto&quot;;
+import { IssuanceConfig } from &quot;./entities/issuance-config.entity&quot;;
 import { IssuanceService } from &quot;./issuance.service&quot;;
 
 @ApiTags(&quot;Issuer&quot;)
@@ -374,7 +375,9 @@ export class IssuanceConfigController {
      * @returns
      */
     @Get()
-    getIssuanceConfigurations(@Token() user: TokenPayload) {
+    getIssuanceConfigurations(
+        @Token() user: TokenPayload,
+    ): Promise&lt;IssuanceConfig&gt; {
         return this.issuanceService
             .getIssuanceConfiguration(user.entity!.id)
             .catch(() &#x3D;&gt;
