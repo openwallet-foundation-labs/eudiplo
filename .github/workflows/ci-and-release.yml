@@ -317,7 +317,8 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: oidf-test-results
-          path: apps/backend/logs/
+          path: tmp/oidf-logs
+          if-no-files-found: ignore
 
   # =============================================================================
   # Docker Backend: Build, Test & Push (multi-platform with native runners)
