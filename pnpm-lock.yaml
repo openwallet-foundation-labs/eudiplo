@@ -191,7 +191,7 @@ importers:
         version: 6.1.3
       jwks-rsa:
         specifier: ^4.0.0
-        version: 4.0.0
+        version: 4.0.1
       multer:
         specifier: ^2.1.0
         version: 2.1.0
@@ -6695,8 +6695,8 @@ packages:
   jwa@2.0.1:
     resolution: {integrity: sha512-hRF04fqJIP8Abbkq5NKGN0Bbr3JxlQ+qhZufXVr0DvujKy93ZCbXZMHDL4EOtodSbCWxOqR8MS1tXA5hwqCXDg==}
 
-  jwks-rsa@4.0.0:
-    resolution: {integrity: sha512-2t8w6mP+CBlFdTTg/DkP/Ex7+rs7ouz62V606l6+jzv5QlwAq0I5LTfLPhZAdlCJGf0zZULa7W9Z+9qo2MZ3sw==}
+  jwks-rsa@4.0.1:
+    resolution: {integrity: sha512-poXwUA8S4cP9P5N8tZS3xnUDJH8WmwSGfKK9gIaRPdjLHyJtd9iX/cngX9CUIe0Caof5JhK2EbN7N5lnnaf9NA==}
     engines: {node: ^20.19.0 || ^22.12.0 || >= 23.0.0}
 
   jws@4.0.1:
@@ -6900,8 +6900,8 @@ packages:
     resolution: {integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA==}
     engines: {node: '>=10'}
 
-  lru-memoizer@2.3.0:
-    resolution: {integrity: sha512-GXn7gyHAMhO13WSKrIiNfztwxodVsP8IoZ3XfrJV4yH2x0/OeTO/FIaAHTY5YekdGgW94njfuKmyyt1E0mR6Ug==}
+  lru-memoizer@3.0.0:
+    resolution: {integrity: sha512-m83w/cYXLdUIboKSPxzPAGfYnk+vqeDYXuoSrQRw1q+yVEd8IXhvMufN8Q5TIPe7e2jyX4SRNrDJI2Skw1yznQ==}
 
   lru.min@1.1.4:
     resolution: {integrity: sha512-DqC6n3QQ77zdFpCMASA1a3Jlb64Hv2N2DciFGkO/4L9+q/IpIAuRlKOvCXabtRW6cQf8usbmM6BE/TOPysCdIA==}
@@ -17106,13 +17106,13 @@ snapshots:
       ecdsa-sig-formatter: 1.0.11
       safe-buffer: 5.2.1
 
-  jwks-rsa@4.0.0:
+  jwks-rsa@4.0.1:
     dependencies:
       '@types/jsonwebtoken': 9.0.10
       debug: 4.4.3
       jose: 6.1.3
       limiter: 1.1.5
-      lru-memoizer: 2.3.0
+      lru-memoizer: 3.0.0
     transitivePeerDependencies:
       - supports-color
 
@@ -17348,11 +17348,12 @@ snapshots:
   lru-cache@6.0.0:
     dependencies:
       yallist: 4.0.0
+    optional: true
 
-  lru-memoizer@2.3.0:
+  lru-memoizer@3.0.0:
     dependencies:
       lodash.clonedeep: 4.5.0
-      lru-cache: 6.0.0
+      lru-cache: 11.2.6
 
   lru.min@1.1.4: {}
 
