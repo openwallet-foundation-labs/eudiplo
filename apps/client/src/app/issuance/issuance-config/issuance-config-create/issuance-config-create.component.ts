@@ -71,6 +71,7 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
     this.form = new FormGroup({
       display: this.fb.array([]),
       authServers: this.fb.array([]),
+      preferredAuthServer: new FormControl(''),
       batchSize: new FormControl(1, [Validators.min(1)]),
       dPopRequired: new FormControl(false),
       walletAttestationRequired: new FormControl(false),
@@ -183,6 +184,7 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
         batchSize: config.batchSize,
         dPopRequired: config.dPopRequired,
         walletAttestationRequired: config.walletAttestationRequired ?? false,
+        preferredAuthServer: config.preferredAuthServer ?? '',
       });
 
       // Load Chained AS config if present
@@ -240,6 +242,7 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
       display: formValue.display,
       dPopRequired: formValue.dPopRequired,
       authServers: formValue.authServers?.length > 0 ? formValue.authServers : undefined,
+      preferredAuthServer: formValue.preferredAuthServer || undefined,
       walletAttestationRequired: formValue.walletAttestationRequired,
       walletProviderTrustLists:
         formValue.walletProviderTrustLists?.length > 0
@@ -315,6 +318,25 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
 
   get chainedAsEnabled(): boolean {
     return this.chainedAs.get('enabled')?.value ?? false;
+  }
+
+  /**
+   * Build the list of available authorization server options for the preferred AS dropdown.
+   * Includes external auth servers, chained AS (if enabled), and the built-in AS.
+   */
+  get availableAuthServerOptions(): { value: string; label: string }[] {
+    const options: { value: string; label: string }[] = [];
+    const servers = this.authServers.value as string[];
+    for (const url of servers) {
+      if (url) {
+        options.push({ value: url, label: url });
+      }
+    }
+    if (this.chainedAsEnabled) {
+      options.push({ value: 'chained-as', label: 'Chained Authorization Server' });
+    }
+    options.push({ value: 'built-in', label: 'Built-in Authorization Server' });
+    return options;
   }
 
   addWalletProviderTrustList(): void {

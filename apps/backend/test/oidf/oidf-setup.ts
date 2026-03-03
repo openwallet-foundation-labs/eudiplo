@@ -27,6 +27,11 @@ import { afterAll, beforeAll } from "vitest";
 
 const TEST_DB_PATH = resolve(__dirname, "../../../tmp/service.db");
 
+const TAG = "22c67e745";
+
+const FAPI_IMAGE = `ghcr.io/cre8/oidf-conformance-suite-publisher/server:${TAG}`;
+const HTTP_IMAGE = `ghcr.io/cre8/oidf-conformance-suite-publisher/httpd:${TAG}`;
+
 let network: StartedNetwork | undefined;
 let mongoDb: StartedTestContainer | undefined;
 let containerServer: StartedTestContainer | undefined;
@@ -58,9 +63,7 @@ async function setupOidfContainers(): Promise<void> {
 
         // Start the FAPI test suite server (depends on MongoDB)
         console.log("Starting FAPI test suite server container...");
-        containerServer = await new GenericContainer(
-            "ghcr.io/cre8/oidf-conformance-suite-publisher/server:latest",
-        )
+        containerServer = await new GenericContainer(FAPI_IMAGE)
             .withNetwork(network)
             .withNetworkAliases("server")
             .withName("fapi-test-suite-server")
@@ -78,9 +81,7 @@ async function setupOidfContainers(): Promise<void> {
         console.log("FAPI test suite server container started");
 
         // Start httpd (depends on server)
-        containerHttp = await new GenericContainer(
-            "ghcr.io/cre8/oidf-conformance-suite-publisher/httpd:latest",
-        )
+        containerHttp = await new GenericContainer(HTTP_IMAGE)
             .withNetwork(network)
             .withName("fapi-test-suite-httpd")
             .withLabels(projectLabels)
@@ -116,7 +117,7 @@ async function teardownOidfContainers(): Promise<void> {
     // Stop containers in reverse order of startup, with force removal
     try {
         if (containerHttp) {
-            await containerHttp.stop({ remove: true, removeVolumes: true });
+            await containerHttp!.stop({ remove: true, removeVolumes: true });
             console.log("Stopped httpd container");
         }
     } catch (error) {
@@ -125,7 +126,7 @@ async function teardownOidfContainers(): Promise<void> {
 
     try {
         if (containerServer) {
-            await containerServer.stop({ remove: true, removeVolumes: true });
+            await containerServer!.stop({ remove: true, removeVolumes: true });
             console.log("Stopped server container");
         }
     } catch (error) {
@@ -134,7 +135,7 @@ async function teardownOidfContainers(): Promise<void> {
 
     try {
         if (mongoDb) {
-            await mongoDb.stop({ remove: true, removeVolumes: true });
+            await mongoDb!.stop({ remove: true, removeVolumes: true });
             console.log("Stopped MongoDB container");
         }
     } catch (error) {
@@ -146,7 +147,7 @@ async function teardownOidfContainers(): Promise<void> {
 
     try {
         if (network) {
-            await network.stop();
+            await network!.stop();
             console.log("Stopped network");
         }
     } catch (error) {

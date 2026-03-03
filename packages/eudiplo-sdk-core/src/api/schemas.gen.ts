@@ -1545,6 +1545,11 @@ export const DisplayInfoSchema = {
 export const IssuanceConfigSchema = {
   type: "object",
   properties: {
+    signingKeyId: {
+      type: "string",
+      description:
+        "Key ID for signing access tokens. If unset, the default signing key is used.",
+    },
     chainedAs: {
       description:
         "Configuration for Chained Authorization Server mode.\nWhen enabled, EUDIPLO acts as an OAuth AS facade, delegating user authentication\nto an upstream OIDC provider while issuing its own tokens with issuer_state.",
@@ -1592,6 +1597,11 @@ export const IssuanceConfigSchema = {
         type: "string",
       },
     },
+    preferredAuthServer: {
+      type: "string",
+      description:
+        'The URL of the preferred authorization server for wallet-initiated flows.\nWhen set, this AS is placed first in the `authorization_servers` array\nof the credential issuer metadata, signaling wallets to use it by default.\nMust match one of the configured auth servers, the chained AS URL, or "built-in".',
+    },
     display: {
       type: "array",
       items: {
@@ -1615,6 +1625,11 @@ export const IssuanceConfigSchema = {
 export const IssuanceDtoSchema = {
   type: "object",
   properties: {
+    signingKeyId: {
+      type: "string",
+      description:
+        "Key ID for signing access tokens. If unset, the default signing key is used.",
+    },
     chainedAs: {
       description:
         "Configuration for Chained Authorization Server mode.\nWhen enabled, EUDIPLO acts as an OAuth AS facade, delegating user authentication\nto an upstream OIDC provider while issuing its own tokens with issuer_state.",
@@ -1653,6 +1668,11 @@ export const IssuanceDtoSchema = {
       items: {
         type: "string",
       },
+    },
+    preferredAuthServer: {
+      type: "string",
+      description:
+        'The URL of the preferred authorization server for wallet-initiated flows.\nWhen set, this AS is placed first in the `authorization_servers` array\nof the credential issuer metadata, signaling wallets to use it by default.\nMust match one of the configured auth servers, the chained AS URL, or "built-in".',
     },
     display: {
       type: "array",

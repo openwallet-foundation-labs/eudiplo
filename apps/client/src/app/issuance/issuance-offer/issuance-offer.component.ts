@@ -277,10 +277,10 @@ export class IssuanceOfferComponent implements OnInit {
           flow === 'authorization_code_external' && this.isChainedAsEnabled
             ? 'chained'
             : 'external',
-        // Pre-select first AS for external AS flow
+        // Pre-select preferred AS if set, otherwise fall back to first available
         authorization_server:
           flow === 'authorization_code_external' && this.availableAuthServers.length > 0
-            ? this.availableAuthServers[0]
+            ? this.getDefaultAuthServer()
             : '',
         tx_code: '',
       });
@@ -294,6 +294,13 @@ export class IssuanceOfferComponent implements OnInit {
     this.issuanceConfigService.getConfig().then((config) => {
       this.issuanceConfig = config;
       this.availableAuthServers = config?.authServers || [];
+
+      // Pre-select preferred AS if set and we're already on auth-code-external flow
+      if (this.isAuthCodeExternalFlow && this.availableAuthServers.length > 0) {
+        this.configStepForm.patchValue({
+          authorization_server: this.getDefaultAuthServer(),
+        });
+      }
     });
   }
 
@@ -392,6 +399,18 @@ export class IssuanceOfferComponent implements OnInit {
         claimsGroup.addControl(elementId, new UntypedFormGroup({}));
       }
     }
+  }
+
+  /**
+   * Returns the preferred auth server URL if it's in the available list,
+   * otherwise falls back to the first available auth server.
+   */
+  private getDefaultAuthServer(): string {
+    const preferred = this.issuanceConfig?.preferredAuthServer;
+    if (preferred && this.availableAuthServers.includes(preferred)) {
+      return preferred;
+    }
+    return this.availableAuthServers[0] || '';
   }
 
   getForm(id: string) {
