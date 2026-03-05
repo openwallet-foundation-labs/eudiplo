@@ -9,7 +9,12 @@ import {
     Req,
     Res,
 } from "@nestjs/common";
-import { ApiBody, ApiExcludeController, ApiTags } from "@nestjs/swagger";
+import {
+    ApiBody,
+    ApiConsumes,
+    ApiExcludeController,
+    ApiTags,
+} from "@nestjs/swagger";
 import type { Request, Response } from "express";
 import { SessionService } from "../../../../session/session.service";
 import { AuthorizeService } from "./authorize.service";
@@ -57,6 +62,7 @@ export class AuthorizeController {
         description: "Pushed Authorization Request",
         type: AuthorizeQueries,
     })
+    @ApiConsumes("application/x-www-form-urlencoded")
     @Post("par")
     async par(@Body() body: AuthorizeQueries): Promise<ParResponseDto> {
         const request_uri = `urn:${randomUUID()}`;
