@@ -23,18 +23,21 @@ import { KmsAdapter, KmsProviderCapabilities } from "../kms-adapter";
 /**
  * Maps internal algorithm types to AWS KMS signing algorithms.
  */
-const ALG_TO_KMS_SIGNING: Record<CryptoType, SigningAlgorithmSpec> = {
+const ALG_TO_KMS_SIGNING: Partial<Record<CryptoType, SigningAlgorithmSpec>> = {
     ES256: SigningAlgorithmSpec.ECDSA_SHA_256,
-    Ed25519: SigningAlgorithmSpec.ECDSA_SHA_256, // AWS KMS doesn't support Ed25519 directly, fallback
 };
 
 /**
  * Maps internal algorithm types to AWS KMS key specs.
  */
-const ALG_TO_KEY_SPEC: Record<CryptoType, KeySpec> = {
+const ALG_TO_KEY_SPEC: Partial<Record<CryptoType, KeySpec>> = {
     ES256: KeySpec.ECC_NIST_P256,
-    Ed25519: KeySpec.ECC_NIST_P256, // AWS KMS doesn't support Ed25519, fallback to P256
 };
+
+/**
+ * Algorithms supported by the AWS KMS adapter.
+ */
+const SUPPORTED_ALGORITHMS: CryptoType[] = ["ES256"];
 
 /**
  * AWS KMS-backed key management adapter.
@@ -56,6 +59,15 @@ export class AwsKmsKeyService extends KmsAdapter {
         secretAccessKey?: string,
     ) {
         super();
+
+        // Validate that the configured algorithm is supported by AWS KMS
+        const alg = cryptoService.getAlg();
+        if (!SUPPORTED_ALGORITHMS.includes(alg)) {
+            throw new Error(
+                `AWS KMS adapter does not support algorithm "${alg}". ` +
+                    `Supported algorithms: ${SUPPORTED_ALGORITHMS.join(", ")}.`,
+            );
+        }
 
         // Configure the KMS client
         // If credentials are not provided, the SDK will use the default credential chain
@@ -330,7 +342,9 @@ export class AwsKmsKeyService extends KmsAdapter {
         // For P-256 ECDSA signatures, the SEQUENCE length is encoded in short form
         // and fits in a single byte. Reject long-form lengths to avoid misparsing.
         if (der[1] & 0x80) {
-            throw new Error("Invalid DER signature: unsupported long-form SEQUENCE length");
+            throw new Error(
+                "Invalid DER signature: unsupported long-form SEQUENCE length",
+            );
         }
 
         let offset = 2; // Skip SEQUENCE tag and (short-form) length
