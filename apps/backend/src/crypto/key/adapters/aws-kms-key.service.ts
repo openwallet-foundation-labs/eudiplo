@@ -327,8 +327,13 @@ export class AwsKmsKeyService extends KmsAdapter {
             throw new Error("Invalid DER signature: expected SEQUENCE");
         }
 
-        let offset = 2; // Skip SEQUENCE tag and length
+        // For P-256 ECDSA signatures, the SEQUENCE length is encoded in short form
+        // and fits in a single byte. Reject long-form lengths to avoid misparsing.
+        if (der[1] & 0x80) {
+            throw new Error("Invalid DER signature: unsupported long-form SEQUENCE length");
+        }
 
+        let offset = 2; // Skip SEQUENCE tag and (short-form) length
         // Parse r
         if (der[offset] !== 0x02) {
             throw new Error("Invalid DER signature: expected INTEGER for r");
