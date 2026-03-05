@@ -73,13 +73,37 @@ export abstract class KmsAdapter {
         keyId?: string,
     ): Promise<JWK | string>;
 
-    /** Sign a JWT. */
-    abstract signJWT(
+    /**
+     * Sign raw data (typically the signing input of a JWT: header.payload).
+     * Returns the signature as a base64url-encoded string.
+     */
+    abstract sign(
+        value: string,
+        tenantId: string,
+        keyId?: string,
+    ): Promise<string>;
+
+    /**
+     * Sign a JWT.
+     * Default implementation encodes header/payload and delegates to sign().
+     */
+    async signJWT(
         payload: JWTPayload,
         header: JWSHeaderParameters,
         tenantId: string,
         keyId?: string,
-    ): Promise<string>;
+    ): Promise<string> {
+        const encodedHeader = Buffer.from(JSON.stringify(header)).toString(
+            "base64url",
+        );
+        const encodedPayload = Buffer.from(JSON.stringify(payload)).toString(
+            "base64url",
+        );
+        const signingInput = `${encodedHeader}.${encodedPayload}`;
+
+        const signature = await this.sign(signingInput, tenantId, keyId);
+        return `${encodedHeader}.${encodedPayload}.${signature}`;
+    }
 
     /** Delete a key from this KMS. */
     abstract deleteKey(tenantId: string, keyId: string): Promise<void>;

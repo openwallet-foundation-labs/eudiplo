@@ -6,9 +6,6 @@ import {
     importJWK,
     JWK,
     JWK_EC_Private,
-    JWTHeaderParameters,
-    JWTPayload,
-    SignJWT,
 } from "jose";
 import { Repository } from "typeorm";
 import { v4 } from "uuid";
@@ -191,20 +188,17 @@ export class DBKeyService extends KmsAdapter {
         }
     }
 
-    async signJWT(
-        payload: JWTPayload,
-        header: JWTHeaderParameters,
+    /**
+     * Sign raw data using the private key.
+     * Returns the signature as a base64url-encoded string.
+     */
+    async sign(
+        value: string,
         tenantId: string,
         keyId?: string,
     ): Promise<string> {
-        const privateKey = await this.getPrivateKey(tenantId, keyId);
-        const privateKeyInstance = (await importJWK(
-            privateKey,
-            this.cryptoService.getAlg(),
-        )) as CryptoKey;
-        return new SignJWT(payload)
-            .setProtectedHeader(header)
-            .sign(privateKeyInstance);
+        const signer = await this.signer(tenantId, keyId);
+        return signer(value);
     }
 
     async deleteKey(tenantId: string, keyId: string): Promise<void> {

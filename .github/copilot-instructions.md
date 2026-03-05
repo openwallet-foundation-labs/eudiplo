@@ -74,7 +74,7 @@
 
 ## Security
 - Always use **async key loaders** — never read keys synchronously.
-- Primary algorithm: **ES256 (ECDSA P-256)**. Also supported: ES384, ES512, EdDSA.
+- Primary algorithm: **ES256 (ECDSA P-256)**.
 - Always validate `aud`, `iss`, `exp`, `nbf`, and schema compliance in token verification.
 - Never log secrets, tokens, private keys, or user PII.
 

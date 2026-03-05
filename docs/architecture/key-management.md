@@ -6,6 +6,14 @@ configured in a single `kms.json` file inside the config folder.
 
 > 💡 **Encryption operations** always use database-stored keys and are independent from the KMS providers configured for signing.
 
+## Available Providers
+
+| Provider                            | Type     | Description                            | Import Support |
+| ----------------------------------- | -------- | -------------------------------------- | -------------- |
+| [`db`](#database-key-management-db) | Built-in | Keys stored encrypted in the database  | ✅ Yes         |
+| [`vault`](#vault-hashicorp-vault)   | Built-in | HashiCorp Vault Transit secrets engine | ❌ No          |
+| [`aws-kms`](#aws-kms)               | Built-in | AWS Key Management Service             | ❌ No          |
+
 ## Configuration
 
 KMS providers are configured in `<CONFIG_FOLDER>/kms.json`. If no file is found,
@@ -19,6 +27,9 @@ a single `db` provider is registered automatically.
         "vault": {
             "vaultUrl": "http://localhost:8200",
             "vaultToken": "your-vault-token"
+        },
+        "aws-kms": {
+            "region": "eu-central-1"
         }
     }
 }
@@ -124,29 +135,109 @@ usage is required.
 
 ---
 
+## AWS KMS
+
+To use [AWS Key Management Service](https://aws.amazon.com/kms/) for key management,
+add an `aws-kms` entry to the `providers` section of `kms.json`:
+
+```json
+{
+    "defaultProvider": "aws-kms",
+    "providers": {
+        "db": {},
+        "aws-kms": {
+            "region": "eu-central-1"
+        }
+    }
+}
+```
+
+| Field             | Description                                                                   |
+| ----------------- | ----------------------------------------------------------------------------- |
+| `region`          | AWS region where KMS keys will be created (required).                         |
+| `accessKeyId`     | AWS access key ID (optional — uses SDK credential chain if not provided).     |
+| `secretAccessKey` | AWS secret access key (optional — uses SDK credential chain if not provided). |
+
+You can use environment-variable placeholders to avoid storing secrets in the
+config file:
+
+```json
+{
+    "region": "${AWS_REGION}",
+    "accessKeyId": "${AWS_ACCESS_KEY_ID}",
+    "secretAccessKey": "${AWS_SECRET_ACCESS_KEY}"
+}
+```
+
+### Authentication
+
+If `accessKeyId` and `secretAccessKey` are not provided, the adapter uses the
+[AWS SDK default credential chain](https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/setting-credentials-node.html),
+which supports:
+
+- Environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`)
+- Shared credentials file (`~/.aws/credentials`)
+- IAM roles for EC2/ECS/Lambda
+- Web identity tokens (EKS IRSA)
+
+This is the recommended approach for production deployments.
+
+### Key Creation
+
+Keys are created as **asymmetric ECC_NIST_P256** keys with `SIGN_VERIFY` usage.
+Each key is tagged with:
+
+- `TenantId` — the tenant identifier
+- `LocalKeyId` — the local key ID stored in the database
+- `ManagedBy` — set to `eudiplo`
+
+### Key Deletion
+
+When deleting a key, AWS KMS schedules it for deletion with a **7-day pending
+window** (the minimum allowed by AWS). The local database reference is removed
+immediately.
+
+In this mode:
+
+- All **signing operations** are delegated to AWS KMS via its API.
+- The **private key never leaves** AWS KMS.
+- A **stub key entity** is stored in the database for tracking purposes (no
+  private key material).
+- Access can be controlled using AWS IAM policies and KMS key policies.
+
+AWS KMS is well-suited for production environments on AWS where you need
+HSM-backed keys, audit logging via CloudTrail, and fine-grained access control.
+
+> ⚠️ **Note**: AWS KMS does not support importing EC keys. Use `create` to
+> generate new keys directly in AWS KMS.
+
+---
+
 ## Extensibility
 
 The key management system is designed to be **extensible**. You can integrate
 other key management backends such as:
 
-- 🔐 AWS KMS
+- ✅ AWS KMS (built-in)
 - 🔐 Azure Key Vault
 - 🔐 Google Cloud KMS
 - 🔐 Hardware Security Modules (HSMs)
 
 To add a new backend:
 
-1. Create a new class extending `KmsAdapter` (see `vault-key.service.ts` for
-   reference).
+1. Create a new class extending `KmsAdapter` (see `aws-kms-key.service.ts` or
+   `vault-key.service.ts` for reference).
 2. Register a factory function for the new type in `kms-adapter.factory.ts`.
-3. Add the provider entry to `kms.json`:
+3. Add a config DTO in `dto/kms-config.dto.ts`.
+4. Add the provider entry to `kms.json`:
 
 ```json
 {
     "providers": {
-        "awskms": {
-            "region": "eu-central-1",
-            "keyArn": "arn:aws:kms:..."
+        "azure-kv": {
+            "vaultUrl": "https://my-vault.vault.azure.net",
+            "tenantId": "...",
+            "clientId": "..."
         }
     }
 }

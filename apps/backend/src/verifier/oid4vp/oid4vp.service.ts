@@ -164,7 +164,7 @@ export class Oid4vpService {
                         },
                         vp_formats_supported: {
                             mso_mdoc: {
-                                alg: ["ES256", "Ed25519"],
+                                alg: ["ES256"],
                             },
                             "dc+sd-jwt": {
                                 "kb-jwt_alg_values":

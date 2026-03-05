@@ -69,6 +69,16 @@ export class KeyEntity {
     kmsProvider!: string;
 
     /**
+     * External key identifier for cloud KMS providers (e.g., AWS KMS Key ID, Azure Key Vault Key ID).
+     * This field stores the provider-specific key reference, keeping it separate from the JWK.
+     * Only populated for keys managed by external KMS providers (not for "db" provider).
+     */
+    @IsString()
+    @IsOptional()
+    @Column("varchar", { nullable: true })
+    externalKeyId?: string;
+
+    /**
      * Certificates associated with this key.
      */
     @OneToMany(

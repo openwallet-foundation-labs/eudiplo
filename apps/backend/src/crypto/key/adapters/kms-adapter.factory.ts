@@ -5,6 +5,7 @@ import { Repository } from "typeorm";
 import { CryptoImplementationService } from "../crypto-implementation/crypto-implementation.service";
 import { KeyEntity } from "../entities/keys.entity";
 import { KmsAdapter } from "../kms-adapter";
+import { AwsKmsKeyService } from "./aws-kms-key.service";
 import { DBKeyService } from "./db-key.service";
 import { VaultKeyService } from "./vault-key.service";
 
@@ -31,7 +32,7 @@ type KmsAdapterFactoryFn = (
  * Supported KMS adapter type names.
  * When adding a new adapter, add its type here and register its factory below.
  */
-export const KMS_ADAPTER_TYPES = ["db", "vault"] as const;
+export const KMS_ADAPTER_TYPES = ["db", "vault", "aws-kms"] as const;
 export type KmsAdapterType = (typeof KMS_ADAPTER_TYPES)[number];
 
 /**
@@ -64,6 +65,25 @@ const ADAPTER_FACTORIES: Record<string, KmsAdapterFactoryFn> = {
             vaultToken,
             deps.cryptoService,
             deps.keyRepository,
+        );
+    },
+
+    "aws-kms": (config, deps) => {
+        const region = config.region as string;
+
+        if (!region) {
+            throw new Error('AWS KMS provider requires "region" in kms.json.');
+        }
+
+        const accessKeyId = config.accessKeyId as string | undefined;
+        const secretAccessKey = config.secretAccessKey as string | undefined;
+
+        return new AwsKmsKeyService(
+            deps.cryptoService,
+            deps.keyRepository,
+            region,
+            accessKeyId,
+            secretAccessKey,
         );
     },
 };

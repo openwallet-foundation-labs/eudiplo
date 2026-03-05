@@ -4,14 +4,13 @@ import { jwaSignatureAlgorithmToFullySpecifiedCoseAlgorithm } from "@openid4vc/o
 import { ES256 } from "@sd-jwt/crypto-nodejs";
 import { CredentialFormat } from "../../../issuer/configuration/credentials/entities/credential.entity";
 import { CryptoImplementation } from "./crypto-implementation";
-import { ED25519 } from "./ed25519";
 
-export type CryptoType = "ES256" | "Ed25519";
+export type CryptoType = "ES256";
 
 /**
  * JOSE algorithm names used for SD-JWT VC
  */
-export type JoseAlgorithm = "ES256" | "ES384" | "ES512" | "EdDSA";
+export type JoseAlgorithm = "ES256" | "ES384" | "ES512";
 
 /**
  * COSE algorithm identifiers used for mDOC (ISO 18013-5)
@@ -22,16 +21,13 @@ export type CoseAlgorithm = number;
 
 @Injectable()
 export class CryptoImplementationService {
-    private readonly supportedAlgorithms: CryptoType[] = ["ES256", "Ed25519"];
+    private readonly supportedAlgorithms: CryptoType[] = ["ES256"];
     private readonly cryptoMap: Map<CryptoType, CryptoImplementation>;
     private cachedDefaultAlg: CryptoType | null = null;
 
     constructor(private readonly configService: ConfigService) {
         // Initialize the map of algorithms to implementations
-        this.cryptoMap = new Map([
-            ["ES256", ES256],
-            ["Ed25519", ED25519],
-        ]);
+        this.cryptoMap = new Map([["ES256", ES256]]);
     }
 
     /**
@@ -44,8 +40,8 @@ export class CryptoImplementationService {
 
     /**
      * Returns the supported algorithms based on the credential format.
-     * - For SD-JWT VC: Returns JOSE algorithm names (ES256, EdDSA)
-     * - For mDOC: Returns COSE algorithm identifiers (-7, -8)
+     * - For SD-JWT VC: Returns JOSE algorithm names (ES256)
+     * - For mDOC: Returns COSE algorithm identifiers (-7)
      * @param credentialFormat The credential format
      * @returns Array of algorithm identifiers appropriate for the format
      */
@@ -58,8 +54,6 @@ export class CryptoImplementationService {
                 switch (alg) {
                     case "ES256":
                         return "ES256";
-                    case "Ed25519":
-                        return "EdDSA";
                     default:
                         return "ES256";
                 }
@@ -105,7 +99,7 @@ export class CryptoImplementationService {
 
     /**
      * Returns the crypto implementation directly based on the JWK properties.
-     * Currently supports Ed25519 and ES256 (P-256 curve).
+     * Currently supports ES256 (P-256 curve).
      * @param jwk - JSON Web Key
      * @returns The appropriate crypto implementation
      * @throws Error if the crypto implementation cannot be determined from the JWK
@@ -113,11 +107,6 @@ export class CryptoImplementationService {
     getCryptoFromJwk(jwk: JsonWebKey): CryptoImplementation {
         if (!jwk || typeof jwk !== "object") {
             throw new Error("Invalid JWK provided");
-        }
-
-        // Check for Ed25519 curve
-        if (jwk.crv === "Ed25519") {
-            return this.cryptoMap.get("Ed25519")!;
         }
 
         // Check for ES256 (P-256 curve)
