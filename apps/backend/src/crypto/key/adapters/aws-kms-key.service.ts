@@ -118,7 +118,7 @@ export class AwsKmsKeyService extends KmsAdapter {
         );
 
         // Store a reference to the AWS key in the local database
-        // The 'key' field stores metadata including the AWS key ID
+        // The externalKeyId column stores the AWS KMS key ID separately from the JWK
         await this.keyRepository.save({
             id: localId,
             tenantId,
@@ -126,9 +126,9 @@ export class AwsKmsKeyService extends KmsAdapter {
                 kid: localId,
                 kty: "EC",
                 crv: "P-256",
-                awsKeyId, // Store the AWS KMS key ARN/ID for operations
-            } as JWK & { awsKeyId: string },
+            } as JWK,
             kmsProvider: "aws-kms",
+            externalKeyId: awsKeyId,
         });
 
         return localId;
@@ -154,7 +154,10 @@ export class AwsKmsKeyService extends KmsAdapter {
      * Get the first available key ID for this tenant.
      */
     async getKid(tenantId: string): Promise<string> {
-        const entity = await this.keyRepository.findOneByOrFail({ tenantId });
+        const entity = await this.keyRepository.findOneByOrFail({
+            tenantId,
+            kmsProvider: "aws-kms",
+        });
         return entity.id;
     }
 
@@ -173,7 +176,13 @@ export class AwsKmsKeyService extends KmsAdapter {
         keyId?: string,
     ): Promise<JWK | string> {
         const keyEntity = await this.getKeyEntity(tenantId, keyId);
-        const awsKeyId = (keyEntity.key as JWK & { awsKeyId: string }).awsKeyId;
+        const awsKeyId = keyEntity.externalKeyId;
+
+        if (!awsKeyId) {
+            throw new Error(
+                `Key ${keyEntity.id} is missing externalKeyId for AWS KMS`,
+            );
+        }
 
         const command = new GetPublicKeyCommand({
             KeyId: awsKeyId,
@@ -212,7 +221,14 @@ export class AwsKmsKeyService extends KmsAdapter {
         keyId?: string,
     ): Promise<string> {
         const keyEntity = await this.getKeyEntity(tenantId, keyId);
-        const awsKeyId = (keyEntity.key as JWK & { awsKeyId: string }).awsKeyId;
+        const awsKeyId = keyEntity.externalKeyId;
+
+        if (!awsKeyId) {
+            throw new Error(
+                `Key ${keyEntity.id} is missing externalKeyId for AWS KMS`,
+            );
+        }
+
         const alg = this.cryptoService.getAlg();
         const signingAlgorithm = ALG_TO_KMS_SIGNING[alg];
 
@@ -244,7 +260,13 @@ export class AwsKmsKeyService extends KmsAdapter {
             tenantId,
             id: keyId,
         });
-        const awsKeyId = (keyEntity.key as JWK & { awsKeyId: string }).awsKeyId;
+        const awsKeyId = keyEntity.externalKeyId;
+
+        if (!awsKeyId) {
+            throw new Error(
+                `Key ${keyId} is missing externalKeyId for AWS KMS`,
+            );
+        }
 
         // Schedule key deletion in AWS KMS (minimum 7 days pending period)
         const command = new ScheduleKeyDeletionCommand({
@@ -269,9 +291,16 @@ export class AwsKmsKeyService extends KmsAdapter {
         keyId?: string,
     ): Promise<KeyEntity> {
         if (keyId) {
-            return this.keyRepository.findOneByOrFail({ tenantId, id: keyId });
+            return this.keyRepository.findOneByOrFail({
+                tenantId,
+                id: keyId,
+                kmsProvider: "aws-kms",
+            });
         }
-        return this.keyRepository.findOneByOrFail({ tenantId });
+        return this.keyRepository.findOneByOrFail({
+            tenantId,
+            kmsProvider: "aws-kms",
+        });
     }
 
     /**
