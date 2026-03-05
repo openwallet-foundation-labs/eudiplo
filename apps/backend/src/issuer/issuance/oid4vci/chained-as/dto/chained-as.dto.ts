@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
 import { IsArray, IsOptional, IsString } from "class-validator";
 
 /**
@@ -65,6 +66,16 @@ export class ChainedAsParRequestDto {
 
     @ApiPropertyOptional({
         description: "Authorization details (JSON array)",
+    })
+    @Transform(({ value }) => {
+        if (typeof value === "string") {
+            try {
+                return JSON.parse(value);
+            } catch {
+                return value;
+            }
+        }
+        return value;
     })
     @IsArray()
     @IsOptional()
