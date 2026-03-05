@@ -11,6 +11,7 @@ import {
     Res,
 } from "@nestjs/common";
 import {
+    ApiConsumes,
     ApiHeader,
     ApiOperation,
     ApiParam,
@@ -55,6 +56,7 @@ export class ChainedAsController {
     @Public()
     @Post("par")
     @HttpCode(HttpStatus.CREATED)
+    @ApiConsumes("application/x-www-form-urlencoded")
     @ApiOperation({
         summary: "Pushed Authorization Request",
         description:
