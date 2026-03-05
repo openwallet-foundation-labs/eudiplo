@@ -174,6 +174,7 @@ This controller handles the authorization requests, token requests.</p>
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#par" >par</a>
                             </li>
@@ -228,8 +229,8 @@ This controller handles the authorization requests, token requests.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="38"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:38</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="43"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:43</a></div>
                         </td>
                     </tr>
 
@@ -309,6 +310,7 @@ This controller handles the authorization requests, token requests.</p>
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
                         <span ><b>par</b></span>
                         <a href="#par"><span class="icon ion-ios-link"></span></a>
@@ -326,14 +328,14 @@ This controller handles the authorization requests, token requests.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@ApiBody({description: &#x27;Pushed Authorization Request&#x27;, type: AuthorizeQueries})<br />@Post(&#x27;par&#x27;)<br /></code>
+                    <code>@ApiBody({description: &#x27;Pushed Authorization Request&#x27;, type: AuthorizeQueries})<br />@ApiConsumes(&#x27;application/x-www-form-urlencoded&#x27;)<br />@Post(&#x27;par&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="61"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:61</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="67"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:67</a></div>
                         </td>
                     </tr>
 
@@ -410,8 +412,8 @@ This controller handles the authorization requests, token requests.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="82"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:82</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="88"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:88</a></div>
                         </td>
                     </tr>
 
@@ -499,7 +501,12 @@ import {
     Req,
     Res,
 } from &quot;@nestjs/common&quot;;
-import { ApiBody, ApiExcludeController, ApiTags } from &quot;@nestjs/swagger&quot;;
+import {
+    ApiBody,
+    ApiConsumes,
+    ApiExcludeController,
+    ApiTags,
+} from &quot;@nestjs/swagger&quot;;
 import type { Request, Response } from &quot;express&quot;;
 import { SessionService } from &quot;../../../../session/session.service&quot;;
 import { AuthorizeService } from &quot;./authorize.service&quot;;
@@ -547,6 +554,7 @@ export class AuthorizeController {
         description: &quot;Pushed Authorization Request&quot;,
         type: AuthorizeQueries,
     })
+    @ApiConsumes(&quot;application/x-www-form-urlencoded&quot;)
     @Post(&quot;par&quot;)
     async par(@Body() body: AuthorizeQueries): Promise&lt;ParResponseDto&gt; {
         const request_uri &#x3D; &#x60;urn:${randomUUID()}&#x60;;
