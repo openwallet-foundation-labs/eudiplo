@@ -17,6 +17,9 @@
         },
         "vault": {
           "$ref": "./VaultKmsConfigDto.schema.json"
+        },
+        "aws-kms": {
+          "$ref": "./AwsKmsConfigDto.schema.json"
         }
       },
       "required": []

@@ -31,6 +31,38 @@ export class VaultKmsConfigDto {
 }
 
 /**
+ * Configuration for the AWS KMS provider.
+ * Uses AWS SDK credential chain if credentials are not provided.
+ */
+export class AwsKmsConfigDto {
+    @ApiProperty({
+        description: "AWS region for KMS. Supports ${ENV_VAR} placeholders.",
+        example: "${AWS_REGION}",
+    })
+    @IsString()
+    @IsNotEmpty()
+    region!: string;
+
+    @ApiPropertyOptional({
+        description:
+            "AWS access key ID. Optional — uses SDK credential chain if not provided. Supports ${ENV_VAR} placeholders.",
+        example: "${AWS_ACCESS_KEY_ID}",
+    })
+    @IsString()
+    @IsOptional()
+    accessKeyId?: string;
+
+    @ApiPropertyOptional({
+        description:
+            "AWS secret access key. Optional — uses SDK credential chain if not provided. Supports ${ENV_VAR} placeholders.",
+        example: "${AWS_SECRET_ACCESS_KEY}",
+    })
+    @IsString()
+    @IsOptional()
+    secretAccessKey?: string;
+}
+
+/**
  * Root DTO for kms.json.
  *
  * Provider keys act as both the provider name and the adapter type.
@@ -41,7 +73,8 @@ export class VaultKmsConfigDto {
  *   "defaultProvider": "db",
  *   "providers": {
  *     "db": {},
- *     "vault": { "vaultUrl": "${VAULT_URL}", "vaultToken": "${VAULT_TOKEN}" }
+ *     "vault": { "vaultUrl": "${VAULT_URL}", "vaultToken": "${VAULT_TOKEN}" },
+ *     "aws-kms": { "region": "${AWS_REGION}" }
  *   }
  * }
  * ```
@@ -58,12 +91,15 @@ export class KmsConfigDto {
 
     @ApiProperty({
         description:
-            "Map of provider type → provider-specific config. Keys must match a supported adapter type (e.g., db, vault).",
+            "Map of provider type → provider-specific config. Keys must match a supported adapter type (e.g., db, vault, aws-kms).",
         example: {
             db: {},
             vault: {
                 vaultUrl: "${VAULT_URL}",
                 vaultToken: "${VAULT_TOKEN}",
+            },
+            "aws-kms": {
+                region: "${AWS_REGION}",
             },
         },
     })
@@ -71,5 +107,6 @@ export class KmsConfigDto {
     providers!: {
         db?: DbKmsConfigDto;
         vault?: VaultKmsConfigDto;
+        "aws-kms"?: AwsKmsConfigDto;
     };
 }

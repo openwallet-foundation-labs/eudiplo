@@ -1,6 +1,6 @@
 import { HttpService } from "@nestjs/axios";
-import { JwtPayload, Signer } from "@sd-jwt/types";
-import { exportJWK, importSPKI, JWK, JWTHeaderParameters } from "jose";
+import { Signer } from "@sd-jwt/types";
+import { exportJWK, importSPKI, JWK } from "jose";
 import { firstValueFrom } from "rxjs";
 import { Repository } from "typeorm";
 import { v4 } from "uuid";
@@ -284,36 +284,6 @@ export class VaultKeyService extends KmsAdapter {
                 ),
             ).then((res) => res.data.data.signature.split(":")[2]),
         );
-    }
-
-    /**
-     * Creates a proof of possession jwt.
-     * @param user
-     * @param value
-     */
-    async signJWT(
-        payload: JwtPayload,
-        header: JWTHeaderParameters,
-        tenantId: string,
-        keyId?: string,
-    ): Promise<string> {
-        // Convert header and payload to Base64 to prepare for Vault
-        const encodedHeader = Buffer.from(JSON.stringify(header)).toString(
-            "base64url",
-        );
-        const encodedPayload = Buffer.from(JSON.stringify(payload)).toString(
-            "base64url",
-        );
-        const signingInput = `${encodedHeader}.${encodedPayload}`;
-
-        // Request to Vault for signing
-        try {
-            const signature = await this.sign(signingInput, tenantId, keyId);
-            return `${encodedHeader}.${encodedPayload}.${signature}`;
-        } catch (error) {
-            this.logger.error("Error signing JWT with Vault:");
-            throw error;
-        }
     }
 
     async deleteKey(tenantId: string, keyId: string): Promise<void> {
