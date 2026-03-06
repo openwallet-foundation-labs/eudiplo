@@ -36,6 +36,10 @@
       "type": "string",
       "description": "The KMS provider used for this key.\nReferences a configured KMS provider name."
     },
+    "externalKeyId": {
+      "type": "string",
+      "description": "External key identifier for cloud KMS providers (e.g., AWS KMS Key ID, Azure Key Vault Key ID).\nThis field stores the provider-specific key reference, keeping it separate from the JWK.\nOnly populated for keys managed by external KMS providers (not for \"db\" provider)."
+    },
     "certificates": {
       "description": "Certificates associated with this key.",
       "type": "array",

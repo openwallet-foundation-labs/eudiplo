@@ -498,6 +498,11 @@ export const KeyEntitySchema = {
       description:
         "The KMS provider used for this key.\nReferences a configured KMS provider name.",
     },
+    externalKeyId: {
+      type: "string",
+      description:
+        'External key identifier for cloud KMS providers (e.g., AWS KMS Key ID, Azure Key Vault Key ID).\nThis field stores the provider-specific key reference, keeping it separate from the JWK.\nOnly populated for keys managed by external KMS providers (not for "db" provider).',
+    },
     certificates: {
       description: "Certificates associated with this key.",
       type: "array",
@@ -3422,28 +3427,29 @@ export const TrustListVersionSchema = {
   ],
 } as const;
 
-export const DbKmsConfigDtoSchema = {
-  type: "object",
-  properties: {},
-} as const;
-
-export const VaultKmsConfigDtoSchema = {
+export const BaseKmsProviderConfigDtoSchema = {
   type: "object",
   properties: {
-    vaultUrl: {
+    id: {
       type: "string",
       description:
-        "URL of the HashiCorp Vault instance. Supports ${ENV_VAR} placeholders.",
-      example: "${VAULT_URL}",
+        "Unique identifier for this provider instance. Used when generating keys to specify which provider to use.",
+      example: "main-vault",
     },
-    vaultToken: {
+    type: {
       type: "string",
+      enum: ["db", "vault", "aws-kms"],
       description:
-        "Authentication token for HashiCorp Vault. Supports ${ENV_VAR} placeholders.",
-      example: "${VAULT_TOKEN}",
+        "Type of the KMS provider. Must match a supported adapter type.",
+      example: "vault",
+    },
+    description: {
+      type: "string",
+      description: "Human-readable description of this provider instance.",
+      example: "Production HashiCorp Vault for signing keys",
     },
   },
-  required: ["vaultUrl", "vaultToken"],
+  required: ["id", "type"],
 } as const;
 
 export const KmsConfigDtoSchema = {
@@ -3452,20 +3458,36 @@ export const KmsConfigDtoSchema = {
     defaultProvider: {
       type: "string",
       description:
-        'Name of the default KMS provider. Defaults to "db" if not set.',
-      example: "db",
+        'ID of the default KMS provider. Defaults to "db" if not set.',
+      example: "main-vault",
     },
     providers: {
-      type: "object",
-      properties: {
-        db: {
-          $ref: "#/components/schemas/DbKmsConfigDto",
+      description:
+        "List of KMS provider configurations. Each provider must have a unique id and a type.",
+      example: [
+        {
+          id: "db",
+          type: "db",
+          description: "Default database provider",
         },
-        vault: {
-          $ref: "#/components/schemas/VaultKmsConfigDto",
+        {
+          id: "main-vault",
+          type: "vault",
+          description: "Production Vault",
+          vaultUrl: "${VAULT_URL}",
+          vaultToken: "${VAULT_TOKEN}",
         },
+        {
+          id: "aws",
+          type: "aws-kms",
+          description: "AWS KMS",
+          region: "${AWS_REGION}",
+        },
+      ],
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/BaseKmsProviderConfigDto",
       },
-      required: [],
     },
   },
   required: ["providers"],
@@ -3498,8 +3520,18 @@ export const KmsProviderInfoDtoSchema = {
   properties: {
     name: {
       type: "string",
-      description: "Unique provider name (matches the key in kms.json).",
-      example: "db",
+      description: "Unique provider ID (matches the id in kms.json).",
+      example: "main-vault",
+    },
+    type: {
+      type: "string",
+      description: "Type of the KMS provider (db, vault, aws-kms).",
+      example: "vault",
+    },
+    description: {
+      type: "string",
+      description: "Human-readable description of this provider instance.",
+      example: "Production HashiCorp Vault",
     },
     capabilities: {
       description: "Capabilities of this provider.",
@@ -3510,7 +3542,7 @@ export const KmsProviderInfoDtoSchema = {
       ],
     },
   },
-  required: ["name", "capabilities"],
+  required: ["name", "type", "capabilities"],
 } as const;
 
 export const KmsProvidersResponseDtoSchema = {
@@ -3598,6 +3630,11 @@ export const KeyImportDtoSchema = {
       type: "string",
       description: "Description of the key.",
     },
+    externalKeyId: {
+      type: "string",
+      description:
+        'External key identifier for cloud KMS providers (e.g., AWS KMS Key ID, Azure Key Vault Key ID).\nThis field stores the provider-specific key reference, keeping it separate from the JWK.\nOnly populated for keys managed by external KMS providers (not for "db" provider).',
+    },
   },
   required: ["key", "id"],
 } as const;
@@ -3618,6 +3655,11 @@ export const UpdateKeyDtoSchema = {
     description: {
       type: "string",
       description: "Description of the key.",
+    },
+    externalKeyId: {
+      type: "string",
+      description:
+        'External key identifier for cloud KMS providers (e.g., AWS KMS Key ID, Azure Key Vault Key ID).\nThis field stores the provider-specific key reference, keeping it separate from the JWK.\nOnly populated for keys managed by external KMS providers (not for "db" provider).',
     },
   },
   required: ["id"],

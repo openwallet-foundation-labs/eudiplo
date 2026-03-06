@@ -41,9 +41,9 @@ export type KmsAdapterType = (typeof KMS_ADAPTER_TYPES)[number];
  * To add a new KMS adapter:
  * 1. Create a class extending KmsAdapter in /adapters/
  * 2. Add the type name to KMS_ADAPTER_TYPES above
- * 3. Create a typed config DTO in dto/kms-config.dto.ts
+ * 3. Create a typed config DTO in dto/kms-config.dto.ts extending BaseKmsProviderConfigDto
  * 4. Register a factory function here under that type name
- * 5. Add the provider entry in kms.json
+ * 5. Add the provider entry in kms.json with id, type, and description
  */
 const ADAPTER_FACTORIES: Record<string, KmsAdapterFactoryFn> = {
     db: (_config, deps) =>

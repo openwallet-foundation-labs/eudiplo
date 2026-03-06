@@ -32,14 +32,12 @@ import { KmsAdapter } from "./kms-adapter";
  * Example kms.json:
  * ```json
  * {
- *   "defaultProvider": "db",
- *   "providers": {
- *     "db": {},
- *     "vault": {
- *       "vaultUrl": "${VAULT_URL}",
- *       "vaultToken": "${VAULT_TOKEN}"
- *     }
- *   }
+ *   "defaultProvider": "main-vault",
+ *   "providers": [
+ *     { "id": "db", "type": "db", "description": "Default database provider" },
+ *     { "id": "main-vault", "type": "vault", "description": "Production Vault", "vaultUrl": "${VAULT_URL}", "vaultToken": "${VAULT_TOKEN}" },
+ *     { "id": "backup-vault", "type": "vault", "description": "Backup Vault", "vaultUrl": "${BACKUP_VAULT_URL}", "vaultToken": "${BACKUP_VAULT_TOKEN}" }
+ *   ]
  * }
  * ```
  */
@@ -47,6 +45,10 @@ import { KmsAdapter } from "./kms-adapter";
 export class KmsRegistry implements OnModuleInit {
     private readonly logger = new Logger(KmsRegistry.name);
     private readonly providers = new Map<string, KmsAdapter>();
+    private readonly providerMetadata = new Map<
+        string,
+        { type: string; description?: string }
+    >();
     private defaultProviderName = "db";
 
     constructor(
@@ -108,16 +110,14 @@ export class KmsRegistry implements OnModuleInit {
                 );
             }
 
-            // Register each provider (key = type, value = type-specific config)
-            for (const [type, providerConfig] of Object.entries(
-                kmsConfig.providers,
-            )) {
-                const config = (providerConfig || {}) as Record<
-                    string,
-                    unknown
-                >;
-                const adapter = createKmsAdapter(type, config, deps);
-                this.registerProvider(type, adapter);
+            // Register each provider (id = unique key, type = adapter type)
+            for (const providerConfig of kmsConfig.providers) {
+                const { id, type, description, ...config } = providerConfig;
+                const adapter = createKmsAdapter(type, config as Record<string, unknown>, deps);
+                this.registerProvider(id, adapter, { type, description });
+                if (description) {
+                    this.logger.debug(`Provider "${id}" (${type}): ${description}`);
+                }
             }
 
             // Set default (from config or "db")
@@ -151,15 +151,25 @@ export class KmsRegistry implements OnModuleInit {
      */
     private registerDefaultDbProvider(deps: KmsAdapterDeps): void {
         const adapter = createKmsAdapter("db", {}, deps);
-        this.registerProvider("db", adapter);
+        this.registerProvider("db", adapter, {
+            type: "db",
+            description: "Default database provider",
+        });
         this.setDefault("db");
     }
 
     /**
      * Register a KMS provider by name.
      */
-    registerProvider(name: string, provider: KmsAdapter): void {
+    registerProvider(
+        name: string,
+        provider: KmsAdapter,
+        metadata?: { type: string; description?: string },
+    ): void {
         this.providers.set(name, provider);
+        if (metadata) {
+            this.providerMetadata.set(name, metadata);
+        }
         this.logger.log(`Registered KMS provider: ${name}`);
     }
 
@@ -211,20 +221,27 @@ export class KmsRegistry implements OnModuleInit {
     }
 
     /**
-     * Get detailed info (name + capabilities) for every registered provider.
+     * Get detailed info (name + type + description + capabilities) for every registered provider.
      */
     getProviderInfoList(): {
         name: string;
+        type: string;
+        description?: string;
         capabilities: {
             canImport: boolean;
             canCreate: boolean;
             canDelete: boolean;
         };
     }[] {
-        return this.listProviders().map((name) => ({
-            name,
-            capabilities: this.getProvider(name).capabilities,
-        }));
+        return this.listProviders().map((name) => {
+            const metadata = this.providerMetadata.get(name);
+            return {
+                name,
+                type: metadata?.type ?? "unknown",
+                description: metadata?.description,
+                capabilities: this.getProvider(name).capabilities,
+            };
+        });
     }
 
     /**

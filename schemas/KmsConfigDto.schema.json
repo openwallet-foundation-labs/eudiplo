@@ -6,23 +6,35 @@
   "properties": {
     "defaultProvider": {
       "type": "string",
-      "description": "Name of the default KMS provider. Defaults to \"db\" if not set.",
-      "example": "db"
+      "description": "ID of the default KMS provider. Defaults to \"db\" if not set.",
+      "example": "main-vault"
     },
     "providers": {
-      "type": "object",
-      "properties": {
-        "db": {
-          "$ref": "./DbKmsConfigDto.schema.json"
+      "description": "List of KMS provider configurations. Each provider must have a unique id and a type.",
+      "example": [
+        {
+          "id": "db",
+          "type": "db",
+          "description": "Default database provider"
         },
-        "vault": {
-          "$ref": "./VaultKmsConfigDto.schema.json"
+        {
+          "id": "main-vault",
+          "type": "vault",
+          "description": "Production Vault",
+          "vaultUrl": "${VAULT_URL}",
+          "vaultToken": "${VAULT_TOKEN}"
         },
-        "aws-kms": {
-          "$ref": "./AwsKmsConfigDto.schema.json"
+        {
+          "id": "aws",
+          "type": "aws-kms",
+          "description": "AWS KMS",
+          "region": "${AWS_REGION}"
         }
-      },
-      "required": []
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "./BaseKmsProviderConfigDto.schema.json"
+      }
     }
   },
   "required": [

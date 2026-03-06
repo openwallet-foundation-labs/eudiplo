@@ -52,6 +52,7 @@ export class KeyManagementCreateComponent implements OnInit {
   public kmsProviders: KmsProviderInfoDto[] = [];
   public kmsDefault = 'db';
   public selectedProviderCanImport = true;
+  public selectedProviderDescription?: string;
 
   jwkSchema = jwkSchema;
 
@@ -114,11 +115,12 @@ export class KeyManagementCreateComponent implements OnInit {
   }
 
   /**
-   * Update capability flags based on the selected provider.
+   * Update capability flags and description based on the selected provider.
    */
   updateProviderCapabilities(providerName: string) {
     const provider = this.kmsProviders.find((p) => p.name === providerName);
     this.selectedProviderCanImport = provider?.capabilities?.canImport ?? true;
+    this.selectedProviderDescription = provider?.description;
 
     if (!this.keyId) {
       if (this.selectedProviderCanImport) {

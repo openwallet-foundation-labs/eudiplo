@@ -63,15 +63,25 @@
               <mat-select formControlName="kmsProvider">
                 @for (provider of kmsProviders; track provider.name) {
                   <mat-option [value]="provider.name">
-                    {{ provider.name }}
-                    @if (provider.name === kmsDefault) {
-                      (default)
-                    }
+                    <div class="provider-option">
+                      <span class="provider-name">
+                        {{ provider.name }}
+                        <span class="provider-type">({{ provider.type }})</span>
+                        @if (provider.name === kmsDefault) {
+                          <span class="provider-default"> - default</span>
+                        }
+                      </span>
+                      @if (provider.description) {
+                        <span class="provider-description">{{ provider.description }}</span>
+                      }
+                    </div>
                   </mat-option>
                 }
               </mat-select>
               <mat-icon matSuffix>key</mat-icon>
-              <mat-hint>Select the key management backend for this key</mat-hint>
+              <mat-hint>{{
+                selectedProviderDescription || 'Select the key management backend for this key'
+              }}</mat-hint>
             </mat-form-field>
           }
         </div>

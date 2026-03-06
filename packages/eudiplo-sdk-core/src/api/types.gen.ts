@@ -312,6 +312,12 @@ export type KeyEntity = {
    */
   kmsProvider: string;
   /**
+   * External key identifier for cloud KMS providers (e.g., AWS KMS Key ID, Azure Key Vault Key ID).
+   * This field stores the provider-specific key reference, keeping it separate from the JWK.
+   * Only populated for keys managed by external KMS providers (not for "db" provider).
+   */
+  externalKeyId?: string;
+  /**
    * Certificates associated with this key.
    */
   certificates: Array<CertEntity>;
@@ -1958,30 +1964,30 @@ export type TrustListVersion = {
   createdAt: string;
 };
 
-export type DbKmsConfigDto = {
-  [key: string]: unknown;
-};
-
-export type VaultKmsConfigDto = {
+export type BaseKmsProviderConfigDto = {
   /**
-   * URL of the HashiCorp Vault instance. Supports ${ENV_VAR} placeholders.
+   * Unique identifier for this provider instance. Used when generating keys to specify which provider to use.
    */
-  vaultUrl: string;
+  id: string;
   /**
-   * Authentication token for HashiCorp Vault. Supports ${ENV_VAR} placeholders.
+   * Type of the KMS provider. Must match a supported adapter type.
    */
-  vaultToken: string;
+  type: "db" | "vault" | "aws-kms";
+  /**
+   * Human-readable description of this provider instance.
+   */
+  description?: string;
 };
 
 export type KmsConfigDto = {
   /**
-   * Name of the default KMS provider. Defaults to "db" if not set.
+   * ID of the default KMS provider. Defaults to "db" if not set.
    */
   defaultProvider?: string;
-  providers: {
-    db?: DbKmsConfigDto;
-    vault?: VaultKmsConfigDto;
-  };
+  /**
+   * List of KMS provider configurations. Each provider must have a unique id and a type.
+   */
+  providers: Array<BaseKmsProviderConfigDto>;
 };
 
 export type KmsProviderCapabilitiesDto = {
@@ -2001,9 +2007,17 @@ export type KmsProviderCapabilitiesDto = {
 
 export type KmsProviderInfoDto = {
   /**
-   * Unique provider name (matches the key in kms.json).
+   * Unique provider ID (matches the id in kms.json).
    */
   name: string;
+  /**
+   * Type of the KMS provider (db, vault, aws-kms).
+   */
+  type: string;
+  /**
+   * Human-readable description of this provider instance.
+   */
+  description?: string;
   /**
    * Capabilities of this provider.
    */
@@ -2058,6 +2072,12 @@ export type KeyImportDto = {
    * Description of the key.
    */
   description?: string;
+  /**
+   * External key identifier for cloud KMS providers (e.g., AWS KMS Key ID, Azure Key Vault Key ID).
+   * This field stores the provider-specific key reference, keeping it separate from the JWK.
+   * Only populated for keys managed by external KMS providers (not for "db" provider).
+   */
+  externalKeyId?: string;
 };
 
 export type UpdateKeyDto = {
@@ -2073,6 +2093,12 @@ export type UpdateKeyDto = {
    * Description of the key.
    */
   description?: string;
+  /**
+   * External key identifier for cloud KMS providers (e.g., AWS KMS Key ID, Azure Key Vault Key ID).
+   * This field stores the provider-specific key reference, keeping it separate from the JWK.
+   * Only populated for keys managed by external KMS providers (not for "db" provider).
+   */
+  externalKeyId?: string;
 };
 
 export type PresentationRequest = {

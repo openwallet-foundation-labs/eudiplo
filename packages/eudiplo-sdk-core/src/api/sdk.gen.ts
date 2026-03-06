@@ -5,6 +5,7 @@ import {
   formDataBodySerializer,
   type Options as Options2,
   type TDataShape,
+  urlSearchParamsBodySerializer,
 } from "./client";
 import { client } from "./client.gen";
 import type {
@@ -1481,10 +1482,11 @@ export const authorizeControllerPar = <ThrowOnError extends boolean = true>(
     unknown,
     ThrowOnError
   >({
+    ...urlSearchParamsBodySerializer,
     url: "/{tenantId}/authorize/par",
     ...options,
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
       ...options.headers,
     },
   });
@@ -1574,10 +1576,11 @@ export const chainedAsControllerPar = <ThrowOnError extends boolean = true>(
     ChainedAsControllerParErrors,
     ThrowOnError
   >({
+    ...urlSearchParamsBodySerializer,
     url: "/{tenant}/chained-as/par",
     ...options,
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
       ...options.headers,
     },
   });

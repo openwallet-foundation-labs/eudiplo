@@ -22,29 +22,71 @@ a single `db` provider is registered automatically.
 ```json
 {
     "defaultProvider": "db",
-    "providers": {
-        "db": {},
-        "vault": {
+    "providers": [
+        { "id": "db", "type": "db", "description": "Default database provider" },
+        {
+            "id": "vault",
+            "type": "vault",
+            "description": "HashiCorp Vault",
             "vaultUrl": "http://localhost:8200",
             "vaultToken": "your-vault-token"
         },
-        "aws-kms": {
+        {
+            "id": "aws",
+            "type": "aws-kms",
+            "description": "AWS KMS",
             "region": "eu-central-1"
         }
-    }
+    ]
 }
 ```
 
-| Field             | Description                                                                            |
-| ----------------- | -------------------------------------------------------------------------------------- |
-| `defaultProvider` | Name of the provider used when no explicit `kmsProvider` is specified (default: `db`). |
-| `providers`       | Object where each key is a provider name and the value is its configuration.           |
+| Field             | Description                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| `defaultProvider` | ID of the provider used when no explicit `kmsProvider` is specified (default: `db`). |
+| `providers`       | Array of provider configurations. Each entry must have a unique `id` and a `type`.   |
+
+Each provider entry has:
+
+| Field         | Description                                                              |
+| ------------- | ------------------------------------------------------------------------ |
+| `id`          | Unique identifier for the provider instance (used when generating keys). |
+| `type`        | Adapter type: `db`, `vault`, or `aws-kms`.                               |
+| `description` | Optional human-readable description.                                     |
+| ...           | Additional type-specific configuration fields.                           |
 
 Environment-variable placeholders (`${VAULT_URL}`, `${VAULT_TOKEN:default}`) are
 resolved at startup, so secrets can still be injected through the environment.
 
 When generating or importing a key through the API, include the `kmsProvider`
-field to select a specific provider. If omitted, the `defaultProvider` is used.
+field to select a specific provider by its `id`. If omitted, the `defaultProvider` is used.
+
+### Multiple Providers of the Same Type
+
+You can configure multiple instances of the same provider type with different IDs:
+
+```json
+{
+    "defaultProvider": "main-vault",
+    "providers": [
+        { "id": "db", "type": "db" },
+        {
+            "id": "main-vault",
+            "type": "vault",
+            "description": "Production Vault",
+            "vaultUrl": "${VAULT_URL}",
+            "vaultToken": "${VAULT_TOKEN}"
+        },
+        {
+            "id": "backup-vault",
+            "type": "vault",
+            "description": "Backup Vault",
+            "vaultUrl": "${BACKUP_VAULT_URL}",
+            "vaultToken": "${BACKUP_VAULT_TOKEN}"
+        }
+    ]
+}
+```
 
 ---
 
@@ -81,18 +123,21 @@ generate a new key pair. Even when using the database mode, the private key will
 ## Vault (HashiCorp Vault)
 
 To use [HashiCorp Vault](https://www.vaultproject.io/) for key management,
-add a `vault` entry to the `providers` section of `kms.json`:
+add a `vault` entry to the `providers` array in `kms.json`:
 
 ```json
 {
     "defaultProvider": "vault",
-    "providers": {
-        "db": {},
-        "vault": {
+    "providers": [
+        { "id": "db", "type": "db" },
+        {
+            "id": "vault",
+            "type": "vault",
+            "description": "HashiCorp Vault",
             "vaultUrl": "http://localhost:8200",
             "vaultToken": "your-vault-token"
         }
-    }
+    ]
 }
 ```
 
@@ -106,6 +151,8 @@ config file:
 
 ```json
 {
+    "id": "vault",
+    "type": "vault",
     "vaultUrl": "${VAULT_URL}",
     "vaultToken": "${VAULT_TOKEN}"
 }
@@ -138,17 +185,20 @@ usage is required.
 ## AWS KMS
 
 To use [AWS Key Management Service](https://aws.amazon.com/kms/) for key management,
-add an `aws-kms` entry to the `providers` section of `kms.json`:
+add an `aws-kms` entry to the `providers` array in `kms.json`:
 
 ```json
 {
-    "defaultProvider": "aws-kms",
-    "providers": {
-        "db": {},
-        "aws-kms": {
+    "defaultProvider": "aws",
+    "providers": [
+        { "id": "db", "type": "db" },
+        {
+            "id": "aws",
+            "type": "aws-kms",
+            "description": "AWS KMS",
             "region": "eu-central-1"
         }
-    }
+    ]
 }
 ```
 
@@ -163,6 +213,8 @@ config file:
 
 ```json
 {
+    "id": "aws",
+    "type": "aws-kms",
     "region": "${AWS_REGION}",
     "accessKeyId": "${AWS_ACCESS_KEY_ID}",
     "secretAccessKey": "${AWS_SECRET_ACCESS_KEY}"
@@ -228,18 +280,21 @@ To add a new backend:
 1. Create a new class extending `KmsAdapter` (see `aws-kms-key.service.ts` or
    `vault-key.service.ts` for reference).
 2. Register a factory function for the new type in `kms-adapter.factory.ts`.
-3. Add a config DTO in `dto/kms-config.dto.ts`.
+3. Add a config DTO in `dto/kms-config.dto.ts` extending `BaseKmsProviderConfigDto`.
 4. Add the provider entry to `kms.json`:
 
 ```json
 {
-    "providers": {
-        "azure-kv": {
+    "providers": [
+        {
+            "id": "azure",
+            "type": "azure-kv",
+            "description": "Azure Key Vault",
             "vaultUrl": "https://my-vault.vault.azure.net",
             "tenantId": "...",
             "clientId": "..."
         }
-    }
+    ]
 }
 ```
 

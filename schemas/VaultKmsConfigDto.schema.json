@@ -4,6 +4,19 @@
   "title": "VaultKmsConfigDto",
   "type": "object",
   "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this provider instance."
+    },
+    "type": {
+      "type": "string",
+      "const": "vault",
+      "description": "Type of the KMS provider."
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of this provider instance."
+    },
     "vaultUrl": {
       "type": "string",
       "description": "URL of the HashiCorp Vault instance. Supports ${ENV_VAR} placeholders.",
@@ -16,6 +29,8 @@
     }
   },
   "required": [
+    "id",
+    "type",
     "vaultUrl",
     "vaultToken"
   ]

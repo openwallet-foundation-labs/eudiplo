@@ -4,6 +4,19 @@
     "title": "AwsKmsConfigDto",
     "type": "object",
     "properties": {
+        "id": {
+            "type": "string",
+            "description": "Unique identifier for this provider instance."
+        },
+        "type": {
+            "type": "string",
+            "const": "aws-kms",
+            "description": "Type of the KMS provider."
+        },
+        "description": {
+            "type": "string",
+            "description": "Human-readable description of this provider instance."
+        },
         "region": {
             "type": "string",
             "description": "AWS region for KMS. Supports ${ENV_VAR} placeholders.",
@@ -21,6 +34,8 @@
         }
     },
     "required": [
+        "id",
+        "type",
         "region"
     ]
 }
