@@ -113,10 +113,16 @@ export class KmsRegistry implements OnModuleInit {
             // Register each provider (id = unique key, type = adapter type)
             for (const providerConfig of kmsConfig.providers) {
                 const { id, type, description, ...config } = providerConfig;
-                const adapter = createKmsAdapter(type, config as Record<string, unknown>, deps);
+                const adapter = createKmsAdapter(
+                    type,
+                    config as Record<string, unknown>,
+                    deps,
+                );
                 this.registerProvider(id, adapter, { type, description });
                 if (description) {
-                    this.logger.debug(`Provider "${id}" (${type}): ${description}`);
+                    this.logger.debug(
+                        `Provider "${id}" (${type}): ${description}`,
+                    );
                 }
             }
 
