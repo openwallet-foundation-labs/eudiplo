@@ -1,6 +1,9 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
-import { CertEntity } from "./cert.entity";
+import { Column, Entity, Index } from "typeorm";
 
+/**
+ * @deprecated This entity is deprecated. Usage types are now defined at the key level
+ * using KeyUsageEntity. This entity is kept for backward compatibility during migrations.
+ */
 export enum CertUsage {
     Access = "access",
     Signing = "signing",
@@ -8,6 +11,10 @@ export enum CertUsage {
     StatusList = "statusList",
 }
 
+/**
+ * @deprecated This entity is deprecated. Usage types are now defined at the key level
+ * using KeyUsageEntity. This entity is kept for backward compatibility during migrations.
+ */
 @Entity()
 @Index(["tenantId", "usage"])
 export class CertUsageEntity {
@@ -19,15 +26,4 @@ export class CertUsageEntity {
 
     @Column("varchar", { primary: true })
     usage: CertUsage;
-
-    @ManyToOne(
-        () => CertEntity,
-        (c) => c.usages,
-        { onDelete: "CASCADE" },
-    )
-    @JoinColumn([
-        { name: "tenantId", referencedColumnName: "tenantId" },
-        { name: "certId", referencedColumnName: "id" },
-    ])
-    cert: CertEntity;
 }

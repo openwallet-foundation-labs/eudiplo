@@ -95,7 +95,7 @@
               <th mat-header-cell *matHeaderCellDef>Usage Types</th>
               <td mat-cell *matCellDef="let cert">
                 <div fxLayout="row" fxLayoutGap="8px">
-                  @for (usage of cert.usages; track usage) {
+                  @for (usage of key.usages; track usage) {
                     <mat-chip>{{ usage.usage }}</mat-chip>
                   }
                 </div>

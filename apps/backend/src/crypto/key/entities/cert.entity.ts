@@ -6,11 +6,9 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
-    OneToMany,
     UpdateDateColumn,
 } from "typeorm";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
-import { CertUsageEntity } from "./cert-usage.entity";
 import { KeyEntity } from "./keys.entity";
 
 /**
@@ -43,16 +41,6 @@ export class CertEntity {
     @IsString({ each: true })
     @Column("simple-json")
     crt!: string[];
-
-    @OneToMany(
-        () => CertUsageEntity,
-        (u) => u.cert,
-        {
-            cascade: ["insert", "update", "remove"],
-            eager: true,
-        },
-    )
-    usages!: CertUsageEntity[];
 
     /**
      * Description of the key.

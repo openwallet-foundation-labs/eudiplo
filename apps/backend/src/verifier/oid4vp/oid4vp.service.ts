@@ -8,7 +8,7 @@ import { v4 } from "uuid";
 import { EncryptionService } from "../../crypto/encryption/encryption.service";
 import { CertService } from "../../crypto/key/cert/cert.service";
 import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
-import { CertUsage } from "../../crypto/key/entities/cert-usage.entity";
+import { KeyUsageType } from "../../crypto/key/entities/key-usage.entity";
 import { KeyService } from "../../crypto/key/key.service";
 import { OfferResponse } from "../../issuer/issuance/oid4vci/dto/offer-request.dto";
 import { SessionStatus } from "../../session/entities/session.entity";
@@ -129,8 +129,8 @@ export class Oid4vpService {
 
             const cert = await this.certService.find({
                 tenantId: session.tenantId,
-                type: CertUsage.Access,
-                id: presentationConfig.accessCertId ?? undefined,
+                type: KeyUsageType.Access,
+                certId: presentationConfig.accessCertId ?? undefined,
             });
 
             const certHash = this.certService.getCertHash(cert);
@@ -255,7 +255,7 @@ export class Oid4vpService {
 
         const cert = await this.certService.find({
             tenantId: tenantId,
-            type: CertUsage.Access,
+            type: KeyUsageType.Access,
         });
 
         const certHash = this.certService.getCertHash(cert);

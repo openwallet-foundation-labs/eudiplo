@@ -1,10 +1,10 @@
 import { OmitType } from "@nestjs/swagger";
-import { IsEnum, IsOptional, IsString } from "class-validator";
+import { IsOptional, IsString } from "class-validator";
 import { CertEntity } from "../entities/cert.entity";
-import { CertUsage } from "../entities/cert-usage.entity";
 
 /**
- * DTO for creating a certificate.
+ * DTO for creating/importing a certificate.
+ * Note: Usage types are now configured at the key level, not certificate level.
  */
 export class CertImportDto extends OmitType(CertEntity, [
     "tenantId",
@@ -12,7 +12,6 @@ export class CertImportDto extends OmitType(CertEntity, [
     "key",
     "createdAt",
     "updatedAt",
-    "usages",
     "crt",
     "id",
 ] as const) {
@@ -25,12 +24,6 @@ export class CertImportDto extends OmitType(CertEntity, [
      */
     @IsString()
     keyId: string;
-
-    /**
-     * Usage types for the certificate.
-     */
-    @IsEnum(CertUsage, { each: true })
-    certUsageTypes: CertUsage[];
 
     /**
      * Certificate chain in PEM format (leaf first, then intermediates/CA).

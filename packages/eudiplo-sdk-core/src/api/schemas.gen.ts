@@ -462,6 +462,88 @@ export const CreateClientDtoSchema = {
   required: ["clientId", "roles"],
 } as const;
 
+export const CertEntitySchema = {
+  type: "object",
+  properties: {
+    keyId: {
+      type: "string",
+      description: "The key ID this certificate is associated with",
+      example: "039af178-3ca0-48f4-a2e4-7b1209f30376",
+    },
+    id: {
+      type: "string",
+      description: "Unique identifier for the key.",
+    },
+    tenantId: {
+      type: "string",
+      description: "Tenant ID for the key.",
+    },
+    tenant: {
+      description: "The tenant that owns this object.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/TenantEntity",
+        },
+      ],
+    },
+    crt: {
+      description:
+        "Certificate chain in PEM format (leaf first, then intermediates/CA).",
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+    description: {
+      type: "string",
+      description: "Description of the key.",
+    },
+    key: {
+      $ref: "#/components/schemas/KeyEntity",
+    },
+    createdAt: {
+      format: "date-time",
+      type: "string",
+      description: "The timestamp when the certificate was created.",
+    },
+    updatedAt: {
+      format: "date-time",
+      type: "string",
+      description: "The timestamp when the certificate was last updated.",
+    },
+  },
+  required: [
+    "keyId",
+    "id",
+    "tenantId",
+    "tenant",
+    "crt",
+    "key",
+    "createdAt",
+    "updatedAt",
+  ],
+} as const;
+
+export const KeyUsageEntitySchema = {
+  type: "object",
+  properties: {
+    tenantId: {
+      type: "string",
+    },
+    keyId: {
+      type: "string",
+    },
+    usage: {
+      type: "string",
+      enum: ["access", "signing", "trustList", "statusList"],
+    },
+    key: {
+      $ref: "#/components/schemas/KeyEntity",
+    },
+  },
+  required: ["tenantId", "keyId", "usage", "key"],
+} as const;
+
 export const KeyEntitySchema = {
   type: "object",
   properties: {
@@ -510,6 +592,14 @@ export const KeyEntitySchema = {
         $ref: "#/components/schemas/CertEntity",
       },
     },
+    usages: {
+      description:
+        "Usage assignments for this key.\nDefines what purposes this key is used for (access, signing, trustList, statusList).",
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/KeyUsageEntity",
+      },
+    },
     createdAt: {
       format: "date-time",
       type: "string",
@@ -529,98 +619,10 @@ export const KeyEntitySchema = {
     "usage",
     "kmsProvider",
     "certificates",
-    "createdAt",
-    "updatedAt",
-  ],
-} as const;
-
-export const CertEntitySchema = {
-  type: "object",
-  properties: {
-    keyId: {
-      type: "string",
-      description: "The key ID this certificate is associated with",
-      example: "039af178-3ca0-48f4-a2e4-7b1209f30376",
-    },
-    id: {
-      type: "string",
-      description: "Unique identifier for the key.",
-    },
-    tenantId: {
-      type: "string",
-      description: "Tenant ID for the key.",
-    },
-    tenant: {
-      description: "The tenant that owns this object.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/TenantEntity",
-        },
-      ],
-    },
-    crt: {
-      description:
-        "Certificate chain in PEM format (leaf first, then intermediates/CA).",
-      type: "array",
-      items: {
-        type: "string",
-      },
-    },
-    usages: {
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/CertUsageEntity",
-      },
-    },
-    description: {
-      type: "string",
-      description: "Description of the key.",
-    },
-    key: {
-      $ref: "#/components/schemas/KeyEntity",
-    },
-    createdAt: {
-      format: "date-time",
-      type: "string",
-      description: "The timestamp when the certificate was created.",
-    },
-    updatedAt: {
-      format: "date-time",
-      type: "string",
-      description: "The timestamp when the certificate was last updated.",
-    },
-  },
-  required: [
-    "keyId",
-    "id",
-    "tenantId",
-    "tenant",
-    "crt",
     "usages",
-    "key",
     "createdAt",
     "updatedAt",
   ],
-} as const;
-
-export const CertUsageEntitySchema = {
-  type: "object",
-  properties: {
-    tenantId: {
-      type: "string",
-    },
-    certId: {
-      type: "string",
-    },
-    usage: {
-      type: "string",
-      enum: ["access", "signing", "trustList", "statusList"],
-    },
-    cert: {
-      $ref: "#/components/schemas/CertEntity",
-    },
-  },
-  required: ["tenantId", "certId", "usage", "cert"],
 } as const;
 
 export const CertImportDtoSchema = {
@@ -633,14 +635,6 @@ export const CertImportDtoSchema = {
     },
     id: {
       type: "string",
-    },
-    certUsageTypes: {
-      description: "Usage types for the certificate.",
-      type: "array",
-      items: {
-        type: "string",
-        enum: ["access", "signing", "trustList", "statusList"],
-      },
     },
     crt: {
       description:
@@ -660,7 +654,7 @@ export const CertImportDtoSchema = {
       description: "Description of the key.",
     },
   },
-  required: ["keyId", "certUsageTypes"],
+  required: ["keyId"],
 } as const;
 
 export const CertResponseDtoSchema = {
@@ -677,26 +671,11 @@ export const CertResponseDtoSchema = {
 export const CertUpdateDtoSchema = {
   type: "object",
   properties: {
-    certUsageTypes: {
-      type: "array",
-      description: "Usage types for the certificate.",
-      items: {
-        type: "string",
-        enum: ["access", "signing", "trustList", "statusList"],
-      },
-    },
-    usages: {
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/CertUsageEntity",
-      },
-    },
     description: {
       type: "string",
       description: "Description of the key.",
     },
   },
-  required: ["certUsageTypes", "usages"],
 } as const;
 
 export const StatusListImportDtoSchema = {
@@ -3577,6 +3556,16 @@ export const KeyGenerateDtoSchema = {
       type: "string",
       description: "Optional human-readable description for the key.",
     },
+    usageTypes: {
+      type: "array",
+      items: {
+        type: "string",
+        enum: ["access", "signing", "trustList", "statusList"],
+      },
+      description:
+        "Usage types for this key (access, signing, trustList, statusList).",
+      example: ["signing"],
+    },
   },
 } as const;
 
@@ -3614,6 +3603,16 @@ export const KeyImportDtoSchema = {
         "KMS provider name to use for this key. Defaults to the configured default.",
       example: "db",
     },
+    usageTypes: {
+      description:
+        "Usage types for this key (access, signing, trustList, statusList).",
+      type: "array",
+      items: {
+        type: "string",
+        enum: ["access", "signing", "trustList", "statusList"],
+      },
+      example: ["signing"],
+    },
     key: {
       description: "The private key in JWK format.",
       allOf: [
@@ -3647,6 +3646,16 @@ export const UpdateKeyDtoSchema = {
       description:
         "KMS provider name to use for this key. Defaults to the configured default.",
       example: "db",
+    },
+    usageTypes: {
+      description:
+        "Usage types for this key (access, signing, trustList, statusList).",
+      type: "array",
+      items: {
+        type: "string",
+        enum: ["access", "signing", "trustList", "statusList"],
+      },
+      example: ["signing"],
     },
     id: {
       type: "string",

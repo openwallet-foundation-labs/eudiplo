@@ -8,6 +8,7 @@ import {
     ValidateNested,
 } from "class-validator";
 import { JWK } from "jose";
+import { KeyUsageType } from "../entities/key-usage.entity";
 import { KeyEntity } from "../entities/keys.entity";
 
 class Key implements JWK {
@@ -36,6 +37,7 @@ export class KeyImportDto extends OmitType(KeyEntity, [
     "updatedAt",
     "usage",
     "kmsProvider",
+    "usages",
 ] as const) {
     /**
      * The private key in JWK format.
@@ -57,4 +59,18 @@ export class KeyImportDto extends OmitType(KeyEntity, [
     @IsString()
     @IsOptional()
     kmsProvider?: string;
+
+    /**
+     * Usage types for this key (access, signing, trustList, statusList).
+     */
+    @ApiPropertyOptional({
+        description:
+            "Usage types for this key (access, signing, trustList, statusList).",
+        enum: KeyUsageType,
+        isArray: true,
+        example: ["signing"],
+    })
+    @IsEnum(KeyUsageType, { each: true })
+    @IsOptional()
+    usageTypes?: KeyUsageType[];
 }

@@ -4,7 +4,7 @@ import type { Jwk } from "@openid4vc/oauth2";
 import { X509Certificate } from "@peculiar/x509";
 import { exportJWK } from "jose";
 import { CertService } from "../../../../../crypto/key/cert/cert.service";
-import { CertUsage } from "../../../../../crypto/key/entities/cert-usage.entity";
+import { KeyUsageType } from "../../../../../crypto/key/entities/key-usage.entity";
 import { KeyService } from "../../../../../crypto/key/key.service";
 import { Session } from "../../../../../session/entities/session.entity";
 import { mdocContext } from "../../../../../verifier/presentations/mdoc-context";
@@ -70,8 +70,8 @@ export class MdocIssuerService {
         // Get signing certificate
         const certificate = await this.certService.find({
             tenantId: session.tenantId,
-            type: CertUsage.Signing,
-            id: credentialConfiguration.certId,
+            type: KeyUsageType.Signing,
+            certId: credentialConfiguration.certId,
         });
 
         // Get the private key for signing

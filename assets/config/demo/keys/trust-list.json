@@ -8,5 +8,8 @@
         "x": "MhpvX9dEM8NsXM-c6474d2uHrPRWrVD4WZGtVvxfQhk",
         "y": "q_uS4tQZSKu22_YgTlEFjuNdz-e-uNHzW1-x_VLicco",
         "alg": "ES256"
-    }
+    },
+    "usageTypes": [
+        "trustList"
+    ]
 }

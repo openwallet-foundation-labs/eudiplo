@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Signer } from "@sd-jwt/types";
 import { plainToClass } from "class-transformer";
@@ -15,6 +15,7 @@ import { KeyGenerateDto } from "./dto/key-generate.dto";
 import { KeyImportDto } from "./dto/key-import.dto";
 import { UpdateKeyDto } from "./dto/key-update.dto";
 import { CertEntity } from "./entities/cert.entity";
+import { KeyUsageEntity, KeyUsageType } from "./entities/key-usage.entity";
 import { KeyEntity, KeyUsage } from "./entities/keys.entity";
 import { KmsAdapter } from "./kms-adapter";
 import { KmsRegistry } from "./kms-registry.service";
@@ -39,6 +40,8 @@ export class KeyService {
         private readonly kmsRegistry: KmsRegistry,
         @InjectRepository(KeyEntity)
         private readonly keyRepository: Repository<KeyEntity>,
+        @InjectRepository(KeyUsageEntity)
+        private readonly keyUsageRepository: Repository<KeyUsageEntity>,
         private readonly configImportService: ConfigImportService,
         @InjectRepository(CertEntity)
         private readonly certRepository: Repository<CertEntity>,
@@ -80,6 +83,87 @@ export class KeyService {
             : this.kmsRegistry.getDefaultProvider();
     }
 
+    /**
+     * Save key usage types for a key.
+     */
+    private async saveKeyUsages(
+        tenantId: string,
+        keyId: string,
+        usageTypes: KeyUsageType[],
+    ): Promise<void> {
+        // Remove existing usages
+        await this.keyUsageRepository.delete({ tenantId, keyId });
+
+        // Add new usages
+        if (usageTypes.length > 0) {
+            const newUsages = usageTypes.map((usage) =>
+                this.keyUsageRepository.create({
+                    keyId,
+                    usage,
+                    tenantId,
+                }),
+            );
+            await this.keyUsageRepository.save(newUsages);
+        }
+    }
+
+    /**
+     * Add a usage type to a key if it doesn't already have it.
+     * This preserves existing usages and only adds the new one.
+     * @param tenantId - The tenant ID
+     * @param keyId - The key ID
+     * @param usageType - The usage type to add
+     */
+    async addKeyUsage(
+        tenantId: string,
+        keyId: string,
+        usageType: KeyUsageType,
+    ): Promise<void> {
+        // Check if the usage already exists
+        const existing = await this.keyUsageRepository.findOne({
+            where: { tenantId, keyId, usage: usageType },
+        });
+
+        if (!existing) {
+            await this.keyUsageRepository.save({
+                keyId,
+                usage: usageType,
+                tenantId,
+            });
+        }
+    }
+
+    /**
+     * Find a key by usage type for a tenant.
+     * @param tenantId - The tenant ID
+     * @param usageType - The usage type to find (access, signing, trustList, statusList)
+     * @param keyId - Optional specific key ID to match
+     * @returns The matching key entity
+     * @throws NotFoundException if no key found with the given usage type
+     */
+    async findByUsageType(
+        tenantId: string,
+        usageType: KeyUsageType,
+        keyId?: string,
+    ): Promise<KeyEntity> {
+        const keyUsage = await this.keyUsageRepository.findOne({
+            where: {
+                tenantId,
+                usage: usageType,
+                keyId: keyId || undefined,
+            },
+            relations: ["key", "key.certificates"],
+        });
+
+        if (!keyUsage) {
+            throw new NotFoundException(
+                `No key found with usage type '${usageType}' for tenant ${tenantId}`,
+            );
+        }
+
+        return keyUsage.key;
+    }
+
     // ───────────────────────── create / import ─────────────────────────
 
     /**
@@ -109,6 +193,12 @@ export class KeyService {
                 ...(body.description ? { description: body.description } : {}),
             },
         );
+
+        // Save usage types if provided
+        if (body.usageTypes && body.usageTypes.length > 0) {
+            await this.saveKeyUsages(tenantId, keyId, body.usageTypes);
+        }
+
         return keyId;
     }
 
@@ -130,6 +220,12 @@ export class KeyService {
             { tenantId, id: keyId },
             { kmsProvider: providerName },
         );
+
+        // Save usage types if provided
+        if (body.usageTypes && body.usageTypes.length > 0) {
+            await this.saveKeyUsages(tenantId, keyId, body.usageTypes);
+        }
+
         return keyId;
     }
 
@@ -213,9 +309,16 @@ export class KeyService {
         });
     }
 
-    /** Update key metadata (description, etc.). */
-    update(tenantId: string, id: string, body: UpdateKeyDto) {
-        return this.keyRepository.update({ tenantId, id }, body);
+    /** Update key metadata (description, usage types, etc.). */
+    async update(tenantId: string, id: string, body: UpdateKeyDto) {
+        // Update basic fields (but exclude usageTypes which is handled separately)
+        const { usageTypes, ...updateData } = body;
+        await this.keyRepository.update({ tenantId, id }, updateData);
+
+        // Update usage types if provided
+        if (usageTypes !== undefined) {
+            await this.saveKeyUsages(tenantId, id, usageTypes || []);
+        }
     }
 
     /** Delete a key — delegates to the adapter so it can clean up KMS resources. */

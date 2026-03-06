@@ -102,11 +102,11 @@ export class PresentationCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Load certificates for the select dropdown
+    // Load certificates for the select dropdown (filter by key usage type)
     certControllerGetCertificates({}).then(
       (res) =>
         (this.certificates =
-          res.data.filter((cert) => cert.usages.some((usage) => usage.usage === 'access')) || []),
+          res.data.filter((cert) => cert.key?.usages?.some((usage) => usage.usage === 'access')) || []),
       (error) => {
         console.error('Failed to load certificates:', error);
         this.snackBar.open('Failed to load certificates', 'Close', {

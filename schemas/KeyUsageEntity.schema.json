@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertUsageEntity.schema.json",
-  "title": "CertUsageEntity",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/KeyUsageEntity.schema.json",
+  "title": "KeyUsageEntity",
   "type": "object",
   "properties": {
     "tenantId": {
       "type": "string"
     },
-    "certId": {
+    "keyId": {
       "type": "string"
     },
     "usage": {
@@ -19,14 +19,14 @@
         "statusList"
       ]
     },
-    "cert": {
-      "$ref": "./CertEntity.schema.json"
+    "key": {
+      "$ref": "./KeyEntity.schema.json"
     }
   },
   "required": [
     "tenantId",
-    "certId",
+    "keyId",
     "usage",
-    "cert"
+    "key"
   ]
 }

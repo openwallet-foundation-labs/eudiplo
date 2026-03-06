@@ -11,6 +11,7 @@ import {
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { EncryptedJsonTransformer } from "../../../shared/utils/encryption";
 import { CertEntity } from "./cert.entity";
+import { KeyUsageEntity } from "./key-usage.entity";
 
 /**
  * Key usage types.
@@ -86,6 +87,20 @@ export class KeyEntity {
         (cert) => cert.key,
     )
     certificates: CertEntity[];
+
+    /**
+     * Usage assignments for this key.
+     * Defines what purposes this key is used for (access, signing, trustList, statusList).
+     */
+    @OneToMany(
+        () => KeyUsageEntity,
+        (u) => u.key,
+        {
+            cascade: ["insert", "update", "remove"],
+            eager: true,
+        },
+    )
+    usages!: KeyUsageEntity[];
 
     /**
      * The timestamp when the key was created.

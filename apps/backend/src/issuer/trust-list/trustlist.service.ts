@@ -9,7 +9,7 @@ import { v4 } from "uuid";
 import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
 import { CertService } from "../../crypto/key/cert/cert.service";
 import { CertEntity } from "../../crypto/key/entities/cert.entity";
-import { CertUsage } from "../../crypto/key/entities/cert-usage.entity";
+import { KeyUsageType } from "../../crypto/key/entities/key-usage.entity";
 import { KeyService } from "../../crypto/key/key.service";
 import { ConfigImportService } from "../../shared/utils/config-import/config-import.service";
 import {
@@ -230,9 +230,14 @@ export class TrustListService {
                 tenant.id,
                 config.certId,
             );
-            if (!cert.usages.some((c) => c.usage === CertUsage.TrustList)) {
+            // Check if the key has the TrustList usage
+            if (
+                !cert.key?.usages?.some(
+                    (u) => u.usage === KeyUsageType.TrustList,
+                )
+            ) {
                 throw new BadRequestException(
-                    `Certificate ${config.certId} is not valid for Trust List usage`,
+                    `Certificate ${config.certId} is not valid for Trust List usage (key lacks TrustList usage)`,
                 );
             }
         } else if (existing?.cert) {
@@ -240,7 +245,7 @@ export class TrustListService {
         } else {
             cert = await this.certService.findOrCreate({
                 tenantId: tenant.id,
-                type: CertUsage.TrustList,
+                type: KeyUsageType.TrustList,
             });
         }
 
@@ -358,7 +363,7 @@ export class TrustListService {
     async generateJwt(trustList: TrustList): Promise<string> {
         const cert = await this.certService.find({
             tenantId: trustList.tenantId,
-            type: CertUsage.TrustList,
+            type: KeyUsageType.TrustList,
         });
 
         // Prepare payload and header

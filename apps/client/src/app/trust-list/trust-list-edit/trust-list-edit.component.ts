@@ -125,15 +125,15 @@ export class TrustListEditComponent implements OnInit {
       const response = await certControllerGetCertificates({});
       this.availableCerts = response.data ?? [];
 
-      // Filter certificates by usage type
+      // Filter certificates by key usage type (usages are now on key level)
       this.signingCerts = this.availableCerts.filter((cert) =>
-        cert.usages?.some((u) => u.usage === 'signing')
+        cert.key?.usages?.some((u) => u.usage === 'signing')
       );
       this.statusListCerts = this.availableCerts.filter((cert) =>
-        cert.usages?.some((u) => u.usage === 'statusList')
+        cert.key?.usages?.some((u) => u.usage === 'statusList')
       );
       this.trustListCerts = this.availableCerts.filter((cert) =>
-        cert.usages?.some((u) => u.usage === 'trustList')
+        cert.key?.usages?.some((u) => u.usage === 'trustList')
       );
     } catch (error) {
       console.error('Failed to load certificates:', error);

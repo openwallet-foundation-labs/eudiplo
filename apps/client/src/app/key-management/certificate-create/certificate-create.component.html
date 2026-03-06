@@ -42,30 +42,6 @@
               </mat-form-field>
             </div>
 
-            <!-- Usage Types -->
-            <div class="section">
-              <h3>Usage Types</h3>
-              <div fxLayout="column" fxLayoutGap="12px">
-                <mat-checkbox formControlName="signing">
-                  <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-                    <mat-icon>edit</mat-icon>
-                    <span>Signing Certificate</span>
-                  </div>
-                </mat-checkbox>
-
-                <mat-checkbox formControlName="access">
-                  <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-                    <mat-icon>vpn_key</mat-icon>
-                    <span>Access Certificate</span>
-                  </div>
-                </mat-checkbox>
-
-                @if (form.hasError('atLeastOneType') && form.touched) {
-                  <mat-error>Please select at least one usage type</mat-error>
-                }
-              </div>
-            </div>
-
             <!-- Description -->
             <div class="section">
               <h3>Description (Optional)</h3>
@@ -119,34 +95,6 @@
                     >Common Name for the certificate. If empty, the tenant name will be
                     used.</mat-hint
                   >
-                </mat-form-field>
-              </div>
-
-              <!-- Usage Types -->
-              <div class="section">
-                <h3>Usage Types</h3>
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>Certificate Usage</mat-label>
-                  <mat-select formControlName="certUsageTypes" multiple>
-                    <mat-option value="signing">
-                      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-                        <mat-icon>edit</mat-icon>
-                        <span>Signing</span>
-                      </div>
-                    </mat-option>
-                    <mat-option value="statuslist">
-                      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-                        <mat-icon>checklist</mat-icon>
-                        <span>Status List</span>
-                      </div>
-                    </mat-option>
-                  </mat-select>
-                  @if (
-                    selfSignedForm.get('certUsageTypes')?.hasError('required') &&
-                    selfSignedForm.get('certUsageTypes')?.touched
-                  ) {
-                    <mat-error>Please select at least one usage type</mat-error>
-                  }
                 </mat-form-field>
               </div>
 

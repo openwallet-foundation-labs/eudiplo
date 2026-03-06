@@ -12,6 +12,22 @@
     "description": {
       "type": "string",
       "description": "Optional human-readable description for the key."
+    },
+    "usageTypes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "access",
+          "signing",
+          "trustList",
+          "statusList"
+        ]
+      },
+      "description": "Usage types for this key (access, signing, trustList, statusList).",
+      "example": [
+        "signing"
+      ]
     }
   }
 }

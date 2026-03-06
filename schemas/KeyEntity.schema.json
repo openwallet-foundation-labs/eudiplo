@@ -47,6 +47,13 @@
         "$ref": "./CertEntity.schema.json"
       }
     },
+    "usages": {
+      "description": "Usage assignments for this key.\nDefines what purposes this key is used for (access, signing, trustList, statusList).",
+      "type": "array",
+      "items": {
+        "$ref": "./KeyUsageEntity.schema.json"
+      }
+    },
     "createdAt": {
       "format": "date-time",
       "type": "string",
@@ -66,6 +73,7 @@
     "usage",
     "kmsProvider",
     "certificates",
+    "usages",
     "createdAt",
     "updatedAt"
   ]

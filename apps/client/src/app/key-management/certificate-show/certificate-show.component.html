@@ -31,7 +31,7 @@
             <div class="info-row">
               <span class="label">Usage Types:</span>
               <div fxLayout="row" fxLayoutGap="8px">
-                @for (usage of certificate.usages; track usage) {
+                @for (usage of certificate.key.usages; track usage) {
                   <mat-chip>{{ usage.usage }}</mat-chip>
                 }
               </div>

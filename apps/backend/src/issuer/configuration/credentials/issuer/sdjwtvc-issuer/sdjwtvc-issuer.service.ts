@@ -6,7 +6,7 @@ import { JWTwithStatusListPayload } from "@sd-jwt/jwt-status-list";
 import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";
 import { CertService } from "../../../../../crypto/key/cert/cert.service";
 import { CryptoImplementationService } from "../../../../../crypto/key/crypto-implementation/crypto-implementation.service";
-import { CertUsage } from "../../../../../crypto/key/entities/cert-usage.entity";
+import { KeyUsageType } from "../../../../../crypto/key/entities/key-usage.entity";
 import { KeyService } from "../../../../../crypto/key/key.service";
 import { Session } from "../../../../../session/entities/session.entity";
 import { StatusListService } from "../../../../lifecycle/status/status-list.service";
@@ -42,8 +42,8 @@ export class SdjwtvcIssuerService {
 
         const certificate = await this.certService.find({
             tenantId: session.tenantId,
-            type: CertUsage.Signing,
-            id: credentialConfiguration.certId,
+            type: KeyUsageType.Signing,
+            certId: credentialConfiguration.certId,
         });
 
         const sdjwt = new SDJwtVcInstance({

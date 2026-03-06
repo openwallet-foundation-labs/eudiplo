@@ -8,6 +8,7 @@ import { CrlValidationService } from "./cert/crl-validation.service";
 import { CryptoImplementatationModule } from "./crypto-implementation/crypto-implementation.module";
 import { CertEntity } from "./entities/cert.entity";
 import { CertUsageEntity } from "./entities/cert-usage.entity";
+import { KeyUsageEntity } from "./entities/key-usage.entity";
 import { KeyEntity } from "./entities/keys.entity";
 import { KeyController } from "./key.controller";
 import { KeyService } from "./key.service";
@@ -25,6 +26,7 @@ export class KeyModule {
                 TypeOrmModule.forFeature([
                     CertEntity,
                     CertUsageEntity,
+                    KeyUsageEntity,
                     KeyEntity,
                     TenantEntity,
                 ]),

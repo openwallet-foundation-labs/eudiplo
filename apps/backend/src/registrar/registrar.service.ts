@@ -14,7 +14,7 @@ import { Repository } from "typeorm";
 import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
 import { CryptoService } from "../crypto/crypto.service";
 import { CertService } from "../crypto/key/cert/cert.service";
-import { CertUsage } from "../crypto/key/entities/cert-usage.entity";
+import { KeyUsageType } from "../crypto/key/entities/key-usage.entity";
 import { KeyService } from "../crypto/key/key.service";
 import {
     ConfigImportOrchestratorService,
@@ -437,9 +437,15 @@ export class RegistrarService {
         const certId = await this.certService.addCertificate(tenantId, {
             crt: [crt],
             keyId: dto.keyId,
-            certUsageTypes: [CertUsage.Access],
             description: `Access certificate from registrar (ID: ${id})`,
         });
+
+        // Add the Access usage to the key
+        await this.keyService.addKeyUsage(
+            tenantId,
+            dto.keyId,
+            KeyUsageType.Access,
+        );
 
         this.logger.log(
             `[${tenantId}] Created access certificate with ID: ${id}, stored as ${certId}`,

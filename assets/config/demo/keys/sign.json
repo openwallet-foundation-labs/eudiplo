@@ -8,5 +8,10 @@
     "y": "1NJY0LT3mEuucLQCZJWNrA7fVW8ypR4Zf5cuu85NjSw",
     "alg": "ES256"
   },
-  "description": "key for signing"
+  "description": "key for signing",
+  "usageTypes": [
+    "signing",
+    "statusList",
+    "access"
+  ]
 }

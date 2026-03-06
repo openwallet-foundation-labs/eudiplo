@@ -32,12 +32,6 @@
         "type": "string"
       }
     },
-    "usages": {
-      "type": "array",
-      "items": {
-        "$ref": "./CertUsageEntity.schema.json"
-      }
-    },
     "description": {
       "type": "string",
       "description": "Description of the key."
@@ -62,7 +56,6 @@
     "tenantId",
     "tenant",
     "crt",
-    "usages",
     "key",
     "createdAt",
     "updatedAt"

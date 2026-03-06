@@ -3,12 +3,10 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -26,15 +24,12 @@ import { v4 } from 'uuid';
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
-    MatCheckboxModule,
     MatMenuModule,
     MatSnackBarModule,
     MatTabsModule,
     MatTooltipModule,
     FlexLayoutModule,
     ReactiveFormsModule,
-    MatSelectModule,
   ],
   templateUrl: './certificate-create.component.html',
   styleUrl: './certificate-create.component.scss',
@@ -71,13 +66,11 @@ export class CertificateCreateComponent implements OnInit {
     // Initialize form
     this.form = new FormGroup({
       crt: new FormControl('', Validators.required),
-      certUsageTypes: new FormControl<string[]>([], Validators.required),
       description: new FormControl(''),
     });
 
     // Initialize self-signed form
     this.selfSignedForm = new FormGroup({
-      certUsageTypes: new FormControl<string[]>([], Validators.required),
       description: new FormControl(''),
       subjectName: new FormControl(''),
     });
@@ -85,24 +78,13 @@ export class CertificateCreateComponent implements OnInit {
 
   async onSubmit(): Promise<void> {
     if (this.form.invalid) {
-      this.snackBar.open(
-        'Please fill in all required fields and select at least one usage type',
-        'Close',
-        {
-          duration: 3000,
-        }
-      );
-      return;
-    }
-
-    const formValue = this.form.value;
-
-    if (!formValue.signing && !formValue.access) {
-      this.snackBar.open('Please select at least one usage type', 'Close', {
+      this.snackBar.open('Please fill in all required fields', 'Close', {
         duration: 3000,
       });
       return;
     }
+
+    const formValue = this.form.value;
 
     try {
       await certControllerAddCertificate({
@@ -110,7 +92,6 @@ export class CertificateCreateComponent implements OnInit {
           id: v4(),
           keyId: this.keyId,
           crt: formValue.crt,
-          certUsageTypes: formValue.certUsageTypes,
           description: formValue.description || undefined,
         },
       });
@@ -134,13 +115,6 @@ export class CertificateCreateComponent implements OnInit {
   }
 
   async onGenerateSelfSigned(): Promise<void> {
-    if (this.selfSignedForm.invalid) {
-      this.snackBar.open('Please select at least one usage type', 'Close', {
-        duration: 3000,
-      });
-      return;
-    }
-
     const formValue = this.selfSignedForm.value;
 
     try {
@@ -148,7 +122,6 @@ export class CertificateCreateComponent implements OnInit {
         body: {
           id: v4(),
           keyId: this.keyId,
-          certUsageTypes: formValue.certUsageTypes,
           description: formValue.description || undefined,
           subjectName: formValue.subjectName || undefined,
         },

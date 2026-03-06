@@ -4,7 +4,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
 import { Repository } from "typeorm";
 import { CertService } from "../../../../crypto/key/cert/cert.service";
-import { CertUsage } from "../../../../crypto/key/entities/cert-usage.entity";
+import { KeyUsageType } from "../../../../crypto/key/entities/key-usage.entity";
 import { ConfigImportService } from "../../../../shared/utils/config-import/config-import.service";
 import {
     ConfigImportOrchestratorService,
@@ -93,8 +93,8 @@ export class CredentialConfigService {
         if (config.certId) {
             const cert = await this.certService.find({
                 tenantId,
-                type: CertUsage.Signing,
-                id: config.certId,
+                type: KeyUsageType.Signing,
+                certId: config.certId,
             });
             if (!cert) {
                 throw new Error(

@@ -68,7 +68,7 @@
             <mat-icon class="title-icon">info</mat-icon>
             Basic Information
           </mat-card-title>
-          <mat-card-subtitle>Certificate usage types and description</mat-card-subtitle>
+          <mat-card-subtitle>Certificate description</mat-card-subtitle>
         </mat-card-header>
 
         <mat-card-content>
@@ -80,22 +80,6 @@
                 <mat-icon matSuffix>tag</mat-icon>
               </mat-form-field>
             }
-
-            <mat-form-field appearance="outline">
-              <mat-label>Usage Types</mat-label>
-              <mat-select formControlName="certUsageTypes" multiple>
-                @for (type of certUsages; track type) {
-                  <mat-option [value]="type">{{ type }}</mat-option>
-                }
-              </mat-select>
-              <mat-icon matSuffix>category</mat-icon>
-              @if (
-                form.get('certUsageTypes')?.hasError('required') &&
-                form.get('certUsageTypes')?.touched
-              ) {
-                <mat-error>Please select at least one usage type</mat-error>
-              }
-            </mat-form-field>
 
             <mat-form-field appearance="outline">
               <mat-label>Description</mat-label>

@@ -9,6 +9,22 @@
       "description": "KMS provider name to use for this key. Defaults to the configured default.",
       "example": "db"
     },
+    "usageTypes": {
+      "description": "Usage types for this key (access, signing, trustList, statusList).",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "access",
+          "signing",
+          "trustList",
+          "statusList"
+        ]
+      },
+      "example": [
+        "signing"
+      ]
+    },
     "key": {
       "description": "The private key in JWK format.",
       "allOf": [

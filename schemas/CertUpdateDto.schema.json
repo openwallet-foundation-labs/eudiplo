@@ -4,32 +4,9 @@
   "title": "CertUpdateDto",
   "type": "object",
   "properties": {
-    "certUsageTypes": {
-      "type": "array",
-      "description": "Usage types for the certificate.",
-      "items": {
-        "type": "string",
-        "enum": [
-          "access",
-          "signing",
-          "trustList",
-          "statusList"
-        ]
-      }
-    },
-    "usages": {
-      "type": "array",
-      "items": {
-        "$ref": "./CertUsageEntity.schema.json"
-      }
-    },
     "description": {
       "type": "string",
       "description": "Description of the key."
     }
-  },
-  "required": [
-    "certUsageTypes",
-    "usages"
-  ]
+  }
 }

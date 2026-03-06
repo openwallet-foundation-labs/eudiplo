@@ -21,7 +21,7 @@ import { IsNull, Repository } from "typeorm";
 import { v4 } from "uuid";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { CertService } from "../../../crypto/key/cert/cert.service";
-import { CertUsage } from "../../../crypto/key/entities/cert-usage.entity";
+import { KeyUsageType } from "../../../crypto/key/entities/key-usage.entity";
 import { KeyService } from "../../../crypto/key/key.service";
 import { Session } from "../../../session/entities/session.entity";
 import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
@@ -143,8 +143,8 @@ export class StatusListService {
         if (options?.certId) {
             const cert = await this.certService.find({
                 tenantId,
-                type: CertUsage.StatusList,
-                id: options.certId,
+                type: KeyUsageType.StatusList,
+                certId: options.certId,
             });
             if (!cert) {
                 throw new NotFoundException(
@@ -203,12 +203,12 @@ export class StatusListService {
         const cert = entry.certId
             ? await this.certService.find({
                   tenantId: entry.tenantId,
-                  type: CertUsage.StatusList,
-                  id: entry.certId,
+                  type: KeyUsageType.StatusList,
+                  certId: entry.certId,
               })
             : await this.certService.find({
                   tenantId: entry.tenantId,
-                  type: CertUsage.StatusList,
+                  type: KeyUsageType.StatusList,
               });
 
         if (!cert) {
@@ -540,8 +540,8 @@ export class StatusListService {
         if (updates.certId !== undefined && updates.certId !== null) {
             const cert = await this.certService.find({
                 tenantId,
-                type: CertUsage.StatusList,
-                id: updates.certId,
+                type: KeyUsageType.StatusList,
+                certId: updates.certId,
             });
             if (!cert) {
                 throw new NotFoundException(
@@ -639,8 +639,8 @@ export class StatusListService {
         if (config.certId) {
             const cert = await this.certService.find({
                 tenantId,
-                type: CertUsage.StatusList,
-                id: config.certId,
+                type: KeyUsageType.StatusList,
+                certId: config.certId,
             });
             if (!cert) {
                 throw new Error(

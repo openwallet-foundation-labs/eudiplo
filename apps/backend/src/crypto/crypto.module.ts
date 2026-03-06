@@ -7,6 +7,7 @@ import { EncryptionService } from "./encryption/encryption.service";
 import { CertController } from "./key/cert/cert.controller";
 import { CertEntity } from "./key/entities/cert.entity";
 import { CertUsageEntity } from "./key/entities/cert-usage.entity";
+import { KeyUsageEntity } from "./key/entities/key-usage.entity";
 import { KeyEntity } from "./key/entities/keys.entity";
 
 @Module({
@@ -15,6 +16,7 @@ import { KeyEntity } from "./key/entities/keys.entity";
         TypeOrmModule.forFeature([
             CertEntity,
             CertUsageEntity,
+            KeyUsageEntity,
             KeyEntity,
             TenantEntity,
         ]),

@@ -194,6 +194,16 @@ export class KmsConfigDto {
     })
     @IsArray()
     @ValidateNested({ each: true })
-    @Type(() => BaseKmsProviderConfigDto)
-    providers!: BaseKmsProviderConfigDto[];
+    @Type(() => BaseKmsProviderConfigDto, {
+        discriminator: {
+            property: "type",
+            subTypes: [
+                { value: DbKmsConfigDto, name: "db" },
+                { value: VaultKmsConfigDto, name: "vault" },
+                { value: AwsKmsConfigDto, name: "aws-kms" },
+            ],
+        },
+        keepDiscriminatorProperty: true,
+    })
+    providers!: KmsProviderConfigDto[];
 }

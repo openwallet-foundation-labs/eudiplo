@@ -71,11 +71,12 @@ export class KeyManagementShowComponent implements OnInit {
           this.publicKeyPem = await this.computePublicKeyPem();
           // Parse all certificates if they exist
           if (key?.certificates && Array.isArray(key.certificates)) {
+            // Key usages are now at the key level, not per-certificate
+            const keyUsages = key.usages?.map((u) => u.usage) || [];
             key.certificates.forEach((cert) => {
-              // Build usages array from boolean fields
               // Use the first certificate (leaf) for display
               const leafCert = Array.isArray(cert.crt) ? cert.crt[0] : cert.crt;
-              this.parseCertificateInfo(cert.id, leafCert, cert.usages?.map((u) => u.usage) || []);
+              this.parseCertificateInfo(cert.id, leafCert, keyUsages);
             });
           }
         },

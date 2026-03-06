@@ -276,6 +276,49 @@ export type CreateClientDto = {
   >;
 };
 
+export type CertEntity = {
+  /**
+   * The key ID this certificate is associated with
+   */
+  keyId: string;
+  /**
+   * Unique identifier for the key.
+   */
+  id: string;
+  /**
+   * Tenant ID for the key.
+   */
+  tenantId: string;
+  /**
+   * The tenant that owns this object.
+   */
+  tenant: TenantEntity;
+  /**
+   * Certificate chain in PEM format (leaf first, then intermediates/CA).
+   */
+  crt: Array<string>;
+  /**
+   * Description of the key.
+   */
+  description?: string;
+  key: KeyEntity;
+  /**
+   * The timestamp when the certificate was created.
+   */
+  createdAt: string;
+  /**
+   * The timestamp when the certificate was last updated.
+   */
+  updatedAt: string;
+};
+
+export type KeyUsageEntity = {
+  tenantId: string;
+  keyId: string;
+  usage: "access" | "signing" | "trustList" | "statusList";
+  key: KeyEntity;
+};
+
 export type KeyEntity = {
   /**
    * Unique identifier for the key.
@@ -322,6 +365,11 @@ export type KeyEntity = {
    */
   certificates: Array<CertEntity>;
   /**
+   * Usage assignments for this key.
+   * Defines what purposes this key is used for (access, signing, trustList, statusList).
+   */
+  usages: Array<KeyUsageEntity>;
+  /**
    * The timestamp when the key was created.
    */
   createdAt: string;
@@ -331,60 +379,12 @@ export type KeyEntity = {
   updatedAt: string;
 };
 
-export type CertEntity = {
-  /**
-   * The key ID this certificate is associated with
-   */
-  keyId: string;
-  /**
-   * Unique identifier for the key.
-   */
-  id: string;
-  /**
-   * Tenant ID for the key.
-   */
-  tenantId: string;
-  /**
-   * The tenant that owns this object.
-   */
-  tenant: TenantEntity;
-  /**
-   * Certificate chain in PEM format (leaf first, then intermediates/CA).
-   */
-  crt: Array<string>;
-  usages: Array<CertUsageEntity>;
-  /**
-   * Description of the key.
-   */
-  description?: string;
-  key: KeyEntity;
-  /**
-   * The timestamp when the certificate was created.
-   */
-  createdAt: string;
-  /**
-   * The timestamp when the certificate was last updated.
-   */
-  updatedAt: string;
-};
-
-export type CertUsageEntity = {
-  tenantId: string;
-  certId: string;
-  usage: "access" | "signing" | "trustList" | "statusList";
-  cert: CertEntity;
-};
-
 export type CertImportDto = {
   /**
    * The key ID this certificate is associated with
    */
   keyId: string;
   id?: string;
-  /**
-   * Usage types for the certificate.
-   */
-  certUsageTypes: Array<"access" | "signing" | "trustList" | "statusList">;
   /**
    * Certificate chain in PEM format (leaf first, then intermediates/CA).
    * If not provided, a self-signed certificate will be generated.
@@ -409,11 +409,6 @@ export type CertResponseDto = {
 };
 
 export type CertUpdateDto = {
-  /**
-   * Usage types for the certificate.
-   */
-  certUsageTypes: Array<"access" | "signing" | "trustList" | "statusList">;
-  usages: Array<CertUsageEntity>;
   /**
    * Description of the key.
    */
@@ -2044,6 +2039,10 @@ export type KeyGenerateDto = {
    * Optional human-readable description for the key.
    */
   description?: string;
+  /**
+   * Usage types for this key (access, signing, trustList, statusList).
+   */
+  usageTypes?: Array<"access" | "signing" | "trustList" | "statusList">;
 };
 
 export type Key = {
@@ -2060,6 +2059,10 @@ export type KeyImportDto = {
    * KMS provider name to use for this key. Defaults to the configured default.
    */
   kmsProvider?: string;
+  /**
+   * Usage types for this key (access, signing, trustList, statusList).
+   */
+  usageTypes?: Array<"access" | "signing" | "trustList" | "statusList">;
   /**
    * The private key in JWK format.
    */
@@ -2085,6 +2088,10 @@ export type UpdateKeyDto = {
    * KMS provider name to use for this key. Defaults to the configured default.
    */
   kmsProvider?: string;
+  /**
+   * Usage types for this key (access, signing, trustList, statusList).
+   */
+  usageTypes?: Array<"access" | "signing" | "trustList" | "statusList">;
   /**
    * Unique identifier for the key.
    */

@@ -102,7 +102,7 @@ export class StatusListEditComponent implements OnInit {
 
       this.credentialConfigs = configsResponse.data || [];
       this.certificates = (certsResponse.data || []).filter((c: CertEntity) =>
-        c.usages?.some((u) => u.usage === 'statusList')
+        c.key?.usages?.some((u) => u.usage === 'statusList')
       );
 
       if (this.listId) {

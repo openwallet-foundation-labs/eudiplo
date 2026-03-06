@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,7 +14,6 @@ import {
   certControllerAddCertificate,
   certControllerGetCertificate,
   certControllerUpdateCertificate,
-  CertUsageEntity,
   keyControllerGetKeys,
   KeyEntity,
 } from '@eudiplo/sdk-core';
@@ -56,13 +55,6 @@ export class CertificateEditComponent implements OnInit {
     language: 'pem',
   };
 
-  certUsages = [
-    'access',
-    'signing',
-    'trustList',
-    'statusList',
-  ] as const satisfies readonly CertUsageEntity['usage'][];
-
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
@@ -86,7 +78,6 @@ export class CertificateEditComponent implements OnInit {
     // Initialize form with optional keyId field for standalone mode
     this.form = new FormGroup({
       keyId: new FormControl(this.keyId || ''),
-      certUsageTypes: new FormControl([], Validators.required),
       description: new FormControl(),
       crt: new FormControl(),
       subjectName: new FormControl(''),
@@ -141,7 +132,6 @@ export class CertificateEditComponent implements OnInit {
 
       // Initialize form with current values
       this.form.patchValue({
-        certUsageTypes: cert.usages.map((usage) => usage.usage) || [],
         description: cert.description,
       });
     } catch (error) {
@@ -155,13 +145,9 @@ export class CertificateEditComponent implements OnInit {
 
   async onSubmit(): Promise<void> {
     if (this.form.invalid) {
-      this.snackBar.open(
-        'Please fill in all required fields and select at least one usage type',
-        'Close',
-        {
-          duration: 3000,
-        }
-      );
+      this.snackBar.open('Please fill in all required fields', 'Close', {
+        duration: 3000,
+      });
       return;
     }
 
@@ -172,14 +158,11 @@ export class CertificateEditComponent implements OnInit {
 
     try {
       if (this.certId) {
-        // Note: The API types incorrectly require 'usages' due to inheritance in the DTO,
-        // but the backend only uses certUsageTypes and description
         await certControllerUpdateCertificate({
           path: { certId: this.certId },
           body: {
-            certUsageTypes: formValue.certUsageTypes,
             description: formValue.description,
-          } as any,
+          },
         });
 
         this.snackBar.open('Certificate updated successfully', 'Close', {
@@ -188,7 +171,6 @@ export class CertificateEditComponent implements OnInit {
       } else {
         this.certId = await certControllerAddCertificate({
           body: {
-            certUsageTypes: formValue.certUsageTypes,
             description: formValue.description,
             crt: formValue.crt,
             keyId: targetKeyId,

@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { CertService } from "../../../../crypto/key/cert/cert.service";
 import { CryptoImplementationService } from "../../../../crypto/key/crypto-implementation/crypto-implementation.service";
-import { CertUsage } from "../../../../crypto/key/entities/cert-usage.entity";
+import { KeyUsageType } from "../../../../crypto/key/entities/key-usage.entity";
 import { KeyService } from "../../../../crypto/key/key.service";
 import { MediaType } from "../../../../shared/utils/mediaType/media-type.enum";
 import { IssuanceService } from "../../../configuration/issuance/issuance.service";
@@ -48,7 +48,7 @@ export class WellKnownService {
         if (contentType === MediaType.APPLICATION_JWT) {
             const cert = await this.certService.find({
                 tenantId,
-                type: CertUsage.Access,
+                type: KeyUsageType.Access,
             });
             return this.keyService.signJWT(
                 {

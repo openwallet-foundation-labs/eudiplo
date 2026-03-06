@@ -12,19 +12,6 @@
     "id": {
       "type": "string"
     },
-    "certUsageTypes": {
-      "description": "Usage types for the certificate.",
-      "type": "array",
-      "items": {
-        "type": "string",
-        "enum": [
-          "access",
-          "signing",
-          "trustList",
-          "statusList"
-        ]
-      }
-    },
     "crt": {
       "description": "Certificate chain in PEM format (leaf first, then intermediates/CA).\nIf not provided, a self-signed certificate will be generated.",
       "type": "array",
@@ -42,7 +29,6 @@
     }
   },
   "required": [
-    "keyId",
-    "certUsageTypes"
+    "keyId"
   ]
 }

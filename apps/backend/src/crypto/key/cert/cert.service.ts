@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import * as x509 from "@peculiar/x509";
@@ -18,7 +18,7 @@ import { CertImportDto } from "../dto/cert-import.dto";
 import { CertUpdateDto } from "../dto/cert-update.dto";
 import { UpdateKeyDto } from "../dto/key-update.dto";
 import { CertEntity } from "../entities/cert.entity";
-import { CertUsage, CertUsageEntity } from "../entities/cert-usage.entity";
+import { KeyUsageType } from "../entities/key-usage.entity";
 import { KeyService } from "../key.service";
 import { CrlValidationService } from "./crl-validation.service";
 
@@ -30,8 +30,17 @@ const ECDSA_P256 = {
 
 export interface FindCertOptions {
     tenantId: string;
-    type: CertUsage;
-    id?: string;
+    type: KeyUsageType;
+    /**
+     * Optional certificate ID to find a specific certificate.
+     * If provided, will verify the certificate's key has the required usage type.
+     */
+    certId?: string;
+    /**
+     * Optional key ID to filter by.
+     * If provided, will look for the specific key with this usage type.
+     */
+    keyId?: string;
     /**
      * Skip certificate validation (expiry and CRL check).
      * Default: false
@@ -67,8 +76,6 @@ export class CertService {
     constructor(
         @InjectRepository(CertEntity)
         private readonly certRepository: Repository<CertEntity>,
-        @InjectRepository(CertUsageEntity)
-        private readonly certUsageRepository: Repository<CertUsageEntity>,
         private readonly configService: ConfigService,
         @InjectRepository(TenantEntity)
         private readonly tenantRepository: Repository<TenantEntity>,
@@ -130,33 +137,27 @@ export class CertService {
 
     /**
      * Get the configuration of a certificate for import/export.
-     * @param id
-     * @param certId
-     * @returns
+     * @param id - The tenant ID
+     * @param certId - The certificate ID
+     * @returns The certificate import DTO
      */
     async getCertificateConfig(
         id: string,
         certId: string,
     ): Promise<CertImportDto> {
         const cert = await this.getCertificateById(id, certId);
-        const usages = await this.certUsageRepository.findBy({
-            tenantId: id,
-            certId: cert.id,
-        });
 
         return {
             id: cert.id,
             keyId: cert.key.id,
             description: cert.description,
             crt: cert.crt,
-            certUsageTypes: usages.map((u) => u.usage),
         };
     }
 
     /**
      * Add a new certificate to a key.
      * @param tenantId - The tenant ID
-     * @param keyId - The key ID
      * @param dto - Certificate data
      * @returns The created certificate with its ID
      */
@@ -175,11 +176,6 @@ export class CertService {
             crt: dto.crt,
             description: dto.description,
             key: { id: dto.keyId, tenantId },
-            usages: dto.certUsageTypes.map((usage) => ({
-                certId,
-                usage,
-                tenantId,
-            })),
         });
 
         return certId;
@@ -246,18 +242,17 @@ export class CertService {
 
         return this.addCertificate(tenant.id, {
             crt: [crtPem],
-            certUsageTypes: dto.certUsageTypes,
             description:
                 dto.description ??
-                `Self-signed certificate (${dto.certUsageTypes.join(", ")}) for tenant ${tenant.name}`,
+                `Self-signed certificate for tenant ${tenant.name}`,
             keyId,
         });
     }
 
     /**
-     * Update certificate metadata (description and usage types).
+     * Update certificate metadata (description).
+     * Note: Usage types are now managed at the key level, not certificate level.
      * @param tenantId - The tenant ID
-     * @param keyId - The key ID
      * @param certId - The certificate ID to update
      * @param updates - The updates to apply
      */
@@ -266,7 +261,7 @@ export class CertService {
         certId: string,
         updates: CertUpdateDto,
     ): Promise<void> {
-        // Update description or other simple fields (not usages)
+        // Update description
         await this.certRepository.update(
             {
                 tenantId,
@@ -276,21 +271,6 @@ export class CertService {
                 description: updates.description,
             },
         );
-
-        // Remove old usages
-        await this.certUsageRepository.delete({ tenantId, certId });
-
-        // Add new usages
-        if (updates.certUsageTypes && updates.certUsageTypes.length > 0) {
-            const newUsages = updates.certUsageTypes.map((usage) =>
-                this.certUsageRepository.create({
-                    certId,
-                    usage,
-                    tenantId,
-                }),
-            );
-            await this.certUsageRepository.save(newUsages);
-        }
     }
 
     /**
@@ -311,24 +291,43 @@ export class CertService {
     }
 
     /**
-     * Find a certificate by tenantId and type.
+     * Find a certificate by tenantId and usage type.
+     * Usage types are now defined at the key level, so this method looks up the key
+     * with the specified usage type and returns its first certificate.
      * @param value - The search criteria
      * @returns The matching certificate
-     */
-    /**
-     * Find a certificate by tenantId and usage type.
+     * @throws NotFoundException if no key with the usage type exists or has no certificates
      */
     async find(value: FindCertOptions): Promise<CertEntity> {
-        const certUsage = await this.certUsageRepository.findOneOrFail({
-            where: {
-                tenantId: value.tenantId,
-                usage: value.type,
-                certId: value.id || undefined,
-            },
-            relations: ["cert"],
-        });
+        let cert: CertEntity;
 
-        const cert = certUsage.cert;
+        if (value.certId) {
+            // Get specific certificate by ID and verify its key has the required usage
+            cert = await this.getCertificateById(value.tenantId, value.certId);
+
+            // Verify the key has the required usage type
+            if (!cert.key?.usages?.some((u) => u.usage === value.type)) {
+                throw new NotFoundException(
+                    `Certificate ${value.certId} does not belong to a key with usage type '${value.type}'`,
+                );
+            }
+        } else {
+            // Find the key with the specified usage type
+            const key = await this.keyService.findByUsageType(
+                value.tenantId,
+                value.type,
+                value.keyId,
+            );
+
+            // Get the first certificate from the key
+            if (!key.certificates || key.certificates.length === 0) {
+                throw new NotFoundException(
+                    `Key ${key.id} with usage type '${value.type}' has no certificates`,
+                );
+            }
+
+            cert = key.certificates[0];
+        }
 
         // Validate the certificate unless explicitly skipped
         if (!value.skipValidation) {
@@ -467,16 +466,18 @@ export class CertService {
 
     /**
      * Find a certificate or create one if it does not exist.
-     * @param value
-     * @returns
+     * Creates a new key with the specified usage type and a self-signed certificate.
+     * @param value - The search criteria
+     * @returns The matched or newly created certificate
      */
     findOrCreate(value: FindCertOptions): Promise<CertEntity> {
         return this.find(value).catch(async () => {
-            // Create a new key using the default KMS provider
-            const keyId = await this.keyService.create(value.tenantId);
+            // Create a new key with the usage type
+            const keyId = await this.keyService.create(value.tenantId, {
+                usageTypes: [value.type],
+            });
 
             const dto: CertImportDto = {
-                certUsageTypes: [value.type],
                 keyId,
             };
 
