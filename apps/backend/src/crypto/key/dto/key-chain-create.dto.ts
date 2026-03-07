@@ -1,6 +1,15 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString, Max, Min, ValidateNested } from "class-validator";
+import {
+    IsBoolean,
+    IsEnum,
+    IsNumber,
+    IsOptional,
+    IsString,
+    Max,
+    Min,
+    ValidateNested,
+} from "class-validator";
 import { KeyUsageType } from "../entities/key-chain.entity";
 
 /**
@@ -15,7 +24,8 @@ export class RotationPolicyCreateDto {
     enabled!: boolean;
 
     @ApiPropertyOptional({
-        description: "Rotation interval in days. Required when enabled is true.",
+        description:
+            "Rotation interval in days. Required when enabled is true.",
         example: 90,
         minimum: 1,
         maximum: 3650,
@@ -27,7 +37,8 @@ export class RotationPolicyCreateDto {
     intervalDays?: number;
 
     @ApiPropertyOptional({
-        description: "Certificate validity in days. Defaults to rotation interval + 30 days grace period.",
+        description:
+            "Certificate validity in days. Defaults to rotation interval + 30 days grace period.",
         example: 365,
         minimum: 1,
         maximum: 3650,
@@ -58,7 +69,8 @@ export enum KeyChainType {
  */
 export class KeyChainCreateDto {
     @ApiProperty({
-        description: "Usage type determines the purpose of this key chain (access, attestation, etc.).",
+        description:
+            "Usage type determines the purpose of this key chain (access, attestation, etc.).",
         enum: KeyUsageType,
         example: "attestation",
     })
@@ -82,7 +94,8 @@ export class KeyChainCreateDto {
     description?: string;
 
     @ApiPropertyOptional({
-        description: "KMS provider to use (defaults to the configured default provider).",
+        description:
+            "KMS provider to use (defaults to the configured default provider).",
         example: "vault",
     })
     @IsString()
@@ -90,7 +103,8 @@ export class KeyChainCreateDto {
     kmsProvider?: string;
 
     @ApiPropertyOptional({
-        description: "Rotation policy configuration. Only applicable for the signing key (root CA never rotates).",
+        description:
+            "Rotation policy configuration. Only applicable for the signing key (root CA never rotates).",
         type: RotationPolicyCreateDto,
     })
     @ValidateNested()

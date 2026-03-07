@@ -19,17 +19,23 @@ export class FlattenKeyUsageType1746000000000 implements MigrationInterface {
         // Check if key_entity table exists (legacy schema)
         const tableExists = await this.tableExists(queryRunner, "key_entity");
         if (!tableExists) {
-            console.log("[Migration] FlattenKeyUsageType: key_entity table not found — skipping (new schema uses key_chain_entity).");
+            console.log(
+                "[Migration] FlattenKeyUsageType: key_entity table not found — skipping (new schema uses key_chain_entity).",
+            );
             return;
         }
 
         // Check if usageType column already exists
         const columns = await queryRunner.query(
-            `PRAGMA table_info("key_entity")`
+            `PRAGMA table_info("key_entity")`,
         );
-        const hasUsageType = columns.some((col: any) => col.name === "usageType");
+        const hasUsageType = columns.some(
+            (col: any) => col.name === "usageType",
+        );
         if (hasUsageType) {
-            console.log("[Migration] FlattenKeyUsageType: usageType column already exists — skipping.");
+            console.log(
+                "[Migration] FlattenKeyUsageType: usageType column already exists — skipping.",
+            );
             return;
         }
 
@@ -39,7 +45,10 @@ export class FlattenKeyUsageType1746000000000 implements MigrationInterface {
         );
 
         // Step 2: Migrate data from key_usage_entity to key_entity.usageType
-        const keyUsageTableExists = await this.tableExists(queryRunner, "key_usage_entity");
+        const keyUsageTableExists = await this.tableExists(
+            queryRunner,
+            "key_usage_entity",
+        );
         if (keyUsageTableExists) {
             await queryRunner.query(`
                 UPDATE "key_entity" AS k
@@ -60,7 +69,9 @@ export class FlattenKeyUsageType1746000000000 implements MigrationInterface {
         // Check if key_entity table exists
         const tableExists = await this.tableExists(queryRunner, "key_entity");
         if (!tableExists) {
-            console.log("[Migration] FlattenKeyUsageType down: key_entity table not found — skipping.");
+            console.log(
+                "[Migration] FlattenKeyUsageType down: key_entity table not found — skipping.",
+            );
             return;
         }
 
@@ -90,10 +101,13 @@ export class FlattenKeyUsageType1746000000000 implements MigrationInterface {
         );
     }
 
-    private async tableExists(queryRunner: QueryRunner, tableName: string): Promise<boolean> {
+    private async tableExists(
+        queryRunner: QueryRunner,
+        tableName: string,
+    ): Promise<boolean> {
         const result = await queryRunner.query(
             `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
-            [tableName]
+            [tableName],
         );
         return result.length > 0;
     }

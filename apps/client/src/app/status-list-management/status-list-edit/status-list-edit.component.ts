@@ -101,8 +101,8 @@ export class StatusListEditComponent implements OnInit {
       ]);
 
       this.credentialConfigs = configsResponse.data || [];
-      this.keyChains = (keyChainResponse.data || []).filter((kc: KeyChainResponseDto) =>
-        kc.usageType === 'statusList'
+      this.keyChains = (keyChainResponse.data || []).filter(
+        (kc: KeyChainResponseDto) => kc.usageType === 'statusList'
       );
 
       if (this.listId) {

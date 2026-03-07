@@ -4,16 +4,12 @@ export const issuanceOfferRoutes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./issuance-offer/issuance-offer.component').then(
-        (m) => m.IssuanceOfferComponent
-      ),
+      import('./issuance-offer/issuance-offer.component').then((m) => m.IssuanceOfferComponent),
   },
   {
     path: ':id',
     loadComponent: () =>
-      import('./issuance-offer/issuance-offer.component').then(
-        (m) => m.IssuanceOfferComponent
-      ),
+      import('./issuance-offer/issuance-offer.component').then((m) => m.IssuanceOfferComponent),
   },
 ];
 

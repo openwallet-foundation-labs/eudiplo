@@ -4,9 +4,16 @@ import { getRole } from './services/jwt.service';
 import { RoleGuard } from './guards/roles.guard';
 
 // Feature route imports
-import { issuanceConfigRoutes, issuanceOfferRoutes, credentialConfigRoutes } from './issuance/issuance.routes';
+import {
+  issuanceConfigRoutes,
+  issuanceOfferRoutes,
+  credentialConfigRoutes,
+} from './issuance/issuance.routes';
 import { keyManagementRoutes } from './key-management/key-management.routes';
-import { presentationConfigRoutes, presentationOfferRoutes } from './presentation/presentation.routes';
+import {
+  presentationConfigRoutes,
+  presentationOfferRoutes,
+} from './presentation/presentation.routes';
 import { sessionManagementRoutes } from './session-management/session-management.routes';
 import { statusListRoutes } from './status-list-management/status-list.routes';
 import { clientRoutes, tenantRoutes } from './tenants/tenants.routes';

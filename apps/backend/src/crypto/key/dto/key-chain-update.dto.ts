@@ -1,6 +1,14 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsBoolean, IsNumber, IsOptional, IsString, Max, Min, ValidateNested } from "class-validator";
+import {
+    IsBoolean,
+    IsNumber,
+    IsOptional,
+    IsString,
+    Max,
+    Min,
+    ValidateNested,
+} from "class-validator";
 
 /**
  * DTO for updating rotation policy.

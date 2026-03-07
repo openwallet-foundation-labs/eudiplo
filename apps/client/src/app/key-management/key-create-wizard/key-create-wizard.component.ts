@@ -203,7 +203,9 @@ export class KeyCreateWizardComponent implements OnInit {
         kmsProvider: 'db', // Default to database storage
         rotationPolicy: {
           enabled: this.rotationEnabled,
-          intervalDays: this.rotationEnabled ? this.configForm.value.rotationIntervalDays : undefined,
+          intervalDays: this.rotationEnabled
+            ? this.configForm.value.rotationIntervalDays
+            : undefined,
           certValidityDays: this.configForm.value.certValidityDays,
         },
       };
@@ -224,13 +226,16 @@ export class KeyCreateWizardComponent implements OnInit {
   private showSuccessMessage(usage: KeyUsageSelection): void {
     if (usage === 'attestation') {
       if (this.isInternalChain) {
-        this.snackBar.open(
-          'Key chain created with embedded root CA! Next: Create a status list key.',
-          'Create Status List Key',
-          { duration: 8000 }
-        ).onAction().subscribe(() => {
-          this.router.navigate(['/keys/create']);
-        });
+        this.snackBar
+          .open(
+            'Key chain created with embedded root CA! Next: Create a status list key.',
+            'Create Status List Key',
+            { duration: 8000 }
+          )
+          .onAction()
+          .subscribe(() => {
+            this.router.navigate(['/keys/create']);
+          });
       } else {
         this.snackBar.open(
           'Standalone key created! You can configure certificates in the key details.',
@@ -245,13 +250,16 @@ export class KeyCreateWizardComponent implements OnInit {
         { duration: 5000 }
       );
     } else if (usage === 'trustList') {
-      this.snackBar.open(
-        'Trust list key created! You can now configure your trust list.',
-        'Go to Trust List',
-        { duration: 5000 }
-      ).onAction().subscribe(() => {
-        this.router.navigate(['/trust-list']);
-      });
+      this.snackBar
+        .open(
+          'Trust list key created! You can now configure your trust list.',
+          'Go to Trust List',
+          { duration: 5000 }
+        )
+        .onAction()
+        .subscribe(() => {
+          this.router.navigate(['/trust-list']);
+        });
     }
   }
 
@@ -279,7 +287,9 @@ export class KeyCreateWizardComponent implements OnInit {
     summary.push({ label: 'Usage', value: usage?.label || '' });
 
     if (this.showKeyChainTypeStep) {
-      const keyChainType = this.keyChainTypeOptions.find((c) => c.value === this.selectedKeyChainType);
+      const keyChainType = this.keyChainTypeOptions.find(
+        (c) => c.value === this.selectedKeyChainType
+      );
       summary.push({ label: 'Key Chain Type', value: keyChainType?.label || '' });
     }
 
@@ -290,9 +300,15 @@ export class KeyCreateWizardComponent implements OnInit {
     if (this.isInternalChain) {
       summary.push({ label: 'Type', value: 'Internal Chain (Root CA + Signing Key)' });
       if (this.rotationEnabled) {
-        summary.push({ label: 'Rotation Interval', value: `${this.configForm.value.rotationIntervalDays} days` });
+        summary.push({
+          label: 'Rotation Interval',
+          value: `${this.configForm.value.rotationIntervalDays} days`,
+        });
       }
-      summary.push({ label: 'Certificate Validity', value: `${this.configForm.value.certValidityDays} days` });
+      summary.push({
+        label: 'Certificate Validity',
+        value: `${this.configForm.value.certValidityDays} days`,
+      });
     } else {
       summary.push({ label: 'Type', value: 'Standalone (Self-signed)' });
     }

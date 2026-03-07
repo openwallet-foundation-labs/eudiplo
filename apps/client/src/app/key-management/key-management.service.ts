@@ -52,14 +52,18 @@ export class KeyManagementService {
    * Load all key chains for the current tenant.
    */
   loadKeys(): Promise<KeyChainResponseDto[]> {
-    return keyChainControllerGetAll().then((response) => (response.data as KeyChainResponseDto[]) || []);
+    return keyChainControllerGetAll().then(
+      (response) => (response.data as KeyChainResponseDto[]) || []
+    );
   }
 
   /**
    * Get a single key chain by ID.
    */
   getKey(id: string): Promise<KeyChainResponseDto> {
-    return keyChainControllerGetById({ path: { id } }).then((response) => response.data as KeyChainResponseDto);
+    return keyChainControllerGetById({ path: { id } }).then(
+      (response) => response.data as KeyChainResponseDto
+    );
   }
 
   /**

@@ -126,14 +126,14 @@ export class TrustListEditComponent implements OnInit {
       this.availableKeyChains = response.data ?? [];
 
       // Filter key chains by usage type
-      this.attestationKeyChains = this.availableKeyChains.filter((kc) =>
-        kc.usageType === 'attestation'
+      this.attestationKeyChains = this.availableKeyChains.filter(
+        (kc) => kc.usageType === 'attestation'
       );
-      this.statusListKeyChains = this.availableKeyChains.filter((kc) =>
-        kc.usageType === 'statusList'
+      this.statusListKeyChains = this.availableKeyChains.filter(
+        (kc) => kc.usageType === 'statusList'
       );
-      this.trustListKeyChains = this.availableKeyChains.filter((kc) =>
-        kc.usageType === 'trustList'
+      this.trustListKeyChains = this.availableKeyChains.filter(
+        (kc) => kc.usageType === 'trustList'
       );
     } catch (error) {
       console.error('Failed to load key chains:', error);

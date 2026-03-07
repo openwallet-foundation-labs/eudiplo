@@ -9,9 +9,7 @@ export const tenantRoutes: Routes = [
   {
     path: 'create',
     loadComponent: () =>
-      import('./tenant-create/tenant-create.component').then(
-        (m) => m.TenantCreateComponent
-      ),
+      import('./tenant-create/tenant-create.component').then((m) => m.TenantCreateComponent),
   },
   {
     path: ':id',
@@ -21,9 +19,7 @@ export const tenantRoutes: Routes = [
   {
     path: ':id/edit',
     loadComponent: () =>
-      import('./tenant-create/tenant-create.component').then(
-        (m) => m.TenantCreateComponent
-      ),
+      import('./tenant-create/tenant-create.component').then((m) => m.TenantCreateComponent),
   },
 ];
 
@@ -31,29 +27,21 @@ export const clientRoutes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./client/client-list/client-list.component').then(
-        (m) => m.ClientListComponent
-      ),
+      import('./client/client-list/client-list.component').then((m) => m.ClientListComponent),
   },
   {
     path: 'create',
     loadComponent: () =>
-      import('./client/client-create/client-create.component').then(
-        (m) => m.ClientCreateComponent
-      ),
+      import('./client/client-create/client-create.component').then((m) => m.ClientCreateComponent),
   },
   {
     path: ':id',
     loadComponent: () =>
-      import('./client/client-show/client-show.component').then(
-        (m) => m.ClientShowComponent
-      ),
+      import('./client/client-show/client-show.component').then((m) => m.ClientShowComponent),
   },
   {
     path: ':id/edit',
     loadComponent: () =>
-      import('./client/client-create/client-create.component').then(
-        (m) => m.ClientCreateComponent
-      ),
+      import('./client/client-create/client-create.component').then((m) => m.ClientCreateComponent),
   },
 ];

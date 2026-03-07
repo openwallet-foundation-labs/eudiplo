@@ -55,16 +55,21 @@ export class KeyManagementListComponent implements OnInit {
   displayItems: KeyDisplayItem[] = [];
   usageGroups: UsageGroup[] = [];
 
-  private readonly usageConfig: Record<KeyUsageType, { label: string; icon: string; description: string }> = {
+  private readonly usageConfig: Record<
+    KeyUsageType,
+    { label: string; icon: string; description: string }
+  > = {
     attestation: {
       label: 'Credential Signing Keys',
       icon: 'verified_user',
-      description: 'Keys for signing Electronic Attestations of Attributes (EAAs) issued to wallets. Each credential type has its own isolated key chain.',
+      description:
+        'Keys for signing Electronic Attestations of Attributes (EAAs) issued to wallets. Each credential type has its own isolated key chain.',
     },
     access: {
       label: 'EUDI Wallet Access Certificate Keys',
       icon: 'vpn_key',
-      description: 'Keys for EUDI Wallet Access Certificates used to authenticate to PID providers.',
+      description:
+        'Keys for EUDI Wallet Access Certificates used to authenticate to PID providers.',
     },
     statusList: {
       label: 'Status List Keys',

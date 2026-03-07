@@ -105,9 +105,7 @@ export class PresentationCreateComponent implements OnInit {
     // Load key chains for the select dropdown (filter by access usage type)
     keyChainControllerGetAll({}).then(
       (res) =>
-        (this.keyChains =
-          res.data.filter((keyChain) => keyChain.usageType === 'access') ||
-          []),
+        (this.keyChains = res.data.filter((keyChain) => keyChain.usageType === 'access') || []),
       (error) => {
         console.error('Failed to load key chains:', error);
         this.snackBar.open('Failed to load key chains', 'Close', {

@@ -7,11 +7,7 @@ import {
     Post,
     Put,
 } from "@nestjs/common";
-import {
-    ApiOperation,
-    ApiResponse,
-    ApiTags,
-} from "@nestjs/swagger";
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Role } from "../../auth/roles/role.enum";
 import { Secured } from "../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../auth/token.decorator";
