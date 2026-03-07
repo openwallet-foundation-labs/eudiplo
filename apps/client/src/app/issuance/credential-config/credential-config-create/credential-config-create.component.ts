@@ -20,7 +20,8 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import {
   CredentialConfigCreate,
-  certControllerGetCertificates,
+  keyChainControllerGetAll,
+  KeyChainResponseDto,
   PresentationConfig,
   IaeActionOpenid4VpPresentation,
   IaeActionRedirectToWeb,
@@ -76,7 +77,7 @@ export class CredentialConfigCreateComponent implements OnInit {
   public form: FormGroup;
   public create = true;
   public loading = false;
-  certificates: any[] = [];
+  keyChains: KeyChainResponseDto[] = [];
   presentationConfigs: PresentationConfig[] = [];
 
   predefinedConfigs = configs;
@@ -178,12 +179,12 @@ export class CredentialConfigCreateComponent implements OnInit {
     }
   }
   ngOnInit() {
-    // Load all certificates directly
-    certControllerGetCertificates({}).then(
-      (res) => (this.certificates = res.data || []),
+    // Load all key chains for signing certificate selection
+    keyChainControllerGetAll({}).then(
+      (res) => (this.keyChains = res.data || []),
       (error) => {
-        console.error('Failed to load certificates:', error);
-        this.snackBar.open('Failed to load certificates', 'Close', {
+        console.error('Failed to load key chains:', error);
+        this.snackBar.open('Failed to load key chains', 'Close', {
           duration: 3000,
         });
       }

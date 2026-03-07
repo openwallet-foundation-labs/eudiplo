@@ -1,0 +1,290 @@
+<div class="wizard-container" fxLayout="column" fxFlex>
+  <!-- Header -->
+  <div fxLayout="row" fxLayoutAlign="space-between center" class="wizard-header">
+    <h2>Create Key</h2>
+    <button mat-icon-button [routerLink]="['../']" matTooltip="Cancel">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-stepper #stepper linear fxFlex>
+    <!-- Step 1: Usage Selection -->
+    <mat-step [stepControl]="usageForm" label="Select Usage">
+      <form [formGroup]="usageForm" fxLayout="column" fxLayoutGap="24px">
+        <div class="step-description">
+          <h3>What will this key be used for?</h3>
+          <p class="hint">
+            Choose the primary purpose of this key. This determines the setup workflow.
+          </p>
+        </div>
+
+        <mat-radio-group
+          formControlName="usage"
+          fxLayout="column"
+          fxLayoutGap="16px"
+          class="usage-options"
+        >
+          @for (option of usageOptions; track option.value) {
+            <mat-card
+              class="option-card"
+              [class.selected]="selectedUsage === option.value"
+              (click)="usageForm.get('usage')?.setValue(option.value)"
+            >
+              <mat-card-content fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="start center">
+                <mat-radio-button [value]="option.value" class="option-radio">
+                  <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="start center">
+                    <mat-icon class="option-icon">{{ option.icon }}</mat-icon>
+                    <div fxLayout="column">
+                      <span class="option-label">{{ option.label }}</span>
+                      <span class="option-description">{{ option.description }}</span>
+                      <span class="option-hint">{{ option.hint }}</span>
+                    </div>
+                  </div>
+                </mat-radio-button>
+              </mat-card-content>
+            </mat-card>
+          }
+        </mat-radio-group>
+
+        <div fxLayout="row" fxLayoutAlign="end" class="step-actions">
+          <button
+            mat-flat-button
+            type="button"
+            color="primary"
+            [disabled]="!usageForm.valid"
+            (click)="onUsageNext()"
+          >
+            {{ getNextStepLabel() }}
+            <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step 2: Key Chain Type Selection (only for attestation) -->
+    @if (showKeyChainTypeStep) {
+      <mat-step [stepControl]="caSourceForm" label="Key Chain Type">
+        <form [formGroup]="caSourceForm" fxLayout="column" fxLayoutGap="24px">
+          <div class="step-description">
+            <h3>What type of key chain do you need?</h3>
+            <p class="hint">
+              Choose automatic key management with rotation (recommended) or a standalone
+              self-signed key.
+            </p>
+          </div>
+
+          <mat-radio-group
+            formControlName="keyChainType"
+            fxLayout="column"
+            fxLayoutGap="16px"
+            class="ca-source-options"
+          >
+            @for (option of keyChainTypeOptions; track option.value) {
+              <mat-card
+                class="option-card"
+                [class.selected]="selectedKeyChainType === option.value"
+                (click)="caSourceForm.get('keyChainType')?.setValue(option.value)"
+              >
+                <mat-card-content fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="start center">
+                  <mat-radio-button [value]="option.value" class="option-radio">
+                    <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="start center">
+                      <mat-icon class="option-icon">{{ option.icon }}</mat-icon>
+                      <div fxLayout="column">
+                        <span class="option-label">{{ option.label }}</span>
+                        <span class="option-description">{{ option.description }}</span>
+                        <span class="option-hint">{{ option.hint }}</span>
+                        @if (option.features) {
+                          <div class="option-features">
+                            @for (feature of option.features; track feature) {
+                              <span class="feature-item">{{ feature }}</span>
+                            }
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </mat-radio-button>
+                </mat-card-content>
+              </mat-card>
+            }
+          </mat-radio-group>
+
+          <div fxLayout="row" fxLayoutAlign="space-between" class="step-actions">
+            <button mat-button type="button" matStepperPrevious>
+              <mat-icon>arrow_back</mat-icon>
+              Back
+            </button>
+            <button
+              mat-flat-button
+              type="button"
+              color="primary"
+              matStepperNext
+              [disabled]="!caSourceForm.valid"
+            >
+              Next
+              <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+            </button>
+          </div>
+        </form>
+      </mat-step>
+    }
+
+    <!-- Step 3: Configuration -->
+    @if (showConfigStep) {
+      <mat-step [stepControl]="configForm" label="Configure">
+        <form [formGroup]="configForm" fxLayout="column" fxLayoutGap="24px">
+          <div class="step-description">
+            <h3>Configure your key chain</h3>
+            @if (isInternalChain) {
+              <p class="hint">
+                This will create a root CA and a rotating signing key managed as a single key chain.
+              </p>
+            } @else if (selectedUsage === 'attestation' && !isInternalChain) {
+              <p class="hint">This will create a standalone self-signed key.</p>
+            } @else {
+              <p class="hint">Add a description and select where to store the key.</p>
+            }
+          </div>
+
+          <!-- Basic Configuration (for all types) -->
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Basic Settings</mat-card-title>
+            </mat-card-header>
+            <mat-card-content fxLayout="column" fxLayoutGap="16px">
+              <mat-form-field appearance="outline">
+                <mat-label>Description</mat-label>
+                <input
+                  matInput
+                  formControlName="description"
+                  placeholder="Enter a description for this key chain"
+                  title="Key chain description"
+                />
+                <mat-hint>Optional description for this key chain</mat-hint>
+              </mat-form-field>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Rotation Configuration (only for internal chain) -->
+          @if (rotationEnabled) {
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>autorenew</mat-icon>
+                  Rotation Settings
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content fxLayout="column" fxLayoutGap="16px">
+                <div fxLayout="row" fxLayoutGap="16px" fxLayout.lt-md="column">
+                  <mat-form-field appearance="outline" fxFlex>
+                    <mat-label>Rotation Interval (days)</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      formControlName="rotationIntervalDays"
+                      min="1"
+                      placeholder="30"
+                      title="Rotation interval in days"
+                    />
+                    <mat-hint>How often the key will be rotated</mat-hint>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" fxFlex>
+                    <mat-label>Certificate Validity (days)</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      formControlName="certValidityDays"
+                      min="1"
+                      placeholder="365"
+                      title="Certificate validity in days"
+                    />
+                    <mat-hint>Validity period for generated certificates</mat-hint>
+                  </mat-form-field>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+
+          <!-- Summary -->
+          <mat-card class="summary-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>summarize</mat-icon>
+                Summary
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div fxLayout="column" fxLayoutGap="8px">
+                @for (item of getSummary(); track item.label) {
+                  <div fxLayout="row" fxLayoutGap="8px">
+                    <strong>{{ item.label }}:</strong>
+                    <span>{{ item.value }}</span>
+                  </div>
+                }
+              </div>
+
+              @if (selectedUsage === 'attestation' && isInternalChain) {
+                <div class="next-steps-hint">
+                  <mat-icon>info</mat-icon>
+                  <span>
+                    <strong>Next step:</strong> Create a status list key for this credential type to
+                    manage credential revocation.
+                  </span>
+                </div>
+              }
+              @if (selectedUsage === 'attestation' && !isInternalChain) {
+                <div class="next-steps-hint">
+                  <mat-icon>info</mat-icon>
+                  <span>
+                    <strong>Next step:</strong> After creating this key, import a certificate signed
+                    by your external CA.
+                  </span>
+                </div>
+              }
+              @if (selectedUsage === 'statusList') {
+                <div class="next-steps-hint success">
+                  <mat-icon>check_circle</mat-icon>
+                  <span>
+                    <strong>Complete!</strong> This is the final key in your credential type setup.
+                  </span>
+                </div>
+              }
+              @if (selectedUsage === 'trustList') {
+                <div class="next-steps-hint">
+                  <mat-icon>info</mat-icon>
+                  <span>
+                    <strong>Next step:</strong> Configure your trust list and add trusted root keys.
+                  </span>
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+
+          <div fxLayout="row" fxLayoutAlign="space-between" class="step-actions">
+            <button mat-button type="button" matStepperPrevious>
+              <mat-icon>arrow_back</mat-icon>
+              Back
+            </button>
+            @if (isSubmitting) {
+              <button mat-flat-button type="button" color="primary" disabled>
+                <mat-icon class="spinning">sync</mat-icon>
+                Creating...
+              </button>
+            } @else {
+              <button
+                mat-flat-button
+                type="button"
+                color="primary"
+                [disabled]="!configForm.valid"
+                (click)="createKey()"
+              >
+                <mat-icon>vpn_key</mat-icon>
+                Create Key Chain
+              </button>
+            }
+          </div>
+        </form>
+      </mat-step>
+    }
+  </mat-stepper>
+</div>

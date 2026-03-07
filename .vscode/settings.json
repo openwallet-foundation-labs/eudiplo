@@ -58,9 +58,9 @@
     },
     {
       "fileMatch": [
-        "/assets/config/*/keys/*.json"
+        "/assets/config/*/key-chains/*.json"
       ],
-      "url": "./schemas/KeyImportDto.schema.json"
+      "url": "./schemas/KeyChainImportDto.schema.json"
     },
     {
       "fileMatch": [

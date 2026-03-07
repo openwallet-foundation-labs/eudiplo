@@ -1,0 +1,957 @@
+import { readFileSync } from "node:fs";
+import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
+import * as x509 from "@peculiar/x509";
+import { Signer } from "@sd-jwt/types";
+import { plainToClass } from "class-transformer";
+import {
+    exportJWK,
+    exportSPKI,
+    generateKeyPair,
+    importJWK,
+    JWK,
+    JWSHeaderParameters,
+    JWTPayload,
+    SignJWT,
+} from "jose";
+import { Repository } from "typeorm";
+import { v4 } from "uuid";
+import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
+import { ConfigImportService } from "../../shared/utils/config-import/config-import.service";
+import {
+    ConfigImportOrchestratorService,
+    ImportPhase,
+} from "../../shared/utils/config-import/config-import-orchestrator.service";
+import { KeyChainCreateDto, KeyChainType } from "./dto/key-chain-create.dto";
+import { KeyChainImportDto } from "./dto/key-chain-import.dto";
+import {
+    CertificateInfoDto,
+    KeyChainResponseDto,
+    PublicKeyInfoDto,
+} from "./dto/key-chain-response.dto";
+import { KeyChainUpdateDto } from "./dto/key-chain-update.dto";
+import {
+    KeyChainEntity,
+    KeyUsage,
+    KeyUsageType,
+} from "./entities/key-chain.entity";
+
+const ECDSA_P256 = {
+    name: "ECDSA",
+    namedCurve: "P-256",
+    hash: "SHA-256" as const,
+};
+
+/**
+ * KeyChainService manages the unified key chain model.
+ *
+ * A key chain encapsulates:
+ * - An optional root CA key (for internal certificate chains)
+ * - An active signing key with its certificate
+ * - A previous key (for grace period after rotation)
+ * - Rotation policy
+ */
+@Injectable()
+export class KeyChainService {
+    private readonly logger = new Logger(KeyChainService.name);
+
+    constructor(
+        @InjectRepository(KeyChainEntity)
+        private readonly keyChainRepository: Repository<KeyChainEntity>,
+        @InjectRepository(TenantEntity)
+        private readonly tenantRepository: Repository<TenantEntity>,
+        private readonly configService: ConfigService,
+        private readonly configImportService: ConfigImportService,
+        configImportOrchestrator: ConfigImportOrchestratorService,
+    ) {
+        configImportOrchestrator.register(
+            "key-chains",
+            ImportPhase.CORE,
+            (tenantId) => this.importForTenant(tenantId),
+        );
+    }
+
+    /**
+     * Create a new key chain.
+     */
+    async create(tenantId: string, dto: KeyChainCreateDto): Promise<string> {
+        const id = v4();
+        const tenant = await this.tenantRepository.findOneByOrFail({
+            id: tenantId,
+        });
+        const hostname = this.getHostname();
+        const subjectCN = tenant.name;
+
+        const now = new Date();
+        const certValidityDays = dto.rotationPolicy?.certValidityDays || 365;
+        const notAfter = new Date(
+            now.getTime() + certValidityDays * 24 * 60 * 60 * 1000,
+        );
+
+        let keyChain: Partial<KeyChainEntity>;
+
+        if (dto.type === KeyChainType.InternalChain) {
+            keyChain = await this.createInternalChain(
+                id,
+                tenantId,
+                subjectCN,
+                hostname,
+                now,
+                notAfter,
+                dto,
+            );
+        } else {
+            keyChain = await this.createStandaloneKey(
+                id,
+                tenantId,
+                subjectCN,
+                hostname,
+                now,
+                notAfter,
+                dto,
+            );
+        }
+
+        // Save the key chain
+        await this.keyChainRepository.save({
+            ...keyChain,
+            id,
+            tenantId,
+            usageType: dto.usageType,
+            usage: KeyUsage.Sign,
+            description: dto.description,
+            kmsProvider: dto.kmsProvider || "db",
+            rotationEnabled: dto.rotationPolicy?.enabled ?? false,
+            rotationIntervalDays: dto.rotationPolicy?.intervalDays,
+            certValidityDays: dto.rotationPolicy?.certValidityDays,
+        } as KeyChainEntity);
+
+        this.logger.log(
+            `Created key chain ${id} for tenant ${tenantId} (type: ${dto.type})`,
+        );
+        return id;
+    }
+
+    /**
+     * Create a standalone key chain with a pre-generated private key.
+     * Used for encryption keys (e.g., ECDH-ES) that don't need certificates.
+     */
+    async createStandalone(options: {
+        tenantId: string;
+        description?: string;
+        usageType: KeyUsageType;
+        privateKey: JWK;
+    }): Promise<string> {
+        const id = v4();
+        const { tenantId, privateKey, usageType, description } = options;
+
+        // Ensure the private key has a kid
+        if (!privateKey.kid) {
+            privateKey.kid = `${id}-active`;
+        }
+
+        await this.keyChainRepository.save({
+            id,
+            tenantId,
+            usageType,
+            usage: KeyUsage.Encrypt,
+            description: description || "Encryption key",
+            kmsProvider: "db",
+            activeKey: privateKey,
+            activeCertificate: "", // No certificate for encryption keys
+            rotationEnabled: false,
+        } as KeyChainEntity);
+
+        this.logger.log(
+            `Created standalone key chain ${id} for tenant ${tenantId}`,
+        );
+        return id;
+    }
+
+    /**
+     * Create an internal chain with root CA + signing key.
+     */
+    private async createInternalChain(
+        id: string,
+        tenantId: string,
+        subjectCN: string,
+        hostname: string,
+        notBefore: Date,
+        notAfter: Date,
+        dto: KeyChainCreateDto,
+    ): Promise<Partial<KeyChainEntity>> {
+        // === 1. Generate root CA key pair ===
+        const rootKeyPair = await generateKeyPair("ES256", {
+            extractable: true,
+        });
+        const rootPrivateJwk = await exportJWK(rootKeyPair.privateKey);
+        rootPrivateJwk.kid = `${id}-root`;
+
+        // Root CA validity is 10 years (never rotates)
+        const rootNotAfter = new Date(
+            notBefore.getTime() + 10 * 365 * 24 * 60 * 60 * 1000,
+        );
+
+        // === 2. Create self-signed root CA certificate ===
+        const rootCertificate = await this.createSelfSignedCaCert(
+            rootKeyPair,
+            `${subjectCN} Root CA`,
+            hostname,
+            notBefore,
+            rootNotAfter,
+        );
+
+        // === 3. Generate active signing key pair ===
+        const activeKeyPair = await generateKeyPair("ES256", {
+            extractable: true,
+        });
+        const activePrivateJwk = await exportJWK(activeKeyPair.privateKey);
+        activePrivateJwk.kid = `${id}-active`;
+
+        // === 4. Create CA-signed certificate for signing key ===
+        const { cert: activeCertificate, chain } =
+            await this.createCaSignedCert(
+                rootKeyPair,
+                rootCertificate,
+                activeKeyPair.publicKey,
+                subjectCN,
+                hostname,
+                notBefore,
+                notAfter,
+            );
+
+        return {
+            rootKey: rootPrivateJwk,
+            rootCertificate,
+            activeKey: activePrivateJwk,
+            activeCertificate: chain.join("\n"), // Leaf + CA chain
+        };
+    }
+
+    /**
+     * Create a standalone key with self-signed certificate.
+     */
+    private async createStandaloneKey(
+        id: string,
+        tenantId: string,
+        subjectCN: string,
+        hostname: string,
+        notBefore: Date,
+        notAfter: Date,
+        dto: KeyChainCreateDto,
+    ): Promise<Partial<KeyChainEntity>> {
+        // === Generate key pair ===
+        const keyPair = await generateKeyPair("ES256", { extractable: true });
+        const privateJwk = await exportJWK(keyPair.privateKey);
+        privateJwk.kid = `${id}-active`;
+
+        // === Create self-signed certificate ===
+        const certificate = await this.createSelfSignedCert(
+            keyPair,
+            subjectCN,
+            hostname,
+            notBefore,
+            notAfter,
+        );
+
+        return {
+            activeKey: privateJwk,
+            activeCertificate: certificate,
+        };
+    }
+
+    /**
+     * Create a self-signed CA certificate.
+     */
+    private async createSelfSignedCaCert(
+        keyPair: CryptoKeyPair,
+        subjectCN: string,
+        hostname: string,
+        notBefore: Date,
+        notAfter: Date,
+    ): Promise<string> {
+        const cert = await x509.X509CertificateGenerator.createSelfSigned({
+            serialNumber: "01",
+            name: `C=DE, CN=${subjectCN}`,
+            notBefore,
+            notAfter,
+            signingAlgorithm: ECDSA_P256,
+            keys: keyPair,
+            extensions: [
+                new x509.SubjectAlternativeNameExtension([
+                    { type: "dns", value: hostname },
+                ]),
+                new x509.BasicConstraintsExtension(true, undefined, true), // CA:TRUE, critical
+                new x509.KeyUsagesExtension(
+                    x509.KeyUsageFlags.digitalSignature |
+                        x509.KeyUsageFlags.keyEncipherment |
+                        x509.KeyUsageFlags.keyCertSign,
+                    true,
+                ),
+                await x509.SubjectKeyIdentifierExtension.create(
+                    keyPair.publicKey,
+                ),
+            ],
+        });
+
+        return cert.toString("pem");
+    }
+
+    /**
+     * Create a self-signed end-entity certificate (not a CA).
+     */
+    private async createSelfSignedCert(
+        keyPair: CryptoKeyPair,
+        subjectCN: string,
+        hostname: string,
+        notBefore: Date,
+        notAfter: Date,
+    ): Promise<string> {
+        const cert = await x509.X509CertificateGenerator.createSelfSigned({
+            serialNumber: this.generateSerialNumber(),
+            name: `C=DE, CN=${subjectCN}`,
+            notBefore,
+            notAfter,
+            signingAlgorithm: ECDSA_P256,
+            keys: keyPair,
+            extensions: [
+                new x509.SubjectAlternativeNameExtension([
+                    { type: "dns", value: hostname },
+                ]),
+                new x509.BasicConstraintsExtension(false, undefined, true), // Not a CA
+                new x509.KeyUsagesExtension(
+                    x509.KeyUsageFlags.digitalSignature |
+                        x509.KeyUsageFlags.keyEncipherment,
+                    true,
+                ),
+                await x509.SubjectKeyIdentifierExtension.create(
+                    keyPair.publicKey,
+                ),
+            ],
+        });
+
+        return cert.toString("pem");
+    }
+
+    /**
+     * Create a certificate signed by a CA.
+     */
+    private async createCaSignedCert(
+        caKeyPair: CryptoKeyPair,
+        caCertPem: string,
+        subjectPublicKey: CryptoKey,
+        subjectCN: string,
+        hostname: string,
+        notBefore: Date,
+        notAfter: Date,
+    ): Promise<{ cert: string; chain: string[] }> {
+        const caCert = new x509.X509Certificate(caCertPem);
+        const issuerName = caCert.subject;
+
+        const cert = await x509.X509CertificateGenerator.create({
+            serialNumber: this.generateSerialNumber(),
+            subject: `C=DE, CN=${subjectCN}`,
+            issuer: issuerName,
+            notBefore,
+            notAfter,
+            signingAlgorithm: ECDSA_P256,
+            publicKey: subjectPublicKey,
+            signingKey: caKeyPair.privateKey,
+            extensions: [
+                new x509.SubjectAlternativeNameExtension([
+                    { type: "dns", value: hostname },
+                ]),
+                new x509.BasicConstraintsExtension(false, undefined, true), // Not a CA
+                new x509.KeyUsagesExtension(
+                    x509.KeyUsageFlags.digitalSignature |
+                        x509.KeyUsageFlags.keyEncipherment,
+                    true,
+                ),
+                await x509.SubjectKeyIdentifierExtension.create(
+                    subjectPublicKey,
+                ),
+                await x509.AuthorityKeyIdentifierExtension.create(
+                    caKeyPair.publicKey,
+                ),
+            ],
+        });
+
+        const certPem = cert.toString("pem");
+        return {
+            cert: certPem,
+            chain: [certPem, caCertPem],
+        };
+    }
+
+    /**
+     * Get all key chains for a tenant.
+     */
+    async getAll(tenantId: string): Promise<KeyChainResponseDto[]> {
+        const keyChains = await this.keyChainRepository.find({
+            where: { tenantId },
+        });
+
+        return keyChains.map((kc) => this.toResponseDto(kc));
+    }
+
+    /**
+     * Get a specific key chain by ID.
+     */
+    async getById(tenantId: string, id: string): Promise<KeyChainResponseDto> {
+        const keyChain = await this.keyChainRepository.findOne({
+            where: { tenantId, id },
+        });
+
+        if (!keyChain) {
+            throw new NotFoundException(`Key chain ${id} not found`);
+        }
+
+        return this.toResponseDto(keyChain);
+    }
+
+    /**
+     * Get a key chain entity by ID (internal use).
+     */
+    async getEntity(tenantId: string, id: string): Promise<KeyChainEntity> {
+        const keyChain = await this.keyChainRepository.findOne({
+            where: { tenantId, id },
+        });
+
+        if (!keyChain) {
+            throw new NotFoundException(`Key chain ${id} not found`);
+        }
+
+        return keyChain;
+    }
+
+    /**
+     * Find a key chain by usage type.
+     */
+    async findByUsageType(
+        tenantId: string,
+        usageType: KeyUsageType,
+        keyId?: string,
+    ): Promise<KeyChainEntity> {
+        const whereClause: Record<string, unknown> = {
+            tenantId,
+            usageType,
+        };
+
+        if (keyId) {
+            whereClause.id = keyId;
+        }
+
+        const keyChain = await this.keyChainRepository.findOne({
+            where: whereClause,
+        });
+
+        if (!keyChain) {
+            throw new NotFoundException(
+                `No key chain found with usage type '${usageType}' for tenant ${tenantId}`,
+            );
+        }
+
+        return keyChain;
+    }
+
+    /**
+     * Update a key chain.
+     */
+    async update(
+        tenantId: string,
+        id: string,
+        dto: KeyChainUpdateDto,
+    ): Promise<void> {
+        const keyChain = await this.getEntity(tenantId, id);
+
+        const updates: Partial<KeyChainEntity> = {};
+
+        if (dto.description !== undefined) {
+            updates.description = dto.description;
+        }
+
+        if (dto.rotationPolicy) {
+            if (dto.rotationPolicy.enabled !== undefined) {
+                updates.rotationEnabled = dto.rotationPolicy.enabled;
+            }
+            if (dto.rotationPolicy.intervalDays !== undefined) {
+                updates.rotationIntervalDays = dto.rotationPolicy.intervalDays;
+            }
+            if (dto.rotationPolicy.certValidityDays !== undefined) {
+                updates.certValidityDays = dto.rotationPolicy.certValidityDays;
+            }
+        }
+
+        if (dto.activeCertificate !== undefined) {
+            updates.activeCertificate = dto.activeCertificate;
+        }
+
+        await this.keyChainRepository.update({ tenantId, id }, updates);
+        this.logger.log(`Updated key chain ${id}`);
+    }
+
+    /**
+     * Delete a key chain.
+     */
+    async delete(tenantId: string, id: string): Promise<void> {
+        const result = await this.keyChainRepository.delete({ tenantId, id });
+
+        if (result.affected === 0) {
+            throw new NotFoundException(`Key chain ${id} not found`);
+        }
+
+        this.logger.log(`Deleted key chain ${id}`);
+    }
+
+    // ─────────────────────── config import ───────────────────────
+
+    /**
+     * Import key chains for a tenant from the filesystem.
+     *
+     * Supports two modes:
+     * 1. New format: key-chains/*.json with combined key + cert
+     * 2. Legacy format: keys/*.json + certs/*.json (separate files linked by keyId)
+     */
+    async importForTenant(tenantId: string): Promise<void> {
+        await this.configImportService.importConfigsForTenant<KeyChainImportDto>(
+            tenantId,
+            {
+                subfolder: "key-chains",
+                fileExtension: ".json",
+                validationClass: KeyChainImportDto,
+                resourceType: "key-chain",
+                loadData: (filePath) => {
+                    const payload = JSON.parse(readFileSync(filePath, "utf8"));
+                    return plainToClass(KeyChainImportDto, payload);
+                },
+                checkExists: async (tid, data) => {
+                    // Check by matching public key coordinates
+                    const existing = await this.keyChainRepository.find({
+                        where: { tenantId: tid },
+                    });
+                    return existing.some(
+                        (kc) =>
+                            kc.activeKey.x === data.key.x &&
+                            kc.activeKey.y === data.key.y,
+                    );
+                },
+                processItem: async (tid, config) => {
+                    await this.importKeyChain(tid, config);
+                },
+            },
+        );
+    }
+
+    /**
+     * Import a single key chain from DTO.
+     */
+    async importKeyChain(
+        tenantId: string,
+        dto: KeyChainImportDto,
+    ): Promise<string> {
+        const id = dto.id || v4();
+        const tenant = await this.tenantRepository.findOneByOrFail({
+            id: tenantId,
+        });
+        const hostname = this.getHostname();
+
+        // Ensure key has a kid
+        const privateKey = { ...dto.key };
+        if (!privateKey.kid) {
+            privateKey.kid = `${id}-active`;
+        }
+        if (!privateKey.alg) {
+            privateKey.alg = "ES256";
+        }
+
+        let activeCertificate: string;
+
+        if (dto.crt && dto.crt.length > 0) {
+            // Use provided certificate
+            activeCertificate = dto.crt.join("\n");
+        } else {
+            // Generate self-signed certificate
+            // Need to import both private and public keys separately
+            const privateKeyObj = await importJWK(privateKey, "ES256");
+
+            // Create public key JWK by removing the private component
+            const publicKeyJwk = { ...privateKey };
+            delete (publicKeyJwk as Record<string, unknown>).d;
+            const publicKeyObj = await importJWK(publicKeyJwk, "ES256");
+
+            const now = new Date();
+            const notAfter = new Date(
+                now.getTime() + 365 * 24 * 60 * 60 * 1000,
+            );
+            activeCertificate = await this.createSelfSignedCert(
+                {
+                    privateKey: privateKeyObj as CryptoKey,
+                    publicKey: publicKeyObj as CryptoKey,
+                },
+                tenant.name,
+                hostname,
+                now,
+                notAfter,
+            );
+        }
+
+        await this.keyChainRepository.save({
+            id,
+            tenantId,
+            usageType: dto.usageType,
+            usage: KeyUsage.Sign,
+            description: dto.description,
+            kmsProvider: dto.kmsProvider || "db",
+            activeKey: privateKey as JWK,
+            activeCertificate,
+            rotationEnabled: false,
+        } as KeyChainEntity);
+
+        this.logger.log(
+            `Imported key chain ${id} for tenant ${tenantId} (usage: ${dto.usageType})`,
+        );
+        return id;
+    }
+
+    /**
+     * Rotate the signing key in a key chain.
+     * Creates new key material and certificate, moves current to previous.
+     */
+    async rotate(tenantId: string, id: string): Promise<void> {
+        const keyChain = await this.getEntity(tenantId, id);
+        const hostname = this.getHostname();
+        const tenant = await this.tenantRepository.findOneByOrFail({
+            id: tenantId,
+        });
+        const subjectCN = tenant.name;
+
+        const now = new Date();
+        const certValidityDays = keyChain.certValidityDays || 365;
+        const notAfter = new Date(
+            now.getTime() + certValidityDays * 24 * 60 * 60 * 1000,
+        );
+
+        // Grace period: keep previous key for 30 days after rotation
+        const gracePeriodDays = 30;
+        const previousKeyExpiry = new Date(
+            now.getTime() + gracePeriodDays * 24 * 60 * 60 * 1000,
+        );
+
+        // Move current key to previous
+        const previousKey = keyChain.activeKey;
+        const previousCertificate = keyChain.activeCertificate;
+
+        // Generate new active key
+        const newKeyPair = await generateKeyPair("ES256", {
+            extractable: true,
+        });
+        const newPrivateJwk = await exportJWK(newKeyPair.privateKey);
+        newPrivateJwk.kid = `${id}-${Date.now()}`;
+
+        let newCertificate: string;
+
+        if (keyChain.hasInternalCa()) {
+            // Recreate CA key pair from JWK for signing
+            const caPrivateKey = (await importJWK(
+                keyChain.rootKey!,
+                "ES256",
+            )) as CryptoKey;
+            const caPublicJwk = this.getPublicJwk(keyChain.rootKey!);
+            const caPublicKey = (await importJWK(
+                caPublicJwk,
+                "ES256",
+            )) as CryptoKey;
+
+            const { chain } = await this.createCaSignedCert(
+                { privateKey: caPrivateKey, publicKey: caPublicKey },
+                keyChain.rootCertificate!,
+                newKeyPair.publicKey,
+                subjectCN,
+                hostname,
+                now,
+                notAfter,
+            );
+            newCertificate = chain.join("\n");
+        } else {
+            newCertificate = await this.createSelfSignedCert(
+                newKeyPair,
+                subjectCN,
+                hostname,
+                now,
+                notAfter,
+            );
+        }
+
+        // Update the key chain
+        await this.keyChainRepository.update(
+            { tenantId, id },
+            {
+                activeKey: newPrivateJwk,
+                activeCertificate: newCertificate,
+                previousKey,
+                previousCertificate,
+                previousKeyExpiry,
+                lastRotatedAt: now,
+            },
+        );
+
+        this.logger.log(`Rotated key chain ${id}`);
+    }
+
+    /**
+     * Get the active private key (for signing operations).
+     */
+    async getActiveKey(tenantId: string, id: string): Promise<JWK> {
+        const keyChain = await this.getEntity(tenantId, id);
+        return keyChain.activeKey;
+    }
+
+    /**
+     * Get all public keys for JWKS (current + previous if in grace period).
+     */
+    async getPublicKeys(tenantId: string, id: string): Promise<JWK[]> {
+        const keyChain = await this.getEntity(tenantId, id);
+        return keyChain.getPublicKeys();
+    }
+
+    /**
+     * Get the active certificate chain as PEM.
+     */
+    async getActiveCertificate(tenantId: string, id: string): Promise<string> {
+        const keyChain = await this.getEntity(tenantId, id);
+        return keyChain.activeCertificate;
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // SIGNING OPERATIONS
+    // ─────────────────────────────────────────────────────────
+
+    /**
+     * Get a Signer callback for SD-JWT signing.
+     * If keyId is provided, uses that specific key chain.
+     * Otherwise uses the first available key chain.
+     */
+    async signer(tenantId: string, keyId?: string): Promise<Signer> {
+        const keyChain = keyId
+            ? await this.getEntity(tenantId, keyId)
+            : await this.getFirstKeyChain(tenantId);
+
+        const privateKey = await importJWK(keyChain.activeKey, "ES256");
+
+        return async (data: string): Promise<string> => {
+            const jwt = new SignJWT({}).setProtectedHeader({
+                alg: "ES256",
+                kid: keyChain.activeKey.kid,
+            });
+            // For SD-JWT, we need to sign raw data, not build a full JWT
+            // The SignJWT is used only to extract the signature
+            const encoder = new TextEncoder();
+            const signature = await globalThis.crypto.subtle.sign(
+                { name: "ECDSA", hash: "SHA-256" },
+                privateKey as CryptoKey,
+                encoder.encode(data),
+            );
+            return Buffer.from(signature).toString("base64url");
+        };
+    }
+
+    /**
+     * Sign a JWT with the active key of a key chain.
+     */
+    async signJWT(
+        payload: JWTPayload,
+        header: JWSHeaderParameters,
+        tenantId: string,
+        keyId?: string,
+    ): Promise<string> {
+        const keyChain = keyId
+            ? await this.getEntity(tenantId, keyId)
+            : await this.getFirstKeyChain(tenantId);
+
+        const privateKey = await importJWK(keyChain.activeKey, "ES256");
+
+        // Build JWT header, filtering out incompatible properties
+        const { b64, ...compatibleHeader } = header;
+        const jwtHeader = {
+            ...compatibleHeader,
+            alg: header.alg || "ES256",
+            kid: keyChain.activeKey.kid,
+        };
+
+        const jwt = new SignJWT(payload).setProtectedHeader(jwtHeader);
+
+        return jwt.sign(privateKey);
+    }
+
+    /**
+     * Get the public key for a key chain.
+     * @param type - "jwk" for JSON Web Key format, "pem" for PEM format
+     */
+    getPublicKey(type: "jwk", tenantId: string, keyId?: string): Promise<JWK>;
+    getPublicKey(
+        type: "pem",
+        tenantId: string,
+        keyId?: string,
+    ): Promise<string>;
+    async getPublicKey(
+        type: "pem" | "jwk",
+        tenantId: string,
+        keyId?: string,
+    ): Promise<JWK | string> {
+        const keyChain = keyId
+            ? await this.getEntity(tenantId, keyId)
+            : await this.getFirstKeyChain(tenantId);
+
+        const publicJwk = this.getPublicJwk(keyChain.activeKey);
+
+        if (type === "jwk") {
+            return publicJwk;
+        }
+
+        const publicKey = await importJWK(publicJwk, "ES256");
+        return exportSPKI(publicKey as CryptoKey);
+    }
+
+    /**
+     * Get the Key ID (kid) for the first available key chain.
+     */
+    async getKid(tenantId: string): Promise<string> {
+        const keyChain = await this.getFirstKeyChain(tenantId);
+        return keyChain.id;
+    }
+
+    /**
+     * Get the first available key chain for a tenant.
+     */
+    private async getFirstKeyChain(tenantId: string): Promise<KeyChainEntity> {
+        const keyChain = await this.keyChainRepository.findOne({
+            where: { tenantId },
+        });
+
+        if (!keyChain) {
+            throw new NotFoundException(
+                `No key chain found for tenant ${tenantId}`,
+            );
+        }
+
+        return keyChain;
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // HELPER METHODS
+    // ─────────────────────────────────────────────────────────
+
+    private getHostname(): string {
+        return new URL(this.configService.getOrThrow<string>("PUBLIC_URL"))
+            .hostname;
+    }
+
+    private generateSerialNumber(): string {
+        const bytes = new Uint8Array(16);
+        globalThis.crypto.getRandomValues(bytes);
+        return Buffer.from(bytes).toString("hex");
+    }
+
+    private getPublicJwk(jwk: JWK): JWK {
+        const { d, p, q, dp, dq, qi, k, ...publicJwk } = jwk as Record<
+            string,
+            unknown
+        >;
+        return publicJwk as JWK;
+    }
+
+    private toResponseDto(keyChain: KeyChainEntity): KeyChainResponseDto {
+        const type = keyChain.hasInternalCa()
+            ? KeyChainType.InternalChain
+            : KeyChainType.Standalone;
+
+        const response: KeyChainResponseDto = {
+            id: keyChain.id,
+            usageType: keyChain.usageType,
+            type,
+            description: keyChain.description,
+            kmsProvider: keyChain.kmsProvider,
+            activePublicKey: this.toPublicKeyInfo(keyChain.activeKey),
+            rotationPolicy: {
+                enabled: keyChain.rotationEnabled,
+                intervalDays: keyChain.rotationIntervalDays,
+                certValidityDays: keyChain.certValidityDays,
+                nextRotationAt: this.calculateNextRotation(keyChain),
+            },
+            createdAt: keyChain.createdAt,
+            updatedAt: keyChain.updatedAt,
+        };
+
+        // Only include certificate info for keys that have certificates
+        // Encryption keys (ECDH-ES) don't have certificates
+        if (keyChain.activeCertificate) {
+            response.activeCertificate = this.toCertificateInfo(
+                keyChain.activeCertificate,
+            );
+        }
+
+        if (keyChain.rootCertificate) {
+            response.rootCertificate = this.toCertificateInfo(
+                keyChain.rootCertificate,
+            );
+        }
+
+        if (keyChain.previousKey) {
+            response.previousPublicKey = this.toPublicKeyInfo(
+                keyChain.previousKey,
+            );
+            response.previousCertificate = this.toCertificateInfo(
+                keyChain.previousCertificate!,
+            );
+            response.previousKeyExpiry = keyChain.previousKeyExpiry;
+        }
+
+        return response;
+    }
+
+    private toPublicKeyInfo(jwk: JWK): PublicKeyInfoDto {
+        const publicJwk = this.getPublicJwk(jwk);
+        return {
+            kty: publicJwk.kty as string,
+            alg: publicJwk.alg as string | undefined,
+            kid: publicJwk.kid as string | undefined,
+            crv: (publicJwk as Record<string, unknown>).crv as
+                | string
+                | undefined,
+        };
+    }
+
+    private toCertificateInfo(pem: string): CertificateInfoDto {
+        // Parse first certificate in chain
+        const firstCertPem =
+            pem.split("-----END CERTIFICATE-----")[0] +
+            "-----END CERTIFICATE-----";
+
+        try {
+            const cert = new x509.X509Certificate(firstCertPem);
+            return {
+                pem,
+                subject: cert.subject,
+                issuer: cert.issuer,
+                notBefore: cert.notBefore,
+                notAfter: cert.notAfter,
+                serialNumber: cert.serialNumber,
+            };
+        } catch {
+            return { pem };
+        }
+    }
+
+    private calculateNextRotation(keyChain: KeyChainEntity): Date | undefined {
+        if (!keyChain.rotationEnabled || !keyChain.rotationIntervalDays) {
+            return undefined;
+        }
+
+        const baseDate = keyChain.lastRotatedAt || keyChain.createdAt;
+        return new Date(
+            baseDate.getTime() +
+                keyChain.rotationIntervalDays * 24 * 60 * 60 * 1000,
+        );
+    }
+}

@@ -1,27 +1,10 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
 import { CryptoService } from "./crypto.service";
 import { EncryptionService } from "./encryption/encryption.service";
-import { CertController } from "./key/cert/cert.controller";
-import { CertEntity } from "./key/entities/cert.entity";
-import { CertUsageEntity } from "./key/entities/cert-usage.entity";
-import { KeyUsageEntity } from "./key/entities/key-usage.entity";
-import { KeyEntity } from "./key/entities/keys.entity";
 
 @Module({
-    imports: [
-        ConfigModule,
-        TypeOrmModule.forFeature([
-            CertEntity,
-            CertUsageEntity,
-            KeyUsageEntity,
-            KeyEntity,
-            TenantEntity,
-        ]),
-    ],
-    controllers: [CertController],
+    imports: [ConfigModule],
     providers: [CryptoService, EncryptionService],
     exports: [CryptoService, EncryptionService],
 })

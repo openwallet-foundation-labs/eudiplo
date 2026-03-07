@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { CertService } from "../../../../crypto/key/cert/cert.service";
 import { CryptoImplementationService } from "../../../../crypto/key/crypto-implementation/crypto-implementation.service";
-import { KeyUsageType } from "../../../../crypto/key/entities/key-usage.entity";
-import { KeyService } from "../../../../crypto/key/key.service";
+import { KeyUsageType } from "../../../../crypto/key/entities/key-chain.entity";
+import { KeyChainService } from "../../../../crypto/key/key-chain.service";
 import { MediaType } from "../../../../shared/utils/mediaType/media-type.enum";
 import { IssuanceService } from "../../../configuration/issuance/issuance.service";
 import { AuthorizeService } from "../authorize/authorize.service";
@@ -25,7 +25,7 @@ export class WellKnownService {
     constructor(
         private readonly oid4vciService: Oid4vciService,
         private readonly certService: CertService,
-        public readonly keyService: KeyService,
+        public readonly keyChainService: KeyChainService,
         private readonly authorizeService: AuthorizeService,
         private readonly cryptoImplementationService: CryptoImplementationService,
         private readonly chainedAsService: ChainedAsService,
@@ -50,7 +50,7 @@ export class WellKnownService {
                 tenantId,
                 type: KeyUsageType.Access,
             });
-            return this.keyService.signJWT(
+            return this.keyChainService.signJWT(
                 {
                     ...metadata,
                     iss: metadata.credential_issuer,
@@ -92,9 +92,9 @@ export class WellKnownService {
 
         const signingKeyId =
             issuanceConfig.signingKeyId ||
-            (await this.keyService.getKid(tenantId));
+            (await this.keyChainService.getKid(tenantId));
 
-        const publicKey = await this.keyService.getPublicKey(
+        const publicKey = await this.keyChainService.getPublicKey(
             "jwk",
             tenantId,
             signingKeyId,

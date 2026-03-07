@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/KeyChainUpdateDto.schema.json",
+  "title": "KeyChainUpdateDto",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "description": "Human-readable description for the key chain."
+    },
+    "rotationPolicy": {
+      "description": "Rotation policy configuration.",
+      "allOf": [
+        {
+          "$ref": "./RotationPolicyUpdateDto.schema.json"
+        }
+      ]
+    },
+    "activeCertificate": {
+      "type": "string",
+      "description": "Active certificate chain in PEM format. Used for external certificate updates."
+    }
+  }
+}

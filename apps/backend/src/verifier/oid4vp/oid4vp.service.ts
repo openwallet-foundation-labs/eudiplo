@@ -8,8 +8,8 @@ import { v4 } from "uuid";
 import { EncryptionService } from "../../crypto/encryption/encryption.service";
 import { CertService } from "../../crypto/key/cert/cert.service";
 import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
-import { KeyUsageType } from "../../crypto/key/entities/key-usage.entity";
-import { KeyService } from "../../crypto/key/key.service";
+import { KeyUsageType } from "../../crypto/key/entities/key-chain.entity";
+import { KeyChainService } from "../../crypto/key/key-chain.service";
 import { OfferResponse } from "../../issuer/issuance/oid4vci/dto/offer-request.dto";
 import { SessionStatus } from "../../session/entities/session.entity";
 import { SessionService } from "../../session/session.service";
@@ -25,7 +25,7 @@ import { PresentationRequestOptions } from "./dto/presentation-request-options.d
 export class Oid4vpService {
     constructor(
         private readonly certService: CertService,
-        public readonly keyService: KeyService,
+        public readonly keyChainService: KeyChainService,
         private readonly encryptionService: EncryptionService,
         private readonly configService: ConfigService,
         private readonly presentationsService: PresentationsService,
@@ -204,7 +204,7 @@ export class Oid4vpService {
                 x5c: this.certService.getCertChain(cert),
             };
 
-            const signedJwt = await this.keyService.signJWT(
+            const signedJwt = await this.keyChainService.signJWT(
                 request.payload,
                 header,
                 session.tenantId,

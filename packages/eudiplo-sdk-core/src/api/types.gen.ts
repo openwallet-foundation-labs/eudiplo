@@ -276,145 +276,6 @@ export type CreateClientDto = {
   >;
 };
 
-export type CertEntity = {
-  /**
-   * The key ID this certificate is associated with
-   */
-  keyId: string;
-  /**
-   * Unique identifier for the key.
-   */
-  id: string;
-  /**
-   * Tenant ID for the key.
-   */
-  tenantId: string;
-  /**
-   * The tenant that owns this object.
-   */
-  tenant: TenantEntity;
-  /**
-   * Certificate chain in PEM format (leaf first, then intermediates/CA).
-   */
-  crt: Array<string>;
-  /**
-   * Description of the key.
-   */
-  description?: string;
-  key: KeyEntity;
-  /**
-   * The timestamp when the certificate was created.
-   */
-  createdAt: string;
-  /**
-   * The timestamp when the certificate was last updated.
-   */
-  updatedAt: string;
-};
-
-export type KeyUsageEntity = {
-  tenantId: string;
-  keyId: string;
-  usage: "access" | "signing" | "trustList" | "statusList";
-  key: KeyEntity;
-};
-
-export type KeyEntity = {
-  /**
-   * Unique identifier for the key.
-   */
-  id: string;
-  /**
-   * Description of the key.
-   */
-  description?: string;
-  /**
-   * Tenant ID for the key.
-   */
-  tenantId: string;
-  /**
-   * The tenant that owns this object.
-   */
-  tenant: TenantEntity;
-  /**
-   * The key material.
-   * Encrypted at rest using AES-256-GCM.
-   */
-  key: {
-    [key: string]: unknown;
-  };
-  /**
-   * The usage type of the key.
-   */
-  usage: {
-    [key: string]: unknown;
-  };
-  /**
-   * The KMS provider used for this key.
-   * References a configured KMS provider name.
-   */
-  kmsProvider: string;
-  /**
-   * External key identifier for cloud KMS providers (e.g., AWS KMS Key ID, Azure Key Vault Key ID).
-   * This field stores the provider-specific key reference, keeping it separate from the JWK.
-   * Only populated for keys managed by external KMS providers (not for "db" provider).
-   */
-  externalKeyId?: string;
-  /**
-   * Certificates associated with this key.
-   */
-  certificates: Array<CertEntity>;
-  /**
-   * Usage assignments for this key.
-   * Defines what purposes this key is used for (access, signing, trustList, statusList).
-   */
-  usages: Array<KeyUsageEntity>;
-  /**
-   * The timestamp when the key was created.
-   */
-  createdAt: string;
-  /**
-   * The timestamp when the key was last updated.
-   */
-  updatedAt: string;
-};
-
-export type CertImportDto = {
-  /**
-   * The key ID this certificate is associated with
-   */
-  keyId: string;
-  id?: string;
-  /**
-   * Certificate chain in PEM format (leaf first, then intermediates/CA).
-   * If not provided, a self-signed certificate will be generated.
-   */
-  crt?: Array<string>;
-  /**
-   * Subject name (CN) for self-signed certificate generation.
-   * If not provided, the tenant name will be used.
-   */
-  subjectName?: string;
-  /**
-   * Description of the key.
-   */
-  description?: string;
-};
-
-export type CertResponseDto = {
-  /**
-   * The ID of the created self-signed certificate.
-   */
-  id: string;
-};
-
-export type CertUpdateDto = {
-  /**
-   * Description of the key.
-   */
-  description?: string;
-};
-
 export type StatusListImportDto = {
   /**
    * Unique identifier for the status list
@@ -1147,6 +1008,90 @@ export type IssuerMetadataCredentialConfig = {
   };
 };
 
+export type KeyChainEntity = {
+  /**
+   * Unique identifier for the key chain.
+   * This is the ID referenced by other entities (e.g., issuance config's signingKeyId).
+   */
+  id: string;
+  /**
+   * Tenant ID for the key chain.
+   */
+  tenantId: string;
+  /**
+   * The tenant that owns this key chain.
+   */
+  tenant: TenantEntity;
+  /**
+   * Human-readable description of the key chain.
+   */
+  description?: string;
+  /**
+   * The purpose/role of this key chain in the system.
+   */
+  usageType: "access" | "attestation" | "trustList" | "statusList" | "encrypt";
+  /**
+   * The usage type of the keys (sign or encrypt).
+   */
+  usage: "sign" | "encrypt";
+  /**
+   * The KMS provider used for this key chain.
+   * References a configured KMS provider name.
+   */
+  kmsProvider: string;
+  /**
+   * External key identifier for cloud KMS providers.
+   * This field stores the provider-specific key reference for the active signing key.
+   */
+  externalKeyId?: string;
+  rootKey?: {
+    [key: string]: unknown;
+  };
+  /**
+   * Root CA certificate in PEM format.
+   * Self-signed certificate for the root CA key.
+   */
+  rootCertificate?: string;
+  activeKey: {
+    [key: string]: unknown;
+  };
+  /**
+   * Certificate for the active signing key in PEM format.
+   * Either CA-signed (if rootKey exists) or self-signed.
+   */
+  activeCertificate: string;
+  rotationEnabled: boolean;
+  /**
+   * Rotation interval in days. Key material will be rotated after this many days.
+   */
+  rotationIntervalDays?: number;
+  /**
+   * Certificate validity in days when generating new certificates.
+   */
+  certValidityDays?: number;
+  /**
+   * Timestamp of when the key was last rotated.
+   */
+  lastRotatedAt?: string;
+  previousKey?: {
+    [key: string]: unknown;
+  };
+  /**
+   * Certificate for the previous signing key in PEM format.
+   */
+  previousCertificate?: string;
+  /**
+   * Expiry date for the previous key.
+   * After this date, the previous key should be deleted.
+   */
+  previousKeyExpiry?: string;
+  createdAt: string;
+  /**
+   * The timestamp when the key chain was last updated.
+   */
+  updatedAt: string;
+};
+
 export type SchemaResponse = {
   $schema: string;
   type: string;
@@ -1196,13 +1141,11 @@ export type CredentialConfig = {
   };
   keyBinding?: boolean;
   /**
-   * Reference to the certificate used for signing.
-   * Note: No DB-level FK constraint because CertEntity has a composite PK
-   * (id + tenantId) and SET NULL behavior cannot work when tenantId is
-   * part of this entity's own PK.
+   * Reference to the key chain used for signing.
+   * Optional: if not specified, the default attestation key chain will be used.
    */
   certId?: string;
-  cert?: CertEntity;
+  keyChain?: KeyChainEntity;
   statusManagement?: boolean;
   lifeTime?: number;
   schema?: SchemaResponse;
@@ -1242,10 +1185,8 @@ export type CredentialConfigCreate = {
   };
   keyBinding?: boolean;
   /**
-   * Reference to the certificate used for signing.
-   * Note: No DB-level FK constraint because CertEntity has a composite PK
-   * (id + tenantId) and SET NULL behavior cannot work when tenantId is
-   * part of this entity's own PK.
+   * Reference to the key chain used for signing.
+   * Optional: if not specified, the default attestation key chain will be used.
    */
   certId?: string;
   statusManagement?: boolean;
@@ -1287,10 +1228,8 @@ export type CredentialConfigUpdate = {
   };
   keyBinding?: boolean;
   /**
-   * Reference to the certificate used for signing.
-   * Note: No DB-level FK constraint because CertEntity has a composite PK
-   * (id + tenantId) and SET NULL behavior cannot work when tenantId is
-   * part of this entity's own PK.
+   * Reference to the key chain used for signing.
+   * Optional: if not specified, the default attestation key chain will be used.
    */
   certId?: string;
   statusManagement?: boolean;
@@ -1877,11 +1816,11 @@ export type CreateAccessCertificateDto = {
 
 export type TrustListCreateDto = {
   id?: string;
+  description?: string;
   certId?: string;
   entities: Array<{
     [key: string]: unknown;
   }>;
-  description?: string;
   /**
    * The full trust list JSON (generated LoTE structure)
    */
@@ -1905,7 +1844,7 @@ export type TrustList = {
    */
   tenant: TenantEntity;
   certId: string;
-  cert: CertEntity;
+  keyChain: KeyChainEntity;
   /**
    * The full trust list JSON (generated LoTE structure)
    */
@@ -1959,153 +1898,196 @@ export type TrustListVersion = {
   createdAt: string;
 };
 
-export type BaseKmsProviderConfigDto = {
+export type CertificateInfoDto = {
   /**
-   * Unique identifier for this provider instance. Used when generating keys to specify which provider to use.
+   * Certificate in PEM format.
+   */
+  pem: string;
+  /**
+   * Certificate subject (CN).
+   */
+  subject?: string;
+  /**
+   * Certificate issuer (CN).
+   */
+  issuer?: string;
+  /**
+   * Certificate not before date.
+   */
+  notBefore?: string;
+  /**
+   * Certificate not after date.
+   */
+  notAfter?: string;
+  /**
+   * Serial number.
+   */
+  serialNumber?: string;
+};
+
+export type PublicKeyInfoDto = {
+  /**
+   * Key type (e.g., EC).
+   */
+  kty: string;
+  /**
+   * Key algorithm (e.g., ES256).
+   */
+  alg?: string;
+  /**
+   * Key ID.
+   */
+  kid?: string;
+  /**
+   * Curve (for EC keys).
+   */
+  crv?: string;
+};
+
+export type RotationPolicyResponseDto = {
+  /**
+   * Whether automatic key rotation is enabled.
+   */
+  enabled: boolean;
+  /**
+   * Rotation interval in days.
+   */
+  intervalDays?: number;
+  /**
+   * Certificate validity in days.
+   */
+  certValidityDays?: number;
+  /**
+   * Next scheduled rotation date.
+   */
+  nextRotationAt?: string;
+};
+
+export type KeyChainResponseDto = {
+  /**
+   * Unique identifier for the key chain.
    */
   id: string;
   /**
-   * Type of the KMS provider. Must match a supported adapter type.
+   * Usage type of the key chain.
    */
-  type: "db" | "vault" | "aws-kms";
+  usageType: "access" | "attestation" | "trustList" | "statusList" | "encrypt";
   /**
-   * Human-readable description of this provider instance.
+   * Type of key chain (standalone or internalChain).
    */
-  description?: string;
-};
-
-export type KmsConfigDto = {
+  type: "standalone" | "internalChain";
   /**
-   * ID of the default KMS provider. Defaults to "db" if not set.
-   */
-  defaultProvider?: string;
-  /**
-   * List of KMS provider configurations. Each provider must have a unique id and a type.
-   */
-  providers: Array<BaseKmsProviderConfigDto>;
-};
-
-export type KmsProviderCapabilitiesDto = {
-  /**
-   * Whether the provider supports importing existing keys.
-   */
-  canImport: boolean;
-  /**
-   * Whether the provider supports generating new keys.
-   */
-  canCreate: boolean;
-  /**
-   * Whether the provider supports deleting keys.
-   */
-  canDelete: boolean;
-};
-
-export type KmsProviderInfoDto = {
-  /**
-   * Unique provider ID (matches the id in kms.json).
-   */
-  name: string;
-  /**
-   * Type of the KMS provider (db, vault, aws-kms).
-   */
-  type: string;
-  /**
-   * Human-readable description of this provider instance.
+   * Human-readable description.
    */
   description?: string;
   /**
-   * Capabilities of this provider.
+   * KMS provider used for this key chain.
    */
-  capabilities: KmsProviderCapabilitiesDto;
+  kmsProvider: string;
+  /**
+   * Root CA certificate (only for internalChain type).
+   */
+  rootCertificate?: CertificateInfoDto;
+  /**
+   * Active signing key's public key info.
+   */
+  activePublicKey: PublicKeyInfoDto;
+  /**
+   * Active signing key's certificate.
+   */
+  activeCertificate: CertificateInfoDto;
+  /**
+   * Previous signing key's public key info (if in grace period).
+   */
+  previousPublicKey?: PublicKeyInfoDto;
+  /**
+   * Previous signing key's certificate (if in grace period).
+   */
+  previousCertificate?: CertificateInfoDto;
+  /**
+   * Previous key expiry date.
+   */
+  previousKeyExpiry?: string;
+  /**
+   * Rotation policy configuration.
+   */
+  rotationPolicy: RotationPolicyResponseDto;
+  /**
+   * Timestamp when the key chain was created.
+   */
+  createdAt: string;
+  /**
+   * Timestamp when the key chain was last updated.
+   */
+  updatedAt: string;
 };
 
-export type KmsProvidersResponseDto = {
+export type RotationPolicyCreateDto = {
   /**
-   * Detailed info for each registered KMS provider.
+   * Whether automatic key rotation is enabled.
    */
-  providers: Array<KmsProviderInfoDto>;
+  enabled: boolean;
   /**
-   * The default KMS provider name.
+   * Rotation interval in days. Required when enabled is true.
    */
-  default: string;
+  intervalDays?: number;
+  /**
+   * Certificate validity in days. Defaults to rotation interval + 30 days grace period.
+   */
+  certValidityDays?: number;
 };
 
-export type KeyGenerateDto = {
+export type KeyChainCreateDto = {
+  /**
+   * Usage type determines the purpose of this key chain (access, attestation, etc.).
+   */
+  usageType: "access" | "attestation" | "trustList" | "statusList" | "encrypt";
+  /**
+   * Type of key chain to create.
+   */
+  type: "standalone" | "internalChain";
+  /**
+   * Human-readable description for the key chain.
+   */
+  description?: string;
   /**
    * KMS provider to use (defaults to the configured default provider).
    */
   kmsProvider?: string;
   /**
-   * Optional human-readable description for the key.
+   * Rotation policy configuration. Only applicable for the signing key (root CA never rotates).
+   */
+  rotationPolicy?: RotationPolicyCreateDto;
+};
+
+export type RotationPolicyUpdateDto = {
+  /**
+   * Whether automatic key rotation is enabled.
+   */
+  enabled?: boolean;
+  /**
+   * Rotation interval in days.
+   */
+  intervalDays?: number;
+  /**
+   * Certificate validity in days.
+   */
+  certValidityDays?: number;
+};
+
+export type KeyChainUpdateDto = {
+  /**
+   * Human-readable description for the key chain.
    */
   description?: string;
   /**
-   * Usage types for this key (access, signing, trustList, statusList).
+   * Rotation policy configuration.
    */
-  usageTypes?: Array<"access" | "signing" | "trustList" | "statusList">;
-};
-
-export type Key = {
-  kty: string;
-  x: string;
-  y: string;
-  crv: string;
-  d: string;
-  alg: string;
-};
-
-export type KeyImportDto = {
+  rotationPolicy?: RotationPolicyUpdateDto;
   /**
-   * KMS provider name to use for this key. Defaults to the configured default.
+   * Active certificate chain in PEM format. Used for external certificate updates.
    */
-  kmsProvider?: string;
-  /**
-   * Usage types for this key (access, signing, trustList, statusList).
-   */
-  usageTypes?: Array<"access" | "signing" | "trustList" | "statusList">;
-  /**
-   * The private key in JWK format.
-   */
-  key: Key;
-  /**
-   * Unique identifier for the key.
-   */
-  id: string;
-  /**
-   * Description of the key.
-   */
-  description?: string;
-  /**
-   * External key identifier for cloud KMS providers (e.g., AWS KMS Key ID, Azure Key Vault Key ID).
-   * This field stores the provider-specific key reference, keeping it separate from the JWK.
-   * Only populated for keys managed by external KMS providers (not for "db" provider).
-   */
-  externalKeyId?: string;
-};
-
-export type UpdateKeyDto = {
-  /**
-   * KMS provider name to use for this key. Defaults to the configured default.
-   */
-  kmsProvider?: string;
-  /**
-   * Usage types for this key (access, signing, trustList, statusList).
-   */
-  usageTypes?: Array<"access" | "signing" | "trustList" | "statusList">;
-  /**
-   * Unique identifier for the key.
-   */
-  id: string;
-  /**
-   * Description of the key.
-   */
-  description?: string;
-  /**
-   * External key identifier for cloud KMS providers (e.g., AWS KMS Key ID, Azure Key Vault Key ID).
-   * This field stores the provider-specific key reference, keeping it separate from the JWK.
-   * Only populated for keys managed by external KMS providers (not for "db" provider).
-   */
-  externalKeyId?: string;
+  activeCertificate?: string;
 };
 
 export type PresentationRequest = {
@@ -2450,94 +2432,6 @@ export type ClientControllerRotateClientSecretResponses = {
 
 export type ClientControllerRotateClientSecretResponse =
   ClientControllerRotateClientSecretResponses[keyof ClientControllerRotateClientSecretResponses];
-
-export type CertControllerGetCertificatesData = {
-  body?: never;
-  path?: never;
-  query?: {
-    keyId?: string;
-  };
-  url: "/certs";
-};
-
-export type CertControllerGetCertificatesResponses = {
-  200: Array<CertEntity>;
-};
-
-export type CertControllerGetCertificatesResponse =
-  CertControllerGetCertificatesResponses[keyof CertControllerGetCertificatesResponses];
-
-export type CertControllerAddCertificateData = {
-  body: CertImportDto;
-  path?: never;
-  query?: never;
-  url: "/certs";
-};
-
-export type CertControllerAddCertificateResponses = {
-  201: CertResponseDto;
-};
-
-export type CertControllerAddCertificateResponse =
-  CertControllerAddCertificateResponses[keyof CertControllerAddCertificateResponses];
-
-export type CertControllerDeleteCertificateData = {
-  body?: never;
-  path: {
-    certId: string;
-  };
-  query?: never;
-  url: "/certs/{certId}";
-};
-
-export type CertControllerDeleteCertificateResponses = {
-  200: unknown;
-};
-
-export type CertControllerGetCertificateData = {
-  body?: never;
-  path: {
-    certId: string;
-  };
-  query?: never;
-  url: "/certs/{certId}";
-};
-
-export type CertControllerGetCertificateResponses = {
-  200: CertEntity;
-};
-
-export type CertControllerGetCertificateResponse =
-  CertControllerGetCertificateResponses[keyof CertControllerGetCertificateResponses];
-
-export type CertControllerUpdateCertificateData = {
-  body: CertUpdateDto;
-  path: {
-    certId: string;
-  };
-  query?: never;
-  url: "/certs/{certId}";
-};
-
-export type CertControllerUpdateCertificateResponses = {
-  200: unknown;
-};
-
-export type CertControllerExportConfigData = {
-  body?: never;
-  path: {
-    certId: string;
-  };
-  query?: never;
-  url: "/certs/{certId}/config";
-};
-
-export type CertControllerExportConfigResponses = {
-  200: CertImportDto;
-};
-
-export type CertControllerExportConfigResponse =
-  CertControllerExportConfigResponses[keyof CertControllerExportConfigResponses];
 
 export type StatusListControllerGetListData = {
   body?: never;
@@ -4004,110 +3898,130 @@ export type TrustListPublicControllerGetTrustListJwtResponses = {
 export type TrustListPublicControllerGetTrustListJwtResponse =
   TrustListPublicControllerGetTrustListJwtResponses[keyof TrustListPublicControllerGetTrustListJwtResponses];
 
-export type KeyControllerGetProvidersData = {
+export type KeyChainControllerGetAllData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/key/providers";
+  url: "/key-chain";
 };
 
-export type KeyControllerGetProvidersResponses = {
+export type KeyChainControllerGetAllResponses = {
   /**
-   * List of available KMS providers
+   * List of key chains
    */
-  200: KmsProvidersResponseDto;
+  200: Array<KeyChainResponseDto>;
 };
 
-export type KeyControllerGetProvidersResponse =
-  KeyControllerGetProvidersResponses[keyof KeyControllerGetProvidersResponses];
+export type KeyChainControllerGetAllResponse =
+  KeyChainControllerGetAllResponses[keyof KeyChainControllerGetAllResponses];
 
-export type KeyControllerGetKeysData = {
-  body?: never;
+export type KeyChainControllerCreateData = {
+  body: KeyChainCreateDto;
   path?: never;
   query?: never;
-  url: "/key";
+  url: "/key-chain";
 };
 
-export type KeyControllerGetKeysResponses = {
-  200: Array<KeyEntity>;
-};
-
-export type KeyControllerGetKeysResponse =
-  KeyControllerGetKeysResponses[keyof KeyControllerGetKeysResponses];
-
-export type KeyControllerAddKeyData = {
-  body: KeyImportDto;
-  path?: never;
-  query?: never;
-  url: "/key";
-};
-
-export type KeyControllerAddKeyResponses = {
+export type KeyChainControllerCreateResponses = {
   /**
-   * Key imported successfully
+   * Key chain created successfully
    */
   201: unknown;
 };
 
-export type KeyControllerDeleteKeyData = {
+export type KeyChainControllerDeleteData = {
   body?: never;
   path: {
     id: string;
   };
   query?: never;
-  url: "/key/{id}";
+  url: "/key-chain/{id}";
 };
 
-export type KeyControllerDeleteKeyResponses = {
+export type KeyChainControllerDeleteErrors = {
   /**
-   * Key deleted successfully
+   * Key chain not found
+   */
+  404: unknown;
+};
+
+export type KeyChainControllerDeleteResponses = {
+  /**
+   * Key chain deleted successfully
    */
   200: unknown;
 };
 
-export type KeyControllerGetKeyData = {
+export type KeyChainControllerGetByIdData = {
   body?: never;
   path: {
     id: string;
   };
   query?: never;
-  url: "/key/{id}";
+  url: "/key-chain/{id}";
 };
 
-export type KeyControllerGetKeyResponses = {
-  200: KeyEntity;
+export type KeyChainControllerGetByIdErrors = {
+  /**
+   * Key chain not found
+   */
+  404: unknown;
 };
 
-export type KeyControllerGetKeyResponse =
-  KeyControllerGetKeyResponses[keyof KeyControllerGetKeyResponses];
+export type KeyChainControllerGetByIdResponses = {
+  /**
+   * The key chain
+   */
+  200: KeyChainResponseDto;
+};
 
-export type KeyControllerUpdateKeyData = {
-  body: UpdateKeyDto;
+export type KeyChainControllerGetByIdResponse =
+  KeyChainControllerGetByIdResponses[keyof KeyChainControllerGetByIdResponses];
+
+export type KeyChainControllerUpdateData = {
+  body: KeyChainUpdateDto;
   path: {
     id: string;
   };
   query?: never;
-  url: "/key/{id}";
+  url: "/key-chain/{id}";
 };
 
-export type KeyControllerUpdateKeyResponses = {
+export type KeyChainControllerUpdateErrors = {
   /**
-   * Key updated successfully
+   * Key chain not found
+   */
+  404: unknown;
+};
+
+export type KeyChainControllerUpdateResponses = {
+  /**
+   * Key chain updated successfully
    */
   200: unknown;
 };
 
-export type KeyControllerGenerateKeyData = {
-  body: KeyGenerateDto;
-  path?: never;
+export type KeyChainControllerRotateData = {
+  body?: never;
+  path: {
+    id: string;
+  };
   query?: never;
-  url: "/key/generate";
+  url: "/key-chain/{id}/rotate";
 };
 
-export type KeyControllerGenerateKeyResponses = {
+export type KeyChainControllerRotateErrors = {
   /**
-   * Key generated successfully
+   * Key chain not found
    */
+  404: unknown;
+};
+
+export type KeyChainControllerRotateResponses = {
+  /**
+   * Key chain rotated successfully
+   */
+  200: unknown;
   201: unknown;
 };
 

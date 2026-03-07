@@ -7,10 +7,12 @@ import { JWTHeaderParameters } from "jose";
 import { Repository } from "typeorm";
 import { v4 } from "uuid";
 import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
-import { CertService } from "../../crypto/key/cert/cert.service";
-import { CertEntity } from "../../crypto/key/entities/cert.entity";
-import { KeyUsageType } from "../../crypto/key/entities/key-usage.entity";
-import { KeyService } from "../../crypto/key/key.service";
+import {
+    CertificateInfo,
+    CertService,
+} from "../../crypto/key/cert/cert.service";
+import { KeyUsageType } from "../../crypto/key/entities/key-chain.entity";
+import { KeyChainService } from "../../crypto/key/key-chain.service";
 import { ConfigImportService } from "../../shared/utils/config-import/config-import.service";
 import {
     ConfigImportOrchestratorService,
@@ -41,7 +43,7 @@ export class TrustListService {
         private readonly trustListRepo: Repository<TrustList>,
         @InjectRepository(TrustListVersion)
         private readonly trustListVersionRepo: Repository<TrustListVersion>,
-        public readonly keyService: KeyService,
+        public readonly keyChainService: KeyChainService,
         private readonly certService: CertService,
         private readonly configImportService: ConfigImportService,
         @InjectRepository(TenantEntity)
@@ -224,24 +226,23 @@ export class TrustListService {
             }
         }
 
-        let cert: CertEntity;
+        let cert: CertificateInfo;
         if (config.certId) {
             cert = await this.certService.getCertificateById(
                 tenant.id,
                 config.certId,
             );
             // Check if the key has the TrustList usage
-            if (
-                !cert.key?.usages?.some(
-                    (u) => u.usage === KeyUsageType.TrustList,
-                )
-            ) {
+            if (cert.keyChain?.usageType !== KeyUsageType.TrustList) {
                 throw new BadRequestException(
                     `Certificate ${config.certId} is not valid for Trust List usage (key lacks TrustList usage)`,
                 );
             }
-        } else if (existing?.cert) {
-            cert = existing.cert;
+        } else if (existing?.certId) {
+            cert = await this.certService.getCertificateById(
+                tenant.id,
+                existing.certId,
+            );
         } else {
             cert = await this.certService.findOrCreate({
                 tenantId: tenant.id,
@@ -256,7 +257,7 @@ export class TrustListService {
 
         // Update properties
         trustList.description = config.description;
-        trustList.cert = cert;
+        trustList.certId = cert.id;
         trustList.entityConfig = config.entities;
 
         // Increment sequence number on updates
@@ -375,7 +376,7 @@ export class TrustListService {
             x5c: this.certService.getCertChain(cert),
         };
 
-        return this.keyService.signJWT(
+        return this.keyChainService.signJWT(
             payload,
             protectedHeader,
             trustList.tenantId,
@@ -384,8 +385,8 @@ export class TrustListService {
     }
 
     private createEntityFromCert(
-        issuerCert: CertEntity,
-        revocationCert: CertEntity,
+        issuerCert: CertificateInfo,
+        revocationCert: CertificateInfo,
         info: TrustListEntityInfo,
     ): TrustedEntity {
         return this.createEntityFromData(
@@ -528,12 +529,12 @@ export class TrustListService {
     }
 
     /**
-     * Format CertEntity to base64 DER without PEM headers
+     * Format CertificateInfo to base64 DER without PEM headers
      * Uses the first certificate (leaf) from the chain.
      * @param cert
      * @returns
      */
-    formatCertEntity(cert: CertEntity): string {
+    formatCertEntity(cert: CertificateInfo): string {
         return this.formatPem(cert.crt[0]);
     }
 

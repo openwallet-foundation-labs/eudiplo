@@ -84,7 +84,7 @@ export class TrustListCreateDto extends OmitType(TrustList, [
     "tenant",
     "tenantId",
     "jwt",
-    "cert",
+    "keyChain",
     "certId",
     "sequenceNumber",
     "createdAt",
@@ -95,6 +95,10 @@ export class TrustListCreateDto extends OmitType(TrustList, [
     @IsString()
     @IsOptional()
     id?: string;
+
+    @IsString()
+    @IsOptional()
+    description?: string;
 
     @IsString()
     @IsOptional()

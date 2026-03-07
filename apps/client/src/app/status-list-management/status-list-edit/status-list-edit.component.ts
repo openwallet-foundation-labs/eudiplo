@@ -17,9 +17,9 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import {
   StatusListResponseDto,
   CredentialConfig,
-  CertEntity,
+  KeyChainResponseDto,
   credentialConfigControllerGetConfigs,
-  certControllerGetCertificates,
+  keyChainControllerGetAll,
 } from '@eudiplo/sdk-core';
 import { StatusListManagementService } from '../status-list-management.service';
 
@@ -57,8 +57,8 @@ export class StatusListEditComponent implements OnInit {
   /** Available credential configs for binding */
   credentialConfigs: CredentialConfig[] = [];
 
-  /** Available certificates with statusList usage */
-  certificates: CertEntity[] = [];
+  /** Available key chains with statusList usage */
+  keyChains: KeyChainResponseDto[] = [];
 
   /** Available bits per status options */
   bitsOptions = [1, 2, 4, 8] as const;
@@ -95,14 +95,14 @@ export class StatusListEditComponent implements OnInit {
   private async loadData(): Promise<void> {
     this.isLoading = true;
     try {
-      const [configsResponse, certsResponse] = await Promise.all([
+      const [configsResponse, keyChainResponse] = await Promise.all([
         credentialConfigControllerGetConfigs(),
-        certControllerGetCertificates(),
+        keyChainControllerGetAll({}),
       ]);
 
       this.credentialConfigs = configsResponse.data || [];
-      this.certificates = (certsResponse.data || []).filter((c: CertEntity) =>
-        c.key?.usages?.some((u) => u.usage === 'statusList')
+      this.keyChains = (keyChainResponse.data || []).filter((kc: KeyChainResponseDto) =>
+        kc.usageType === 'statusList'
       );
 
       if (this.listId) {

@@ -114,33 +114,33 @@
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Access Certificate (optional)</mat-label>
+          <mat-label>Access Key Chain (optional)</mat-label>
           <mat-select formControlName="accessCertId">
             <mat-select-trigger>
-              @if (form.controls['accessCertId'].value; as certId) {
-                {{ certId }}
+              @if (form.controls['accessCertId'].value; as keyChainId) {
+                {{ keyChainId }}
               } @else {
-                <em>Use default access certificate</em>
+                <em>Use default access key chain</em>
               }
             </mat-select-trigger>
             <mat-option [value]="null">
-              <em>Use default access certificate</em>
+              <em>Use default access key chain</em>
             </mat-option>
-            @for (cert of certificates; track cert.id) {
-              <mat-option [value]="cert.id">
+            @for (keyChain of keyChains; track keyChain.id) {
+              <mat-option [value]="keyChain.id">
                 <div fxLayout="column">
                   <span
-                    ><strong>{{ cert.id }}</strong></span
+                    ><strong>{{ keyChain.id }}</strong></span
                   >
-                  <span class="option-description"
-                    >{{ cert.description }} (Key: {{ cert.keyId }})</span
-                  >
+                  <span class="option-description">{{
+                    keyChain.description || keyChain.usageType
+                  }}</span>
                 </div>
               </mat-option>
             }
           </mat-select>
-          <mat-icon matSuffix>badge</mat-icon>
-          <mat-hint>Select the access certificate for signing the presentation request</mat-hint>
+          <mat-icon matSuffix>key</mat-icon>
+          <mat-hint>Select the access key chain for signing the presentation request</mat-hint>
         </mat-form-field>
       </mat-card-content>
     </mat-card>

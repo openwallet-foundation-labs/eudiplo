@@ -7,6 +7,9 @@
     "id": {
       "type": "string"
     },
+    "description": {
+      "type": "string"
+    },
     "certId": {
       "type": "string"
     },
@@ -15,9 +18,6 @@
       "items": {
         "type": "object"
       }
-    },
-    "description": {
-      "type": "string"
     },
     "data": {
       "type": "object",

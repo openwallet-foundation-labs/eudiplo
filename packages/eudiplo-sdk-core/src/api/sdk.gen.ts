@@ -32,18 +32,6 @@ import type {
   CacheControllerClearTrustListCacheResponses,
   CacheControllerGetStatsData,
   CacheControllerGetStatsResponses,
-  CertControllerAddCertificateData,
-  CertControllerAddCertificateResponses,
-  CertControllerDeleteCertificateData,
-  CertControllerDeleteCertificateResponses,
-  CertControllerExportConfigData,
-  CertControllerExportConfigResponses,
-  CertControllerGetCertificateData,
-  CertControllerGetCertificateResponses,
-  CertControllerGetCertificatesData,
-  CertControllerGetCertificatesResponses,
-  CertControllerUpdateCertificateData,
-  CertControllerUpdateCertificateResponses,
   ChainedAsControllerAuthorizeData,
   ChainedAsControllerAuthorizeErrors,
   ChainedAsControllerAuthorizeResponses,
@@ -105,20 +93,22 @@ import type {
   IssuanceConfigControllerGetIssuanceConfigurationsResponses,
   IssuanceConfigControllerStoreIssuanceConfigurationData,
   IssuanceConfigControllerStoreIssuanceConfigurationResponses,
-  KeyControllerAddKeyData,
-  KeyControllerAddKeyResponses,
-  KeyControllerDeleteKeyData,
-  KeyControllerDeleteKeyResponses,
-  KeyControllerGenerateKeyData,
-  KeyControllerGenerateKeyResponses,
-  KeyControllerGetKeyData,
-  KeyControllerGetKeyResponses,
-  KeyControllerGetKeysData,
-  KeyControllerGetKeysResponses,
-  KeyControllerGetProvidersData,
-  KeyControllerGetProvidersResponses,
-  KeyControllerUpdateKeyData,
-  KeyControllerUpdateKeyResponses,
+  KeyChainControllerCreateData,
+  KeyChainControllerCreateResponses,
+  KeyChainControllerDeleteData,
+  KeyChainControllerDeleteErrors,
+  KeyChainControllerDeleteResponses,
+  KeyChainControllerGetAllData,
+  KeyChainControllerGetAllResponses,
+  KeyChainControllerGetByIdData,
+  KeyChainControllerGetByIdErrors,
+  KeyChainControllerGetByIdResponses,
+  KeyChainControllerRotateData,
+  KeyChainControllerRotateErrors,
+  KeyChainControllerRotateResponses,
+  KeyChainControllerUpdateData,
+  KeyChainControllerUpdateErrors,
+  KeyChainControllerUpdateResponses,
   Oid4VciControllerCredentialData,
   Oid4VciControllerCredentialResponses,
   Oid4VciControllerDeferredCredentialData,
@@ -562,121 +552,6 @@ export const clientControllerRotateClientSecret = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/client/{id}/rotate-secret",
-    ...options,
-  });
-
-/**
- * Get all certificates for the authenticated tenant.
- * Can be filtered by keyId using query parameter.
- */
-export const certControllerGetCertificates = <
-  ThrowOnError extends boolean = true,
->(
-  options?: Options<CertControllerGetCertificatesData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    CertControllerGetCertificatesResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/certs",
-    ...options,
-  });
-
-/**
- * Add a new certificate to a key. If no certificate is provided, a self-signed certificate will be generated.
- */
-export const certControllerAddCertificate = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<CertControllerAddCertificateData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    CertControllerAddCertificateResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/certs",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Delete a certificate.
- */
-export const certControllerDeleteCertificate = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<CertControllerDeleteCertificateData, ThrowOnError>,
-) =>
-  (options.client ?? client).delete<
-    CertControllerDeleteCertificateResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/certs/{certId}",
-    ...options,
-  });
-
-/**
- * Get a specific certificate by ID.
- */
-export const certControllerGetCertificate = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<CertControllerGetCertificateData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    CertControllerGetCertificateResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/certs/{certId}",
-    ...options,
-  });
-
-/**
- * Update certificate metadata (description and usage types).
- */
-export const certControllerUpdateCertificate = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<CertControllerUpdateCertificateData, ThrowOnError>,
-) =>
-  (options.client ?? client).patch<
-    CertControllerUpdateCertificateResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/certs/{certId}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Export the configuration of a certificate for import/export purposes.
- */
-export const certControllerExportConfig = <ThrowOnError extends boolean = true>(
-  options: Options<CertControllerExportConfigData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    CertControllerExportConfigResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/certs/{certId}/config",
     ...options,
   });
 
@@ -2203,50 +2078,34 @@ export const trustListPublicControllerGetTrustListJwt = <
   >({ url: "/{tenantId}/trust-list/{id}", ...options });
 
 /**
- * List available KMS providers
+ * List all key chains for the tenant
  */
-export const keyControllerGetProviders = <ThrowOnError extends boolean = true>(
-  options?: Options<KeyControllerGetProvidersData, ThrowOnError>,
+export const keyChainControllerGetAll = <ThrowOnError extends boolean = true>(
+  options?: Options<KeyChainControllerGetAllData, ThrowOnError>,
 ) =>
   (options?.client ?? client).get<
-    KeyControllerGetProvidersResponses,
+    KeyChainControllerGetAllResponses,
     unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/key/providers",
+    url: "/key-chain",
     ...options,
   });
 
 /**
- * List all keys for the tenant
+ * Create a new key chain
  */
-export const keyControllerGetKeys = <ThrowOnError extends boolean = true>(
-  options?: Options<KeyControllerGetKeysData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    KeyControllerGetKeysResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/key",
-    ...options,
-  });
-
-/**
- * Import a key
- */
-export const keyControllerAddKey = <ThrowOnError extends boolean = true>(
-  options: Options<KeyControllerAddKeyData, ThrowOnError>,
+export const keyChainControllerCreate = <ThrowOnError extends boolean = true>(
+  options: Options<KeyChainControllerCreateData, ThrowOnError>,
 ) =>
   (options.client ?? client).post<
-    KeyControllerAddKeyResponses,
+    KeyChainControllerCreateResponses,
     unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/key",
+    url: "/key-chain",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -2255,50 +2114,50 @@ export const keyControllerAddKey = <ThrowOnError extends boolean = true>(
   });
 
 /**
- * Delete a key
+ * Delete a key chain
  */
-export const keyControllerDeleteKey = <ThrowOnError extends boolean = true>(
-  options: Options<KeyControllerDeleteKeyData, ThrowOnError>,
+export const keyChainControllerDelete = <ThrowOnError extends boolean = true>(
+  options: Options<KeyChainControllerDeleteData, ThrowOnError>,
 ) =>
   (options.client ?? client).delete<
-    KeyControllerDeleteKeyResponses,
-    unknown,
+    KeyChainControllerDeleteResponses,
+    KeyChainControllerDeleteErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/key/{id}",
+    url: "/key-chain/{id}",
     ...options,
   });
 
 /**
- * Get a key by ID
+ * Get a key chain by ID
  */
-export const keyControllerGetKey = <ThrowOnError extends boolean = true>(
-  options: Options<KeyControllerGetKeyData, ThrowOnError>,
+export const keyChainControllerGetById = <ThrowOnError extends boolean = true>(
+  options: Options<KeyChainControllerGetByIdData, ThrowOnError>,
 ) =>
   (options.client ?? client).get<
-    KeyControllerGetKeyResponses,
-    unknown,
+    KeyChainControllerGetByIdResponses,
+    KeyChainControllerGetByIdErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/key/{id}",
+    url: "/key-chain/{id}",
     ...options,
   });
 
 /**
- * Update key metadata
+ * Update key chain metadata and rotation policy
  */
-export const keyControllerUpdateKey = <ThrowOnError extends boolean = true>(
-  options: Options<KeyControllerUpdateKeyData, ThrowOnError>,
+export const keyChainControllerUpdate = <ThrowOnError extends boolean = true>(
+  options: Options<KeyChainControllerUpdateData, ThrowOnError>,
 ) =>
   (options.client ?? client).put<
-    KeyControllerUpdateKeyResponses,
-    unknown,
+    KeyChainControllerUpdateResponses,
+    KeyChainControllerUpdateErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/key/{id}",
+    url: "/key-chain/{id}",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -2307,23 +2166,19 @@ export const keyControllerUpdateKey = <ThrowOnError extends boolean = true>(
   });
 
 /**
- * Generate a key on the server
+ * Rotate the signing key in a key chain
  */
-export const keyControllerGenerateKey = <ThrowOnError extends boolean = true>(
-  options: Options<KeyControllerGenerateKeyData, ThrowOnError>,
+export const keyChainControllerRotate = <ThrowOnError extends boolean = true>(
+  options: Options<KeyChainControllerRotateData, ThrowOnError>,
 ) =>
   (options.client ?? client).post<
-    KeyControllerGenerateKeyResponses,
-    unknown,
+    KeyChainControllerRotateResponses,
+    KeyChainControllerRotateErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/key/generate",
+    url: "/key-chain/{id}/rotate",
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
   });
 
 /**

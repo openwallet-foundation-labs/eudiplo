@@ -21,8 +21,8 @@ import { IsNull, Repository } from "typeorm";
 import { v4 } from "uuid";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { CertService } from "../../../crypto/key/cert/cert.service";
-import { KeyUsageType } from "../../../crypto/key/entities/key-usage.entity";
-import { KeyService } from "../../../crypto/key/key.service";
+import { KeyUsageType } from "../../../crypto/key/entities/key-chain.entity";
+import { KeyChainService } from "../../../crypto/key/key-chain.service";
 import { Session } from "../../../session/entities/session.entity";
 import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
 import {
@@ -42,7 +42,7 @@ export class StatusListService {
     constructor(
         private readonly configService: ConfigService,
         private readonly certService: CertService,
-        public readonly keyService: KeyService,
+        public readonly keyChainService: KeyChainService,
         @InjectRepository(StatusMapping)
         private readonly statusMappingRepository: Repository<StatusMapping>,
         @InjectRepository(StatusListEntity)
@@ -235,7 +235,7 @@ export class StatusListService {
                 this.buildAggregationUri(entry.tenantId);
         }
 
-        const jwt = await this.keyService.signJWT(
+        const jwt = await this.keyChainService.signJWT(
             payload,
             header,
             entry.tenantId,

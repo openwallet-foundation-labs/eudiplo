@@ -17,7 +17,7 @@ import {
 } from "class-validator";
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { TenantEntity } from "../../../../auth/tenant/entitites/tenant.entity";
-import { CertEntity } from "../../../../crypto/key/entities/cert.entity";
+import { KeyChainEntity } from "../../../../crypto/key/entities/key-chain.entity";
 import { WebhookConfig } from "../../../../shared/utils/webhook/webhook.dto";
 import { SchemaResponse } from "../../../issuance/oid4vci/metadata/dto/schema-response.dto";
 import { VCT } from "../../../issuance/oid4vci/metadata/dto/vct.dto";
@@ -192,22 +192,20 @@ export class CredentialConfig {
     keyBinding?: boolean;
 
     /**
-     * Reference to the certificate used for signing.
-     * Note: No DB-level FK constraint because CertEntity has a composite PK
-     * (id + tenantId) and SET NULL behavior cannot work when tenantId is
-     * part of this entity's own PK.
+     * Reference to the key chain used for signing.
+     * Optional: if not specified, the default attestation key chain will be used.
      */
     @IsOptional()
     @IsString()
     @Column("varchar", { nullable: true })
     certId?: string;
 
-    @ManyToOne(() => CertEntity, { createForeignKeyConstraints: false })
+    @ManyToOne(() => KeyChainEntity, { createForeignKeyConstraints: false })
     @JoinColumn([
         { name: "certId", referencedColumnName: "id" },
         { name: "tenantId", referencedColumnName: "tenantId" },
     ])
-    cert?: CertEntity;
+    keyChain?: KeyChainEntity;
 
     @IsOptional()
     @Column("boolean", { default: false })

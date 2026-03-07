@@ -15,11 +15,11 @@ import { MatDividerModule } from '@angular/material/divider';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import {
-  certControllerGetCertificates,
+  keyChainControllerGetAll,
   trustListControllerCreateTrustList,
   trustListControllerGetTrustList,
   trustListControllerUpdateTrustList,
-  type CertEntity,
+  type KeyChainResponseDto,
   type TrustList,
 } from '@eudiplo/sdk-core';
 import { EditorComponent } from '../../utils/editor/editor.component';
@@ -76,12 +76,12 @@ export class TrustListEditComponent implements OnInit {
   trustList?: TrustList;
   form!: FormGroup;
 
-  /** Available certificates for selection */
-  availableCerts: CertEntity[] = [];
-  /** Certificates filtered by usage type */
-  signingCerts: CertEntity[] = [];
-  statusListCerts: CertEntity[] = [];
-  trustListCerts: CertEntity[] = [];
+  /** Available key chains for selection */
+  availableKeyChains: KeyChainResponseDto[] = [];
+  /** Key chains filtered by usage type */
+  attestationKeyChains: KeyChainResponseDto[] = [];
+  statusListKeyChains: KeyChainResponseDto[] = [];
+  trustListKeyChains: KeyChainResponseDto[] = [];
 
   editorOptionsPem = {
     automaticLayout: true,
@@ -105,7 +105,7 @@ export class TrustListEditComponent implements OnInit {
       entities: new FormArray([]),
     });
 
-    this.loadCertificates();
+    this.loadKeyChains();
 
     if (this.trustListId) {
       this.loadTrustList();
@@ -120,24 +120,24 @@ export class TrustListEditComponent implements OnInit {
     return !!this.trustListId;
   }
 
-  private async loadCertificates(): Promise<void> {
+  private async loadKeyChains(): Promise<void> {
     try {
-      const response = await certControllerGetCertificates({});
-      this.availableCerts = response.data ?? [];
+      const response = await keyChainControllerGetAll({});
+      this.availableKeyChains = response.data ?? [];
 
-      // Filter certificates by key usage type (usages are now on key level)
-      this.signingCerts = this.availableCerts.filter((cert) =>
-        cert.key?.usages?.some((u) => u.usage === 'signing')
+      // Filter key chains by usage type
+      this.attestationKeyChains = this.availableKeyChains.filter((kc) =>
+        kc.usageType === 'attestation'
       );
-      this.statusListCerts = this.availableCerts.filter((cert) =>
-        cert.key?.usages?.some((u) => u.usage === 'statusList')
+      this.statusListKeyChains = this.availableKeyChains.filter((kc) =>
+        kc.usageType === 'statusList'
       );
-      this.trustListCerts = this.availableCerts.filter((cert) =>
-        cert.key?.usages?.some((u) => u.usage === 'trustList')
+      this.trustListKeyChains = this.availableKeyChains.filter((kc) =>
+        kc.usageType === 'trustList'
       );
     } catch (error) {
-      console.error('Failed to load certificates:', error);
-      this.snackBar.open('Failed to load certificates', 'Close', {
+      console.error('Failed to load key chains:', error);
+      this.snackBar.open('Failed to load key chains', 'Close', {
         duration: 3000,
       });
     }
@@ -371,9 +371,9 @@ export class TrustListEditComponent implements OnInit {
     return this.entitiesArray.at(index).get('type')?.value;
   }
 
-  getCertDescription(certId: string): string {
-    const cert = this.availableCerts.find((c) => c.id === certId);
-    return cert?.description || certId;
+  getKeyChainDescription(keyChainId: string): string {
+    const keyChain = this.availableKeyChains.find((kc) => kc.id === keyChainId);
+    return keyChain?.description || keyChainId;
   }
 
   async onSubmit(): Promise<void> {

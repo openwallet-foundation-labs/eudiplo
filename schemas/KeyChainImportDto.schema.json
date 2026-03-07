@@ -1,0 +1,87 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/KeyChainImportDto.schema.json",
+    "title": "KeyChainImportDto",
+    "description": "Schema for importing a key chain from file configuration.",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID for the key chain. If not provided, a new UUID will be generated."
+        },
+        "key": {
+            "type": "object",
+            "description": "The private key in JWK format (EC P-256).",
+            "properties": {
+                "kty": {
+                    "type": "string",
+                    "const": "EC",
+                    "description": "Key type. Must be 'EC'."
+                },
+                "crv": {
+                    "type": "string",
+                    "const": "P-256",
+                    "description": "Curve. Must be 'P-256'."
+                },
+                "x": {
+                    "type": "string",
+                    "description": "The x coordinate of the EC public key (base64url encoded)."
+                },
+                "y": {
+                    "type": "string",
+                    "description": "The y coordinate of the EC public key (base64url encoded)."
+                },
+                "d": {
+                    "type": "string",
+                    "description": "The private key component (base64url encoded)."
+                },
+                "alg": {
+                    "type": "string",
+                    "description": "Algorithm. Typically 'ES256'."
+                },
+                "kid": {
+                    "type": "string",
+                    "description": "Key ID. Will be auto-generated if not provided."
+                }
+            },
+            "required": [
+                "kty",
+                "crv",
+                "x",
+                "y",
+                "d"
+            ]
+        },
+        "description": {
+            "type": "string",
+            "description": "Human-readable description."
+        },
+        "usageType": {
+            "type": "string",
+            "enum": [
+                "access",
+                "attestation",
+                "trustList",
+                "statusList",
+                "encrypt"
+            ],
+            "description": "Usage type for this key chain."
+        },
+        "crt": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "Certificate chain in PEM format (leaf first, then intermediates/CA). If not provided, a self-signed certificate will be generated."
+        },
+        "kmsProvider": {
+            "type": "string",
+            "description": "KMS provider to use. Defaults to 'db'."
+        }
+    },
+    "required": [
+        "key",
+        "usageType"
+    ]
+}

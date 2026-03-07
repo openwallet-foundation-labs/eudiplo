@@ -12,8 +12,8 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import {
   presentationManagementControllerUpdateConfiguration,
-  certControllerGetCertificates,
-  CertEntity,
+  keyChainControllerGetAll,
+  KeyChainResponseDto,
 } from '@eudiplo/sdk-core';
 import { PresentationManagementService } from '../presentation-management.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -69,7 +69,7 @@ export class PresentationCreateComponent implements OnInit {
 
   public predefinedConfigs = configs;
 
-  public certificates: CertEntity[] = [];
+  public keyChains: KeyChainResponseDto[] = [];
 
   constructor(
     private readonly presentationService: PresentationManagementService,
@@ -102,14 +102,15 @@ export class PresentationCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Load certificates for the select dropdown (filter by key usage type)
-    certControllerGetCertificates({}).then(
+    // Load key chains for the select dropdown (filter by access usage type)
+    keyChainControllerGetAll({}).then(
       (res) =>
-        (this.certificates =
-          res.data.filter((cert) => cert.key?.usages?.some((usage) => usage.usage === 'access')) || []),
+        (this.keyChains =
+          res.data.filter((keyChain) => keyChain.usageType === 'access') ||
+          []),
       (error) => {
-        console.error('Failed to load certificates:', error);
-        this.snackBar.open('Failed to load certificates', 'Close', {
+        console.error('Failed to load key chains:', error);
+        this.snackBar.open('Failed to load key chains', 'Close', {
           duration: 3000,
         });
       }

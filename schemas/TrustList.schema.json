@@ -26,8 +26,8 @@
     "certId": {
       "type": "string"
     },
-    "cert": {
-      "$ref": "./CertEntity.schema.json"
+    "keyChain": {
+      "$ref": "./KeyChainEntity.schema.json"
     },
     "data": {
       "type": "object",
@@ -62,7 +62,7 @@
     "tenantId",
     "tenant",
     "certId",
-    "cert",
+    "keyChain",
     "sequenceNumber",
     "jwt",
     "createdAt",

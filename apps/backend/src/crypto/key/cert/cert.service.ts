@@ -1,44 +1,24 @@
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import * as x509 from "@peculiar/x509";
-import { plainToClass } from "class-transformer";
-import { importJWK } from "jose";
 import { Repository } from "typeorm";
-import { v4 } from "uuid";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
-import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
-import {
-    ConfigImportOrchestratorService,
-    ImportPhase,
-} from "../../../shared/utils/config-import/config-import-orchestrator.service";
-import { CertImportDto } from "../dto/cert-import.dto";
-import { CertUpdateDto } from "../dto/cert-update.dto";
-import { UpdateKeyDto } from "../dto/key-update.dto";
-import { CertEntity } from "../entities/cert.entity";
-import { KeyUsageType } from "../entities/key-usage.entity";
-import { KeyService } from "../key.service";
+import { KeyChainEntity, KeyUsageType } from "../entities/key-chain.entity";
+import { KeyChainService } from "../key-chain.service";
 import { CrlValidationService } from "./crl-validation.service";
-
-const ECDSA_P256 = {
-    name: "ECDSA",
-    namedCurve: "P-256",
-    hash: "SHA-256" as const,
-};
 
 export interface FindCertOptions {
     tenantId: string;
     type: KeyUsageType;
     /**
-     * Optional certificate ID to find a specific certificate.
-     * If provided, will verify the certificate's key has the required usage type.
+     * Optional key chain ID to find a specific key chain.
+     * @deprecated Use `keyId` instead.
      */
     certId?: string;
     /**
-     * Optional key ID to filter by.
-     * If provided, will look for the specific key with this usage type.
+     * Optional key chain ID to find a specific key chain.
      */
     keyId?: string;
     /**
@@ -67,541 +47,257 @@ export interface CertValidationResult {
 }
 
 /**
- * Service for managing certificates associated with keys.
+ * Virtual certificate entity for backward compatibility.
+ * Maps KeyChainEntity data to the old CertEntity interface.
+ */
+export interface CertificateInfo {
+    id: string;
+    tenantId: string;
+    crt: string[];
+    description?: string;
+    keyId: string;
+    keyChain: KeyChainEntity;
+}
+
+/**
+ * Service for managing certificates.
+ *
+ * In the new unified model, certificates are stored directly in KeyChainEntity
+ * (activeCertificate, rootCertificate, previousCertificate).
+ * This service provides a compatibility layer for existing consumers.
  */
 @Injectable()
 export class CertService {
     private readonly logger = new Logger(CertService.name);
 
     constructor(
-        @InjectRepository(CertEntity)
-        private readonly certRepository: Repository<CertEntity>,
+        private readonly keyChainService: KeyChainService,
         private readonly configService: ConfigService,
         @InjectRepository(TenantEntity)
         private readonly tenantRepository: Repository<TenantEntity>,
-        private readonly configImportService: ConfigImportService,
-        configImportOrchestrator: ConfigImportOrchestratorService,
-        private readonly keyService: KeyService,
         private readonly crlValidationService?: CrlValidationService,
-    ) {
-        configImportOrchestrator.register(
-            "certificates",
-            ImportPhase.CORE,
-            (tenantId) => this.importForTenant(tenantId),
+    ) {}
+
+    /**
+     * Find a certificate by type (usage type).
+     * Returns the certificate from the matching key chain.
+     */
+    async find(options: FindCertOptions): Promise<CertificateInfo> {
+        const { tenantId, type, skipValidation } = options;
+        // Support both certId (deprecated) and keyId
+        const keyId = options.keyId || options.certId;
+
+        const keyChain = await this.keyChainService.findByUsageType(
+            tenantId,
+            type,
+            keyId,
         );
+
+        // Parse the certificate PEM to extract chain
+        const certChain = this.parseCertificateChain(
+            keyChain.activeCertificate,
+        );
+
+        const certInfo: CertificateInfo = {
+            id: keyChain.id,
+            tenantId,
+            crt: certChain,
+            description: keyChain.description,
+            keyId: keyChain.id,
+            keyChain,
+        };
+
+        if (!skipValidation) {
+            const validation = await this.validateCertificate(certInfo);
+            if (!validation.isValid) {
+                throw new NotFoundException(
+                    `Certificate validation failed: ${validation.error}`,
+                );
+            }
+        }
+
+        return certInfo;
     }
 
     /**
-     * Get all certificates for a tenant (across all keys).
-     * @param tenantId - The tenant ID
-     * @returns Array of certificates with their associated key information
+     * Find or create a certificate for a key chain.
+     * In the new model, certificates are always created with the key chain,
+     * so this just returns the existing one.
      */
-    getAllCertificates(tenantId: string): Promise<CertEntity[]> {
-        return this.certRepository.find({
-            where: { tenantId },
-            relations: ["key"],
-        });
+    async findOrCreate(options: FindCertOptions): Promise<CertificateInfo> {
+        return this.find(options);
     }
 
     /**
-     * Get all certificates for a specific key.
-     * @param tenantId - The tenant ID
-     * @param keyId - The key ID
-     * @returns Array of certificates
+     * Get a certificate by ID (key chain ID).
      */
-    getCertificates(tenantId: string, keyId: string): Promise<CertEntity[]> {
-        return this.certRepository.find({
-            where: {
-                tenantId,
-                key: { id: keyId, tenantId },
-            },
-            relations: ["key"],
-        });
-    }
-
-    /**
-     * Get a specific certificate by ID (without keyId requirement).
-     * @param tenantId - The tenant ID
-     * @param certId - The certificate ID
-     * @returns The certificate entity
-     */
-    getCertificateById(tenantId: string, certId: string): Promise<CertEntity> {
-        return this.certRepository.findOneOrFail({
-            where: {
-                tenantId,
-                id: certId,
-            },
-            relations: ["key"],
-        });
-    }
-
-    /**
-     * Get the configuration of a certificate for import/export.
-     * @param id - The tenant ID
-     * @param certId - The certificate ID
-     * @returns The certificate import DTO
-     */
-    async getCertificateConfig(
-        id: string,
+    async getCertificateById(
+        tenantId: string,
         certId: string,
-    ): Promise<CertImportDto> {
-        const cert = await this.getCertificateById(id, certId);
+    ): Promise<CertificateInfo> {
+        const keyChain = await this.keyChainService.getEntity(tenantId, certId);
+        const certChain = this.parseCertificateChain(
+            keyChain.activeCertificate,
+        );
 
         return {
-            id: cert.id,
-            keyId: cert.key.id,
-            description: cert.description,
-            crt: cert.crt,
+            id: keyChain.id,
+            tenantId,
+            crt: certChain,
+            description: keyChain.description,
+            keyId: keyChain.id,
+            keyChain,
         };
     }
 
     /**
-     * Add a new certificate to a key.
-     * @param tenantId - The tenant ID
-     * @param dto - Certificate data
-     * @returns The created certificate with its ID
+     * Get the certificate chain as an array of base64-encoded DER certificates.
+     * Used for the x5c header in JWTs.
      */
-    async addCertificate(
-        tenantId: string,
-        dto: CertImportDto,
-    ): Promise<string> {
-        //check if the key exists
-        await this.keyService.getKey(tenantId, dto.keyId);
-
-        const certId = dto.id ?? v4();
-
-        await this.certRepository.save({
-            id: certId,
-            tenantId,
-            crt: dto.crt,
-            description: dto.description,
-            key: { id: dto.keyId, tenantId },
-        });
-
-        return certId;
-    }
-
-    /**
-     * Generates a self-signed certificate for the given tenant/key id.
-     */
-    async addSelfSignedCert(
-        tenant: TenantEntity,
-        keyId: string,
-        dto: CertImportDto,
-    ) {
-        // === Inputs/parameters (subject + SAN hostname) ===
-        const subjectCN = dto.subjectName || tenant.name;
-        const hostname = new URL(
-            this.configService.getOrThrow<string>("PUBLIC_URL"),
-        ).hostname;
-
-        // === Get the key pair for the certificate ===
-        const subjectSpkiPem = await this.keyService.getPublicKey(
-            "pem",
-            tenant.id,
-            keyId,
-        );
-        const publicKey = await new x509.PublicKey(subjectSpkiPem).export(
-            { name: "ECDSA", namedCurve: "P-256" },
-            ["verify"],
-        );
-
-        // Get the private key from the database
-        const keyEntity = await this.keyService.getKey(tenant.id, keyId);
-        const privateJwk = keyEntity.key;
-        const privateKey = (await importJWK(privateJwk, "ES256")) as CryptoKey;
-
-        const now = new Date();
-        const inOneYear = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
-
-        // === Create a single self-signed certificate ===
-        const selfSignedCert =
-            await x509.X509CertificateGenerator.createSelfSigned({
-                serialNumber: "01",
-                name: `C=DE, CN=${subjectCN}`,
-                notBefore: now,
-                notAfter: inOneYear,
-                signingAlgorithm: ECDSA_P256,
-                keys: { publicKey, privateKey },
-                extensions: [
-                    new x509.SubjectAlternativeNameExtension([
-                        { type: "dns", value: hostname },
-                    ]),
-                    new x509.BasicConstraintsExtension(true, undefined, true), // CA:TRUE, critical
-                    new x509.KeyUsagesExtension(
-                        x509.KeyUsageFlags.digitalSignature |
-                            x509.KeyUsageFlags.keyEncipherment |
-                            x509.KeyUsageFlags.keyCertSign, // Allow signing other certificates
-                        true,
-                    ),
-                    await x509.SubjectKeyIdentifierExtension.create(publicKey),
-                ],
-            });
-
-        const crtPem = selfSignedCert.toString("pem"); // PEM-encoded certificate
-
-        return this.addCertificate(tenant.id, {
-            crt: [crtPem],
-            description:
-                dto.description ??
-                `Self-signed certificate for tenant ${tenant.name}`,
-            keyId,
+    getCertChain(cert: CertificateInfo): string[] {
+        return cert.crt.map((pem) => {
+            try {
+                const x509Cert = new x509.X509Certificate(pem);
+                // Convert raw DER bytes to base64 (not base64url)
+                return Buffer.from(x509Cert.rawData).toString("base64");
+            } catch {
+                // If parsing fails, try to extract base64 from PEM directly
+                const base64 = pem
+                    .replace("-----BEGIN CERTIFICATE-----", "")
+                    .replace("-----END CERTIFICATE-----", "")
+                    .replace(/\s/g, "");
+                return base64;
+            }
         });
     }
 
     /**
-     * Update certificate metadata (description).
-     * Note: Usage types are now managed at the key level, not certificate level.
-     * @param tenantId - The tenant ID
-     * @param certId - The certificate ID to update
-     * @param updates - The updates to apply
+     * Validate a certificate for expiry and revocation.
      */
-    async updateCertificate(
-        tenantId: string,
-        certId: string,
-        updates: CertUpdateDto,
-    ): Promise<void> {
-        // Update description
-        await this.certRepository.update(
-            {
-                tenantId,
-                id: certId,
-            },
-            {
-                description: updates.description,
-            },
-        );
-    }
-
-    /**
-     * Delete a certificate.
-     * @param tenantId - The tenant ID
-     * @param keyId - The key ID
-     * @param certId - The certificate ID to delete
-     */
-    async deleteCertificate(tenantId: string, certId: string): Promise<void> {
-        const result = await this.certRepository.delete({
-            id: certId,
-            tenantId,
-        });
-
-        if (result.affected === 0) {
-            throw new Error(`Certificate ${certId} not found`);
-        }
-    }
-
-    /**
-     * Find a certificate by tenantId and usage type.
-     * Usage types are now defined at the key level, so this method looks up the key
-     * with the specified usage type and returns its first certificate.
-     * @param value - The search criteria
-     * @returns The matching certificate
-     * @throws NotFoundException if no key with the usage type exists or has no certificates
-     */
-    async find(value: FindCertOptions): Promise<CertEntity> {
-        let cert: CertEntity;
-
-        if (value.certId) {
-            // Get specific certificate by ID and verify its key has the required usage
-            cert = await this.getCertificateById(value.tenantId, value.certId);
-
-            // Verify the key has the required usage type
-            if (!cert.key?.usages?.some((u) => u.usage === value.type)) {
-                throw new NotFoundException(
-                    `Certificate ${value.certId} does not belong to a key with usage type '${value.type}'`,
-                );
-            }
-        } else {
-            // Find the key with the specified usage type
-            const key = await this.keyService.findByUsageType(
-                value.tenantId,
-                value.type,
-                value.keyId,
-            );
-
-            // Get the first certificate from the key
-            if (!key.certificates || key.certificates.length === 0) {
-                throw new NotFoundException(
-                    `Key ${key.id} with usage type '${value.type}' has no certificates`,
-                );
-            }
-
-            cert = key.certificates[0];
-        }
-
-        // Validate the certificate unless explicitly skipped
-        if (!value.skipValidation) {
-            const validationResult = await this.validateCertificate(cert);
-            if (!validationResult.isValid) {
-                throw new Error(
-                    `Certificate ${cert.id} validation failed: ${validationResult.error}`,
-                );
-            }
-        }
-
-        return cert;
-    }
-
-    /**
-     * Validate a certificate for expiry and revocation status.
-     *
-     * @param cert - The certificate entity to validate
-     * @returns Validation result with details
-     */
-    async validateCertificate(cert: CertEntity): Promise<CertValidationResult> {
+    async validateCertificate(
+        cert: CertificateInfo,
+    ): Promise<CertValidationResult> {
         try {
-            // Use the first certificate (leaf) for validation
-            const x509Cert = new x509.X509Certificate(cert.crt[0]);
-
-            // Check time validity
+            const leafPem = cert.crt[0];
+            const x509Cert = new x509.X509Certificate(leafPem);
             const now = new Date();
-            const validFrom = x509Cert.notBefore;
-            const expiresAt = x509Cert.notAfter;
 
-            if (now < validFrom) {
+            // Check expiry
+            if (x509Cert.notAfter < now) {
                 return {
                     isValid: false,
-                    error: `Certificate is not yet valid (valid from: ${validFrom.toISOString()})`,
-                    isExpired: false,
-                    validFrom,
-                    expiresAt,
-                };
-            }
-
-            if (now > expiresAt) {
-                this.logger.warn(
-                    `Certificate ${cert.id} has expired at ${expiresAt.toISOString()}`,
-                );
-                return {
-                    isValid: false,
-                    error: `Certificate expired at ${expiresAt.toISOString()}`,
                     isExpired: true,
-                    validFrom,
-                    expiresAt,
+                    error: `Certificate expired on ${x509Cert.notAfter.toISOString()}`,
+                    expiresAt: x509Cert.notAfter,
+                    validFrom: x509Cert.notBefore,
                 };
             }
 
-            // Check CRL if the service is available
+            // Check CRL revocation if service is available
             if (this.crlValidationService) {
                 const crlResult =
                     await this.crlValidationService.checkCertificateRevocation(
-                        cert.crt[0],
+                        leafPem,
                     );
-
-                if (
-                    !crlResult.isValid &&
-                    !crlResult.error?.includes("No CRL")
-                ) {
-                    this.logger.warn(
-                        `Certificate ${cert.id} revocation check failed: ${crlResult.error || "revoked"}`,
-                    );
+                if (!crlResult.isValid && crlResult.revokedAt) {
                     return {
                         isValid: false,
-                        error:
-                            crlResult.error ||
-                            `Certificate revoked at ${crlResult.revokedAt?.toISOString()}`,
                         isRevoked: true,
-                        validFrom,
-                        expiresAt,
+                        error:
+                            crlResult.reason || "Certificate has been revoked",
+                        expiresAt: x509Cert.notAfter,
+                        validFrom: x509Cert.notBefore,
                     };
-                }
-
-                // Log if CRL couldn't be checked but don't fail
-                if (crlResult.error?.includes("No CRL")) {
-                    this.logger.debug(
-                        `Certificate ${cert.id} has no CRL Distribution Points, skipping revocation check`,
-                    );
                 }
             }
 
             return {
                 isValid: true,
-                validFrom,
-                expiresAt,
+                expiresAt: x509Cert.notAfter,
+                validFrom: x509Cert.notBefore,
             };
         } catch (error: any) {
-            this.logger.error(
-                `Failed to validate certificate ${cert.id}: ${error.message}`,
-            );
             return {
                 isValid: false,
-                error: `Certificate validation error: ${error.message}`,
+                error: `Failed to validate certificate: ${error.message}`,
             };
         }
     }
 
     /**
-     * Check if a certificate is expired.
-     *
-     * @param cert - The certificate entity to check
-     * @returns True if the certificate is expired
+     * Get the hostname from the PUBLIC_URL config.
      */
-    isCertificateExpired(cert: CertEntity): boolean {
-        try {
-            // Use the first certificate (leaf) for expiry check
-            const x509Cert = new x509.X509Certificate(cert.crt[0]);
-            return new Date() > x509Cert.notAfter;
-        } catch {
-            return true; // Assume expired if we can't parse
-        }
+    private getHostname(): string {
+        return new URL(this.configService.getOrThrow<string>("PUBLIC_URL"))
+            .hostname;
     }
 
     /**
-     * Get certificate validity information.
-     *
-     * @param cert - The certificate entity
-     * @returns Object with validFrom and expiresAt dates
+     * Add an external certificate to an existing key chain.
+     * Used for storing certificates obtained from external sources (e.g., registrar).
      */
-    getCertificateValidity(cert: CertEntity): {
-        validFrom: Date;
-        expiresAt: Date;
-    } {
-        // Use the first certificate (leaf) for validity
-        const x509Cert = new x509.X509Certificate(cert.crt[0]);
-        return {
-            validFrom: x509Cert.notBefore,
-            expiresAt: x509Cert.notAfter,
-        };
-    }
+    async addCertificate(
+        tenantId: string,
+        options: {
+            crt: string[];
+            keyId: string;
+            description?: string;
+        },
+    ): Promise<string> {
+        const { crt, keyId, description } = options;
 
-    /**
-     * Find a certificate or create one if it does not exist.
-     * Creates a new key with the specified usage type and a self-signed certificate.
-     * @param value - The search criteria
-     * @returns The matched or newly created certificate
-     */
-    findOrCreate(value: FindCertOptions): Promise<CertEntity> {
-        return this.find(value).catch(async () => {
-            // Create a new key with the usage type
-            const keyId = await this.keyService.create(value.tenantId, {
-                usageTypes: [value.type],
-            });
+        // Get the existing key chain
+        const keyChain = await this.keyChainService.getEntity(tenantId, keyId);
 
-            const dto: CertImportDto = {
-                keyId,
-            };
-
-            // Create a self-signed certificate for the new key
-            const certId = await this.addSelfSignedCert(
-                await this.tenantRepository.findOneByOrFail({
-                    id: value.tenantId,
-                }),
-                keyId,
-                dto,
-            );
-
-            // Retrieve and return the newly created certificate
-            return this.certRepository.findOneByOrFail({
-                tenantId: value.tenantId,
-                id: certId,
-            });
+        // Update the key chain with the new certificate
+        await this.keyChainService.update(tenantId, keyId, {
+            activeCertificate: crt.join("\n"),
+            description: description || keyChain.description,
         });
-    }
 
-    /**
-     * Check if a certificate exists for the given tenant and certId.
-     * @param tenantId - The tenant ID
-     * @param certId - The certificate ID
-     * @returns True if certificate exists
-     */
-    hasEntry(tenantId: string, certId: string): Promise<boolean> {
-        return this.certRepository
-            .findOneBy({ tenantId, id: certId })
-            .then((cert) => !!cert);
-    }
-
-    /**
-     * Update an existing certificate.
-     * @param tenantId - The tenant ID
-     * @param id - The certificate ID
-     * @param body - Update data
-     */
-    updateCert(tenantId: string, id: string, body: UpdateKeyDto) {
-        this.certRepository.update({ tenantId, id }, body);
-    }
-
-    /**
-     * Get the certificate chain to be included in the JWS header.
-     * @param cert - The certificate entity
-     * @returns Array with base64-encoded certificates (leaf first, then intermediates/root)
-     */
-    getCertChain(cert: CertEntity): string[] {
-        return cert.crt.map((pem) =>
-            pem
-                .replace("-----BEGIN CERTIFICATE-----", "")
-                .replace("-----END CERTIFICATE-----", "")
-                .replaceAll(/\s/g, ""),
+        this.logger.log(
+            `[${tenantId}] Added certificate to key chain ${keyId}`,
         );
+
+        return keyId;
     }
 
     /**
-     * Get the base64 url encoded SHA-256 hash of the leaf certificate.
-     * @param cert - The certificate entity
-     * @returns The certificate hash as base64url encoded string
+     * Parse a PEM certificate chain into an array of PEM strings.
      */
-    getCertHash(cert: CertEntity): string {
-        // Extract DER from PEM (PEM is base64 encoded, not base64url)
-        // Use the first certificate (leaf) for the hash
-        const der = Buffer.from(
-            cert.crt[0]
-                .replace("-----BEGIN CERTIFICATE-----", "")
-                .replace("-----END CERTIFICATE-----", "")
-                .replaceAll(/\r?\n|\r/g, ""),
-            "base64",
-        );
-        // Hash the DER and return as base64url
-        return createHash("sha256").update(der).digest("base64url");
+    private parseCertificateChain(pemChain: string): string[] {
+        const certs: string[] = [];
+        const certRegex =
+            /-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g;
+        let match;
+
+        while ((match = certRegex.exec(pemChain)) !== null) {
+            certs.push(match[0]);
+        }
+
+        // If no certificates found, treat the whole string as one cert
+        if (certs.length === 0 && pemChain.includes("CERTIFICATE")) {
+            certs.push(pemChain);
+        }
+
+        return certs;
     }
 
     /**
-     * Imports certificates for a specific tenant from the file system.
+     * Compute the SHA-256 hash of the leaf certificate (for x509_hash client_id).
+     * Returns the hash as a base64url-encoded string.
      */
-    async importForTenant(tenantId: string) {
-        await this.configImportService.importConfigsForTenant<CertImportDto>(
-            tenantId,
-            {
-                subfolder: "certs",
-                fileExtension: ".json",
-                validationClass: CertImportDto,
-                resourceType: "cert",
-                loadData: (filePath) => {
-                    const payload = JSON.parse(readFileSync(filePath, "utf8"));
-                    return plainToClass(CertImportDto, payload);
-                },
-                checkExists: (tid, data) => {
-                    return data.id
-                        ? this.hasEntry(tid, data.id)
-                        : Promise.resolve(false);
-                },
-                deleteExisting: async (tid, data) => {
-                    // Find and delete matching certs
-                    const certs = await this.certRepository.findBy({
-                        tenantId: tid,
-                    });
-                    const existingCert = certs.find((c) => c.id === data.id);
-                    if (existingCert) {
-                        await this.certRepository
-                            .delete({
-                                id: existingCert.id,
-                                tenantId: tid,
-                            })
-                            .catch((err) => {
-                                this.logger.error(
-                                    `[${tid}] Error deleting existing cert ${existingCert.id}: ${err.message}`,
-                                );
-                                throw err;
-                            });
-                    }
-                },
-                processItem: async (tid, config) => {
-                    const tenantEntity =
-                        await this.tenantRepository.findOneByOrFail({
-                            id: tid,
-                        });
-
-                    this.addCertificate(tid, config);
-                },
-            },
-        );
+    getCertHash(cert: CertificateInfo): string {
+        const leafPem = cert.crt[0];
+        const x509Cert = new x509.X509Certificate(leafPem);
+        const hash = createHash("sha256")
+            .update(Buffer.from(x509Cert.rawData))
+            .digest();
+        // Return as base64url (no padding)
+        return hash
+            .toString("base64")
+            .replace(/\+/g, "-")
+            .replace(/\//g, "_")
+            .replace(/=+$/, "");
     }
 }

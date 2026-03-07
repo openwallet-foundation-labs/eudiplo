@@ -12,10 +12,8 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
 import { Repository } from "typeorm";
 import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
-import { CryptoService } from "../crypto/crypto.service";
 import { CertService } from "../crypto/key/cert/cert.service";
-import { KeyUsageType } from "../crypto/key/entities/key-usage.entity";
-import { KeyService } from "../crypto/key/key.service";
+import { KeyChainService } from "../crypto/key/key-chain.service";
 import {
     ConfigImportOrchestratorService,
     ImportPhase,
@@ -59,12 +57,11 @@ export class RegistrarService {
 
     constructor(
         private readonly configService: ConfigService,
-        private readonly cryptoService: CryptoService,
         configImportOrchestrator: ConfigImportOrchestratorService,
         @InjectRepository(RegistrarConfigEntity)
         private readonly configRepository: Repository<RegistrarConfigEntity>,
         private readonly certService: CertService,
-        private readonly keyService: KeyService,
+        private readonly keyChainService: KeyChainService,
     ) {
         // Register for config import at CORE phase (same as certificates)
         configImportOrchestrator.register(
@@ -406,7 +403,7 @@ export class RegistrarService {
             this.configService.getOrThrow<string>("PUBLIC_URL"),
         ).hostname;
 
-        const publicKey = await this.keyService.getPublicKey(
+        const publicKey = await this.keyChainService.getPublicKey(
             "pem",
             tenantId,
             dto.keyId,
@@ -439,13 +436,6 @@ export class RegistrarService {
             keyId: dto.keyId,
             description: `Access certificate from registrar (ID: ${id})`,
         });
-
-        // Add the Access usage to the key
-        await this.keyService.addKeyUsage(
-            tenantId,
-            dto.keyId,
-            KeyUsageType.Access,
-        );
 
         this.logger.log(
             `[${tenantId}] Created access certificate with ID: ${id}, stored as ${certId}`,

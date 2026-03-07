@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/RotationPolicyCreateDto.schema.json",
+  "title": "RotationPolicyCreateDto",
+  "type": "object",
+  "properties": {
+    "enabled": {
+      "type": "boolean",
+      "description": "Whether automatic key rotation is enabled.",
+      "default": false
+    },
+    "intervalDays": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 3650,
+      "description": "Rotation interval in days. Required when enabled is true.",
+      "example": 90
+    },
+    "certValidityDays": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 3650,
+      "description": "Certificate validity in days. Defaults to rotation interval + 30 days grace period.",
+      "example": 365
+    }
+  },
+  "required": [
+    "enabled"
+  ]
+}
