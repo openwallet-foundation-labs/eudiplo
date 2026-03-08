@@ -41,14 +41,14 @@ export class TrustList {
     tenant!: TenantEntity;
 
     @Column("varchar")
-    certId: string;
+    keyChainId: string;
 
     @ManyToOne(() => KeyChainEntity, {
         cascade: true,
         onDelete: "CASCADE",
     })
     @JoinColumn([
-        { name: "certId", referencedColumnName: "id" },
+        { name: "keyChainId", referencedColumnName: "id" },
         { name: "tenantId", referencedColumnName: "tenantId" },
     ])
     keyChain!: KeyChainEntity;

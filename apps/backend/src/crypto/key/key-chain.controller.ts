@@ -12,8 +12,10 @@ import { Role } from "../../auth/roles/role.enum";
 import { Secured } from "../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../auth/token.decorator";
 import { KeyChainCreateDto } from "./dto/key-chain-create.dto";
+import { KeyChainImportDto } from "./dto/key-chain-import.dto";
 import { KeyChainResponseDto } from "./dto/key-chain-response.dto";
 import { KeyChainUpdateDto } from "./dto/key-chain-update.dto";
+import { KmsProvidersResponseDto } from "./dto/kms-providers-response.dto";
 import { KeyChainService } from "./key-chain.service";
 
 /**
@@ -29,6 +31,20 @@ import { KeyChainService } from "./key-chain.service";
 @Controller("key-chain")
 export class KeyChainController {
     constructor(private readonly keyChainService: KeyChainService) {}
+
+    /**
+     * Get available KMS providers and their capabilities.
+     */
+    @Get("providers")
+    @ApiOperation({ summary: "Get available KMS providers" })
+    @ApiResponse({
+        status: 200,
+        description: "List of available KMS providers with capabilities",
+        type: KmsProvidersResponseDto,
+    })
+    getProviders(): KmsProvidersResponseDto {
+        return this.keyChainService.getProviders();
+    }
 
     /**
      * List all key chains for the tenant.
@@ -76,6 +92,26 @@ export class KeyChainController {
         @Body() body: KeyChainCreateDto,
     ): Promise<{ id: string }> {
         const id = await this.keyChainService.create(token.entity!.id, body);
+        return { id };
+    }
+
+    /**
+     * Import an existing key chain with provided key material and optional certificate.
+     */
+    @Post("import")
+    @ApiOperation({ summary: "Import an existing key chain" })
+    @ApiResponse({
+        status: 201,
+        description: "Key chain imported successfully",
+    })
+    async import(
+        @Token() token: TokenPayload,
+        @Body() body: KeyChainImportDto,
+    ): Promise<{ id: string }> {
+        const id = await this.keyChainService.importKeyChain(
+            token.entity!.id,
+            body,
+        );
         return { id };
     }
 

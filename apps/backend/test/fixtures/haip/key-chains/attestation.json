@@ -1,0 +1,18 @@
+{
+    "id": "9687a941-3f89-476b-b383-aa5fea1bac8e",
+    "description": "Key chain for attestation signing (HAIP-compliant with CA-signed leaf)",
+    "usageType": "attestation",
+    "key": {
+        "crv": "P-256",
+        "d": "oXPLTk02Mq9n8GfOTQ8hdoe3ENkNoN_Y2ymLnUmnbV0",
+        "kty": "EC",
+        "x": "HHkkbUgKSkkqXmL8utl-TLWIg8CYQS4WPJ8j_nO44Yw",
+        "y": "1NJY0LT3mEuucLQCZJWNrA7fVW8ypR4Zf5cuu85NjSw",
+        "alg": "ES256"
+    },
+    "rotationPolicy": {
+        "enabled": true,
+        "intervalDays": 90,
+        "certValidityDays": 365
+    }
+}

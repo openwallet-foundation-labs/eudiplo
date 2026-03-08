@@ -198,11 +198,11 @@ export class CredentialConfig {
     @IsOptional()
     @IsString()
     @Column("varchar", { nullable: true })
-    certId?: string;
+    keyChainId?: string;
 
     @ManyToOne(() => KeyChainEntity, { createForeignKeyConstraints: false })
     @JoinColumn([
-        { name: "certId", referencedColumnName: "id" },
+        { name: "keyChainId", referencedColumnName: "id" },
         { name: "tenantId", referencedColumnName: "tenantId" },
     ])
     keyChain?: KeyChainEntity;

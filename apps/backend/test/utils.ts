@@ -41,9 +41,8 @@ import request from "supertest";
 import { App } from "supertest/types";
 import { AppModule } from "../src/app.module";
 import { Role } from "../src/auth/roles/role.enum";
-import { CertImportDto } from "../src/crypto/key/dto/cert-import.dto";
-import { KeyImportDto } from "../src/crypto/key/dto/key-import.dto";
-import { CertUsage } from "../src/crypto/key/entities/cert-usage.entity";
+import { KeyChainImportDto } from "../src/crypto/key/dto/key-chain-import.dto";
+import { KeyUsageType } from "../src/crypto/key/entities/key-chain.entity";
 import { CredentialConfigCreate } from "../src/issuer/configuration/credentials/dto/credential-config-create.dto";
 import { IssuanceDto } from "../src/issuer/configuration/issuance/dto/issuance.dto";
 import { StatusListService } from "../src/issuer/lifecycle/status/status-list.service";
@@ -440,37 +439,62 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
 
     const authToken = await getToken(app, clientId, clientSecret);
 
-    const privateKey: KeyImportDto = {
-        id: "039af178-3ca0-48f4-a2e4-7b1209f30376",
-        key: {
-            kty: "EC",
-            x: "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
-            y: "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
-            crv: "P-256",
-            d: "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
-            alg: "ES256",
-        },
+    // Create key chains with different usage types
+    const keyMaterial = {
+        kty: "EC",
+        x: "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
+        y: "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
+        crv: "P-256",
+        d: "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
+        alg: "ES256",
     };
 
+    // Create attestation key chain for credential signing
     await request(app.getHttpServer())
-        .post("/key")
-        .set("Authorization", `Bearer ${authToken}`)
-        .send(privateKey)
-        .expect(201);
-
-    // Create self signed certificate for the key
-    await request(app.getHttpServer())
-        .post("/certs")
+        .post("/key-chain/import")
         .set("Authorization", `Bearer ${authToken}`)
         .send({
-            keyId: privateKey.id,
-            certUsageTypes: [
-                CertUsage.Access,
-                CertUsage.Signing,
-                CertUsage.StatusList,
-                CertUsage.TrustList,
-            ],
-        } as CertImportDto)
+            id: "039af178-3ca0-48f4-a2e4-7b1209f30376",
+            key: keyMaterial,
+            usageType: KeyUsageType.Attestation,
+            description: "Attestation key for credential signing",
+        } as KeyChainImportDto)
+        .expect(201);
+
+    // Create access key chain for access tokens
+    await request(app.getHttpServer())
+        .post("/key-chain/import")
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+            id: "access-key-chain",
+            key: keyMaterial,
+            usageType: KeyUsageType.Access,
+            description: "Access key for tokens",
+        } as KeyChainImportDto)
+        .expect(201);
+
+    // Create status list key chain
+    await request(app.getHttpServer())
+        .post("/key-chain/import")
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+            id: "status-list-key-chain",
+            key: keyMaterial,
+            usageType: KeyUsageType.StatusList,
+            description: "Status list key",
+        } as KeyChainImportDto)
+        .expect(201);
+
+    // Create trust list key chain
+    await request(app.getHttpServer())
+        .post("/key-chain/import")
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+            id: "trust-list-key-chain",
+            key: keyMaterial,
+            usageType: KeyUsageType.TrustList,
+            description: "Trust list key",
+        } as KeyChainImportDto)
         .expect(201);
 
     const configFolder = resolve(__dirname + "/fixtures");
@@ -605,32 +629,22 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
         return res;
     }
 
-    // Import signing key and cert
-    const privateKey = readConfig<KeyImportDto>(
-        join(configFolder, "basic/keys/sign.json"),
+    // Import access/attestation key chain (for signing credentials)
+    const accessKeyChain = readConfig<KeyChainImportDto>(
+        join(configFolder, "basic/key-chains/access.json"),
     );
 
-    const privateIssuerKey = (await importJWK(privateKey.key, "ES256", {
+    const privateIssuerKey = (await importJWK(accessKeyChain.key, "ES256", {
         extractable: true,
     })) as CryptoKey;
 
-    await expectRequest(
-        request(app.getHttpServer())
-            .post("/key")
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(privateKey),
-        201,
-    );
+    const issuerCert = accessKeyChain.crt![0];
 
-    const cert = readConfig<CertImportDto>(
-        join(configFolder, "basic/certs/cert.json"),
-    );
-    const issuerCert = cert.crt![0];
     await expectRequest(
         request(app.getHttpServer())
-            .post("/certs")
+            .post("/key-chain/import")
             .set("Authorization", `Bearer ${authToken}`)
-            .send(cert),
+            .send(accessKeyChain),
         201,
     );
 
@@ -648,55 +662,29 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
         201,
     );
 
-    // Import statuslist key and cert
-    const statusListKey = readConfig<KeyImportDto>(
-        join(configFolder, "basic/keys/sign.json"),
+    // Import status list key chain
+    const statusListKeyChain = readConfig<KeyChainImportDto>(
+        join(configFolder, "basic/key-chains/status-list.json"),
     );
 
     await expectRequest(
         request(app.getHttpServer())
-            .post("/key")
+            .post("/key-chain/import")
             .set("Authorization", `Bearer ${authToken}`)
-            .send(statusListKey),
+            .send(statusListKeyChain),
         201,
     );
 
-    const statusListCert = readConfig<CertImportDto>(
-        join(configFolder, "basic/certs/cert.json"),
+    // Import trust list key chain
+    const trustListKeyChain = readConfig<KeyChainImportDto>(
+        join(configFolder, "basic/key-chains/trust-list.json"),
     );
 
     await expectRequest(
         request(app.getHttpServer())
-            .post("/certs")
+            .post("/key-chain/import")
             .set("Authorization", `Bearer ${authToken}`)
-            .send(statusListCert),
-        201,
-    );
-
-    // Import trust list key
-    await expectRequest(
-        request(app.getHttpServer())
-            .post("/key")
-            .trustLocalhost()
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(
-                readConfig<KeyImportDto>(
-                    join(configFolder, "basic/keys/trust-list.json"),
-                ),
-            ),
-        201,
-    );
-
-    // Import trust list cert
-    await expectRequest(
-        request(app.getHttpServer())
-            .post("/certs")
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(
-                readConfig<CertImportDto>(
-                    join(configFolder, "basic/certs/cert.json"),
-                ),
-            ),
+            .send(trustListKeyChain),
         201,
     );
 

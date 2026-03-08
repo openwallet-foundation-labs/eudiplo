@@ -115,9 +115,9 @@
 
         <mat-form-field>
           <mat-label>Access Key Chain (optional)</mat-label>
-          <mat-select formControlName="accessCertId">
+          <mat-select formControlName="accessKeyChainId">
             <mat-select-trigger>
-              @if (form.controls['accessCertId'].value; as keyChainId) {
+              @if (form.controls['accessKeyChainId'].value; as keyChainId) {
                 {{ keyChainId }}
               } @else {
                 <em>Use default access key chain</em>

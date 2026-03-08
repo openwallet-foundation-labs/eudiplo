@@ -9,8 +9,7 @@ import * as axios from "axios";
 import { Logger } from "nestjs-pino";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module";
-import { CertImportDto } from "../../src/crypto/key/dto/cert-import.dto";
-import { KeyImportDto } from "../../src/crypto/key/dto/key-import.dto";
+import { KeyChainImportDto } from "../../src/crypto/key/dto/key-chain-import.dto";
 import { getDefaultSecret, readConfig } from "../utils";
 import { useOidfContainers } from "./oidf-setup";
 import { OIDFSuite, TestInstance } from "./oidf-suite";
@@ -42,14 +41,10 @@ describe("OIDF", () => {
     const oidfSuite = new OIDFSuite(OIDF_URL, OIDF_DEMO_TOKEN);
 
     beforeAll(async () => {
-        //use existing keys from the config folder
-        const key = readConfig<KeyImportDto>(
-            resolve(__dirname + "/../fixtures/haip/keys/sign.json"),
+        //use existing key chain from the config folder
+        const keyChain = readConfig<KeyChainImportDto>(
+            resolve(__dirname + "/../fixtures/haip/key-chains/access.json"),
         );
-
-        const issuerCert = readConfig<CertImportDto>(
-            resolve(__dirname + "/../fixtures/haip/certs/cert.json"),
-        ).crt!;
 
         const planId = "oid4vp-1final-verifier-test-plan";
         const variant = {
@@ -63,9 +58,9 @@ describe("OIDF", () => {
             description: "test plan created via e2e tests",
             credential: {
                 signing_jwk: {
-                    ...key.key,
+                    ...keyChain.key,
                     use: "sig",
-                    x5c: issuerCert.map((cert) =>
+                    x5c: keyChain.crt!.map((cert) =>
                         cert
                             .replaceAll("-----BEGIN CERTIFICATE-----", "")
                             .replaceAll("-----END CERTIFICATE-----", "")

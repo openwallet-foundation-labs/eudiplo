@@ -158,57 +158,59 @@
     }
 
     <!-- Active Certificate -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon class="title-icon">verified</mat-icon>
-          Active Certificate
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-list class="config-list">
-          <mat-list-item>
-            <mat-icon matListItemIcon>subject</mat-icon>
-            <span matListItemTitle>Subject</span>
-            <span matListItemLine>{{ keyChain.activeCertificate.subject }}</span>
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon matListItemIcon>business</mat-icon>
-            <span matListItemTitle>Issuer</span>
-            <span matListItemLine>{{ keyChain.activeCertificate.issuer }}</span>
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon matListItemIcon>{{
-              isCertExpired(keyChain.activeCertificate) ? 'warning' : 'check_circle'
-            }}</mat-icon>
-            <span matListItemTitle>Valid Until</span>
-            <span matListItemLine>
-              {{
-                keyChain.activeCertificate.notAfter
-                  ? formatDate(keyChain.activeCertificate.notAfter)
-                  : 'N/A'
-              }}
-              @if (isCertExpired(keyChain.activeCertificate)) {
-                <mat-chip color="warn">Expired</mat-chip>
-              }
-            </span>
-          </mat-list-item>
-        </mat-list>
-        <div class="cert-actions" fxLayout="row" fxLayoutGap="8px">
-          <button
-            mat-stroked-button
-            (click)="copyCertificateToClipboard(keyChain.activeCertificate)"
-          >
-            <mat-icon>content_copy</mat-icon>
-            Copy PEM
-          </button>
-          <button mat-stroked-button (click)="copyPublicKeyToClipboard(keyChain.activePublicKey)">
-            <mat-icon>content_copy</mat-icon>
-            Copy Public Key (JWK)
-          </button>
-        </div>
-      </mat-card-content>
-    </mat-card>
+    @if (keyChain.activeCertificate) {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="title-icon">verified</mat-icon>
+            Active Certificate
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-list class="config-list">
+            <mat-list-item>
+              <mat-icon matListItemIcon>subject</mat-icon>
+              <span matListItemTitle>Subject</span>
+              <span matListItemLine>{{ keyChain.activeCertificate.subject }}</span>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon matListItemIcon>business</mat-icon>
+              <span matListItemTitle>Issuer</span>
+              <span matListItemLine>{{ keyChain.activeCertificate.issuer }}</span>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon matListItemIcon>{{
+                isCertExpired(keyChain.activeCertificate) ? 'warning' : 'check_circle'
+              }}</mat-icon>
+              <span matListItemTitle>Valid Until</span>
+              <span matListItemLine>
+                {{
+                  keyChain.activeCertificate.notAfter
+                    ? formatDate(keyChain.activeCertificate.notAfter)
+                    : 'N/A'
+                }}
+                @if (isCertExpired(keyChain.activeCertificate)) {
+                  <mat-chip color="warn">Expired</mat-chip>
+                }
+              </span>
+            </mat-list-item>
+          </mat-list>
+          <div class="cert-actions" fxLayout="row" fxLayoutGap="8px">
+            <button
+              mat-stroked-button
+              (click)="copyCertificateToClipboard(keyChain.activeCertificate)"
+            >
+              <mat-icon>content_copy</mat-icon>
+              Copy PEM
+            </button>
+            <button mat-stroked-button (click)="copyPublicKeyToClipboard(keyChain.activePublicKey)">
+              <mat-icon>content_copy</mat-icon>
+              Copy Public Key (JWK)
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
 
     <!-- Previous Certificate (if in grace period) -->
     @if (hasPreviousKey() && keyChain.previousCertificate) {

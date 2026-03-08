@@ -40,11 +40,11 @@ export class StatusListEntity {
     credentialConfigurationId?: string | null;
 
     /**
-     * Optional certificate ID to use for signing this status list's JWT.
-     * If null, uses the tenant's default StatusList certificate.
+     * Optional key chain ID to use for signing this status list's JWT.
+     * If null, uses the tenant's default StatusList key chain.
      */
     @Column("varchar", { nullable: true })
-    certId?: string | null;
+    keyChainId?: string | null;
 
     /**
      * The elements of the status list.

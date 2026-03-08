@@ -48,7 +48,7 @@
 
             <mat-form-field appearance="outline">
               <mat-label>Signing Key Chain</mat-label>
-              <mat-select formControlName="certId">
+              <mat-select formControlName="keyChainId">
                 <mat-option value="">Auto-generate</mat-option>
                 @for (keyChain of trustListKeyChains; track keyChain.id) {
                   <mat-option [value]="keyChain.id">
@@ -150,7 +150,7 @@
                     <!-- Internal Entity Form - Key Chain Selection -->
                     <mat-form-field appearance="outline">
                       <mat-label>Issuer Key Chain</mat-label>
-                      <mat-select formControlName="issuerCertId">
+                      <mat-select formControlName="issuerKeyChainId">
                         @for (keyChain of attestationKeyChains; track keyChain.id) {
                           <mat-option [value]="keyChain.id">
                             {{
@@ -167,7 +167,7 @@
 
                     <mat-form-field appearance="outline">
                       <mat-label>Revocation Key Chain</mat-label>
-                      <mat-select formControlName="revocationCertId">
+                      <mat-select formControlName="revocationKeyChainId">
                         @for (keyChain of statusListKeyChains; track keyChain.id) {
                           <mat-option [value]="keyChain.id">
                             {{

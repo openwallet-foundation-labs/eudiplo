@@ -130,7 +130,7 @@ export class CredentialConfigCreateComponent implements OnInit {
       id: new FormControl('', [Validators.required]),
       description: new FormControl('', Validators.required),
       format: new FormControl('dc+sd-jwt', [Validators.required]),
-      certId: new FormControl(''),
+      keyChainId: new FormControl(''),
       scope: new FormControl(''),
       lifeTime: new FormControl(3600, [Validators.min(1)]),
       keyBinding: new FormControl(true, [Validators.required]),
@@ -319,7 +319,7 @@ export class CredentialConfigCreateComponent implements OnInit {
 
     this.form.patchValue({
       id: config.id || '',
-      certId: config.certId || '',
+      keyChainId: config.keyChainId || '',
       format: config.config?.format || 'dc+sd-jwt',
       scope: config.config?.scope || '',
       description: config.description || '',
@@ -626,7 +626,7 @@ export class CredentialConfigCreateComponent implements OnInit {
     };
 
     // Convert empty strings to null to clear optional fields (for PATCH semantics)
-    formValue.certId = formValue.certId || null;
+    formValue.keyChainId = formValue.keyChainId || null;
     formValue.scope = formValue.scope || null;
 
     // Parse JSON fields using helper - use null to clear, undefined is not sent

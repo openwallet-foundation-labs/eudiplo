@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/KmsProviderCapabilitiesDto.schema.json",
+  "title": "KmsProviderCapabilitiesDto",
+  "type": "object",
+  "properties": {
+    "canImport": {
+      "type": "boolean",
+      "description": "Whether the provider supports importing existing keys.",
+      "example": true
+    },
+    "canCreate": {
+      "type": "boolean",
+      "description": "Whether the provider supports generating new keys.",
+      "example": true
+    },
+    "canDelete": {
+      "type": "boolean",
+      "description": "Whether the provider supports deleting keys.",
+      "example": true
+    }
+  },
+  "required": [
+    "canImport",
+    "canCreate",
+    "canDelete"
+  ]
+}

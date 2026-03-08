@@ -82,7 +82,7 @@ export class PresentationCreateComponent implements OnInit {
       id: new FormControl(undefined, [Validators.required]),
       description: new FormControl(undefined, [Validators.required]),
       redirectUri: new FormControl(undefined),
-      accessCertId: new FormControl(undefined),
+      accessKeyChainId: new FormControl(undefined),
       dcql_query: new FormControl(undefined, [Validators.required]),
       lifeTime: new FormControl(300, [Validators.required, Validators.min(1)]),
       registrationCert: new FormControl(undefined), // Optional field

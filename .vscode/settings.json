@@ -82,7 +82,7 @@
     },
     {
       "fileMatch": [
-        "/assets/config/*/trustlists/*.json"
+        "/assets/config/*/trust-lists/*.json"
       ],
       "url": "./schemas/TrustListCreateDto.schema.json"
     },

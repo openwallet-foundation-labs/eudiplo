@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -31,6 +32,12 @@ import {
     PublicKeyInfoDto,
 } from "./dto/key-chain-response.dto";
 import { KeyChainUpdateDto } from "./dto/key-chain-update.dto";
+import { KmsConfigDto, KmsProviderType } from "./dto/kms-config.dto";
+import {
+    KmsProviderCapabilitiesDto,
+    KmsProviderInfoDto,
+} from "./dto/kms-provider-capabilities.dto";
+import { KmsProvidersResponseDto } from "./dto/kms-providers-response.dto";
 import {
     KeyChainEntity,
     KeyUsage,
@@ -70,6 +77,91 @@ export class KeyChainService {
             ImportPhase.CORE,
             (tenantId) => this.importForTenant(tenantId),
         );
+    }
+
+    /**
+     * Get available KMS providers and their capabilities.
+     *
+     * Reads the kms.json config file to determine which providers are configured.
+     * If no config file exists, returns the default 'db' provider.
+     */
+    getProviders(): KmsProvidersResponseDto {
+        const configFolder = this.configService.get<string>("CONFIG_FOLDER");
+        const kmsConfigPath = configFolder
+            ? join(configFolder, "kms.json")
+            : null;
+
+        // Default configuration if no kms.json exists
+        const defaultConfig: KmsConfigDto = {
+            defaultProvider: "db",
+            providers: [
+                {
+                    id: "db",
+                    type: "db",
+                    description: "Default database provider",
+                },
+            ],
+        };
+
+        let config = defaultConfig;
+
+        if (kmsConfigPath && existsSync(kmsConfigPath)) {
+            try {
+                const raw = readFileSync(kmsConfigPath, "utf8");
+                config = JSON.parse(raw) as KmsConfigDto;
+            } catch (error) {
+                this.logger.warn(
+                    `Failed to read kms.json, using default config: ${error}`,
+                );
+            }
+        }
+
+        // Map providers to response DTOs with capabilities
+        const providers: KmsProviderInfoDto[] = config.providers.map((p) => ({
+            name: p.id,
+            type: p.type,
+            description: p.description,
+            capabilities: this.getCapabilitiesForType(p.type),
+        }));
+
+        return {
+            providers,
+            default: config.defaultProvider || "db",
+        };
+    }
+
+    /**
+     * Get capabilities for a KMS provider type.
+     */
+    private getCapabilitiesForType(
+        type: KmsProviderType,
+    ): KmsProviderCapabilitiesDto {
+        switch (type) {
+            case "db":
+                return {
+                    canImport: true,
+                    canCreate: true,
+                    canDelete: true,
+                };
+            case "vault":
+                return {
+                    canImport: true,
+                    canCreate: true,
+                    canDelete: true,
+                };
+            case "aws-kms":
+                return {
+                    canImport: false,
+                    canCreate: true,
+                    canDelete: false,
+                };
+            default:
+                return {
+                    canImport: false,
+                    canCreate: false,
+                    canDelete: false,
+                };
+        }
     }
 
     /**
@@ -527,14 +619,11 @@ export class KeyChainService {
                 },
                 checkExists: async (tid, data) => {
                     // Check by matching public key coordinates
-                    const existing = await this.keyChainRepository.find({
-                        where: { tenantId: tid },
-                    });
-                    return existing.some(
-                        (kc) =>
-                            kc.activeKey.x === data.key.x &&
-                            kc.activeKey.y === data.key.y,
-                    );
+                    return await this.keyChainRepository
+                        .count({
+                            where: { tenantId: tid, id: data.id },
+                        })
+                        .then((count) => count > 0);
                 },
                 processItem: async (tid, config) => {
                     await this.importKeyChain(tid, config);
@@ -545,6 +634,10 @@ export class KeyChainService {
 
     /**
      * Import a single key chain from DTO.
+     *
+     * When rotationPolicy.enabled is true, the imported key becomes the root CA
+     * and a new leaf key is generated for signing. This satisfies HAIP section 4.5.1
+     * which requires credential signing certificates to NOT be self-signed.
      */
     async importKeyChain(
         tenantId: string,
@@ -565,6 +658,19 @@ export class KeyChainService {
             privateKey.alg = "ES256";
         }
 
+        // Rotation enabled: imported key becomes root CA, generate new leaf key
+        if (dto.rotationPolicy?.enabled) {
+            return this.importKeyChainWithRotation(
+                id,
+                tenantId,
+                tenant.name,
+                hostname,
+                privateKey,
+                dto,
+            );
+        }
+
+        // Standard import: imported key is the active signing key
         let activeCertificate: string;
 
         if (dto.crt && dto.crt.length > 0) {
@@ -610,6 +716,98 @@ export class KeyChainService {
 
         this.logger.log(
             `Imported key chain ${id} for tenant ${tenantId} (usage: ${dto.usageType})`,
+        );
+        return id;
+    }
+
+    /**
+     * Import key chain with rotation enabled.
+     * The imported key becomes the root CA, and a new leaf key is generated.
+     */
+    private async importKeyChainWithRotation(
+        id: string,
+        tenantId: string,
+        subjectCN: string,
+        hostname: string,
+        rootKeyJwk: JWK,
+        dto: KeyChainImportDto,
+    ): Promise<string> {
+        const now = new Date();
+        const certValidityDays = dto.rotationPolicy?.certValidityDays || 365;
+        const rotationIntervalDays = dto.rotationPolicy?.intervalDays || 90;
+        const notAfter = new Date(
+            now.getTime() + certValidityDays * 24 * 60 * 60 * 1000,
+        );
+
+        // === 1. Set up root CA key ===
+        rootKeyJwk.kid = rootKeyJwk.kid || `${id}-root`;
+        const rootPrivateKey = (await importJWK(
+            rootKeyJwk,
+            "ES256",
+        )) as CryptoKey;
+        const rootPublicJwk = this.getPublicJwk(rootKeyJwk);
+        const rootPublicKey = (await importJWK(
+            rootPublicJwk,
+            "ES256",
+        )) as CryptoKey;
+
+        // === 2. Get or generate root CA certificate ===
+        let rootCertificate: string;
+
+        if (dto.crt && dto.crt.length > 0) {
+            // Use provided CA certificate
+            rootCertificate = dto.crt[0];
+        } else {
+            // Generate self-signed CA certificate for the imported key
+            const rootNotAfter = new Date(
+                now.getTime() + 10 * 365 * 24 * 60 * 60 * 1000,
+            );
+            rootCertificate = await this.createSelfSignedCaCert(
+                { privateKey: rootPrivateKey, publicKey: rootPublicKey },
+                `${subjectCN} Root CA`,
+                hostname,
+                now,
+                rootNotAfter,
+            );
+        }
+
+        // === 3. Generate new active signing key ===
+        const activeKeyPair = await generateKeyPair("ES256", {
+            extractable: true,
+        });
+        const activePrivateJwk = await exportJWK(activeKeyPair.privateKey);
+        activePrivateJwk.kid = `${id}-active-${Date.now()}`;
+
+        // === 4. Create CA-signed certificate for the signing key ===
+        const { chain } = await this.createCaSignedCert(
+            { privateKey: rootPrivateKey, publicKey: rootPublicKey },
+            rootCertificate,
+            activeKeyPair.publicKey,
+            subjectCN,
+            hostname,
+            now,
+            notAfter,
+        );
+
+        // === 5. Save key chain with internal CA structure ===
+        await this.keyChainRepository.save({
+            id,
+            tenantId,
+            usageType: dto.usageType,
+            usage: KeyUsage.Sign,
+            description: dto.description,
+            kmsProvider: dto.kmsProvider || "db",
+            rootKey: rootKeyJwk,
+            rootCertificate,
+            activeKey: activePrivateJwk,
+            activeCertificate: chain.join("\n"),
+            rotationEnabled: true,
+            rotationIntervalDays,
+            certValidityDays,
+        } as KeyChainEntity);
+
+        this.logger.log(
+            `Imported key chain ${id} with rotation for tenant ${tenantId} (usage: ${dto.usageType})`,
         );
         return id;
     }

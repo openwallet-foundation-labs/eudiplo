@@ -83,7 +83,7 @@ export class StatusListEditComponent implements OnInit {
 
     this.form = new FormGroup({
       credentialConfigurationId: new FormControl(null),
-      certId: new FormControl(null),
+      keyChainId: new FormControl(null),
       // Only used in create mode
       bits: new FormControl(null),
       capacity: new FormControl(null),
@@ -123,7 +123,7 @@ export class StatusListEditComponent implements OnInit {
       this.statusList = await this.statusListService.getList(this.listId);
       this.form.patchValue({
         credentialConfigurationId: this.statusList.credentialConfigurationId ?? null,
-        certId: this.statusList.certId ?? null,
+        keyChainId: this.statusList.keyChainId ?? null,
       });
     } catch (error) {
       console.error('Failed to load status list:', error);
@@ -196,14 +196,14 @@ export class StatusListEditComponent implements OnInit {
       if (this.isEditMode) {
         const dto = {
           credentialConfigurationId: formValue.credentialConfigurationId || undefined,
-          certId: formValue.certId || undefined,
+          keyChainId: formValue.keyChainId || undefined,
         };
         await this.statusListService.updateList(this.listId!, dto);
         this.snackBar.open('Status list updated successfully', 'Close', { duration: 3000 });
       } else {
         const dto = {
           credentialConfigurationId: formValue.credentialConfigurationId || undefined,
-          certId: formValue.certId || undefined,
+          keyChainId: formValue.keyChainId || undefined,
           bits: formValue.bits || undefined,
           capacity: formValue.capacity || undefined,
         };

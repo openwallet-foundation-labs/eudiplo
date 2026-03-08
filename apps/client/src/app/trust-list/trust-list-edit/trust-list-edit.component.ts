@@ -38,8 +38,8 @@ interface EntityInfoForm {
 
 interface InternalEntityForm extends EntityInfoForm {
   type: FormControl<'internal'>;
-  issuerCertId: FormControl<string>;
-  revocationCertId: FormControl<string>;
+  issuerKeyChainId: FormControl<string>;
+  revocationKeyChainId: FormControl<string>;
 }
 
 interface ExternalEntityForm extends EntityInfoForm {
@@ -101,7 +101,7 @@ export class TrustListEditComponent implements OnInit {
     this.form = new FormGroup({
       id: new FormControl('', { validators: [Validators.required] }),
       description: new FormControl(''),
-      certId: new FormControl(''),
+      keyChainId: new FormControl(''),
       entities: new FormArray([]),
     });
 
@@ -156,7 +156,7 @@ export class TrustListEditComponent implements OnInit {
       this.form.patchValue({
         id: this.trustList.id || this.trustListId,
         description: this.trustList.description || '',
-        certId: this.trustList.certId || '',
+        keyChainId: this.trustList.keyChainId || '',
       });
 
       // Load entities from stored entityConfig if available, otherwise parse from data
@@ -182,11 +182,11 @@ export class TrustListEditComponent implements OnInit {
       if (entity.type === 'internal') {
         const entityGroup = new FormGroup<InternalEntityForm>({
           type: new FormControl('internal', { nonNullable: true }),
-          issuerCertId: new FormControl(entity.issuerCertId || '', {
+          issuerKeyChainId: new FormControl(entity.issuerKeyChainId || '', {
             nonNullable: true,
             validators: Validators.required,
           }),
-          revocationCertId: new FormControl(entity.revocationCertId || '', {
+          revocationKeyChainId: new FormControl(entity.revocationKeyChainId || '', {
             nonNullable: true,
             validators: Validators.required,
           }),
@@ -329,8 +329,11 @@ export class TrustListEditComponent implements OnInit {
   addInternalEntity(): void {
     const entityGroup = new FormGroup<InternalEntityForm>({
       type: new FormControl('internal', { nonNullable: true }),
-      issuerCertId: new FormControl('', { nonNullable: true, validators: Validators.required }),
-      revocationCertId: new FormControl('', { nonNullable: true, validators: Validators.required }),
+      issuerKeyChainId: new FormControl('', { nonNullable: true, validators: Validators.required }),
+      revocationKeyChainId: new FormControl('', {
+        nonNullable: true,
+        validators: Validators.required,
+      }),
       infoName: new FormControl('', { nonNullable: true, validators: Validators.required }),
       infoLang: new FormControl('en', { nonNullable: true }),
       infoUri: new FormControl('', { nonNullable: true }),
@@ -409,8 +412,8 @@ export class TrustListEditComponent implements OnInit {
       if (entity.type === 'internal') {
         return {
           type: 'internal',
-          issuerCertId: entity.issuerCertId,
-          revocationCertId: entity.revocationCertId,
+          issuerKeyChainId: entity.issuerKeyChainId,
+          revocationKeyChainId: entity.revocationKeyChainId,
           info,
         };
       } else {
@@ -426,7 +429,7 @@ export class TrustListEditComponent implements OnInit {
     const body = {
       id: formValue.id,
       description: formValue.description || undefined,
-      certId: formValue.certId || undefined,
+      keyChainId: formValue.keyChainId || undefined,
       entities,
     };
 

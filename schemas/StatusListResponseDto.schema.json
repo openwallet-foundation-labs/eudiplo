@@ -20,11 +20,11 @@
       "description": "Credential configuration ID this list is bound to. Null means shared.",
       "example": "org.iso.18013.5.1.mDL"
     },
-    "certId": {
+    "keyChainId": {
       "type": "string",
       "nullable": true,
-      "description": "Certificate ID used for signing. Null means using the tenant's default.",
-      "example": "my-status-list-cert"
+      "description": "Key chain ID used for signing. Null means using the tenant's default.",
+      "example": "my-status-list-keychain"
     },
     "bits": {
       "type": "number",

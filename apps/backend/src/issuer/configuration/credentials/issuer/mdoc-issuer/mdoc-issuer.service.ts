@@ -71,7 +71,7 @@ export class MdocIssuerService {
         const certificate = await this.certService.find({
             tenantId: session.tenantId,
             type: KeyUsageType.Attestation,
-            certId: credentialConfiguration.certId,
+            keyId: credentialConfiguration.keyChainId,
         });
 
         // Get the private key for signing via KeyChainEntity

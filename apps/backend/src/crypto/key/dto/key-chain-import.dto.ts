@@ -1,10 +1,14 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
+    IsBoolean,
     IsEnum,
+    IsNumber,
     IsObject,
     IsOptional,
     IsString,
+    Max,
+    Min,
     ValidateNested,
 } from "class-validator";
 import { JWK } from "jose";
@@ -36,6 +40,45 @@ class EcJwk implements JWK {
     @IsString()
     @IsOptional()
     kid?: string;
+}
+
+/**
+ * Rotation policy for imported key chains.
+ * When enabled, the imported key becomes the root CA key,
+ * and a new leaf key is generated for signing.
+ */
+class RotationPolicyImportDto {
+    @ApiProperty({
+        description:
+            "Whether rotation is enabled. When true, the imported key becomes a root CA.",
+        default: false,
+    })
+    @IsBoolean()
+    enabled!: boolean;
+
+    @ApiPropertyOptional({
+        description: "Rotation interval in days.",
+        example: 90,
+        minimum: 1,
+        maximum: 3650,
+    })
+    @IsNumber()
+    @Min(1)
+    @Max(3650)
+    @IsOptional()
+    intervalDays?: number;
+
+    @ApiPropertyOptional({
+        description: "Certificate validity in days.",
+        example: 365,
+        minimum: 1,
+        maximum: 3650,
+    })
+    @IsNumber()
+    @Min(1)
+    @Max(3650)
+    @IsOptional()
+    certValidityDays?: number;
 }
 
 /**
@@ -91,4 +134,13 @@ export class KeyChainImportDto {
     @IsString()
     @IsOptional()
     kmsProvider?: string;
+
+    @ApiPropertyOptional({
+        description:
+            "Rotation policy. When enabled, the imported key becomes a root CA and a new leaf key is generated.",
+    })
+    @ValidateNested()
+    @Type(() => RotationPolicyImportDto)
+    @IsOptional()
+    rotationPolicy?: RotationPolicyImportDto;
 }

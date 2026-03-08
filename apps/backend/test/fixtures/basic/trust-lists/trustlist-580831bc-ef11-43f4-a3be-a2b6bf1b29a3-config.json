@@ -1,12 +1,12 @@
 {
-  "id": "580831bc-ef11-43f4-a3be-a2b6bf1b29a3",
+  "id": "570852d7-7e7f-40af-a0e3-a6ebffd75ed0",
   "description": "trust list for pid issuance",
   "certId": "9687a941-3f89-476b-b383-aa5fea1baa8e",
   "entities": [
     {
       "type": "internal",
-      "issuerCertId": "9687a941-3f89-476b-b383-aa5fea1baa8e",
-      "revocationCertId": "9687a941-3f89-476b-b383-aa5fea1baa8e",
+      "issuerKeyChainId": "9687a941-3f89-476b-b383-aa5fea1bac8e",
+      "revocationKeyChainId": "9687a941-3f89-476b-b383-aa5fea1baa8e",
       "info": {
         "name": "PID Provider",
         "lang": "en"

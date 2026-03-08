@@ -140,8 +140,8 @@ Reference certificates already managed in EUDIPLO:
 ```json
 {
     "type": "internal",
-    "issuerCertId": "uuid-of-issuance-cert",
-    "revocationCertId": "uuid-of-revocation-cert",
+    "issuerKeyChainId": "uuid-of-issuance-cert",
+    "revocationKeyChainId": "uuid-of-revocation-cert",
     "info": {
         "name": "Organization Name",
         "country": "DE"

@@ -23,7 +23,7 @@
         }
       ]
     },
-    "certId": {
+    "keyChainId": {
       "type": "string"
     },
     "keyChain": {
@@ -61,7 +61,7 @@
     "id",
     "tenantId",
     "tenant",
-    "certId",
+    "keyChainId",
     "keyChain",
     "sequenceNumber",
     "jwt",

@@ -188,7 +188,7 @@ export class KeyChainEntity {
     /**
      * Timestamp of when the key was last rotated.
      */
-    @Column("datetime", { nullable: true })
+    @Column({ nullable: true })
     lastRotatedAt?: Date;
 
     // ─────────────────────────────────────────────────────────
@@ -218,7 +218,7 @@ export class KeyChainEntity {
      * Expiry date for the previous key.
      * After this date, the previous key should be deleted.
      */
-    @Column("datetime", { nullable: true })
+    @Column({ nullable: true })
     previousKeyExpiry?: Date;
 
     // ─────────────────────────────────────────────────────────

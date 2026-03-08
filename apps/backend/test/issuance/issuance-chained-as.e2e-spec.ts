@@ -18,9 +18,8 @@ import {
     test,
 } from "vitest";
 import { AppModule } from "../../src/app.module";
-import { CertImportDto } from "../../src/crypto/cert/dto/cert-import.dto";
-import { KeyImportDto } from "../../src/crypto/dto/key-import.dto";
-import { CertUsage } from "../../src/crypto/key/entities/cert-usage.entity";
+import { KeyChainImportDto } from "../../src/crypto/key/dto/key-chain-import.dto";
+import { KeyUsageType } from "../../src/crypto/key/entities/key-chain.entity";
 import { CredentialConfigCreate } from "../../src/issuer/configuration/credentials/dto/credential-config-create.dto";
 import { IssuanceDto } from "../../src/issuer/configuration/issuance/dto/issuance.dto";
 import { getToken, readConfig } from "../utils";
@@ -129,38 +128,34 @@ describe("Issuance - Chained AS Flow", () => {
 
         authToken = await getToken(app, clientId, clientSecret, "basic");
 
-        // Setup key and certificate
-        const privateKey: KeyImportDto = {
-            id: "039af178-3ca0-48f4-a2e4-7b1209f30376",
-            key: {
-                kty: "EC",
-                x: "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
-                y: "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
-                crv: "P-256",
-                d: "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
-                alg: "ES256",
-            },
+        // Setup key chains with different usage types
+        const keyMaterial = {
+            kty: "EC",
+            x: "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
+            y: "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
+            crv: "P-256",
+            d: "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
+            alg: "ES256",
         };
 
-        await request(app.getHttpServer())
-            .post("/key")
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(privateKey)
-            .expect(201);
-
-        await request(app.getHttpServer())
-            .post("/certs")
-            .set("Authorization", `Bearer ${authToken}`)
-            .send({
-                keyId: privateKey.id,
-                certUsageTypes: [
-                    CertUsage.Access,
-                    CertUsage.Signing,
-                    CertUsage.StatusList,
-                    CertUsage.TrustList,
-                ],
-            } as CertImportDto)
-            .expect(201);
+        // Create key chains for each usage type
+        for (const usageType of [
+            KeyUsageType.Attestation,
+            KeyUsageType.Access,
+            KeyUsageType.StatusList,
+            KeyUsageType.TrustList,
+        ]) {
+            await request(app.getHttpServer())
+                .post("/key-chain/import")
+                .set("Authorization", `Bearer ${authToken}`)
+                .send({
+                    id: `key-chain-${usageType}`,
+                    key: keyMaterial,
+                    usageType,
+                    description: `Key chain for ${usageType}`,
+                } as KeyChainImportDto)
+                .expect(201);
+        }
 
         const configFolder = resolve(__dirname + "/../fixtures");
 

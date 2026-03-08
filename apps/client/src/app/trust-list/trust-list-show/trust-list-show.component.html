@@ -32,8 +32,8 @@
             <span class="value">{{ trustList.sequenceNumber }}</span>
           </div>
           <div class="metadata-item">
-            <span class="label">Certificate ID</span>
-            <span class="value">{{ trustList.certId }}</span>
+            <span class="label">Key Chain ID</span>
+            <span class="value">{{ trustList.keyChainId }}</span>
           </div>
           <div class="metadata-item">
             <span class="label">Trusted Entities</span>
@@ -178,12 +178,12 @@
                     @if (isInternalEntity(entity)) {
                       <div class="info-grid">
                         <div class="info-item">
-                          <span class="label">Issuer Certificate ID</span>
-                          <span class="value mono">{{ entity.issuerCertId }}</span>
+                          <span class="label">Issuer Key Chain ID</span>
+                          <span class="value mono">{{ entity.issuerKeyChainId }}</span>
                         </div>
                         <div class="info-item">
-                          <span class="label">Revocation Certificate ID</span>
-                          <span class="value mono">{{ entity.revocationCertId }}</span>
+                          <span class="label">Revocation Key Chain ID</span>
+                          <span class="value mono">{{ entity.revocationKeyChainId }}</span>
                         </div>
                       </div>
                     } @else {

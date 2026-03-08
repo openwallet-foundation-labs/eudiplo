@@ -169,7 +169,7 @@
 
             <mat-form-field appearance="outline">
               <mat-label>Key Chain</mat-label>
-              <mat-select formControlName="certId">
+              <mat-select formControlName="keyChainId">
                 <mat-option [value]="null">Default (auto-managed)</mat-option>
                 @for (keyChain of keyChains; track keyChain.id) {
                   <mat-option [value]="keyChain.id">{{ keyChain.id }}</mat-option>

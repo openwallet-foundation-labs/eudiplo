@@ -476,11 +476,11 @@ export const StatusListImportDtoSchema = {
         "Credential configuration ID to bind this list exclusively to. Leave empty for a shared list.",
       example: "org.iso.18013.5.1.mDL",
     },
-    certId: {
+    keyChainId: {
       type: "string",
       description:
-        "Certificate ID to use for signing. Leave empty to use the tenant's default StatusList certificate.",
-      example: "my-status-list-cert",
+        "Key chain ID to use for signing. Leave empty to use the tenant's default StatusList key chain.",
+      example: "my-status-list-keychain",
     },
     capacity: {
       type: "number",
@@ -579,12 +579,12 @@ export const StatusListResponseDtoSchema = {
         "Credential configuration ID this list is bound to. Null means shared.",
       example: "org.iso.18013.5.1.mDL",
     },
-    certId: {
+    keyChainId: {
       type: "string",
       nullable: true,
       description:
-        "Certificate ID used for signing. Null means using the tenant's default.",
-      example: "my-status-list-cert",
+        "Key chain ID used for signing. Null means using the tenant's default.",
+      example: "my-status-list-keychain",
     },
     bits: {
       type: "number",
@@ -649,11 +649,11 @@ export const CreateStatusListDtoSchema = {
         "Credential configuration ID to bind this list exclusively to. Leave empty for a shared list.",
       example: "org.iso.18013.5.1.mDL",
     },
-    certId: {
+    keyChainId: {
       type: "string",
       description:
-        "Certificate ID to use for signing. Leave empty to use the tenant's default StatusList certificate.",
-      example: "my-status-list-cert",
+        "Key chain ID to use for signing. Leave empty to use the tenant's default StatusList key chain.",
+      example: "my-status-list-keychain",
     },
     bits: {
       type: "number",
@@ -682,12 +682,12 @@ export const UpdateStatusListDtoSchema = {
         "Credential configuration ID to bind this list exclusively to. Set to null to make this a shared list.",
       example: "org.iso.18013.5.1.mDL",
     },
-    certId: {
+    keyChainId: {
       type: "string",
       nullable: true,
       description:
-        "Certificate ID to use for signing. Set to null to use the tenant's default StatusList certificate.",
-      example: "my-status-list-cert",
+        "Key chain ID to use for signing. Set to null to use the tenant's default StatusList key chain.",
+      example: "my-status-list-keychain",
     },
   },
 } as const;
@@ -2044,7 +2044,7 @@ export const CredentialConfigSchema = {
     keyBinding: {
       type: "boolean",
     },
-    certId: {
+    keyChainId: {
       type: "string",
       description:
         "Reference to the key chain used for signing.\nOptional: if not specified, the default attestation key chain will be used.",
@@ -2166,7 +2166,7 @@ export const CredentialConfigCreateSchema = {
     keyBinding: {
       type: "boolean",
     },
-    certId: {
+    keyChainId: {
       type: "string",
       description:
         "Reference to the key chain used for signing.\nOptional: if not specified, the default attestation key chain will be used.",
@@ -2285,7 +2285,7 @@ export const CredentialConfigUpdateSchema = {
     keyBinding: {
       type: "boolean",
     },
-    certId: {
+    keyChainId: {
       type: "string",
       description:
         "Reference to the key chain used for signing.\nOptional: if not specified, the default attestation key chain will be used.",
@@ -2440,7 +2440,7 @@ export const PresentationConfigSchema = {
         "Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.",
       example: "https://example.com/callback?session={sessionId}",
     },
-    accessCertId: {
+    accessKeyChainId: {
       type: "string",
       nullable: true,
       description:
@@ -2515,7 +2515,7 @@ export const PresentationConfigCreateDtoSchema = {
         "Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.",
       example: "https://example.com/callback?session={sessionId}",
     },
-    accessCertId: {
+    accessKeyChainId: {
       type: "string",
       nullable: true,
       description:
@@ -2590,7 +2590,7 @@ export const PresentationConfigUpdateDtoSchema = {
         "Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.",
       example: "https://example.com/callback?session={sessionId}",
     },
-    accessCertId: {
+    accessKeyChainId: {
       type: "string",
       nullable: true,
       description:
@@ -3170,7 +3170,7 @@ export const TrustListCreateDtoSchema = {
     description: {
       type: "string",
     },
-    certId: {
+    keyChainId: {
       type: "string",
     },
     entities: {
@@ -3209,7 +3209,7 @@ export const TrustListSchema = {
         },
       ],
     },
-    certId: {
+    keyChainId: {
       type: "string",
     },
     keyChain: {
@@ -3249,7 +3249,7 @@ export const TrustListSchema = {
     "id",
     "tenantId",
     "tenant",
-    "certId",
+    "keyChainId",
     "keyChain",
     "sequenceNumber",
     "jwt",
@@ -3304,6 +3304,77 @@ export const TrustListVersionSchema = {
     "jwt",
     "createdAt",
   ],
+} as const;
+
+export const KmsProviderCapabilitiesDtoSchema = {
+  type: "object",
+  properties: {
+    canImport: {
+      type: "boolean",
+      description: "Whether the provider supports importing existing keys.",
+      example: true,
+    },
+    canCreate: {
+      type: "boolean",
+      description: "Whether the provider supports generating new keys.",
+      example: true,
+    },
+    canDelete: {
+      type: "boolean",
+      description: "Whether the provider supports deleting keys.",
+      example: true,
+    },
+  },
+  required: ["canImport", "canCreate", "canDelete"],
+} as const;
+
+export const KmsProviderInfoDtoSchema = {
+  type: "object",
+  properties: {
+    name: {
+      type: "string",
+      description: "Unique provider ID (matches the id in kms.json).",
+      example: "main-vault",
+    },
+    type: {
+      type: "string",
+      description: "Type of the KMS provider (db, vault, aws-kms).",
+      example: "vault",
+    },
+    description: {
+      type: "string",
+      description: "Human-readable description of this provider instance.",
+      example: "Production HashiCorp Vault",
+    },
+    capabilities: {
+      description: "Capabilities of this provider.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/KmsProviderCapabilitiesDto",
+        },
+      ],
+    },
+  },
+  required: ["name", "type", "capabilities"],
+} as const;
+
+export const KmsProvidersResponseDtoSchema = {
+  type: "object",
+  properties: {
+    providers: {
+      description: "Detailed info for each registered KMS provider.",
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/KmsProviderInfoDto",
+      },
+    },
+    default: {
+      type: "string",
+      description: "The default KMS provider name.",
+      example: "db",
+    },
+  },
+  required: ["providers", "default"],
 } as const;
 
 export const CertificateInfoDtoSchema = {
@@ -3431,7 +3502,8 @@ export const KeyChainResponseDtoSchema = {
       ],
     },
     activeCertificate: {
-      description: "Active signing key's certificate.",
+      description:
+        "Active signing key's certificate. Not present for encryption keys.",
       allOf: [
         {
           $ref: "#/components/schemas/CertificateInfoDto",
@@ -3485,7 +3557,6 @@ export const KeyChainResponseDtoSchema = {
     "type",
     "kmsProvider",
     "activePublicKey",
-    "activeCertificate",
     "rotationPolicy",
     "createdAt",
     "updatedAt",
@@ -3557,6 +3628,75 @@ export const KeyChainCreateDtoSchema = {
     },
   },
   required: ["usageType", "type"],
+} as const;
+
+export const EcJwkSchema = {
+  type: "object",
+  properties: {
+    kty: {
+      type: "string",
+    },
+    x: {
+      type: "string",
+    },
+    y: {
+      type: "string",
+    },
+    crv: {
+      type: "string",
+    },
+    d: {
+      type: "string",
+    },
+    alg: {
+      type: "string",
+    },
+    kid: {
+      type: "string",
+    },
+  },
+  required: ["kty", "x", "y", "crv", "d"],
+} as const;
+
+export const KeyChainImportDtoSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description:
+        "ID for the key chain. If not provided, a new UUID will be generated.",
+    },
+    key: {
+      description: "The private key in JWK format.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/EcJwk",
+        },
+      ],
+    },
+    description: {
+      type: "string",
+      description: "Human-readable description.",
+    },
+    usageType: {
+      enum: ["access", "attestation", "trustList", "statusList", "encrypt"],
+      type: "string",
+      description: "Usage type for this key chain.",
+    },
+    crt: {
+      description:
+        "Certificate chain in PEM format (leaf first, then intermediates/CA).",
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+    kmsProvider: {
+      type: "string",
+      description: "KMS provider to use. Defaults to 'db'.",
+    },
+  },
+  required: ["key", "usageType"],
 } as const;
 
 export const RotationPolicyUpdateDtoSchema = {

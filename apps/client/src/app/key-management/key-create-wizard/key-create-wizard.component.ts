@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -41,7 +41,7 @@ export type KeyChainTypeSelection = 'internalChain' | 'standalone';
   templateUrl: './key-create-wizard.component.html',
   styleUrl: './key-create-wizard.component.scss',
 })
-export class KeyCreateWizardComponent implements OnInit {
+export class KeyCreateWizardComponent {
   @ViewChild('stepper') stepper!: MatStepper;
 
   // Form groups for each step
@@ -128,10 +128,6 @@ export class KeyCreateWizardComponent implements OnInit {
       rotationIntervalDays: [30, [Validators.min(1)]],
       certValidityDays: [365, [Validators.min(1)]],
     });
-  }
-
-  ngOnInit(): void {
-    // No initialization required
   }
 
   get selectedUsage(): KeyUsageSelection | null {

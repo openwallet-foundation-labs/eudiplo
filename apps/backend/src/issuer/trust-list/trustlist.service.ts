@@ -97,7 +97,7 @@ export class TrustListService {
         return {
             id: entry.id,
             description: entry.description,
-            certId: entry.certId,
+            keyChainId: entry.keyChainId,
             entities: entry.entityConfig ?? [],
             data: entry.data,
         };
@@ -227,21 +227,21 @@ export class TrustListService {
         }
 
         let cert: CertificateInfo;
-        if (config.certId) {
+        if (config.keyChainId) {
             cert = await this.certService.getCertificateById(
                 tenant.id,
-                config.certId,
+                config.keyChainId,
             );
             // Check if the key has the TrustList usage
             if (cert.keyChain?.usageType !== KeyUsageType.TrustList) {
                 throw new BadRequestException(
-                    `Certificate ${config.certId} is not valid for Trust List usage (key lacks TrustList usage)`,
+                    `Key chain ${config.keyChainId} is not valid for Trust List usage (key lacks TrustList usage)`,
                 );
             }
-        } else if (existing?.certId) {
+        } else if (existing?.keyChainId) {
             cert = await this.certService.getCertificateById(
                 tenant.id,
-                existing.certId,
+                existing.keyChainId,
             );
         } else {
             cert = await this.certService.findOrCreate({
@@ -257,7 +257,7 @@ export class TrustListService {
 
         // Update properties
         trustList.description = config.description;
-        trustList.certId = cert.id;
+        trustList.keyChainId = cert.id;
         trustList.entityConfig = config.entities;
 
         // Increment sequence number on updates
@@ -273,12 +273,12 @@ export class TrustListService {
                 // Internal: fetch certificates from database by ID
                 const issuerCert = await this.certService.getCertificateById(
                     tenant.id,
-                    entity.issuerCertId,
+                    entity.issuerKeyChainId,
                 );
                 const revocationCert =
                     await this.certService.getCertificateById(
                         tenant.id,
-                        entity.revocationCertId,
+                        entity.revocationKeyChainId,
                     );
                 entries.push(
                     this.createEntityFromCert(

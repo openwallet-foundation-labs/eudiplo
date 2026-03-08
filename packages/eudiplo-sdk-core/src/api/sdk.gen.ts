@@ -103,6 +103,10 @@ import type {
   KeyChainControllerGetByIdData,
   KeyChainControllerGetByIdErrors,
   KeyChainControllerGetByIdResponses,
+  KeyChainControllerGetProvidersData,
+  KeyChainControllerGetProvidersResponses,
+  KeyChainControllerImportData,
+  KeyChainControllerImportResponses,
   KeyChainControllerRotateData,
   KeyChainControllerRotateErrors,
   KeyChainControllerRotateResponses,
@@ -2078,6 +2082,24 @@ export const trustListPublicControllerGetTrustListJwt = <
   >({ url: "/{tenantId}/trust-list/{id}", ...options });
 
 /**
+ * Get available KMS providers
+ */
+export const keyChainControllerGetProviders = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<KeyChainControllerGetProvidersData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    KeyChainControllerGetProvidersResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/key-chain/providers",
+    ...options,
+  });
+
+/**
  * List all key chains for the tenant
  */
 export const keyChainControllerGetAll = <ThrowOnError extends boolean = true>(
@@ -2158,6 +2180,26 @@ export const keyChainControllerUpdate = <ThrowOnError extends boolean = true>(
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/key-chain/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Import an existing key chain
+ */
+export const keyChainControllerImport = <ThrowOnError extends boolean = true>(
+  options: Options<KeyChainControllerImportData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    KeyChainControllerImportResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/key-chain/import",
     ...options,
     headers: {
       "Content-Type": "application/json",

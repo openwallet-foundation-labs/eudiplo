@@ -89,19 +89,19 @@ export class CredentialConfigService {
         // Replace image references with actual URLs
         await this.replaceImageReferences(tenantId, config);
 
-        // Check if certId is provided and if the certificate exists.
-        if (config.certId) {
+        // Check if keyChainId is provided and if the key chain exists.
+        if (config.keyChainId) {
             const cert = await this.certService.find({
                 tenantId,
                 type: KeyUsageType.Attestation,
-                certId: config.certId,
+                keyId: config.keyChainId,
             });
             if (!cert) {
                 throw new Error(
-                    `Cert ID ${config.certId} must be defined in the crypto service`,
+                    `Key chain ID ${config.keyChainId} must be defined in the crypto service`,
                 );
             }
-            // Note: certId is stored directly on the entity, keyChain relation is loaded lazily
+            // Note: keyChainId is stored directly on the entity, keyChain relation is loaded lazily
         }
 
         // Skip IAE validation during import - presentation configs are imported later

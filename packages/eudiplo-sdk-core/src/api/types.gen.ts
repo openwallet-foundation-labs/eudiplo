@@ -286,9 +286,9 @@ export type StatusListImportDto = {
    */
   credentialConfigurationId?: string;
   /**
-   * Certificate ID to use for signing. Leave empty to use the tenant's default StatusList certificate.
+   * Key chain ID to use for signing. Leave empty to use the tenant's default StatusList key chain.
    */
-  certId?: string;
+  keyChainId?: string;
   /**
    * Capacity of the status list. If not provided, uses tenant or global defaults.
    */
@@ -343,9 +343,9 @@ export type StatusListResponseDto = {
    */
   credentialConfigurationId?: string;
   /**
-   * Certificate ID used for signing. Null means using the tenant's default.
+   * Key chain ID used for signing. Null means using the tenant's default.
    */
-  certId?: string;
+  keyChainId?: string;
   /**
    * Bits per status value
    */
@@ -382,9 +382,9 @@ export type CreateStatusListDto = {
    */
   credentialConfigurationId?: string;
   /**
-   * Certificate ID to use for signing. Leave empty to use the tenant's default StatusList certificate.
+   * Key chain ID to use for signing. Leave empty to use the tenant's default StatusList key chain.
    */
-  certId?: string;
+  keyChainId?: string;
   /**
    * Bits per status value. More bits allow more status states. Defaults to tenant configuration.
    */
@@ -401,9 +401,9 @@ export type UpdateStatusListDto = {
    */
   credentialConfigurationId?: string;
   /**
-   * Certificate ID to use for signing. Set to null to use the tenant's default StatusList certificate.
+   * Key chain ID to use for signing. Set to null to use the tenant's default StatusList key chain.
    */
-  certId?: string;
+  keyChainId?: string;
 };
 
 export type AuthorizeQueries = {
@@ -1144,7 +1144,7 @@ export type CredentialConfig = {
    * Reference to the key chain used for signing.
    * Optional: if not specified, the default attestation key chain will be used.
    */
-  certId?: string;
+  keyChainId?: string;
   keyChain?: KeyChainEntity;
   statusManagement?: boolean;
   lifeTime?: number;
@@ -1188,7 +1188,7 @@ export type CredentialConfigCreate = {
    * Reference to the key chain used for signing.
    * Optional: if not specified, the default attestation key chain will be used.
    */
-  certId?: string;
+  keyChainId?: string;
   statusManagement?: boolean;
   lifeTime?: number;
   schema?: SchemaResponse;
@@ -1231,7 +1231,7 @@ export type CredentialConfigUpdate = {
    * Reference to the key chain used for signing.
    * Optional: if not specified, the default attestation key chain will be used.
    */
-  certId?: string;
+  keyChainId?: string;
   statusManagement?: boolean;
   lifeTime?: number;
   schema?: SchemaResponse;
@@ -1313,7 +1313,7 @@ export type PresentationConfig = {
    * that reference only part of a composite primary key. The relationship is handled
    * at the application level in the service layer.
    */
-  accessCertId?: string;
+  accessKeyChainId?: string;
 };
 
 export type PresentationConfigCreateDto = {
@@ -1360,7 +1360,7 @@ export type PresentationConfigCreateDto = {
    * that reference only part of a composite primary key. The relationship is handled
    * at the application level in the service layer.
    */
-  accessCertId?: string;
+  accessKeyChainId?: string;
 };
 
 export type PresentationConfigUpdateDto = {
@@ -1407,7 +1407,7 @@ export type PresentationConfigUpdateDto = {
    * that reference only part of a composite primary key. The relationship is handled
    * at the application level in the service layer.
    */
-  accessCertId?: string;
+  accessKeyChainId?: string;
 };
 
 export type DeferredCredentialRequestDto = {
@@ -1817,7 +1817,7 @@ export type CreateAccessCertificateDto = {
 export type TrustListCreateDto = {
   id?: string;
   description?: string;
-  certId?: string;
+  keyChainId?: string;
   entities: Array<{
     [key: string]: unknown;
   }>;
@@ -1843,7 +1843,7 @@ export type TrustList = {
    * The tenant that owns this object.
    */
   tenant: TenantEntity;
-  certId: string;
+  keyChainId: string;
   keyChain: KeyChainEntity;
   /**
    * The full trust list JSON (generated LoTE structure)
@@ -1896,6 +1896,51 @@ export type TrustListVersion = {
    */
   jwt: string;
   createdAt: string;
+};
+
+export type KmsProviderCapabilitiesDto = {
+  /**
+   * Whether the provider supports importing existing keys.
+   */
+  canImport: boolean;
+  /**
+   * Whether the provider supports generating new keys.
+   */
+  canCreate: boolean;
+  /**
+   * Whether the provider supports deleting keys.
+   */
+  canDelete: boolean;
+};
+
+export type KmsProviderInfoDto = {
+  /**
+   * Unique provider ID (matches the id in kms.json).
+   */
+  name: string;
+  /**
+   * Type of the KMS provider (db, vault, aws-kms).
+   */
+  type: string;
+  /**
+   * Human-readable description of this provider instance.
+   */
+  description?: string;
+  /**
+   * Capabilities of this provider.
+   */
+  capabilities: KmsProviderCapabilitiesDto;
+};
+
+export type KmsProvidersResponseDto = {
+  /**
+   * Detailed info for each registered KMS provider.
+   */
+  providers: Array<KmsProviderInfoDto>;
+  /**
+   * The default KMS provider name.
+   */
+  default: string;
 };
 
 export type CertificateInfoDto = {
@@ -1993,9 +2038,9 @@ export type KeyChainResponseDto = {
    */
   activePublicKey: PublicKeyInfoDto;
   /**
-   * Active signing key's certificate.
+   * Active signing key's certificate. Not present for encryption keys.
    */
-  activeCertificate: CertificateInfoDto;
+  activeCertificate?: CertificateInfoDto;
   /**
    * Previous signing key's public key info (if in grace period).
    */
@@ -2058,6 +2103,43 @@ export type KeyChainCreateDto = {
    * Rotation policy configuration. Only applicable for the signing key (root CA never rotates).
    */
   rotationPolicy?: RotationPolicyCreateDto;
+};
+
+export type EcJwk = {
+  kty: string;
+  x: string;
+  y: string;
+  crv: string;
+  d: string;
+  alg?: string;
+  kid?: string;
+};
+
+export type KeyChainImportDto = {
+  /**
+   * ID for the key chain. If not provided, a new UUID will be generated.
+   */
+  id?: string;
+  /**
+   * The private key in JWK format.
+   */
+  key: EcJwk;
+  /**
+   * Human-readable description.
+   */
+  description?: string;
+  /**
+   * Usage type for this key chain.
+   */
+  usageType: "access" | "attestation" | "trustList" | "statusList" | "encrypt";
+  /**
+   * Certificate chain in PEM format (leaf first, then intermediates/CA).
+   */
+  crt?: Array<string>;
+  /**
+   * KMS provider to use. Defaults to 'db'.
+   */
+  kmsProvider?: string;
 };
 
 export type RotationPolicyUpdateDto = {
@@ -3898,6 +3980,23 @@ export type TrustListPublicControllerGetTrustListJwtResponses = {
 export type TrustListPublicControllerGetTrustListJwtResponse =
   TrustListPublicControllerGetTrustListJwtResponses[keyof TrustListPublicControllerGetTrustListJwtResponses];
 
+export type KeyChainControllerGetProvidersData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/key-chain/providers";
+};
+
+export type KeyChainControllerGetProvidersResponses = {
+  /**
+   * List of available KMS providers with capabilities
+   */
+  200: KmsProvidersResponseDto;
+};
+
+export type KeyChainControllerGetProvidersResponse =
+  KeyChainControllerGetProvidersResponses[keyof KeyChainControllerGetProvidersResponses];
+
 export type KeyChainControllerGetAllData = {
   body?: never;
   path?: never;
@@ -3999,6 +4098,20 @@ export type KeyChainControllerUpdateResponses = {
    * Key chain updated successfully
    */
   200: unknown;
+};
+
+export type KeyChainControllerImportData = {
+  body: KeyChainImportDto;
+  path?: never;
+  query?: never;
+  url: "/key-chain/import";
+};
+
+export type KeyChainControllerImportResponses = {
+  /**
+   * Key chain imported successfully
+   */
+  201: unknown;
 };
 
 export type KeyChainControllerRotateData = {

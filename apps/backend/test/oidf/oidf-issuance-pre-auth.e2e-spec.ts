@@ -266,11 +266,19 @@ describe("OIDF - issuance - pre auth", () => {
         const url = await oidfSuite.getEndpoint(testInstance);
 
         // Send the offer to the OIDF test runner
-        await axios.default.get(`${url}${parameters}`, {
-            httpsAgent: new https.Agent({
-                rejectUnauthorized: false,
-            }),
-        });
+        await axios.default
+            .get(`${url}${parameters}`, {
+                httpsAgent: new https.Agent({
+                    rejectUnauthorized: false,
+                }),
+            })
+            .catch((error) => {
+                console.error(
+                    "Error sending offer to OIDF test runner:",
+                    error,
+                );
+                throw error;
+            });
 
         const logResult = await oidfSuite.waitForFinished(testInstance.id);
         expect(logResult.result).toBe("PASSED");

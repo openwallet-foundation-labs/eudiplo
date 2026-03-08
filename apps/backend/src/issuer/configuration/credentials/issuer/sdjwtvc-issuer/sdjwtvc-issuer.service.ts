@@ -43,7 +43,7 @@ export class SdjwtvcIssuerService {
         const certificate = await this.certService.find({
             tenantId: session.tenantId,
             type: KeyUsageType.Attestation,
-            certId: credentialConfiguration.certId,
+            keyId: credentialConfiguration.keyChainId,
         });
 
         const sdjwt = new SDJwtVcInstance({
