@@ -554,7 +554,7 @@ export class KeyChainService {
         id: string,
         dto: KeyChainUpdateDto,
     ): Promise<void> {
-        const keyChain = await this.getEntity(tenantId, id);
+        await this.getEntity(tenantId, id);
 
         const updates: Partial<KeyChainEntity> = {};
 
@@ -937,12 +937,7 @@ export class KeyChainService {
         const privateKey = await importJWK(keyChain.activeKey, "ES256");
 
         return async (data: string): Promise<string> => {
-            const jwt = new SignJWT({}).setProtectedHeader({
-                alg: "ES256",
-                kid: keyChain.activeKey.kid,
-            });
-            // For SD-JWT, we need to sign raw data, not build a full JWT
-            // The SignJWT is used only to extract the signature
+            // For SD-JWT, sign raw data directly (not a full JWT)
             const encoder = new TextEncoder();
             const signature = await globalThis.crypto.subtle.sign(
                 { name: "ECDSA", hash: "SHA-256" },
