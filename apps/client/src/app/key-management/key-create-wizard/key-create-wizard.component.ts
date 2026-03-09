@@ -18,6 +18,7 @@ import { KeyChainCreateDto } from '@eudiplo/sdk-core';
 
 export type KeyUsageSelection = 'attestation' | 'statusList' | 'access' | 'trustList';
 export type KeyChainTypeSelection = 'internalChain' | 'standalone';
+export type AccessSourceSelection = 'selfSigned' | 'registrar';
 
 @Component({
   selector: 'app-key-create-wizard',
@@ -47,6 +48,7 @@ export class KeyCreateWizardComponent {
   // Form groups for each step
   usageForm: FormGroup;
   caSourceForm: FormGroup;
+  accessSourceForm: FormGroup;
   configForm: FormGroup;
 
   isSubmitting = false;
@@ -72,7 +74,7 @@ export class KeyCreateWizardComponent {
       label: 'Access Certificate',
       icon: 'badge',
       description: 'Prove your identity as an issuer/verifier to EUDI wallets.',
-      hint: 'Obtained through registrar enrollment, not created here',
+      hint: 'Self-signed for development or obtained through registrar enrollment',
     },
     {
       value: 'trustList' as KeyUsageSelection,
@@ -103,6 +105,24 @@ export class KeyCreateWizardComponent {
     },
   ];
 
+  // Access source options (shown for access keys)
+  accessSourceOptions = [
+    {
+      value: 'selfSigned' as AccessSourceSelection,
+      label: 'Self-Signed Certificate',
+      icon: 'key',
+      description: 'Create a self-signed access certificate for development or testing.',
+      hint: 'Quick setup, no registrar required. Suitable for dev/test environments.',
+    },
+    {
+      value: 'registrar' as AccessSourceSelection,
+      label: 'Registrar Enrollment',
+      icon: 'verified',
+      description: 'Obtain a certificate through your registrar.',
+      hint: 'Required for production. Provides a trusted certificate chain.',
+    },
+  ];
+
   constructor(
     private readonly fb: FormBuilder,
     private readonly keyChainService: KeyChainService,
@@ -114,9 +134,14 @@ export class KeyCreateWizardComponent {
       usage: ['', Validators.required],
     });
 
-    // Step 2: Key chain type selection (internal chain vs standalone)
+    // Step 2a: Key chain type selection (internal chain vs standalone, for attestation)
     this.caSourceForm = this.fb.group({
       keyChainType: ['internalChain', Validators.required],
+    });
+
+    // Step 2b: Access source selection (self-signed vs registrar)
+    this.accessSourceForm = this.fb.group({
+      accessSource: ['selfSigned', Validators.required],
     });
 
     // Step 3: Configuration
@@ -138,14 +163,25 @@ export class KeyCreateWizardComponent {
     return this.caSourceForm.get('keyChainType')?.value || 'internalChain';
   }
 
+  get selectedAccessSource(): AccessSourceSelection {
+    return this.accessSourceForm.get('accessSource')?.value || 'selfSigned';
+  }
+
   get showKeyChainTypeStep(): boolean {
     // Only attestation keys need to choose key chain type
     return this.selectedUsage === 'attestation';
   }
 
+  get showAccessSourceStep(): boolean {
+    return this.selectedUsage === 'access';
+  }
+
   get showConfigStep(): boolean {
-    // Access certificates are obtained via registrar enrollment, not created here
-    return this.selectedUsage !== 'access';
+    // Access certificates via registrar are not created here
+    if (this.selectedUsage === 'access' && this.selectedAccessSource === 'registrar') {
+      return false;
+    }
+    return !!this.selectedUsage;
   }
 
   get isInternalChain(): boolean {
@@ -162,8 +198,7 @@ export class KeyCreateWizardComponent {
    */
   getNextStepLabel(): string {
     if (!this.selectedUsage) return 'Next';
-    if (this.selectedUsage === 'access') return 'Go to Registrar Enrollment';
-    if (this.showKeyChainTypeStep) return 'Next';
+    if (this.showKeyChainTypeStep || this.showAccessSourceStep) return 'Next';
     return 'Configure Key';
   }
 
@@ -171,12 +206,17 @@ export class KeyCreateWizardComponent {
    * Handle usage selection and advance to next step.
    */
   onUsageNext(): void {
-    if (this.selectedUsage === 'access') {
-      // Access certificates are obtained via registrar enrollment
+    this.stepper.next();
+  }
+
+  /**
+   * Handle access source selection and advance to next step.
+   */
+  onAccessSourceNext(): void {
+    if (this.selectedAccessSource === 'registrar') {
       this.router.navigate(['/registrar']);
       return;
     }
-
     this.stepper.next();
   }
 
@@ -194,7 +234,7 @@ export class KeyCreateWizardComponent {
       // Build the KeyChainCreateDto
       const createDto: KeyChainCreateDto = {
         usageType: usage,
-        type: this.isInternalChain ? 'internalChain' : 'standalone',
+        type: (usage === 'access' || !this.isInternalChain) ? 'standalone' : 'internalChain',
         description: description || this.getDefaultDescription(),
         kmsProvider: 'db', // Default to database storage
         rotationPolicy: {
@@ -245,6 +285,12 @@ export class KeyCreateWizardComponent {
         'View Key',
         { duration: 5000 }
       );
+    } else if (usage === 'access') {
+      this.snackBar.open(
+        'Access certificate created! You can use this for wallet communication.',
+        'View Key',
+        { duration: 5000 }
+      );
     } else if (usage === 'trustList') {
       this.snackBar
         .open(
@@ -267,9 +313,8 @@ export class KeyCreateWizardComponent {
 
     if (usage === 'trustList') return 'Trust List Signing Key';
     if (usage === 'statusList') return 'Status List Signing Key';
-    if (usage === 'attestation') {
-      return 'Credential Signing Key';
-    }
+    if (usage === 'attestation') return 'Credential Signing Key';
+    if (usage === 'access') return 'Access Certificate';
     return 'Key';
   }
 
@@ -287,6 +332,10 @@ export class KeyCreateWizardComponent {
         (c) => c.value === this.selectedKeyChainType
       );
       summary.push({ label: 'Key Chain Type', value: keyChainType?.label || '' });
+    }
+
+    if (this.selectedUsage === 'access') {
+      summary.push({ label: 'Certificate', value: 'Self-Signed' });
     }
 
     if (this.configForm.value.description) {

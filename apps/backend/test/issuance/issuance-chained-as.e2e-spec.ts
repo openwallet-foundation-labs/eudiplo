@@ -167,16 +167,18 @@ describe("Issuance - Chained AS Flow", () => {
             .attach("file", join(configFolder, "haip/images/company.png"))
             .expect(201);
 
-        // Import issuance config
+        // Import issuance config (disable wallet attestation for non-OIDF tests)
         await request(app.getHttpServer())
             .post("/issuer/config")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
-            .send(
-                readConfig<IssuanceDto>(
+            .send({
+                ...readConfig<IssuanceDto>(
                     join(configFolder, "haip/issuance/issuance.json"),
                 ),
-            )
+                walletAttestationRequired: false,
+                dPopRequired: false,
+            })
             .expect(201);
 
         // Import the pid credential configuration

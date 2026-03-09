@@ -128,6 +128,65 @@
       </mat-step>
     }
 
+    <!-- Step 2b: Access Source Selection (only for access) -->
+    @if (showAccessSourceStep) {
+      <mat-step [stepControl]="accessSourceForm" label="Certificate Source">
+        <form [formGroup]="accessSourceForm" fxLayout="column" fxLayoutGap="24px">
+          <div class="step-description">
+            <h3>How do you want to get your access certificate?</h3>
+            <p class="hint">
+              Choose self-signed for development or registrar enrollment for production.
+            </p>
+          </div>
+
+          <mat-radio-group
+            formControlName="accessSource"
+            fxLayout="column"
+            fxLayoutGap="16px"
+            class="ca-source-options"
+          >
+            @for (option of accessSourceOptions; track option.value) {
+              <mat-card
+                class="option-card"
+                [class.selected]="selectedAccessSource === option.value"
+                (click)="accessSourceForm.get('accessSource')?.setValue(option.value)"
+              >
+                <mat-card-content fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="start center">
+                  <mat-radio-button [value]="option.value" class="option-radio">
+                    <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="start center">
+                      <mat-icon class="option-icon">{{ option.icon }}</mat-icon>
+                      <div fxLayout="column">
+                        <span class="option-label">{{ option.label }}</span>
+                        <span class="option-description">{{ option.description }}</span>
+                        <span class="option-hint">{{ option.hint }}</span>
+                      </div>
+                    </div>
+                  </mat-radio-button>
+                </mat-card-content>
+              </mat-card>
+            }
+          </mat-radio-group>
+
+          <div fxLayout="row" fxLayoutAlign="space-between" class="step-actions">
+            <button mat-button type="button" matStepperPrevious>
+              <mat-icon>arrow_back</mat-icon>
+              Back
+            </button>
+            <button
+              mat-flat-button
+              type="button"
+              color="primary"
+              [disabled]="!accessSourceForm.valid"
+              (click)="onAccessSourceNext()"
+            >
+              {{ selectedAccessSource === 'registrar' ? 'Go to Registrar' : 'Configure Key' }}
+              <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+            </button>
+          </div>
+        </form>
+      </mat-step>
+    }
+
     <!-- Step 3: Configuration -->
     @if (showConfigStep) {
       <mat-step [stepControl]="configForm" label="Configure">
@@ -137,6 +196,10 @@
             @if (isInternalChain) {
               <p class="hint">
                 This will create a root CA and a rotating signing key managed as a single key chain.
+              </p>
+            } @else if (selectedUsage === 'access') {
+              <p class="hint">
+                This will create a self-signed access certificate for wallet communication.
               </p>
             } @else if (selectedUsage === 'attestation' && !isInternalChain) {
               <p class="hint">This will create a standalone self-signed key.</p>

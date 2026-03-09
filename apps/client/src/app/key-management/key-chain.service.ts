@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import {
+  client,
   type KeyChainCreateDto,
   type KeyChainResponseDto,
   type KeyChainUpdateDto,
@@ -66,5 +67,17 @@ export class KeyChainService {
    */
   async rotate(id: string): Promise<void> {
     await keyChainControllerRotate({ path: { id } });
+  }
+
+  /**
+   * Export a key chain in config-import-compatible format (includes private key).
+   */
+  async export(id: string): Promise<Record<string, unknown>> {
+    const response = await client.get({
+      security: [{ scheme: 'bearer', type: 'http' }],
+      url: '/key-chain/{id}/export',
+      path: { id },
+    });
+    return response.data as Record<string, unknown>;
   }
 }

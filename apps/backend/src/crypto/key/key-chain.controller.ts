@@ -12,6 +12,7 @@ import { Role } from "../../auth/roles/role.enum";
 import { Secured } from "../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../auth/token.decorator";
 import { KeyChainCreateDto } from "./dto/key-chain-create.dto";
+import { KeyChainExportDto } from "./dto/key-chain-export.dto";
 import { KeyChainImportDto } from "./dto/key-chain-import.dto";
 import { KeyChainResponseDto } from "./dto/key-chain-response.dto";
 import { KeyChainUpdateDto } from "./dto/key-chain-update.dto";
@@ -76,6 +77,30 @@ export class KeyChainController {
         @Param("id") id: string,
     ): Promise<KeyChainResponseDto> {
         return this.keyChainService.getById(token.entity!.id, id);
+    }
+
+    /**
+     * Export a key chain in config-import-compatible format.
+     * The response includes private key material and can be saved as a JSON file
+     * for provisioning via the config import mechanism.
+     */
+    @Get(":id/export")
+    @ApiOperation({
+        summary: "Export a key chain in config-import format",
+        description:
+            "Returns the key chain including private key material in the same format used by config import JSON files.",
+    })
+    @ApiResponse({
+        status: 200,
+        description: "Key chain export data",
+        type: KeyChainExportDto,
+    })
+    @ApiResponse({ status: 404, description: "Key chain not found" })
+    export(
+        @Token() token: TokenPayload,
+        @Param("id") id: string,
+    ): Promise<KeyChainExportDto> {
+        return this.keyChainService.export(token.entity!.id, id);
     }
 
     /**

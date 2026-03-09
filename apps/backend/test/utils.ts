@@ -43,6 +43,7 @@ import { AppModule } from "../src/app.module";
 import { Role } from "../src/auth/roles/role.enum";
 import { KeyChainImportDto } from "../src/crypto/key/dto/key-chain-import.dto";
 import { KeyUsageType } from "../src/crypto/key/entities/key-chain.entity";
+import { KeyChainService } from "../src/crypto/key/key-chain.service";
 import { CredentialConfigCreate } from "../src/issuer/configuration/credentials/dto/credential-config-create.dto";
 import { IssuanceDto } from "../src/issuer/configuration/issuance/dto/issuance.dto";
 import { StatusListService } from "../src/issuer/lifecycle/status/status-list.service";
@@ -507,16 +508,18 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
         .attach("file", join(configFolder, "haip/images/company.png"))
         .expect(201);
 
-    // Import issuance config
+    // Import issuance config (disable wallet attestation for non-OIDF tests)
     await request(app.getHttpServer())
         .post("/issuer/config")
         .trustLocalhost()
         .set("Authorization", `Bearer ${authToken}`)
-        .send(
-            readConfig<IssuanceDto>(
+        .send({
+            ...readConfig<IssuanceDto>(
                 join(configFolder, "haip/issuance/issuance.json"),
             ),
-        )
+            walletAttestationRequired: false,
+            dPopRequired: false,
+        })
         .expect(201);
 
     // Import the pid credential configuration
@@ -581,6 +584,8 @@ export interface PresentationTestContext {
     clientSecret: string;
     privateIssuerKey: CryptoKey;
     issuerCert: string;
+    /** Full certificate chain as base64 DER values (ready for x5c header) */
+    issuerCertChain: string[];
     statusListService: StatusListService;
 }
 
@@ -621,7 +626,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
         const res = await req;
         if (res.status !== expectedStatus) {
             console.error(
-                `Request failed: expected ${expectedStatus}, got ${res.status}`,
+                `Request failed: expected ${expectedStatus}, got ${res.status} for endpoint ${req.url}`,
             );
             console.error("Response body:", JSON.stringify(res.body, null, 2));
         }
@@ -629,16 +634,10 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
         return res;
     }
 
-    // Import access/attestation key chain (for signing credentials)
+    // Import access key chain (for OAuth/authentication)
     const accessKeyChain = readConfig<KeyChainImportDto>(
         join(configFolder, "haip/key-chains/access.json"),
     );
-
-    const privateIssuerKey = (await importJWK(accessKeyChain.key, "ES256", {
-        extractable: true,
-    })) as CryptoKey;
-
-    const issuerCert = accessKeyChain.crt![0];
 
     await expectRequest(
         request(app.getHttpServer())
@@ -688,6 +687,44 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
         201,
     );
 
+    // Import attestation key chain (referenced by trust list entities for credential signing)
+    const attestationKeyChain = readConfig<KeyChainImportDto>(
+        join(configFolder, "haip/key-chains/attestation.json"),
+    );
+
+    await expectRequest(
+        request(app.getHttpServer())
+            .post("/key-chain/import")
+            .set("Authorization", `Bearer ${authToken}`)
+            .send(attestationKeyChain),
+        201,
+    );
+
+    // Retrieve the active (leaf) key and certificate from the imported attestation key chain.
+    // With rotation enabled, the fixture key becomes the root CA and a new leaf key is generated.
+    const keyChainService = app.get(KeyChainService);
+    const attestationEntity = await keyChainService.getEntity(
+        "root",
+        attestationKeyChain.id!,
+    );
+    const privateIssuerKey = (await importJWK(
+        attestationEntity.activeKey,
+        "ES256",
+        { extractable: true },
+    )) as CryptoKey;
+
+    // Split the certificate chain into individual PEMs
+    const certPems = attestationEntity.activeCertificate.match(
+        /-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g,
+    ) ?? [attestationEntity.activeCertificate];
+    const issuerCert = certPems[0]; // leaf PEM (for mdoc)
+    const issuerCertChain = certPems.map((pem) =>
+        pem
+            .replace("-----BEGIN CERTIFICATE-----", "")
+            .replace("-----END CERTIFICATE-----", "")
+            .replaceAll(/\r?\n|\r/g, ""),
+    );
+
     // Import trust list
     await expectRequest(
         request(app.getHttpServer())
@@ -696,10 +733,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
             .set("Authorization", `Bearer ${authToken}`)
             .send(
                 readConfig<TrustListCreateDto>(
-                    join(
-                        configFolder,
-                        "haip/trust-lists/pid-tl.json",
-                    ),
+                    join(configFolder, "haip/trust-lists/pid-tl.json"),
                 ),
             ),
         201,
@@ -740,6 +774,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
         clientSecret,
         privateIssuerKey,
         issuerCert,
+        issuerCertChain,
         statusListService,
     };
 }

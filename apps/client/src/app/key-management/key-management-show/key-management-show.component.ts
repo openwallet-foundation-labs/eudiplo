@@ -178,4 +178,24 @@ export class KeyManagementShowComponent implements OnInit, OnDestroy {
   get canRotate(): boolean {
     return this.keyChain?.rotationPolicy?.enabled || false;
   }
+
+  async exportKeyChain(): Promise<void> {
+    if (!this.keyChain) return;
+
+    try {
+      const exportData = await this.keyChainService.export(this.keyChain.id);
+      const json = JSON.stringify(exportData, null, 4);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${this.keyChain.usageType}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      this.snackBar.open('Key chain exported', 'Close', { duration: 3000 });
+    } catch (error) {
+      this.snackBar.open('Failed to export key chain', 'Close', { duration: 3000 });
+      console.error('Export error:', error);
+    }
+  }
 }

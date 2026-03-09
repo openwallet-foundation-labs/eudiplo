@@ -25,6 +25,7 @@ import {
     ImportPhase,
 } from "../../shared/utils/config-import/config-import-orchestrator.service";
 import { KeyChainCreateDto, KeyChainType } from "./dto/key-chain-create.dto";
+import { KeyChainExportDto } from "./dto/key-chain-export.dto";
 import { KeyChainImportDto } from "./dto/key-chain-import.dto";
 import {
     CertificateInfoDto,
@@ -499,6 +500,65 @@ export class KeyChainService {
         }
 
         return this.toResponseDto(keyChain);
+    }
+
+    /**
+     * Export a key chain in config-import-compatible format.
+     * Includes private key material so the output can be saved as a JSON config file.
+     */
+    async export(tenantId: string, id: string): Promise<KeyChainExportDto> {
+        const keyChain = await this.getEntity(tenantId, id);
+
+        const exportDto: KeyChainExportDto = {
+            id: keyChain.id,
+            description: keyChain.description,
+            usageType: keyChain.usageType,
+            key: keyChain.hasInternalCa()
+                ? (keyChain.rootKey as KeyChainExportDto["key"])
+                : (keyChain.activeKey as KeyChainExportDto["key"]),
+            kmsProvider: keyChain.kmsProvider,
+        };
+
+        // Build certificate array
+        const certs: string[] = [];
+        if (keyChain.activeCertificate) {
+            certs.push(...this.splitPemChain(keyChain.activeCertificate));
+        }
+        if (
+            keyChain.rootCertificate &&
+            !certs.includes(keyChain.rootCertificate.trim())
+        ) {
+            certs.push(keyChain.rootCertificate.trim());
+        }
+        if (certs.length > 0) {
+            exportDto.crt = certs;
+        }
+
+        // Include rotation policy if enabled
+        if (keyChain.rotationEnabled) {
+            exportDto.rotationPolicy = {
+                enabled: true,
+                intervalDays: keyChain.rotationIntervalDays,
+                certValidityDays: keyChain.certValidityDays,
+            };
+        }
+
+        return exportDto;
+    }
+
+    /**
+     * Split a PEM chain (multiple certs joined by newlines) into individual PEM strings.
+     */
+    private splitPemChain(pem: string): string[] {
+        const certs: string[] = [];
+        const parts = pem.split("-----END CERTIFICATE-----");
+        for (const part of parts) {
+            const trimmed = part.trim();
+            if (trimmed.includes("-----BEGIN CERTIFICATE-----")) {
+                certs.push(`${trimmed}\n-----END CERTIFICATE-----`);
+            }
+        }
+        return certs;
     }
 
     /**
