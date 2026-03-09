@@ -234,7 +234,7 @@ export class KeyCreateWizardComponent {
       // Build the KeyChainCreateDto
       const createDto: KeyChainCreateDto = {
         usageType: usage,
-        type: (usage === 'access' || !this.isInternalChain) ? 'standalone' : 'internalChain',
+        type: usage === 'access' || !this.isInternalChain ? 'standalone' : 'internalChain',
         description: description || this.getDefaultDescription(),
         kmsProvider: 'db', // Default to database storage
         rotationPolicy: {

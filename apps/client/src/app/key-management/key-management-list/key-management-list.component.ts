@@ -68,8 +68,7 @@ export class KeyManagementListComponent implements OnInit {
     access: {
       label: 'EUDI Wallet Access Certificate Keys',
       icon: 'vpn_key',
-      description:
-        'Keys for EUDI Wallet Access Certificates to authenticate to the wallet.',
+      description: 'Keys for EUDI Wallet Access Certificates to authenticate to the wallet.',
     },
     statusList: {
       label: 'Status List Keys',
