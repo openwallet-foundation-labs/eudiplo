@@ -19,5 +19,6 @@
   },
   "required": [
     "credentials"
-  ]
+  ],
+  "additionalProperties": false
 }

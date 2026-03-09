@@ -39,5 +39,6 @@
   },
   "required": [
     "id"
-  ]
+  ],
+  "additionalProperties": false
 }

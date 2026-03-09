@@ -64,5 +64,6 @@
       "type": "string",
       "description": "JAR request URI (by reference)"
     }
-  }
+  },
+  "additionalProperties": false
 }

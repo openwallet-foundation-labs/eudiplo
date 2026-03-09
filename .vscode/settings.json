@@ -34,64 +34,74 @@
   "json.schemas": [
     {
       "fileMatch": [
-        "/assets/config/*/info.json"
+        "/assets/config/*/info.json",
+        "/apps/backend/test/fixtures/*/info.json"
       ],
       "url": "./schemas/ImportTenantDto.schema.json"
     },
     {
       "fileMatch": [
-        "/assets/config/*/registrar.json"
+        "/assets/config/*/registrar.json",
+        "/apps/backend/test/fixtures/*/registrar.json"
       ],
       "url": "./schemas/CreateRegistrarConfigDto.schema.json"
     },
     {
       "fileMatch": [
-        "/assets/config/*/issuance/issuance.json"
+        "/assets/config/*/issuance/issuance.json",
+        "/apps/backend/test/fixtures/*/issuance/issuance.json"
       ],
       "url": "./schemas/IssuanceDto.schema.json"
     },
     {
       "fileMatch": [
-        "/assets/config/*/issuance/credentials/*.json"
+        "/assets/config/*/issuance/credentials/*.json",
+        "/apps/backend/test/fixtures/*/issuance/credentials/*.json"
       ],
       "url": "./schemas/CredentialConfigCreate.schema.json"
     },
     {
       "fileMatch": [
-        "/assets/config/*/key-chains/*.json"
+        "/assets/config/*/key-chains/*.json",
+        "/apps/backend/test/fixtures/*/key-chains/*.json"
       ],
       "url": "./schemas/KeyChainImportDto.schema.json"
     },
     {
       "fileMatch": [
-        "/assets/config/*/certs/*.json"
+        "/assets/config/*/certs/*.json",
+        "/apps/backend/test/fixtures/*/certs/*.json"
       ],
       "url": "./schemas/CertImportDto.schema.json"
     },
     {
       "fileMatch": [
-        "/assets/config/*/presentation/*.json"
+        "/assets/config/*/presentation/*.json",
+        "/apps/backend/test/fixtures/*/presentation/*.json"
       ],
       "url": "./schemas/PresentationConfigCreateDto.schema.json"
     },
     {
       "fileMatch": [
-        "/assets/config/*/clients/*.json"
+        "/assets/config/*/clients/*.json",
+        "/apps/backend/test/fixtures/*/clients/*.json"
       ],
       "url": "./schemas/CreateClientDto.schema.json"
     },
     {
       "fileMatch": [
-        "/assets/config/*/trust-lists/*.json"
+        "/assets/config/*/trust-lists/*.json",
+        "/apps/backend/test/fixtures/*/trust-lists/*.json"
       ],
       "url": "./schemas/TrustListCreateDto.schema.json"
     },
     {
       "fileMatch": [
-        "/assets/config/*/issuance/status-lists/*.json"
+        "/assets/config/*/issuance/status-lists/*.json",
+        "/apps/backend/test/fixtures/*/issuance/status-lists/*.json"
       ],
       "url": "./schemas/StatusListImportDto.schema.json"
-    },
+    }
   ],
   "sonarlint.connectedMode.project": {
     "connectionId": "eudiplo",

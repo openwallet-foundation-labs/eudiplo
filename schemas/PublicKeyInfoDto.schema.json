@@ -26,5 +26,6 @@
   },
   "required": [
     "kty"
-  ]
+  ],
+  "additionalProperties": false
 }

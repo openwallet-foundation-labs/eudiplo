@@ -93,6 +93,32 @@ function withMeta(schema: AnyObj, name: string, baseUrl = "https://raw.githubuse
 }
 
 /**
+ * Recursively add additionalProperties: false to all object schemas
+ * to ensure strict validation (no unknown properties allowed).
+ */
+function strictObjectSchemas(node: any): any {
+  if (node == null || typeof node !== "object") return node;
+  if (Array.isArray(node)) return node.map(strictObjectSchemas);
+
+  const out: AnyObj = {};
+  for (const [k, v] of Object.entries(node)) {
+    out[k] = strictObjectSchemas(v);
+  }
+
+  // Add additionalProperties: false to object schemas that have properties
+  // but don't already define additionalProperties
+  if (
+    out.type === "object" &&
+    out.properties &&
+    out.additionalProperties === undefined
+  ) {
+    out.additionalProperties = false;
+  }
+
+  return out;
+}
+
+/**
  * Rewrite internal OpenAPI component refs (#/components/schemas/Name[/tail])
  * into sibling file refs ("./Name.schema.json[/tail]").
  */
@@ -127,7 +153,8 @@ async function emitComponentSchemas(doc: AnyObj, isOAS31: boolean) {
       ? schema
       : openapiSchemaToJsonSchema(schema, { cloneSchema: true });
     const withIds = withMeta(jsonSchema, String(name));
-    const finalSchema = rewriteComponentRefs(withIds);
+    const rewritten = rewriteComponentRefs(withIds);
+    const finalSchema = strictObjectSchemas(rewritten);
     const out = join(OUT_SCHEMAS, `${sanitize(String(name))}.schema.json`);
     await writeFile(out, JSON.stringify(finalSchema, null, 2), "utf8");
     count++;
@@ -180,7 +207,8 @@ async function emitOperationSchemas(doc: AnyObj, isOAS31: boolean) {
       if (rb) {
         const s = isOAS31 ? rb : openapiSchemaToJsonSchema(rb, { cloneSchema: true });
         const withIds = withMeta(s, `${baseName}.request`);
-        const final = rewriteComponentRefs(withIds);
+        const rewritten = rewriteComponentRefs(withIds);
+        const final = strictObjectSchemas(rewritten);
         const out = join(OUT_SCHEMAS, `${method}_${baseName}.request.schema.json`);
         await writeFile(out, JSON.stringify(final, null, 2), "utf8");
         reqCount++;
@@ -191,7 +219,8 @@ async function emitOperationSchemas(doc: AnyObj, isOAS31: boolean) {
       if (picked) {
         const s = isOAS31 ? picked : openapiSchemaToJsonSchema(picked, { cloneSchema: true });
         const withIds = withMeta(s, `${baseName}.response`);
-        const final = rewriteComponentRefs(withIds);
+        const rewritten = rewriteComponentRefs(withIds);
+        const final = strictObjectSchemas(rewritten);
         const out = join(OUT_SCHEMAS, `${method}_${baseName}.response.schema.json`);
         await writeFile(out, JSON.stringify(final, null, 2), "utf8");
         resCount++;

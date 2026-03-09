@@ -18,5 +18,6 @@
   },
   "required": [
     "status_lists"
-  ]
+  ],
+  "additionalProperties": false
 }

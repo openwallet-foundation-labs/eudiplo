@@ -115,5 +115,6 @@
     "rotationEnabled",
     "createdAt",
     "updatedAt"
-  ]
+  ],
+  "additionalProperties": false
 }

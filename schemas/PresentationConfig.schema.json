@@ -93,5 +93,6 @@
     "dcql_query",
     "createdAt",
     "updatedAt"
-  ]
+  ],
+  "additionalProperties": false
 }

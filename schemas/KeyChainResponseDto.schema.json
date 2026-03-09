@@ -108,5 +108,6 @@
     "rotationPolicy",
     "createdAt",
     "updatedAt"
-  ]
+  ],
+  "additionalProperties": false
 }

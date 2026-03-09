@@ -20,5 +20,6 @@
       "maximum": 3650,
       "description": "Certificate validity in days."
     }
-  }
+  },
+  "additionalProperties": false
 }

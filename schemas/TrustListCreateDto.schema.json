@@ -26,5 +26,6 @@
   },
   "required": [
     "entities"
-  ]
+  ],
+  "additionalProperties": false
 }

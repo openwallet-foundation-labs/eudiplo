@@ -41,10 +41,19 @@
     "kmsProvider": {
       "type": "string",
       "description": "KMS provider to use. Defaults to 'db'."
+    },
+    "rotationPolicy": {
+      "description": "Rotation policy. When enabled, the imported key becomes a root CA and a new leaf key is generated.",
+      "allOf": [
+        {
+          "$ref": "./RotationPolicyImportDto.schema.json"
+        }
+      ]
     }
   },
   "required": [
     "key",
     "usageType"
-  ]
+  ],
+  "additionalProperties": false
 }

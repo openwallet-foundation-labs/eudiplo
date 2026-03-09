@@ -20,5 +20,6 @@
       "type": "string",
       "description": "Active certificate chain in PEM format. Used for external certificate updates."
     }
-  }
+  },
+  "additionalProperties": false
 }

@@ -47,5 +47,6 @@
   "required": [
     "usageType",
     "type"
-  ]
+  ],
+  "additionalProperties": false
 }

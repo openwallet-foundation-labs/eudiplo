@@ -80,5 +80,6 @@
     "availableEntries",
     "uri",
     "createdAt"
-  ]
+  ],
+  "additionalProperties": false
 }

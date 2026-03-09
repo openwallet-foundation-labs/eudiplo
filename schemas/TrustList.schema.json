@@ -67,5 +67,6 @@
     "jwt",
     "createdAt",
     "updatedAt"
-  ]
+  ],
+  "additionalProperties": false
 }

@@ -16,5 +16,6 @@
       "description": "Key chain ID to use for signing. Set to null to use the tenant's default StatusList key chain.",
       "example": "my-status-list-keychain"
     }
-  }
+  },
+  "additionalProperties": false
 }

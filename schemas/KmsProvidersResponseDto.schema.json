@@ -20,5 +20,6 @@
   "required": [
     "providers",
     "default"
-  ]
+  ],
+  "additionalProperties": false
 }

@@ -31,5 +31,6 @@
       "minimum": 1000,
       "example": 100000
     }
-  }
+  },
+  "additionalProperties": false
 }
