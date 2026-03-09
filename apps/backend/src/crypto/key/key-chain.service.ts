@@ -302,16 +302,15 @@ export class KeyChainService {
         activePrivateJwk.kid = `${id}-active`;
 
         // === 4. Create CA-signed certificate for signing key ===
-        const { cert: activeCertificate, chain } =
-            await this.createCaSignedCert(
-                rootKeyPair,
-                rootCertificate,
-                activeKeyPair.publicKey,
-                subjectCN,
-                hostname,
-                notBefore,
-                notAfter,
-            );
+        const { chain } = await this.createCaSignedCert(
+            rootKeyPair,
+            rootCertificate,
+            activeKeyPair.publicKey,
+            subjectCN,
+            hostname,
+            notBefore,
+            notAfter,
+        );
 
         return {
             rootKey: rootPrivateJwk,
