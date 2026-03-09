@@ -50,7 +50,8 @@ All components include:
 ### 2. Install ingress-nginx Controller
 
 !!! info "Docker Desktop Users"
-This step is required for accessing services via domain names.
+
+    This step is required for accessing services via domain names.
 
 ```bash
 # Install ingress-nginx
@@ -103,7 +104,8 @@ LOG_LEVEL=info
 ```
 
 !!! warning "Security Alert"
-The demo credentials will trigger security warnings in the application logs. **Always change these values for production deployments!**
+
+    The demo credentials will trigger security warnings in the application logs. **Always change these values for production deployments!**
 
 ## Deployment Steps
 
@@ -188,7 +190,8 @@ Access via domain names (works automatically with `localtest.me`):
 - **MinIO Console:** [http://minio-console.localtest.me/](http://minio-console.localtest.me/)
 
 !!! tip "Why localtest.me?"
-The `localtest.me` domain automatically resolves to `127.0.0.1`, eliminating the need to edit `/etc/hosts`.
+
+    The `localtest.me` domain automatically resolves to `127.0.0.1`, eliminating the need to edit `/etc/hosts`.
 
 ### Option 2: Port Forwarding
 
@@ -456,7 +459,8 @@ kubectl delete -k .
 ### Remove Persistent Data
 
 !!! danger "Data Loss Warning"
-This permanently deletes all database and storage data!
+
+    This permanently deletes all database and storage data!
 
 ```bash
 # Delete Persistent Volume Claims
@@ -488,7 +492,7 @@ EUDIPLO requires several secrets (database credentials, JWT secret, encryption k
 | Secret                 | Risk Level | Recommended Approach                       |
 | ---------------------- | ---------- | ------------------------------------------ |
 | `DB_PASSWORD`          | High       | External Secrets Operator / Vault Agent    |
-| `MASTER_SECRET`           | Critical   | External Secrets Operator / Vault Agent    |
+| `MASTER_SECRET`        | Critical   | External Secrets Operator / Vault Agent    |
 | `AUTH_CLIENT_SECRET`   | Critical   | External Secrets Operator / Vault Agent    |
 | `S3_SECRET_ACCESS_KEY` | High       | IRSA (AWS) / Workload Identity (Azure/GCP) |
 | `ENCRYPTION_KEY`       | Critical   | Application-level fetch (built-in support) |

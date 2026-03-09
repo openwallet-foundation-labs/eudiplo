@@ -46,16 +46,16 @@ tenant's configuration folder:
 
 ## Access Certificate
 
-Once the registrar is configured, you can create access certificates for your keys:
+Once the registrar is configured, you can create access certificates for your key chains:
 
 ### Via the Web UI
 
 1. Navigate to **Registrar** in the sidebar
-2. In the "Create Access Certificate" section, select a key from the dropdown
+2. In the "Create Access Certificate" section, select a key chain from the dropdown
 3. Click **Create Certificate**
 
-The certificate will be automatically stored in EUDIPLO and you'll be redirected
-to the certificate detail page.
+The certificate will be automatically stored in the key chain and you'll be redirected
+to the key chain detail page.
 
 ### Via the API
 
@@ -63,13 +63,13 @@ to the certificate detail page.
 curl -X POST "https://your-eudiplo-instance/registrar/access-certificate" \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
-  -d '{"keyId": "your-key-id"}'
+  -d '{"keyChainId": "your-key-chain-id"}'
 ```
 
 The response includes:
 
 - `id`: The registrar's certificate ID
-- `certId`: The local EUDIPLO certificate ID
+- `keyChainId`: The local EUDIPLO key chain ID
 - `crt`: The certificate content
 
 ## Registration Certificate

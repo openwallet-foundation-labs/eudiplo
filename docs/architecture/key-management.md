@@ -95,28 +95,11 @@ You can configure multiple instances of the same provider type with different ID
 When the `db` provider is configured (the default), keys are stored encrypted in the
 database. This mode is ideal for development or testing.
 
-### Multiple Key Support
+### Key Chain Support
 
-Each tenant can manage multiple cryptographic keys simultaneously. Each key has a unique key id and is also isolated via the `tenant_id` field.
+Each tenant can manage multiple key chains simultaneously. Each key chain has a unique ID and is isolated via the `tenant_id` field.
 
-Each key file contains the private key in JWK format:
-
-```json
-{
-    "kty": "EC",
-    "x": "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
-    "y": "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
-    "crv": "P-256",
-    "d": "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
-    "kid": "039af178-3ca0-48f4-a2e4-7b1209f30376",
-    "alg": "ES256"
-}
-```
-
-### Automatic Key Generation
-
-On startup, if no keys are found for a tenant, the service will automatically
-generate a new key pair. Even when using the database mode, the private key will never be exposed by the api.
+Key chains are unified entities containing both keys and certificates, organized by usage type (`access`, `attestation`, `trustList`, `statusList`, `encrypt`).
 
 ---
 
@@ -303,78 +286,88 @@ contact the maintainers.
 
 ---
 
-## Certificates
+## Key Chains
 
-EUDIPLO supports comprehensive management of X.509 certificates that are linked to cryptographic keys. Certificates can be used to verify the authenticity of public keys and establish trust between parties.
+EUDIPLO uses a unified **Key Chain** model that combines cryptographic keys and their certificates into a single managed entity. This eliminates orphaned keys and simplifies key lifecycle management.
 
-### Certificate Management
+### Key Chain Model
 
-Certificates are managed separately from keys and can be associated with any imported key. Each certificate has a unique identifier and is linked to a key via the `keyId` field.
+A Key Chain encapsulates:
 
-**Certificate Types**:
+- **Active signing key** with its certificate
+- **Optional root CA key** (for internal certificate chains / rotation)
+- **Previous key** (for grace period after rotation)
+- **Rotation policy** (automatic certificate renewal)
 
-- **Access Certificates** (`isAccessCert`): Used for authenticating access to protected resources
-- **Signing Certificates** (`isSigningCert`): Used for signing credentials and tokens
-
-A single certificate can serve both purposes by setting both flags to `true`.
-
-### Certificate Operations
-
-The certificate management API provides endpoints for creating, reading, updating, and deleting certificates. For detailed endpoint specifications, parameters, and request/response schemas, see:
-
-**API Reference**: [Certificate API Endpoints](../api/openapi.md#tag/cert)
-
-Available operations:
-
-- List all certificates for a tenant
-- Get certificate details by ID
-- Create/Import certificate for a specific key
-- Update certificate metadata and type flags
-- Delete certificate
-- Generate self-signed certificate for a key
-
-### Self-Signed Certificate Generation
-
-Generate a self-signed certificate for an existing key using the dedicated endpoint. This automatically creates a certificate with:
-
-- Subject: Common Name based on tenant configuration
-- Validity: 1 year from generation
-- Algorithm: Matches the key algorithm (ES256)
-- Extensions: Subject Alternative Name (SAN) for localhost
-
-**API Reference**: [Self-Signed Certificate Generation](../api/openapi.md#tag/cert/POST/cert/{keyId})
-
-### Certificate Import via Configuration
-
-Certificates can be imported during application startup using the configuration system.
-
-**Directory Structure**:
-
-```shell
-assets/config/
-└── tenant-1/
-    └── certs/
-        ├── signing-cert.json
-        └── access-cert.json
+```
+┌─────────────────────────────────────────────┐
+│               Key Chain                      │
+├─────────────────────────────────────────────┤
+│  Root CA Key (optional)                      │
+│  Root CA Certificate (self-signed)           │
+├─────────────────────────────────────────────┤
+│  Active Signing Key                          │
+│  Active Certificate (CA-signed or self)      │
+├─────────────────────────────────────────────┤
+│  Previous Key (optional, grace period)       │
+│  Previous Certificate                        │
+├─────────────────────────────────────────────┤
+│  Rotation Policy                             │
+│  - Interval Days                             │
+│  - Certificate Validity Days                 │
+└─────────────────────────────────────────────┘
 ```
 
-**Certificate File Format**:
+### Usage Types
 
-```json
-{
-    "keyId": "039af178-3ca0-48f4-a2e4-7b1209f30376",
-    "isAccessCert": true,
-    "isSigningCert": true,
-    "description": "Production certificate",
-    "crt": "-----BEGIN CERTIFICATE-----\nMIIBYTCCAQigAwIB...\n-----END CERTIFICATE-----"
-}
-```
+Each key chain is assigned a usage type that determines how it can be used:
 
-See [Configuration Import](configuration-import.md#certificates) for more details.
+| Usage Type    | Purpose                                            |
+| ------------- | -------------------------------------------------- |
+| `access`      | OAuth/OIDC access token signing and authentication |
+| `attestation` | Credential/attestation signing (SD-JWT VC, mDOC)   |
+| `trustList`   | Trust list signing                                 |
+| `statusList`  | Status list (credential revocation) signing        |
+| `encrypt`     | Encryption (JWE)                                   |
+
+### Key Chain Types
+
+**Standalone Key Chain**:
+
+- Single key with self-signed certificate
+- Suitable for development/testing
+- No rotation support
+
+**Internal CA Key Chain** (Rotation Enabled):
+
+- Root CA key signs leaf certificates
+- Active key is separate from root CA
+- Supports automatic rotation
+- Satisfies HAIP section 4.5.1 requirement (credentials MUST NOT be signed with self-signed certificates)
+
+### Automatic Key Chain Generation
+
+On startup, if no key chains are found for a tenant, the service automatically generates key chains for each required usage type:
+
+- `access` - For OAuth/OIDC operations
+- `attestation` - For credential signing
 
 ### Certificate Chain Support
 
-EUDIPLO supports certificate chains for establishing trust hierarchies. Import multiple certificates and link them to the same key to build a chain from leaf to root certificate.
+When using internal CA key chains, the certificate includes a full chain:
+
+1. **Leaf certificate** (signs credentials/tokens)
+2. **Root CA certificate** (signs leaf certificates)
+
+This chain is included in the `x5c` header of signed tokens.
+
+### Certificate Format
+
+Certificates must be in PEM format:
+
+- Use `\n` escape sequences in JSON
+- Include both `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----` headers
+- Base64-encoded DER content between headers
 
 ### Certificate Validation
 
@@ -385,17 +378,7 @@ Certificates are validated during import:
 - Certificate expiration checking
 - X.509 standard compliance
 
-### Certificate Format
-
-Certificates must be in PEM format with proper line breaks:
-
-- Use `\n` escape sequences in JSON
-- Include both `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----` headers
-- Base64-encoded DER content between headers
-
-When a new key pair is generated, a self-signed certificate is also created. This certificate includes the public key and is stored alongside the key files. The certificate can be overwritten any time via the API.
-
-When using the [Registrar](../getting-started/registrar.md), it will generate a certificate for the public key that can be used to secure the OID4VCI and OID4VP requests. Each tenant will only have one access certificate.
+When using the [Registrar](../getting-started/registrar.md), it will generate a certificate for the public key that can be used to secure the OID4VCI and OID4VP requests.
 
 > Note: In the future the access certificate generation will follow the official standard that is under development right now.
 
@@ -403,45 +386,73 @@ When using the [Registrar](../getting-started/registrar.md), it will generate a 
 
 ## Multi-Tenant Key Management
 
-### Automatic Key Generation
+### Automatic Key Chain Generation
 
 **Tenant Initialization Process:**
 
 1. Client registers with credentials (`client_id`, `client_secret`)
-2. Cryptographic key pair automatically generated
-3. Keys stored in tenant-specific location
-4. Generation of certificate for public key
+2. Key chains automatically generated for each required usage type
+3. Keys and certificates stored in the unified key chain
+4. Certificates linked to keys in the same entity
 
-## Key Import and Management
+## Key Chain Import and Management
 
-EUDIPLO supports importing existing keys through multiple methods to accommodate
+EUDIPLO supports importing key chains through multiple methods to accommodate
 different deployment scenarios and security requirements.
 
-The `kid` provided in the key files is used to identify and manage keys within the system. An optional `description` field can be included for additional context.
+### API-Based Key Chain Import
 
-### API-Based Key Import
+Import key chains through the REST API using authenticated requests:
 
-Import keys through the REST API using authenticated requests:
+**Endpoint**: `POST /key-chain`
 
-**Endpoint**: `POST /key`
-
-**Request Body**:
+**Request Body** (Standalone - self-signed certificate):
 
 ```json
 {
-    "privateKey": {
+    "id": "optional-uuid",
+    "usageType": "attestation",
+    "key": {
         "kty": "EC",
         "x": "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
         "y": "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
         "crv": "P-256",
         "d": "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
-        "kid": "039af178-3ca0-48f4-a2e4-7b1209f30376",
         "alg": "ES256"
     },
-    "description": "Optional key description",
-    "crt": "-----BEGIN CERTIFICATE-----\n...optional certificate...\n-----END CERTIFICATE-----"
+    "description": "Optional description"
 }
 ```
+
+**Request Body** (With Rotation - imported key becomes root CA):
+
+```json
+{
+    "id": "optional-uuid",
+    "usageType": "attestation",
+    "key": {
+        "kty": "EC",
+        "x": "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
+        "y": "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
+        "crv": "P-256",
+        "d": "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
+        "alg": "ES256"
+    },
+    "description": "HAIP-compliant key chain with CA-signed leaf",
+    "rotationPolicy": {
+        "enabled": true,
+        "intervalDays": 90,
+        "certValidityDays": 365
+    }
+}
+```
+
+When `rotationPolicy.enabled` is `true`:
+
+- The imported key becomes the **root CA key**
+- A new **leaf signing key** is automatically generated
+- The leaf certificate is signed by the imported CA key
+- This satisfies HAIP section 4.5.1 (credentials MUST NOT be signed with self-signed certificates)
 
 **Response**:
 
@@ -451,16 +462,16 @@ Import keys through the REST API using authenticated requests:
 }
 ```
 
-### Configuration-Based Key Import
+### Configuration-Based Key Chain Import
 
-Import keys automatically during application startup using the configuration
+Import key chains automatically during application startup using the configuration
 import system.
 
 **Environment Variables**:
 
 ```bash
 CONFIG_IMPORT=true
-CONFIG_IMPORT_FORCE=false  # Set to true to overwrite existing keys
+CONFIG_IMPORT_FORCE=false  # Set to true to overwrite existing key chains
 ```
 
 **Directory Structure**:
@@ -468,43 +479,89 @@ CONFIG_IMPORT_FORCE=false  # Set to true to overwrite existing keys
 ```shell
 assets/config/
 ├── tenant-1/
-│   └── keys/
-│       ├── primary-key.json
-│       ├── backup-key.json
-│       └── legacy-key.json
+│   └── key-chains/
+│       ├── attestation.json
+│       ├── access.json
+│       └── status-list.json
 └── tenant-2/
-    └── keys/
-        └── signing-key.json
+    └── key-chains/
+        └── attestation.json
 ```
 
-**Key File Format**:
+**Key Chain File Format** (Standalone):
 
 ```json
 {
-    "privateKey": {
+    "id": "uuid-for-this-key-chain",
+    "description": "Attestation signing key chain",
+    "usageType": "attestation",
+    "key": {
         "kty": "EC",
         "x": "...",
         "y": "...",
         "crv": "P-256",
         "d": "...",
-        "kid": "unique-key-identifier",
         "alg": "ES256"
-    },
-    "crt": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+    }
 }
 ```
 
-### Key Management Operations
+**Key Chain File Format** (With Rotation / Internal CA):
 
-For detailed key management endpoints, parameters, and request/response schemas, see:
+```json
+{
+    "id": "uuid-for-this-key-chain",
+    "description": "HAIP-compliant attestation key chain",
+    "usageType": "attestation",
+    "key": {
+        "kty": "EC",
+        "x": "...",
+        "y": "...",
+        "crv": "P-256",
+        "d": "...",
+        "alg": "ES256"
+    },
+    "rotationPolicy": {
+        "enabled": true,
+        "intervalDays": 90,
+        "certValidityDays": 365
+    }
+}
+```
 
-**API Reference**: [Key Management API Endpoints](../api/openapi.md#tag/key)
+**Key Chain File Format** (With Provided Certificate):
 
-Available operations include listing keys, importing keys, and managing key metadata.
+```json
+{
+    "id": "uuid-for-this-key-chain",
+    "description": "Key chain with external certificate",
+    "usageType": "attestation",
+    "key": {
+        "kty": "EC",
+        "x": "...",
+        "y": "...",
+        "crv": "P-256",
+        "d": "...",
+        "alg": "ES256"
+    },
+    "crt": [
+        "-----BEGIN CERTIFICATE-----\nLEAF_CERT...\n-----END CERTIFICATE-----",
+        "-----BEGIN CERTIFICATE-----\nCA_CERT...\n-----END CERTIFICATE-----"
+    ]
+}
+```
+
+### Key Chain Management Operations
+
+For detailed key chain management endpoints, parameters, and request/response schemas, see:
+
+**API Reference**: [Key Chain API Endpoints](../api/openapi.md#tag/key-chain)
+
+Available operations include listing key chains, importing key chains, rotating keys, and managing key chain metadata.
 
 ### Supported Key Formats
 
 - **Algorithm Support**: ES256 (ECDSA P-256)
 - **Key Format**: JSON Web Key (JWK) format
-- **Certificate Support**: Optional X.509 certificates in PEM format
-- **Key Generation**: Automatic generation if no keys exist
+- **Certificate Support**: Optional X.509 certificates in PEM format (leaf first, then CA chain)
+- **Key Generation**: Automatic generation if no key chains exist
