@@ -189,7 +189,7 @@ describe("OIDF", () => {
 
         // Simulate wallet authorization via OIDF runner
         const authorizeUrl = `${testInstance.url}/authorize${queryString}`;
-        const res = await axios.default.get(authorizeUrl, {
+        await axios.default.get(authorizeUrl, {
             httpsAgent: new https.Agent({
                 rejectUnauthorized: false,
             }),
