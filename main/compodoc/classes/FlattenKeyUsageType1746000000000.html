@@ -288,8 +288,8 @@ key_chain_entity instead, and this migration will be skipped.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="68"
-                                    class="link-to-prism">src/database/migrations/1746000000000-FlattenKeyUsageType.ts:68</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="66"
+                                    class="link-to-prism">src/database/migrations/1746000000000-FlattenKeyUsageType.ts:66</a></div>
                         </td>
                     </tr>
 
@@ -358,8 +358,8 @@ key_chain_entity instead, and this migration will be skipped.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="104"
-                                    class="link-to-prism">src/database/migrations/1746000000000-FlattenKeyUsageType.ts:104</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="102"
+                                    class="link-to-prism">src/database/migrations/1746000000000-FlattenKeyUsageType.ts:102</a></div>
                         </td>
                     </tr>
 
@@ -525,11 +525,9 @@ export class FlattenKeyUsageType1746000000000 implements MigrationInterface {
         }
 
         // Check if usageType column already exists
-        const columns &#x3D; await queryRunner.query(
-            &#x60;PRAGMA table_info(&quot;key_entity&quot;)&#x60;,
-        );
-        const hasUsageType &#x3D; columns.some(
-            (col: any) &#x3D;&gt; col.name &#x3D;&#x3D;&#x3D; &quot;usageType&quot;,
+        const keyTable &#x3D; await queryRunner.getTable(&quot;key_entity&quot;);
+        const hasUsageType &#x3D; keyTable?.columns.some(
+            (col) &#x3D;&gt; col.name &#x3D;&#x3D;&#x3D; &quot;usageType&quot;,
         );
         if (hasUsageType) {
             console.log(
@@ -604,11 +602,8 @@ export class FlattenKeyUsageType1746000000000 implements MigrationInterface {
         queryRunner: QueryRunner,
         tableName: string,
     ): Promise&lt;boolean&gt; {
-        const result &#x3D; await queryRunner.query(
-            &#x60;SELECT name FROM sqlite_master WHERE type&#x3D;&#x27;table&#x27; AND name&#x3D;?&#x60;,
-            [tableName],
-        );
-        return result.length &gt; 0;
+        const table &#x3D; await queryRunner.getTable(tableName);
+        return !!table;
     }
 }
 </code></pre>

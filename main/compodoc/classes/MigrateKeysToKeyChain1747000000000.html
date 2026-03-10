@@ -286,8 +286,8 @@ if the CA key exists. Otherwise, they become standalone self-signed keys.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="251"
-                                    class="link-to-prism">src/database/migrations/1747000000000-MigrateKeysToKeyChain.ts:251</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="248"
+                                    class="link-to-prism">src/database/migrations/1747000000000-MigrateKeysToKeyChain.ts:248</a></div>
                         </td>
                     </tr>
 
@@ -437,8 +437,8 @@ if the CA key exists. Otherwise, they become standalone self-signed keys.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="30"
-                                    class="link-to-prism">src/database/migrations/1747000000000-MigrateKeysToKeyChain.ts:30</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="27"
+                                    class="link-to-prism">src/database/migrations/1747000000000-MigrateKeysToKeyChain.ts:27</a></div>
                         </td>
                     </tr>
 
@@ -516,11 +516,8 @@ export class MigrateKeysToKeyChain1747000000000 implements MigrationInterface {
         queryRunner: QueryRunner,
         tableName: string,
     ): Promise&lt;boolean&gt; {
-        const result &#x3D; await queryRunner.query(
-            &#x60;SELECT name FROM sqlite_master WHERE type&#x3D;&#x27;table&#x27; AND name&#x3D;?&#x60;,
-            [tableName],
-        );
-        return result.length &gt; 0;
+        const table &#x3D; await queryRunner.getTable(tableName);
+        return !!table;
     }
 
     async up(queryRunner: QueryRunner): Promise&lt;void&gt; {

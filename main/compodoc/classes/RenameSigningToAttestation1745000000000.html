@@ -275,8 +275,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="18"
-                                    class="link-to-prism">src/database/migrations/1745000000000-RenameSigningToAttestation.ts:18</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="27"
+                                    class="link-to-prism">src/database/migrations/1745000000000-RenameSigningToAttestation.ts:27</a></div>
                         </td>
                     </tr>
 
@@ -413,6 +413,15 @@ export class RenameSigningToAttestation1745000000000
     name &#x3D; &quot;RenameSigningToAttestation1745000000000&quot;;
 
     public async up(queryRunner: QueryRunner): Promise&lt;void&gt; {
+        // On a fresh database, key_usage_entity won&#x27;t exist yet — TypeORM synchronize will create the full schema.
+        const table &#x3D; await queryRunner.getTable(&quot;key_usage_entity&quot;);
+        if (!table) {
+            console.log(
+                &quot;[Migration] key_usage_entity table not found — skipping (schema may not exist yet).&quot;,
+            );
+            return;
+        }
+
         // Update key_usage_entity usage column from &#x27;signing&#x27; to &#x27;attestation&#x27;
         await queryRunner.query(
             &#x60;UPDATE &quot;key_usage_entity&quot; SET &quot;usage&quot; &#x3D; &#x27;attestation&#x27; WHERE &quot;usage&quot; &#x3D; &#x27;signing&#x27;&#x60;,
@@ -420,6 +429,11 @@ export class RenameSigningToAttestation1745000000000
     }
 
     public async down(queryRunner: QueryRunner): Promise&lt;void&gt; {
+        const table &#x3D; await queryRunner.getTable(&quot;key_usage_entity&quot;);
+        if (!table) {
+            return;
+        }
+
         // Revert: update key_usage_entity usage column from &#x27;attestation&#x27; to &#x27;signing&#x27;
         await queryRunner.query(
             &#x60;UPDATE &quot;key_usage_entity&quot; SET &quot;usage&quot; &#x3D; &#x27;signing&#x27; WHERE &quot;usage&quot; &#x3D; &#x27;attestation&#x27;&#x60;,
