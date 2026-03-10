@@ -808,8 +808,13 @@ jobs:
           AUTH_CLIENT_SECRET: ci-docs-secret
           ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
         run: |
+          FULL_VERSION="${{ steps.semantic_release.outputs.version }}"
+          # Extract major.minor (e.g., 3.2.0 → 3.2) so patch releases update the same version slot
+          MINOR_VERSION="${FULL_VERSION%.*}"
           pnpm run doc:generate
           pnpm run compodoc
+          # Deploy under major.minor (e.g., 3.2), patches overwrite the same entry
+          mike deploy --push --update-aliases "$MINOR_VERSION"
           # Deploy to latest and set as default
           mike deploy --push --update-aliases latest
           mike set-default --push latest
