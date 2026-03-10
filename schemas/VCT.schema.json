@@ -25,5 +25,6 @@
     "schema_uri#integrity": {
       "type": "string"
     }
-  }
+  },
+  "additionalProperties": false
 }

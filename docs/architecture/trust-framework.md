@@ -124,7 +124,7 @@ curl -X POST "${BASE_URL}/trust-list" \
   -d '{
     "id": "my-trust-list",
     "description": "Production Trust List",
-    "certId": "signing-cert-id",
+    "keyChainId": "trust-list-signing-key-chain-id",
     "entities": [...]
   }'
 ```
@@ -140,8 +140,8 @@ Reference certificates already managed in EUDIPLO:
 ```json
 {
     "type": "internal",
-    "issuerCertId": "uuid-of-issuance-cert",
-    "revocationCertId": "uuid-of-revocation-cert",
+    "issuerKeyChainId": "uuid-of-issuance-cert",
+    "revocationKeyChainId": "uuid-of-revocation-cert",
     "info": {
         "name": "Organization Name",
         "country": "DE"
@@ -198,7 +198,7 @@ This allows:
 - **Other verifiers** to synchronize trust information
 - **Auditors** to verify the trust chain
 
-The JWT is signed by the certificate specified in `certId` and follows the LoTE
+The JWT is signed by the key chain specified in `keyChainId` and follows the LoTE
 format from ETSI TS 119 602.
 
 ---
@@ -263,9 +263,9 @@ For configuring presentation verification with trust lists, see
 
 **Trust list JWT is invalid**:
 
-- Check that `certId` points to a valid signing certificate
+- Check that `keyChainId` points to a valid key chain with `trustList` usage type
 - Verify the signing certificate hasn't expired
-- Ensure the certificate has signing permissions
+- Ensure the key chain has signing permissions
 
 ---
 
@@ -273,7 +273,7 @@ For configuring presentation verification with trust lists, see
 
 - [Configuration Import](./configuration-import.md) - Import
   trust lists via configuration files
-- [Key Management](./key-management.md) - Managing certificates
+- [Key Management](./key-management.md) - Managing key chains
   for trust lists
 - [Presentation Configuration](../getting-started/presentation/presentation-configuration.md) - Configuring
   presentation verification

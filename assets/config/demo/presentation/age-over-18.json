@@ -1,22 +1,40 @@
 {
     "id": "age-over-18",
-    "description": "Age Over 18 Presentation Definition with German PID MSO mDoc",
+    "description": "Age Over 18 Verification - Proves user is 18+ without revealing exact birthdate",
     "dcql_query": {
         "credentials": [
             {
+                "id": "pid-sd-jwt",
+                "format": "dc+sd-jwt",
+                "meta": {
+                    "vct_values": [
+                        "urn:eudi:pid:de:1"
+                    ]
+                },
+                "claims": [
+                    {
+                        "path": [
+                            "age_equal_or_over",
+                            "18"
+                        ]
+                    }
+                ]
+            },
+            {
                 "id": "pid-mso-mdoc",
                 "format": "mso_mdoc",
+                "meta": {
+                    "doctype_value": "eu.europa.ec.eudi.pid.1"
+                },
                 "claims": [
                     {
                         "path": [
                             "eu.europa.ec.eudi.pid.1",
                             "age_over_18"
-                        ]
+                        ],
+                        "intent_to_retain": false
                     }
                 ],
-                "meta": {
-                    "doctype_value": "eu.europa.ec.eudi.pid.1"
-                },
                 "trusted_authorities": [
                     {
                         "type": "etsi_tl",
@@ -26,8 +44,19 @@
                     }
                 ]
             }
+        ],
+        "credential_sets": [
+            {
+                "options": [
+                    [
+                        "pid-sd-jwt"
+                    ],
+                    [
+                        "pid-mso-mdoc"
+                    ]
+                ]
+            }
         ]
     },
-    "accessCertId": "4ac8eea5-877c-4768-af84-a8f43eba2727",
     "lifeTime": 300
 }

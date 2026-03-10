@@ -11,6 +11,36 @@
   }
 }
 
+::ng-deep {
+  .provider-type {
+    color: #666;
+    font-size: 0.9em;
+    margin-left: 4px;
+  }
+
+  .provider-default {
+    color: #1976d2;
+    font-weight: 500;
+  }
+
+  .provider-option {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.4;
+    padding: 4px 0;
+  }
+
+  .provider-name {
+    font-weight: 500;
+  }
+
+  .provider-description {
+    font-size: 0.85em;
+    color: #666;
+    margin-top: 2px;
+  }
+}
+
 .certificate-item {
   border: 1px solid #e0e0e0;
   padding: 16px;

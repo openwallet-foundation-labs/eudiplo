@@ -46,5 +46,6 @@
     "data",
     "jwt",
     "createdAt"
-  ]
+  ],
+  "additionalProperties": false
 }

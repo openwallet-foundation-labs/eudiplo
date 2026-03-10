@@ -34,5 +34,6 @@
       "type": "string",
       "description": "The password for OIDC login (stored in plaintext)"
     }
-  }
+  },
+  "additionalProperties": false
 }

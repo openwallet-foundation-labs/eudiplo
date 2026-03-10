@@ -4,7 +4,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
 import { Repository } from "typeorm";
 import { CertService } from "../../../../crypto/key/cert/cert.service";
-import { CertUsage } from "../../../../crypto/key/entities/cert-usage.entity";
+import { KeyUsageType } from "../../../../crypto/key/entities/key-chain.entity";
 import { ConfigImportService } from "../../../../shared/utils/config-import/config-import.service";
 import {
     ConfigImportOrchestratorService,
@@ -89,19 +89,19 @@ export class CredentialConfigService {
         // Replace image references with actual URLs
         await this.replaceImageReferences(tenantId, config);
 
-        // Check if cetId is provided and if the certificate exists.
-        if (config.certId) {
+        // Check if keyChainId is provided and if the key chain exists.
+        if (config.keyChainId) {
             const cert = await this.certService.find({
                 tenantId,
-                type: CertUsage.Signing,
-                id: config.certId,
+                type: KeyUsageType.Attestation,
+                keyId: config.keyChainId,
             });
             if (!cert) {
                 throw new Error(
-                    `Cert ID ${config.certId} must be defined in the crypto service`,
+                    `Key chain ID ${config.keyChainId} must be defined in the crypto service`,
                 );
             }
-            (config as CredentialConfig).cert = cert;
+            // Note: keyChainId is stored directly on the entity, keyChain relation is loaded lazily
         }
 
         // Skip IAE validation during import - presentation configs are imported later

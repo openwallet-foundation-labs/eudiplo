@@ -462,238 +462,6 @@ export const CreateClientDtoSchema = {
   required: ["clientId", "roles"],
 } as const;
 
-export const KeyEntitySchema = {
-  type: "object",
-  properties: {
-    id: {
-      type: "string",
-      description: "Unique identifier for the key.",
-    },
-    description: {
-      type: "string",
-      description: "Description of the key.",
-    },
-    tenantId: {
-      type: "string",
-      description: "Tenant ID for the key.",
-    },
-    tenant: {
-      description: "The tenant that owns this object.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/TenantEntity",
-        },
-      ],
-    },
-    key: {
-      type: "object",
-      description: "The key material.\nEncrypted at rest using AES-256-GCM.",
-    },
-    usage: {
-      type: "object",
-      description: "The usage type of the key.",
-    },
-    kmsProvider: {
-      type: "string",
-      description:
-        "The KMS provider used for this key.\nReferences a configured KMS provider name.",
-    },
-    certificates: {
-      description: "Certificates associated with this key.",
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/CertEntity",
-      },
-    },
-    createdAt: {
-      format: "date-time",
-      type: "string",
-      description: "The timestamp when the key was created.",
-    },
-    updatedAt: {
-      format: "date-time",
-      type: "string",
-      description: "The timestamp when the key was last updated.",
-    },
-  },
-  required: [
-    "id",
-    "tenantId",
-    "tenant",
-    "key",
-    "usage",
-    "kmsProvider",
-    "certificates",
-    "createdAt",
-    "updatedAt",
-  ],
-} as const;
-
-export const CertEntitySchema = {
-  type: "object",
-  properties: {
-    keyId: {
-      type: "string",
-      description: "The key ID this certificate is associated with",
-      example: "039af178-3ca0-48f4-a2e4-7b1209f30376",
-    },
-    id: {
-      type: "string",
-      description: "Unique identifier for the key.",
-    },
-    tenantId: {
-      type: "string",
-      description: "Tenant ID for the key.",
-    },
-    tenant: {
-      description: "The tenant that owns this object.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/TenantEntity",
-        },
-      ],
-    },
-    crt: {
-      description:
-        "Certificate chain in PEM format (leaf first, then intermediates/CA).",
-      type: "array",
-      items: {
-        type: "string",
-      },
-    },
-    usages: {
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/CertUsageEntity",
-      },
-    },
-    description: {
-      type: "string",
-      description: "Description of the key.",
-    },
-    key: {
-      $ref: "#/components/schemas/KeyEntity",
-    },
-    createdAt: {
-      format: "date-time",
-      type: "string",
-      description: "The timestamp when the certificate was created.",
-    },
-    updatedAt: {
-      format: "date-time",
-      type: "string",
-      description: "The timestamp when the certificate was last updated.",
-    },
-  },
-  required: [
-    "keyId",
-    "id",
-    "tenantId",
-    "tenant",
-    "crt",
-    "usages",
-    "key",
-    "createdAt",
-    "updatedAt",
-  ],
-} as const;
-
-export const CertUsageEntitySchema = {
-  type: "object",
-  properties: {
-    tenantId: {
-      type: "string",
-    },
-    certId: {
-      type: "string",
-    },
-    usage: {
-      type: "string",
-      enum: ["access", "signing", "trustList", "statusList"],
-    },
-    cert: {
-      $ref: "#/components/schemas/CertEntity",
-    },
-  },
-  required: ["tenantId", "certId", "usage", "cert"],
-} as const;
-
-export const CertImportDtoSchema = {
-  type: "object",
-  properties: {
-    keyId: {
-      type: "string",
-      description: "The key ID this certificate is associated with",
-      example: "039af178-3ca0-48f4-a2e4-7b1209f30376",
-    },
-    id: {
-      type: "string",
-    },
-    certUsageTypes: {
-      description: "Usage types for the certificate.",
-      type: "array",
-      items: {
-        type: "string",
-        enum: ["access", "signing", "trustList", "statusList"],
-      },
-    },
-    crt: {
-      description:
-        "Certificate chain in PEM format (leaf first, then intermediates/CA).\nIf not provided, a self-signed certificate will be generated.",
-      type: "array",
-      items: {
-        type: "string",
-      },
-    },
-    subjectName: {
-      type: "string",
-      description:
-        "Subject name (CN) for self-signed certificate generation.\nIf not provided, the tenant name will be used.",
-    },
-    description: {
-      type: "string",
-      description: "Description of the key.",
-    },
-  },
-  required: ["keyId", "certUsageTypes"],
-} as const;
-
-export const CertResponseDtoSchema = {
-  type: "object",
-  properties: {
-    id: {
-      type: "string",
-      description: "The ID of the created self-signed certificate.",
-    },
-  },
-  required: ["id"],
-} as const;
-
-export const CertUpdateDtoSchema = {
-  type: "object",
-  properties: {
-    certUsageTypes: {
-      type: "array",
-      description: "Usage types for the certificate.",
-      items: {
-        type: "string",
-        enum: ["access", "signing", "trustList", "statusList"],
-      },
-    },
-    usages: {
-      type: "array",
-      items: {
-        $ref: "#/components/schemas/CertUsageEntity",
-      },
-    },
-    description: {
-      type: "string",
-      description: "Description of the key.",
-    },
-  },
-  required: ["certUsageTypes", "usages"],
-} as const;
-
 export const StatusListImportDtoSchema = {
   type: "object",
   properties: {
@@ -708,11 +476,11 @@ export const StatusListImportDtoSchema = {
         "Credential configuration ID to bind this list exclusively to. Leave empty for a shared list.",
       example: "org.iso.18013.5.1.mDL",
     },
-    certId: {
+    keyChainId: {
       type: "string",
       description:
-        "Certificate ID to use for signing. Leave empty to use the tenant's default StatusList certificate.",
-      example: "my-status-list-cert",
+        "Key chain ID to use for signing. Leave empty to use the tenant's default StatusList key chain.",
+      example: "my-status-list-keychain",
     },
     capacity: {
       type: "number",
@@ -811,12 +579,12 @@ export const StatusListResponseDtoSchema = {
         "Credential configuration ID this list is bound to. Null means shared.",
       example: "org.iso.18013.5.1.mDL",
     },
-    certId: {
+    keyChainId: {
       type: "string",
       nullable: true,
       description:
-        "Certificate ID used for signing. Null means using the tenant's default.",
-      example: "my-status-list-cert",
+        "Key chain ID used for signing. Null means using the tenant's default.",
+      example: "my-status-list-keychain",
     },
     bits: {
       type: "number",
@@ -881,11 +649,11 @@ export const CreateStatusListDtoSchema = {
         "Credential configuration ID to bind this list exclusively to. Leave empty for a shared list.",
       example: "org.iso.18013.5.1.mDL",
     },
-    certId: {
+    keyChainId: {
       type: "string",
       description:
-        "Certificate ID to use for signing. Leave empty to use the tenant's default StatusList certificate.",
-      example: "my-status-list-cert",
+        "Key chain ID to use for signing. Leave empty to use the tenant's default StatusList key chain.",
+      example: "my-status-list-keychain",
     },
     bits: {
       type: "number",
@@ -914,12 +682,12 @@ export const UpdateStatusListDtoSchema = {
         "Credential configuration ID to bind this list exclusively to. Set to null to make this a shared list.",
       example: "org.iso.18013.5.1.mDL",
     },
-    certId: {
+    keyChainId: {
       type: "string",
       nullable: true,
       description:
-        "Certificate ID to use for signing. Set to null to use the tenant's default StatusList certificate.",
-      example: "my-status-list-cert",
+        "Key chain ID to use for signing. Set to null to use the tenant's default StatusList key chain.",
+      example: "my-status-list-keychain",
     },
   },
 } as const;
@@ -2028,6 +1796,122 @@ export const IssuerMetadataCredentialConfigSchema = {
   required: ["format", "display"],
 } as const;
 
+export const KeyChainEntitySchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description:
+        "Unique identifier for the key chain.\nThis is the ID referenced by other entities (e.g., issuance config's signingKeyId).",
+    },
+    tenantId: {
+      type: "string",
+      description: "Tenant ID for the key chain.",
+    },
+    tenant: {
+      description: "The tenant that owns this key chain.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/TenantEntity",
+        },
+      ],
+    },
+    description: {
+      type: "string",
+      description: "Human-readable description of the key chain.",
+    },
+    usageType: {
+      type: "string",
+      description: "The purpose/role of this key chain in the system.",
+      enum: ["access", "attestation", "trustList", "statusList", "encrypt"],
+    },
+    usage: {
+      type: "string",
+      description: "The usage type of the keys (sign or encrypt).",
+      enum: ["sign", "encrypt"],
+    },
+    kmsProvider: {
+      type: "string",
+      description:
+        "The KMS provider used for this key chain.\nReferences a configured KMS provider name.",
+    },
+    externalKeyId: {
+      type: "string",
+      description:
+        "External key identifier for cloud KMS providers.\nThis field stores the provider-specific key reference for the active signing key.",
+    },
+    rootKey: {
+      type: "object",
+    },
+    rootCertificate: {
+      type: "string",
+      description:
+        "Root CA certificate in PEM format.\nSelf-signed certificate for the root CA key.",
+    },
+    activeKey: {
+      type: "object",
+    },
+    activeCertificate: {
+      type: "string",
+      description:
+        "Certificate for the active signing key in PEM format.\nEither CA-signed (if rootKey exists) or self-signed.",
+    },
+    rotationEnabled: {
+      type: "boolean",
+    },
+    rotationIntervalDays: {
+      type: "number",
+      description:
+        "Rotation interval in days. Key material will be rotated after this many days.",
+    },
+    certValidityDays: {
+      type: "number",
+      description:
+        "Certificate validity in days when generating new certificates.",
+    },
+    lastRotatedAt: {
+      format: "date-time",
+      type: "string",
+      description: "Timestamp of when the key was last rotated.",
+    },
+    previousKey: {
+      type: "object",
+    },
+    previousCertificate: {
+      type: "string",
+      description: "Certificate for the previous signing key in PEM format.",
+    },
+    previousKeyExpiry: {
+      format: "date-time",
+      type: "string",
+      description:
+        "Expiry date for the previous key.\nAfter this date, the previous key should be deleted.",
+    },
+    createdAt: {
+      format: "date-time",
+      type: "string",
+    },
+    updatedAt: {
+      format: "date-time",
+      type: "string",
+      description: "The timestamp when the key chain was last updated.",
+    },
+  },
+  required: [
+    "id",
+    "tenantId",
+    "tenant",
+    "usageType",
+    "usage",
+    "kmsProvider",
+    "activeKey",
+    "activeCertificate",
+    "rotationEnabled",
+    "createdAt",
+    "updatedAt",
+  ],
+} as const;
+
 export const SchemaResponseSchema = {
   type: "object",
   properties: {
@@ -2160,13 +2044,13 @@ export const CredentialConfigSchema = {
     keyBinding: {
       type: "boolean",
     },
-    certId: {
+    keyChainId: {
       type: "string",
       description:
-        "Reference to the certificate used for signing.\nNote: No DB-level FK constraint because CertEntity has a composite PK\n(id + tenantId) and SET NULL behavior cannot work when tenantId is\npart of this entity's own PK.",
+        "Reference to the key chain used for signing.\nOptional: if not specified, the default attestation key chain will be used.",
     },
-    cert: {
-      $ref: "#/components/schemas/CertEntity",
+    keyChain: {
+      $ref: "#/components/schemas/KeyChainEntity",
     },
     statusManagement: {
       type: "boolean",
@@ -2282,10 +2166,10 @@ export const CredentialConfigCreateSchema = {
     keyBinding: {
       type: "boolean",
     },
-    certId: {
+    keyChainId: {
       type: "string",
       description:
-        "Reference to the certificate used for signing.\nNote: No DB-level FK constraint because CertEntity has a composite PK\n(id + tenantId) and SET NULL behavior cannot work when tenantId is\npart of this entity's own PK.",
+        "Reference to the key chain used for signing.\nOptional: if not specified, the default attestation key chain will be used.",
     },
     statusManagement: {
       type: "boolean",
@@ -2401,10 +2285,10 @@ export const CredentialConfigUpdateSchema = {
     keyBinding: {
       type: "boolean",
     },
-    certId: {
+    keyChainId: {
       type: "string",
       description:
-        "Reference to the certificate used for signing.\nNote: No DB-level FK constraint because CertEntity has a composite PK\n(id + tenantId) and SET NULL behavior cannot work when tenantId is\npart of this entity's own PK.",
+        "Reference to the key chain used for signing.\nOptional: if not specified, the default attestation key chain will be used.",
     },
     statusManagement: {
       type: "boolean",
@@ -2556,7 +2440,7 @@ export const PresentationConfigSchema = {
         "Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.",
       example: "https://example.com/callback?session={sessionId}",
     },
-    accessCertId: {
+    accessKeyChainId: {
       type: "string",
       nullable: true,
       description:
@@ -2631,7 +2515,7 @@ export const PresentationConfigCreateDtoSchema = {
         "Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.",
       example: "https://example.com/callback?session={sessionId}",
     },
-    accessCertId: {
+    accessKeyChainId: {
       type: "string",
       nullable: true,
       description:
@@ -2706,7 +2590,7 @@ export const PresentationConfigUpdateDtoSchema = {
         "Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.",
       example: "https://example.com/callback?session={sessionId}",
     },
-    accessCertId: {
+    accessKeyChainId: {
       type: "string",
       nullable: true,
       description:
@@ -3283,7 +3167,10 @@ export const TrustListCreateDtoSchema = {
     id: {
       type: "string",
     },
-    certId: {
+    description: {
+      type: "string",
+    },
+    keyChainId: {
       type: "string",
     },
     entities: {
@@ -3291,9 +3178,6 @@ export const TrustListCreateDtoSchema = {
       items: {
         type: "object",
       },
-    },
-    description: {
-      type: "string",
     },
     data: {
       type: "object",
@@ -3325,11 +3209,11 @@ export const TrustListSchema = {
         },
       ],
     },
-    certId: {
+    keyChainId: {
       type: "string",
     },
-    cert: {
-      $ref: "#/components/schemas/CertEntity",
+    keyChain: {
+      $ref: "#/components/schemas/KeyChainEntity",
     },
     data: {
       type: "object",
@@ -3365,8 +3249,8 @@ export const TrustListSchema = {
     "id",
     "tenantId",
     "tenant",
-    "certId",
-    "cert",
+    "keyChainId",
+    "keyChain",
     "sequenceNumber",
     "jwt",
     "createdAt",
@@ -3422,55 +3306,6 @@ export const TrustListVersionSchema = {
   ],
 } as const;
 
-export const DbKmsConfigDtoSchema = {
-  type: "object",
-  properties: {},
-} as const;
-
-export const VaultKmsConfigDtoSchema = {
-  type: "object",
-  properties: {
-    vaultUrl: {
-      type: "string",
-      description:
-        "URL of the HashiCorp Vault instance. Supports ${ENV_VAR} placeholders.",
-      example: "${VAULT_URL}",
-    },
-    vaultToken: {
-      type: "string",
-      description:
-        "Authentication token for HashiCorp Vault. Supports ${ENV_VAR} placeholders.",
-      example: "${VAULT_TOKEN}",
-    },
-  },
-  required: ["vaultUrl", "vaultToken"],
-} as const;
-
-export const KmsConfigDtoSchema = {
-  type: "object",
-  properties: {
-    defaultProvider: {
-      type: "string",
-      description:
-        'Name of the default KMS provider. Defaults to "db" if not set.',
-      example: "db",
-    },
-    providers: {
-      type: "object",
-      properties: {
-        db: {
-          $ref: "#/components/schemas/DbKmsConfigDto",
-        },
-        vault: {
-          $ref: "#/components/schemas/VaultKmsConfigDto",
-        },
-      },
-      required: [],
-    },
-  },
-  required: ["providers"],
-} as const;
-
 export const KmsProviderCapabilitiesDtoSchema = {
   type: "object",
   properties: {
@@ -3498,8 +3333,18 @@ export const KmsProviderInfoDtoSchema = {
   properties: {
     name: {
       type: "string",
-      description: "Unique provider name (matches the key in kms.json).",
-      example: "db",
+      description: "Unique provider ID (matches the id in kms.json).",
+      example: "main-vault",
+    },
+    type: {
+      type: "string",
+      description: "Type of the KMS provider (db, vault, aws-kms).",
+      example: "vault",
+    },
+    description: {
+      type: "string",
+      description: "Human-readable description of this provider instance.",
+      example: "Production HashiCorp Vault",
     },
     capabilities: {
       description: "Capabilities of this provider.",
@@ -3510,7 +3355,7 @@ export const KmsProviderInfoDtoSchema = {
       ],
     },
   },
-  required: ["name", "capabilities"],
+  required: ["name", "type", "capabilities"],
 } as const;
 
 export const KmsProvidersResponseDtoSchema = {
@@ -3532,23 +3377,260 @@ export const KmsProvidersResponseDtoSchema = {
   required: ["providers", "default"],
 } as const;
 
-export const KeyGenerateDtoSchema = {
+export const CertificateInfoDtoSchema = {
   type: "object",
   properties: {
+    pem: {
+      type: "string",
+      description: "Certificate in PEM format.",
+    },
+    subject: {
+      type: "string",
+      description: "Certificate subject (CN).",
+    },
+    issuer: {
+      type: "string",
+      description: "Certificate issuer (CN).",
+    },
+    notBefore: {
+      format: "date-time",
+      type: "string",
+      description: "Certificate not before date.",
+    },
+    notAfter: {
+      format: "date-time",
+      type: "string",
+      description: "Certificate not after date.",
+    },
+    serialNumber: {
+      type: "string",
+      description: "Serial number.",
+    },
+  },
+  required: ["pem"],
+} as const;
+
+export const PublicKeyInfoDtoSchema = {
+  type: "object",
+  properties: {
+    kty: {
+      type: "string",
+      description: "Key type (e.g., EC).",
+      example: "EC",
+    },
+    alg: {
+      type: "string",
+      description: "Key algorithm (e.g., ES256).",
+      example: "ES256",
+    },
+    kid: {
+      type: "string",
+      description: "Key ID.",
+    },
+    crv: {
+      type: "string",
+      description: "Curve (for EC keys).",
+      example: "P-256",
+    },
+  },
+  required: ["kty"],
+} as const;
+
+export const RotationPolicyResponseDtoSchema = {
+  type: "object",
+  properties: {
+    enabled: {
+      type: "boolean",
+      description: "Whether automatic key rotation is enabled.",
+    },
+    intervalDays: {
+      type: "number",
+      description: "Rotation interval in days.",
+    },
+    certValidityDays: {
+      type: "number",
+      description: "Certificate validity in days.",
+    },
+    nextRotationAt: {
+      format: "date-time",
+      type: "string",
+      description: "Next scheduled rotation date.",
+    },
+  },
+  required: ["enabled"],
+} as const;
+
+export const KeyChainResponseDtoSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description: "Unique identifier for the key chain.",
+    },
+    usageType: {
+      enum: ["access", "attestation", "trustList", "statusList", "encrypt"],
+      type: "string",
+      description: "Usage type of the key chain.",
+    },
+    type: {
+      enum: ["standalone", "internalChain"],
+      type: "string",
+      description: "Type of key chain (standalone or internalChain).",
+    },
+    description: {
+      type: "string",
+      description: "Human-readable description.",
+    },
+    kmsProvider: {
+      type: "string",
+      description: "KMS provider used for this key chain.",
+    },
+    rootCertificate: {
+      description: "Root CA certificate (only for internalChain type).",
+      allOf: [
+        {
+          $ref: "#/components/schemas/CertificateInfoDto",
+        },
+      ],
+    },
+    activePublicKey: {
+      description: "Active signing key's public key info.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/PublicKeyInfoDto",
+        },
+      ],
+    },
+    activeCertificate: {
+      description:
+        "Active signing key's certificate. Not present for encryption keys.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/CertificateInfoDto",
+        },
+      ],
+    },
+    previousPublicKey: {
+      description:
+        "Previous signing key's public key info (if in grace period).",
+      allOf: [
+        {
+          $ref: "#/components/schemas/PublicKeyInfoDto",
+        },
+      ],
+    },
+    previousCertificate: {
+      description: "Previous signing key's certificate (if in grace period).",
+      allOf: [
+        {
+          $ref: "#/components/schemas/CertificateInfoDto",
+        },
+      ],
+    },
+    previousKeyExpiry: {
+      format: "date-time",
+      type: "string",
+      description: "Previous key expiry date.",
+    },
+    rotationPolicy: {
+      description: "Rotation policy configuration.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/RotationPolicyResponseDto",
+        },
+      ],
+    },
+    createdAt: {
+      format: "date-time",
+      type: "string",
+      description: "Timestamp when the key chain was created.",
+    },
+    updatedAt: {
+      format: "date-time",
+      type: "string",
+      description: "Timestamp when the key chain was last updated.",
+    },
+  },
+  required: [
+    "id",
+    "usageType",
+    "type",
+    "kmsProvider",
+    "activePublicKey",
+    "rotationPolicy",
+    "createdAt",
+    "updatedAt",
+  ],
+} as const;
+
+export const RotationPolicyCreateDtoSchema = {
+  type: "object",
+  properties: {
+    enabled: {
+      type: "boolean",
+      description: "Whether automatic key rotation is enabled.",
+      default: false,
+    },
+    intervalDays: {
+      type: "number",
+      minimum: 1,
+      maximum: 3650,
+      description: "Rotation interval in days. Required when enabled is true.",
+      example: 90,
+    },
+    certValidityDays: {
+      type: "number",
+      minimum: 1,
+      maximum: 3650,
+      description:
+        "Certificate validity in days. Defaults to rotation interval + 30 days grace period.",
+      example: 365,
+    },
+  },
+  required: ["enabled"],
+} as const;
+
+export const KeyChainCreateDtoSchema = {
+  type: "object",
+  properties: {
+    usageType: {
+      enum: ["access", "attestation", "trustList", "statusList", "encrypt"],
+      type: "string",
+      description:
+        "Usage type determines the purpose of this key chain (access, attestation, etc.).",
+      example: "attestation",
+    },
+    type: {
+      enum: ["standalone", "internalChain"],
+      type: "string",
+      description: "Type of key chain to create.",
+      example: "internalChain",
+    },
+    description: {
+      type: "string",
+      description: "Human-readable description for the key chain.",
+      example: "Production credential signing key",
+    },
     kmsProvider: {
       type: "string",
       description:
         "KMS provider to use (defaults to the configured default provider).",
       example: "vault",
     },
-    description: {
-      type: "string",
-      description: "Optional human-readable description for the key.",
+    rotationPolicy: {
+      description:
+        "Rotation policy configuration. Only applicable for the signing key (root CA never rotates).",
+      allOf: [
+        {
+          $ref: "#/components/schemas/RotationPolicyCreateDto",
+        },
+      ],
     },
   },
+  required: ["usageType", "type"],
 } as const;
 
-export const KeySchema = {
+export const EcJwkSchema = {
   type: "object",
   properties: {
     kty: {
@@ -3569,58 +3651,97 @@ export const KeySchema = {
     alg: {
       type: "string",
     },
+    kid: {
+      type: "string",
+    },
   },
-  required: ["kty", "x", "y", "crv", "d", "alg"],
+  required: ["kty", "x", "y", "crv", "d"],
 } as const;
 
-export const KeyImportDtoSchema = {
+export const KeyChainImportDtoSchema = {
   type: "object",
   properties: {
-    kmsProvider: {
+    id: {
       type: "string",
       description:
-        "KMS provider name to use for this key. Defaults to the configured default.",
-      example: "db",
+        "ID for the key chain. If not provided, a new UUID will be generated.",
     },
     key: {
       description: "The private key in JWK format.",
       allOf: [
         {
-          $ref: "#/components/schemas/Key",
+          $ref: "#/components/schemas/EcJwk",
         },
       ],
     },
-    id: {
-      type: "string",
-      description: "Unique identifier for the key.",
-    },
     description: {
       type: "string",
-      description: "Description of the key.",
+      description: "Human-readable description.",
     },
-  },
-  required: ["key", "id"],
-} as const;
-
-export const UpdateKeyDtoSchema = {
-  type: "object",
-  properties: {
+    usageType: {
+      enum: ["access", "attestation", "trustList", "statusList", "encrypt"],
+      type: "string",
+      description: "Usage type for this key chain.",
+    },
+    crt: {
+      description:
+        "Certificate chain in PEM format (leaf first, then intermediates/CA).",
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
     kmsProvider: {
       type: "string",
-      description:
-        "KMS provider name to use for this key. Defaults to the configured default.",
-      example: "db",
-    },
-    id: {
-      type: "string",
-      description: "Unique identifier for the key.",
-    },
-    description: {
-      type: "string",
-      description: "Description of the key.",
+      description: "KMS provider to use. Defaults to 'db'.",
     },
   },
-  required: ["id"],
+  required: ["key", "usageType"],
+} as const;
+
+export const RotationPolicyUpdateDtoSchema = {
+  type: "object",
+  properties: {
+    enabled: {
+      type: "boolean",
+      description: "Whether automatic key rotation is enabled.",
+    },
+    intervalDays: {
+      type: "number",
+      minimum: 1,
+      maximum: 3650,
+      description: "Rotation interval in days.",
+    },
+    certValidityDays: {
+      type: "number",
+      minimum: 1,
+      maximum: 3650,
+      description: "Certificate validity in days.",
+    },
+  },
+} as const;
+
+export const KeyChainUpdateDtoSchema = {
+  type: "object",
+  properties: {
+    description: {
+      type: "string",
+      description: "Human-readable description for the key chain.",
+    },
+    rotationPolicy: {
+      description: "Rotation policy configuration.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/RotationPolicyUpdateDto",
+        },
+      ],
+    },
+    activeCertificate: {
+      type: "string",
+      description:
+        "Active certificate chain in PEM format. Used for external certificate updates.",
+    },
+  },
 } as const;
 
 export const PresentationRequestSchema = {

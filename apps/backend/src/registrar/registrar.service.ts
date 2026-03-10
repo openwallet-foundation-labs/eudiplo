@@ -12,10 +12,8 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
 import { Repository } from "typeorm";
 import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
-import { CryptoService } from "../crypto/crypto.service";
 import { CertService } from "../crypto/key/cert/cert.service";
-import { CertUsage } from "../crypto/key/entities/cert-usage.entity";
-import { KeyService } from "../crypto/key/key.service";
+import { KeyChainService } from "../crypto/key/key-chain.service";
 import {
     ConfigImportOrchestratorService,
     ImportPhase,
@@ -59,12 +57,11 @@ export class RegistrarService {
 
     constructor(
         private readonly configService: ConfigService,
-        private readonly cryptoService: CryptoService,
         configImportOrchestrator: ConfigImportOrchestratorService,
         @InjectRepository(RegistrarConfigEntity)
         private readonly configRepository: Repository<RegistrarConfigEntity>,
         private readonly certService: CertService,
-        private readonly keyService: KeyService,
+        private readonly keyChainService: KeyChainService,
     ) {
         // Register for config import at CORE phase (same as certificates)
         configImportOrchestrator.register(
@@ -406,7 +403,7 @@ export class RegistrarService {
             this.configService.getOrThrow<string>("PUBLIC_URL"),
         ).hostname;
 
-        const publicKey = await this.keyService.getPublicKey(
+        const publicKey = await this.keyChainService.getPublicKey(
             "pem",
             tenantId,
             dto.keyId,
@@ -437,7 +434,6 @@ export class RegistrarService {
         const certId = await this.certService.addCertificate(tenantId, {
             crt: [crt],
             keyId: dto.keyId,
-            certUsageTypes: [CertUsage.Access],
             description: `Access certificate from registrar (ID: ${id})`,
         });
 
