@@ -133,17 +133,17 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1
       '@openid4vc/oauth2':
-        specifier: 0.5.0-alpha-20260224112536
-        version: 0.5.0-alpha-20260224112536
+        specifier: 0.5.0-alpha-20260309092538
+        version: 0.5.0-alpha-20260309092538
       '@openid4vc/openid4vci':
-        specifier: 0.5.0-alpha-20260224112536
-        version: 0.5.0-alpha-20260224112536
+        specifier: 0.5.0-alpha-20260309092538
+        version: 0.5.0-alpha-20260309092538
       '@openid4vc/openid4vp':
-        specifier: 0.5.0-alpha-20260224112536
-        version: 0.5.0-alpha-20260224112536
+        specifier: 0.5.0-alpha-20260309092538
+        version: 0.5.0-alpha-20260309092538
       '@openid4vc/utils':
-        specifier: 0.5.0-alpha-20260224112536
-        version: 0.5.0-alpha-20260224112536
+        specifier: 0.5.0-alpha-20260309092538
+        version: 0.5.0-alpha-20260309092538
       '@panva/hkdf':
         specifier: ^1.2.1
         version: 1.2.1
@@ -3046,17 +3046,17 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  '@openid4vc/oauth2@0.5.0-alpha-20260224112536':
-    resolution: {integrity: sha512-X3Zv1d05NndOSlHDgdAKLCgq7PsOprG12xHy1TGizlbi2YoxzLYRECSjRSzRdB9mNmAGtivO3CqDyuh2wCuU7w==}
+  '@openid4vc/oauth2@0.5.0-alpha-20260309092538':
+    resolution: {integrity: sha512-fdHwUQATVGgQqj+fGxfLQoFC9AAniAL7KMKgiKF2g2GFNARCYyBOgqS82RE6UJggKgJpDdB1kkCAT7ekeEDt/Q==}
 
-  '@openid4vc/openid4vci@0.5.0-alpha-20260224112536':
-    resolution: {integrity: sha512-rluWwykEtbX/15PvOPBbdN++vttowsf91SaN1F5zGCfN8LrbZtiz579bPkApCPFc+kGs10RufxKkFPKFOUTdrg==}
+  '@openid4vc/openid4vci@0.5.0-alpha-20260309092538':
+    resolution: {integrity: sha512-XbMW2mQk/7w822mtijYMD3Ny8CItIrfwwnay6Khjq8/sor/0bFe11iOb4n6PDs8pBmYSP/sN9h27GiK6eG9yTw==}
 
-  '@openid4vc/openid4vp@0.5.0-alpha-20260224112536':
-    resolution: {integrity: sha512-bhE8IogbZUil/tm1XFwjSTEaTqYKWvq+frgTIQmGx0MrPLiKELbsQESt90ODEDLb668aoMZdw1k7u2Dr4fAlMw==}
+  '@openid4vc/openid4vp@0.5.0-alpha-20260309092538':
+    resolution: {integrity: sha512-arwCCXaVTmcPgxZ9wE8fcvEc8I3W7DTf5QhJAsvP0Rqnf5hi+RAYlXAMqvY8ddVIKkdp3cFD6xatX1xmFC4pFw==}
 
-  '@openid4vc/utils@0.5.0-alpha-20260224112536':
-    resolution: {integrity: sha512-HzCnsRsSFs7/RaHP3MX7CkvOy2ojphlhIcGl3aWn1+Wqo8nRiUkjvwVbcbsbc7NNi6P7/EbxkHS+I8IMVxiEBQ==}
+  '@openid4vc/utils@0.5.0-alpha-20260309092538':
+    resolution: {integrity: sha512-CkMpSerdMeiVM/va+C4HZf+KGpUT5FqjihB3voWSzPqLAdVoiGnVnjOCKGrrF7cJGI2Z0AAtqUF/SBA37xj7Gw==}
 
   '@opentelemetry/api@1.9.0':
     resolution: {integrity: sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==}
@@ -13092,24 +13092,24 @@ snapshots:
       openapi-typescript: 5.4.2
       yargs: 17.7.2
 
-  '@openid4vc/oauth2@0.5.0-alpha-20260224112536':
+  '@openid4vc/oauth2@0.5.0-alpha-20260309092538':
     dependencies:
-      '@openid4vc/utils': 0.5.0-alpha-20260224112536
+      '@openid4vc/utils': 0.5.0-alpha-20260309092538
       zod: 4.3.6
 
-  '@openid4vc/openid4vci@0.5.0-alpha-20260224112536':
+  '@openid4vc/openid4vci@0.5.0-alpha-20260309092538':
     dependencies:
-      '@openid4vc/oauth2': 0.5.0-alpha-20260224112536
-      '@openid4vc/utils': 0.5.0-alpha-20260224112536
+      '@openid4vc/oauth2': 0.5.0-alpha-20260309092538
+      '@openid4vc/utils': 0.5.0-alpha-20260309092538
       zod: 4.3.6
 
-  '@openid4vc/openid4vp@0.5.0-alpha-20260224112536':
+  '@openid4vc/openid4vp@0.5.0-alpha-20260309092538':
     dependencies:
-      '@openid4vc/oauth2': 0.5.0-alpha-20260224112536
-      '@openid4vc/utils': 0.5.0-alpha-20260224112536
+      '@openid4vc/oauth2': 0.5.0-alpha-20260309092538
+      '@openid4vc/utils': 0.5.0-alpha-20260309092538
       zod: 4.3.6
 
-  '@openid4vc/utils@0.5.0-alpha-20260224112536':
+  '@openid4vc/utils@0.5.0-alpha-20260309092538':
     dependencies:
       buffer: 6.0.3
       zod: 4.3.6
