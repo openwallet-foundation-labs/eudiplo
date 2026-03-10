@@ -8,7 +8,7 @@ import {
     UpdateDateColumn,
 } from "typeorm";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
-import { CertEntity } from "../../../crypto/key/entities/cert.entity";
+import { KeyChainEntity } from "../../../crypto/key/entities/key-chain.entity";
 import type { TrustListEntity } from "../dto/trust-list-create.dto";
 
 /**
@@ -25,7 +25,7 @@ export class TrustList {
 
     @IsString()
     @IsOptional()
-    @Column("varchar")
+    @Column("varchar", { nullable: true })
     description?: string;
 
     /**
@@ -41,17 +41,17 @@ export class TrustList {
     tenant!: TenantEntity;
 
     @Column("varchar")
-    certId: string;
+    keyChainId: string;
 
-    @ManyToOne(() => CertEntity, {
+    @ManyToOne(() => KeyChainEntity, {
         cascade: true,
         onDelete: "CASCADE",
     })
     @JoinColumn([
-        { name: "certId", referencedColumnName: "id" },
+        { name: "keyChainId", referencedColumnName: "id" },
         { name: "tenantId", referencedColumnName: "tenantId" },
     ])
-    cert!: CertEntity;
+    keyChain!: KeyChainEntity;
 
     /**
      * The full trust list JSON (generated LoTE structure)

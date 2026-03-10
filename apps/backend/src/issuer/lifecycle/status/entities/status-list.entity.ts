@@ -1,4 +1,5 @@
 import { BitsPerStatus } from "@sd-jwt/jwt-status-list";
+import { IsOptional, IsString } from "class-validator";
 import { Column, CreateDateColumn, Entity, ManyToOne } from "typeorm";
 import { TenantEntity } from "../../../../auth/tenant/entitites/tenant.entity";
 
@@ -13,6 +14,11 @@ export class StatusListEntity {
      */
     @Column("varchar", { primary: true })
     id!: string;
+
+    @IsString()
+    @IsOptional()
+    @Column("varchar", { nullable: true })
+    description?: string;
 
     /**
      * The ID of the tenant to which the status list belongs.
@@ -34,11 +40,11 @@ export class StatusListEntity {
     credentialConfigurationId?: string | null;
 
     /**
-     * Optional certificate ID to use for signing this status list's JWT.
-     * If null, uses the tenant's default StatusList certificate.
+     * Optional key chain ID to use for signing this status list's JWT.
+     * If null, uses the tenant's default StatusList key chain.
      */
     @Column("varchar", { nullable: true })
-    certId?: string | null;
+    keyChainId?: string | null;
 
     /**
      * The elements of the status list.

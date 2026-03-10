@@ -20,5 +20,6 @@
       "type": "string",
       "default": "full"
     }
-  }
+  },
+  "additionalProperties": false
 }

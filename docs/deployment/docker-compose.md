@@ -68,7 +68,8 @@ docker compose down
 ```
 
 !!! warning "Ephemeral Storage"
-This deployment uses default in-memory storage. **All data is lost when containers stop.** Use Minimal or Full deployment for persistent storage.
+
+    This deployment uses default in-memory storage. **All data is lost when containers stop.** Use Minimal or Full deployment for persistent storage.
 
 ## Minimal Deployment
 
@@ -232,7 +233,8 @@ LOG_LEVEL=info
 ```
 
 !!! danger "Security Warning"
-**Never use default credentials in production!** Change all passwords, tokens, and secrets before deploying.
+
+    **Never use default credentials in production!** Change all passwords, tokens, and secrets before deploying.
 
 ### Deploy
 
@@ -494,10 +496,12 @@ The client container supports the following environment variables:
 | `CLIENT_BASE_HREF` | HTML base href (`<base href="..." />`). Useful for reverse proxy setups where the client is served from a subpath. For example, if the client is served from `https://example.com/eudiplo-client/`, set `CLIENT_BASE_HREF=/eudiplo-client/`. | `/`     |
 
 !!! note "Base Href Normalization"
-The `CLIENT_BASE_HREF` value is automatically normalized to ensure it starts and ends with `/`. For example, `eudiplo-client` becomes `/eudiplo-client/`.
+
+    The `CLIENT_BASE_HREF` value is automatically normalized to ensure it starts and ends with `/`. For example, `eudiplo-client` becomes `/eudiplo-client/`.
 
 !!! tip "Reverse Proxy Setup Required"
-Setting `CLIENT_BASE_HREF` alone is not enough — the reverse proxy must also be configured to forward the subpath to the client container. See [Serving the Client from a Subpath](../deployment/tls.md#serving-the-client-from-a-subpath) for complete Nginx and Traefik examples.
+
+    Setting `CLIENT_BASE_HREF` alone is not enough — the reverse proxy must also be configured to forward the subpath to the client container. See [Serving the Client from a Subpath](../deployment/tls.md#serving-the-client-from-a-subpath) for complete Nginx and Traefik examples.
 
 ```yaml
 services:
@@ -706,7 +710,8 @@ secrets:
 ```
 
 !!! note "File-based Secrets"
-Docker Secrets are mounted as files at `/run/secrets/<secret_name>`. The application reads secret values from these files at startup.
+
+    Docker Secrets are mounted as files at `/run/secrets/<secret_name>`. The application reads secret values from these files at startup.
 
 #### Option 2: Vault Agent Sidecar
 
@@ -799,7 +804,8 @@ For production with HA requirements, use:
 ### Vault Production Setup
 
 !!! danger "Vault Dev Mode"
-The full deployment uses Vault in **dev mode**, which is **NOT production-safe**. Data is ephemeral and unsealing is automatic.
+
+    The full deployment uses Vault in **dev mode**, which is **NOT production-safe**. Data is ephemeral and unsealing is automatic.
 
 For production Vault:
 

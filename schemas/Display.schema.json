@@ -30,5 +30,6 @@
     "name",
     "description",
     "locale"
-  ]
+  ],
+  "additionalProperties": false
 }

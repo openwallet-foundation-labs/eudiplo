@@ -19,7 +19,8 @@ Before you start, make sure you have the following tools installed:
 - [Docker](https://www.docker.com/) (optional, for supporting services or containerized deployment)
 
 !!! tip "No Node.js installation required"
-If you can't or prefer not to install Node.js locally, you can use **Dev Containers** to develop entirely inside a Docker container. See [Dev Container Setup](#dev-container-setup) below.
+
+    If you can't or prefer not to install Node.js locally, you can use **Dev Containers** to develop entirely inside a Docker container. See [Dev Container Setup](#dev-container-setup) below.
 
 ## 1. Clone the Repository
 

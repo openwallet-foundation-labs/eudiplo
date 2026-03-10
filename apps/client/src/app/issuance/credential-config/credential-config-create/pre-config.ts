@@ -79,7 +79,7 @@ export const configs: PredefinedConfig[] = [
         description: 'PID credential',
       },
       keyBinding: true,
-      certId: '139af178-3ca0-48f4-a2e4-7b1209f30374',
+      keyChainId: '139af178-3ca0-48f4-a2e4-7b1209f30374',
       statusManagement: true,
       lifeTime: 604800,
       schema: {

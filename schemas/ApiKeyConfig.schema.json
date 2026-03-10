@@ -16,5 +16,6 @@
   "required": [
     "headerName",
     "value"
-  ]
+  ],
+  "additionalProperties": false
 }

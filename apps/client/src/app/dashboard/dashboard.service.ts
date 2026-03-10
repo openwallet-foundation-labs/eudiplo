@@ -3,9 +3,8 @@ import {
   credentialConfigControllerGetConfigs,
   presentationManagementControllerConfiguration,
   sessionControllerGetAllSessions,
-  keyControllerGetKeys,
+  keyChainControllerGetAll,
   issuanceConfigControllerGetIssuanceConfigurations,
-  certControllerGetCertificates,
 } from '@eudiplo/sdk-core';
 import { JwtService } from '../services/jwt.service';
 
@@ -17,8 +16,7 @@ export interface DashboardStats {
   sessionFetched: number;
   sessionFailed: number;
   sessionExpired: number;
-  totalKeys: number;
-  totalCertificates: number;
+  totalKeyChains: number;
   hasIssuanceConfig: boolean;
   isLoading: boolean;
 }
@@ -34,8 +32,7 @@ export class DashboardService {
   sessionFetched = 0;
   sessionFailed = 0;
   sessionExpired = 0;
-  totalKeys = 0;
-  totalCertificates = 0;
+  totalKeyChains = 0;
   hasIssuanceConfig = false;
   isLoading = true;
 
@@ -55,16 +52,14 @@ export class DashboardService {
       const promises: Promise<any>[] = [];
       const promiseKeys: string[] = [];
 
-      // Keys and certs require issuance:manage OR presentation:manage
-      const canManageKeysAndCerts =
+      // Key chains require issuance:manage OR presentation:manage
+      const canManageKeyChains =
         this.jwtService.hasRole('issuance:manage') ||
         this.jwtService.hasRole('presentation:manage');
 
-      if (canManageKeysAndCerts) {
-        promises.push(keyControllerGetKeys());
-        promiseKeys.push('keys');
-        promises.push(certControllerGetCertificates());
-        promiseKeys.push('certs');
+      if (canManageKeyChains) {
+        promises.push(keyChainControllerGetAll());
+        promiseKeys.push('keyChains');
       }
 
       // Credential configs require issuance:manage
@@ -124,11 +119,8 @@ export class DashboardService {
                 }
               });
               break;
-            case 'keys':
-              this.totalKeys = result.value.data.length;
-              break;
-            case 'certs':
-              this.totalCertificates = result.value.data.length;
+            case 'keyChains':
+              this.totalKeyChains = result.value.data.length;
               break;
             case 'issuance':
               this.hasIssuanceConfig = !!result.value.data;
@@ -144,7 +136,7 @@ export class DashboardService {
   }
 
   // Role-based visibility helpers
-  get canManageKeysAndCerts(): boolean {
+  get canManageKeyChains(): boolean {
     return (
       this.jwtService.hasRole('issuance:manage') || this.jwtService.hasRole('presentation:manage')
     );
@@ -164,12 +156,12 @@ export class DashboardService {
     );
   }
 
-  // Prerequisites check - only relevant if user can manage keys/certs
+  // Prerequisites check - only relevant if user can manage key chains
   get hasPrerequisites(): boolean {
-    if (!this.canManageKeysAndCerts) {
+    if (!this.canManageKeyChains) {
       return true; // Not relevant for this user
     }
-    return this.totalKeys > 0 && this.totalCertificates > 0;
+    return this.totalKeyChains > 0;
   }
 
   // Issuance readiness
@@ -199,16 +191,15 @@ export class DashboardService {
   }
 
   get setupProgress(): number {
-    const totalSteps = 4; // key, cert, (issuance OR presentation)
+    const totalSteps = 3; // keyChain, (issuance OR presentation)
     let completedSteps = 0;
 
-    if (this.totalKeys > 0) completedSteps++;
-    if (this.totalCertificates > 0) completedSteps++;
+    if (this.totalKeyChains > 0) completedSteps++;
     if (this.hasIssuanceConfig && this.credentialConfigs > 0) completedSteps++;
     if (this.presentationConfigs > 0) completedSteps++;
 
     // Max is 100% when at least one path is complete
-    const maxSteps = this.totalKeys > 0 && this.totalCertificates > 0 ? 4 : 2;
+    const maxSteps = this.totalKeyChains > 0 ? 3 : 1;
     return Math.round((completedSteps / Math.min(totalSteps, maxSteps)) * 100);
   }
 }

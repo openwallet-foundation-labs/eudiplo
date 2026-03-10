@@ -38,5 +38,6 @@
   "required": [
     "type",
     "url"
-  ]
+  ],
+  "additionalProperties": false
 }

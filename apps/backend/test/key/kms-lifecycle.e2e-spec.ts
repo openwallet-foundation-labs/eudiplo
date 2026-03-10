@@ -4,13 +4,15 @@ import { Test, TestingModule } from "@nestjs/testing";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module";
+import { KeyChainType } from "../../src/crypto/key/dto/key-chain-create.dto";
 import { getToken } from "../utils";
 
-describe("Key — KMS provider lifecycle (e2e)", () => {
+describe("Key Chain — KMS provider lifecycle (e2e)", () => {
     let app: INestApplication;
     let authToken: string;
     let availableProviders: {
         name: string;
+        type: string;
         capabilities: {
             canImport: boolean;
             canCreate: boolean;
@@ -34,7 +36,7 @@ describe("Key — KMS provider lifecycle (e2e)", () => {
         authToken = await getToken(app, clientId, clientSecret);
 
         const res = await request(app.getHttpServer())
-            .get("/key/providers")
+            .get("/key-chain/providers")
             .set("Authorization", `Bearer ${authToken}`)
             .expect(200);
 
@@ -52,7 +54,7 @@ describe("Key — KMS provider lifecycle (e2e)", () => {
     test.each([
         "db",
         "vault",
-    ])("%s — full key lifecycle (generate → get → public key → delete)", async (providerName) => {
+    ])("%s — full key chain lifecycle (create → get → list → delete)", async (providerName) => {
         const provider = availableProviders.find(
             (p) => p.name === providerName,
         );
@@ -69,50 +71,52 @@ describe("Key — KMS provider lifecycle (e2e)", () => {
             return;
         }
 
-        // 1. Generate a key
-        const generateRes = await request(app.getHttpServer())
-            .post("/key/generate")
+        // 1. Create a key chain
+        const createRes = await request(app.getHttpServer())
+            .post("/key-chain")
             .set("Authorization", `Bearer ${authToken}`)
             .send({
+                type: KeyChainType.Standalone,
+                usageType: "access",
                 kmsProvider: providerName,
-                description: `e2e test key (${providerName})`,
+                description: `e2e test key chain (${providerName})`,
             })
             .expect(201);
 
-        const keyId = generateRes.body.id;
-        expect(keyId).toBeDefined();
-        expect(typeof keyId).toBe("string");
+        const keyChainId = createRes.body.id;
+        expect(keyChainId).toBeDefined();
+        expect(typeof keyChainId).toBe("string");
 
-        // 2. Retrieve the key by ID
+        // 2. Retrieve the key chain by ID
         const getRes = await request(app.getHttpServer())
-            .get(`/key/${keyId}`)
+            .get(`/key-chain/${keyChainId}`)
             .set("Authorization", `Bearer ${authToken}`)
             .expect(200);
 
-        expect(getRes.body.id).toBe(keyId);
+        expect(getRes.body.id).toBe(keyChainId);
         expect(getRes.body.kmsProvider).toBe(providerName);
 
-        // 3. Key should appear in the list
+        // 3. Key chain should appear in the list
         const listRes = await request(app.getHttpServer())
-            .get("/key")
+            .get("/key-chain")
             .set("Authorization", `Bearer ${authToken}`)
             .expect(200);
 
-        const listed = listRes.body.find((k: any) => k.id === keyId);
+        const listed = listRes.body.find((k: any) => k.id === keyChainId);
         expect(listed).toBeDefined();
 
-        // 4. Delete the key
+        // 4. Delete the key chain
         if (provider.capabilities.canDelete) {
             await request(app.getHttpServer())
-                .delete(`/key/${keyId}`)
+                .delete(`/key-chain/${keyChainId}`)
                 .set("Authorization", `Bearer ${authToken}`)
                 .expect(200);
 
             // Verify it's gone
             await request(app.getHttpServer())
-                .get(`/key/${keyId}`)
+                .get(`/key-chain/${keyChainId}`)
                 .set("Authorization", `Bearer ${authToken}`)
-                .expect(500); // findOneOrFail throws EntityNotFoundError
+                .expect(404);
         }
     });
 });

@@ -20,5 +20,6 @@
   "required": [
     "format",
     "data"
-  ]
+  ],
+  "additionalProperties": false
 }
