@@ -130,7 +130,6 @@ nav:
       - TLS/HTTPS: deployment/tls.md
   - Migration:
       - Overview: migration/index.md
-      - Migrating to v4.0: migration/v4.0.md
   - Architecture:
       - Overview: architecture/index.md      
       - Supported Protocols: architecture/supported-protocols.md
