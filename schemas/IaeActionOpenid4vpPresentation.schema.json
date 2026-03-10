@@ -26,5 +26,6 @@
   "required": [
     "type",
     "presentationConfigId"
-  ]
+  ],
+  "additionalProperties": false
 }

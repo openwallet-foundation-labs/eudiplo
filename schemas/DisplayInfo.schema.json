@@ -13,5 +13,6 @@
     "logo": {
       "$ref": "./DisplayLogo.schema.json"
     }
-  }
+  },
+  "additionalProperties": false
 }

@@ -15,5 +15,6 @@
   },
   "required": [
     "name"
-  ]
+  ],
+  "additionalProperties": false
 }

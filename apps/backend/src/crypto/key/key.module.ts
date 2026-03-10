@@ -6,12 +6,10 @@ import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
 import { CertService } from "./cert/cert.service";
 import { CrlValidationService } from "./cert/crl-validation.service";
 import { CryptoImplementatationModule } from "./crypto-implementation/crypto-implementation.module";
-import { CertEntity } from "./entities/cert.entity";
-import { CertUsageEntity } from "./entities/cert-usage.entity";
-import { KeyEntity } from "./entities/keys.entity";
-import { KeyController } from "./key.controller";
-import { KeyService } from "./key.service";
-import { KmsRegistry } from "./kms-registry.service";
+import { KeyChainEntity } from "./entities/key-chain.entity";
+import { KeyChainController } from "./key-chain.controller";
+import { KeyChainService } from "./key-chain.service";
+import { KeyRotationService } from "./key-rotation.service";
 
 @Global()
 export class KeyModule {
@@ -22,26 +20,16 @@ export class KeyModule {
                 HttpModule,
                 ConfigModule,
                 CryptoImplementatationModule,
-                TypeOrmModule.forFeature([
-                    CertEntity,
-                    CertUsageEntity,
-                    KeyEntity,
-                    TenantEntity,
-                ]),
+                TypeOrmModule.forFeature([KeyChainEntity, TenantEntity]),
             ],
-            controllers: [KeyController],
+            controllers: [KeyChainController],
             providers: [
-                KmsRegistry,
-                KeyService,
+                KeyChainService,
+                KeyRotationService,
                 CertService,
                 CrlValidationService,
             ],
-            exports: [
-                KeyService,
-                KmsRegistry,
-                CertService,
-                CrlValidationService,
-            ],
+            exports: [KeyChainService, CertService, CrlValidationService],
         };
     }
 }

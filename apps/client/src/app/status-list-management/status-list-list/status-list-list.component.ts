@@ -42,7 +42,7 @@ export class StatusListListComponent implements OnInit, AfterViewInit {
   displayedColumns = [
     'id',
     'credentialConfigurationId',
-    'certId',
+    'keyChainId',
     'bits',
     'usage',
     'expiresAt',

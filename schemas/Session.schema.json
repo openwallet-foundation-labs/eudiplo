@@ -163,5 +163,6 @@
     "tenantId",
     "tenant",
     "notifications"
-  ]
+  ],
+  "additionalProperties": false
 }

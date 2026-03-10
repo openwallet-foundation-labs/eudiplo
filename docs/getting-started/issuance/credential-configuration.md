@@ -39,7 +39,7 @@ For a complete configuration example, see the [Complete Configuration Example](#
   [VC Type Metadata](https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-09.html#name-sd-jwt-vc-type-metadata)
   provided via the `/{tenantId}/credentials-metadata/vct/{id}` endpoint. This link will
   automatically added into the credential.
-- `certId`: **OPTIONAL** - Unique identifier for the certificate used to sign the credential. If not provided, the certificate in for the signing usage will be used. See [Signing Certificate](#signing-certificate) for details.
+- `keyChainId`: **OPTIONAL** - Unique identifier for the key chain used to sign the credential. If not provided, the key chain with `attestation` usage type will be used. See [Signing Key Chain](#signing-key-chain) for details.
 - `lifeTime`: **OPTIONAL** - Credential expiration time in seconds. If
   specified, credentials will include an `exp` claim calculated as
   `iat + lifeTime`. See [Credential Expiration](#credential-expiration) for details.
@@ -269,10 +269,12 @@ For credentials that require claims from multiple namespaces, use `claimsByNames
 ```
 
 !!! note "Key Binding Required"
-For mDOC credentials, `keyBinding` should typically be set to `true` as the ISO 18013-5 standard requires device authentication.
+
+    For mDOC credentials, `keyBinding` should typically be set to `true` as the ISO 18013-5 standard requires device authentication.
 
 !!! info "Selective Disclosure"
-Unlike SD-JWT, mDOC credentials have built-in selective disclosure at the namespace and claim level. The `disclosureFrame` field is not used for mDOC format.
+
+    Unlike SD-JWT, mDOC credentials have built-in selective disclosure at the namespace and claim level. The `disclosureFrame` field is not used for mDOC format.
 
 ---
 
@@ -316,23 +318,28 @@ The display configuration defines how the credential appears in wallets as defin
 
 ---
 
-## Signing Certificate
+## Signing Key Chain
 
-The signing certificate is used to create the digital signature for the credential. It is essential for ensuring the integrity and authenticity of the credential. If none is provided, the first certificate in the certificate set will be used. The matching certificate will be included in the `x5c` field of the issued credential.
+The signing key chain is used to create the digital signature for the credential. It contains both the private key and its associated certificate. The certificate is included in the `x5c` field of the issued credential to allow verifiers to validate the signature.
+
+If no key chain is specified, the default key chain with `attestation` usage type will be used.
 
 ### Configuration
 
 ```json
 {
-    "certId": "signing-cert-1"
+    "keyChainId": "attestation-key-chain-1"
 }
 ```
 
-You can either generate a self signed certificate via the api or import your own certificate.
+You can either generate key chains via the API or import them during startup. Key chains support:
+
+- **Standalone mode**: Self-signed certificate (suitable for development/testing)
+- **Internal CA mode**: CA-signed leaf certificate (satisfies HAIP section 4.5.1)
 
 !!! note
 
-    Certificates can be managed through the `/certificates` API endpoint.
+    Key chains can be managed through the `/key-chain` API endpoint. See [Key Management](../../architecture/key-management.md) for details.
 
 ---
 
@@ -620,7 +627,7 @@ Here's a complete example of a credential configuration (PID - Personal Identity
 This example includes:
 
 - **Required fields**: `id`, `config` with format and display information
-- **Optional fields**: `description`, `vct`, `keyId`, `lifeTime`, `statusManagement`, `keyBinding`
+- **Optional fields**: `description`, `vct`, `keyChainId`, `lifeTime`, `statusManagement`, `keyBinding`
 - **Claims**: Static claims that will be included in every issued credential
 - **Selective disclosure**: `disclosureFrame` defining which claims can be selectively disclosed
 - **Display configuration**: How the credential appears in wallets, including colors, logos, and images

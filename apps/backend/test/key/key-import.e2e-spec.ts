@@ -5,10 +5,11 @@ import request from "supertest";
 import { v4 } from "uuid";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module";
-import { KeyImportDto } from "../../src/crypto/key/dto/key-import.dto";
+import { KeyChainImportDto } from "../../src/crypto/key/dto/key-chain-import.dto";
+import { KeyUsageType } from "../../src/crypto/key/entities/key-chain.entity";
 import { getToken } from "../utils";
 
-describe("Key — Import (e2e)", () => {
+describe("Key Chain — Import (e2e)", () => {
     let app: INestApplication;
     let authToken: string;
 
@@ -32,36 +33,39 @@ describe("Key — Import (e2e)", () => {
         await app.close();
     });
 
-    test("add a new key", async () => {
+    test("import a new key chain", async () => {
+        const keyId = v4();
         const privateKey = {
             kty: "EC",
             x: "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
             y: "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
             crv: "P-256",
             d: "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
-            kid: v4(),
+            kid: keyId,
             alg: "ES256",
         };
 
-        const payload: KeyImportDto = {
-            id: privateKey.kid,
+        const payload: KeyChainImportDto = {
+            id: keyId,
             key: privateKey,
+            usageType: KeyUsageType.Attestation,
+            description: "Test key chain",
         };
         const creationResponse = await request(app.getHttpServer())
-            .post("/key")
+            .post("/key-chain/import")
             .set("Authorization", `Bearer ${authToken}`)
             .send(payload)
             .expect(201);
 
-        expect(creationResponse.body.id).toBe(privateKey.kid);
+        expect(creationResponse.body.id).toBe(keyId);
 
         const getResponse = await request(app.getHttpServer())
-            .get("/key")
+            .get("/key-chain")
             .set("Authorization", `Bearer ${authToken}`)
             .expect(200);
-        const foundKey = getResponse.body.find(
-            (key) => key.id === privateKey.kid,
+        const foundKeyChain = getResponse.body.find(
+            (keyChain) => keyChain.id === keyId,
         );
-        expect(foundKey).toBeDefined();
+        expect(foundKeyChain).toBeDefined();
     });
 });

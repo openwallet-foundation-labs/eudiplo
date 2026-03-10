@@ -8,11 +8,12 @@ import request from "supertest";
 import { GenericContainer, StartedTestContainer, Wait } from "testcontainers";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module";
+import { KeyChainType } from "../../src/crypto/key/dto/key-chain-create.dto";
 import { getToken } from "../utils";
 
 const VAULT_DEV_ROOT_TOKEN = "test-root-token";
 
-describe("Key — Vault KMS (e2e)", () => {
+describe("Key Chain — Vault KMS (e2e)", () => {
     let vaultContainer: StartedTestContainer;
     let app: INestApplication;
     let authToken: string;
@@ -41,13 +42,15 @@ describe("Key — Vault KMS (e2e)", () => {
             join(tmpConfigDir, "kms.json"),
             JSON.stringify({
                 defaultProvider: "vault",
-                providers: {
-                    db: {},
-                    vault: {
+                providers: [
+                    { id: "db", type: "db" },
+                    {
+                        id: "vault",
+                        type: "vault",
                         vaultUrl,
                         vaultToken: VAULT_DEV_ROOT_TOKEN,
                     },
-                },
+                ],
             }),
         );
 
@@ -80,7 +83,7 @@ describe("Key — Vault KMS (e2e)", () => {
 
     test("vault provider is available", async () => {
         const res = await request(app.getHttpServer())
-            .get("/key/providers")
+            .get("/key-chain/providers")
             .set("Authorization", `Bearer ${authToken}`)
             .expect(200);
 
@@ -89,56 +92,64 @@ describe("Key — Vault KMS (e2e)", () => {
         expect(vault.capabilities.canCreate).toBe(true);
     });
 
-    test("generate → get → delete (vault)", async () => {
-        // Generate
-        const generateRes = await request(app.getHttpServer())
-            .post("/key/generate")
+    test("create → get → delete (vault)", async () => {
+        // Create key chain
+        const createRes = await request(app.getHttpServer())
+            .post("/key-chain")
             .set("Authorization", `Bearer ${authToken}`)
             .send({
+                type: KeyChainType.Standalone,
+                usageType: "access",
                 kmsProvider: "vault",
-                description: "vault e2e test key",
+                description: "vault e2e test key chain",
             })
             .expect(201);
 
-        const keyId = generateRes.body.id;
-        expect(keyId).toBeDefined();
+        const keyChainId = createRes.body.id;
+        expect(keyChainId).toBeDefined();
 
         // Get by ID
         const getRes = await request(app.getHttpServer())
-            .get(`/key/${keyId}`)
+            .get(`/key-chain/${keyChainId}`)
             .set("Authorization", `Bearer ${authToken}`)
             .expect(200);
 
-        expect(getRes.body.id).toBe(keyId);
+        expect(getRes.body.id).toBe(keyChainId);
         expect(getRes.body.kmsProvider).toBe("vault");
 
-        // List — key should be present
+        // List — key chain should be present
         const listRes = await request(app.getHttpServer())
-            .get("/key")
+            .get("/key-chain")
             .set("Authorization", `Bearer ${authToken}`)
             .expect(200);
 
-        expect(listRes.body.find((k: any) => k.id === keyId)).toBeDefined();
+        expect(
+            listRes.body.find((k: any) => k.id === keyChainId),
+        ).toBeDefined();
 
         // Delete
         await request(app.getHttpServer())
-            .delete(`/key/${keyId}`)
+            .delete(`/key-chain/${keyChainId}`)
             .set("Authorization", `Bearer ${authToken}`)
             .expect(200);
 
         // Confirm deleted
         await request(app.getHttpServer())
-            .get(`/key/${keyId}`)
+            .get(`/key-chain/${keyChainId}`)
             .set("Authorization", `Bearer ${authToken}`)
-            .expect(500);
+            .expect(404);
     });
 
-    test("vault mount is created automatically on first key", async () => {
-        // Creating a key for a fresh tenant should auto-create the transit mount
+    test("vault mount is created automatically on first key chain", async () => {
+        // Creating a key chain for a fresh tenant should auto-create the transit mount
         const res = await request(app.getHttpServer())
-            .post("/key/generate")
+            .post("/key-chain")
             .set("Authorization", `Bearer ${authToken}`)
-            .send({ kmsProvider: "vault" })
+            .send({
+                type: KeyChainType.Standalone,
+                usageType: "access",
+                kmsProvider: "vault",
+            })
             .expect(201);
 
         expect(res.body.id).toBeDefined();

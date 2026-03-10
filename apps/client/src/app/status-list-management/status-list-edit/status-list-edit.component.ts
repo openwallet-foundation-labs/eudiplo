@@ -17,9 +17,9 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import {
   StatusListResponseDto,
   CredentialConfig,
-  CertEntity,
+  KeyChainResponseDto,
   credentialConfigControllerGetConfigs,
-  certControllerGetCertificates,
+  keyChainControllerGetAll,
 } from '@eudiplo/sdk-core';
 import { StatusListManagementService } from '../status-list-management.service';
 
@@ -57,8 +57,8 @@ export class StatusListEditComponent implements OnInit {
   /** Available credential configs for binding */
   credentialConfigs: CredentialConfig[] = [];
 
-  /** Available certificates with statusList usage */
-  certificates: CertEntity[] = [];
+  /** Available key chains with statusList usage */
+  keyChains: KeyChainResponseDto[] = [];
 
   /** Available bits per status options */
   bitsOptions = [1, 2, 4, 8] as const;
@@ -83,7 +83,7 @@ export class StatusListEditComponent implements OnInit {
 
     this.form = new FormGroup({
       credentialConfigurationId: new FormControl(null),
-      certId: new FormControl(null),
+      keyChainId: new FormControl(null),
       // Only used in create mode
       bits: new FormControl(null),
       capacity: new FormControl(null),
@@ -95,14 +95,14 @@ export class StatusListEditComponent implements OnInit {
   private async loadData(): Promise<void> {
     this.isLoading = true;
     try {
-      const [configsResponse, certsResponse] = await Promise.all([
+      const [configsResponse, keyChainResponse] = await Promise.all([
         credentialConfigControllerGetConfigs(),
-        certControllerGetCertificates(),
+        keyChainControllerGetAll({}),
       ]);
 
       this.credentialConfigs = configsResponse.data || [];
-      this.certificates = (certsResponse.data || []).filter((c: CertEntity) =>
-        c.usages?.some((u) => u.usage === 'statusList')
+      this.keyChains = (keyChainResponse.data || []).filter(
+        (kc: KeyChainResponseDto) => kc.usageType === 'statusList'
       );
 
       if (this.listId) {
@@ -123,7 +123,7 @@ export class StatusListEditComponent implements OnInit {
       this.statusList = await this.statusListService.getList(this.listId);
       this.form.patchValue({
         credentialConfigurationId: this.statusList.credentialConfigurationId ?? null,
-        certId: this.statusList.certId ?? null,
+        keyChainId: this.statusList.keyChainId ?? null,
       });
     } catch (error) {
       console.error('Failed to load status list:', error);
@@ -196,14 +196,14 @@ export class StatusListEditComponent implements OnInit {
       if (this.isEditMode) {
         const dto = {
           credentialConfigurationId: formValue.credentialConfigurationId || undefined,
-          certId: formValue.certId || undefined,
+          keyChainId: formValue.keyChainId || undefined,
         };
         await this.statusListService.updateList(this.listId!, dto);
         this.snackBar.open('Status list updated successfully', 'Close', { duration: 3000 });
       } else {
         const dto = {
           credentialConfigurationId: formValue.credentialConfigurationId || undefined,
-          certId: formValue.certId || undefined,
+          keyChainId: formValue.keyChainId || undefined,
           bits: formValue.bits || undefined,
           capacity: formValue.capacity || undefined,
         };

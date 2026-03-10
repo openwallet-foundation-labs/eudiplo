@@ -82,7 +82,8 @@ TLS_KEY_PATH=/etc/letsencrypt/live/your-domain.com/privkey.pem
 ```
 
 !!! tip "Certificate Renewal"
-Let's Encrypt certificates expire every 90 days. Set up automatic renewal with Certbot and restart the application after renewal to pick up new certificates.
+
+    Let's Encrypt certificates expire every 90 days. Set up automatic renewal with Certbot and restart the application after renewal to pick up new certificates.
 
 ### With CA Certificate Chain
 
@@ -194,7 +195,8 @@ services:
 ```
 
 !!! note "Automatic Normalization"
-The `CLIENT_BASE_HREF` value is automatically normalized to ensure it starts and ends with `/`. For example, `eudiplo-client` becomes `/eudiplo-client/`.
+
+    The `CLIENT_BASE_HREF` value is automatically normalized to ensure it starts and ends with `/`. For example, `eudiplo-client` becomes `/eudiplo-client/`.
 
 #### 2. Reverse Proxy (Nginx)
 
@@ -255,7 +257,12 @@ services:
             - 'traefik.http.routers.client.middlewares=client-strip'
 ```
 
-!!! warning "Production Security" - **Never use self-signed certificates in production**. Use certificates from trusted CAs. - **Keep private keys secure**. Restrict file permissions (`chmod 600 key.pem`). - **Use strong TLS configuration**. Prefer TLS 1.2+ and modern cipher suites. - **Rotate certificates regularly**. Set up automated renewal for Let's Encrypt.
+!!! warning "Production Security"
+
+    - **Never use self-signed certificates in production**. Use certificates from trusted CAs.
+    - **Keep private keys secure**. Restrict file permissions (`chmod 600 key.pem`).
+    - **Use strong TLS configuration**. Prefer TLS 1.2+ and modern cipher suites.
+    - **Rotate certificates regularly**. Set up automated renewal for Let's Encrypt.
 
 ### Recommended TLS Configuration
 

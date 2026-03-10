@@ -13,7 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { KeyEntity } from '@eudiplo/sdk-core';
+import { KeyChainResponseDto } from '@eudiplo/sdk-core';
 import { KeyManagementService } from '../key-management/key-management.service';
 import { RegistrarConfig, RegistrarService } from './registrar.service';
 
@@ -50,8 +50,8 @@ interface RegistrarPreset {
 export class RegistrarComponent implements OnInit {
   configForm: FormGroup;
   config: RegistrarConfig | null = null;
-  keys: KeyEntity[] = [];
-  selectedKeyId = '';
+  keyChains: KeyChainResponseDto[] = [];
+  selectedKeyChainId = '';
   selectedPreset = '';
 
   isLoading = true;
@@ -92,13 +92,13 @@ export class RegistrarComponent implements OnInit {
   async loadData(): Promise<void> {
     this.isLoading = true;
     try {
-      const [config, keys] = await Promise.all([
+      const [config, keyChains] = await Promise.all([
         this.registrarService.getConfig(),
         this.keyManagementService.loadKeys(),
       ]);
 
       this.config = config;
-      this.keys = keys;
+      this.keyChains = keyChains;
 
       if (config) {
         this.configForm.patchValue({
@@ -165,19 +165,19 @@ export class RegistrarComponent implements OnInit {
   }
 
   async createAccessCertificate(): Promise<void> {
-    if (!this.selectedKeyId) {
-      this.snackBar.open('Please select a key', 'Close', { duration: 3000 });
+    if (!this.selectedKeyChainId) {
+      this.snackBar.open('Please select a key chain', 'Close', { duration: 3000 });
       return;
     }
 
     this.isCreatingCert = true;
     try {
-      const result = await this.registrarService.createAccessCertificate(this.selectedKeyId);
+      await this.registrarService.createAccessCertificate(this.selectedKeyChainId);
       this.snackBar.open('Access certificate created successfully', 'Close', {
         duration: 3000,
       });
-      // Navigate to the certificate detail page
-      await this.router.navigate(['/keys', this.selectedKeyId, 'certificate', result.certId]);
+      // Navigate to the key chain detail page
+      await this.router.navigate(['/keys', this.selectedKeyChainId]);
     } catch (error: any) {
       console.error('Error creating access certificate:', error);
       const message = error.error?.message || 'Failed to create access certificate';

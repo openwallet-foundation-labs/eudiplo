@@ -47,10 +47,10 @@ export class InternalTrustListEntity {
     type: "internal";
 
     @IsString()
-    issuerCertId: string;
+    issuerKeyChainId: string;
 
     @IsString()
-    revocationCertId: string;
+    revocationKeyChainId: string;
 
     @ValidateNested()
     @Type(() => TrustListEntityInfo)
@@ -84,8 +84,8 @@ export class TrustListCreateDto extends OmitType(TrustList, [
     "tenant",
     "tenantId",
     "jwt",
-    "cert",
-    "certId",
+    "keyChain",
+    "keyChainId",
     "sequenceNumber",
     "createdAt",
     "updatedAt",
@@ -98,7 +98,11 @@ export class TrustListCreateDto extends OmitType(TrustList, [
 
     @IsString()
     @IsOptional()
-    certId?: string;
+    description?: string;
+
+    @IsString()
+    @IsOptional()
+    keyChainId?: string;
 
     @IsOptional()
     @ValidateNested({ each: true })

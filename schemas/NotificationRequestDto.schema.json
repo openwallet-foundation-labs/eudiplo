@@ -14,5 +14,6 @@
   "required": [
     "notification_id",
     "event"
-  ]
+  ],
+  "additionalProperties": false
 }

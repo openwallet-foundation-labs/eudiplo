@@ -39,5 +39,6 @@
       "nullable": true,
       "description": "If true, include aggregation_uri in status list JWTs for pre-fetching support. Set to null to reset to default (true)."
     }
-  }
+  },
+  "additionalProperties": false
 }

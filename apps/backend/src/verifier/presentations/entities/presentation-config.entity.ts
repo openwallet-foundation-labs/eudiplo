@@ -250,5 +250,5 @@ export class PresentationConfig {
     @IsOptional()
     @IsString()
     @Column("varchar", { nullable: true })
-    accessCertId?: string | null;
+    accessKeyChainId?: string | null;
 }

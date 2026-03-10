@@ -18,5 +18,6 @@
   "required": [
     "request_uri",
     "expires_in"
-  ]
+  ],
+  "additionalProperties": false
 }

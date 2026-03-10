@@ -72,5 +72,6 @@
   "required": [
     "clientId",
     "roles"
-  ]
+  ],
+  "additionalProperties": false
 }
