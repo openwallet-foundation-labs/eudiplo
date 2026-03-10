@@ -17,7 +17,7 @@ import {
     type JWK,
     jwtVerify,
 } from "jose";
-import { KeyService } from "./key/key.service";
+import { KeyChainService } from "./key/key-chain.service";
 
 /**
  * Service for cryptographic operations, including key management and certificate handling.
@@ -41,7 +41,7 @@ export class CryptoService {
      * @param configService
      */
     constructor(
-        public readonly keyService: KeyService,
+        public readonly keyChainService: KeyChainService,
         private readonly configService: ConfigService,
     ) {
         this.clockTolerance =
@@ -138,7 +138,7 @@ export class CryptoService {
             });
 
             const privateThumbprint = await calculateJwkThumbprint({
-                jwk: (await this.keyService.getPublicKey(
+                jwk: (await this.keyChainService.getPublicKey(
                     "jwk",
                     tenantId,
                     signer.kid!,
@@ -153,7 +153,7 @@ export class CryptoService {
                 );
             }
 
-            const jwt = await this.keyService.signJWT(
+            const jwt = await this.keyChainService.signJWT(
                 payload,
                 header,
                 tenantId,

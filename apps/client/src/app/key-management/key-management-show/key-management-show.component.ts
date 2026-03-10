@@ -1,306 +1,201 @@
-import { Component, type OnInit } from '@angular/core';
+import { Component, type OnInit, type OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
-import { MatTabsModule } from '@angular/material/tabs';
+import { MatListModule } from '@angular/material/list';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { X509Certificate, SubjectAlternativeNameExtension } from '@peculiar/x509';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { KeyEntity } from '@eudiplo/sdk-core';
-import { KeyManagementService } from '../key-management.service';
-
-interface CertificateInfo {
-  subject?: string;
-  issuer?: string;
-  validFrom?: string;
-  validTo?: string;
-  serialNumber?: string;
-  algorithm?: string;
-  publicKeyAlgorithm?: string;
-  keyUsage?: string[];
-  isExpired?: boolean;
-  fingerprint?: string;
-  sans?: string[];
-  usages?: string[];
-}
+import { KeyChainResponseDto, CertificateInfoDto } from '@eudiplo/sdk-core';
+import { KeyChainService } from '../key-chain.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-key-management-show',
   imports: [
+    CommonModule,
     MatIconModule,
     MatCardModule,
     MatButtonModule,
     MatChipsModule,
-    MatTableModule,
+    MatListModule,
     MatTooltipModule,
-    MatTabsModule,
     FlexLayoutModule,
     RouterModule,
   ],
   templateUrl: './key-management-show.component.html',
   styleUrl: './key-management-show.component.scss',
 })
-export class KeyManagementShowComponent implements OnInit {
-  key?: KeyEntity;
-  certificateInfoMap = new Map<string, CertificateInfo>();
-  publicKeyPem = '';
-  displayedColumns: string[] = ['id', 'types', 'description', 'status', 'actions'];
+export class KeyManagementShowComponent implements OnInit, OnDestroy {
+  keyChain?: KeyChainResponseDto;
+
+  private routeSubscription?: Subscription;
 
   constructor(
-    private readonly keyManagementService: KeyManagementService,
+    private readonly keyChainService: KeyChainService,
     private readonly route: ActivatedRoute,
     private readonly snackBar: MatSnackBar,
     private readonly router: Router
   ) {}
 
   ngOnInit(): void {
-    this.loadKey();
+    this.routeSubscription = this.route.paramMap.subscribe((params) => {
+      const keyId = params.get('id');
+      if (keyId) {
+        this.loadKey(keyId);
+      }
+    });
   }
 
-  private loadKey(): void {
-    const keyId = this.route.snapshot.paramMap.get('id');
-    if (keyId) {
-      this.keyManagementService.getKey(keyId).then(
-        async (key) => {
-          this.key = key;
-          // Compute PEM format for public key
-          this.publicKeyPem = await this.computePublicKeyPem();
-          // Parse all certificates if they exist
-          if (key?.certificates && Array.isArray(key.certificates)) {
-            key.certificates.forEach((cert) => {
-              // Build usages array from boolean fields
-              // Use the first certificate (leaf) for display
-              const leafCert = Array.isArray(cert.crt) ? cert.crt[0] : cert.crt;
-              this.parseCertificateInfo(cert.id, leafCert, cert.usages?.map((u) => u.usage) || []);
-            });
-          }
-        },
-        (error) => {
-          this.snackBar.open('Failed to load key', 'Close', {
-            duration: 3000,
-          });
-          console.error('Load error:', error);
-        }
-      );
-    }
+  ngOnDestroy(): void {
+    this.routeSubscription?.unsubscribe();
   }
 
-  private async parseCertificateInfo(
-    certId: string,
-    pemCert: string,
-    usages?: string[]
-  ): Promise<void> {
+  private async loadKey(id: string): Promise<void> {
+    this.keyChain = undefined;
+
     try {
-      // Parse the PEM certificate using @peculiar/x509
-      const cert = new X509Certificate(pemCert);
-
-      // Check if certificate is expired
-      const now = new Date();
-      const isExpired = now > cert.notAfter;
-
-      // Extract key usage extensions if available
-      let keyUsage: string[] = [];
-      try {
-        const keyUsageExt = cert.getExtension('2.5.29.15'); // Key Usage OID
-        if (keyUsageExt) {
-          // Key usage parsing would require more detailed implementation
-          keyUsage = ['Key usage extension found'];
-        }
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (e) {
-        // Key usage extension not available
-        keyUsage = ['Not specified'];
-      }
-
-      // Generate certificate fingerprint (SHA-1)
-      let fingerprint = '';
-      try {
-        const certBuffer = cert.rawData;
-        await crypto.subtle.digest('SHA-1', certBuffer).then((hash) => {
-          const hashArray = Array.from(new Uint8Array(hash));
-          fingerprint = hashArray
-            .map((b) => b.toString(16).padStart(2, '0'))
-            .join(':')
-            .toUpperCase();
-        });
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (e) {
-        fingerprint = 'Unable to compute';
-      }
-
-      const sanExt = cert.getExtension<SubjectAlternativeNameExtension>('2.5.29.17');
-
-      let sans: string[] = [];
-      if (sanExt) {
-        const names = sanExt.names;
-        sans = names.items.filter((name) => name.type === 'dns').map((name) => name.value);
-      }
-
-      this.certificateInfoMap.set(certId, {
-        subject: cert.subject,
-        issuer: cert.issuer,
-        validFrom: cert.notBefore.toLocaleDateString() + ' ' + cert.notBefore.toLocaleTimeString(),
-        validTo: cert.notAfter.toLocaleDateString() + ' ' + cert.notAfter.toLocaleTimeString(),
-        serialNumber: cert.serialNumber,
-        algorithm: cert.signatureAlgorithm.name,
-        publicKeyAlgorithm: cert.publicKey.algorithm.name,
-        keyUsage: keyUsage.length > 0 ? keyUsage : ['Not specified'],
-        isExpired: isExpired,
-        fingerprint: fingerprint || 'Computing...',
-        sans,
-        usages: usages || [],
-      });
+      this.keyChain = await this.keyChainService.getById(id);
     } catch (error) {
-      console.warn('Could not parse certificate:', error);
-      this.certificateInfoMap.set(certId, {
-        subject: 'Error parsing certificate',
-        issuer: 'Certificate parsing failed',
-        validFrom: 'N/A',
-        validTo: 'N/A',
-        serialNumber: 'N/A',
-        algorithm: 'N/A',
-        publicKeyAlgorithm: 'N/A',
-        keyUsage: ['N/A'],
-        isExpired: false,
-        fingerprint: 'N/A',
-        usages: usages || [],
-      });
+      this.snackBar.open('Failed to load key chain', 'Close', { duration: 3000 });
+      console.error('Load error:', error);
     }
   }
 
-  // Helper method to format PEM certificate for display
-  formatPemCertificate(pem: string): string {
-    if (!pem) return '';
-
-    // Ensure proper PEM formatting with line breaks
-    return pem
-      .replace(/-----BEGIN CERTIFICATE-----/g, '-----BEGIN CERTIFICATE-----\n')
-      .replace(/-----END CERTIFICATE-----/g, '\n-----END CERTIFICATE-----')
-      .replace(/(.{64})/g, '$1\n') // Add line breaks every 64 characters
-      .replace(/\n\n/g, '\n') // Remove double line breaks
-      .trim();
+  get keyId(): string {
+    return this.keyChain?.id || '';
   }
 
-  // Helper method to copy certificate to clipboard
-  copyCertificateToClipboard(pem: string): void {
+  get description(): string | undefined {
+    return this.keyChain?.description;
+  }
+
+  get usageType(): string {
+    return this.keyChain?.usageType || '';
+  }
+
+  getTypeLabel(): string {
+    if (!this.keyChain) return '';
+    if (this.keyChain.type === 'internalChain') {
+      return this.keyChain.rotationPolicy.enabled ? 'Internal Chain (Rotating)' : 'Internal Chain';
+    }
+    return this.keyChain.rotationPolicy.enabled ? 'Standalone (Rotating)' : 'Standalone';
+  }
+
+  getTypeIcon(): string {
+    if (!this.keyChain) return 'key';
+    if (this.keyChain.type === 'internalChain') {
+      return 'account_tree';
+    }
+    return this.keyChain.rotationPolicy.enabled ? 'autorenew' : 'key';
+  }
+
+  getTypeDescription(): string {
+    if (!this.keyChain) return '';
+    if (this.keyChain.type === 'internalChain') {
+      return 'This key chain has an embedded Root CA that signs the active key certificate.';
+    }
+    return 'This is a self-signed standalone key.';
+  }
+
+  hasRootCa(): boolean {
+    return this.keyChain?.type === 'internalChain' && !!this.keyChain.rootCertificate;
+  }
+
+  hasPreviousKey(): boolean {
+    return !!this.keyChain?.previousCertificate;
+  }
+
+  copyPublicKeyToClipboard(jwk: object): void {
     navigator.clipboard
-      .writeText(pem)
+      .writeText(JSON.stringify(jwk, null, 2))
       .then(() => {
-        this.snackBar.open('Certificate copied to clipboard', 'Close', {
-          duration: 2000,
-        });
+        this.snackBar.open('Public key (JWK) copied to clipboard', 'Close', { duration: 2000 });
       })
       .catch(() => {
-        this.snackBar.open('Failed to copy certificate', 'Close', {
-          duration: 2000,
-        });
+        this.snackBar.open('Failed to copy public key', 'Close', { duration: 2000 });
       });
   }
 
-  copyPublicKeyToClipboard(): void {
-    const publicKey = this.getPublicKey();
+  copyCertificateToClipboard(cert: CertificateInfoDto): void {
     navigator.clipboard
-      .writeText(JSON.stringify(publicKey, null, 2))
+      .writeText(cert.pem)
       .then(() => {
-        this.snackBar.open('Public key (JWK) copied to clipboard', 'Close', {
-          duration: 2000,
-        });
+        this.snackBar.open('Certificate copied to clipboard', 'Close', { duration: 2000 });
       })
       .catch(() => {
-        this.snackBar.open('Failed to copy public key', 'Close', {
-          duration: 2000,
-        });
+        this.snackBar.open('Failed to copy certificate', 'Close', { duration: 2000 });
       });
   }
 
-  copyPublicKeyPemToClipboard(): void {
-    navigator.clipboard
-      .writeText(this.publicKeyPem)
-      .then(() => {
-        this.snackBar.open('Public key (PEM) copied to clipboard', 'Close', {
-          duration: 2000,
-        });
-      })
-      .catch(() => {
-        this.snackBar.open('Failed to copy public key', 'Close', {
-          duration: 2000,
-        });
-      });
+  formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleString();
   }
 
-  getPublicKey(): any {
-    if (!this.key?.key) {
-      return null;
+  isCertExpired(cert: CertificateInfoDto): boolean {
+    if (!cert.notAfter) return false;
+    return new Date(cert.notAfter) < new Date();
+  }
+
+  async deleteKey(): Promise<void> {
+    const displayName = this.description || this.keyId;
+    if (!confirm(`Delete key chain "${displayName}"? This cannot be undone.`)) {
+      return;
     }
 
-    // Extract public key properties from JWK (remove private key material)
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { d, p, q, dp, dq, qi, ...publicKey } = this.key.key as any;
-    return publicKey;
-  }
-
-  getPublicKeyJson(): string {
-    const publicKey = this.getPublicKey();
-    return publicKey ? JSON.stringify(publicKey, null, 2) : 'No public key available';
-  }
-
-  async computePublicKeyPem(): Promise<string> {
     try {
-      const publicKey = this.getPublicKey();
-      if (!publicKey) return 'No public key available';
-
-      // Import the JWK as a CryptoKey
-      const cryptoKey = await crypto.subtle.importKey(
-        'jwk',
-        publicKey,
-        { name: 'ECDSA', namedCurve: publicKey.crv },
-        true,
-        ['verify']
-      );
-
-      // Export as SPKI (SubjectPublicKeyInfo) format
-      const exported = await crypto.subtle.exportKey('spki', cryptoKey);
-
-      // Convert to PEM format
-      const exportedAsString = this.arrayBufferToBase64(exported);
-      const pemKey = `-----BEGIN PUBLIC KEY-----\n${exportedAsString.match(/.{1,64}/g)?.join('\n')}\n-----END PUBLIC KEY-----`;
-
-      return pemKey;
+      if (this.keyChain) {
+        await this.keyChainService.delete(this.keyChain.id);
+      }
+      this.snackBar.open('Key chain deleted successfully', 'Close', { duration: 3000 });
+      this.router.navigate(['../'], { relativeTo: this.route });
     } catch (error) {
-      console.error('Failed to convert JWK to PEM:', error);
-      return 'Failed to convert public key to PEM format';
+      this.snackBar.open('Failed to delete key chain', 'Close', { duration: 3000 });
+      console.error('Delete error:', error);
     }
   }
 
-  private arrayBufferToBase64(buffer: ArrayBuffer): string {
-    const bytes = new Uint8Array(buffer);
-    let binary = '';
-    for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCodePoint(bytes[i]);
+  async rotateKey(): Promise<void> {
+    if (!this.keyChain) return;
+
+    if (!confirm('Rotate this key chain? The current key will move to the previous slot.')) {
+      return;
     }
-    return btoa(binary);
+
+    try {
+      await this.keyChainService.rotate(this.keyChain.id);
+      this.snackBar.open('Key chain rotated successfully', 'Close', { duration: 3000 });
+      await this.loadKey(this.keyChain.id);
+    } catch (error) {
+      this.snackBar.open('Failed to rotate key chain', 'Close', { duration: 3000 });
+      console.error('Rotate error:', error);
+    }
   }
 
-  deleteKey() {
-    if (this.key && confirm('Are you sure you want to delete this key?')) {
-      this.keyManagementService
-        .deleteKey(this.key.id)
-        .then(() => {
-          this.snackBar.open('Key deleted successfully', 'Close', {
-            duration: 3000,
-          });
-          this.router.navigate(['../'], { relativeTo: this.route });
-        })
-        .catch((error) => {
-          this.snackBar.open('Failed to delete key', 'Close', {
-            duration: 3000,
-          });
-          console.error('Delete error:', error);
-        });
+  get canRotate(): boolean {
+    return this.keyChain?.rotationPolicy?.enabled || false;
+  }
+
+  async exportKeyChain(): Promise<void> {
+    if (!this.keyChain) return;
+
+    try {
+      const exportData = await this.keyChainService.export(this.keyChain.id);
+      const json = JSON.stringify(exportData, null, 4);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${this.keyChain.usageType}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      this.snackBar.open('Key chain exported', 'Close', { duration: 3000 });
+    } catch (error) {
+      this.snackBar.open('Failed to export key chain', 'Close', { duration: 3000 });
+      console.error('Export error:', error);
     }
   }
 }

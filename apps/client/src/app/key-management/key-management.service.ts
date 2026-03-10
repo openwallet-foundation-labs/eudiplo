@@ -1,15 +1,14 @@
 import { Injectable } from '@angular/core';
 import {
-  type KeyImportDto,
-  UpdateKeyDto,
-  keyControllerAddKey,
-  keyControllerDeleteKey,
-  keyControllerGetKey,
-  keyControllerGetKeys,
-  keyControllerUpdateKey,
-  keyControllerGetProviders,
-  keyControllerGenerateKey,
-  type KmsProviderInfoDto,
+  type KeyChainCreateDto,
+  type KeyChainResponseDto,
+  type KeyChainUpdateDto,
+  keyChainControllerCreate,
+  keyChainControllerDelete,
+  keyChainControllerGetAll,
+  keyChainControllerGetById,
+  keyChainControllerRotate,
+  keyChainControllerUpdate,
 } from '@eudiplo/sdk-core';
 
 interface JWKwithKey extends JsonWebKey {
@@ -17,17 +16,17 @@ interface JWKwithKey extends JsonWebKey {
   alg: string;
 }
 
-export interface KmsProvidersResponse {
-  providers: KmsProviderInfoDto[];
-  default: string;
-}
-
+/**
+ * @deprecated Use KeyChainService instead.
+ * This service is a facade that delegates to the new unified key chain API.
+ */
 @Injectable({
   providedIn: 'root',
 })
 export class KeyManagementService {
   /**
    * Generate a new key with the webcrypto API.
+   * Note: In the new model, keys are generated server-side during key chain creation.
    */
   generateKey() {
     return window.crypto.subtle
@@ -50,43 +49,36 @@ export class KeyManagementService {
   }
 
   /**
-   * Fetch available KMS providers from the server.
+   * Load all key chains for the current tenant.
    */
-  getProviders() {
-    return keyControllerGetProviders().then((res) => res.data);
+  loadKeys(): Promise<KeyChainResponseDto[]> {
+    return keyChainControllerGetAll().then(
+      (response) => (response.data as KeyChainResponseDto[]) || []
+    );
   }
 
   /**
-   * Generate a key on the server (for providers that don't support importing).
+   * Get a single key chain by ID.
    */
-  async generateKeyOnServer(options: {
-    kmsProvider?: string;
-    description?: string;
-  }): Promise<{ id: string }> {
-    const response = await keyControllerGenerateKey({ body: options });
+  getKey(id: string): Promise<KeyChainResponseDto> {
+    return keyChainControllerGetById({ path: { id } }).then(
+      (response) => response.data as KeyChainResponseDto
+    );
+  }
+
+  /**
+   * Create a new key chain.
+   */
+  async createKeyChain(data: KeyChainCreateDto): Promise<{ id: string }> {
+    const response = await keyChainControllerCreate({ body: data });
     return response.data as { id: string };
   }
 
-  loadKeys() {
-    return keyControllerGetKeys().then((response) => response.data || []);
-  }
-
-  getKey(id: string) {
-    return keyControllerGetKey({ path: { id } }).then((response) => response.data);
-  }
-
-  async importKey(keyData: KeyImportDto): Promise<{ id: string }> {
-    try {
-      const response = await keyControllerAddKey({ body: keyData });
-      return response.data as { id: string };
-    } catch (error) {
-      console.error('Failed to import key:', error);
-      throw new Error('Failed to import key', { cause: error });
-    }
-  }
-
-  updateKey(keyId: string, keyData: UpdateKeyDto): Promise<void> {
-    return keyControllerUpdateKey({ body: keyData, path: { id: keyId } })
+  /**
+   * Update a key chain.
+   */
+  updateKey(keyId: string, keyData: KeyChainUpdateDto): Promise<void> {
+    return keyChainControllerUpdate({ body: keyData, path: { id: keyId } })
       .then(() => undefined)
       .catch((error) => {
         console.error('Failed to update key:', error);
@@ -94,12 +86,28 @@ export class KeyManagementService {
       });
   }
 
+  /**
+   * Delete a key chain.
+   */
   deleteKey(keyId: string): Promise<void> {
-    return keyControllerDeleteKey({ path: { id: keyId } })
+    return keyChainControllerDelete({ path: { id: keyId } })
       .then(() => undefined)
       .catch((error) => {
         console.error('Failed to delete key:', error);
         throw new Error('Failed to delete key');
+      });
+  }
+
+  /**
+   * Manually trigger key rotation for a key chain.
+   * Generates new key material and a new certificate.
+   */
+  rotateKey(keyId: string): Promise<void> {
+    return keyChainControllerRotate({ path: { id: keyId } })
+      .then(() => undefined)
+      .catch((error) => {
+        console.error('Failed to rotate key:', error);
+        throw new Error('Failed to rotate key');
       });
   }
 }

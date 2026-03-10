@@ -49,7 +49,7 @@ export class StatusListManagementController {
             id: entity.id,
             tenantId: entity.tenantId,
             credentialConfigurationId: entity.credentialConfigurationId,
-            certId: entity.certId,
+            keyChainId: entity.keyChainId,
             bits: entity.bits,
             capacity: entity.elements.length,
             usedEntries: entity.elements.length - entity.stack.length,
@@ -128,7 +128,7 @@ export class StatusListManagementController {
             token.entity!.id,
             {
                 credentialConfigurationId: dto.credentialConfigurationId,
-                certId: dto.certId,
+                keyChainId: dto.keyChainId,
                 bits: dto.bits,
                 capacity: dto.capacity,
             },
@@ -163,7 +163,7 @@ export class StatusListManagementController {
             listId,
             {
                 credentialConfigurationId: dto.credentialConfigurationId,
-                certId: dto.certId,
+                keyChainId: dto.keyChainId,
             },
         );
         return this.toResponseDto(list);

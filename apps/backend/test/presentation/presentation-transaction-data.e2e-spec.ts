@@ -150,7 +150,7 @@ describe("Presentation - Transaction Data", () => {
     let authToken: string;
     let host: string;
     let privateIssuerKey: CryptoKey;
-    let issuerCert: string;
+    let issuerCertChain: string[];
     let statusListService: StatusListService;
     let ctx: PresentationTestContext;
 
@@ -166,7 +166,7 @@ describe("Presentation - Transaction Data", () => {
         credentialId: string;
         webhookUrl?: string;
         privateKey: CryptoKey;
-        issuerCert: string;
+        x5c: string[];
         transactionData?: TransactionData[];
         // Transaction data hashes to include in KB-JWT (if different from computed hashes)
         overrideTransactionDataHashes?: string[];
@@ -200,12 +200,7 @@ describe("Presentation - Transaction Data", () => {
             responseMode: { type: "direct_post" },
         });
 
-        const x5c = [
-            values.issuerCert
-                .replace("-----BEGIN CERTIFICATE-----", "")
-                .replace("-----END CERTIFICATE-----", "")
-                .replaceAll(/\r?\n|\r/g, ""),
-        ];
+        const x5c = values.x5c;
 
         // Compute transaction_data_hashes for KB-JWT if transaction data is provided
         let transactionDataHashes: string[] | undefined;
@@ -279,7 +274,7 @@ describe("Presentation - Transaction Data", () => {
         authToken = ctx.authToken;
         host = ctx.host;
         privateIssuerKey = ctx.privateIssuerKey;
-        issuerCert = ctx.issuerCert;
+        issuerCertChain = ctx.issuerCertChain;
         statusListService = ctx.statusListService;
 
         client = new Openid4vpClient({
@@ -355,7 +350,7 @@ describe("Presentation - Transaction Data", () => {
             requestId: "pid-no-hook",
             credentialId: "pid",
             privateKey: privateIssuerKey,
-            issuerCert,
+            x5c: issuerCertChain,
             transactionData,
         });
 
@@ -369,7 +364,7 @@ describe("Presentation - Transaction Data", () => {
             requestId: "pid-with-transaction-data",
             credentialId: "pid",
             privateKey: privateIssuerKey,
-            issuerCert,
+            x5c: issuerCertChain,
             // Transaction data comes from the config, so we need to match what's in the config
             transactionData: [
                 {
@@ -407,7 +402,7 @@ describe("Presentation - Transaction Data", () => {
             requestId: "pid-no-hook",
             credentialId: "pid",
             privateKey: privateIssuerKey,
-            issuerCert,
+            x5c: issuerCertChain,
             transactionData,
         });
 
@@ -431,7 +426,7 @@ describe("Presentation - Transaction Data", () => {
             requestId: "pid-no-hook",
             credentialId: "pid",
             privateKey: privateIssuerKey,
-            issuerCert,
+            x5c: issuerCertChain,
             transactionData,
             overrideTransactionDataHashes: ["INVALID_HASH_THAT_WONT_MATCH"],
         });
@@ -458,7 +453,7 @@ describe("Presentation - Transaction Data", () => {
             requestId: "pid-no-hook",
             credentialId: "pid",
             privateKey: privateIssuerKey,
-            issuerCert,
+            x5c: issuerCertChain,
             transactionData,
             overrideTransactionDataHashes: [], // Empty hashes when data was expected
         });
@@ -473,7 +468,7 @@ describe("Presentation - Transaction Data", () => {
             requestId: "pid-no-hook",
             credentialId: "pid",
             privateKey: privateIssuerKey,
-            issuerCert,
+            x5c: issuerCertChain,
             // No transactionData
         });
 
@@ -495,7 +490,7 @@ describe("Presentation - Transaction Data", () => {
             requestId: "pid-with-transaction-data",
             credentialId: "pid",
             privateKey: privateIssuerKey,
-            issuerCert,
+            x5c: issuerCertChain,
             transactionData: overrideTransactionData,
         });
 

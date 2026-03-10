@@ -54,11 +54,11 @@
     </ng-container>
 
     <!-- Certificate Column -->
-    <ng-container matColumnDef="certId">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Certificate</th>
+    <ng-container matColumnDef="keyChainId">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Key Chain</th>
       <td mat-cell *matCellDef="let list">
-        @if (list.certId) {
-          <mat-chip>{{ list.certId }}</mat-chip>
+        @if (list.keyChainId) {
+          <mat-chip>{{ list.keyChainId }}</mat-chip>
         } @else {
           <span class="muted">Default</span>
         }

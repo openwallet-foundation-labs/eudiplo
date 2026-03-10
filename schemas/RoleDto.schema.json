@@ -21,5 +21,6 @@
   },
   "required": [
     "role"
-  ]
+  ],
+  "additionalProperties": false
 }

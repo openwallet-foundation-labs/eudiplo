@@ -27,5 +27,6 @@
   "required": [
     "transactionId",
     "status"
-  ]
+  ],
+  "additionalProperties": false
 }

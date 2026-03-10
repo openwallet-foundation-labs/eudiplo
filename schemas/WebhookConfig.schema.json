@@ -23,5 +23,6 @@
   "required": [
     "auth",
     "url"
-  ]
+  ],
+  "additionalProperties": false
 }

@@ -9,9 +9,8 @@ import * as axios from "axios";
 import { Logger } from "nestjs-pino";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module";
-import { CertImportDto } from "../../src/crypto/key/dto/cert-import.dto";
-import { KeyImportDto } from "../../src/crypto/key/dto/key-import.dto";
-import { getDefaultSecret, readConfig } from "../utils";
+import { KeyChainService } from "../../src/crypto/key/key-chain.service";
+import { getDefaultSecret } from "../utils";
 import { useOidfContainers } from "./oidf-setup";
 import { OIDFSuite, TestInstance } from "./oidf-suite";
 
@@ -42,43 +41,7 @@ describe("OIDF", () => {
     const oidfSuite = new OIDFSuite(OIDF_URL, OIDF_DEMO_TOKEN);
 
     beforeAll(async () => {
-        //use existing keys from the config folder
-        const key = readConfig<KeyImportDto>(
-            resolve(__dirname + "/../fixtures/haip/keys/sign.json"),
-        );
-
-        const issuerCert = readConfig<CertImportDto>(
-            resolve(__dirname + "/../fixtures/haip/certs/cert.json"),
-        ).crt!;
-
-        const planId = "oid4vp-1final-verifier-test-plan";
-        const variant = {
-            credential_format: "sd_jwt_vc",
-            client_id_prefix: "x509_hash",
-            request_method: "request_uri_signed",
-            response_mode: "direct_post.jwt",
-        };
-        const body = {
-            alias: "test-plan",
-            description: "test plan created via e2e tests",
-            credential: {
-                signing_jwk: {
-                    ...key.key,
-                    use: "sig",
-                    x5c: issuerCert.map((cert) =>
-                        cert
-                            .replaceAll("-----BEGIN CERTIFICATE-----", "")
-                            .replaceAll("-----END CERTIFICATE-----", "")
-                            .replaceAll(/\r?\n|\r/g, ""),
-                    ),
-                    alg: "ES256",
-                },
-            },
-            publish: "everything",
-        };
-
-        PLAN_ID = await oidfSuite.createPlan(planId, variant, body);
-
+        // Start the app first so CONFIG_IMPORT runs and key chains are generated
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [AppModule],
         }).compile();
@@ -128,6 +91,52 @@ describe("OIDF", () => {
         authToken = tokenResponse.data.access_token;
         expect(authToken).toBeDefined();
 
+        // Retrieve the attestation key chain's active (leaf) key and certificate chain.
+        // With rotation enabled, the fixture key became root CA and a new leaf key was generated on import.
+        const keyChainService = app.get(KeyChainService);
+        const attestationEntity = await keyChainService.getEntity(
+            "haip",
+            "9687a941-3f89-476b-b383-aa5fea1bac8e",
+        );
+
+        // Split the certificate chain into base64 DER entries for x5c
+        const certPems = attestationEntity.activeCertificate.match(
+            /-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g,
+        ) ?? [attestationEntity.activeCertificate];
+        const x5c = certPems.map((pem) =>
+            pem
+                .replace("-----BEGIN CERTIFICATE-----", "")
+                .replace("-----END CERTIFICATE-----", "")
+                .replaceAll(/\r?\n|\r/g, ""),
+        );
+
+        // Export the active private key as JWK for the OIDF suite
+        const signingJwk = attestationEntity.activeKey;
+
+        // Create OIDF test plan with the attestation signing key (matches trust list)
+        const planId = "oid4vp-1final-verifier-test-plan";
+        const variant = {
+            credential_format: "sd_jwt_vc",
+            client_id_prefix: "x509_hash",
+            request_method: "request_uri_signed",
+            response_mode: "direct_post.jwt",
+        };
+        const body = {
+            alias: "test-plan",
+            description: "test plan created via e2e tests",
+            credential: {
+                signing_jwk: {
+                    ...signingJwk,
+                    use: "sig",
+                    x5c,
+                    alg: "ES256",
+                },
+            },
+            publish: "everything",
+        };
+
+        PLAN_ID = await oidfSuite.createPlan(planId, variant, body);
+
         // Create test instance
         testInstance = await oidfSuite.getInstance(PLAN_ID);
 
@@ -142,6 +151,8 @@ describe("OIDF", () => {
             `../../../../tmp/oidf-logs/${PLAN_ID}`,
         );
         await oidfSuite.storeLog(PLAN_ID, outputDir);
+
+        console.log(`Logs stored in: ${outputDir}`);
 
         if (app) {
             await app.close();

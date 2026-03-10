@@ -22,8 +22,8 @@ export interface RegistrarConfig {
 export interface AccessCertificateResponse {
   /** The registrar's certificate ID */
   id: string;
-  /** The local EUDIPLO certificate ID */
-  certId: string;
+  /** The local EUDIPLO key chain ID */
+  keyChainId: string;
   /** The certificate content */
   crt: string;
 }
