@@ -162,7 +162,7 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier">Optional</span>
-                                <a href="#accessCertId" >accessCertId</a>
+                                <a href="#accessKeyChainId" >accessKeyChainId</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
@@ -269,14 +269,14 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="accessCertId"></a>
+                    <a name="accessKeyChainId"></a>
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier">Optional</span>
-                        <span ><b>accessCertId</b></span>
-                        <a href="#accessCertId"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>accessKeyChainId</b></span>
+                        <a href="#accessKeyChainId"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
@@ -1144,7 +1144,7 @@ export class PresentationConfig {
     @IsOptional()
     @IsString()
     @Column(&quot;varchar&quot;, { nullable: true })
-    accessCertId?: string | null;
+    accessKeyChainId?: string | null;
 }
 </code></pre>
     </div>

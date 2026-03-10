@@ -183,7 +183,7 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, configService: ConfigService, statusListService: <a href="../injectables/StatusListService.html" target="_self">StatusListService</a>, cryptoImplementationService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, keyService: <a href="../injectables/KeyService.html" target="_self">KeyService</a>)</code>
+<code>constructor(certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, configService: ConfigService, statusListService: <a href="../injectables/StatusListService.html" target="_self">StatusListService</a>, cryptoImplementationService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, keyChainService: <a href="../injectables/KeyChainService.html" target="_self">KeyChainService</a>)</code>
                     </td>
                 </tr>
                         <tr>
@@ -254,10 +254,10 @@
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>keyService</td>
+                                                        <td>keyChainService</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../injectables/KeyService.html" target="_self" >KeyService</a></code>
+                                                                        <code><a href="../injectables/KeyChainService.html" target="_self" >KeyChainService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -372,8 +372,8 @@ import { JWTwithStatusListPayload } from &quot;@sd-jwt/jwt-status-list&quot;;
 import { SDJwtVcInstance } from &quot;@sd-jwt/sd-jwt-vc&quot;;
 import { CertService } from &quot;../../../../../crypto/key/cert/cert.service&quot;;
 import { CryptoImplementationService } from &quot;../../../../../crypto/key/crypto-implementation/crypto-implementation.service&quot;;
-import { CertUsage } from &quot;../../../../../crypto/key/entities/cert-usage.entity&quot;;
-import { KeyService } from &quot;../../../../../crypto/key/key.service&quot;;
+import { KeyUsageType } from &quot;../../../../../crypto/key/entities/key-chain.entity&quot;;
+import { KeyChainService } from &quot;../../../../../crypto/key/key-chain.service&quot;;
 import { Session } from &quot;../../../../../session/entities/session.entity&quot;;
 import { StatusListService } from &quot;../../../../lifecycle/status/status-list.service&quot;;
 import { CredentialConfig } from &quot;../../entities/credential.entity&quot;;
@@ -395,7 +395,7 @@ export class SdjwtvcIssuerService {
         private readonly configService: ConfigService,
         private readonly statusListService: StatusListService,
         private readonly cryptoImplementationService: CryptoImplementationService,
-        private readonly keyService: KeyService,
+        private readonly keyChainService: KeyChainService,
     ) {}
 
     /**
@@ -408,12 +408,12 @@ export class SdjwtvcIssuerService {
 
         const certificate &#x3D; await this.certService.find({
             tenantId: session.tenantId,
-            type: CertUsage.Signing,
-            id: credentialConfiguration.certId,
+            type: KeyUsageType.Attestation,
+            keyId: credentialConfiguration.keyChainId,
         });
 
         const sdjwt &#x3D; new SDJwtVcInstance({
-            signer: await this.keyService.signer(
+            signer: await this.keyChainService.signer(
                 session.tenantId,
                 certificate.keyId,
             ),

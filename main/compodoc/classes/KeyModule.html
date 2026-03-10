@@ -204,8 +204,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="18"
-                                    class="link-to-prism">src/crypto/key/key.module.ts:18</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="16"
+                                    class="link-to-prism">src/crypto/key/key.module.ts:16</a></div>
                         </td>
                     </tr>
 
@@ -239,12 +239,10 @@ import { TenantEntity } from &quot;../../auth/tenant/entitites/tenant.entity&quo
 import { CertService } from &quot;./cert/cert.service&quot;;
 import { CrlValidationService } from &quot;./cert/crl-validation.service&quot;;
 import { CryptoImplementatationModule } from &quot;./crypto-implementation/crypto-implementation.module&quot;;
-import { CertEntity } from &quot;./entities/cert.entity&quot;;
-import { CertUsageEntity } from &quot;./entities/cert-usage.entity&quot;;
-import { KeyEntity } from &quot;./entities/keys.entity&quot;;
-import { KeyController } from &quot;./key.controller&quot;;
-import { KeyService } from &quot;./key.service&quot;;
-import { KmsRegistry } from &quot;./kms-registry.service&quot;;
+import { KeyChainEntity } from &quot;./entities/key-chain.entity&quot;;
+import { KeyChainController } from &quot;./key-chain.controller&quot;;
+import { KeyChainService } from &quot;./key-chain.service&quot;;
+import { KeyRotationService } from &quot;./key-rotation.service&quot;;
 
 @Global()
 export class KeyModule {
@@ -255,26 +253,16 @@ export class KeyModule {
                 HttpModule,
                 ConfigModule,
                 CryptoImplementatationModule,
-                TypeOrmModule.forFeature([
-                    CertEntity,
-                    CertUsageEntity,
-                    KeyEntity,
-                    TenantEntity,
-                ]),
+                TypeOrmModule.forFeature([KeyChainEntity, TenantEntity]),
             ],
-            controllers: [KeyController],
+            controllers: [KeyChainController],
             providers: [
-                KmsRegistry,
-                KeyService,
+                KeyChainService,
+                KeyRotationService,
                 CertService,
                 CrlValidationService,
             ],
-            exports: [
-                KeyService,
-                KmsRegistry,
-                CertService,
-                CrlValidationService,
-            ],
+            exports: [KeyChainService, CertService, CrlValidationService],
         };
     }
 }

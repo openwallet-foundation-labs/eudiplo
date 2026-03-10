@@ -94,7 +94,7 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content entity">
+               <div class="content class">
                    <div class="content-data">
 
 
@@ -106,9 +106,15 @@
 
 
 
+
+
+
+
+
+
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Entities</li>
-  <li class="breadcrumb-item" >KeyEntity</li>
+  <li class="breadcrumb-item">Classes</li>
+  <li class="breadcrumb-item" >KeyChainImportDto</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -132,8 +138,23 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/crypto/key/entities/keys.entity.ts</code>
+            <code>src/crypto/key/dto/key-chain-import.dto.ts</code>
         </p>
+
+
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>DTO for importing a key chain from file configuration.</p>
+<p>This format supports importing keys with their certificates.
+The import can be done in two ways:</p>
+<ol>
+<li>Combined: key + certificate in single JSON file</li>
+<li>Separate: key JSON references a certificate JSON via keyId matching</li>
+</ol>
+
+            </p>
 
 
 
@@ -152,11 +173,10 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
-                                <a href="#certificates" >certificates</a>
-                            </li>
-                            <li>
                                     <span class="modifier"></span>
-                                <a href="#createdAt" >createdAt</a>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#crt" >crt</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
@@ -168,9 +188,14 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
                                 <a href="#id" >id</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#key" >key</a>
                             </li>
@@ -178,23 +203,21 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
                                 <a href="#kmsProvider" >kmsProvider</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
-                                <a href="#tenant" >tenant</a>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#rotationPolicy" >rotationPolicy</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
-                                <a href="#tenantId" >tenantId</a>
-                            </li>
-                            <li>
                                     <span class="modifier"></span>
-                                <a href="#updatedAt" >updatedAt</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                <a href="#usage" >usage</a>
+                                <a href="#usageType" >usageType</a>
                             </li>
                         </ul>
                     </td>
@@ -209,6 +232,7 @@
     </table>
 </section>
 
+
             <section data-compodoc="block-properties">
     
     <h3 id="inputs">
@@ -218,17 +242,20 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="certificates"></a>
+                    <a name="crt"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                        <span ><b>certificates</b></span>
-                        <a href="#certificates"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>crt</b></span>
+                        <a href="#crt"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../entitys/CertEntity.html" target="_self" >CertEntity[]</a></code>
+                        <i>Type : </i>    <code>string[]</code>
 
                     </td>
                 </tr>
@@ -237,64 +264,16 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @OneToMany(undefined, cert &#x3D;&gt; cert.key)<br />
+                            @ApiPropertyOptional({description: &#x27;Certificate chain in PEM format (leaf first, then intermediates/CA).&#x27;})<br />@IsString({each: true})<br />@IsOptional()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="78" class="link-to-prism">src/crypto/key/entities/keys.entity.ts:78</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="129" class="link-to-prism">src/crypto/key/dto/key-chain-import.dto.ts:129</a></div>
                         </td>
                     </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Certificates associated with this key.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="createdAt"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                        <span ><b>createdAt</b></span>
-                        <a href="#createdAt"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date" target="_blank" >Date</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @CreateDateColumn()<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="84" class="link-to-prism">src/crypto/key/entities/keys.entity.ts:84</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>The timestamp when the key was created.</p>
-</div>
-                </td>
-            </tr>
 
         </tbody>
     </table>
@@ -324,22 +303,16 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsString()<br />@IsOptional()<br />@Column(&#x27;varchar&#x27;, {nullable: true})<br />
+                            @ApiPropertyOptional({description: &#x27;Human-readable description.&#x27;})<br />@IsString()<br />@IsOptional()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">src/crypto/key/entities/keys.entity.ts:35</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="114" class="link-to-prism">src/crypto/key/dto/key-chain-import.dto.ts:114</a></div>
                         </td>
                     </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Description of the key.</p>
-</div>
-                </td>
-            </tr>
 
         </tbody>
     </table>
@@ -351,6 +324,8 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
                         <span ><b>id</b></span>
                         <a href="#id"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -367,22 +342,16 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsString()<br />@Column(&#x27;varchar&#x27;, {primary: true})<br />
+                            @ApiPropertyOptional({description: &#x27;ID for the key chain. If not provided, a new UUID will be generated.&#x27;})<br />@IsString()<br />@IsOptional()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/crypto/key/entities/keys.entity.ts:27</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="99" class="link-to-prism">src/crypto/key/dto/key-chain-import.dto.ts:99</a></div>
                         </td>
                     </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Unique identifier for the key.</p>
-</div>
-                </td>
-            </tr>
 
         </tbody>
     </table>
@@ -393,6 +362,9 @@
                     <a name="key"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>key</b></span>
                         <a href="#key"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -400,7 +372,7 @@
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>    <code>JWK</code>
+                        <i>Type : </i>        <code><a href="../classes/EcJwk.html" target="_self" >EcJwk</a></code>
 
                     </td>
                 </tr>
@@ -409,23 +381,16 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column(&#x27;text&#x27;, {transformer: EncryptedJsonTransformer})<br />
+                            @ApiProperty({description: &#x27;The private key in JWK format.&#x27;})<br />@IsObject()<br />@ValidateNested()<br />@Type(undefined)<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/crypto/key/entities/keys.entity.ts:54</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="107" class="link-to-prism">src/crypto/key/dto/key-chain-import.dto.ts:107</a></div>
                         </td>
                     </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>The key material.
-Encrypted at rest using AES-256-GCM.</p>
-</div>
-                </td>
-            </tr>
 
         </tbody>
     </table>
@@ -438,6 +403,7 @@ Encrypted at rest using AES-256-GCM.</p>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
                         <span ><b>kmsProvider</b></span>
                         <a href="#kmsProvider"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -454,23 +420,16 @@ Encrypted at rest using AES-256-GCM.</p>
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsString()<br />@IsOptional()<br />@Column(&#x27;varchar&#x27;, {default: &#x27;db&#x27;})<br />
+                            @ApiPropertyOptional({description: &#x27;KMS provider to use. Defaults to &#x27;db&#x27;.&#x27;})<br />@IsString()<br />@IsOptional()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="69" class="link-to-prism">src/crypto/key/entities/keys.entity.ts:69</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="136" class="link-to-prism">src/crypto/key/dto/key-chain-import.dto.ts:136</a></div>
                         </td>
                     </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>The KMS provider used for this key.
-References a configured KMS provider name.</p>
-</div>
-                </td>
-            </tr>
 
         </tbody>
     </table>
@@ -478,17 +437,21 @@ References a configured KMS provider name.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="tenant"></a>
+                    <a name="rotationPolicy"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                        <span ><b>tenant</b></span>
-                        <a href="#tenant"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>rotationPolicy</b></span>
+                        <a href="#rotationPolicy"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../entitys/TenantEntity.html" target="_self" >TenantEntity</a></code>
+                        <i>Type : </i>        <code><a href="../classes/RotationPolicyImportDto.html" target="_self" >RotationPolicyImportDto</a></code>
 
                     </td>
                 </tr>
@@ -497,22 +460,16 @@ References a configured KMS provider name.</p>
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ManyToOne(undefined, {cascade: true, onDelete: &#x27;CASCADE&#x27;})<br />
+                            @ApiPropertyOptional({description: &#x27;Rotation policy. When enabled, the imported key becomes a root CA and a new leaf key is generated.&#x27;})<br />@ValidateNested()<br />@Type(undefined)<br />@IsOptional()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/crypto/key/entities/keys.entity.ts:47</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="145" class="link-to-prism">src/crypto/key/dto/key-chain-import.dto.ts:145</a></div>
                         </td>
                     </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>The tenant that owns this object.</p>
-</div>
-                </td>
-            </tr>
 
         </tbody>
     </table>
@@ -520,17 +477,18 @@ References a configured KMS provider name.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="tenantId"></a>
+                    <a name="usageType"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                        <span ><b>tenantId</b></span>
-                        <a href="#tenantId"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier"></span>
+                        <span ><b>usageType</b></span>
+                        <a href="#usageType"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                        <i>Type : </i>        <code><a href="../miscellaneous/enumerations.html#KeyUsageType" target="_self" >KeyUsageType</a></code>
 
                     </td>
                 </tr>
@@ -539,214 +497,180 @@ References a configured KMS provider name.</p>
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column(&#x27;varchar&#x27;, {primary: true})<br />
+                            @ApiProperty({description: &#x27;Usage type for this key chain.&#x27;, enum: KeyUsageType})<br />@IsEnum(KeyUsageType)<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/crypto/key/entities/keys.entity.ts:41</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="121" class="link-to-prism">src/crypto/key/dto/key-chain-import.dto.ts:121</a></div>
                         </td>
                     </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Tenant ID for the key.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="updatedAt"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                        <span ><b>updatedAt</b></span>
-                        <a href="#updatedAt"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date" target="_blank" >Date</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @UpdateDateColumn()<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="90" class="link-to-prism">src/crypto/key/entities/keys.entity.ts:90</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>The timestamp when the key was last updated.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="usage"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                        <span ><b>usage</b></span>
-                        <a href="#usage"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#KeyUsage" target="_self" >KeyUsage</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @Column(&#x27;varchar&#x27;, {default: &#x27;sign&#x27;})<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="60" class="link-to-prism">src/crypto/key/entities/keys.entity.ts:60</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>The usage type of the key.</p>
-</div>
-                </td>
-            </tr>
 
         </tbody>
     </table>
 </section>
+
+
+
+
+
+
+
     </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsOptional, IsString } from &quot;class-validator&quot;;
-import { JWK } from &quot;jose&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty, ApiPropertyOptional } from &quot;@nestjs/swagger&quot;;
+import { Type } from &quot;class-transformer&quot;;
 import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    ManyToOne,
-    OneToMany,
-    UpdateDateColumn,
-} from &quot;typeorm&quot;;
-import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
-import { EncryptedJsonTransformer } from &quot;../../../shared/utils/encryption&quot;;
-import { CertEntity } from &quot;./cert.entity&quot;;
+    IsBoolean,
+    IsEnum,
+    IsNumber,
+    IsObject,
+    IsOptional,
+    IsString,
+    Max,
+    Min,
+    ValidateNested,
+} from &quot;class-validator&quot;;
+import { JWK } from &quot;jose&quot;;
+import { KeyUsageType } from &quot;../entities/key-chain.entity&quot;;
 
 /**
- * Key usage types.
+ * JWK structure for EC keys (P-256).
  */
-export type KeyUsage &#x3D; &quot;sign&quot; | &quot;encrypt&quot;;
-
-@Entity()
-export class KeyEntity {
-    /**
-     * Unique identifier for the key.
-     */
+class EcJwk implements JWK {
     @IsString()
-    @Column(&quot;varchar&quot;, { primary: true })
-    id!: string;
+    kty!: string;
 
-    /**
-     * Description of the key.
-     */
+    @IsString()
+    x!: string;
+
+    @IsString()
+    y!: string;
+
+    @IsString()
+    crv!: string;
+
+    @IsString()
+    d!: string;
+
     @IsString()
     @IsOptional()
-    @Column(&quot;varchar&quot;, { nullable: true })
+    alg?: string;
+
+    @IsString()
+    @IsOptional()
+    kid?: string;
+}
+
+/**
+ * Rotation policy for imported key chains.
+ * When enabled, the imported key becomes the root CA key,
+ * and a new leaf key is generated for signing.
+ */
+class RotationPolicyImportDto {
+    @ApiProperty({
+        description:
+            &quot;Whether rotation is enabled. When true, the imported key becomes a root CA.&quot;,
+        default: false,
+    })
+    @IsBoolean()
+    enabled!: boolean;
+
+    @ApiPropertyOptional({
+        description: &quot;Rotation interval in days.&quot;,
+        example: 90,
+        minimum: 1,
+        maximum: 3650,
+    })
+    @IsNumber()
+    @Min(1)
+    @Max(3650)
+    @IsOptional()
+    intervalDays?: number;
+
+    @ApiPropertyOptional({
+        description: &quot;Certificate validity in days.&quot;,
+        example: 365,
+        minimum: 1,
+        maximum: 3650,
+    })
+    @IsNumber()
+    @Min(1)
+    @Max(3650)
+    @IsOptional()
+    certValidityDays?: number;
+}
+
+/**
+ * DTO for importing a key chain from file configuration.
+ *
+ * This format supports importing keys with their certificates.
+ * The import can be done in two ways:
+ * 1. Combined: key + certificate in single JSON file
+ * 2. Separate: key JSON references a certificate JSON via keyId matching
+ */
+export class KeyChainImportDto {
+    @ApiPropertyOptional({
+        description:
+            &quot;ID for the key chain. If not provided, a new UUID will be generated.&quot;,
+    })
+    @IsString()
+    @IsOptional()
+    id?: string;
+
+    @ApiProperty({
+        description: &quot;The private key in JWK format.&quot;,
+    })
+    @IsObject()
+    @ValidateNested()
+    @Type(() &#x3D;&gt; EcJwk)
+    key!: EcJwk;
+
+    @ApiPropertyOptional({
+        description: &quot;Human-readable description.&quot;,
+    })
+    @IsString()
+    @IsOptional()
     description?: string;
 
-    /**
-     * Tenant ID for the key.
-     */
-    @Column(&quot;varchar&quot;, { primary: true })
-    tenantId!: string;
+    @ApiProperty({
+        description: &quot;Usage type for this key chain.&quot;,
+        enum: KeyUsageType,
+    })
+    @IsEnum(KeyUsageType)
+    usageType!: KeyUsageType;
 
-    /**
-     * The tenant that owns this object.
-     */
-    @ManyToOne(() &#x3D;&gt; TenantEntity, { cascade: true, onDelete: &quot;CASCADE&quot; })
-    tenant!: TenantEntity;
+    @ApiPropertyOptional({
+        description:
+            &quot;Certificate chain in PEM format (leaf first, then intermediates/CA).&quot;,
+    })
+    @IsString({ each: true })
+    @IsOptional()
+    crt?: string[];
 
-    /**
-     * The key material.
-     * Encrypted at rest using AES-256-GCM.
-     */
-    @Column(&quot;text&quot;, { transformer: EncryptedJsonTransformer })
-    key!: JWK;
-
-    /**
-     * The usage type of the key.
-     */
-    @Column(&quot;varchar&quot;, { default: &quot;sign&quot; })
-    usage!: KeyUsage;
-
-    /**
-     * The KMS provider used for this key.
-     * References a configured KMS provider name.
-     */
+    @ApiPropertyOptional({
+        description: &quot;KMS provider to use. Defaults to &#x27;db&#x27;.&quot;,
+    })
     @IsString()
     @IsOptional()
-    @Column(&quot;varchar&quot;, { default: &quot;db&quot; })
-    kmsProvider!: string;
+    kmsProvider?: string;
 
-    /**
-     * Certificates associated with this key.
-     */
-    @OneToMany(
-        () &#x3D;&gt; CertEntity,
-        (cert) &#x3D;&gt; cert.key,
-    )
-    certificates: CertEntity[];
-
-    /**
-     * The timestamp when the key was created.
-     */
-    @CreateDateColumn()
-    createdAt!: Date;
-
-    /**
-     * The timestamp when the key was last updated.
-     */
-    @UpdateDateColumn()
-    updatedAt!: Date;
+    @ApiPropertyOptional({
+        description:
+            &quot;Rotation policy. When enabled, the imported key becomes a root CA and a new leaf key is generated.&quot;,
+    })
+    @ValidateNested()
+    @Type(() &#x3D;&gt; RotationPolicyImportDto)
+    @IsOptional()
+    rotationPolicy?: RotationPolicyImportDto;
 }
 </code></pre>
     </div>
 </div>
-
-
-
-
-
-
 
 
 
@@ -781,8 +705,8 @@ export class KeyEntity {
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'entity';
-            var COMPODOC_CURRENT_PAGE_URL = 'KeyEntity.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
+            var COMPODOC_CURRENT_PAGE_URL = 'KeyChainImportDto.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

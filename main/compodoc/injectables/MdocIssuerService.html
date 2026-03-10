@@ -203,7 +203,7 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, keyService: <a href="../injectables/KeyService.html" target="_self">KeyService</a>)</code>
+<code>constructor(certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, keyChainService: <a href="../injectables/KeyChainService.html" target="_self">KeyChainService</a>)</code>
                     </td>
                 </tr>
                         <tr>
@@ -238,10 +238,10 @@
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>keyService</td>
+                                                        <td>keyChainService</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../injectables/KeyService.html" target="_self" >KeyService</a></code>
+                                                                        <code><a href="../injectables/KeyChainService.html" target="_self" >KeyChainService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -464,8 +464,8 @@ import type { Jwk } from &quot;@openid4vc/oauth2&quot;;
 import { X509Certificate } from &quot;@peculiar/x509&quot;;
 import { exportJWK } from &quot;jose&quot;;
 import { CertService } from &quot;../../../../../crypto/key/cert/cert.service&quot;;
-import { CertUsage } from &quot;../../../../../crypto/key/entities/cert-usage.entity&quot;;
-import { KeyService } from &quot;../../../../../crypto/key/key.service&quot;;
+import { KeyUsageType } from &quot;../../../../../crypto/key/entities/key-chain.entity&quot;;
+import { KeyChainService } from &quot;../../../../../crypto/key/key-chain.service&quot;;
 import { Session } from &quot;../../../../../session/entities/session.entity&quot;;
 import { mdocContext } from &quot;../../../../../verifier/presentations/mdoc-context&quot;;
 import { CredentialConfig } from &quot;../../entities/credential.entity&quot;;
@@ -486,7 +486,7 @@ export class MdocIssuerService {
 
     constructor(
         private readonly certService: CertService,
-        private readonly keyService: KeyService,
+        private readonly keyChainService: KeyChainService,
     ) {}
 
     /**
@@ -530,19 +530,19 @@ export class MdocIssuerService {
         // Get signing certificate
         const certificate &#x3D; await this.certService.find({
             tenantId: session.tenantId,
-            type: CertUsage.Signing,
-            id: credentialConfiguration.certId,
+            type: KeyUsageType.Attestation,
+            keyId: credentialConfiguration.keyChainId,
         });
 
-        // Get the private key for signing
-        const keyEntity &#x3D; await this.keyService.getKey(
+        // Get the private key for signing via KeyChainEntity
+        const keyChain &#x3D; await this.keyChainService.getEntity(
             session.tenantId,
             certificate.keyId,
         );
         const privateKey &#x3D; await exportJWK(
             await crypto.subtle.importKey(
                 &quot;jwk&quot;,
-                keyEntity.key,
+                keyChain.activeKey,
                 { name: &quot;ECDSA&quot;, namedCurve: &quot;P-256&quot; },
                 true,
                 [&quot;sign&quot;],

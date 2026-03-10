@@ -137,9 +137,6 @@
                             <a href="#AuthenticationMethod" title="src/issuer/configuration/issuance/dto/authentication-config.dto.ts" ><b>AuthenticationMethod</b>&nbsp;&nbsp;&nbsp;(src/.../authentication-config.dto.ts)</a>
                         </li>
                         <li>
-                            <a href="#CertUsage" title="src/crypto/key/entities/cert-usage.entity.ts" ><b>CertUsage</b>&nbsp;&nbsp;&nbsp;(src/.../cert-usage.entity.ts)</a>
-                        </li>
-                        <li>
                             <a href="#ChainedAsSessionStatus" title="src/issuer/issuance/oid4vci/chained-as/entities/chained-as-session.entity.ts" ><b>ChainedAsSessionStatus</b>&nbsp;&nbsp;&nbsp;(src/.../chained-as-session.entity.ts)</a>
                         </li>
                         <li>
@@ -165,6 +162,15 @@
                         </li>
                         <li>
                             <a href="#InteractiveAuthSessionStatus" title="src/issuer/issuance/oid4vci/entities/interactive-auth-session.entity.ts" ><b>InteractiveAuthSessionStatus</b>&nbsp;&nbsp;&nbsp;(src/.../interactive-auth-session.entity.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#KeyChainType" title="src/crypto/key/dto/key-chain-create.dto.ts" ><b>KeyChainType</b>&nbsp;&nbsp;&nbsp;(src/.../key-chain-create.dto.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#KeyUsage" title="src/crypto/key/entities/key-chain.entity.ts" ><b>KeyUsage</b>&nbsp;&nbsp;&nbsp;(src/.../key-chain.entity.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#KeyUsageType" title="src/crypto/key/entities/key-chain.entity.ts" ><b>KeyUsageType</b>&nbsp;&nbsp;&nbsp;(src/.../key-chain.entity.ts)</a>
                         </li>
                         <li>
                             <a href="#MediaType" title="src/shared/utils/mediaType/media-type.enum.ts" ><b>MediaType</b>&nbsp;&nbsp;&nbsp;(src/.../media-type.enum.ts)</a>
@@ -274,59 +280,6 @@
                         <tr>
                             <td class="col-md-4">
                                 <i>Value : </i><code>presentationDuringIssuance</code>
-                            </td>
-                        </tr>
-            </tbody>
-        </table>
-</section>
-    <h3>src/crypto/key/entities/cert-usage.entity.ts</h3>
-    <section data-compodoc="block-enums">
-        <table class="table table-sm table-bordered">
-            <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <a name="CertUsage"></a>
-                        <span class="name "><b>CertUsage</b><a href="#CertUsage"><span class="icon ion-ios-link"></span></a></span>
-                    </td>
-                </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                &nbsp;Access
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                <i>Value : </i><code>access</code>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                &nbsp;Signing
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                <i>Value : </i><code>signing</code>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                &nbsp;TrustList
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                <i>Value : </i><code>trustList</code>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                &nbsp;StatusList
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="col-md-4">
-                                <i>Value : </i><code>statusList</code>
                             </td>
                         </tr>
             </tbody>
@@ -794,6 +747,150 @@ Lower numbers run first.</p>
                         <tr>
                             <td class="col-md-4">
                                 <i>Value : </i><code>failed</code>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
+    <h3>src/crypto/key/dto/key-chain-create.dto.ts</h3>
+    <section data-compodoc="block-enums">
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="KeyChainType"></a>
+                        <span class="name "><b>KeyChainType</b><a href="#KeyChainType"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-description"><p>Key chain type determines the structure of the key chain.</p>
+</div>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;Standalone
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>standalone</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;InternalChain
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>internalChain</code>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
+    <h3>src/crypto/key/entities/key-chain.entity.ts</h3>
+    <section data-compodoc="block-enums">
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="KeyUsage"></a>
+                        <span class="name "><b>KeyUsage</b><a href="#KeyUsage"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-description"><p>Key usage types for cryptographic operations.</p>
+</div>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;Sign
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>sign</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;Encrypt
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>encrypt</code>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="KeyUsageType"></a>
+                        <span class="name "><b>KeyUsageType</b><a href="#KeyUsageType"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-description"><p>Key usage types for different purposes in the system.</p>
+</div>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;Access
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>access</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;Attestation
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>attestation</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;TrustList
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>trustList</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;StatusList
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>statusList</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;Encrypt
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>encrypt</code>
                             </td>
                         </tr>
             </tbody>

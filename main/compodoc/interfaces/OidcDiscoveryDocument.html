@@ -533,7 +533,7 @@ import { decodeJwt, decodeProtectedHeader } from &quot;jose&quot;;
 import { firstValueFrom } from &quot;rxjs&quot;;
 import { LessThan, Repository } from &quot;typeorm&quot;;
 import { v4 } from &quot;uuid&quot;;
-import { KeyService } from &quot;../../../../crypto/key/key.service&quot;;
+import { KeyChainService } from &quot;../../../../crypto/key/key-chain.service&quot;;
 import { SessionService } from &quot;../../../../session/session.service&quot;;
 import { WalletAttestationService } from &quot;../../../../shared/trust/wallet-attestation.service&quot;;
 import { AuthorizationIdentity } from &quot;../../../configuration/credentials/dto/authorization-identity&quot;;
@@ -625,7 +625,7 @@ export class ChainedAsService {
     constructor(
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
-        private readonly keyService: KeyService,
+        private readonly keyChainService: KeyChainService,
         private readonly sessionService: SessionService,
         private readonly issuanceService: IssuanceService,
         private readonly walletAttestationService: WalletAttestationService,
@@ -1174,9 +1174,9 @@ export class ChainedAsService {
         // Get the key ID to use - either from config or resolve from key service
         const signingKeyId &#x3D;
             config.token?.signingKeyId ||
-            (await this.keyService.getKid(tenantId, &quot;sign&quot;));
+            (await this.keyChainService.getKid(tenantId));
 
-        const publicKey &#x3D; await this.keyService.getPublicKey(
+        const publicKey &#x3D; await this.keyChainService.getPublicKey(
             &quot;jwk&quot;,
             tenantId,
             signingKeyId,
@@ -1185,7 +1185,7 @@ export class ChainedAsService {
         // Use the resolved signing key ID as the kid in the JWT header
         const kid &#x3D; (publicKey as { kid?: string }).kid || signingKeyId;
 
-        const accessToken &#x3D; await this.keyService.signJWT(
+        const accessToken &#x3D; await this.keyChainService.signJWT(
             tokenPayload as any,
             { alg: &quot;ES256&quot;, kid, typ: &quot;at+jwt&quot; },
             tenantId,
@@ -1220,9 +1220,9 @@ export class ChainedAsService {
         // Get the key ID to use - either from config or resolve from key service
         const signingKeyId &#x3D;
             config.token?.signingKeyId ||
-            (await this.keyService.getKid(tenantId, &quot;sign&quot;));
+            (await this.keyChainService.getKid(tenantId));
 
-        const publicKey &#x3D; await this.keyService.getPublicKey(
+        const publicKey &#x3D; await this.keyChainService.getPublicKey(
             &quot;jwk&quot;,
             tenantId,
             signingKeyId,

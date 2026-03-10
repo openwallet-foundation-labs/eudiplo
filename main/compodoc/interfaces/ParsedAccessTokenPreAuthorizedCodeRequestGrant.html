@@ -315,7 +315,7 @@ import {
 import type { Request } from &quot;express&quot;;
 import { v4 } from &quot;uuid&quot;;
 import { CryptoService } from &quot;../../../../crypto/crypto.service&quot;;
-import { KeyService } from &quot;../../../../crypto/key/key.service&quot;;
+import { KeyChainService } from &quot;../../../../crypto/key/key-chain.service&quot;;
 import { SessionService } from &quot;../../../../session/session.service&quot;;
 import { WalletAttestationService } from &quot;../../../../shared/trust/wallet-attestation.service&quot;;
 import { IssuanceService } from &quot;../../../configuration/issuance/issuance.service&quot;;
@@ -344,7 +344,7 @@ export class AuthorizeService {
         private readonly sessionService: SessionService,
         private readonly issuanceService: IssuanceService,
         private readonly walletAttestationService: WalletAttestationService,
-        private readonly keyService: KeyService,
+        private readonly keyChainService: KeyChainService,
     ) {}
 
     getAuthorizationServer(tenantId: string): Oauth2AuthorizationServer {
@@ -615,9 +615,9 @@ export class AuthorizeService {
         // Use pinned key from issuance config, or fall back to first available key
         const signingKeyId &#x3D;
             issuanceConfig.signingKeyId ||
-            (await this.keyService.getKid(tenantId));
+            (await this.keyChainService.getKid(tenantId));
 
-        const publicKey &#x3D; await this.keyService.getPublicKey(
+        const publicKey &#x3D; await this.keyChainService.getPublicKey(
             &quot;jwk&quot;,
             tenantId,
             signingKeyId,

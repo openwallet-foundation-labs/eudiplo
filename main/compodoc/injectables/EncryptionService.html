@@ -166,6 +166,7 @@
                                 <a href="#decryptJwe" >decryptJwe</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#getEncryptionPublicKey" >getEncryptionPublicKey</a>
                             </li>
                             <li>
@@ -190,19 +191,17 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(keyRepository: <a href="../classes/Key.html" target="_self">Repository&lt;KeyEntity&gt;</a>)</code>
+<code>constructor(keyChainService: <a href="../injectables/KeyChainService.html" target="_self">KeyChainService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/crypto/encryption/encryption.service.ts:12</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/crypto/encryption/encryption.service.ts:10</a></div>
                             </td>
                         </tr>
 
                 <tr>
                     <td class="col-md-4">
-                            <div class="io-description"><p>Constructor for the EncryptionService.</p>
-</div>
                             <div>
                                     <b>Parameters :</b>
                                     <table class="params">
@@ -215,10 +214,10 @@
                                         </thead>
                                         <tbody>
                                                 <tr>
-                                                        <td>keyRepository</td>
+                                                        <td>keyChainService</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../classes/Key.html" target="_self" >Repository&lt;KeyEntity&gt;</a></code>
+                                                                        <code><a href="../injectables/KeyChainService.html" target="_self" >KeyChainService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -262,8 +261,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="47"
-                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:47</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="40"
+                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:40</a></div>
                         </td>
                     </tr>
 
@@ -278,7 +277,7 @@
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Encrypts a response using JWE (JSON Web Encryption).</p>
+                        <div class="io-description"><p>Decrypts a JWE (JSON Web Encryption) response.</p>
 </div>
 
                             <div class="io-description">
@@ -307,7 +306,7 @@
 
                                             <td>
                                                     <ul>
-<li>The response to encrypt.</li>
+<li>The encrypted JWE string.</li>
 </ul>
 
                                             </td>
@@ -325,7 +324,7 @@
 
                                             <td>
                                                     <ul>
-<li>The ID of the tenant for which to encrypt the response.</li>
+<li>The ID of the tenant for which to decrypt the response.</li>
 </ul>
 
                                             </td>
@@ -338,7 +337,7 @@
 
                         </div>
                             <div class="io-description">
-                                <p>The encrypted response as a JWE string.</p>
+                                <p>The decrypted payload.</p>
 
                             </div>
                 </td>
@@ -351,6 +350,7 @@
                 <td class="col-md-4">
                     <a name="getEncryptionPublicKey"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>getEncryptionPublicKey</b></span>
                         <a href="#getEncryptionPublicKey"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -358,15 +358,16 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getEncryptionPublicKey(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getEncryptionPublicKey(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="67"
-                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:67</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="60"
+                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:60</a></div>
                         </td>
                     </tr>
 
@@ -444,15 +445,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="26"
-                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:26</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="18"
+                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:18</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Initializes the encryption keys for a given tenant.</p>
+                        <div class="io-description"><p>Initializes the encryption keys for a given tenant.
+Creates a key chain with an ECDH-ES encryption key.</p>
 </div>
 
                             <div class="io-description">
@@ -490,7 +492,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -507,61 +509,54 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
-import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { exportJWK, generateKeyPair, importJWK, JWK, jwtDecrypt } from &quot;jose&quot;;
-import { Repository } from &quot;typeorm&quot;;
-import { v4 } from &quot;uuid&quot;;
-import { KeyEntity } from &quot;../key/entities/keys.entity&quot;;
+import { KeyUsageType } from &quot;../key/entities/key-chain.entity&quot;;
+import { KeyChainService } from &quot;../key/key-chain.service&quot;;
 
 /**
  * Service for handling encryption and decryption operations.
  */
 @Injectable()
 export class EncryptionService {
-    /**
-     * Constructor for the EncryptionService.
-     * @param configService
-     */
-    constructor(
-        @InjectRepository(KeyEntity)
-        private keyRepository: Repository&lt;KeyEntity&gt;,
-    ) {}
+    constructor(private readonly keyChainService: KeyChainService) {}
 
     /**
      * Initializes the encryption keys for a given tenant.
+     * Creates a key chain with an ECDH-ES encryption key.
      * @param tenantId - The ID of the tenant for which to initialize the keys.
      */
-    async onTenantInit(tenantId: string) {
+    async onTenantInit(tenantId: string): Promise&lt;void&gt; {
         const privateKey &#x3D; await generateKeyPair(&quot;ECDH-ES&quot;, {
             crv: &quot;P-256&quot;,
             extractable: true,
         }).then(async (secret) &#x3D;&gt; exportJWK(secret.privateKey));
 
         privateKey.alg &#x3D; &quot;ECDH-ES&quot;;
-        this.keyRepository.save({
-            id: v4(),
+
+        await this.keyChainService.createStandalone({
             tenantId,
-            key: privateKey,
-            usage: &quot;encrypt&quot;,
+            description: &quot;Encryption key&quot;,
+            usageType: KeyUsageType.Encrypt,
+            privateKey,
         });
     }
 
     /**
-     * Encrypts a response using JWE (JSON Web Encryption).
-     * @param response - The response to encrypt.
-     * @param tenantId - The ID of the tenant for which to encrypt the response.
-     * @returns The encrypted response as a JWE string.
+     * Decrypts a JWE (JSON Web Encryption) response.
+     * @param response - The encrypted JWE string.
+     * @param tenantId - The ID of the tenant for which to decrypt the response.
+     * @returns The decrypted payload.
      */
     async decryptJwe&lt;T&gt;(response: string, tenantId: string): Promise&lt;T&gt; {
-        const privateEncryptionKey &#x3D; await this.keyRepository
-            .findOneByOrFail({
-                tenantId,
-                usage: &quot;encrypt&quot;,
-            })
-            .then(
-                (keyEntity) &#x3D;&gt;
-                    importJWK(keyEntity.key, &quot;ECDH-ES&quot;) as Promise&lt;CryptoKey&gt;,
-            );
+        const keyChain &#x3D; await this.keyChainService.findByUsageType(
+            tenantId,
+            KeyUsageType.Encrypt,
+        );
+
+        const privateEncryptionKey &#x3D; (await importJWK(
+            keyChain.activeKey,
+            &quot;ECDH-ES&quot;,
+        )) as CryptoKey;
 
         const res &#x3D; await jwtDecrypt&lt;T&gt;(response, privateEncryptionKey);
         return res.payload;
@@ -572,17 +567,18 @@ export class EncryptionService {
      * @param tenantId - The ID of the tenant for which to retrieve the public key.
      * @returns The public encryption key as a JWK.
      */
-    getEncryptionPublicKey(tenantId: string): Promise&lt;JWK&gt; {
-        return this.keyRepository
-            .findOneByOrFail({
-                tenantId,
-                usage: &quot;encrypt&quot;,
-            })
-            .then((entry) &#x3D;&gt; {
-                delete entry.key.d;
-                entry.key.kid &#x3D; entry.id;
-                return entry.key;
-            });
+    async getEncryptionPublicKey(tenantId: string): Promise&lt;JWK&gt; {
+        const keyChain &#x3D; await this.keyChainService.findByUsageType(
+            tenantId,
+            KeyUsageType.Encrypt,
+        );
+
+        // Return public key (without private key component &#x27;d&#x27;)
+        const publicKey: JWK &#x3D; { ...keyChain.activeKey };
+        delete publicKey.d;
+        publicKey.kid &#x3D; keyChain.id;
+
+        return publicKey;
     }
 }
 </code></pre>

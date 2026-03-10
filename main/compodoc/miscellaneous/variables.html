@@ -131,9 +131,6 @@
                 <td class="col-md-4">
                     <ul class="index-list">
                         <li>
-                            <a href="#ADAPTER_FACTORIES" title="src/crypto/key/adapters/kms-adapter.factory.ts" ><b>ADAPTER_FACTORIES</b>&nbsp;&nbsp;&nbsp;(src/.../kms-adapter.factory.ts)</a>
-                        </li>
-                        <li>
                             <a href="#allRoles" title="src/auth/roles/role.enum.ts" ><b>allRoles</b>&nbsp;&nbsp;&nbsp;(src/.../role.enum.ts)</a>
                         </li>
                         <li>
@@ -179,10 +176,7 @@
                             <a href="#DEFAULT_LANG" title="src/issuer/trust-list/trustlist.service.ts" ><b>DEFAULT_LANG</b>&nbsp;&nbsp;&nbsp;(src/.../trustlist.service.ts)</a>
                         </li>
                         <li>
-                            <a href="#ECDSA_P256" title="src/crypto/key/cert/cert.service.ts" ><b>ECDSA_P256</b>&nbsp;&nbsp;&nbsp;(src/.../cert.service.ts)</a>
-                        </li>
-                        <li>
-                            <a href="#ED25519" title="src/crypto/key/crypto-implementation/ed25519.ts" ><b>ED25519</b>&nbsp;&nbsp;&nbsp;(src/.../ed25519.ts)</a>
+                            <a href="#ECDSA_P256" title="src/crypto/key/key-chain.service.ts" ><b>ECDSA_P256</b>&nbsp;&nbsp;&nbsp;(src/.../key-chain.service.ts)</a>
                         </li>
                         <li>
                             <a href="#EncryptedJsonTransformer" title="src/shared/utils/encryption/encrypted-column.transformer.ts" ><b>EncryptedJsonTransformer</b>&nbsp;&nbsp;&nbsp;(src/.../encrypted-column.transformer.ts)</a>
@@ -209,13 +203,10 @@
                             <a href="#ISSUER_VALIDATION_SCHEMA" title="src/issuer/issuer-validation.schema.ts" ><b>ISSUER_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../issuer-validation.schema.ts)</a>
                         </li>
                         <li>
-                            <a href="#KMS_ADAPTER_TYPES" title="src/crypto/key/adapters/kms-adapter.factory.ts" ><b>KMS_ADAPTER_TYPES</b>&nbsp;&nbsp;&nbsp;(src/.../kms-adapter.factory.ts)</a>
+                            <a href="#KMS_PROVIDER_TYPES" title="src/crypto/key/dto/kms-config.dto.ts" ><b>KMS_PROVIDER_TYPES</b>&nbsp;&nbsp;&nbsp;(src/.../kms-config.dto.ts)</a>
                         </li>
                         <li>
                             <a href="#LOG_VALIDATION_SCHEMA" title="src/shared/utils/logger/log-validation.schema.ts" ><b>LOG_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../log-validation.schema.ts)</a>
-                        </li>
-                        <li>
-                            <a href="#logger" title="src/crypto/key/adapters/kms-adapter.factory.ts" ><b>logger</b>&nbsp;&nbsp;&nbsp;(src/.../kms-adapter.factory.ts)</a>
                         </li>
                         <li>
                             <a href="#mdocContext" title="src/verifier/presentations/mdoc-context.ts" ><b>mdocContext</b>&nbsp;&nbsp;&nbsp;(src/.../mdoc-context.ts)</a>
@@ -278,130 +269,6 @@
     </table>
 </section>
 
-    <h3>src/crypto/key/adapters/kms-adapter.factory.ts</h3>
-    <section data-compodoc="block-properties">
-    <h3></h3>    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="ADAPTER_FACTORIES"></a>
-                    <span class="name">
-                        <span ><b>ADAPTER_FACTORIES</b></span>
-                        <a href="#ADAPTER_FACTORIES"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../classes/KmsAdapter.html" target="_self" >Record&lt;string, KmsAdapterFactoryFn&gt;</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>{
-    db: (_config, deps) &#x3D;&gt;
-        new DBKeyService(deps.cryptoService, deps.keyRepository),
-
-    vault: (config, deps) &#x3D;&gt; {
-        const vaultUrl &#x3D; config.vaultUrl as string;
-        const vaultToken &#x3D; config.vaultToken as string;
-
-        if (!vaultUrl || !vaultToken) {
-            throw new Error(
-                &#x27;Vault KMS provider requires &quot;vaultUrl&quot; and &quot;vaultToken&quot; in kms.json.&#x27;,
-            );
-        }
-
-        return new VaultKeyService(
-            deps.httpService,
-            vaultUrl,
-            vaultToken,
-            deps.cryptoService,
-            deps.keyRepository,
-        );
-    },
-}</code>
-                    </td>
-                </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Registry of adapter factory functions, keyed by the provider type used in kms.json.</p>
-<p>To add a new KMS adapter:</p>
-<ol>
-<li>Create a class extending KmsAdapter in /adapters/</li>
-<li>Add the type name to KMS_ADAPTER_TYPES above</li>
-<li>Create a typed config DTO in dto/kms-config.dto.ts</li>
-<li>Register a factory function here under that type name</li>
-<li>Add the provider entry in kms.json</li>
-</ol>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="KMS_ADAPTER_TYPES"></a>
-                    <span class="name">
-                        <span ><b>KMS_ADAPTER_TYPES</b></span>
-                        <a href="#KMS_ADAPTER_TYPES"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>    <code>unknown</code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>[&quot;db&quot;, &quot;vault&quot;] as const</code>
-                    </td>
-                </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Supported KMS adapter type names.
-When adding a new adapter, add its type here and register its factory below.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="logger"></a>
-                    <span class="name">
-                        <span ><b>logger</b></span>
-                        <a href="#logger"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>    <code>unknown</code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>new Logger(&quot;KmsAdapterFactory&quot;)</code>
-                    </td>
-                </tr>
-
-
-        </tbody>
-    </table>
-</section>
     <h3>src/auth/roles/role.enum.ts</h3>
     <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
@@ -1150,7 +1017,7 @@ This decorator can be used to determine the media type of the request.</p>
         </tbody>
     </table>
 </section>
-    <h3>src/crypto/key/cert/cert.service.ts</h3>
+    <h3>src/crypto/key/key-chain.service.ts</h3>
     <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
         <tbody>
@@ -1175,104 +1042,6 @@ This decorator can be used to determine the media type of the request.</p>
     name: &quot;ECDSA&quot;,
     namedCurve: &quot;P-256&quot;,
     hash: &quot;SHA-256&quot; as const,
-}</code>
-                    </td>
-                </tr>
-
-
-        </tbody>
-    </table>
-</section>
-    <h3>src/crypto/key/crypto-implementation/ed25519.ts</h3>
-    <section data-compodoc="block-properties">
-    <h3></h3>    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="ED25519"></a>
-                    <span class="name">
-                        <span ><b>ED25519</b></span>
-                        <a href="#ED25519"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../interfaces/CryptoImplementation.html" target="_self" >CryptoImplementation</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>{
-    alg: &quot;EdDSA&quot;,
-    async generateKeyPair() {
-        const keyPair &#x3D; await crypto.webcrypto.subtle.generateKey(
-            {
-                name: &quot;EdDSA&quot;,
-                namedCurve: &quot;Ed25519&quot;,
-            },
-            true,
-            [&quot;sign&quot;, &quot;verify&quot;],
-        );
-
-        const publicKey &#x3D; await crypto.webcrypto.subtle.exportKey(
-            &quot;jwk&quot;,
-            keyPair.publicKey,
-        );
-        const privateKey &#x3D; await crypto.webcrypto.subtle.exportKey(
-            &quot;jwk&quot;,
-            keyPair.privateKey,
-        );
-
-        return { publicKey, privateKey };
-    },
-    async getSigner(privateKeyJWK: object) {
-        const privateKey &#x3D; await crypto.webcrypto.subtle.importKey(
-            &quot;jwk&quot;,
-            privateKeyJWK,
-            {
-                name: &quot;EdDSA&quot;,
-                namedCurve: &quot;Ed25519&quot;,
-            },
-            false,
-            [&quot;sign&quot;],
-        );
-
-        return async (data: string) &#x3D;&gt; {
-            const signature &#x3D; await crypto.webcrypto.subtle.sign(
-                &quot;EdDSA&quot;,
-                privateKey,
-                new TextEncoder().encode(data),
-            );
-
-            return Buffer.from(signature).toString(&quot;base64url&quot;);
-        };
-    },
-    async getVerifier(publicKeyJWK: object) {
-        const publicKey &#x3D; await crypto.webcrypto.subtle.importKey(
-            &quot;jwk&quot;,
-            publicKeyJWK,
-            {
-                name: &quot;EdDSA&quot;,
-                namedCurve: &quot;Ed25519&quot;,
-            },
-            false,
-            [&quot;verify&quot;],
-        );
-
-        return async (data: string, signatureBase64url: string) &#x3D;&gt; {
-            const signature &#x3D; Buffer.from(signatureBase64url, &quot;base64url&quot;);
-            const isVerified &#x3D; await crypto.webcrypto.subtle.verify(
-                &quot;EdDSA&quot;,
-                publicKey,
-                signature,
-                new TextEncoder().encode(data),
-            );
-
-            return isVerified;
-        };
-    },
 }</code>
                     </td>
                 </tr>
@@ -1697,6 +1466,41 @@ This is necessary because TypeORM transformers don&#39;t support dependency inje
                     </td>
                 </tr>
 
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/crypto/key/dto/kms-config.dto.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="KMS_PROVIDER_TYPES"></a>
+                    <span class="name">
+                        <span ><b>KMS_PROVIDER_TYPES</b></span>
+                        <a href="#KMS_PROVIDER_TYPES"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[&quot;db&quot;, &quot;vault&quot;, &quot;aws-kms&quot;] as const</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Supported KMS adapter types.</p>
+</div>
+                </td>
+            </tr>
 
         </tbody>
     </table>

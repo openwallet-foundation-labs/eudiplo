@@ -172,11 +172,11 @@
                             </li>
                             <li>
                                     <span class="modifier"></span>
-                                <a href="#issuerCertId" >issuerCertId</a>
+                                <a href="#issuerKeyChainId" >issuerKeyChainId</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
-                                <a href="#revocationCertId" >revocationCertId</a>
+                                <a href="#revocationKeyChainId" >revocationKeyChainId</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
@@ -242,11 +242,11 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="issuerCertId"></a>
+                    <a name="issuerKeyChainId"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                        <span ><b>issuerCertId</b></span>
-                        <a href="#issuerCertId"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>issuerKeyChainId</b></span>
+                        <a href="#issuerKeyChainId"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
@@ -278,11 +278,11 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="revocationCertId"></a>
+                    <a name="revocationKeyChainId"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                        <span ><b>revocationCertId</b></span>
-                        <a href="#revocationCertId"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>revocationKeyChainId</b></span>
+                        <a href="#revocationKeyChainId"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
@@ -407,10 +407,10 @@ export class InternalTrustListEntity {
     type: &quot;internal&quot;;
 
     @IsString()
-    issuerCertId: string;
+    issuerKeyChainId: string;
 
     @IsString()
-    revocationCertId: string;
+    revocationKeyChainId: string;
 
     @ValidateNested()
     @Type(() &#x3D;&gt; TrustListEntityInfo)
@@ -444,8 +444,8 @@ export class TrustListCreateDto extends OmitType(TrustList, [
     &quot;tenant&quot;,
     &quot;tenantId&quot;,
     &quot;jwt&quot;,
-    &quot;cert&quot;,
-    &quot;certId&quot;,
+    &quot;keyChain&quot;,
+    &quot;keyChainId&quot;,
     &quot;sequenceNumber&quot;,
     &quot;createdAt&quot;,
     &quot;updatedAt&quot;,
@@ -458,7 +458,11 @@ export class TrustListCreateDto extends OmitType(TrustList, [
 
     @IsString()
     @IsOptional()
-    certId?: string;
+    description?: string;
+
+    @IsString()
+    @IsOptional()
+    keyChainId?: string;
 
     @IsOptional()
     @ValidateNested({ each: true })

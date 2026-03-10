@@ -159,15 +159,6 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                <a href="#cert" >cert</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                <a href="#certId" >certId</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
                                 <a href="#createdAt" >createdAt</a>
                             </li>
                             <li>
@@ -198,6 +189,15 @@
                             <li>
                                     <span class="modifier"></span>
                                 <a href="#jwt" >jwt</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                <a href="#keyChain" >keyChain</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                <a href="#keyChainId" >keyChainId</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
@@ -233,79 +233,6 @@
     <h3 id="inputs">
         Properties
     </h3>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="cert"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                        <span ><b>cert</b></span>
-                        <a href="#cert"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../entitys/CertEntity.html" target="_self" >CertEntity</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @ManyToOne(undefined, {cascade: true, onDelete: &#x27;CASCADE&#x27;})<br />@JoinColumn([&#x27;undefined&#x27;, &#x27;undefined&#x27;])<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:54</a></div>
-                        </td>
-                    </tr>
-
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="certId"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                        <span ><b>certId</b></span>
-                        <a href="#certId"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @Column(&#x27;varchar&#x27;)<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:44</a></div>
-                        </td>
-                    </tr>
-
-
-        </tbody>
-    </table>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -413,7 +340,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsString()<br />@IsOptional()<br />@Column(&#x27;varchar&#x27;)<br />
+                            @IsString()<br />@IsOptional()<br />@Column(&#x27;varchar&#x27;, {nullable: true})<br />
                         </code>
                     </td>
                 </tr>
@@ -553,6 +480,79 @@ Stored for round-tripping when editing.</p>
 </div>
                 </td>
             </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="keyChain"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>keyChain</b></span>
+                        <a href="#keyChain"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../entitys/KeyChainEntity.html" target="_self" >KeyChainEntity</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @ManyToOne(undefined, {cascade: true, onDelete: &#x27;CASCADE&#x27;})<br />@JoinColumn([&#x27;undefined&#x27;, &#x27;undefined&#x27;])<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:54</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="keyChainId"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                        <span ><b>keyChainId</b></span>
+                        <a href="#keyChainId"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @Column(&#x27;varchar&#x27;)<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">src/issuer/trust-list/entities/trust-list.entity.ts:44</a></div>
+                        </td>
+                    </tr>
+
 
         </tbody>
     </table>
@@ -733,7 +733,7 @@ import {
     UpdateDateColumn,
 } from &quot;typeorm&quot;;
 import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
-import { CertEntity } from &quot;../../../crypto/key/entities/cert.entity&quot;;
+import { KeyChainEntity } from &quot;../../../crypto/key/entities/key-chain.entity&quot;;
 import type { TrustListEntity } from &quot;../dto/trust-list-create.dto&quot;;
 
 /**
@@ -750,7 +750,7 @@ export class TrustList {
 
     @IsString()
     @IsOptional()
-    @Column(&quot;varchar&quot;)
+    @Column(&quot;varchar&quot;, { nullable: true })
     description?: string;
 
     /**
@@ -766,17 +766,17 @@ export class TrustList {
     tenant!: TenantEntity;
 
     @Column(&quot;varchar&quot;)
-    certId: string;
+    keyChainId: string;
 
-    @ManyToOne(() &#x3D;&gt; CertEntity, {
+    @ManyToOne(() &#x3D;&gt; KeyChainEntity, {
         cascade: true,
         onDelete: &quot;CASCADE&quot;,
     })
     @JoinColumn([
-        { name: &quot;certId&quot;, referencedColumnName: &quot;id&quot; },
+        { name: &quot;keyChainId&quot;, referencedColumnName: &quot;id&quot; },
         { name: &quot;tenantId&quot;, referencedColumnName: &quot;tenantId&quot; },
     ])
-    cert!: CertEntity;
+    keyChain!: KeyChainEntity;
 
     /**
      * The full trust list JSON (generated LoTE structure)

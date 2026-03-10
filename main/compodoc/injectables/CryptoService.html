@@ -171,7 +171,7 @@
                             <li>
                                     <span class="modifier">Public</span>
                                     <span class="modifier">Readonly</span>
-                                <a href="#keyService" >keyService</a>
+                                <a href="#keyChainService" >keyChainService</a>
                             </li>
                         </ul>
                     </td>
@@ -209,7 +209,7 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(keyService: <a href="../injectables/KeyService.html" target="_self">KeyService</a>, configService: ConfigService)</code>
+<code>constructor(keyChainService: <a href="../injectables/KeyChainService.html" target="_self">KeyChainService</a>, configService: ConfigService)</code>
                     </td>
                 </tr>
                         <tr>
@@ -234,10 +234,10 @@
                                         </thead>
                                         <tbody>
                                                 <tr>
-                                                        <td>keyService</td>
+                                                        <td>keyChainService</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../injectables/KeyService.html" target="_self" >KeyService</a></code>
+                                                                        <code><a href="../injectables/KeyChainService.html" target="_self" >KeyChainService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -484,18 +484,18 @@ Configured via CRYPTO_TOLERANCE env var, defaults to 5s.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="keyService"></a>
+                    <a name="keyChainService"></a>
                     <span class="name">
                             <span class="modifier">Public</span>
                             <span class="modifier">Readonly</span>
-                        <span ><b>keyService</b></span>
-                        <a href="#keyService"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>keyChainService</b></span>
+                        <a href="#keyChainService"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../injectables/KeyService.html" target="_self" >KeyService</a></code>
+                        <i>Type : </i>        <code><a href="../injectables/KeyChainService.html" target="_self" >KeyChainService</a></code>
 
                     </td>
                 </tr>
@@ -533,7 +533,7 @@ import {
     type JWK,
     jwtVerify,
 } from &quot;jose&quot;;
-import { KeyService } from &quot;./key/key.service&quot;;
+import { KeyChainService } from &quot;./key/key-chain.service&quot;;
 
 /**
  * Service for cryptographic operations, including key management and certificate handling.
@@ -557,7 +557,7 @@ export class CryptoService {
      * @param configService
      */
     constructor(
-        public readonly keyService: KeyService,
+        public readonly keyChainService: KeyChainService,
         private readonly configService: ConfigService,
     ) {
         this.clockTolerance &#x3D;
@@ -654,7 +654,7 @@ export class CryptoService {
             });
 
             const privateThumbprint &#x3D; await calculateJwkThumbprint({
-                jwk: (await this.keyService.getPublicKey(
+                jwk: (await this.keyChainService.getPublicKey(
                     &quot;jwk&quot;,
                     tenantId,
                     signer.kid!,
@@ -669,7 +669,7 @@ export class CryptoService {
                 );
             }
 
-            const jwt &#x3D; await this.keyService.signJWT(
+            const jwt &#x3D; await this.keyChainService.signJWT(
                 payload,
                 header,
                 tenantId,
