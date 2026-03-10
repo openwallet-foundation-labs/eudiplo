@@ -21,6 +21,15 @@ export class AddKeyUsageEntity1743000000000 implements MigrationInterface {
     name = "AddKeyUsageEntity1743000000000";
 
     public async up(queryRunner: QueryRunner): Promise<void> {
+        // On a fresh database, key_entity won't exist yet — TypeORM synchronize will create the full schema.
+        const keyTable = await queryRunner.getTable("key_entity");
+        if (!keyTable) {
+            console.log(
+                "[Migration] key_entity table not found — skipping (schema may not exist yet).",
+            );
+            return;
+        }
+
         // Check if key_usage_entity already exists
         const table = await queryRunner.getTable("key_usage_entity");
         if (table) {

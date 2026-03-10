@@ -26,11 +26,9 @@ export class FlattenKeyUsageType1746000000000 implements MigrationInterface {
         }
 
         // Check if usageType column already exists
-        const columns = await queryRunner.query(
-            `PRAGMA table_info("key_entity")`,
-        );
-        const hasUsageType = columns.some(
-            (col: any) => col.name === "usageType",
+        const keyTable = await queryRunner.getTable("key_entity");
+        const hasUsageType = keyTable?.columns.some(
+            (col) => col.name === "usageType",
         );
         if (hasUsageType) {
             console.log(
@@ -105,10 +103,7 @@ export class FlattenKeyUsageType1746000000000 implements MigrationInterface {
         queryRunner: QueryRunner,
         tableName: string,
     ): Promise<boolean> {
-        const result = await queryRunner.query(
-            `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
-            [tableName],
-        );
-        return result.length > 0;
+        const table = await queryRunner.getTable(tableName);
+        return !!table;
     }
 }

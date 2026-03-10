@@ -20,11 +20,8 @@ export class MigrateKeysToKeyChain1747000000000 implements MigrationInterface {
         queryRunner: QueryRunner,
         tableName: string,
     ): Promise<boolean> {
-        const result = await queryRunner.query(
-            `SELECT name FROM sqlite_master WHERE type='table' AND name=?`,
-            [tableName],
-        );
-        return result.length > 0;
+        const table = await queryRunner.getTable(tableName);
+        return !!table;
     }
 
     async up(queryRunner: QueryRunner): Promise<void> {
