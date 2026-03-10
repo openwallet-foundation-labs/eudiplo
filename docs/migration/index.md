@@ -24,14 +24,14 @@ When upgrading EUDIPLO, follow this general process:
 | 1.x     | Archived           | Initial development and protocol testing                                                                                                                              |
 | 2.x     | Archived           | First stable release                                                                                                                                                  |
 | 3.x     | **Current stable** | Introduced automatic database migrations. Bumped from v2 due to the migration system being flagged as a breaking change, though no user-facing API changes were made. |
-| 4.0     | Planned            | Unified Key Chain model (replaces separate Key/Certificate entities). Migration guide will be published with the release.                                              |
+| 4.0     | Planned            | Unified Key Chain model (replaces separate Key/Certificate entities). Migration guide will be published with the release.                                             |
 
 ## Migration Guides
 
 | From | To  | Guide                                                                                    |
 | ---- | --- | ---------------------------------------------------------------------------------------- |
 | 2.x  | 3.0 | No action required — the migration system is backward compatible. Just update and start. |
-| 3.x  | 4.0 | _Coming with the v4.0 release_                                                             |
+| 3.x  | 4.0 | _Coming with the v4.0 release_                                                           |
 
 ## What Can Break Between Versions
 
