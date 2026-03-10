@@ -168,25 +168,23 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Certificate</mat-label>
-              <mat-select formControlName="certId">
+              <mat-label>Key Chain</mat-label>
+              <mat-select formControlName="keyChainId">
                 <mat-option [value]="null">Default (auto-managed)</mat-option>
-                @for (cert of certificates; track cert.id) {
-                  <mat-option [value]="cert.id">{{ cert.id }}</mat-option>
+                @for (keyChain of keyChains; track keyChain.id) {
+                  <mat-option [value]="keyChain.id">{{ keyChain.id }}</mat-option>
                 }
               </mat-select>
-              <mat-icon matSuffix>security</mat-icon>
-              <mat-hint
-                >Pin a specific certificate for signing, or use the tenant's default</mat-hint
-              >
+              <mat-icon matSuffix>key</mat-icon>
+              <mat-hint>Pin a specific key chain for signing, or use the tenant's default</mat-hint>
             </mat-form-field>
 
-            @if (certificates.length === 0) {
+            @if (keyChains.length === 0) {
               <div class="info-box">
                 <mat-icon>info</mat-icon>
                 <span>
-                  No certificates with <strong>statusList</strong> usage found. The tenant's default
-                  certificate will be used for signing.
+                  No key chains with <strong>statusList</strong> usage found. The tenant's default
+                  key chain will be used for signing.
                 </span>
               </div>
             }

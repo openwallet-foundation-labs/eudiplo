@@ -6,8 +6,18 @@
   "properties": {
     "name": {
       "type": "string",
-      "description": "Unique provider name (matches the key in kms.json).",
-      "example": "db"
+      "description": "Unique provider ID (matches the id in kms.json).",
+      "example": "main-vault"
+    },
+    "type": {
+      "type": "string",
+      "description": "Type of the KMS provider (db, vault, aws-kms).",
+      "example": "vault"
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of this provider instance.",
+      "example": "Production HashiCorp Vault"
     },
     "capabilities": {
       "description": "Capabilities of this provider.",
@@ -20,6 +30,8 @@
   },
   "required": [
     "name",
+    "type",
     "capabilities"
-  ]
+  ],
+  "additionalProperties": false
 }

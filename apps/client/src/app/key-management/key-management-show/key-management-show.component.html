@@ -1,162 +1,283 @@
-@if (key) {
+@if (keyChain) {
   <div fxLayout="column" fxFlex fxLayoutGap="16px">
     <div fxLayout="row" fxLayoutAlign="space-between center">
-      <h2>Key Configuration: {{ key.id }}</h2>
+      <h2>Key Chain: {{ description || keyId }}</h2>
       <div>
-        <button matIconButton [routerLink]="['../']">
+        <button mat-icon-button [routerLink]="['../']" matTooltip="Back to list">
           <mat-icon>arrow_back</mat-icon>
         </button>
-        <button matIconButton [routerLink]="['edit']">
+        <button mat-icon-button [routerLink]="['edit']" matTooltip="Edit key chain">
           <mat-icon>edit</mat-icon>
         </button>
-        <button matIconButton (click)="deleteKey()">
+        @if (canRotate) {
+          <button mat-icon-button (click)="rotateKey()" matTooltip="Rotate key now">
+            <mat-icon>autorenew</mat-icon>
+          </button>
+        }
+        <button mat-icon-button (click)="exportKeyChain()" matTooltip="Export as config JSON">
+          <mat-icon>download</mat-icon>
+        </button>
+        <button mat-icon-button (click)="deleteKey()" color="warn" matTooltip="Delete key chain">
           <mat-icon>delete</mat-icon>
         </button>
       </div>
     </div>
-    <p><strong>Description:</strong> {{ key.description }}</p>
-    <p><strong>KMS Provider:</strong> {{ key.kmsProvider || 'db' }}</p>
 
-    <!-- Public Key Section -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Public Key</mat-card-title>
-      </mat-card-header>
+    <!-- Key Type Card -->
+    <mat-card class="key-type-card">
       <mat-card-content>
-        <mat-tab-group>
-          <mat-tab label="JWK">
-            <div class="tab-content">
-              <div class="tab-header">
-                <button
-                  matIconButton
-                  (click)="copyPublicKeyToClipboard()"
-                  matTooltip="Copy JWK to clipboard"
-                >
-                  <mat-icon>content_copy</mat-icon>
-                </button>
-              </div>
-              <div class="pem-container">
-                <pre class="pem-certificate">{{ getPublicKeyJson() }}</pre>
-              </div>
-            </div>
-          </mat-tab>
-          <mat-tab label="PEM">
-            <div class="tab-content">
-              <div class="tab-header">
-                <button
-                  matIconButton
-                  (click)="copyPublicKeyPemToClipboard()"
-                  matTooltip="Copy PEM to clipboard"
-                >
-                  <mat-icon>content_copy</mat-icon>
-                </button>
-              </div>
-              <div class="pem-container">
-                <pre class="pem-certificate">{{ publicKeyPem }}</pre>
-              </div>
-            </div>
-          </mat-tab>
-        </mat-tab-group>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Certificates List -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-          <div fxLayout="row" fxLayoutAlign="space-between center">
-            <span>Certificates</span>
+        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="16px">
+          <div class="key-type-icon" [ngClass]="keyChain.type">
+            <mat-icon>{{ getTypeIcon() }}</mat-icon>
           </div>
-        </mat-card-title>
-        <div class="spacer"></div>
-        <button
-          matIconButton
-          color="primary"
-          [routerLink]="['/certificates', 'create']"
-          [queryParams]="{ keyId: key.id }"
-          matTooltip="Add Certificate"
-        >
-          <mat-icon>add</mat-icon>
-        </button>
-      </mat-card-header>
-      <mat-card-content>
-        @if (key.certificates.length > 0) {
-          <table mat-table [dataSource]="key.certificates" class="certificates-table">
-            <!-- ID Column -->
-            <ng-container matColumnDef="id">
-              <th mat-header-cell *matHeaderCellDef>Certificate ID</th>
-              <td mat-cell *matCellDef="let cert">
-                {{ cert.id }}
-              </td>
-            </ng-container>
-
-            <!-- Usage Types Column -->
-            <ng-container matColumnDef="types">
-              <th mat-header-cell *matHeaderCellDef>Usage Types</th>
-              <td mat-cell *matCellDef="let cert">
-                <div fxLayout="row" fxLayoutGap="8px">
-                  @for (usage of cert.usages; track usage) {
-                    <mat-chip>{{ usage.usage }}</mat-chip>
-                  }
-                </div>
-              </td>
-            </ng-container>
-
-            <!-- Description Column -->
-            <ng-container matColumnDef="description">
-              <th mat-header-cell *matHeaderCellDef>Description</th>
-              <td mat-cell *matCellDef="let cert">
-                {{ cert.description || '-' }}
-              </td>
-            </ng-container>
-
-            <!-- Status Column -->
-            <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef>Status</th>
-              <td mat-cell *matCellDef="let cert">
-                @let certInfo = certificateInfoMap.get(cert.id);
-                @if (certInfo) {
-                  @if (certInfo.isExpired) {
-                    <mat-chip color="warn">
-                      <mat-icon>warning</mat-icon>
-                      Expired
-                    </mat-chip>
-                  } @else {
-                    <mat-chip color="accent">
-                      <mat-icon>check_circle</mat-icon>
-                      Valid
-                    </mat-chip>
-                  }
-                }
-              </td>
-            </ng-container>
-
-            <!-- Actions Column -->
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>Actions</th>
-              <td mat-cell *matCellDef="let cert">
-                <button
-                  matIconButton
-                  [routerLink]="['/certificates', cert.id]"
-                  matTooltip="View certificate details"
-                >
-                  <mat-icon>visibility</mat-icon>
-                </button>
-                <button
-                  matIconButton
-                  [routerLink]="['/certificates', cert.id, 'edit']"
-                  matTooltip="Edit certificate metadata"
-                >
-                  <mat-icon>edit</mat-icon>
-                </button>
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns" class="cert-row"></tr>
-          </table>
-        }
+          <div fxLayout="column" fxFlex>
+            <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+              <span class="key-type-label">{{ getTypeLabel() }}</span>
+              <mat-chip>{{ usageType }}</mat-chip>
+            </div>
+            <span class="key-type-description">{{ getTypeDescription() }}</span>
+          </div>
+        </div>
       </mat-card-content>
     </mat-card>
+
+    <!-- Basic Info -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Configuration</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-list class="config-list">
+          <mat-list-item>
+            <mat-icon matListItemIcon>fingerprint</mat-icon>
+            <span matListItemTitle>ID</span>
+            <span matListItemLine>{{ keyId }}</span>
+          </mat-list-item>
+          @if (description) {
+            <mat-list-item>
+              <mat-icon matListItemIcon>description</mat-icon>
+              <span matListItemTitle>Description</span>
+              <span matListItemLine>{{ description }}</span>
+            </mat-list-item>
+          }
+          <mat-list-item>
+            <mat-icon matListItemIcon>storage</mat-icon>
+            <span matListItemTitle>KMS Provider</span>
+            <span matListItemLine>{{ keyChain.kmsProvider }}</span>
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon matListItemIcon>event</mat-icon>
+            <span matListItemTitle>Created</span>
+            <span matListItemLine>{{ formatDate(keyChain.createdAt) }}</span>
+          </mat-list-item>
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Rotation Policy -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Rotation Policy</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-list class="config-list">
+          <mat-list-item>
+            <mat-icon matListItemIcon>{{
+              keyChain.rotationPolicy.enabled ? 'autorenew' : 'block'
+            }}</mat-icon>
+            <span matListItemTitle>Status</span>
+            <span matListItemLine>
+              @if (keyChain.rotationPolicy.enabled) {
+                <mat-chip color="primary">Enabled</mat-chip>
+              } @else {
+                <mat-chip>Disabled</mat-chip>
+              }
+            </span>
+          </mat-list-item>
+          @if (keyChain.rotationPolicy.enabled) {
+            <mat-list-item>
+              <mat-icon matListItemIcon>schedule</mat-icon>
+              <span matListItemTitle>Rotation Interval</span>
+              <span matListItemLine>{{ keyChain.rotationPolicy.intervalDays }} days</span>
+            </mat-list-item>
+            @if (keyChain.rotationPolicy.nextRotationAt) {
+              <mat-list-item>
+                <mat-icon matListItemIcon>event_upcoming</mat-icon>
+                <span matListItemTitle>Next Rotation</span>
+                <span matListItemLine>{{
+                  formatDate(keyChain.rotationPolicy.nextRotationAt)
+                }}</span>
+              </mat-list-item>
+            }
+          }
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Root CA Certificate (if internal chain) -->
+    @if (hasRootCa() && keyChain.rootCertificate) {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="title-icon">security</mat-icon>
+            Root CA Certificate
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-list class="config-list">
+            <mat-list-item>
+              <mat-icon matListItemIcon>subject</mat-icon>
+              <span matListItemTitle>Subject</span>
+              <span matListItemLine>{{ keyChain.rootCertificate.subject }}</span>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon matListItemIcon>{{
+                isCertExpired(keyChain.rootCertificate) ? 'warning' : 'check_circle'
+              }}</mat-icon>
+              <span matListItemTitle>Valid Until</span>
+              <span matListItemLine>
+                {{
+                  keyChain.rootCertificate.notAfter
+                    ? formatDate(keyChain.rootCertificate.notAfter)
+                    : 'N/A'
+                }}
+                @if (isCertExpired(keyChain.rootCertificate)) {
+                  <mat-chip color="warn">Expired</mat-chip>
+                }
+              </span>
+            </mat-list-item>
+          </mat-list>
+          <div class="cert-actions" fxLayout="row" fxLayoutGap="8px">
+            <button
+              mat-stroked-button
+              (click)="copyCertificateToClipboard(keyChain.rootCertificate)"
+            >
+              <mat-icon>content_copy</mat-icon>
+              Copy PEM
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <!-- Active Certificate -->
+    @if (keyChain.activeCertificate) {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="title-icon">verified</mat-icon>
+            Active Certificate
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-list class="config-list">
+            <mat-list-item>
+              <mat-icon matListItemIcon>subject</mat-icon>
+              <span matListItemTitle>Subject</span>
+              <span matListItemLine>{{ keyChain.activeCertificate.subject }}</span>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon matListItemIcon>business</mat-icon>
+              <span matListItemTitle>Issuer</span>
+              <span matListItemLine>{{ keyChain.activeCertificate.issuer }}</span>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon matListItemIcon>{{
+                isCertExpired(keyChain.activeCertificate) ? 'warning' : 'check_circle'
+              }}</mat-icon>
+              <span matListItemTitle>Valid Until</span>
+              <span matListItemLine>
+                {{
+                  keyChain.activeCertificate.notAfter
+                    ? formatDate(keyChain.activeCertificate.notAfter)
+                    : 'N/A'
+                }}
+                @if (isCertExpired(keyChain.activeCertificate)) {
+                  <mat-chip color="warn">Expired</mat-chip>
+                }
+              </span>
+            </mat-list-item>
+          </mat-list>
+          <div class="cert-actions" fxLayout="row" fxLayoutGap="8px">
+            <button
+              mat-stroked-button
+              (click)="copyCertificateToClipboard(keyChain.activeCertificate)"
+            >
+              <mat-icon>content_copy</mat-icon>
+              Copy PEM
+            </button>
+            <button mat-stroked-button (click)="copyPublicKeyToClipboard(keyChain.activePublicKey)">
+              <mat-icon>content_copy</mat-icon>
+              Copy Public Key (JWK)
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <!-- Previous Certificate (if in grace period) -->
+    @if (hasPreviousKey() && keyChain.previousCertificate) {
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="title-icon">history</mat-icon>
+            Previous Certificate (Grace Period)
+          </mat-card-title>
+          @if (keyChain.previousKeyExpiry) {
+            <mat-card-subtitle>
+              Expires: {{ formatDate(keyChain.previousKeyExpiry) }}
+            </mat-card-subtitle>
+          }
+        </mat-card-header>
+        <mat-card-content>
+          <mat-list class="config-list">
+            <mat-list-item>
+              <mat-icon matListItemIcon>subject</mat-icon>
+              <span matListItemTitle>Subject</span>
+              <span matListItemLine>{{ keyChain.previousCertificate.subject }}</span>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon matListItemIcon>{{
+                isCertExpired(keyChain.previousCertificate) ? 'warning' : 'check_circle'
+              }}</mat-icon>
+              <span matListItemTitle>Valid Until</span>
+              <span matListItemLine>
+                {{
+                  keyChain.previousCertificate.notAfter
+                    ? formatDate(keyChain.previousCertificate.notAfter)
+                    : 'N/A'
+                }}
+                @if (isCertExpired(keyChain.previousCertificate)) {
+                  <mat-chip color="warn">Expired</mat-chip>
+                }
+              </span>
+            </mat-list-item>
+          </mat-list>
+          <div class="cert-actions" fxLayout="row" fxLayoutGap="8px">
+            <button
+              mat-stroked-button
+              (click)="copyCertificateToClipboard(keyChain.previousCertificate)"
+            >
+              <mat-icon>content_copy</mat-icon>
+              Copy PEM
+            </button>
+            @if (keyChain.previousPublicKey) {
+              <button
+                mat-stroked-button
+                (click)="copyPublicKeyToClipboard(keyChain.previousPublicKey)"
+              >
+                <mat-icon>content_copy</mat-icon>
+                Copy Public Key (JWK)
+              </button>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+} @else {
+  <div fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="16px" class="loading">
+    <mat-icon class="empty-icon">vpn_key</mat-icon>
+    <p>Loading key chain...</p>
   </div>
 }

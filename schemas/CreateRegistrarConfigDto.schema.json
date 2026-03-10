@@ -41,5 +41,6 @@
     "clientId",
     "username",
     "password"
-  ]
+  ],
+  "additionalProperties": false
 }

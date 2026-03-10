@@ -98,15 +98,6 @@
             <span matListItemTitle>Keys</span>
           </mat-list-item>
 
-          <mat-list-item
-            [routerLink]="['/certificates']"
-            routerLinkActive="active-link"
-            (click)="closeSidenavOnMobile()"
-          >
-            <mat-icon matListItemIcon>verified_user</mat-icon>
-            <span matListItemTitle>Certificates</span>
-          </mat-list-item>
-
           @if (hasRole('registrar:manage')) {
             <mat-list-item
               [routerLink]="['/registrar']"

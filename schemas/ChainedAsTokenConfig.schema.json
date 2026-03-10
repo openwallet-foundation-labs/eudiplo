@@ -14,5 +14,6 @@
       "type": "string",
       "description": "Key ID for token signing"
     }
-  }
+  },
+  "additionalProperties": false
 }

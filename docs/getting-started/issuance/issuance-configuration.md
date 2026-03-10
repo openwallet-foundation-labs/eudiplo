@@ -160,16 +160,16 @@ Add the `chainedAs` object to your issuance configuration:
 
 ### Configuration Fields
 
-| Field                             | Type     | Required | Description                                                     |
-| --------------------------------- | -------- | -------- | --------------------------------------------------------------- |
-| `chainedAs.enabled`               | boolean  | Yes      | Enable Chained AS mode                                          |
-| `chainedAs.upstream.issuer`       | string   | Yes      | Upstream OIDC provider URL (must support discovery)             |
-| `chainedAs.upstream.clientId`     | string   | Yes      | Client ID registered at upstream provider                       |
-| `chainedAs.upstream.clientSecret` | string   | Yes      | Client secret for upstream provider                             |
-| `chainedAs.upstream.scopes`       | string[] | No       | Scopes to request (default: `["openid", "profile", "email"]`)   |
-| `chainedAs.token.lifetimeSeconds` | number   | No       | Access token lifetime in seconds (default: 3600)                |
-| `chainedAs.token.signingKeyId`    | string   | No       | Key ID for signing tokens (uses default signing key if omitted) |
-| `chainedAs.requireDPoP`           | boolean  | No       | Require DPoP proof from wallets (default: false)                |
+| Field                             | Type     | Required | Description                                                                  |
+| --------------------------------- | -------- | -------- | ---------------------------------------------------------------------------- |
+| `chainedAs.enabled`               | boolean  | Yes      | Enable Chained AS mode                                                       |
+| `chainedAs.upstream.issuer`       | string   | Yes      | Upstream OIDC provider URL (must support discovery)                          |
+| `chainedAs.upstream.clientId`     | string   | Yes      | Client ID registered at upstream provider                                    |
+| `chainedAs.upstream.clientSecret` | string   | Yes      | Client secret for upstream provider                                          |
+| `chainedAs.upstream.scopes`       | string[] | No       | Scopes to request (default: `["openid", "profile", "email"]`)                |
+| `chainedAs.token.lifetimeSeconds` | number   | No       | Access token lifetime in seconds (default: 3600)                             |
+| `chainedAs.token.signingKeyId`    | string   | No       | Key chain ID for signing tokens (uses default `access` key chain if omitted) |
+| `chainedAs.requireDPoP`           | boolean  | No       | Require DPoP proof from wallets (default: false)                             |
 
 ### Upstream OIDC Provider Setup
 

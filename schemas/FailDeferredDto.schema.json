@@ -9,5 +9,6 @@
       "description": "Optional error message explaining why the issuance failed",
       "example": "Identity verification failed"
     }
-  }
+  },
+  "additionalProperties": false
 }

@@ -21,8 +21,8 @@ import { IsNull, Repository } from "typeorm";
 import { v4 } from "uuid";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { CertService } from "../../../crypto/key/cert/cert.service";
-import { CertUsage } from "../../../crypto/key/entities/cert-usage.entity";
-import { KeyService } from "../../../crypto/key/key.service";
+import { KeyUsageType } from "../../../crypto/key/entities/key-chain.entity";
+import { KeyChainService } from "../../../crypto/key/key-chain.service";
 import { Session } from "../../../session/entities/session.entity";
 import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
 import {
@@ -42,7 +42,7 @@ export class StatusListService {
     constructor(
         private readonly configService: ConfigService,
         private readonly certService: CertService,
-        public readonly keyService: KeyService,
+        public readonly keyChainService: KeyChainService,
         @InjectRepository(StatusMapping)
         private readonly statusMappingRepository: Repository<StatusMapping>,
         @InjectRepository(StatusListEntity)
@@ -123,7 +123,7 @@ export class StatusListService {
         tenantId: string,
         options?: {
             credentialConfigurationId?: string;
-            certId?: string;
+            keyChainId?: string;
             bits?: BitsPerStatus;
             capacity?: number;
         },
@@ -139,16 +139,16 @@ export class StatusListService {
 
         const bits = options?.bits ?? (await this.getEffectiveBits(tenantId));
 
-        // Validate certId if provided
-        if (options?.certId) {
+        // Validate keyChainId if provided
+        if (options?.keyChainId) {
             const cert = await this.certService.find({
                 tenantId,
-                type: CertUsage.StatusList,
-                id: options.certId,
+                type: KeyUsageType.StatusList,
+                keyId: options.keyChainId,
             });
             if (!cert) {
                 throw new NotFoundException(
-                    `Certificate ${options.certId} not found for tenant ${tenantId}`,
+                    `Key chain ${options.keyChainId} not found for tenant ${tenantId}`,
                 );
             }
         }
@@ -158,7 +158,7 @@ export class StatusListService {
             tenantId,
             credentialConfigurationId:
                 options?.credentialConfigurationId ?? null,
-            certId: options?.certId ?? null,
+            keyChainId: options?.keyChainId ?? null,
             elements,
             stack,
             bits,
@@ -199,21 +199,21 @@ export class StatusListService {
             ttl, // Maximum cache time in seconds for verifiers
         };
 
-        // Use the pinned certificate if specified, otherwise use the tenant's default status list cert
-        const cert = entry.certId
+        // Use the pinned key chain if specified, otherwise use the tenant's default status list key chain
+        const cert = entry.keyChainId
             ? await this.certService.find({
                   tenantId: entry.tenantId,
-                  type: CertUsage.StatusList,
-                  id: entry.certId,
+                  type: KeyUsageType.StatusList,
+                  keyId: entry.keyChainId,
               })
             : await this.certService.find({
                   tenantId: entry.tenantId,
-                  type: CertUsage.StatusList,
+                  type: KeyUsageType.StatusList,
               });
 
         if (!cert) {
             throw new NotFoundException(
-                `Certificate ${entry.certId} not found for tenant ${entry.tenantId}`,
+                `Key chain ${entry.keyChainId} not found for tenant ${entry.tenantId}`,
             );
         }
 
@@ -235,7 +235,7 @@ export class StatusListService {
                 this.buildAggregationUri(entry.tenantId);
         }
 
-        const jwt = await this.keyService.signJWT(
+        const jwt = await this.keyChainService.signJWT(
             payload,
             header,
             entry.tenantId,
@@ -531,21 +531,21 @@ export class StatusListService {
         listId: string,
         updates: {
             credentialConfigurationId?: string | null;
-            certId?: string | null;
+            keyChainId?: string | null;
         },
     ): Promise<StatusListEntity> {
         const list = await this.getListById(tenantId, listId);
 
-        // Validate new certId if provided
-        if (updates.certId !== undefined && updates.certId !== null) {
+        // Validate new keyChainId if provided
+        if (updates.keyChainId !== undefined && updates.keyChainId !== null) {
             const cert = await this.certService.find({
                 tenantId,
-                type: CertUsage.StatusList,
-                id: updates.certId,
+                type: KeyUsageType.StatusList,
+                keyId: updates.keyChainId,
             });
             if (!cert) {
                 throw new NotFoundException(
-                    `Certificate ${updates.certId} not found for tenant ${tenantId}`,
+                    `Key chain ${updates.keyChainId} not found for tenant ${tenantId}`,
                 );
             }
         }
@@ -556,8 +556,8 @@ export class StatusListService {
             list.credentialConfigurationId = updates.credentialConfigurationId;
         }
 
-        if (updates.certId !== undefined) {
-            list.certId = updates.certId;
+        if (updates.keyChainId !== undefined) {
+            list.keyChainId = updates.keyChainId;
             needsJwtRegeneration = true;
         }
 
@@ -635,16 +635,16 @@ export class StatusListService {
             new Array(size).fill(0).map((_, i) => i),
         );
 
-        // Validate certId if provided
-        if (config.certId) {
+        // Validate keyChainId if provided
+        if (config.keyChainId) {
             const cert = await this.certService.find({
                 tenantId,
-                type: CertUsage.StatusList,
-                id: config.certId,
+                type: KeyUsageType.StatusList,
+                keyId: config.keyChainId,
             });
             if (!cert) {
                 throw new Error(
-                    `Certificate ${config.certId} not found for tenant ${tenantId}`,
+                    `Key chain ${config.keyChainId} not found for tenant ${tenantId}`,
                 );
             }
         }
@@ -654,7 +654,7 @@ export class StatusListService {
             id: config.id,
             tenantId,
             credentialConfigurationId: config.credentialConfigurationId ?? null,
-            certId: config.certId ?? null,
+            keyChainId: config.keyChainId ?? null,
             elements,
             stack,
             bits,

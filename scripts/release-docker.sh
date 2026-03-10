@@ -33,6 +33,7 @@ build_and_push() {
     -f "${DOCKERFILE}" \
     --target "${target}" \
     --platform linux/amd64,linux/arm64 \
+    --build-arg VERSION="${DOCKER_RELEASE_VERSION}" \
     -t "${fullImageBase}:latest" \
     -t "${fullImageBase}:${DOCKER_RELEASE_VERSION}" \
     -t "${fullImageBase}:${MAJOR}" \

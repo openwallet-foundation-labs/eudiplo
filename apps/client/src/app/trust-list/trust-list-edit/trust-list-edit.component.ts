@@ -15,11 +15,11 @@ import { MatDividerModule } from '@angular/material/divider';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import {
-  certControllerGetCertificates,
+  keyChainControllerGetAll,
   trustListControllerCreateTrustList,
   trustListControllerGetTrustList,
   trustListControllerUpdateTrustList,
-  type CertEntity,
+  type KeyChainResponseDto,
   type TrustList,
 } from '@eudiplo/sdk-core';
 import { EditorComponent } from '../../utils/editor/editor.component';
@@ -38,8 +38,8 @@ interface EntityInfoForm {
 
 interface InternalEntityForm extends EntityInfoForm {
   type: FormControl<'internal'>;
-  issuerCertId: FormControl<string>;
-  revocationCertId: FormControl<string>;
+  issuerKeyChainId: FormControl<string>;
+  revocationKeyChainId: FormControl<string>;
 }
 
 interface ExternalEntityForm extends EntityInfoForm {
@@ -76,12 +76,12 @@ export class TrustListEditComponent implements OnInit {
   trustList?: TrustList;
   form!: FormGroup;
 
-  /** Available certificates for selection */
-  availableCerts: CertEntity[] = [];
-  /** Certificates filtered by usage type */
-  signingCerts: CertEntity[] = [];
-  statusListCerts: CertEntity[] = [];
-  trustListCerts: CertEntity[] = [];
+  /** Available key chains for selection */
+  availableKeyChains: KeyChainResponseDto[] = [];
+  /** Key chains filtered by usage type */
+  attestationKeyChains: KeyChainResponseDto[] = [];
+  statusListKeyChains: KeyChainResponseDto[] = [];
+  trustListKeyChains: KeyChainResponseDto[] = [];
 
   editorOptionsPem = {
     automaticLayout: true,
@@ -101,11 +101,11 @@ export class TrustListEditComponent implements OnInit {
     this.form = new FormGroup({
       id: new FormControl('', { validators: [Validators.required] }),
       description: new FormControl(''),
-      certId: new FormControl(''),
+      keyChainId: new FormControl(''),
       entities: new FormArray([]),
     });
 
-    this.loadCertificates();
+    this.loadKeyChains();
 
     if (this.trustListId) {
       this.loadTrustList();
@@ -120,24 +120,24 @@ export class TrustListEditComponent implements OnInit {
     return !!this.trustListId;
   }
 
-  private async loadCertificates(): Promise<void> {
+  private async loadKeyChains(): Promise<void> {
     try {
-      const response = await certControllerGetCertificates({});
-      this.availableCerts = response.data ?? [];
+      const response = await keyChainControllerGetAll({});
+      this.availableKeyChains = response.data ?? [];
 
-      // Filter certificates by usage type
-      this.signingCerts = this.availableCerts.filter((cert) =>
-        cert.usages?.some((u) => u.usage === 'signing')
+      // Filter key chains by usage type
+      this.attestationKeyChains = this.availableKeyChains.filter(
+        (kc) => kc.usageType === 'attestation'
       );
-      this.statusListCerts = this.availableCerts.filter((cert) =>
-        cert.usages?.some((u) => u.usage === 'statusList')
+      this.statusListKeyChains = this.availableKeyChains.filter(
+        (kc) => kc.usageType === 'statusList'
       );
-      this.trustListCerts = this.availableCerts.filter((cert) =>
-        cert.usages?.some((u) => u.usage === 'trustList')
+      this.trustListKeyChains = this.availableKeyChains.filter(
+        (kc) => kc.usageType === 'trustList'
       );
     } catch (error) {
-      console.error('Failed to load certificates:', error);
-      this.snackBar.open('Failed to load certificates', 'Close', {
+      console.error('Failed to load key chains:', error);
+      this.snackBar.open('Failed to load key chains', 'Close', {
         duration: 3000,
       });
     }
@@ -156,7 +156,7 @@ export class TrustListEditComponent implements OnInit {
       this.form.patchValue({
         id: this.trustList.id || this.trustListId,
         description: this.trustList.description || '',
-        certId: this.trustList.certId || '',
+        keyChainId: this.trustList.keyChainId || '',
       });
 
       // Load entities from stored entityConfig if available, otherwise parse from data
@@ -182,11 +182,11 @@ export class TrustListEditComponent implements OnInit {
       if (entity.type === 'internal') {
         const entityGroup = new FormGroup<InternalEntityForm>({
           type: new FormControl('internal', { nonNullable: true }),
-          issuerCertId: new FormControl(entity.issuerCertId || '', {
+          issuerKeyChainId: new FormControl(entity.issuerKeyChainId || '', {
             nonNullable: true,
             validators: Validators.required,
           }),
-          revocationCertId: new FormControl(entity.revocationCertId || '', {
+          revocationKeyChainId: new FormControl(entity.revocationKeyChainId || '', {
             nonNullable: true,
             validators: Validators.required,
           }),
@@ -329,8 +329,11 @@ export class TrustListEditComponent implements OnInit {
   addInternalEntity(): void {
     const entityGroup = new FormGroup<InternalEntityForm>({
       type: new FormControl('internal', { nonNullable: true }),
-      issuerCertId: new FormControl('', { nonNullable: true, validators: Validators.required }),
-      revocationCertId: new FormControl('', { nonNullable: true, validators: Validators.required }),
+      issuerKeyChainId: new FormControl('', { nonNullable: true, validators: Validators.required }),
+      revocationKeyChainId: new FormControl('', {
+        nonNullable: true,
+        validators: Validators.required,
+      }),
       infoName: new FormControl('', { nonNullable: true, validators: Validators.required }),
       infoLang: new FormControl('en', { nonNullable: true }),
       infoUri: new FormControl('', { nonNullable: true }),
@@ -371,9 +374,9 @@ export class TrustListEditComponent implements OnInit {
     return this.entitiesArray.at(index).get('type')?.value;
   }
 
-  getCertDescription(certId: string): string {
-    const cert = this.availableCerts.find((c) => c.id === certId);
-    return cert?.description || certId;
+  getKeyChainDescription(keyChainId: string): string {
+    const keyChain = this.availableKeyChains.find((kc) => kc.id === keyChainId);
+    return keyChain?.description || keyChainId;
   }
 
   async onSubmit(): Promise<void> {
@@ -409,8 +412,8 @@ export class TrustListEditComponent implements OnInit {
       if (entity.type === 'internal') {
         return {
           type: 'internal',
-          issuerCertId: entity.issuerCertId,
-          revocationCertId: entity.revocationCertId,
+          issuerKeyChainId: entity.issuerKeyChainId,
+          revocationKeyChainId: entity.revocationKeyChainId,
           info,
         };
       } else {
@@ -426,7 +429,7 @@ export class TrustListEditComponent implements OnInit {
     const body = {
       id: formValue.id,
       description: formValue.description || undefined,
-      certId: formValue.certId || undefined,
+      keyChainId: formValue.keyChainId || undefined,
       entities,
     };
 

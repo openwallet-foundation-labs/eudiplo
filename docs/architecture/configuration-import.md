@@ -26,88 +26,116 @@ starts. This is particularly useful for:
 - **Tenant isolation**: Each tenant has its own folder (e.g., `tenant1`,
   `company-xyz`)
 - **Configuration types**: types of configurations are supported
-- **File naming**: Not relevant since the `id` is taken from the content of the file. For keys, the id is based on the `kid` field in the JSON
-  file and not based on the filename.
+- **File naming**: Not relevant since the `id` is taken from the content of the file. For key chains, the id is specified in the JSON file's `id` field.
 - **Nested structure**: Credentials and issuance configs are grouped under
   `issuance/`
-- **Key management**: Cryptographic keys are stored in the `keys/` directory and
-  will be imported automatically. After the import, the keys can be removed from
-  the import folder. Some implementations like HashiCorp Vault do not support the import feature.
+- **Key chain management**: Unified key chains (keys + certificates) are stored in the `key-chains/` directory and
+  will be imported automatically. After the import, the files can be removed from
+  the import folder. Some KMS providers like HashiCorp Vault do not support the import feature.
 
 ## Configuration Types
 
-### Cryptographic Keys
+### Key Chains
 
-**Location**: `config/{tenant}/keys/*.json`
+**Location**: `config/{tenant}/key-chains/*.json`
 
-Import cryptographic keys for signing and certificate operations.
+Import unified key chains that combine cryptographic keys and their certificates.
 
-**Example Structure**:
+**Example Structure** (Standalone - self-signed):
 
 ```json
 {
-    "privateKey": {
+    "id": "039af178-3ca0-48f4-a2e4-7b1209f30376",
+    "description": "Attestation signing key chain",
+    "usageType": "attestation",
+    "key": {
         "kty": "EC",
         "x": "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
         "y": "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
         "crv": "P-256",
         "d": "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
-        "kid": "039af178-3ca0-48f4-a2e4-7b1209f30376",
         "alg": "ES256"
-    },
-    "crt": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"
+    }
 }
 ```
 
-**Key Features**:
-
-- **Multiple keys per tenant**: Import several keys for different issuance
-  configurations
-- **Key ID from filename**: The filename (without `.json`) becomes the key ID
-  (typically a UUID)
-- **Optional certificates**: Include X.509 certificates in PEM format
-- **Algorithm support**: ES256 (ECDSA P-256)
-- **Validation**: Full schema validation during import
-
-### Certificates
-
-**Location**: `config/{tenant}/certs/*.json`
-
-Import X.509 certificates for signing operations and certificate chain validation.
-
-**Example Structure**:
+**Example Structure** (With Rotation - internal CA):
 
 ```json
 {
-    "keyId": "039af178-3ca0-48f4-a2e4-7b1209f30376",
-    "isAccessCert": true,
-    "isSigningCert": true,
-    "description": "Imported self-signed certificate",
-    "crt": "-----BEGIN CERTIFICATE-----\nMIIBYTCCAQigAwIBAgIBATAKBggqhkjOPQQDAjAWMRQwEgYDVQQDEwtSb290IFRl\nbmFudDAeFw0yNTEyMTUwNzIxMzBaFw0yNjEyMTUwNzIxMzBaMBYxFDASBgNVBAMT\nC1Jvb3QgVGVuYW50MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEpmn8SKQKZ0t2\nzFlrUXzJaJwwQ0WnQxcSYoS/D6ZSGhqsx30lMCi9w4j8685dYJZnXJVmJ5VgrZSC\n8HYg+5KTaqNHMEUwFAYDVR0RBA0wC4IJbG9jYWxob3N0MA4GA1UdDwEB/wQEAwIF\noDAdBgNVHQ4EFgQUd8hzqa0NGWHfP9Uf3LcdDZ5eGGEwCgYIKoZIzj0EAwIDRwAw\nRAIgFfvs2dhqKXaDe+7zjmyTrEgRgb5IjcYONZ+6Rewt/nUCIFYCw9lF0Lbr00ca\ngUPSm5jJNWFYV3UjFl9zY73W8Rz8\n-----END CERTIFICATE-----"
+    "id": "039af178-3ca0-48f4-a2e4-7b1209f30376",
+    "description": "HAIP-compliant attestation key chain",
+    "usageType": "attestation",
+    "key": {
+        "kty": "EC",
+        "x": "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
+        "y": "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
+        "crv": "P-256",
+        "d": "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
+        "alg": "ES256"
+    },
+    "rotationPolicy": {
+        "enabled": true,
+        "intervalDays": 90,
+        "certValidityDays": 365
+    }
+}
+```
+
+When `rotationPolicy.enabled` is `true`:
+
+- The imported key becomes the **root CA key**
+- A new **leaf signing key** is automatically generated
+- The leaf certificate is signed by the imported CA key
+- Supports automatic key rotation
+
+**Example Structure** (With Provided Certificate):
+
+```json
+{
+    "id": "039af178-3ca0-48f4-a2e4-7b1209f30376",
+    "description": "Key chain with external certificate",
+    "usageType": "access",
+    "key": {
+        "kty": "EC",
+        "x": "...",
+        "y": "...",
+        "crv": "P-256",
+        "d": "...",
+        "alg": "ES256"
+    },
+    "crt": [
+        "-----BEGIN CERTIFICATE-----\nLEAF_CERT...\n-----END CERTIFICATE-----",
+        "-----BEGIN CERTIFICATE-----\nCA_CERT...\n-----END CERTIFICATE-----"
+    ]
 }
 ```
 
 **Key Features**:
 
-- **Key reference**: Links certificate to an imported cryptographic key via `keyId`
-- **Certificate types**: Mark certificates as access certificates and/or signing certificates
-- **PEM format**: Certificates must be in PEM format with `\n` escape sequences
-- **Certificate chain support**: Import multiple certificates to establish trust chains
-- **Optional description**: Add human-readable descriptions for certificate management
-- **Validation**: Schema validation ensures proper certificate format and structure
+- **Unified model**: Keys and certificates are managed together
+- **Usage types**: `access`, `attestation`, `trustList`, `statusList`, `encrypt`
+- **Rotation support**: Optional internal CA with automatic leaf key generation
+- **Algorithm support**: ES256 (ECDSA P-256)
+- **Certificate chain**: Optional PEM certificates (leaf first, then CA chain)
+- **Validation**: Full schema validation during import
 
-**Certificate Usage Types**:
+**Usage Types**:
 
-- `isAccessCert`: Certificate used for authenticating access to protected resources
-- `isSigningCert`: Certificate used for signing credentials and tokens
-
-Both flags can be set to `true` if the certificate serves both purposes.
+| Usage Type    | Purpose                                            |
+| ------------- | -------------------------------------------------- |
+| `access`      | OAuth/OIDC access token signing and authentication |
+| `attestation` | Credential/attestation signing (SD-JWT VC, mDOC)   |
+| `trustList`   | Trust list signing                                 |
+| `statusList`  | Status list (credential revocation) signing        |
+| `encrypt`     | Encryption (JWE)                                   |
 
 **PEM Format Notes**:
 
 - Use `\n` escape sequences for line breaks in JSON
 - Include both `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----` headers
 - The certificate content should be base64-encoded between the headers
+- Order: leaf certificate first, then intermediate/root CA certificates
 
 ### Credential Configurations
 
