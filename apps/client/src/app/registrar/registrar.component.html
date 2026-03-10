@@ -157,7 +157,7 @@
               Create Access Certificate
             </mat-card-title>
             <mat-card-subtitle>
-              Request an access certificate from the registrar for one of your keys
+              Request an access certificate from the registrar for one of your key chains
             </mat-card-subtitle>
           </mat-card-header>
 
@@ -169,14 +169,16 @@
               fxLayout.lt-md="column"
             >
               <mat-form-field appearance="outline" class="key-select" fxFlex>
-                <mat-label>Select Key</mat-label>
-                <mat-select [(value)]="selectedKeyId">
-                  <mat-option value="">-- Select a key --</mat-option>
-                  @for (key of keys; track key.id) {
-                    <mat-option [value]="key.id"> {{ key.description || key.id }}</mat-option>
+                <mat-label>Select Key Chain</mat-label>
+                <mat-select [(value)]="selectedKeyChainId">
+                  <mat-option value="">-- Select a key chain --</mat-option>
+                  @for (keyChain of keyChains; track keyChain.id) {
+                    <mat-option [value]="keyChain.id">
+                      {{ keyChain.description || keyChain.id }}</mat-option
+                    >
                   }
                 </mat-select>
-                <mat-hint>The certificate will be stored for this key</mat-hint>
+                <mat-hint>The certificate will be stored in this key chain</mat-hint>
               </mat-form-field>
             </div>
           </mat-card-content>
@@ -185,7 +187,7 @@
               mat-raised-button
               color="primary"
               (click)="createAccessCertificate()"
-              [disabled]="!selectedKeyId || isCreatingCert"
+              [disabled]="!selectedKeyChainId || isCreatingCert"
               matTooltip="Create an access certificate at the registrar and store it in EUDIPLO"
             >
               @if (isCreatingCert) {

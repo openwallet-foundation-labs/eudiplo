@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 /**
  * Describes what operations a KMS provider supports.
@@ -29,10 +29,22 @@ export class KmsProviderCapabilitiesDto {
  */
 export class KmsProviderInfoDto {
     @ApiProperty({
-        description: "Unique provider name (matches the key in kms.json).",
-        example: "db",
+        description: "Unique provider ID (matches the id in kms.json).",
+        example: "main-vault",
     })
     name!: string;
+
+    @ApiProperty({
+        description: "Type of the KMS provider (db, vault, aws-kms).",
+        example: "vault",
+    })
+    type!: string;
+
+    @ApiPropertyOptional({
+        description: "Human-readable description of this provider instance.",
+        example: "Production HashiCorp Vault",
+    })
+    description?: string;
 
     @ApiProperty({
         description: "Capabilities of this provider.",

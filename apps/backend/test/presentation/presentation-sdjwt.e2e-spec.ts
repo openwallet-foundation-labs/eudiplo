@@ -27,7 +27,7 @@ describe("Presentation - SD-JWT Credential", () => {
     let authToken: string;
     let host: string;
     let privateIssuerKey: CryptoKey;
-    let issuerCert: string;
+    let issuerCertChain: string[];
     let statusListService: StatusListService;
     let ctx: PresentationTestContext;
 
@@ -43,7 +43,7 @@ describe("Presentation - SD-JWT Credential", () => {
         credentialId: string;
         webhookUrl?: string;
         privateKey: CryptoKey;
-        issuerCert: string;
+        x5c: string[];
     }) {
         const requestBody: PresentationRequest = {
             response_type: ResponseType.URI,
@@ -66,19 +66,12 @@ describe("Presentation - SD-JWT Credential", () => {
             authorizationRequest: res.body.uri,
         });
 
-        console.log(authRequest);
-
         const resolved = await client.resolveOpenId4vpAuthorizationRequest({
             authorizationRequestPayload: authRequest.params,
             responseMode: { type: "direct_post" },
         });
 
-        const x5c = [
-            values.issuerCert
-                .replace("-----BEGIN CERTIFICATE-----", "")
-                .replace("-----END CERTIFICATE-----", "")
-                .replaceAll(/\r?\n|\r/g, ""),
-        ];
+        const x5c = values.x5c;
         const vp_token = await preparePresentation(
             {
                 iat: Math.floor(Date.now() / 1000),
@@ -105,13 +98,18 @@ describe("Presentation - SD-JWT Credential", () => {
                 },
                 ...callbacks,
             });
-
-        const submitRes = await client.submitOpenid4vpAuthorizationResponse({
-            authorizationResponsePayload:
-                authorizationResponse.authorizationResponsePayload,
-            authorizationRequestPayload:
-                resolved.authorizationRequestPayload as Openid4vpAuthorizationRequest,
-        });
+        const submitRes = await client
+            .submitOpenid4vpAuthorizationResponse({
+                authorizationResponsePayload:
+                    authorizationResponse.authorizationResponsePayload,
+                authorizationRequestPayload:
+                    resolved.authorizationRequestPayload as Openid4vpAuthorizationRequest,
+            })
+            .catch((err) => {
+                console.error("Error submitting presentation:", err);
+                throw err;
+            });
+        console.log(await submitRes.response.json());
 
         return { res, submitRes };
     }
@@ -122,7 +120,7 @@ describe("Presentation - SD-JWT Credential", () => {
         authToken = ctx.authToken;
         host = ctx.host;
         privateIssuerKey = ctx.privateIssuerKey;
-        issuerCert = ctx.issuerCert;
+        issuerCertChain = ctx.issuerCertChain;
         statusListService = ctx.statusListService;
 
         client = new Openid4vpClient({
@@ -142,7 +140,7 @@ describe("Presentation - SD-JWT Credential", () => {
             requestId: "pid-no-hook",
             credentialId: "pid",
             privateKey: privateIssuerKey,
-            issuerCert,
+            x5c: issuerCertChain,
         });
 
         expect(submitRes).toBeDefined();
@@ -170,12 +168,7 @@ describe("Presentation - SD-JWT Credential", () => {
             responseMode: { type: "direct_post" },
         });
 
-        const x5c = [
-            issuerCert
-                .replace("-----BEGIN CERTIFICATE-----", "")
-                .replace("-----END CERTIFICATE-----", "")
-                .replaceAll(/\r?\n|\r/g, ""),
-        ];
+        const x5c = issuerCertChain;
         const vp_token = await preparePresentation(
             {
                 iat: Math.floor(Date.now() / 1000),

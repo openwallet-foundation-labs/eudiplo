@@ -33,5 +33,6 @@
   },
   "required": [
     "enabled"
-  ]
+  ],
+  "additionalProperties": false
 }

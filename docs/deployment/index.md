@@ -55,7 +55,8 @@ docker run -d \
 ```
 
 !!! warning "External Dependencies Required"
-Single container mode requires external PostgreSQL and S3-compatible storage (MinIO/AWS S3) configured via environment variables.
+
+    Single container mode requires external PostgreSQL and S3-compatible storage (MinIO/AWS S3) configured via environment variables.
 
 ## TLS/HTTPS Configuration
 

@@ -4,8 +4,8 @@ import type { Jwk } from "@openid4vc/oauth2";
 import { X509Certificate } from "@peculiar/x509";
 import { exportJWK } from "jose";
 import { CertService } from "../../../../../crypto/key/cert/cert.service";
-import { CertUsage } from "../../../../../crypto/key/entities/cert-usage.entity";
-import { KeyService } from "../../../../../crypto/key/key.service";
+import { KeyUsageType } from "../../../../../crypto/key/entities/key-chain.entity";
+import { KeyChainService } from "../../../../../crypto/key/key-chain.service";
 import { Session } from "../../../../../session/entities/session.entity";
 import { mdocContext } from "../../../../../verifier/presentations/mdoc-context";
 import { CredentialConfig } from "../../entities/credential.entity";
@@ -26,7 +26,7 @@ export class MdocIssuerService {
 
     constructor(
         private readonly certService: CertService,
-        private readonly keyService: KeyService,
+        private readonly keyChainService: KeyChainService,
     ) {}
 
     /**
@@ -70,19 +70,19 @@ export class MdocIssuerService {
         // Get signing certificate
         const certificate = await this.certService.find({
             tenantId: session.tenantId,
-            type: CertUsage.Signing,
-            id: credentialConfiguration.certId,
+            type: KeyUsageType.Attestation,
+            keyId: credentialConfiguration.keyChainId,
         });
 
-        // Get the private key for signing
-        const keyEntity = await this.keyService.getKey(
+        // Get the private key for signing via KeyChainEntity
+        const keyChain = await this.keyChainService.getEntity(
             session.tenantId,
             certificate.keyId,
         );
         const privateKey = await exportJWK(
             await crypto.subtle.importKey(
                 "jwk",
-                keyEntity.key,
+                keyChain.activeKey,
                 { name: "ECDSA", namedCurve: "P-256" },
                 true,
                 ["sign"],

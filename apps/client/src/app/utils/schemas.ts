@@ -1,6 +1,5 @@
 import embeddedDisclosurePolicySchemaObj from '../../../../../schemas/EmbeddedDisclosurePolicy.schema.json';
 import vctSchemaObj from '../../../../../schemas/VCT.schema.json';
-import jwkSchemaObj from '../../../../../schemas/Key.schema.json';
 import webhookSchemaObj from '../../../../../schemas/WebhookConfig.schema.json';
 import credentialConfigSchemaObj from '../../../../../schemas/CredentialConfigCreate.schema.json';
 import issuanceConfigSchemaObj from '../../../../../schemas/IssuanceDto.schema.json';
@@ -46,7 +45,6 @@ export const vctSchema = new SchemaValidation(vctSchemaObj);
 export const embeddedDisclosurePolicySchema = new SchemaValidation(
   embeddedDisclosurePolicySchemaObj
 );
-export const jwkSchema = new SchemaValidation(jwkSchemaObj);
 export const webhookSchema = new SchemaValidation(webhookSchemaObj);
 export const credentialConfigSchema = new SchemaValidation(credentialConfigSchemaObj);
 export const issuanceConfigSchema = new SchemaValidation(issuanceConfigSchemaObj);

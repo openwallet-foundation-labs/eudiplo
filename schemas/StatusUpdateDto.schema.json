@@ -20,5 +20,6 @@
   "required": [
     "sessionId",
     "status"
-  ]
+  ],
+  "additionalProperties": false
 }

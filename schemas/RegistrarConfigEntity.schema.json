@@ -55,5 +55,6 @@
     "password",
     "tenantId",
     "tenant"
-  ]
+  ],
+  "additionalProperties": false
 }

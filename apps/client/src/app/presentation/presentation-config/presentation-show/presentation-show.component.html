@@ -78,10 +78,8 @@
           <mat-list-item>
             <mat-icon matListItemIcon>badge</mat-icon>
             <span matListItemTitle>Access Certificate</span>
-            @if (config.accessCertId) {
-              <a matListItemLine [routerLink]="['/certificates', config.accessCertId]">{{
-                config.accessCertId
-              }}</a>
+            @if (config.accessKeyChainId) {
+              <span matListItemLine>{{ config.accessKeyChainId }}</span>
             } @else {
               <span matListItemLine>Default</span>
             }

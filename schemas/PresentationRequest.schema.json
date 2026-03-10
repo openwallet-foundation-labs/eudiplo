@@ -40,5 +40,6 @@
   "required": [
     "response_type",
     "requestId"
-  ]
+  ],
+  "additionalProperties": false
 }

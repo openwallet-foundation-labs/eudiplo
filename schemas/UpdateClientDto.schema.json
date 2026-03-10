@@ -51,5 +51,6 @@
   },
   "required": [
     "roles"
-  ]
+  ],
+  "additionalProperties": false
 }

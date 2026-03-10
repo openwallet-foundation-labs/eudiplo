@@ -39,17 +39,17 @@ export class StatusListImportDto {
     credentialConfigurationId?: string | null;
 
     /**
-     * Optional certificate ID to use for signing this status list's JWT.
-     * If not provided, uses the tenant's default StatusList certificate.
+     * Optional key chain ID to use for signing this status list's JWT.
+     * If not provided, uses the tenant's default StatusList key chain.
      */
     @ApiPropertyOptional({
         description:
-            "Certificate ID to use for signing. Leave empty to use the tenant's default StatusList certificate.",
-        example: "my-status-list-cert",
+            "Key chain ID to use for signing. Leave empty to use the tenant's default StatusList key chain.",
+        example: "my-status-list-keychain",
     })
     @IsOptional()
     @IsString()
-    certId?: string;
+    keyChainId?: string;
 
     /**
      * Optional capacity of the status list (number of entries).

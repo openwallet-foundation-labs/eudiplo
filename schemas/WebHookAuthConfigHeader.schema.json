@@ -23,5 +23,6 @@
   "required": [
     "type",
     "config"
-  ]
+  ],
+  "additionalProperties": false
 }

@@ -29,5 +29,6 @@
   "required": [
     "grant_type",
     "code"
-  ]
+  ],
+  "additionalProperties": false
 }
