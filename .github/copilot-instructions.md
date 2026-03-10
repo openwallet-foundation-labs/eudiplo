@@ -82,6 +82,9 @@
 - Always use PNPM workspace syntax (`pnpm --filter @eudiplo/...`).
 - New shared logic must go into `packages/`, not copied across apps.
 - Tests are placed in `apps/backend/test/` as `*.e2e-spec.ts` files (not co-located with source).
+- Use **conventional commits** (`feat:`, `fix:`, `docs:`, etc.). Semantic-release uses these to determine version bumps.
+- **Breaking changes**: Add a `BREAKING CHANGE:` footer in the commit message body **and** fill in the "Breaking Changes" section of the PR description. The PR description is the primary source for generating migration guides — describe _what_ changed and _how to migrate_.
+- When creating a PR that contains breaking changes, add the `breaking-change` label.
 
 ## Deployment Conventions
 - Docker Compose files: root `docker-compose.yml` and `deployment/docker-compose/docker-compose.yml`.

@@ -18,6 +18,18 @@ Please delete options that are not relevant:
 - [ ] 🧪 Test improvements
 - [ ] 🏗️ Build/CI changes
 
+## 💥 Breaking Changes (if applicable)
+
+If this is a breaking change, list what is affected:
+
+- **API changes**: (e.g., renamed fields, removed endpoints, changed request/response format)
+- **Environment variables**: (e.g., new required variables, renamed variables, changed defaults)
+- **Config import format**: (e.g., changed JSON structure, renamed folders)
+- **Database**: (e.g., migration included? manual steps needed?)
+
+> Ensure the commit message includes `BREAKING CHANGE:` in the footer and the
+> [migration guide](docs/migration/index.md) is updated.
+
 ## 🧪 Testing
 
 Describe the tests that you ran to verify your changes:

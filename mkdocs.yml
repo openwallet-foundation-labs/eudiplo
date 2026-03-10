@@ -128,6 +128,8 @@ nav:
       - Docker Compose: deployment/docker-compose.md
       - Kubernetes: deployment/kubernetes.md
       - TLS/HTTPS: deployment/tls.md
+  - Migration:
+      - Overview: migration/index.md
   - Architecture:
       - Overview: architecture/index.md      
       - Supported Protocols: architecture/supported-protocols.md

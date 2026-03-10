@@ -73,4 +73,21 @@ specification when contributing to ensure proper versioning.
 | `x.y.z` (e.g. `1.2.3`) | GitHub release     | Specific Version     |
 | `x.y.z-alpha.N`        | GitHub pre-release | Feature Preview / RC |
 
+## Backward Compatibility Policy
+
+- **Breaking changes only in major versions.** API field renames, removed endpoints, changed configuration formats, and new required environment variables are only introduced in major releases.
+- **Deprecate before removing.** Where feasible, features are deprecated in a minor release before being removed in the next major.
+- **Database migrations are automatic.** Schema changes are applied by the migration system on startup. No manual SQL is required.
+- **Migration guides for every major version.** Each major release includes a step-by-step [migration guide](../migration/index.md) covering all required actions.
+- **If it breaks in a minor/patch, it's a bug.** If you experience a breaking change outside of a major release, please [report it](https://github.com/openwallet-foundation-labs/eudiplo/issues/new?template=bug_report.md).
+
+## Breaking Change Checklist (for contributors)
+
+When introducing a breaking change, ensure:
+
+- [ ] The commit message includes `BREAKING CHANGE:` in the footer (triggers major version bump)
+- [ ] The PR description lists all affected endpoints, fields, and environment variables
+- [ ] The [migration guide](../migration/index.md) is updated with upgrade steps
+- [ ] The `.env.example` is updated if environment variables changed
+
 ---
