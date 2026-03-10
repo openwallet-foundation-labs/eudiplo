@@ -1,0 +1,233 @@
+.wizard-container {
+  padding: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.wizard-header {
+  margin-bottom: 16px;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.step-description {
+  h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.25rem;
+  }
+
+  .hint {
+    color: var(--mat-sys-on-surface-variant);
+    margin: 0;
+  }
+}
+
+.usage-options,
+.key-type-options,
+.ca-source-options {
+  .option-card {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+
+    &:hover {
+      background-color: var(--mat-sys-surface-container-high);
+    }
+
+    &.selected {
+      border-color: var(--mat-sys-primary);
+      background-color: var(--mat-sys-primary-container);
+    }
+
+    &.disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+
+      &:hover {
+        background-color: inherit;
+      }
+    }
+
+    mat-card-content {
+      padding: 16px;
+    }
+  }
+
+  .option-radio {
+    width: 100%;
+
+    ::ng-deep .mdc-form-field {
+      width: 100%;
+    }
+
+    ::ng-deep .mdc-label {
+      width: 100%;
+    }
+  }
+
+  .option-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: var(--mat-sys-primary);
+  }
+
+  .option-label {
+    font-weight: 500;
+    font-size: 1.1rem;
+  }
+
+  .option-description {
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 0.9rem;
+    margin-top: 4px;
+  }
+
+  .option-hint,
+  .option-recommended {
+    color: var(--mat-sys-primary);
+    font-size: 0.85rem;
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  .option-warning {
+    color: var(--mat-sys-error);
+    font-size: 0.85rem;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .option-warning-block {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background-color: var(--mat-sys-error-container);
+    border-radius: 8px;
+
+    .option-warning {
+      margin-top: 0;
+    }
+
+    .option-warning-hint {
+      display: block;
+      margin-top: 4px;
+      font-size: 0.8rem;
+      color: var(--mat-sys-on-error-container);
+    }
+  }
+
+  .option-features {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: var(--mat-sys-on-surface-variant);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .feature-item {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      background-color: var(--mat-sys-surface-container-high);
+      border-radius: 12px;
+      font-size: 0.8rem;
+
+      &::before {
+        content: '✓';
+        margin-right: 4px;
+        color: var(--mat-sys-primary);
+      }
+    }
+  }
+}
+
+.step-actions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--mat-sys-outline-variant);
+}
+
+mat-card-header {
+  mat-card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+.summary-card {
+  background-color: var(--mat-sys-surface-container);
+
+  .next-steps-hint {
+    margin-top: 16px;
+    padding: 12px;
+    background-color: var(--mat-sys-primary-container);
+    border-radius: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+
+    mat-icon {
+      color: var(--mat-sys-primary);
+      flex-shrink: 0;
+    }
+
+    span {
+      color: var(--mat-sys-on-primary-container);
+    }
+
+    &.success {
+      background-color: var(--mat-sys-tertiary-container, #d4edda);
+
+      mat-icon {
+        color: var(--mat-sys-tertiary, #28a745);
+      }
+
+      span {
+        color: var(--mat-sys-on-tertiary-container, #155724);
+      }
+    }
+  }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Stepper customization
+::ng-deep .mat-stepper-horizontal {
+  .mat-horizontal-stepper-header-container {
+    margin-bottom: 24px;
+  }
+}
+
+::ng-deep .mat-step-header {
+  .mat-step-icon {
+    background-color: var(--mat-sys-primary);
+  }
+}

@@ -53,5 +53,6 @@
     "response_type",
     "client_id",
     "redirect_uri"
-  ]
+  ],
+  "additionalProperties": false
 }

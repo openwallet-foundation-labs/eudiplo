@@ -17,5 +17,6 @@
   "required": [
     "type",
     "credential_ids"
-  ]
+  ],
+  "additionalProperties": false
 }

@@ -24,5 +24,6 @@
     "canImport",
     "canCreate",
     "canDelete"
-  ]
+  ],
+  "additionalProperties": false
 }

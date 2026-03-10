@@ -37,5 +37,6 @@
       "description": "If true, include aggregation_uri in status list JWTs for pre-fetching support (default: true).",
       "default": true
     }
-  }
+  },
+  "additionalProperties": false
 }

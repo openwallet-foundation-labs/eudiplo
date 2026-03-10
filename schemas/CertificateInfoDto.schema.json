@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CertificateInfoDto.schema.json",
+  "title": "CertificateInfoDto",
+  "type": "object",
+  "properties": {
+    "pem": {
+      "type": "string",
+      "description": "Certificate in PEM format."
+    },
+    "subject": {
+      "type": "string",
+      "description": "Certificate subject (CN)."
+    },
+    "issuer": {
+      "type": "string",
+      "description": "Certificate issuer (CN)."
+    },
+    "notBefore": {
+      "format": "date-time",
+      "type": "string",
+      "description": "Certificate not before date."
+    },
+    "notAfter": {
+      "format": "date-time",
+      "type": "string",
+      "description": "Certificate not after date."
+    },
+    "serialNumber": {
+      "type": "string",
+      "description": "Serial number."
+    }
+  },
+  "required": [
+    "pem"
+  ],
+  "additionalProperties": false
+}

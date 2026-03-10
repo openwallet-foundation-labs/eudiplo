@@ -41,9 +41,9 @@ import request from "supertest";
 import { App } from "supertest/types";
 import { AppModule } from "../src/app.module";
 import { Role } from "../src/auth/roles/role.enum";
-import { CertImportDto } from "../src/crypto/key/dto/cert-import.dto";
-import { KeyImportDto } from "../src/crypto/key/dto/key-import.dto";
-import { CertUsage } from "../src/crypto/key/entities/cert-usage.entity";
+import { KeyChainImportDto } from "../src/crypto/key/dto/key-chain-import.dto";
+import { KeyUsageType } from "../src/crypto/key/entities/key-chain.entity";
+import { KeyChainService } from "../src/crypto/key/key-chain.service";
 import { CredentialConfigCreate } from "../src/issuer/configuration/credentials/dto/credential-config-create.dto";
 import { IssuanceDto } from "../src/issuer/configuration/issuance/dto/issuance.dto";
 import { StatusListService } from "../src/issuer/lifecycle/status/status-list.service";
@@ -440,37 +440,62 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
 
     const authToken = await getToken(app, clientId, clientSecret);
 
-    const privateKey: KeyImportDto = {
-        id: "039af178-3ca0-48f4-a2e4-7b1209f30376",
-        key: {
-            kty: "EC",
-            x: "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
-            y: "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
-            crv: "P-256",
-            d: "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
-            alg: "ES256",
-        },
+    // Create key chains with different usage types
+    const keyMaterial = {
+        kty: "EC",
+        x: "pmn8SKQKZ0t2zFlrUXzJaJwwQ0WnQxcSYoS_D6ZSGho",
+        y: "rMd9JTAovcOI_OvOXWCWZ1yVZieVYK2UgvB2IPuSk2o",
+        crv: "P-256",
+        d: "rqv47L1jWkbFAGMCK8TORQ1FknBUYGY6OLU1dYHNDqU",
+        alg: "ES256",
     };
 
+    // Create attestation key chain for credential signing
     await request(app.getHttpServer())
-        .post("/key")
-        .set("Authorization", `Bearer ${authToken}`)
-        .send(privateKey)
-        .expect(201);
-
-    // Create self signed certificate for the key
-    await request(app.getHttpServer())
-        .post("/certs")
+        .post("/key-chain/import")
         .set("Authorization", `Bearer ${authToken}`)
         .send({
-            keyId: privateKey.id,
-            certUsageTypes: [
-                CertUsage.Access,
-                CertUsage.Signing,
-                CertUsage.StatusList,
-                CertUsage.TrustList,
-            ],
-        } as CertImportDto)
+            id: "039af178-3ca0-48f4-a2e4-7b1209f30376",
+            key: keyMaterial,
+            usageType: KeyUsageType.Attestation,
+            description: "Attestation key for credential signing",
+        } as KeyChainImportDto)
+        .expect(201);
+
+    // Create access key chain for access tokens
+    await request(app.getHttpServer())
+        .post("/key-chain/import")
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+            id: "access-key-chain",
+            key: keyMaterial,
+            usageType: KeyUsageType.Access,
+            description: "Access key for tokens",
+        } as KeyChainImportDto)
+        .expect(201);
+
+    // Create status list key chain
+    await request(app.getHttpServer())
+        .post("/key-chain/import")
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+            id: "status-list-key-chain",
+            key: keyMaterial,
+            usageType: KeyUsageType.StatusList,
+            description: "Status list key",
+        } as KeyChainImportDto)
+        .expect(201);
+
+    // Create trust list key chain
+    await request(app.getHttpServer())
+        .post("/key-chain/import")
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+            id: "trust-list-key-chain",
+            key: keyMaterial,
+            usageType: KeyUsageType.TrustList,
+            description: "Trust list key",
+        } as KeyChainImportDto)
         .expect(201);
 
     const configFolder = resolve(__dirname + "/fixtures");
@@ -480,19 +505,21 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
         .post("/storage")
         .trustLocalhost()
         .set("Authorization", `Bearer ${authToken}`)
-        .attach("file", join(configFolder, "basic/images/company.png"))
+        .attach("file", join(configFolder, "haip/images/company.png"))
         .expect(201);
 
-    // Import issuance config
+    // Import issuance config (disable wallet attestation for non-OIDF tests)
     await request(app.getHttpServer())
         .post("/issuer/config")
         .trustLocalhost()
         .set("Authorization", `Bearer ${authToken}`)
-        .send(
-            readConfig<IssuanceDto>(
-                join(configFolder, "basic/issuance/issuance.json"),
+        .send({
+            ...readConfig<IssuanceDto>(
+                join(configFolder, "haip/issuance/issuance.json"),
             ),
-        )
+            walletAttestationRequired: false,
+            dPopRequired: false,
+        })
         .expect(201);
 
     // Import the pid credential configuration
@@ -502,7 +529,7 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
         .set("Authorization", `Bearer ${authToken}`)
         .send(
             readConfig<CredentialConfigCreate>(
-                join(configFolder, "basic/issuance/credentials/pid.json"),
+                join(configFolder, "haip/issuance/credentials/pid.json"),
             ),
         )
         .expect(201);
@@ -514,7 +541,7 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
         .set("Authorization", `Bearer ${authToken}`)
         .send(
             readConfig<PresentationConfigCreateDto>(
-                join(configFolder, "basic/presentation/pid.json"),
+                join(configFolder, "haip/presentation/pid.json"),
             ),
         )
         .expect(201);
@@ -526,7 +553,7 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
         .set("Authorization", `Bearer ${authToken}`)
         .send(
             readConfig<CredentialConfigCreate>(
-                join(configFolder, "basic/issuance/credentials/citizen.json"),
+                join(configFolder, "haip/issuance/credentials/citizen.json"),
             ),
         )
         .expect(201);
@@ -538,7 +565,7 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
         .set("Authorization", `Bearer ${authToken}`)
         .send(
             readConfig<CredentialConfigCreate>(
-                join(configFolder, "basic/issuance/credentials/pid-mdoc.json"),
+                join(configFolder, "haip/issuance/credentials/pid-mdoc.json"),
             ),
         )
         .expect(201);
@@ -557,6 +584,8 @@ export interface PresentationTestContext {
     clientSecret: string;
     privateIssuerKey: CryptoKey;
     issuerCert: string;
+    /** Full certificate chain as base64 DER values (ready for x5c header) */
+    issuerCertChain: string[];
     statusListService: StatusListService;
 }
 
@@ -597,7 +626,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
         const res = await req;
         if (res.status !== expectedStatus) {
             console.error(
-                `Request failed: expected ${expectedStatus}, got ${res.status}`,
+                `Request failed: expected ${expectedStatus}, got ${res.status} for endpoint ${req.url}`,
             );
             console.error("Response body:", JSON.stringify(res.body, null, 2));
         }
@@ -605,32 +634,16 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
         return res;
     }
 
-    // Import signing key and cert
-    const privateKey = readConfig<KeyImportDto>(
-        join(configFolder, "basic/keys/sign.json"),
+    // Import access key chain (for OAuth/authentication)
+    const accessKeyChain = readConfig<KeyChainImportDto>(
+        join(configFolder, "haip/key-chains/access.json"),
     );
-
-    const privateIssuerKey = (await importJWK(privateKey.key, "ES256", {
-        extractable: true,
-    })) as CryptoKey;
 
     await expectRequest(
         request(app.getHttpServer())
-            .post("/key")
+            .post("/key-chain/import")
             .set("Authorization", `Bearer ${authToken}`)
-            .send(privateKey),
-        201,
-    );
-
-    const cert = readConfig<CertImportDto>(
-        join(configFolder, "basic/certs/cert.json"),
-    );
-    const issuerCert = cert.crt![0];
-    await expectRequest(
-        request(app.getHttpServer())
-            .post("/certs")
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(cert),
+            .send(accessKeyChain),
         201,
     );
 
@@ -642,62 +655,74 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
             .set("Authorization", `Bearer ${authToken}`)
             .send(
                 readConfig<PresentationConfigCreateDto>(
-                    join(configFolder, "basic/presentation/pid-no-hook.json"),
+                    join(configFolder, "haip/presentation/pid-no-hook.json"),
                 ),
             ),
         201,
     );
 
-    // Import statuslist key and cert
-    const statusListKey = readConfig<KeyImportDto>(
-        join(configFolder, "basic/keys/sign.json"),
+    // Import status list key chain
+    const statusListKeyChain = readConfig<KeyChainImportDto>(
+        join(configFolder, "haip/key-chains/status-list.json"),
     );
 
     await expectRequest(
         request(app.getHttpServer())
-            .post("/key")
+            .post("/key-chain/import")
             .set("Authorization", `Bearer ${authToken}`)
-            .send(statusListKey),
+            .send(statusListKeyChain),
         201,
     );
 
-    const statusListCert = readConfig<CertImportDto>(
-        join(configFolder, "basic/certs/cert.json"),
+    // Import trust list key chain
+    const trustListKeyChain = readConfig<KeyChainImportDto>(
+        join(configFolder, "haip/key-chains/trust-list.json"),
     );
 
     await expectRequest(
         request(app.getHttpServer())
-            .post("/certs")
+            .post("/key-chain/import")
             .set("Authorization", `Bearer ${authToken}`)
-            .send(statusListCert),
+            .send(trustListKeyChain),
         201,
     );
 
-    // Import trust list key
+    // Import attestation key chain (referenced by trust list entities for credential signing)
+    const attestationKeyChain = readConfig<KeyChainImportDto>(
+        join(configFolder, "haip/key-chains/attestation.json"),
+    );
+
     await expectRequest(
         request(app.getHttpServer())
-            .post("/key")
-            .trustLocalhost()
+            .post("/key-chain/import")
             .set("Authorization", `Bearer ${authToken}`)
-            .send(
-                readConfig<KeyImportDto>(
-                    join(configFolder, "basic/keys/trust-list.json"),
-                ),
-            ),
+            .send(attestationKeyChain),
         201,
     );
 
-    // Import trust list cert
-    await expectRequest(
-        request(app.getHttpServer())
-            .post("/certs")
-            .set("Authorization", `Bearer ${authToken}`)
-            .send(
-                readConfig<CertImportDto>(
-                    join(configFolder, "basic/certs/cert.json"),
-                ),
-            ),
-        201,
+    // Retrieve the active (leaf) key and certificate from the imported attestation key chain.
+    // With rotation enabled, the fixture key becomes the root CA and a new leaf key is generated.
+    const keyChainService = app.get(KeyChainService);
+    const attestationEntity = await keyChainService.getEntity(
+        "root",
+        attestationKeyChain.id!,
+    );
+    const privateIssuerKey = (await importJWK(
+        attestationEntity.activeKey,
+        "ES256",
+        { extractable: true },
+    )) as CryptoKey;
+
+    // Split the certificate chain into individual PEMs
+    const certPems = attestationEntity.activeCertificate.match(
+        /-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g,
+    ) ?? [attestationEntity.activeCertificate];
+    const issuerCert = certPems[0]; // leaf PEM (for mdoc)
+    const issuerCertChain = certPems.map((pem) =>
+        pem
+            .replace("-----BEGIN CERTIFICATE-----", "")
+            .replace("-----END CERTIFICATE-----", "")
+            .replaceAll(/\r?\n|\r/g, ""),
     );
 
     // Import trust list
@@ -708,10 +733,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
             .set("Authorization", `Bearer ${authToken}`)
             .send(
                 readConfig<TrustListCreateDto>(
-                    join(
-                        configFolder,
-                        "basic/trust-lists/trustlist-580831bc-ef11-43f4-a3be-a2b6bf1b29a3-config.json",
-                    ),
+                    join(configFolder, "haip/trust-lists/pid-tl.json"),
                 ),
             ),
         201,
@@ -725,7 +747,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
             .set("Authorization", `Bearer ${authToken}`)
             .send(
                 readConfig<PresentationConfigCreateDto>(
-                    join(configFolder, "basic/presentation/pid-de.json"),
+                    join(configFolder, "haip/presentation/pid-de.json"),
                 ),
             ),
         201,
@@ -738,7 +760,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
             .set("Authorization", `Bearer ${authToken}`)
             .send(
                 readConfig<PresentationConfigCreateDto>(
-                    join(configFolder, "basic/presentation/pid.json"),
+                    join(configFolder, "haip/presentation/pid.json"),
                 ),
             ),
         201,
@@ -752,6 +774,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
         clientSecret,
         privateIssuerKey,
         issuerCert,
+        issuerCertChain,
         statusListService,
     };
 }

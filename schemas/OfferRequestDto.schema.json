@@ -40,7 +40,8 @@
               "required": [
                 "type",
                 "claims"
-              ]
+              ],
+              "additionalProperties": false
             },
             {
               "type": "object",
@@ -58,7 +59,8 @@
               "required": [
                 "type",
                 "webhook"
-              ]
+              ],
+              "additionalProperties": false
             }
           ]
         }
@@ -71,7 +73,8 @@
             "family_name": "Doe"
           }
         }
-      }
+      },
+      "additionalProperties": false
     },
     "flow": {
       "description": "The flow type for the offer request.",
@@ -113,5 +116,6 @@
     "response_type",
     "flow",
     "credentialConfigurationIds"
-  ]
+  ],
+  "additionalProperties": false
 }

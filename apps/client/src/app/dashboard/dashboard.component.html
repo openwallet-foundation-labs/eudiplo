@@ -29,7 +29,7 @@
       </mat-card-header>
       <mat-card-content>
         <!-- Prerequisites Section -->
-        @if (dashboardService.canManageKeysAndCerts) {
+        @if (dashboardService.canManageKeyChains) {
           <div class="setup-section">
             <h3 class="section-title">
               <mat-icon>foundation</mat-icon>
@@ -38,56 +38,32 @@
             <p class="section-description">Required for both issuance and verification</p>
 
             <div class="setup-steps" fxLayout="column" fxLayoutGap="8px">
-              <!-- Step 1: Create Key -->
+              <!-- Step 1: Create Key Chain -->
               <div
                 class="setup-step"
-                [class.completed]="dashboardService.totalKeys > 0"
+                [class.completed]="dashboardService.totalKeyChains > 0"
                 fxLayout="row"
                 fxLayoutAlign="start center"
                 fxLayoutGap="12px"
               >
-                <mat-icon [class.done]="dashboardService.totalKeys > 0">
-                  {{ dashboardService.totalKeys > 0 ? 'check_circle' : 'radio_button_unchecked' }}
-                </mat-icon>
-                <div fxFlex>
-                  <strong>1. Create a Key</strong>
-                  <p>Cryptographic keys are used to sign credentials and presentations</p>
-                </div>
-                @if (dashboardService.totalKeys === 0) {
-                  <a mat-stroked-button color="primary" routerLink="/keys/create">
-                    <mat-icon>add</mat-icon> Create Key
-                  </a>
-                } @else {
-                  <mat-chip>{{ dashboardService.totalKeys }} key(s)</mat-chip>
-                }
-              </div>
-
-              <!-- Step 2: Add Certificate -->
-              <div
-                class="setup-step"
-                [class.completed]="dashboardService.totalCertificates > 0"
-                [class.disabled]="dashboardService.totalKeys === 0"
-                fxLayout="row"
-                fxLayoutAlign="start center"
-                fxLayoutGap="12px"
-              >
-                <mat-icon [class.done]="dashboardService.totalCertificates > 0">
+                <mat-icon [class.done]="dashboardService.totalKeyChains > 0">
                   {{
-                    dashboardService.totalCertificates > 0
-                      ? 'check_circle'
-                      : 'radio_button_unchecked'
+                    dashboardService.totalKeyChains > 0 ? 'check_circle' : 'radio_button_unchecked'
                   }}
                 </mat-icon>
                 <div fxFlex>
-                  <strong>2. Add a Certificate</strong>
-                  <p>Self-sign or import a certificate from a registrar for your key</p>
+                  <strong>1. Create a Key Chain</strong>
+                  <p>
+                    Key chains contain cryptographic keys and certificates used to sign credentials
+                    and presentations
+                  </p>
                 </div>
-                @if (dashboardService.totalCertificates === 0 && dashboardService.totalKeys > 0) {
-                  <a mat-stroked-button color="primary" routerLink="/certificates/create">
-                    <mat-icon>verified</mat-icon> Add Certificate
+                @if (dashboardService.totalKeyChains === 0) {
+                  <a mat-stroked-button color="primary" routerLink="/keys/create">
+                    <mat-icon>add</mat-icon> Create Key Chain
                   </a>
-                } @else if (dashboardService.totalCertificates > 0) {
-                  <mat-chip>{{ dashboardService.totalCertificates }} cert(s)</mat-chip>
+                } @else {
+                  <mat-chip>{{ dashboardService.totalKeyChains }} key chain(s)</mat-chip>
                 }
               </div>
             </div>
@@ -254,13 +230,13 @@
       </a>
     }
 
-    @if (dashboardService.canManageKeysAndCerts) {
+    @if (dashboardService.canManageKeyChains) {
       <a class="stat-card-link" routerLink="/keys" aria-label="View key management">
         <mat-card class="stat-card">
           <mat-card-content fxLayout="column" fxLayoutAlign="center center">
             <mat-icon class="stat-icon keys">vpn_key</mat-icon>
-            <span class="stat-value">{{ dashboardService.totalKeys }}</span>
-            <span class="stat-label">Keys</span>
+            <span class="stat-value">{{ dashboardService.totalKeyChains }}</span>
+            <span class="stat-label">Key Chains</span>
           </mat-card-content>
         </mat-card>
       </a>

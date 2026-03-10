@@ -21,17 +21,17 @@ export class UpdateStatusListDto {
     credentialConfigurationId?: string | null;
 
     /**
-     * Certificate ID to use for signing this status list's JWT.
-     * Set to null to use the tenant's default StatusList certificate.
+     * Key chain ID to use for signing this status list's JWT.
+     * Set to null to use the tenant's default StatusList key chain.
      */
     @ApiPropertyOptional({
         description:
-            "Certificate ID to use for signing. Set to null to use the tenant's default StatusList certificate.",
-        example: "my-status-list-cert",
+            "Key chain ID to use for signing. Set to null to use the tenant's default StatusList key chain.",
+        example: "my-status-list-keychain",
         nullable: true,
     })
     @IsOptional()
-    @ValidateIf((o) => o.certId !== null)
+    @ValidateIf((o) => o.keyChainId !== null)
     @IsString()
-    certId?: string | null;
+    keyChainId?: string | null;
 }

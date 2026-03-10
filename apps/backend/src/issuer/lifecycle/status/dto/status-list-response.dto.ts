@@ -35,15 +35,15 @@ export class StatusListResponseDto {
     credentialConfigurationId?: string | null;
 
     /**
-     * Optional certificate ID used for signing this status list's JWT.
+     * Optional key chain ID used for signing this status list's JWT.
      */
     @ApiPropertyOptional({
         description:
-            "Certificate ID used for signing. Null means using the tenant's default.",
-        example: "my-status-list-cert",
+            "Key chain ID used for signing. Null means using the tenant's default.",
+        example: "my-status-list-keychain",
         nullable: true,
     })
-    certId?: string | null;
+    keyChainId?: string | null;
 
     /**
      * The number of bits used for each status.

@@ -13,7 +13,7 @@ import { decodeJwt, decodeProtectedHeader } from "jose";
 import { firstValueFrom } from "rxjs";
 import { LessThan, Repository } from "typeorm";
 import { v4 } from "uuid";
-import { KeyService } from "../../../../crypto/key/key.service";
+import { KeyChainService } from "../../../../crypto/key/key-chain.service";
 import { SessionService } from "../../../../session/session.service";
 import { WalletAttestationService } from "../../../../shared/trust/wallet-attestation.service";
 import { AuthorizationIdentity } from "../../../configuration/credentials/dto/authorization-identity";
@@ -105,7 +105,7 @@ export class ChainedAsService {
     constructor(
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
-        private readonly keyService: KeyService,
+        private readonly keyChainService: KeyChainService,
         private readonly sessionService: SessionService,
         private readonly issuanceService: IssuanceService,
         private readonly walletAttestationService: WalletAttestationService,
@@ -654,9 +654,9 @@ export class ChainedAsService {
         // Get the key ID to use - either from config or resolve from key service
         const signingKeyId =
             config.token?.signingKeyId ||
-            (await this.keyService.getKid(tenantId, "sign"));
+            (await this.keyChainService.getKid(tenantId));
 
-        const publicKey = await this.keyService.getPublicKey(
+        const publicKey = await this.keyChainService.getPublicKey(
             "jwk",
             tenantId,
             signingKeyId,
@@ -665,7 +665,7 @@ export class ChainedAsService {
         // Use the resolved signing key ID as the kid in the JWT header
         const kid = (publicKey as { kid?: string }).kid || signingKeyId;
 
-        const accessToken = await this.keyService.signJWT(
+        const accessToken = await this.keyChainService.signJWT(
             tokenPayload as any,
             { alg: "ES256", kid, typ: "at+jwt" },
             tenantId,
@@ -700,9 +700,9 @@ export class ChainedAsService {
         // Get the key ID to use - either from config or resolve from key service
         const signingKeyId =
             config.token?.signingKeyId ||
-            (await this.keyService.getKid(tenantId, "sign"));
+            (await this.keyChainService.getKid(tenantId));
 
-        const publicKey = await this.keyService.getPublicKey(
+        const publicKey = await this.keyChainService.getPublicKey(
             "jwk",
             tenantId,
             signingKeyId,

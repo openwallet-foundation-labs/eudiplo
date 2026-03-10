@@ -35,8 +35,8 @@ interface EntityInfo {
 
 interface InternalEntity {
   type: 'internal';
-  issuerCertId: string;
-  revocationCertId: string;
+  issuerKeyChainId: string;
+  revocationKeyChainId: string;
   info: EntityInfo;
 }
 

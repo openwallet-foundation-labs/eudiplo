@@ -279,7 +279,7 @@ Status lists can be pre-created via configuration import:
 ```json
 {
     "credentialConfigurationId": "org.iso.18013.5.1.mDL",
-    "certId": "status-signing-cert"
+    "keyChainId": "status-list-signing-key-chain"
 }
 ```
 

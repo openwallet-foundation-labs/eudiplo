@@ -20,5 +20,6 @@
   "required": [
     "policy",
     "values"
-  ]
+  ],
+  "additionalProperties": false
 }
