@@ -4,6 +4,7 @@ import {
     Openid4vpClient,
 } from "@openid4vc/openid4vp";
 import { CryptoKey } from "jose";
+import request from "supertest";
 import { App } from "supertest/types";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AuthConfig } from "../../src/shared/utils/webhook/webhook.dto";
@@ -130,5 +131,37 @@ describe("Presentation - mDOC Credential", () => {
 
         expect(submitRes).toBeDefined();
         expect(submitRes.response.status).toBe(200);
+    });
+
+    test("mDOC claims are stored in the session", async () => {
+        const { res } = await submitMdocPresentation({
+            requestId: "pid-de",
+            privateKey: privateIssuerKey,
+            issuerCert,
+            credentialId: "pid-mso-mdoc",
+        });
+
+        const sessionId = res.body.session;
+
+        const sessionRes = await request(app.getHttpServer())
+            .get(`/session/${sessionId}`)
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .expect(200);
+
+        const session = sessionRes.body;
+        expect(session.status).toBe("completed");
+        expect(session.credentials).toBeDefined();
+        expect(session.credentials.length).toBeGreaterThan(0);
+
+        // The first credential set should contain the mDOC claims
+        const credentialSet = session.credentials[0];
+        expect(credentialSet.values).toBeDefined();
+        expect(credentialSet.values.length).toBeGreaterThan(0);
+
+        // Verify the actual claim values from the test mDOC document
+        const claims = credentialSet.values[0];
+        expect(claims.first_name).toBe("First");
+        expect(claims.last_name).toBe("Last");
     });
 });
