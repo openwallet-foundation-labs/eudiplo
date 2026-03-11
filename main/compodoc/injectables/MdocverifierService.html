@@ -284,15 +284,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>buildDeviceRequest(docType: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, claims: Record<string | unknown>)</code>
+                    <code>buildDeviceRequest(docType: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, claimsByNamespace: Record<string | Record<string, unknown>>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="331"
-                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:331</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="346"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:346</a></div>
                         </td>
                     </tr>
 
@@ -328,9 +328,9 @@ This creates a request that matches what was received for verification.</p>
 
                                         </tr>
                                         <tr>
-                                                <td>claims</td>
+                                                <td>claimsByNamespace</td>
                                             <td>
-                                                        <code>Record&lt;string | unknown&gt;</code>
+                                                        <code>Record&lt;string | Record&lt;string, unknown&gt;&gt;</code>
                                             </td>
 
                                             <td>
@@ -376,8 +376,8 @@ This creates a request that matches what was received for verification.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="225"
-                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:225</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="240"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:240</a></div>
                         </td>
                     </tr>
 
@@ -460,8 +460,8 @@ This creates a request that matches what was received for verification.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="265"
-                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:265</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="280"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:280</a></div>
                         </td>
                     </tr>
 
@@ -544,8 +544,8 @@ This creates a request that matches what was received for verification.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="190"
-                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:190</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="205"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:205</a></div>
                         </td>
                     </tr>
 
@@ -640,8 +640,8 @@ This creates a request that matches what was received for verification.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="291"
-                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:291</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="306"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:306</a></div>
                         </td>
                     </tr>
 
@@ -712,8 +712,8 @@ This creates a request that matches what was received for verification.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="150"
-                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:150</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="165"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:165</a></div>
                         </td>
                     </tr>
 
@@ -1008,12 +1008,24 @@ export class MdocverifierService {
             const issuerSigned &#x3D; mdocDocument.issuerSigned;
             const docType &#x3D; mdocDocument.docType;
 
-            // Get claims from the appropriate namespace
-            const namespace &#x3D;
-                docType &#x3D;&#x3D;&#x3D; &quot;org.iso.18013.5.1.mDL&quot;
-                    ? &quot;org.iso.18013.5.1&quot;
-                    : docType;
-            const claims &#x3D; issuerSigned.getPrettyClaims(namespace) || {};
+            // Collect claims from all available namespaces.
+            // getPrettyClaims() requires an exact namespace string, so we iterate
+            // the namespaces present in the credential rather than guessing from docType.
+            const namespacesMap &#x3D;
+                issuerSigned.issuerNamespaces?.issuerNamespaces ??
+                new Map&lt;string, unknown&gt;();
+            const claimsByNamespace: Record&lt;
+                string,
+                Record&lt;string, unknown&gt;
+            &gt; &#x3D; {};
+            const claims: Record&lt;string, unknown&gt; &#x3D; {};
+            for (const [ns] of namespacesMap.entries()) {
+                const nsClaims &#x3D; issuerSigned.getPrettyClaims(ns);
+                if (nsClaims) {
+                    claimsByNamespace[ns] &#x3D; nsClaims;
+                    Object.assign(claims, nsClaims);
+                }
+            }
 
             // 3) Build the session transcript for verification
             const sessionTranscript &#x3D; await SessionTranscript.forOid4Vp(
@@ -1022,7 +1034,10 @@ export class MdocverifierService {
             );
 
             // 4) Build a device request (currently requesting all claims that were received)
-            const deviceRequest &#x3D; this.buildDeviceRequest(docType, claims);
+            const deviceRequest &#x3D; this.buildDeviceRequest(
+                docType,
+                claimsByNamespace,
+            );
 
             // 5) Verify the device response (signature, device binding, etc.)
             // Certificate chain validation is disabled here - we do it separately via CredentialChainValidationService
@@ -1261,19 +1276,17 @@ export class MdocverifierService {
      */
     private buildDeviceRequest(
         docType: string,
-        claims: Record&lt;string, unknown&gt;,
+        claimsByNamespace: Record&lt;string, Record&lt;string, unknown&gt;&gt;,
     ): DeviceRequest {
-        // Build namespace map from claims
+        // Build namespace map preserving the original per-namespace structure
         const namespaces: Record&lt;string, Record&lt;string, boolean&gt;&gt; &#x3D; {};
 
-        // For mDL, claims are typically under org.iso.18013.5.1
-        const namespace &#x3D;
-            docType &#x3D;&#x3D;&#x3D; &quot;org.iso.18013.5.1.mDL&quot; ? &quot;org.iso.18013.5.1&quot; : docType;
-
-        if (Object.keys(claims).length &gt; 0) {
-            namespaces[namespace] &#x3D; {};
-            for (const claimKey of Object.keys(claims)) {
-                namespaces[namespace][claimKey] &#x3D; true;
+        for (const [ns, nsClaims] of Object.entries(claimsByNamespace)) {
+            if (Object.keys(nsClaims).length &gt; 0) {
+                namespaces[ns] &#x3D; {};
+                for (const claimKey of Object.keys(nsClaims)) {
+                    namespaces[ns][claimKey] &#x3D; true;
+                }
             }
         }
 

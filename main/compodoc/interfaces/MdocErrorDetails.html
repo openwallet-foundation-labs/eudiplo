@@ -456,12 +456,24 @@ export class MdocverifierService {
             const issuerSigned &#x3D; mdocDocument.issuerSigned;
             const docType &#x3D; mdocDocument.docType;
 
-            // Get claims from the appropriate namespace
-            const namespace &#x3D;
-                docType &#x3D;&#x3D;&#x3D; &quot;org.iso.18013.5.1.mDL&quot;
-                    ? &quot;org.iso.18013.5.1&quot;
-                    : docType;
-            const claims &#x3D; issuerSigned.getPrettyClaims(namespace) || {};
+            // Collect claims from all available namespaces.
+            // getPrettyClaims() requires an exact namespace string, so we iterate
+            // the namespaces present in the credential rather than guessing from docType.
+            const namespacesMap &#x3D;
+                issuerSigned.issuerNamespaces?.issuerNamespaces ??
+                new Map&lt;string, unknown&gt;();
+            const claimsByNamespace: Record&lt;
+                string,
+                Record&lt;string, unknown&gt;
+            &gt; &#x3D; {};
+            const claims: Record&lt;string, unknown&gt; &#x3D; {};
+            for (const [ns] of namespacesMap.entries()) {
+                const nsClaims &#x3D; issuerSigned.getPrettyClaims(ns);
+                if (nsClaims) {
+                    claimsByNamespace[ns] &#x3D; nsClaims;
+                    Object.assign(claims, nsClaims);
+                }
+            }
 
             // 3) Build the session transcript for verification
             const sessionTranscript &#x3D; await SessionTranscript.forOid4Vp(
@@ -470,7 +482,10 @@ export class MdocverifierService {
             );
 
             // 4) Build a device request (currently requesting all claims that were received)
-            const deviceRequest &#x3D; this.buildDeviceRequest(docType, claims);
+            const deviceRequest &#x3D; this.buildDeviceRequest(
+                docType,
+                claimsByNamespace,
+            );
 
             // 5) Verify the device response (signature, device binding, etc.)
             // Certificate chain validation is disabled here - we do it separately via CredentialChainValidationService
@@ -709,19 +724,17 @@ export class MdocverifierService {
      */
     private buildDeviceRequest(
         docType: string,
-        claims: Record&lt;string, unknown&gt;,
+        claimsByNamespace: Record&lt;string, Record&lt;string, unknown&gt;&gt;,
     ): DeviceRequest {
-        // Build namespace map from claims
+        // Build namespace map preserving the original per-namespace structure
         const namespaces: Record&lt;string, Record&lt;string, boolean&gt;&gt; &#x3D; {};
 
-        // For mDL, claims are typically under org.iso.18013.5.1
-        const namespace &#x3D;
-            docType &#x3D;&#x3D;&#x3D; &quot;org.iso.18013.5.1.mDL&quot; ? &quot;org.iso.18013.5.1&quot; : docType;
-
-        if (Object.keys(claims).length &gt; 0) {
-            namespaces[namespace] &#x3D; {};
-            for (const claimKey of Object.keys(claims)) {
-                namespaces[namespace][claimKey] &#x3D; true;
+        for (const [ns, nsClaims] of Object.entries(claimsByNamespace)) {
+            if (Object.keys(nsClaims).length &gt; 0) {
+                namespaces[ns] &#x3D; {};
+                for (const claimKey of Object.keys(nsClaims)) {
+                    namespaces[ns][claimKey] &#x3D; true;
+                }
             }
         }
 

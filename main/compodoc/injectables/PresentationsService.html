@@ -626,8 +626,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="333"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:333</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="330"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:330</a></div>
                         </td>
                     </tr>
 
@@ -1461,10 +1461,7 @@ export class PresentationsService {
                                     },
                                     verifyOptions,
                                 );
-                            return {
-                                ...result.claims,
-                                payload: result.payload,
-                            };
+                            return result.claims;
                         } else if (type &#x3D;&#x3D;&#x3D; &quot;dc+sd-jwt&quot;) {
                             const result &#x3D;
                                 await this.sdjwtvcverifierService.verify(cred, {
