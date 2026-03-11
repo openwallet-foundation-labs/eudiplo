@@ -294,10 +294,7 @@ export class PresentationsService {
                                     },
                                     verifyOptions,
                                 );
-                            return {
-                                ...result.claims,
-                                payload: result.payload,
-                            };
+                            return result.claims;
                         } else if (type === "dc+sd-jwt") {
                             const result =
                                 await this.sdjwtvcverifierService.verify(cred, {
