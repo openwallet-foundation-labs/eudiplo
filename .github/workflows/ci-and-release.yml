@@ -363,7 +363,7 @@ jobs:
       # --- Health test (amd64 only) ---
       - name: Build Backend Docker image (for testing)
         if: matrix.arch == 'amd64'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           target: eudiplo
@@ -450,7 +450,7 @@ jobs:
       - name: Build and push by digest
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         id: push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           target: eudiplo
@@ -464,7 +464,7 @@ jobs:
       # --- Build to validate (arm64, PRs/workflow_dispatch only) ---
       - name: Build to validate
         if: ${{ matrix.arch == 'arm64' && !(github.ref == 'refs/heads/main' && github.event_name == 'push') }}
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           target: eudiplo
@@ -575,7 +575,7 @@ jobs:
       - name: Build and push by digest
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         id: push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           target: client
@@ -588,7 +588,7 @@ jobs:
       # --- Build to validate (PRs/workflow_dispatch only) ---
       - name: Build to validate
         if: ${{ !(github.ref == 'refs/heads/main' && github.event_name == 'push') }}
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           target: client
