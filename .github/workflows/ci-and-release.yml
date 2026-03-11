@@ -354,7 +354,7 @@ jobs:
           images: ghcr.io/openwallet-foundation-labs/eudiplo
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -506,7 +506,7 @@ jobs:
           path: ${{ runner.temp }}/digests
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -565,7 +565,7 @@ jobs:
           images: ghcr.io/openwallet-foundation-labs/eudiplo-client
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -629,7 +629,7 @@ jobs:
           path: ${{ runner.temp }}/digests
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
