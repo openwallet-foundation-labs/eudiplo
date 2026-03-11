@@ -349,7 +349,7 @@ jobs:
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/openwallet-foundation-labs/eudiplo
 
@@ -517,7 +517,7 @@ jobs:
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/openwallet-foundation-labs/eudiplo
           tags: |
@@ -560,7 +560,7 @@ jobs:
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/openwallet-foundation-labs/eudiplo-client
 
@@ -640,7 +640,7 @@ jobs:
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/openwallet-foundation-labs/eudiplo-client
           tags: |
