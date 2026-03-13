@@ -33,7 +33,7 @@ export class WebhookEndpointShowComponent implements OnInit {
     private readonly webhookEndpointService: WebhookEndpointService,
     private readonly route: ActivatedRoute,
     private readonly snackBar: MatSnackBar,
-    private readonly router: Router,
+    private readonly router: Router
   ) {}
 
   ngOnInit(): void {
@@ -44,7 +44,7 @@ export class WebhookEndpointShowComponent implements OnInit {
         (error) => {
           this.snackBar.open('Failed to load webhook endpoint', 'Close', { duration: 3000 });
           console.error('Load error:', error);
-        },
+        }
       );
     }
   }

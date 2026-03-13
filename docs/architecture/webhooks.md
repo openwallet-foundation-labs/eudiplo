@@ -14,10 +14,10 @@ EUDIPLO supports **webhook endpoints** to push data to your external services du
 
 ## Supported Webhook Scenarios
 
-| Flow                      | Direction | Purpose                                                                  |
-| ------------------------- | --------- | ------------------------------------------------------------------------ |
-| **Notification Webhook**  | Outbound  | Receives status updates (e.g., accepted or denied) about issuance flows. |
-| **Presentation Webhook**  | Outbound  | Receives verified claims from the wallet after presentation.             |
+| Flow                     | Direction | Purpose                                                                  |
+| ------------------------ | --------- | ------------------------------------------------------------------------ |
+| **Notification Webhook** | Outbound  | Receives status updates (e.g., accepted or denied) about issuance flows. |
+| **Presentation Webhook** | Outbound  | Receives verified claims from the wallet after presentation.             |
 
 !!! tip "Interactive Authorization (IAE)"
 

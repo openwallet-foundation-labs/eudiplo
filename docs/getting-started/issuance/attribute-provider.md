@@ -24,13 +24,13 @@ This approach offers several benefits:
 
 Attribute Providers are managed via the `/issuer/attribute-providers` endpoint:
 
-| Method   | Endpoint                            | Description                     |
-| -------- | ----------------------------------- | ------------------------------- |
-| `GET`    | `/issuer/attribute-providers`       | List all Attribute Providers    |
-| `GET`    | `/issuer/attribute-providers/{id}`  | Get a specific Attribute Provider |
-| `POST`   | `/issuer/attribute-providers`       | Create a new Attribute Provider |
-| `PATCH`  | `/issuer/attribute-providers/{id}`  | Update an Attribute Provider    |
-| `DELETE` | `/issuer/attribute-providers/{id}`  | Delete an Attribute Provider    |
+| Method   | Endpoint                           | Description                       |
+| -------- | ---------------------------------- | --------------------------------- |
+| `GET`    | `/issuer/attribute-providers`      | List all Attribute Providers      |
+| `GET`    | `/issuer/attribute-providers/{id}` | Get a specific Attribute Provider |
+| `POST`   | `/issuer/attribute-providers`      | Create a new Attribute Provider   |
+| `PATCH`  | `/issuer/attribute-providers/{id}` | Update an Attribute Provider      |
+| `DELETE` | `/issuer/attribute-providers/{id}` | Delete an Attribute Provider      |
 
 ---
 
@@ -38,18 +38,18 @@ Attribute Providers are managed via the `/issuer/attribute-providers` endpoint:
 
 ### Required Fields
 
-| Field  | Type   | Description                                       |
-| ------ | ------ | ------------------------------------------------- |
-| `id`   | string | Unique identifier for the Attribute Provider     |
-| `name` | string | Human-readable name                               |
-| `url`  | string | HTTPS endpoint URL that returns claims            |
+| Field  | Type   | Description                                  |
+| ------ | ------ | -------------------------------------------- |
+| `id`   | string | Unique identifier for the Attribute Provider |
+| `name` | string | Human-readable name                          |
+| `url`  | string | HTTPS endpoint URL that returns claims       |
 
 ### Optional Fields
 
-| Field         | Type   | Description                                       |
-| ------------- | ------ | ------------------------------------------------- |
-| `description` | string | Human-readable description                        |
-| `auth`        | object | Authentication configuration (see below)          |
+| Field         | Type   | Description                              |
+| ------------- | ------ | ---------------------------------------- |
+| `description` | string | Human-readable description               |
+| `auth`        | object | Authentication configuration (see below) |
 
 ### Authentication Options
 
@@ -319,9 +319,9 @@ When multiple claim sources are available, EUDIPLO uses the following priority o
 2. **Secure your endpoints** – Always use HTTPS and configure authentication for production Attribute Providers
 
 3. **Handle errors gracefully** – Your endpoint should return appropriate HTTP status codes:
-   - `200` – Success with claims
-   - `404` – User not found (will result in issuance failure)
-   - `5xx` – Server error (EUDIPLO will retry or fail the issuance)
+    - `200` – Success with claims
+    - `404` – User not found (will result in issuance failure)
+    - `5xx` – Server error (EUDIPLO will retry or fail the issuance)
 
 4. **Log session IDs** – Include the `session` field in your logs for debugging and correlation
 

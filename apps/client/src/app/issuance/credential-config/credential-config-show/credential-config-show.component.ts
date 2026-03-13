@@ -32,7 +32,7 @@ import { StatusListManagementService } from '../../../status-list-management/sta
     MatProgressBarModule,
     FlexLayoutModule,
     RouterModule,
-    ClipboardModule
+    ClipboardModule,
   ],
   templateUrl: './credential-config-show.component.html',
   styleUrl: './credential-config-show.component.scss',

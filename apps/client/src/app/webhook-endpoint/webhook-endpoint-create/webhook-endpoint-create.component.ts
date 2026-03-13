@@ -43,7 +43,7 @@ export class WebhookEndpointCreateComponent implements OnInit {
     private readonly router: Router,
     private readonly route: ActivatedRoute,
     private readonly snackBar: MatSnackBar,
-    private readonly dialog: MatDialog,
+    private readonly dialog: MatDialog
   ) {
     this.form = new FormGroup({
       id: new FormControl('', [Validators.required]),
@@ -68,7 +68,8 @@ export class WebhookEndpointCreateComponent implements OnInit {
             description: endpoint.description || '',
             url: endpoint.url,
             authType: endpoint.auth?.type === 'apiKey' ? 'apiKey' : 'none',
-            authHeaderName: endpoint.auth?.type === 'apiKey' ? (endpoint.auth as any).config?.headerName : '',
+            authHeaderName:
+              endpoint.auth?.type === 'apiKey' ? (endpoint.auth as any).config?.headerName : '',
             authHeaderValue: '',
           });
           this.form.get('id')?.disable();
@@ -76,7 +77,7 @@ export class WebhookEndpointCreateComponent implements OnInit {
         (error) => {
           this.snackBar.open('Failed to load webhook endpoint', 'Close', { duration: 3000 });
           console.error('Load error:', error);
-        },
+        }
       );
     }
   }
@@ -87,7 +88,10 @@ export class WebhookEndpointCreateComponent implements OnInit {
     const formValue = this.form.getRawValue();
     const auth =
       formValue.authType === 'apiKey'
-        ? { type: 'apiKey' as const, config: { headerName: formValue.authHeaderName, value: formValue.authHeaderValue } }
+        ? {
+            type: 'apiKey' as const,
+            config: { headerName: formValue.authHeaderName, value: formValue.authHeaderValue },
+          }
         : { type: 'none' as const };
 
     if (this.create) {
@@ -153,7 +157,10 @@ export class WebhookEndpointCreateComponent implements OnInit {
     const formValue = this.form.getRawValue();
     const auth =
       formValue.authType === 'apiKey'
-        ? { type: 'apiKey' as const, config: { headerName: formValue.authHeaderName, value: formValue.authHeaderValue } }
+        ? {
+            type: 'apiKey' as const,
+            config: { headerName: formValue.authHeaderName, value: formValue.authHeaderValue },
+          }
         : { type: 'none' as const };
     return {
       id: formValue.id,

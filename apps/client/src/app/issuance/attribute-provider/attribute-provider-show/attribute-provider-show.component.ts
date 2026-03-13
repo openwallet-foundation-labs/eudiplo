@@ -33,7 +33,7 @@ export class AttributeProviderShowComponent implements OnInit {
     private readonly attributeProviderService: AttributeProviderService,
     private readonly route: ActivatedRoute,
     private readonly snackBar: MatSnackBar,
-    private readonly router: Router,
+    private readonly router: Router
   ) {}
 
   ngOnInit(): void {
@@ -44,7 +44,7 @@ export class AttributeProviderShowComponent implements OnInit {
         (error) => {
           this.snackBar.open('Failed to load attribute provider', 'Close', { duration: 3000 });
           console.error('Load error:', error);
-        },
+        }
       );
     }
   }
@@ -65,7 +65,9 @@ export class AttributeProviderShowComponent implements OnInit {
       this.attributeProviderService
         .delete(this.provider.id)
         .then(() => {
-          this.snackBar.open('Attribute provider deleted successfully', 'Close', { duration: 3000 });
+          this.snackBar.open('Attribute provider deleted successfully', 'Close', {
+            duration: 3000,
+          });
           this.router.navigate(['../'], { relativeTo: this.route });
         })
         .catch((error) => {

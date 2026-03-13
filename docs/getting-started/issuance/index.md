@@ -105,11 +105,11 @@ EUDIPLO supports three authentication patterns for OID4VCI credential issuance. 
 
 ### Quick Reference
 
-| Authentication Pattern               | User is Known | User Authentication                              | Initiator        | Claims Source                |
-| ------------------------------------ | ------------- | ------------------------------------------------ | ---------------- | ---------------------------- |
-| **Pre-authorized code**              | Yes           | Already authenticated (before offer)             | Issuer only      | Offer or Attribute Provider  |
-| **Authorization code + External AS** | No            | OIDC login at external IdP                       | Issuer or Wallet | Attribute Provider (required)|
-| **Interactive Authorization (IAE)**  | No            | Credential presentation (OID4VP) or web redirect | Issuer or Wallet | Attribute Provider (required)|
+| Authentication Pattern               | User is Known | User Authentication                              | Initiator        | Claims Source                 |
+| ------------------------------------ | ------------- | ------------------------------------------------ | ---------------- | ----------------------------- |
+| **Pre-authorized code**              | Yes           | Already authenticated (before offer)             | Issuer only      | Offer or Attribute Provider   |
+| **Authorization code + External AS** | No            | OIDC login at external IdP                       | Issuer or Wallet | Attribute Provider (required) |
+| **Interactive Authorization (IAE)**  | No            | Credential presentation (OID4VP) or web redirect | Issuer or Wallet | Attribute Provider (required) |
 
 ### Understanding the Three Dimensions
 

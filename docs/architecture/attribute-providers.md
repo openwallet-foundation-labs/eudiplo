@@ -54,11 +54,11 @@ sequenceDiagram
 
 An Attribute Provider is a tenant-level resource with:
 
-| Field    | Type   | Description                                              |
-| -------- | ------ | -------------------------------------------------------- |
-| `id`     | string | Unique identifier within the tenant                      |
-| `name`   | string | Human-readable name                                      |
-| `config` | object | Webhook configuration (URL, authentication)              |
+| Field    | Type   | Description                                 |
+| -------- | ------ | ------------------------------------------- |
+| `id`     | string | Unique identifier within the tenant         |
+| `name`   | string | Human-readable name                         |
+| `config` | object | Webhook configuration (URL, authentication) |
 
 ### Example
 
