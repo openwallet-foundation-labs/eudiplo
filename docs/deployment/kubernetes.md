@@ -201,7 +201,7 @@ If ingress isn't working, use port-forward as fallback:
 # Backend API (port 3000)
 kubectl -n eudiplo port-forward svc/eudiplo 3000:3000 &
 
-# Client UI (port 4200 → 80)
+# Client UI (port 4200 → 8080)
 kubectl -n eudiplo port-forward svc/eudiplo-client 4200:80 &
 
 # MinIO Console (port 9001)

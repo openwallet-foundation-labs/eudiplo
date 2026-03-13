@@ -41,7 +41,7 @@ spec:
           image: ghcr.io/openwallet-foundation-labs/eudiplo-client:latest
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -52,14 +52,14 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: 80
+              port: 8080
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
           livenessProbe:
             httpGet:
               path: /
-              port: 80
+              port: 8080
             initialDelaySeconds: 10
             periodSeconds: 20
             timeoutSeconds: 5
@@ -67,7 +67,7 @@ spec:
           startupProbe:
             httpGet:
               path: /
-              port: 80
+              port: 8080
             periodSeconds: 5
             failureThreshold: 3
           resources:

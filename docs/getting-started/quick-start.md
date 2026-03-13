@@ -39,7 +39,7 @@ Choose how you want to run EUDIPLO:
     # Start the web client
     docker run -d \
       --name eudiplo-client \
-      -p 4200:80 \
+      -p 4200:8080 \
       ghcr.io/openwallet-foundation-labs/eudiplo-client:latest
     ```
 
