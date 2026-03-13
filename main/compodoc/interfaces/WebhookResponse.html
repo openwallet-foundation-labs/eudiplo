@@ -495,17 +495,18 @@ export class WebhookService {
 
     /**
      * Sends a webhook notification for a session.
-     * @param session
+     * @param webhook The webhook configuration
+     * @param session The session
      * @param logContext
      * @param notification
      */
     async sendWebhookNotification(
+        webhook: WebhookConfig,
         session: Session,
         logContext: SessionLogContext,
         notification: Notification,
     ) {
         const headers: Record&lt;string, string&gt; &#x3D; {};
-        const webhook &#x3D; session.notifyWebhook!;
 
         if (webhook.auth &amp;&amp; webhook.auth.type &#x3D;&#x3D;&#x3D; &quot;apiKey&quot;) {
             headers[webhook.auth.config.headerName] &#x3D; webhook.auth.config.value;

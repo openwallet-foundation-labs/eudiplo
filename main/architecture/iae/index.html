@@ -6,7 +6,7 @@
       
       
       
-        <link rel="prev" href="../webhooks/">
+        <link rel="prev" href="../attribute-providers/">
       
       
         <link rel="next" href="../chained-as/">
@@ -1407,8 +1407,6 @@
       
         
       
-        
-      
     
     
     
@@ -1610,6 +1608,71 @@
                 
   
   
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_7" checked="">
+        
+          
+          <label class="md-nav__link" for="__nav_4_7" id="__nav_4_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integrations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integrations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
   
   
     <li class="md-nav__item">
@@ -1621,6 +1684,34 @@
     
   
     Webhooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../attribute-providers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Attribute Providers
   
 
     
@@ -1823,10 +1914,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#claims-webhook-integration" class="md-nav__link">
+  <a href="#attribute-provider-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Claims Webhook Integration
+        Attribute Provider Integration
       
     </span>
   </a>
@@ -1858,6 +1949,14 @@
     </ul>
   
 </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
       
     </li>
   
@@ -2642,10 +2741,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#claims-webhook-integration" class="md-nav__link">
+  <a href="#attribute-provider-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Claims Webhook Integration
+        Attribute Provider Integration
       
     </span>
   </a>
@@ -2689,6 +2788,49 @@
 
 
 
+
+  <nav class="md-path" aria-label="Navigation">
+    <ol class="md-path__list">
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Architecture
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../webhooks/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Integrations
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
 
               
               <article class="md-content__inner md-typeset">
@@ -2924,9 +3066,10 @@
 </table>
 <p>This state is managed automatically. Your backend only needs to respond to the configured actions.</p>
 <hr>
-<h2 id="claims-webhook-integration">Claims Webhook Integration<a class="headerlink" href="#claims-webhook-integration" title="Permanent link">¶</a></h2>
-<p>When an <code>openid4vp_presentation</code> action is completed, EUDIPLO can call a <strong>claims webhook</strong> to transform the verified presentation data into credential claims.</p>
-<p>See <a href="../webhooks/#claims-webhook">Webhooks</a> for configuration details.</p>
+<h2 id="attribute-provider-integration">Attribute Provider Integration<a class="headerlink" href="#attribute-provider-integration" title="Permanent link">¶</a></h2>
+<p>When an <code>openid4vp_presentation</code> action is completed, EUDIPLO can call an <strong>Attribute Provider</strong> to transform the verified presentation data into credential claims.</p>
+<p>The Attribute Provider receives the presented credentials in the request payload under the <code>credentials</code> field, allowing your backend to extract and transform claims from the presentation.</p>
+<p>See <a href="../attribute-providers/">Attribute Providers</a> for configuration details.</p>
 <hr>
 <h2 id="fallback-behavior">Fallback Behavior<a class="headerlink" href="#fallback-behavior" title="Permanent link">¶</a></h2>
 <p>If no <code>iaeActions</code> are configured for a credential, EUDIPLO falls back to the wallet's <code>interaction_types_supported</code> preference:</p>
@@ -3006,7 +3149,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer">
         
           
-          <a href="../webhooks/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Webhooks">
+          <a href="../attribute-providers/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Attribute Providers">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
@@ -3016,7 +3159,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Webhooks
+                Attribute Providers
               </div>
             </div>
           </a>

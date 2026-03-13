@@ -184,14 +184,6 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier">Optional</span>
-                                <a href="#notifyWebhook" >notifyWebhook</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
                                 <a href="#response_type" >response_type</a>
                             </li>
                             <li>
@@ -205,6 +197,12 @@
                                     <span class="modifier"></span>
                                     <span class="modifier">Optional</span>
                                 <a href="#tx_code_description" >tx_code_description</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#webhookEndpointId" >webhookEndpointId</a>
                             </li>
                         </ul>
                     </td>
@@ -256,7 +254,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="135" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:135</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="154" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:154</a></div>
                         </td>
                     </tr>
 
@@ -288,7 +286,7 @@
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>    <code>Record&lt;string | InlineClaimsSource | WebhookClaimsSource&gt;</code>
+                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#ClaimsSource" target="_self" >Record&lt;string | ClaimsSource&gt;</a></code>
 
                     </td>
                 </tr>
@@ -303,7 +301,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="199" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:199</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="242" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:242</a></div>
                         </td>
                     </tr>
 
@@ -347,7 +345,7 @@ Keys must be a subset of credentialConfigurationIds.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="128" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:128</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="147" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:147</a></div>
                         </td>
                     </tr>
 
@@ -389,59 +387,13 @@ Keys must be a subset of credentialConfigurationIds.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="108" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:108</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="127" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:127</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>The flow type for the offer request.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="notifyWebhook"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier">Optional</span>
-                        <span ><b>notifyWebhook</b></span>
-                        <a href="#notifyWebhook"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../classes/WebhookConfig.html" target="_self" >WebhookConfig</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @IsObject()<br />@IsOptional()<br />@ValidateNested()<br />@Type(undefined)<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="208" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:208</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Webhook to notify about the status of the issuance process.</p>
 </div>
                 </td>
             </tr>
@@ -478,7 +430,7 @@ Keys must be a subset of credentialConfigurationIds.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="102" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:102</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="121" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:121</a></div>
                         </td>
                     </tr>
 
@@ -516,7 +468,7 @@ Keys must be a subset of credentialConfigurationIds.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="115" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:115</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="134" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:134</a></div>
                         </td>
                     </tr>
 
@@ -560,13 +512,57 @@ Keys must be a subset of credentialConfigurationIds.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="122" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:122</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="141" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:141</a></div>
                         </td>
                     </tr>
 
             <tr>
                 <td class="col-md-4">
                     <div class="io-description"><p>Description for the transaction code (e.g., &quot;Please enter the PIN sent to your email&quot;).</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="webhookEndpointId"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>webhookEndpointId</b></span>
+                        <a href="#webhookEndpointId"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @IsString()<br />@IsOptional()<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="249" class="link-to-prism">src/issuer/issuance/oid4vci/dto/offer-request.dto.ts:249</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>ID of the webhook endpoint to notify about the status of the issuance process.</p>
 </div>
                 </td>
             </tr>
@@ -620,7 +616,18 @@ export class InlineClaimsSource {
 }
 
 /**
- * Webhook claims source - claims fetched dynamically via webhook.
+ * Attribute provider claims source - claims fetched dynamically via a configured attribute provider.
+ */
+export class AttributeProviderClaimsSource {
+    @IsIn([&quot;attributeProvider&quot;])
+    type!: &quot;attributeProvider&quot;;
+
+    @IsString()
+    attributeProviderId!: string;
+}
+
+/**
+ * Webhook claims source - claims fetched dynamically via an inline webhook configuration.
  */
 export class WebhookClaimsSource {
     @IsIn([&quot;webhook&quot;])
@@ -630,6 +637,14 @@ export class WebhookClaimsSource {
     @Type(() &#x3D;&gt; WebhookConfig)
     webhook!: WebhookConfig;
 }
+
+/**
+ * Union type for all claims source types.
+ */
+export type ClaimsSource &#x3D;
+    | InlineClaimsSource
+    | AttributeProviderClaimsSource
+    | WebhookClaimsSource;
 
 /**
  * Custom validator to ensure credentialClaims keys are subset of credentialConfigurationIds
@@ -747,8 +762,29 @@ export class OfferRequestDto {
                     {
                         type: &quot;object&quot;,
                         properties: {
-                            type: { type: &quot;string&quot;, enum: [&quot;webhook&quot;] },
-                            webhook: { type: &quot;object&quot; },
+                            type: {
+                                type: &quot;string&quot;,
+                                enum: [&quot;attributeProvider&quot;],
+                            },
+                            attributeProviderId: { type: &quot;string&quot; },
+                        },
+                        required: [&quot;type&quot;, &quot;attributeProviderId&quot;],
+                    },
+                    {
+                        type: &quot;object&quot;,
+                        properties: {
+                            type: {
+                                type: &quot;string&quot;,
+                                enum: [&quot;webhook&quot;],
+                            },
+                            webhook: {
+                                type: &quot;object&quot;,
+                                properties: {
+                                    url: { type: &quot;string&quot; },
+                                    auth: { type: &quot;object&quot; },
+                                },
+                                required: [&quot;url&quot;],
+                            },
                         },
                         required: [&quot;type&quot;, &quot;webhook&quot;],
                     },
@@ -767,12 +803,15 @@ export class OfferRequestDto {
     @Validate(CredentialClaimsMatchIdsConstraint)
     @Transform(({ value }) &#x3D;&gt; {
         if (!value) return value;
-        const result: Record&lt;string, InlineClaimsSource | WebhookClaimsSource&gt; &#x3D;
-            {};
+        const result: Record&lt;string, ClaimsSource&gt; &#x3D; {};
         for (const [key, val] of Object.entries(value)) {
             const source &#x3D; val as any;
             if (source.type &#x3D;&#x3D;&#x3D; &quot;inline&quot;) {
                 result[key] &#x3D; plainToClass(InlineClaimsSource, val, {
+                    enableImplicitConversion: true,
+                });
+            } else if (source.type &#x3D;&#x3D;&#x3D; &quot;attributeProvider&quot;) {
+                result[key] &#x3D; plainToClass(AttributeProviderClaimsSource, val, {
                     enableImplicitConversion: true,
                 });
             } else if (source.type &#x3D;&#x3D;&#x3D; &quot;webhook&quot;) {
@@ -783,16 +822,14 @@ export class OfferRequestDto {
         }
         return result;
     })
-    credentialClaims?: Record&lt;string, InlineClaimsSource | WebhookClaimsSource&gt;;
+    credentialClaims?: Record&lt;string, ClaimsSource&gt;;
 
     /**
-     * Webhook to notify about the status of the issuance process.
+     * ID of the webhook endpoint to notify about the status of the issuance process.
      */
-    @IsObject()
+    @IsString()
     @IsOptional()
-    @ValidateNested()
-    @Type(() &#x3D;&gt; WebhookConfig)
-    notifyWebhook?: WebhookConfig;
+    webhookEndpointId?: string;
 }
 
 export class OfferResponse {

@@ -1972,8 +1972,6 @@
       
         
       
-        
-      
     
     
     
@@ -2176,6 +2174,68 @@
   
   
   
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_7">
+        
+          
+          <label class="md-nav__link" for="__nav_4_7" id="__nav_4_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Integrations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integrations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../../../architecture/webhooks/" class="md-nav__link">
         
@@ -2185,6 +2245,34 @@
     
   
     Webhooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/attribute-providers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Attribute Providers
   
 
     
@@ -2221,6 +2309,14 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -3549,8 +3645,8 @@ credentials. Each credential type has its own configuration file.</p>
   proof of possession. See <a href="#cryptographic-key-binding">Cryptographic Key Binding</a> for details.</li>
 <li><code>claims</code>: <strong>OPTIONAL</strong> - Static claims to include in the credential. Can be
   overridden by webhook responses or claims passed during credential offer.</li>
-<li><code>claimsWebhook</code>: <strong>OPTIONAL</strong> - Webhook to receive claims for the issuance process. See <a href="../../../architecture/webhooks/#claims-webhook">Webhooks</a> for details.</li>
-<li><code>notificationWebhook</code>: <strong>OPTIONAL</strong> - Webhook to send notifications about the issuance process. See <a href="../../../architecture/webhooks/#notification-webhook">Webhooks</a> for details.</li>
+<li><code>attributeProviderId</code>: <strong>OPTIONAL</strong> - Reference to an Attribute Provider that fetches claims dynamically. See <a href="../attribute-provider/">Attribute Providers</a> for details.</li>
+<li><code>webhookEndpointId</code>: <strong>OPTIONAL</strong> - Reference to a Webhook Endpoint for receiving notifications about the issuance process. See <a href="#notification-webhook">Notification Webhook</a> for details.</li>
 <li><code>disclosureFrame</code>: <strong>OPTIONAL</strong> - Defines which claims should be selectively
   disclosable in SD-JWT format.</li>
 <li><code>embeddedDisclosurePolicy</code>: <strong>OPTIONAL</strong> - Defines the embedded disclosure policy for the credential. See <a href="#embedded-disclosure-policy">Embedded Disclosure Policy</a> for details.</li>
@@ -3603,35 +3699,26 @@ credentials. Each credential type has its own configuration file.</p>
 <li>Development and testing scenarios</li>
 </ul>
 <h3 id="claims-webhook">Claims Webhook<a class="headerlink" href="#claims-webhook" title="Permanent link">¶</a></h3>
-<p>For dynamic claim retrieval, you can configure a webhook that will be called during the issuance process to fetch claims:</p>
+<p>For dynamic claim retrieval, you can configure an Attribute Provider that will be called during the issuance process to fetch claims:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="nt">"claimsWebhook"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://your-backend.com/api/claims"</span><span class="p">,</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">        </span><span class="nt">"headers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">            </span><span class="nt">"Authorization"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bearer your-token"</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">}</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="nt">"attributeProviderId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"my-claims-provider"</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="p">}</span>
 </code></pre></div>
-<p>The webhook will receive information about the issuance session and must return the claims to be included in the credential.</p>
-<p>Claims webhooks are useful when:</p>
+<p>The Attribute Provider endpoint will receive information about the issuance session and must return the claims to be included in the credential.</p>
+<p>Attribute Providers are useful when:</p>
 <ul>
 <li>Claims need to be fetched from an external system or database</li>
 <li>Claims should be personalized based on the authentication context</li>
 <li>Claims depend on real-time data</li>
 </ul>
-<p>For detailed information about webhook implementation, payload structure, and examples, see <a href="../../../architecture/webhooks/#claims-webhook">Claims Webhook</a>.</p>
+<p>For detailed information about creating Attribute Providers, request/response formats, and implementation examples, see <a href="../attribute-provider/">Attribute Providers</a>.</p>
 <hr>
 <h2 id="notification-webhook">Notification Webhook<a class="headerlink" href="#notification-webhook" title="Permanent link">¶</a></h2>
-<p>You can configure a webhook to receive notifications about the issuance process. This allows you to track the status of credential issuance and take appropriate actions:</p>
+<p>You can configure a webhook endpoint to receive notifications about the issuance process. This allows you to track the status of credential issuance and take appropriate actions.</p>
+<p>Reference a pre-configured webhook endpoint by its ID:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nt">"notificationWebhook"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://your-backend.com/api/notifications"</span><span class="p">,</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">        </span><span class="nt">"headers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">            </span><span class="nt">"Authorization"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bearer your-token"</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="p">}</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nt">"webhookEndpointId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"my-notification-webhook"</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="p">}</span>
 </code></pre></div>
 <p>The notification webhook will be called at various stages of the issuance process, such as:</p>
 <ul>
@@ -3642,7 +3729,7 @@ credentials. Each credential type has its own configuration file.</p>
 <p>For more details about the webhook implementation and payload structure, see <a href="../../../architecture/webhooks/#notification-webhook">Notification Webhook</a>.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>When a webhook is configured on credential config level, it will will sent the notification to this endpoint and not also to the one provided in the issuance config. It can also be overwritten via the credential offer.</p>
+<p>When a webhook endpoint is configured on credential config level, notifications will be sent to this endpoint instead of the one provided in the issuance config. It can also be overwritten via the credential offer.</p>
 </div>
 <hr>
 <h2 id="selective-disclosure">Selective Disclosure<a class="headerlink" href="#selective-disclosure" title="Permanent link">¶</a></h2>

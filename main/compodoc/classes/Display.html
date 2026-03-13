@@ -246,7 +246,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="52" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:52</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:53</a></div>
                         </td>
                     </tr>
 
@@ -285,7 +285,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="59" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:59</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="60" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:60</a></div>
                         </td>
                     </tr>
 
@@ -321,7 +321,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:47</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:48</a></div>
                         </td>
                     </tr>
 
@@ -357,7 +357,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:49</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:50</a></div>
                         </td>
                     </tr>
 
@@ -396,7 +396,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="63" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:63</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="64" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:64</a></div>
                         </td>
                     </tr>
 
@@ -432,7 +432,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:45</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="46" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:46</a></div>
                         </td>
                     </tr>
 
@@ -470,7 +470,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="55" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:55</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:56</a></div>
                         </td>
                     </tr>
 
@@ -509,9 +509,10 @@ import {
 import { Column, Entity, JoinColumn, ManyToOne } from &quot;typeorm&quot;;
 import { TenantEntity } from &quot;../../../../auth/tenant/entitites/tenant.entity&quot;;
 import { KeyChainEntity } from &quot;../../../../crypto/key/entities/key-chain.entity&quot;;
-import { WebhookConfig } from &quot;../../../../shared/utils/webhook/webhook.dto&quot;;
 import { SchemaResponse } from &quot;../../../issuance/oid4vci/metadata/dto/schema-response.dto&quot;;
 import { VCT } from &quot;../../../issuance/oid4vci/metadata/dto/vct.dto&quot;;
+import { AttributeProviderEntity } from &quot;../../attribute-provider/entities/attribute-provider.entity&quot;;
+import { WebhookEndpointEntity } from &quot;../../webhook-endpoint/entities/webhook-endpoint.entity&quot;;
 import {
     IaeAction,
     IaeActionBase,
@@ -641,22 +642,40 @@ export class CredentialConfig {
     claims?: Record&lt;string, any&gt; | null;
 
     /**
-     * Webhook to receive claims for the issuance process.
+     * Reference to the attribute provider used for fetching claims.
+     * Optional: if set, claims will be fetched from this provider during issuance.
      */
     @IsOptional()
-    @ValidateNested()
-    @Type(() &#x3D;&gt; WebhookConfig)
-    @Column(&quot;json&quot;, { nullable: true })
-    claimsWebhook?: WebhookConfig | null;
+    @IsString()
+    @Column(&quot;varchar&quot;, { nullable: true })
+    attributeProviderId?: string | null;
+
+    @ManyToOne(() &#x3D;&gt; AttributeProviderEntity, {
+        createForeignKeyConstraints: false,
+    })
+    @JoinColumn([
+        { name: &quot;attributeProviderId&quot;, referencedColumnName: &quot;id&quot; },
+        { name: &quot;tenantId&quot;, referencedColumnName: &quot;tenantId&quot; },
+    ])
+    attributeProvider?: AttributeProviderEntity;
 
     /**
-     * Webhook to receive claims for the issuance process.
+     * Reference to the webhook endpoint used for notifications.
+     * Optional: if set, notifications will be sent to this endpoint.
      */
     @IsOptional()
-    @ValidateNested()
-    @Type(() &#x3D;&gt; WebhookConfig)
-    @Column(&quot;json&quot;, { nullable: true })
-    notificationWebhook?: WebhookConfig | null;
+    @IsString()
+    @Column(&quot;varchar&quot;, { nullable: true })
+    webhookEndpointId?: string | null;
+
+    @ManyToOne(() &#x3D;&gt; WebhookEndpointEntity, {
+        createForeignKeyConstraints: false,
+    })
+    @JoinColumn([
+        { name: &quot;webhookEndpointId&quot;, referencedColumnName: &quot;id&quot; },
+        { name: &quot;tenantId&quot;, referencedColumnName: &quot;tenantId&quot; },
+    ])
+    webhookEndpoint?: WebhookEndpointEntity;
 
     // has to be optional since there may be credentials that are disclosed without a frame
     @Column(&quot;json&quot;, { nullable: true })
