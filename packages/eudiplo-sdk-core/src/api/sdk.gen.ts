@@ -11,6 +11,19 @@ import { client } from "./client.gen";
 import type {
   AppControllerMainData,
   AppControllerMainResponses,
+  AttributeProviderControllerCreateData,
+  AttributeProviderControllerCreateResponses,
+  AttributeProviderControllerDeleteData,
+  AttributeProviderControllerDeleteErrors,
+  AttributeProviderControllerDeleteResponses,
+  AttributeProviderControllerGetAllData,
+  AttributeProviderControllerGetAllResponses,
+  AttributeProviderControllerGetByIdData,
+  AttributeProviderControllerGetByIdErrors,
+  AttributeProviderControllerGetByIdResponses,
+  AttributeProviderControllerUpdateData,
+  AttributeProviderControllerUpdateErrors,
+  AttributeProviderControllerUpdateResponses,
   AuthControllerGetGlobalJwksData,
   AuthControllerGetGlobalJwksResponses,
   AuthControllerGetOAuth2TokenData,
@@ -98,6 +111,9 @@ import type {
   KeyChainControllerDeleteData,
   KeyChainControllerDeleteErrors,
   KeyChainControllerDeleteResponses,
+  KeyChainControllerExportData,
+  KeyChainControllerExportErrors,
+  KeyChainControllerExportResponses,
   KeyChainControllerGetAllData,
   KeyChainControllerGetAllResponses,
   KeyChainControllerGetByIdData,
@@ -225,6 +241,19 @@ import type {
   TrustListPublicControllerGetTrustListJwtResponses,
   VerifierOfferControllerGetOfferData,
   VerifierOfferControllerGetOfferResponses,
+  WebhookEndpointControllerCreateData,
+  WebhookEndpointControllerCreateResponses,
+  WebhookEndpointControllerDeleteData,
+  WebhookEndpointControllerDeleteErrors,
+  WebhookEndpointControllerDeleteResponses,
+  WebhookEndpointControllerGetAllData,
+  WebhookEndpointControllerGetAllResponses,
+  WebhookEndpointControllerGetByIdData,
+  WebhookEndpointControllerGetByIdErrors,
+  WebhookEndpointControllerGetByIdResponses,
+  WebhookEndpointControllerUpdateData,
+  WebhookEndpointControllerUpdateErrors,
+  WebhookEndpointControllerUpdateResponses,
   WellKnownControllerAuthzMetadata0Data,
   WellKnownControllerAuthzMetadata0Responses,
   WellKnownControllerAuthzMetadata1Data,
@@ -1070,6 +1099,202 @@ export const credentialConfigControllerUpdateCredentialConfiguration = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/issuer/credentials/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List all attribute providers
+ */
+export const attributeProviderControllerGetAll = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<AttributeProviderControllerGetAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AttributeProviderControllerGetAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/issuer/attribute-providers",
+    ...options,
+  });
+
+/**
+ * Create a new attribute provider
+ */
+export const attributeProviderControllerCreate = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<AttributeProviderControllerCreateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AttributeProviderControllerCreateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/issuer/attribute-providers",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete an attribute provider
+ */
+export const attributeProviderControllerDelete = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<AttributeProviderControllerDeleteData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    AttributeProviderControllerDeleteResponses,
+    AttributeProviderControllerDeleteErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/issuer/attribute-providers/{id}",
+    ...options,
+  });
+
+/**
+ * Get an attribute provider by ID
+ */
+export const attributeProviderControllerGetById = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<AttributeProviderControllerGetByIdData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AttributeProviderControllerGetByIdResponses,
+    AttributeProviderControllerGetByIdErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/issuer/attribute-providers/{id}",
+    ...options,
+  });
+
+/**
+ * Update an attribute provider
+ */
+export const attributeProviderControllerUpdate = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<AttributeProviderControllerUpdateData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AttributeProviderControllerUpdateResponses,
+    AttributeProviderControllerUpdateErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/issuer/attribute-providers/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List all webhook endpoints
+ */
+export const webhookEndpointControllerGetAll = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<WebhookEndpointControllerGetAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    WebhookEndpointControllerGetAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/issuer/webhook-endpoints",
+    ...options,
+  });
+
+/**
+ * Create a new webhook endpoint
+ */
+export const webhookEndpointControllerCreate = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<WebhookEndpointControllerCreateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    WebhookEndpointControllerCreateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/issuer/webhook-endpoints",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete a webhook endpoint
+ */
+export const webhookEndpointControllerDelete = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<WebhookEndpointControllerDeleteData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    WebhookEndpointControllerDeleteResponses,
+    WebhookEndpointControllerDeleteErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/issuer/webhook-endpoints/{id}",
+    ...options,
+  });
+
+/**
+ * Get a webhook endpoint by ID
+ */
+export const webhookEndpointControllerGetById = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<WebhookEndpointControllerGetByIdData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    WebhookEndpointControllerGetByIdResponses,
+    WebhookEndpointControllerGetByIdErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/issuer/webhook-endpoints/{id}",
+    ...options,
+  });
+
+/**
+ * Update a webhook endpoint
+ */
+export const webhookEndpointControllerUpdate = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<WebhookEndpointControllerUpdateData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    WebhookEndpointControllerUpdateResponses,
+    WebhookEndpointControllerUpdateErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/issuer/webhook-endpoints/{id}",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -2185,6 +2410,24 @@ export const keyChainControllerUpdate = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Export a key chain in config-import format
+ *
+ * Returns the key chain including private key material in the same format used by config import JSON files.
+ */
+export const keyChainControllerExport = <ThrowOnError extends boolean = true>(
+  options: Options<KeyChainControllerExportData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    KeyChainControllerExportResponses,
+    KeyChainControllerExportErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/key-chain/{id}/export",
+    ...options,
   });
 
 /**

@@ -8,6 +8,7 @@ import { WebhookService } from "../../shared/utils/webhook/webhook.service";
 import { Oid4vpModule } from "../../verifier/oid4vp/oid4vp.module";
 import { PresentationsModule } from "../../verifier/presentations/presentations.module";
 import { ConfigurationModule } from "../configuration/configuration.module";
+import { WebhookEndpointEntity } from "../configuration/webhook-endpoint/entities/webhook-endpoint.entity";
 import { CredentialOfferController } from "./offer/credential-offer.controller";
 import { AuthorizeController } from "./oid4vci/authorize/authorize.controller";
 import { AuthorizeService } from "./oid4vci/authorize/authorize.service";
@@ -50,6 +51,7 @@ import { WellKnownService } from "./oid4vci/well-known/well-known.service";
             DeferredTransactionEntity,
             InteractiveAuthSessionEntity,
             ChainedAsSessionEntity,
+            WebhookEndpointEntity,
         ]),
     ],
     controllers: [

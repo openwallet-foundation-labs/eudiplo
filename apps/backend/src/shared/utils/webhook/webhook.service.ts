@@ -130,17 +130,18 @@ export class WebhookService {
 
     /**
      * Sends a webhook notification for a session.
-     * @param session
+     * @param webhook The webhook configuration
+     * @param session The session
      * @param logContext
      * @param notification
      */
     async sendWebhookNotification(
+        webhook: WebhookConfig,
         session: Session,
         logContext: SessionLogContext,
         notification: Notification,
     ) {
         const headers: Record<string, string> = {};
-        const webhook = session.notifyWebhook!;
 
         if (webhook.auth && webhook.auth.type === "apiKey") {
             headers[webhook.auth.config.headerName] = webhook.auth.config.value;

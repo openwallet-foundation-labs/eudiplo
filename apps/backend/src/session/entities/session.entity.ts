@@ -144,10 +144,10 @@ export class Session {
     @Column("text", { nullable: true, transformer: EncryptedJsonTransformer })
     credentialPayload?: OfferRequestDto;
     /**
-     * Webhook configuration to send the result of the notification response.
+     * ID of the webhook endpoint to notify about issuance status.
      */
-    @Column("json", { nullable: true })
-    notifyWebhook?: WebhookConfig;
+    @Column("varchar", { nullable: true })
+    webhookEndpointId?: string;
     /**
      * Notifications associated with the session.
      */

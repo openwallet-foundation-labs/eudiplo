@@ -546,6 +546,21 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
         )
         .expect(201);
 
+    // Import the citizen attribute provider
+    await request(app.getHttpServer())
+        .post("/issuer/attribute-providers")
+        .trustLocalhost()
+        .set("Authorization", `Bearer ${authToken}`)
+        .send(
+            readConfig(
+                join(
+                    configFolder,
+                    "haip/issuance/attribute-providers/citizen-ap.json",
+                ),
+            ),
+        )
+        .expect(201);
+
     // Import the citizen credential configuration
     await request(app.getHttpServer())
         .post("/issuer/credentials")

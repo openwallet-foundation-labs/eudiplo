@@ -51,8 +51,8 @@ For a complete configuration example, see the [Complete Configuration Example](#
   proof of possession. See [Cryptographic Key Binding](#cryptographic-key-binding) for details.
 - `claims`: **OPTIONAL** - Static claims to include in the credential. Can be
   overridden by webhook responses or claims passed during credential offer.
-- `claimsWebhook`: **OPTIONAL** - Webhook to receive claims for the issuance process. See [Webhooks](../../architecture/webhooks.md#claims-webhook) for details.
-- `notificationWebhook`: **OPTIONAL** - Webhook to send notifications about the issuance process. See [Webhooks](../../architecture/webhooks.md#notification-webhook) for details.
+- `attributeProviderId`: **OPTIONAL** - Reference to an Attribute Provider that fetches claims dynamically. See [Attribute Providers](attribute-provider.md) for details.
+- `webhookEndpointId`: **OPTIONAL** - Reference to a Webhook Endpoint for receiving notifications about the issuance process. See [Notification Webhook](#notification-webhook) for details.
 - `disclosureFrame`: **OPTIONAL** - Defines which claims should be selectively
   disclosable in SD-JWT format.
 - `embeddedDisclosurePolicy`: **OPTIONAL** - Defines the embedded disclosure policy for the credential. See [Embedded Disclosure Policy](#embedded-disclosure-policy) for details.
@@ -113,43 +113,35 @@ Static claims are useful for:
 
 ### Claims Webhook
 
-For dynamic claim retrieval, you can configure a webhook that will be called during the issuance process to fetch claims:
+For dynamic claim retrieval, you can configure an Attribute Provider that will be called during the issuance process to fetch claims:
 
 ```json
 {
-    "claimsWebhook": {
-        "url": "https://your-backend.com/api/claims",
-        "headers": {
-            "Authorization": "Bearer your-token"
-        }
-    }
+    "attributeProviderId": "my-claims-provider"
 }
 ```
 
-The webhook will receive information about the issuance session and must return the claims to be included in the credential.
+The Attribute Provider endpoint will receive information about the issuance session and must return the claims to be included in the credential.
 
-Claims webhooks are useful when:
+Attribute Providers are useful when:
 
 - Claims need to be fetched from an external system or database
 - Claims should be personalized based on the authentication context
 - Claims depend on real-time data
 
-For detailed information about webhook implementation, payload structure, and examples, see [Claims Webhook](../../architecture/webhooks.md#claims-webhook).
+For detailed information about creating Attribute Providers, request/response formats, and implementation examples, see [Attribute Providers](attribute-provider.md).
 
 ---
 
 ## Notification Webhook
 
-You can configure a webhook to receive notifications about the issuance process. This allows you to track the status of credential issuance and take appropriate actions:
+You can configure a webhook endpoint to receive notifications about the issuance process. This allows you to track the status of credential issuance and take appropriate actions.
+
+Reference a pre-configured webhook endpoint by its ID:
 
 ```json
 {
-    "notificationWebhook": {
-        "url": "https://your-backend.com/api/notifications",
-        "headers": {
-            "Authorization": "Bearer your-token"
-        }
-    }
+    "webhookEndpointId": "my-notification-webhook"
 }
 ```
 
@@ -163,7 +155,7 @@ For more details about the webhook implementation and payload structure, see [No
 
 !!! Info
 
-    When a webhook is configured on credential config level, it will will sent the notification to this endpoint and not also to the one provided in the issuance config. It can also be overwritten via the credential offer.
+    When a webhook endpoint is configured on credential config level, notifications will be sent to this endpoint instead of the one provided in the issuance config. It can also be overwritten via the credential offer.
 
 ---
 

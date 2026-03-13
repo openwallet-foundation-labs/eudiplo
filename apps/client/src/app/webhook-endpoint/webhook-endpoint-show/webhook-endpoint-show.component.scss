@@ -1,0 +1,25 @@
+.config-list {
+  padding: 0;
+
+  mat-list-item {
+    height: auto !important;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+mat-card-header {
+  mat-card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    mat-icon {
+      color: #666;
+    }
+  }
+}

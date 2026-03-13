@@ -5,4 +5,6 @@ export class CredentialConfigCreate extends OmitType(CredentialConfig, [
     "tenantId",
     "tenant",
     "keyChain",
+    "attributeProvider",
+    "webhookEndpoint",
 ]) {}

@@ -1,0 +1,15 @@
+mat-card {
+  margin-bottom: 16px;
+}
+
+mat-card-header {
+  mat-card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    mat-icon {
+      color: #666;
+    }
+  }
+}

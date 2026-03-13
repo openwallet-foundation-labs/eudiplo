@@ -1,0 +1,89 @@
+@if (provider) {
+  <div fxLayout="column" fxFlex fxLayoutGap="24px">
+    <!-- Header -->
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+      <h2>Attribute Provider</h2>
+      <div>
+        <button mat-icon-button [routerLink]="['../']" matTooltip="Back to list">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <button mat-icon-button [routerLink]="['edit']" matTooltip="Edit attribute provider">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Download configuration" (click)="downloadConfig()">
+          <mat-icon>download</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          (click)="deleteProvider()"
+          matTooltip="Delete attribute provider"
+          color="warn"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Details Card -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>cloud_download</mat-icon>
+          Provider Details
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-list class="config-list">
+          <mat-list-item>
+            <mat-icon matListItemIcon>fingerprint</mat-icon>
+            <span matListItemTitle>ID</span>
+            <span matListItemLine>{{ provider.id }}</span>
+          </mat-list-item>
+          <mat-list-item>
+            <mat-icon matListItemIcon>label</mat-icon>
+            <span matListItemTitle>Name</span>
+            <span matListItemLine>{{ provider.name }}</span>
+          </mat-list-item>
+          @if (provider.description) {
+            <mat-list-item>
+              <mat-icon matListItemIcon>description</mat-icon>
+              <span matListItemTitle>Description</span>
+              <span matListItemLine>{{ provider.description }}</span>
+            </mat-list-item>
+          }
+          <mat-list-item>
+            <mat-icon matListItemIcon>link</mat-icon>
+            <span matListItemTitle>URL</span>
+            <span matListItemLine>{{ provider.url }}</span>
+          </mat-list-item>
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Authentication Card -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>security</mat-icon>
+          Authentication
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-list class="config-list">
+          <mat-list-item>
+            <mat-icon matListItemIcon>vpn_key</mat-icon>
+            <span matListItemTitle>Type</span>
+            <span matListItemLine>{{ getAuthType() }}</span>
+          </mat-list-item>
+          @if (getAuthHeaderName()) {
+            <mat-list-item>
+              <mat-icon matListItemIcon>code</mat-icon>
+              <span matListItemTitle>Header Name</span>
+              <span matListItemLine>{{ getAuthHeaderName() }}</span>
+            </mat-list-item>
+          }
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
+  </div>
+}

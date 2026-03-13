@@ -1,0 +1,43 @@
+<div fxLayout="row" fxLayoutAlign="space-between center">
+  <h2>Webhook Endpoints</h2>
+  <button matIconButton [routerLink]="['create']" matTooltip="Create New Webhook Endpoint">
+    <mat-icon>add</mat-icon>
+  </button>
+</div>
+
+<table mat-table [dataSource]="endpoints" class="mat-elevation-z8">
+  <ng-container matColumnDef="id">
+    <th mat-header-cell *matHeaderCellDef>ID</th>
+    <td mat-cell *matCellDef="let endpoint">{{ endpoint.id }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef>Name</th>
+    <td mat-cell *matCellDef="let endpoint">{{ endpoint.name }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="url">
+    <th mat-header-cell *matHeaderCellDef>URL</th>
+    <td mat-cell *matCellDef="let endpoint">{{ endpoint.url }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="auth">
+    <th mat-header-cell *matHeaderCellDef>Auth</th>
+    <td mat-cell *matCellDef="let endpoint">{{ getAuthType(endpoint) }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef>Actions</th>
+    <td mat-cell *matCellDef="let endpoint">
+      <button matIconButton [routerLink]="[endpoint.id]">
+        <mat-icon>visibility</mat-icon>
+      </button>
+      <button matIconButton [routerLink]="[endpoint.id, 'edit']">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+</table>

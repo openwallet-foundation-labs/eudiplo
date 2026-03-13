@@ -162,11 +162,13 @@ This state is managed automatically. Your backend only needs to respond to the c
 
 ---
 
-## Claims Webhook Integration
+## Attribute Provider Integration
 
-When an `openid4vp_presentation` action is completed, EUDIPLO can call a **claims webhook** to transform the verified presentation data into credential claims.
+When an `openid4vp_presentation` action is completed, EUDIPLO can call an **Attribute Provider** to transform the verified presentation data into credential claims.
 
-See [Webhooks](./webhooks.md#claims-webhook) for configuration details.
+The Attribute Provider receives the presented credentials in the request payload under the `credentials` field, allowing your backend to extract and transform claims from the presentation.
+
+See [Attribute Providers](./attribute-providers.md) for configuration details.
 
 ---
 

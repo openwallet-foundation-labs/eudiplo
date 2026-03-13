@@ -1,0 +1,9 @@
+{
+    "id": "citizen-ap",
+    "name": "Citizen Attribute Provider",
+    "description": "Webhook-based attribute provider for citizen credential claims",
+    "url": "http://localhost:8787/request",
+    "auth": {
+        "type": "none"
+    }
+}

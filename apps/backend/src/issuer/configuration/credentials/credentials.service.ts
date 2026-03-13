@@ -11,6 +11,7 @@ import { SessionLogContext } from "../../../shared/utils/logger/session-logger-c
 import { WebhookConfig } from "../../../shared/utils/webhook/webhook.dto";
 import { WebhookService } from "../../../shared/utils/webhook/webhook.service";
 import { VCT } from "../../issuance/oid4vci/metadata/dto/vct.dto";
+import { AttributeProviderEntity } from "../attribute-provider/entities/attribute-provider.entity";
 import { AuthorizationIdentity } from "./dto/authorization-identity";
 import { ClaimsWebhookResult } from "./dto/claims-webhook-result";
 import {
@@ -46,6 +47,8 @@ export class CredentialsService {
         private readonly configService: ConfigService,
         @InjectRepository(CredentialConfig)
         private readonly credentialConfigRepo: Repository<CredentialConfig>,
+        @InjectRepository(AttributeProviderEntity)
+        private readonly attributeProviderRepo: Repository<AttributeProviderEntity>,
         private readonly webhookService: WebhookService,
         private readonly sdjwtvcIssuerService: SdjwtvcIssuerService,
         private readonly mdocIssuerService: MdocIssuerService,
@@ -301,10 +304,23 @@ export class CredentialsService {
             };
         }
 
+        // Handle webhook config passed directly at offer time
         if (claimsSource?.type === "webhook") {
             webhook = claimsSource.webhook;
+        } else if (claimsSource?.type === "attributeProvider") {
+            // Resolve the attribute provider by ID
+            const provider = await this.attributeProviderRepo.findOneBy({
+                id: claimsSource.attributeProviderId,
+                tenantId: session.tenantId,
+            });
+            if (!provider) {
+                throw new ConflictException(
+                    `Attribute provider '${claimsSource.attributeProviderId}' not found`,
+                );
+            }
+            webhook = { url: provider.url, auth: provider.auth };
         } else {
-            // Fall back to credential config's claimsWebhook
+            // Fall back to credential config's attributeProviderId
             const credentialConfiguration =
                 await this.credentialConfigRepo.findOneBy({
                     tenantId: session.tenantId,
@@ -316,14 +332,26 @@ export class CredentialsService {
                     `Credential configuration '${credentialConfigurationId}' not found`,
                 );
             }
-            webhook = credentialConfiguration.claimsWebhook;
+
+            if (credentialConfiguration.attributeProviderId) {
+                const provider = await this.attributeProviderRepo.findOneBy({
+                    id: credentialConfiguration.attributeProviderId,
+                    tenantId: session.tenantId,
+                });
+                if (!provider) {
+                    throw new ConflictException(
+                        `Attribute provider '${credentialConfiguration.attributeProviderId}' not found`,
+                    );
+                }
+                webhook = { url: provider.url, auth: provider.auth };
+            }
         }
 
         // No webhook configured
         if (!webhook) {
             if (options?.requireWebhook) {
                 throw new ConflictException(
-                    `Authorization code flow requires claimsWebhook to be configured on credential '${credentialConfigurationId}' ` +
+                    `Authorization code flow requires an attribute provider to be configured on credential '${credentialConfigurationId}' ` +
                         `or provided at offer time.`,
                 );
             }
@@ -409,7 +437,8 @@ export class CredentialsService {
                 ];
             if (claimsSource?.type === "inline") {
                 usedClaims = claimsSource.claims;
-            } else if (credentialConfiguration.claimsWebhook) {
+            } else if (claimsSource?.type === "webhook") {
+                // Use webhook config passed at offer time
                 const logContext: SessionLogContext = {
                     sessionId: session.id,
                     tenantId: session.tenantId,
@@ -417,7 +446,7 @@ export class CredentialsService {
                     stage: "fetching-claims-webhook",
                 };
                 const webhookResponse = await this.webhookService.sendWebhook({
-                    webhook: credentialConfiguration.claimsWebhook,
+                    webhook: claimsSource.webhook,
                     logContext,
                     session,
                     expectResponse: true,
@@ -426,6 +455,34 @@ export class CredentialsService {
                     usedClaims = webhookResponse[
                         credentialConfigurationId
                     ] as Record<string, any>;
+                }
+            } else if (credentialConfiguration.attributeProviderId) {
+                const provider = await this.attributeProviderRepo.findOneBy({
+                    id: credentialConfiguration.attributeProviderId,
+                    tenantId: session.tenantId,
+                });
+                if (provider) {
+                    const logContext: SessionLogContext = {
+                        sessionId: session.id,
+                        tenantId: session.tenantId,
+                        flowType: "OID4VCI",
+                        stage: "fetching-claims-webhook",
+                    };
+                    const webhookResponse =
+                        await this.webhookService.sendWebhook({
+                            webhook: {
+                                url: provider.url,
+                                auth: provider.auth,
+                            },
+                            logContext,
+                            session,
+                            expectResponse: true,
+                        });
+                    if (webhookResponse?.[credentialConfigurationId]) {
+                        usedClaims = webhookResponse[
+                            credentialConfigurationId
+                        ] as Record<string, any>;
+                    }
                 }
             }
         }

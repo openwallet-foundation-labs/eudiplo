@@ -60,3 +60,34 @@ export const credentialConfigRoutes: Routes = [
       ),
   },
 ];
+
+export const attributeProviderRoutes: Routes = [
+  {
+    path: '',
+    loadComponent: () =>
+      import('./attribute-provider/attribute-provider-list/attribute-provider-list.component').then(
+        (m) => m.AttributeProviderListComponent
+      ),
+  },
+  {
+    path: 'create',
+    loadComponent: () =>
+      import('./attribute-provider/attribute-provider-create/attribute-provider-create.component').then(
+        (m) => m.AttributeProviderCreateComponent
+      ),
+  },
+  {
+    path: ':id',
+    loadComponent: () =>
+      import('./attribute-provider/attribute-provider-show/attribute-provider-show.component').then(
+        (m) => m.AttributeProviderShowComponent
+      ),
+  },
+  {
+    path: ':id/edit',
+    loadComponent: () =>
+      import('./attribute-provider/attribute-provider-create/attribute-provider-create.component').then(
+        (m) => m.AttributeProviderCreateComponent
+      ),
+  },
+];

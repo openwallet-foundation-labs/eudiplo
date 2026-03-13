@@ -220,35 +220,37 @@
                               </div>
                             </mat-radio-button>
                             <mat-radio-button
-                              value="webhook"
-                              [disabled]="!element.webhookConfig?.url"
+                              value="attributeProvider"
+                              [disabled]="!element.attributeProviderId"
                             >
                               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-                                <mat-icon>webhook</mat-icon>
-                                <span>Webhook</span>
+                                <mat-icon>cloud_download</mat-icon>
+                                <span>Attribute Provider</span>
                               </div>
                             </mat-radio-button>
                           </mat-radio-group>
 
-                          @if (!element.webhookConfig?.url) {
+                          @if (!element.attributeProviderId) {
                             <p class="help-text info">
                               <mat-icon>info</mat-icon>
-                              No webhook configured - form input will be used
+                              No attribute provider configured - form input will be used
                             </p>
                           }
                         </div>
 
                         <!-- Content based on selected source -->
-                        @if (element.claimSource === 'webhook' && element.webhookConfig?.url) {
+                        @if (
+                          element.claimSource === 'attributeProvider' && element.attributeProviderId
+                        ) {
                           <div class="webhook-info">
-                            <app-webhook-config-show
-                              [config]="element.webhookConfig"
-                              title="Claims"
-                              descriptions="to fetch claims during issuance"
-                            ></app-webhook-config-show>
+                            <p>
+                              <strong>Attribute Provider ID:</strong>
+                              {{ element.attributeProviderId }}
+                            </p>
                             <p class="help-text">
                               <mat-icon>info</mat-icon>
-                              Claims will be fetched from the configured webhook during issuance
+                              Claims will be fetched from the configured attribute provider during
+                              issuance
                             </p>
                           </div>
                         } @else if (element.claimSource === 'form') {
@@ -357,13 +359,13 @@
                   </mat-form-field>
                 }
 
-                <!-- Webhook configuration for each credential -->
+                <!-- Attribute Provider configuration for each credential -->
                 <h4 class="webhook-section-title">
-                  <mat-icon>webhook</mat-icon>
-                  Claims Webhooks
+                  <mat-icon>cloud_download</mat-icon>
+                  Claims Attribute Providers
                 </h4>
                 <p class="step-description">
-                  Configure a webhook for each credential to fetch claims based on AS
+                  Select an attribute provider for each credential to fetch claims based on AS
                   authentication.
                 </p>
 
@@ -380,8 +382,15 @@
                         </mat-card-title>
                       </mat-card-header>
                       <mat-card-content>
-                        @if (getWebhookFormGroup(configId); as webhookForm) {
-                          <app-webhook-config-edit [group]="webhookForm"></app-webhook-config-edit>
+                        @if (getWebhookFormGroup(configId); as apForm) {
+                          <mat-form-field appearance="outline" class="full-width">
+                            <mat-label>Attribute Provider ID</mat-label>
+                            <input
+                              matInput
+                              [formControl]="$any(apForm.get('attributeProviderId'))"
+                              placeholder="Enter attribute provider ID"
+                            />
+                          </mat-form-field>
                         }
                       </mat-card-content>
                     </mat-card>
@@ -434,13 +443,13 @@
                 </div>
               </div>
 
-              <!-- Webhook configuration for each credential -->
+              <!-- Attribute Provider configuration for each credential -->
               <h4 class="webhook-section-title">
-                <mat-icon>webhook</mat-icon>
-                Claims Webhooks (Optional)
+                <mat-icon>cloud_download</mat-icon>
+                Claims Attribute Providers (Optional)
               </h4>
               <p class="step-description">
-                Optionally configure a webhook to fetch claims after IAE completes. If not
+                Optionally select an attribute provider to fetch claims after IAE completes. If not
                 configured, claims will be taken from the credential configuration or IAE results.
               </p>
 
@@ -457,8 +466,15 @@
                       </mat-card-title>
                     </mat-card-header>
                     <mat-card-content>
-                      @if (getWebhookFormGroup(configId); as webhookForm) {
-                        <app-webhook-config-edit [group]="webhookForm"></app-webhook-config-edit>
+                      @if (getWebhookFormGroup(configId); as apForm) {
+                        <mat-form-field appearance="outline" class="full-width">
+                          <mat-label>Attribute Provider ID</mat-label>
+                          <input
+                            matInput
+                            [formControl]="$any(apForm.get('attributeProviderId'))"
+                            placeholder="Enter attribute provider ID"
+                          />
+                        </mat-form-field>
                       }
                     </mat-card-content>
                   </mat-card>

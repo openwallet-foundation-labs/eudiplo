@@ -108,6 +108,15 @@
               <span matListItemTitle>Registrar</span>
             </mat-list-item>
           }
+
+          <mat-list-item
+            [routerLink]="['/webhook-endpoints']"
+            routerLinkActive="active-link"
+            (click)="closeSidenavOnMobile()"
+          >
+            <mat-icon matListItemIcon>webhook</mat-icon>
+            <span matListItemTitle>Webhook Endpoints</span>
+          </mat-list-item>
         }
 
         <!-- Credential Issuance Section -->
@@ -164,6 +173,15 @@
             >
               <mat-icon matListItemIcon>format_list_bulleted</mat-icon>
               <span matListItemTitle>Status Lists</span>
+            </mat-list-item>
+
+            <mat-list-item
+              [routerLink]="['/attribute-providers']"
+              routerLinkActive="active-link"
+              (click)="closeSidenavOnMobile()"
+            >
+              <mat-icon matListItemIcon>cloud_download</mat-icon>
+              <span matListItemTitle>Attribute Providers</span>
             </mat-list-item>
           }
         }

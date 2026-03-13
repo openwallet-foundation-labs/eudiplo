@@ -29,11 +29,6 @@ import { MatDividerModule } from '@angular/material/divider';
 import { JsonViewDialogComponent } from '../credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatRadioModule } from '@angular/material/radio';
-import { WebhookConfigShowComponent } from '../../utils/webhook-config-show/webhook-config-show.component';
-import {
-  WebhookConfigEditComponent,
-  createWebhookFormGroup,
-} from '../../utils/webhook-config-edit/webhook-config-edit.component';
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { CommonModule } from '@angular/common';
@@ -71,8 +66,6 @@ function arrayNotEmpty(control: AbstractControl): ValidationErrors | null {
     MatDialogModule,
     MatRadioModule,
     MatStepperModule,
-    WebhookConfigShowComponent,
-    WebhookConfigEditComponent,
   ],
   providers: [
     {
@@ -102,8 +95,8 @@ export class IssuanceOfferComponent implements OnInit {
   elements: {
     id: string;
     defaultClaims?: any; // Default claims from config for pre-filling
-    webhookConfig?: any; // Webhook config from credential config
-    claimSource: string; // 'form' or 'webhook'
+    attributeProviderId?: string; // Attribute provider ID from credential config
+    claimSource: string; // 'form' or 'attributeProvider'
   }[] = [];
   credentialConfigs: CredentialConfig[] = [];
   issuanceConfig?: IssuanceConfig;
@@ -209,13 +202,13 @@ export class IssuanceOfferComponent implements OnInit {
   }
 
   /**
-   * Returns true if all webhooks for external AS flow are valid
+   * Returns true if all attribute providers for external AS flow are configured
    */
   get allExternalAsWebhooksValid(): boolean {
     const selectedIds = this.credentialStepForm.get('credentialConfigurationIds')?.value || [];
     return selectedIds.every((id: string) => {
-      const webhookForm = this.externalAsWebhooks.get(id);
-      return webhookForm?.get('url')?.value; // At least URL must be set
+      const apForm = this.externalAsWebhooks.get(id);
+      return apForm?.get('attributeProviderId')?.value; // Attribute provider must be set
     });
   }
 
@@ -334,12 +327,10 @@ export class IssuanceOfferComponent implements OnInit {
     for (const id of credentialConfigIds) {
       if (!this.externalAsWebhooks.has(id)) {
         const config = this.credentialConfigs.find((cred) => cred.id === id);
-        const webhookGroup = createWebhookFormGroup();
-        // Pre-fill with credential config's claimsWebhook if available
-        if (config?.claimsWebhook) {
-          webhookGroup.patchValue(config.claimsWebhook);
-        }
-        this.externalAsWebhooks.set(id, webhookGroup);
+        const apGroup = new FormGroup({
+          attributeProviderId: new FormControl(config?.attributeProviderId || ''),
+        });
+        this.externalAsWebhooks.set(id, apGroup);
       }
     }
 
@@ -350,7 +341,7 @@ export class IssuanceOfferComponent implements OnInit {
       const config = this.credentialConfigs.find((cred) => cred.id === id);
 
       // Schema is always assumed to be available (form input is always possible)
-      // claimsWebhook is optional (webhook input is only available if configured)
+      // attributeProviderId is optional (attribute provider input is only available if configured)
       // claims are optional default values to pre-fill the form
 
       // Default to form input (schema is always available)
@@ -366,7 +357,7 @@ export class IssuanceOfferComponent implements OnInit {
       this.elements.push({
         id,
         defaultClaims: config!.claims, // Optional default values for pre-filling the form
-        webhookConfig: config!.claimsWebhook, // Optional webhook configuration
+        attributeProviderId: config!.attributeProviderId || undefined, // Optional attribute provider reference
         claimSource: defaultSource,
       });
 
@@ -389,8 +380,8 @@ export class IssuanceOfferComponent implements OnInit {
 
       const claimsGroup = this.configStepForm.get('claims') as FormGroup;
 
-      if (source === 'webhook') {
-        // Remove form control when switching to webhook
+      if (source === 'attributeProvider') {
+        // Remove form control when switching to attribute provider
         if (claimsGroup.contains(elementId)) {
           claimsGroup.removeControl(elementId);
         }
@@ -453,10 +444,10 @@ export class IssuanceOfferComponent implements OnInit {
               type: 'inline',
               claims: configValue.claims[element.id],
             };
-          } else if (element.claimSource === 'webhook') {
+          } else if (element.claimSource === 'attributeProvider') {
             credentialClaims[element.id] = {
-              type: 'webhook',
-              webhook: element.webhookConfig,
+              type: 'attributeProvider',
+              attributeProviderId: element.attributeProviderId,
             };
           }
         }
@@ -464,19 +455,15 @@ export class IssuanceOfferComponent implements OnInit {
         flowSelection === 'authorization_code_external' ||
         flowSelection === 'authorization_code_iae'
       ) {
-        // For external AS and IAE flows, include webhook configuration for each credential (if configured)
+        // For external AS and IAE flows, include attribute provider reference for each credential (if configured)
         credentialClaims = {};
         for (const configId of credentialConfigurationIds) {
           const webhookForm = this.externalAsWebhooks.get(configId);
-          if (webhookForm?.get('url')?.value) {
-            const webhookValue = webhookForm.value;
-            // Clean up empty auth values
-            if (!webhookValue.auth?.type || webhookValue.auth?.type === 'none') {
-              delete webhookValue.auth;
-            }
+          const apId = webhookForm?.get('attributeProviderId')?.value;
+          if (apId) {
             credentialClaims[configId] = {
-              type: 'webhook',
-              webhook: webhookValue,
+              type: 'attributeProvider',
+              attributeProviderId: apId,
             };
           }
         }
@@ -603,8 +590,8 @@ export class IssuanceOfferComponent implements OnInit {
           if (element && claimData.type === 'inline') {
             element.claimSource = 'form';
             this.configStepForm.get('claims')?.patchValue({ [credId]: claimData.claims });
-          } else if (element && claimData.type === 'webhook') {
-            element.claimSource = 'webhook';
+          } else if (element && claimData.type === 'attributeProvider') {
+            element.claimSource = 'attributeProvider';
           }
         }
         this.cdr.detectChanges();
