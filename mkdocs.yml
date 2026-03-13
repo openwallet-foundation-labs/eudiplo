@@ -137,8 +137,10 @@ nav:
       - Tenant-Based: architecture/tenant.md
       - Sessions: architecture/sessions.md
       - Status Management: architecture/status-management.md
-      - Webhooks: architecture/webhooks.md
-      - Interactive Authorization (IAE): architecture/iae.md
+      - Integrations:
+        - Webhooks: architecture/webhooks.md
+        - Attribute Providers: architecture/attribute-providers.md
+        - Interactive Authorization (IAE): architecture/iae.md
       - Chained Authorization Server: architecture/chained-as.md
       - Config Import: architecture/configuration-import.md
       - Key Management: architecture/key-management.md

@@ -330,7 +330,7 @@
       }
 
       <!-- Webhooks Tab -->
-      @if (session.parsedWebhook || session.notifyWebhook) {
+      @if (session.parsedWebhook || session.webhookEndpointId) {
         <mat-tab label="Webhooks">
           <div class="tab-content">
             @if (session.parsedWebhook) {
@@ -352,21 +352,15 @@
               </mat-card>
             }
 
-            @if (session.notifyWebhook) {
+            @if (session.webhookEndpointId) {
               <mat-card class="webhook-card">
                 <mat-card-header>
-                  <mat-card-title>Notification Webhook</mat-card-title>
-                  <div class="spacer"></div>
-                  <button
-                    matIconButton
-                    (click)="copyToClipboard(formatJson(session.notifyWebhook))"
-                    matTooltip="Copy notification webhook config"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </button>
+                  <mat-card-title>Notification Webhook Endpoint</mat-card-title>
                 </mat-card-header>
                 <mat-card-content>
-                  <pre class="json-display">{{ formatJson(session.notifyWebhook) }}</pre>
+                  <p>
+                    Endpoint ID: <strong>{{ session.webhookEndpointId }}</strong>
+                  </p>
                 </mat-card-content>
               </mat-card>
             }

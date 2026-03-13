@@ -46,6 +46,7 @@ import { CredentialsService } from "../../configuration/credentials/credentials.
 import { AuthorizationIdentity } from "../../configuration/credentials/dto/authorization-identity";
 import { ClaimsWebhookResult } from "../../configuration/credentials/dto/claims-webhook-result";
 import { IssuanceService } from "../../configuration/issuance/issuance.service";
+import { WebhookEndpointEntity } from "../../configuration/webhook-endpoint/entities/webhook-endpoint.entity";
 import { StatusListConfigService } from "../../lifecycle/status/status-list-config.service";
 import { AuthorizeService } from "./authorize/authorize.service";
 import { ChainedAsService } from "./chained-as/chained-as.service";
@@ -101,6 +102,8 @@ export class Oid4vciService {
         private readonly deferredCredentialService: DeferredCredentialService,
         @InjectRepository(NonceEntity)
         private readonly nonceRepository: Repository<NonceEntity>,
+        @InjectRepository(WebhookEndpointEntity)
+        private readonly webhookEndpointRepo: Repository<WebhookEndpointEntity>,
     ) {}
 
     /**
@@ -348,7 +351,7 @@ export class Oid4vciService {
             credentialPayload: body,
             tenantId: user.entity!.id,
             authorization_code,
-            notifyWebhook: body.notifyWebhook,
+            webhookEndpointId: body.webhookEndpointId,
         });
 
         const issuer = this.getIssuer(session.tenantId);
@@ -929,12 +932,19 @@ export class Oid4vciService {
 
             //check for the webhook and send it.
             //TODO: in case multiple batches are included, check if each time the notification endpoint is triggered. Also when multiple credentials got offered in the request, try to bundle them maybe?
-            if (session.notifyWebhook) {
-                await this.webhookService.sendWebhookNotification(
-                    session,
-                    logContext,
-                    session.notifications[index],
-                );
+            if (session.webhookEndpointId) {
+                const endpoint = await this.webhookEndpointRepo.findOneBy({
+                    id: session.webhookEndpointId,
+                    tenantId: session.tenantId,
+                });
+                if (endpoint) {
+                    await this.webhookService.sendWebhookNotification(
+                        { url: endpoint.url, auth: endpoint.auth },
+                        session,
+                        logContext,
+                        session.notifications[index],
+                    );
+                }
             }
             const state: SessionStatus =
                 body.event === "credential_accepted"

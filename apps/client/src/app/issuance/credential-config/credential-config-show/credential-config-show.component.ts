@@ -13,10 +13,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { CredentialConfig, StatusListResponseDto } from '@eudiplo/sdk-core';
+import { CredentialConfig } from '@eudiplo/sdk-core';
 import { CredentialConfigService } from '../credential-config.service';
 import { StatusListManagementService } from '../../../status-list-management/status-list-management.service';
-import { WebhookConfigShowComponent } from '../../../utils/webhook-config-show/webhook-config-show.component';
 
 @Component({
   selector: 'app-credential-config-show',
@@ -33,16 +32,14 @@ import { WebhookConfigShowComponent } from '../../../utils/webhook-config-show/w
     MatProgressBarModule,
     FlexLayoutModule,
     RouterModule,
-    ClipboardModule,
-    WebhookConfigShowComponent,
+    ClipboardModule
   ],
   templateUrl: './credential-config-show.component.html',
   styleUrl: './credential-config-show.component.scss',
 })
 export class CredentialConfigShowComponent implements OnInit {
   config: CredentialConfig | undefined;
-  statusList: StatusListResponseDto | undefined;
-  statusListLoading = false;
+  statusListId: string | undefined;
 
   constructor(
     private readonly credentialConfigService: CredentialConfigService,
@@ -98,7 +95,7 @@ export class CredentialConfigShowComponent implements OnInit {
         (config) => {
           this.config = config;
           if (config.statusManagement) {
-            this.loadStatusList(config.id);
+            this.loadStatusListId(config.id);
           }
         },
         (error) => {
@@ -111,24 +108,16 @@ export class CredentialConfigShowComponent implements OnInit {
     }
   }
 
-  private async loadStatusList(credentialConfigId: string): Promise<void> {
-    this.statusListLoading = true;
+  private async loadStatusListId(credentialConfigId: string): Promise<void> {
     try {
       const lists = await this.statusListService.getLists();
-      // Find status list bound to this credential config, or a shared one
-      this.statusList =
+      const match =
         lists.find((l) => l.credentialConfigurationId === credentialConfigId) ||
         lists.find((l) => !l.credentialConfigurationId);
+      this.statusListId = match?.id;
     } catch (error) {
       console.error('Failed to load status list:', error);
-    } finally {
-      this.statusListLoading = false;
     }
-  }
-
-  getStatusListUsagePercentage(): number {
-    if (!this.statusList) return 0;
-    return this.statusListService.getUsagePercentage(this.statusList);
   }
 
   deleteConfig() {

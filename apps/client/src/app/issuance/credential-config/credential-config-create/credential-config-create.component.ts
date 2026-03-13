@@ -25,6 +25,10 @@ import {
   PresentationConfig,
   IaeActionOpenid4VpPresentation,
   IaeActionRedirectToWeb,
+  attributeProviderControllerGetAll,
+  webhookEndpointControllerGetAll,
+  AttributeProviderEntity,
+  WebhookEndpointEntity,
 } from '@eudiplo/sdk-core';
 import { PresentationManagementService } from '../../../presentation/presentation-config/presentation-management.service';
 import { CredentialConfigService } from '../credential-config.service';
@@ -38,10 +42,6 @@ import {
 } from '../../../utils/schemas';
 import { EditorComponent, extractSchema } from '../../../utils/editor/editor.component';
 import { ImageFieldComponent } from '../../../utils/image-field/image-field.component';
-import {
-  createWebhookFormGroup,
-  WebhookConfigEditComponent,
-} from '../../../utils/webhook-config-edit/webhook-config-edit.component';
 
 @Component({
   selector: 'app-credential-config-create',
@@ -67,7 +67,6 @@ import {
     MonacoEditorModule,
     EditorComponent,
     ImageFieldComponent,
-    WebhookConfigEditComponent,
     DragDropModule,
   ],
   templateUrl: './credential-config-create.component.html',
@@ -79,6 +78,8 @@ export class CredentialConfigCreateComponent implements OnInit {
   public loading = false;
   keyChains: KeyChainResponseDto[] = [];
   presentationConfigs: PresentationConfig[] = [];
+  attributeProviders: AttributeProviderEntity[] = [];
+  webhookEndpoints: WebhookEndpointEntity[] = [];
 
   predefinedConfigs = configs;
 
@@ -148,8 +149,8 @@ export class CredentialConfigCreateComponent implements OnInit {
       schema: new FormControl(''),
       displayConfigs: new FormArray([this.createDisplayConfigGroup()]),
       embeddedDisclosurePolicy: new FormControl(''),
-      claimsWebhook: createWebhookFormGroup(),
-      notificationWebhook: createWebhookFormGroup(),
+      attributeProviderId: new FormControl(''),
+      webhookEndpointId: new FormControl(''),
       iaeActions: new FormArray([]),
     } as { [k in keyof Omit<CredentialConfigCreate, 'config'>]: any });
 
@@ -195,6 +196,22 @@ export class CredentialConfigCreateComponent implements OnInit {
       (configs) => (this.presentationConfigs = configs || []),
       (error) => {
         console.error('Failed to load presentation configs:', error);
+      }
+    );
+
+    // Load attribute providers for selection
+    attributeProviderControllerGetAll({}).then(
+      (res) => (this.attributeProviders = (res.data || []) as AttributeProviderEntity[]),
+      (error) => {
+        console.error('Failed to load attribute providers:', error);
+      }
+    );
+
+    // Load webhook endpoints for selection
+    webhookEndpointControllerGetAll({}).then(
+      (res) => (this.webhookEndpoints = (res.data || []) as WebhookEndpointEntity[]),
+      (error) => {
+        console.error('Failed to load webhook endpoints:', error);
       }
     );
 
@@ -327,8 +344,8 @@ export class CredentialConfigCreateComponent implements OnInit {
       keyBinding: config.keyBinding ?? true,
       statusManagement: config.statusManagement ?? true,
       claims: this.stringifyField(config.claims),
-      claimsWebhook: config.claimsWebhook,
-      notificationWebhook: config.notificationWebhook,
+      attributeProviderId: config.attributeProviderId || '',
+      webhookEndpointId: config.webhookEndpointId || '',
       // SD-JWT specific
       disclosureFrame: this.stringifyField(config.disclosureFrame),
       vct: typeof config.vct === 'object' ? this.stringifyField(config.vct) : '',
@@ -655,11 +672,9 @@ export class CredentialConfigCreateComponent implements OnInit {
       true
     );
 
-    // Handle webhooks - use null to clear
-    formValue.claimsWebhook = formValue.claimsWebhook?.url ? formValue.claimsWebhook : null;
-    formValue.notificationWebhook = formValue.notificationWebhook?.url
-      ? formValue.notificationWebhook
-      : null;
+    // Handle references - use null to clear
+    formValue.attributeProviderId = formValue.attributeProviderId?.trim() || null;
+    formValue.webhookEndpointId = formValue.webhookEndpointId?.trim() || null;
 
     // Handle iaeActions - use null to clear, or transform to proper format
     if (formValue.iaeActions?.length) {

@@ -734,6 +734,102 @@ export const AuthorizeQueriesSchema = {
   },
 } as const;
 
+export const OfferRequestDtoSchema = {
+  type: "object",
+  properties: {
+    response_type: {
+      enum: ["uri", "dc-api"],
+      type: "string",
+      examples: [
+        {
+          value: "qrcode",
+        },
+      ],
+      description: "The type of response expected for the offer request.",
+    },
+    credentialClaims: {
+      type: "object",
+      description:
+        "Credential claims configuration per credential. Keys must match credentialConfigurationIds.",
+      properties: {
+        additionalProperties: {
+          oneOf: [
+            {
+              type: "object",
+              properties: {
+                type: {
+                  type: "string",
+                  enum: ["inline"],
+                },
+                claims: {
+                  type: "object",
+                  additionalProperties: true,
+                },
+              },
+              required: ["type", "claims"],
+            },
+            {
+              type: "object",
+              properties: {
+                type: {
+                  type: "string",
+                  enum: ["attributeProvider"],
+                },
+                attributeProviderId: {
+                  type: "string",
+                },
+              },
+              required: ["type", "attributeProviderId"],
+            },
+          ],
+        },
+      },
+      example: {
+        citizen: {
+          type: "inline",
+          claims: {
+            given_name: "John",
+            family_name: "Doe",
+          },
+        },
+      },
+    },
+    flow: {
+      description: "The flow type for the offer request.",
+      enum: ["authorization_code", "pre_authorized_code"],
+      type: "string",
+    },
+    tx_code: {
+      type: "string",
+      description: "Transaction code for pre-authorized code flow.",
+    },
+    tx_code_description: {
+      type: "string",
+      description:
+        'Description for the transaction code (e.g., "Please enter the PIN sent to your email").',
+    },
+    credentialConfigurationIds: {
+      description:
+        "List of credential configuration ids to be included in the offer.",
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+    authorization_server: {
+      type: "string",
+      description:
+        "Optional authorization server to be used for this issuance flow.",
+    },
+    webhookEndpointId: {
+      type: "string",
+      description:
+        "ID of the webhook endpoint to notify about the status of the issuance process.",
+    },
+  },
+  required: ["response_type", "flow", "credentialConfigurationIds"],
+} as const;
+
 export const WebHookAuthConfigNoneSchema = {
   type: "object",
   properties: {
@@ -803,106 +899,6 @@ export const WebhookConfigSchema = {
     },
   },
   required: ["auth", "url"],
-} as const;
-
-export const OfferRequestDtoSchema = {
-  type: "object",
-  properties: {
-    response_type: {
-      enum: ["uri", "dc-api"],
-      type: "string",
-      examples: [
-        {
-          value: "qrcode",
-        },
-      ],
-      description: "The type of response expected for the offer request.",
-    },
-    credentialClaims: {
-      type: "object",
-      description:
-        "Credential claims configuration per credential. Keys must match credentialConfigurationIds.",
-      properties: {
-        additionalProperties: {
-          oneOf: [
-            {
-              type: "object",
-              properties: {
-                type: {
-                  type: "string",
-                  enum: ["inline"],
-                },
-                claims: {
-                  type: "object",
-                  additionalProperties: true,
-                },
-              },
-              required: ["type", "claims"],
-            },
-            {
-              type: "object",
-              properties: {
-                type: {
-                  type: "string",
-                  enum: ["webhook"],
-                },
-                webhook: {
-                  type: "object",
-                },
-              },
-              required: ["type", "webhook"],
-            },
-          ],
-        },
-      },
-      example: {
-        citizen: {
-          type: "inline",
-          claims: {
-            given_name: "John",
-            family_name: "Doe",
-          },
-        },
-      },
-    },
-    flow: {
-      description: "The flow type for the offer request.",
-      enum: ["authorization_code", "pre_authorized_code"],
-      type: "string",
-    },
-    tx_code: {
-      type: "string",
-      description: "Transaction code for pre-authorized code flow.",
-    },
-    tx_code_description: {
-      type: "string",
-      description:
-        'Description for the transaction code (e.g., "Please enter the PIN sent to your email").',
-    },
-    credentialConfigurationIds: {
-      description:
-        "List of credential configuration ids to be included in the offer.",
-      type: "array",
-      items: {
-        type: "string",
-      },
-    },
-    authorization_server: {
-      type: "string",
-      description:
-        "Optional authorization server to be used for this issuance flow.",
-    },
-    notifyWebhook: {
-      description:
-        "Webhook to notify about the status of the issuance process.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/WebhookConfig",
-        },
-      ],
-    },
-  },
-  required: ["response_type", "flow", "credentialConfigurationIds"],
 } as const;
 
 export const TransactionDataSchema = {
@@ -999,14 +995,10 @@ export const SessionSchema = {
         },
       ],
     },
-    notifyWebhook: {
+    webhookEndpointId: {
+      type: "string",
       description:
-        "Webhook configuration to send the result of the notification response.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/WebhookConfig",
-        },
-      ],
+        "ID of the webhook endpoint to notify about issuance status.",
     },
     notifications: {
       description: "Notifications associated with the session.",
@@ -1796,6 +1788,78 @@ export const IssuerMetadataCredentialConfigSchema = {
   required: ["format", "display"],
 } as const;
 
+export const AttributeProviderEntitySchema = {
+  type: "object",
+  properties: {
+    auth: {
+      oneOf: [
+        {
+          $ref: "#/components/schemas/WebHookAuthConfigNone",
+        },
+        {
+          $ref: "#/components/schemas/WebHookAuthConfigHeader",
+        },
+      ],
+    },
+    id: {
+      type: "string",
+    },
+    tenantId: {
+      type: "string",
+    },
+    tenant: {
+      $ref: "#/components/schemas/TenantEntity",
+    },
+    name: {
+      type: "string",
+    },
+    description: {
+      type: "string",
+      nullable: true,
+    },
+    url: {
+      type: "string",
+    },
+  },
+  required: ["auth", "id", "tenantId", "tenant", "name", "url"],
+} as const;
+
+export const WebhookEndpointEntitySchema = {
+  type: "object",
+  properties: {
+    auth: {
+      oneOf: [
+        {
+          $ref: "#/components/schemas/WebHookAuthConfigNone",
+        },
+        {
+          $ref: "#/components/schemas/WebHookAuthConfigHeader",
+        },
+      ],
+    },
+    id: {
+      type: "string",
+    },
+    tenantId: {
+      type: "string",
+    },
+    tenant: {
+      $ref: "#/components/schemas/TenantEntity",
+    },
+    name: {
+      type: "string",
+    },
+    description: {
+      type: "string",
+      nullable: true,
+    },
+    url: {
+      type: "string",
+    },
+  },
+  required: ["auth", "id", "tenantId", "tenant", "name", "url"],
+} as const;
+
 export const KeyChainEntitySchema = {
   type: "object",
   properties: {
@@ -2019,23 +2083,23 @@ export const CredentialConfigSchema = {
       type: "object",
       nullable: true,
     },
-    claimsWebhook: {
+    attributeProviderId: {
+      type: "string",
       nullable: true,
-      description: "Webhook to receive claims for the issuance process.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/WebhookConfig",
-        },
-      ],
+      description:
+        "Reference to the attribute provider used for fetching claims.\nOptional: if set, claims will be fetched from this provider during issuance.",
     },
-    notificationWebhook: {
+    attributeProvider: {
+      $ref: "#/components/schemas/AttributeProviderEntity",
+    },
+    webhookEndpointId: {
+      type: "string",
       nullable: true,
-      description: "Webhook to receive claims for the issuance process.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/WebhookConfig",
-        },
-      ],
+      description:
+        "Reference to the webhook endpoint used for notifications.\nOptional: if set, notifications will be sent to this endpoint.",
+    },
+    webhookEndpoint: {
+      $ref: "#/components/schemas/WebhookEndpointEntity",
     },
     disclosureFrame: {
       type: "object",
@@ -2141,23 +2205,17 @@ export const CredentialConfigCreateSchema = {
       type: "object",
       nullable: true,
     },
-    claimsWebhook: {
+    attributeProviderId: {
+      type: "string",
       nullable: true,
-      description: "Webhook to receive claims for the issuance process.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/WebhookConfig",
-        },
-      ],
+      description:
+        "Reference to the attribute provider used for fetching claims.\nOptional: if set, claims will be fetched from this provider during issuance.",
     },
-    notificationWebhook: {
+    webhookEndpointId: {
+      type: "string",
       nullable: true,
-      description: "Webhook to receive claims for the issuance process.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/WebhookConfig",
-        },
-      ],
+      description:
+        "Reference to the webhook endpoint used for notifications.\nOptional: if set, notifications will be sent to this endpoint.",
     },
     disclosureFrame: {
       type: "object",
@@ -2260,23 +2318,17 @@ export const CredentialConfigUpdateSchema = {
       type: "object",
       nullable: true,
     },
-    claimsWebhook: {
+    attributeProviderId: {
+      type: "string",
       nullable: true,
-      description: "Webhook to receive claims for the issuance process.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/WebhookConfig",
-        },
-      ],
+      description:
+        "Reference to the attribute provider used for fetching claims.\nOptional: if set, claims will be fetched from this provider during issuance.",
     },
-    notificationWebhook: {
+    webhookEndpointId: {
+      type: "string",
       nullable: true,
-      description: "Webhook to receive claims for the issuance process.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/WebhookConfig",
-        },
-      ],
+      description:
+        "Reference to the webhook endpoint used for notifications.\nOptional: if set, notifications will be sent to this endpoint.",
     },
     disclosureFrame: {
       type: "object",
@@ -2303,6 +2355,124 @@ export const CredentialConfigUpdateSchema = {
           $ref: "#/components/schemas/SchemaResponse",
         },
       ],
+    },
+  },
+} as const;
+
+export const CreateAttributeProviderDtoSchema = {
+  type: "object",
+  properties: {
+    auth: {
+      oneOf: [
+        {
+          $ref: "#/components/schemas/WebHookAuthConfigNone",
+        },
+        {
+          $ref: "#/components/schemas/WebHookAuthConfigHeader",
+        },
+      ],
+    },
+    id: {
+      type: "string",
+    },
+    name: {
+      type: "string",
+    },
+    description: {
+      type: "string",
+      nullable: true,
+    },
+    url: {
+      type: "string",
+    },
+  },
+  required: ["auth", "id", "name", "url"],
+} as const;
+
+export const UpdateAttributeProviderDtoSchema = {
+  type: "object",
+  properties: {
+    auth: {
+      oneOf: [
+        {
+          $ref: "#/components/schemas/WebHookAuthConfigNone",
+        },
+        {
+          $ref: "#/components/schemas/WebHookAuthConfigHeader",
+        },
+      ],
+    },
+    id: {
+      type: "string",
+    },
+    name: {
+      type: "string",
+    },
+    description: {
+      type: "string",
+      nullable: true,
+    },
+    url: {
+      type: "string",
+    },
+  },
+} as const;
+
+export const CreateWebhookEndpointDtoSchema = {
+  type: "object",
+  properties: {
+    auth: {
+      oneOf: [
+        {
+          $ref: "#/components/schemas/WebHookAuthConfigNone",
+        },
+        {
+          $ref: "#/components/schemas/WebHookAuthConfigHeader",
+        },
+      ],
+    },
+    id: {
+      type: "string",
+    },
+    name: {
+      type: "string",
+    },
+    description: {
+      type: "string",
+      nullable: true,
+    },
+    url: {
+      type: "string",
+    },
+  },
+  required: ["auth", "id", "name", "url"],
+} as const;
+
+export const UpdateWebhookEndpointDtoSchema = {
+  type: "object",
+  properties: {
+    auth: {
+      oneOf: [
+        {
+          $ref: "#/components/schemas/WebHookAuthConfigNone",
+        },
+        {
+          $ref: "#/components/schemas/WebHookAuthConfigHeader",
+        },
+      ],
+    },
+    id: {
+      type: "string",
+    },
+    name: {
+      type: "string",
+    },
+    description: {
+      type: "string",
+      nullable: true,
+    },
+    url: {
+      type: "string",
     },
   },
 } as const;
@@ -3563,6 +3733,111 @@ export const KeyChainResponseDtoSchema = {
   ],
 } as const;
 
+export const ExportEcJwkSchema = {
+  type: "object",
+  properties: {
+    kty: {
+      type: "string",
+      description: "Key type",
+      example: "EC",
+    },
+    crv: {
+      type: "string",
+      description: "Curve",
+      example: "P-256",
+    },
+    x: {
+      type: "string",
+      description: "X coordinate (base64url)",
+    },
+    y: {
+      type: "string",
+      description: "Y coordinate (base64url)",
+    },
+    d: {
+      type: "string",
+      description: "Private key (base64url)",
+    },
+    alg: {
+      type: "string",
+      description: "Algorithm",
+      example: "ES256",
+    },
+    kid: {
+      type: "string",
+      description: "Key ID",
+    },
+  },
+  required: ["kty", "crv", "x", "y", "d"],
+} as const;
+
+export const ExportRotationPolicyDtoSchema = {
+  type: "object",
+  properties: {
+    enabled: {
+      type: "boolean",
+      description: "Whether rotation is enabled.",
+    },
+    intervalDays: {
+      type: "number",
+      description: "Rotation interval in days.",
+    },
+    certValidityDays: {
+      type: "number",
+      description: "Certificate validity in days.",
+    },
+  },
+  required: ["enabled"],
+} as const;
+
+export const KeyChainExportDtoSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description: "Key chain ID.",
+    },
+    description: {
+      type: "string",
+      description: "Human-readable description.",
+    },
+    usageType: {
+      enum: ["access", "attestation", "trustList", "statusList", "encrypt"],
+      type: "string",
+      description: "Usage type for this key chain.",
+    },
+    key: {
+      description: "The private key in JWK format (EC).",
+      allOf: [
+        {
+          $ref: "#/components/schemas/ExportEcJwk",
+        },
+      ],
+    },
+    crt: {
+      description:
+        "Certificate chain in PEM format (leaf first, then intermediates/CA).",
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+    kmsProvider: {
+      type: "string",
+      description: "KMS provider name.",
+    },
+    rotationPolicy: {
+      description: "Rotation policy.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/ExportRotationPolicyDto",
+        },
+      ],
+    },
+  },
+  required: ["id", "usageType", "key"],
+} as const;
+
 export const RotationPolicyCreateDtoSchema = {
   type: "object",
   properties: {
@@ -3658,6 +3933,33 @@ export const EcJwkSchema = {
   required: ["kty", "x", "y", "crv", "d"],
 } as const;
 
+export const RotationPolicyImportDtoSchema = {
+  type: "object",
+  properties: {
+    enabled: {
+      type: "boolean",
+      description:
+        "Whether rotation is enabled. When true, the imported key becomes a root CA.",
+      default: false,
+    },
+    intervalDays: {
+      type: "number",
+      minimum: 1,
+      maximum: 3650,
+      description: "Rotation interval in days.",
+      example: 90,
+    },
+    certValidityDays: {
+      type: "number",
+      minimum: 1,
+      maximum: 3650,
+      description: "Certificate validity in days.",
+      example: 365,
+    },
+  },
+  required: ["enabled"],
+} as const;
+
 export const KeyChainImportDtoSchema = {
   type: "object",
   properties: {
@@ -3694,6 +3996,15 @@ export const KeyChainImportDtoSchema = {
     kmsProvider: {
       type: "string",
       description: "KMS provider to use. Defaults to 'db'.",
+    },
+    rotationPolicy: {
+      description:
+        "Rotation policy. When enabled, the imported key becomes a root CA and a new leaf key is generated.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/RotationPolicyImportDto",
+        },
+      ],
     },
   },
   required: ["key", "usageType"],

@@ -8,7 +8,9 @@ import {
   issuanceConfigRoutes,
   issuanceOfferRoutes,
   credentialConfigRoutes,
+  attributeProviderRoutes,
 } from './issuance/issuance.routes';
+import { webhookEndpointRoutes } from './webhook-endpoint/webhook-endpoint.routes';
 import { keyManagementRoutes } from './key-management/key-management.routes';
 import {
   presentationConfigRoutes,
@@ -76,6 +78,17 @@ export const routes: Routes = [
     path: 'credential-config',
     canActivate: [AuthGuard],
     children: credentialConfigRoutes,
+  },
+  {
+    path: 'attribute-providers',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: getRole('issuance:manage') },
+    children: attributeProviderRoutes,
+  },
+  {
+    path: 'webhook-endpoints',
+    canActivate: [AuthGuard],
+    children: webhookEndpointRoutes,
   },
 
   // Key & Certificate routes

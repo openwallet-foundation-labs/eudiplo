@@ -13,3 +13,4 @@ export { AddKeyRotation1744000000000 } from "./1744000000000-AddKeyRotation";
 export { RenameSigningToAttestation1745000000000 } from "./1745000000000-RenameSigningToAttestation";
 export { FlattenKeyUsageType1746000000000 } from "./1746000000000-FlattenKeyUsageType";
 export { MigrateKeysToKeyChain1747000000000 } from "./1747000000000-MigrateKeysToKeyChain";
+export { ExtractAttributeProviderAndWebhookEndpoint1748000000000 } from "./1748000000000-ExtractAttributeProviderAndWebhookEndpoint";

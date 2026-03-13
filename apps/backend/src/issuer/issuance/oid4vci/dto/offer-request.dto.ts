@@ -33,7 +33,18 @@ export class InlineClaimsSource {
 }
 
 /**
- * Webhook claims source - claims fetched dynamically via webhook.
+ * Attribute provider claims source - claims fetched dynamically via a configured attribute provider.
+ */
+export class AttributeProviderClaimsSource {
+    @IsIn(["attributeProvider"])
+    type!: "attributeProvider";
+
+    @IsString()
+    attributeProviderId!: string;
+}
+
+/**
+ * Webhook claims source - claims fetched dynamically via an inline webhook configuration.
  */
 export class WebhookClaimsSource {
     @IsIn(["webhook"])
@@ -43,6 +54,14 @@ export class WebhookClaimsSource {
     @Type(() => WebhookConfig)
     webhook!: WebhookConfig;
 }
+
+/**
+ * Union type for all claims source types.
+ */
+export type ClaimsSource =
+    | InlineClaimsSource
+    | AttributeProviderClaimsSource
+    | WebhookClaimsSource;
 
 /**
  * Custom validator to ensure credentialClaims keys are subset of credentialConfigurationIds
@@ -160,8 +179,29 @@ export class OfferRequestDto {
                     {
                         type: "object",
                         properties: {
-                            type: { type: "string", enum: ["webhook"] },
-                            webhook: { type: "object" },
+                            type: {
+                                type: "string",
+                                enum: ["attributeProvider"],
+                            },
+                            attributeProviderId: { type: "string" },
+                        },
+                        required: ["type", "attributeProviderId"],
+                    },
+                    {
+                        type: "object",
+                        properties: {
+                            type: {
+                                type: "string",
+                                enum: ["webhook"],
+                            },
+                            webhook: {
+                                type: "object",
+                                properties: {
+                                    url: { type: "string" },
+                                    auth: { type: "object" },
+                                },
+                                required: ["url"],
+                            },
                         },
                         required: ["type", "webhook"],
                     },
@@ -180,12 +220,15 @@ export class OfferRequestDto {
     @Validate(CredentialClaimsMatchIdsConstraint)
     @Transform(({ value }) => {
         if (!value) return value;
-        const result: Record<string, InlineClaimsSource | WebhookClaimsSource> =
-            {};
+        const result: Record<string, ClaimsSource> = {};
         for (const [key, val] of Object.entries(value)) {
             const source = val as any;
             if (source.type === "inline") {
                 result[key] = plainToClass(InlineClaimsSource, val, {
+                    enableImplicitConversion: true,
+                });
+            } else if (source.type === "attributeProvider") {
+                result[key] = plainToClass(AttributeProviderClaimsSource, val, {
                     enableImplicitConversion: true,
                 });
             } else if (source.type === "webhook") {
@@ -196,16 +239,14 @@ export class OfferRequestDto {
         }
         return result;
     })
-    credentialClaims?: Record<string, InlineClaimsSource | WebhookClaimsSource>;
+    credentialClaims?: Record<string, ClaimsSource>;
 
     /**
-     * Webhook to notify about the status of the issuance process.
+     * ID of the webhook endpoint to notify about the status of the issuance process.
      */
-    @IsObject()
+    @IsString()
     @IsOptional()
-    @ValidateNested()
-    @Type(() => WebhookConfig)
-    notifyWebhook?: WebhookConfig;
+    webhookEndpointId?: string;
 }
 
 export class OfferResponse {

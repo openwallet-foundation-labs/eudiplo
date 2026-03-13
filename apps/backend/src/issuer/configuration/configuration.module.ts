@@ -6,6 +6,9 @@ import { SessionModule } from "../../session/session.module";
 import { WebhookService } from "../../shared/utils/webhook/webhook.service";
 import { PresentationsModule } from "../../verifier/presentations/presentations.module";
 import { StatusListModule } from "../lifecycle/status/status-list.module";
+import { AttributeProviderController } from "./attribute-provider/attribute-provider.controller";
+import { AttributeProviderService } from "./attribute-provider/attribute-provider.service";
+import { AttributeProviderEntity } from "./attribute-provider/entities/attribute-provider.entity";
 import { CredentialConfigService } from "./credentials/credential-config/credential-config.service";
 import { CredentialConfigController } from "./credentials/credential-config.controller";
 import { CredentialsService } from "./credentials/credentials.service";
@@ -15,6 +18,9 @@ import { SdjwtvcIssuerService } from "./credentials/issuer/sdjwtvc-issuer/sdjwtv
 import { IssuanceConfig } from "./issuance/entities/issuance-config.entity";
 import { IssuanceService } from "./issuance/issuance.service";
 import { IssuanceConfigController } from "./issuance/issuance-config.controller";
+import { WebhookEndpointEntity } from "./webhook-endpoint/entities/webhook-endpoint.entity";
+import { WebhookEndpointController } from "./webhook-endpoint/webhook-endpoint.controller";
+import { WebhookEndpointService } from "./webhook-endpoint/webhook-endpoint.service";
 
 /**
  * Configuration Module - Manages issuer configurations and credential definitions
@@ -31,9 +37,19 @@ import { IssuanceConfigController } from "./issuance/issuance-config.controller"
         HttpModule,
         SessionModule,
         PresentationsModule,
-        TypeOrmModule.forFeature([IssuanceConfig, CredentialConfig]),
+        TypeOrmModule.forFeature([
+            IssuanceConfig,
+            CredentialConfig,
+            AttributeProviderEntity,
+            WebhookEndpointEntity,
+        ]),
     ],
-    controllers: [IssuanceConfigController, CredentialConfigController],
+    controllers: [
+        IssuanceConfigController,
+        CredentialConfigController,
+        AttributeProviderController,
+        WebhookEndpointController,
+    ],
     providers: [
         IssuanceService,
         CredentialsService,
@@ -41,12 +57,16 @@ import { IssuanceConfigController } from "./issuance/issuance-config.controller"
         WebhookService,
         SdjwtvcIssuerService,
         MdocIssuerService,
+        AttributeProviderService,
+        WebhookEndpointService,
     ],
     exports: [
         IssuanceService,
         CredentialConfigService,
         CredentialsService,
         StatusListModule,
+        AttributeProviderService,
+        WebhookEndpointService,
     ],
 })
 export class ConfigurationModule {}

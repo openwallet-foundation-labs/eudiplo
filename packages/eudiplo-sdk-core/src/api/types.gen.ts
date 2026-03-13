@@ -421,6 +421,53 @@ export type AuthorizeQueries = {
   state?: string;
 };
 
+export type OfferRequestDto = {
+  /**
+   * The type of response expected for the offer request.
+   */
+  response_type: "uri" | "dc-api";
+  /**
+   * Credential claims configuration per credential. Keys must match credentialConfigurationIds.
+   */
+  credentialClaims?: {
+    additionalProperties?:
+      | {
+          type: "inline";
+          claims: {
+            [key: string]: unknown;
+          };
+        }
+      | {
+          type: "attributeProvider";
+          attributeProviderId: string;
+        };
+  };
+  /**
+   * The flow type for the offer request.
+   */
+  flow: "authorization_code" | "pre_authorized_code";
+  /**
+   * Transaction code for pre-authorized code flow.
+   */
+  tx_code?: string;
+  /**
+   * Description for the transaction code (e.g., "Please enter the PIN sent to your email").
+   */
+  tx_code_description?: string;
+  /**
+   * List of credential configuration ids to be included in the offer.
+   */
+  credentialConfigurationIds: Array<string>;
+  /**
+   * Optional authorization server to be used for this issuance flow.
+   */
+  authorization_server?: string;
+  /**
+   * ID of the webhook endpoint to notify about the status of the issuance process.
+   */
+  webhookEndpointId?: string;
+};
+
 export type WebHookAuthConfigNone = {
   /**
    * The type of authentication used for the webhook.
@@ -461,55 +508,6 @@ export type WebhookConfig = {
    * The URL to which the webhook will send notifications.
    */
   url: string;
-};
-
-export type OfferRequestDto = {
-  /**
-   * The type of response expected for the offer request.
-   */
-  response_type: "uri" | "dc-api";
-  /**
-   * Credential claims configuration per credential. Keys must match credentialConfigurationIds.
-   */
-  credentialClaims?: {
-    additionalProperties?:
-      | {
-          type: "inline";
-          claims: {
-            [key: string]: unknown;
-          };
-        }
-      | {
-          type: "webhook";
-          webhook: {
-            [key: string]: unknown;
-          };
-        };
-  };
-  /**
-   * The flow type for the offer request.
-   */
-  flow: "authorization_code" | "pre_authorized_code";
-  /**
-   * Transaction code for pre-authorized code flow.
-   */
-  tx_code?: string;
-  /**
-   * Description for the transaction code (e.g., "Please enter the PIN sent to your email").
-   */
-  tx_code_description?: string;
-  /**
-   * List of credential configuration ids to be included in the offer.
-   */
-  credentialConfigurationIds: Array<string>;
-  /**
-   * Optional authorization server to be used for this issuance flow.
-   */
-  authorization_server?: string;
-  /**
-   * Webhook to notify about the status of the issuance process.
-   */
-  notifyWebhook?: WebhookConfig;
 };
 
 export type TransactionData = {
@@ -577,9 +575,9 @@ export type Session = {
    */
   credentialPayload?: OfferRequestDto;
   /**
-   * Webhook configuration to send the result of the notification response.
+   * ID of the webhook endpoint to notify about issuance status.
    */
-  notifyWebhook?: WebhookConfig;
+  webhookEndpointId?: string;
   /**
    * Notifications associated with the session.
    */
@@ -1008,6 +1006,26 @@ export type IssuerMetadataCredentialConfig = {
   };
 };
 
+export type AttributeProviderEntity = {
+  auth: WebHookAuthConfigNone | WebHookAuthConfigHeader;
+  id: string;
+  tenantId: string;
+  tenant: TenantEntity;
+  name: string;
+  description?: string;
+  url: string;
+};
+
+export type WebhookEndpointEntity = {
+  auth: WebHookAuthConfigNone | WebHookAuthConfigHeader;
+  id: string;
+  tenantId: string;
+  tenant: TenantEntity;
+  name: string;
+  description?: string;
+  url: string;
+};
+
 export type KeyChainEntity = {
   /**
    * Unique identifier for the key chain.
@@ -1129,13 +1147,17 @@ export type CredentialConfig = {
     [key: string]: unknown;
   };
   /**
-   * Webhook to receive claims for the issuance process.
+   * Reference to the attribute provider used for fetching claims.
+   * Optional: if set, claims will be fetched from this provider during issuance.
    */
-  claimsWebhook?: WebhookConfig;
+  attributeProviderId?: string;
+  attributeProvider?: AttributeProviderEntity;
   /**
-   * Webhook to receive claims for the issuance process.
+   * Reference to the webhook endpoint used for notifications.
+   * Optional: if set, notifications will be sent to this endpoint.
    */
-  notificationWebhook?: WebhookConfig;
+  webhookEndpointId?: string;
+  webhookEndpoint?: WebhookEndpointEntity;
   disclosureFrame?: {
     [key: string]: unknown;
   };
@@ -1173,13 +1195,15 @@ export type CredentialConfigCreate = {
     [key: string]: unknown;
   };
   /**
-   * Webhook to receive claims for the issuance process.
+   * Reference to the attribute provider used for fetching claims.
+   * Optional: if set, claims will be fetched from this provider during issuance.
    */
-  claimsWebhook?: WebhookConfig;
+  attributeProviderId?: string;
   /**
-   * Webhook to receive claims for the issuance process.
+   * Reference to the webhook endpoint used for notifications.
+   * Optional: if set, notifications will be sent to this endpoint.
    */
-  notificationWebhook?: WebhookConfig;
+  webhookEndpointId?: string;
   disclosureFrame?: {
     [key: string]: unknown;
   };
@@ -1216,13 +1240,15 @@ export type CredentialConfigUpdate = {
     [key: string]: unknown;
   };
   /**
-   * Webhook to receive claims for the issuance process.
+   * Reference to the attribute provider used for fetching claims.
+   * Optional: if set, claims will be fetched from this provider during issuance.
    */
-  claimsWebhook?: WebhookConfig;
+  attributeProviderId?: string;
   /**
-   * Webhook to receive claims for the issuance process.
+   * Reference to the webhook endpoint used for notifications.
+   * Optional: if set, notifications will be sent to this endpoint.
    */
-  notificationWebhook?: WebhookConfig;
+  webhookEndpointId?: string;
   disclosureFrame?: {
     [key: string]: unknown;
   };
@@ -1235,6 +1261,38 @@ export type CredentialConfigUpdate = {
   statusManagement?: boolean;
   lifeTime?: number;
   schema?: SchemaResponse;
+};
+
+export type CreateAttributeProviderDto = {
+  auth: WebHookAuthConfigNone | WebHookAuthConfigHeader;
+  id: string;
+  name: string;
+  description?: string;
+  url: string;
+};
+
+export type UpdateAttributeProviderDto = {
+  auth?: WebHookAuthConfigNone | WebHookAuthConfigHeader;
+  id?: string;
+  name?: string;
+  description?: string;
+  url?: string;
+};
+
+export type CreateWebhookEndpointDto = {
+  auth: WebHookAuthConfigNone | WebHookAuthConfigHeader;
+  id: string;
+  name: string;
+  description?: string;
+  url: string;
+};
+
+export type UpdateWebhookEndpointDto = {
+  auth?: WebHookAuthConfigNone | WebHookAuthConfigHeader;
+  id?: string;
+  name?: string;
+  description?: string;
+  url?: string;
 };
 
 export type Dcql = {
@@ -2067,6 +2125,83 @@ export type KeyChainResponseDto = {
   updatedAt: string;
 };
 
+export type ExportEcJwk = {
+  /**
+   * Key type
+   */
+  kty: string;
+  /**
+   * Curve
+   */
+  crv: string;
+  /**
+   * X coordinate (base64url)
+   */
+  x: string;
+  /**
+   * Y coordinate (base64url)
+   */
+  y: string;
+  /**
+   * Private key (base64url)
+   */
+  d: string;
+  /**
+   * Algorithm
+   */
+  alg?: string;
+  /**
+   * Key ID
+   */
+  kid?: string;
+};
+
+export type ExportRotationPolicyDto = {
+  /**
+   * Whether rotation is enabled.
+   */
+  enabled: boolean;
+  /**
+   * Rotation interval in days.
+   */
+  intervalDays?: number;
+  /**
+   * Certificate validity in days.
+   */
+  certValidityDays?: number;
+};
+
+export type KeyChainExportDto = {
+  /**
+   * Key chain ID.
+   */
+  id: string;
+  /**
+   * Human-readable description.
+   */
+  description?: string;
+  /**
+   * Usage type for this key chain.
+   */
+  usageType: "access" | "attestation" | "trustList" | "statusList" | "encrypt";
+  /**
+   * The private key in JWK format (EC).
+   */
+  key: ExportEcJwk;
+  /**
+   * Certificate chain in PEM format (leaf first, then intermediates/CA).
+   */
+  crt?: Array<string>;
+  /**
+   * KMS provider name.
+   */
+  kmsProvider?: string;
+  /**
+   * Rotation policy.
+   */
+  rotationPolicy?: ExportRotationPolicyDto;
+};
+
 export type RotationPolicyCreateDto = {
   /**
    * Whether automatic key rotation is enabled.
@@ -2115,6 +2250,21 @@ export type EcJwk = {
   kid?: string;
 };
 
+export type RotationPolicyImportDto = {
+  /**
+   * Whether rotation is enabled. When true, the imported key becomes a root CA.
+   */
+  enabled: boolean;
+  /**
+   * Rotation interval in days.
+   */
+  intervalDays?: number;
+  /**
+   * Certificate validity in days.
+   */
+  certValidityDays?: number;
+};
+
 export type KeyChainImportDto = {
   /**
    * ID for the key chain. If not provided, a new UUID will be generated.
@@ -2140,6 +2290,10 @@ export type KeyChainImportDto = {
    * KMS provider to use. Defaults to 'db'.
    */
   kmsProvider?: string;
+  /**
+   * Rotation policy. When enabled, the imported key becomes a root CA and a new leaf key is generated.
+   */
+  rotationPolicy?: RotationPolicyImportDto;
 };
 
 export type RotationPolicyUpdateDto = {
@@ -2934,6 +3088,200 @@ export type CredentialConfigControllerUpdateCredentialConfigurationResponses = {
 
 export type CredentialConfigControllerUpdateCredentialConfigurationResponse =
   CredentialConfigControllerUpdateCredentialConfigurationResponses[keyof CredentialConfigControllerUpdateCredentialConfigurationResponses];
+
+export type AttributeProviderControllerGetAllData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/issuer/attribute-providers";
+};
+
+export type AttributeProviderControllerGetAllResponses = {
+  /**
+   * List of attribute providers
+   */
+  200: unknown;
+};
+
+export type AttributeProviderControllerCreateData = {
+  body: CreateAttributeProviderDto;
+  path?: never;
+  query?: never;
+  url: "/issuer/attribute-providers";
+};
+
+export type AttributeProviderControllerCreateResponses = {
+  /**
+   * Attribute provider created
+   */
+  201: unknown;
+};
+
+export type AttributeProviderControllerDeleteData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/issuer/attribute-providers/{id}";
+};
+
+export type AttributeProviderControllerDeleteErrors = {
+  /**
+   * Attribute provider not found
+   */
+  404: unknown;
+};
+
+export type AttributeProviderControllerDeleteResponses = {
+  /**
+   * Attribute provider deleted
+   */
+  200: unknown;
+};
+
+export type AttributeProviderControllerGetByIdData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/issuer/attribute-providers/{id}";
+};
+
+export type AttributeProviderControllerGetByIdErrors = {
+  /**
+   * Attribute provider not found
+   */
+  404: unknown;
+};
+
+export type AttributeProviderControllerGetByIdResponses = {
+  /**
+   * The attribute provider
+   */
+  200: unknown;
+};
+
+export type AttributeProviderControllerUpdateData = {
+  body: UpdateAttributeProviderDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/issuer/attribute-providers/{id}";
+};
+
+export type AttributeProviderControllerUpdateErrors = {
+  /**
+   * Attribute provider not found
+   */
+  404: unknown;
+};
+
+export type AttributeProviderControllerUpdateResponses = {
+  /**
+   * Attribute provider updated
+   */
+  200: unknown;
+};
+
+export type WebhookEndpointControllerGetAllData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/issuer/webhook-endpoints";
+};
+
+export type WebhookEndpointControllerGetAllResponses = {
+  /**
+   * List of webhook endpoints
+   */
+  200: unknown;
+};
+
+export type WebhookEndpointControllerCreateData = {
+  body: CreateWebhookEndpointDto;
+  path?: never;
+  query?: never;
+  url: "/issuer/webhook-endpoints";
+};
+
+export type WebhookEndpointControllerCreateResponses = {
+  /**
+   * Webhook endpoint created
+   */
+  201: unknown;
+};
+
+export type WebhookEndpointControllerDeleteData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/issuer/webhook-endpoints/{id}";
+};
+
+export type WebhookEndpointControllerDeleteErrors = {
+  /**
+   * Webhook endpoint not found
+   */
+  404: unknown;
+};
+
+export type WebhookEndpointControllerDeleteResponses = {
+  /**
+   * Webhook endpoint deleted
+   */
+  200: unknown;
+};
+
+export type WebhookEndpointControllerGetByIdData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/issuer/webhook-endpoints/{id}";
+};
+
+export type WebhookEndpointControllerGetByIdErrors = {
+  /**
+   * Webhook endpoint not found
+   */
+  404: unknown;
+};
+
+export type WebhookEndpointControllerGetByIdResponses = {
+  /**
+   * The webhook endpoint
+   */
+  200: unknown;
+};
+
+export type WebhookEndpointControllerUpdateData = {
+  body: UpdateWebhookEndpointDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/issuer/webhook-endpoints/{id}";
+};
+
+export type WebhookEndpointControllerUpdateErrors = {
+  /**
+   * Webhook endpoint not found
+   */
+  404: unknown;
+};
+
+export type WebhookEndpointControllerUpdateResponses = {
+  /**
+   * Webhook endpoint updated
+   */
+  200: unknown;
+};
 
 export type PresentationManagementControllerConfigurationData = {
   body?: never;
@@ -4099,6 +4447,32 @@ export type KeyChainControllerUpdateResponses = {
    */
   200: unknown;
 };
+
+export type KeyChainControllerExportData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/key-chain/{id}/export";
+};
+
+export type KeyChainControllerExportErrors = {
+  /**
+   * Key chain not found
+   */
+  404: unknown;
+};
+
+export type KeyChainControllerExportResponses = {
+  /**
+   * Key chain export data
+   */
+  200: KeyChainExportDto;
+};
+
+export type KeyChainControllerExportResponse =
+  KeyChainControllerExportResponses[keyof KeyChainControllerExportResponses];
 
 export type KeyChainControllerImportData = {
   body: KeyChainImportDto;

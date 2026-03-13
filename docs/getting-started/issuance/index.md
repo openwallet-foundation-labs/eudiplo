@@ -36,11 +36,9 @@ When creating an offer, you can:
    authentication via the authorization code flow
 2. **Provide credentials** - Use `credentialConfigurationIds` to specify which
    credentials to issue from the issuance configuration
-3. **Optionally override claims** - Use the `values` parameter to provide custom
-   claims for specific credentials
-4. **Optionally pass claim webhooks** - Use the `claimsWebhook` parameter to
-   dynamically fetch claims during the issuance flow
-5. **Optionally pass notification webhooks** - Use the `notifyWebhook` parameter to
+3. **Optionally override claims** - Use the `credentialClaims` parameter to provide
+   inline claims, webhook, or Attribute Provider reference for specific credentials
+4. **Optionally pass notification webhooks** - Use the `notifyWebhook` parameter to
    get notified about issuance status changes
 
 ---
@@ -107,11 +105,11 @@ EUDIPLO supports three authentication patterns for OID4VCI credential issuance. 
 
 ### Quick Reference
 
-| Authentication Pattern               | User is Known | User Authentication                              | Initiator        | Claims Source      |
-| ------------------------------------ | ------------- | ------------------------------------------------ | ---------------- | ------------------ |
-| **Pre-authorized code**              | Yes           | Already authenticated (before offer)             | Issuer only      | Offer or Webhook   |
-| **Authorization code + External AS** | No            | OIDC login at external IdP                       | Issuer or Wallet | Webhook (required) |
-| **Interactive Authorization (IAE)**  | No            | Credential presentation (OID4VP) or web redirect | Issuer or Wallet | Webhook (required) |
+| Authentication Pattern               | User is Known | User Authentication                              | Initiator        | Claims Source                |
+| ------------------------------------ | ------------- | ------------------------------------------------ | ---------------- | ---------------------------- |
+| **Pre-authorized code**              | Yes           | Already authenticated (before offer)             | Issuer only      | Offer or Attribute Provider  |
+| **Authorization code + External AS** | No            | OIDC login at external IdP                       | Issuer or Wallet | Attribute Provider (required)|
+| **Interactive Authorization (IAE)**  | No            | Credential presentation (OID4VP) or web redirect | Issuer or Wallet | Attribute Provider (required)|
 
 ### Understanding the Three Dimensions
 
@@ -174,13 +172,11 @@ sequenceDiagram
 }
 ```
 
-Or use a webhook if you don't want to embed claims in the offer:
+Or use an Attribute Provider if you don't want to embed claims in the offer:
 
 ```json
 {
-    "claimsWebhook": {
-        "url": "https://your-service.example.com/claims"
-    }
+    "attributeProviderId": "employee-claims-api"
 }
 ```
 
@@ -231,24 +227,15 @@ sequenceDiagram
 }
 ```
 
-- Configure claims webhook on the credential configuration:
+- Configure an Attribute Provider on the credential configuration:
 
 ```json
 {
-    "claimsWebhook": {
-        "url": "https://your-service.example.com/claims",
-        "auth": {
-            "type": "apiKey",
-            "config": {
-                "headerName": "X-API-Key",
-                "value": "your-secret-key"
-            }
-        }
-    }
+    "attributeProviderId": "employee-claims-api"
 }
 ```
 
-Your webhook receives:
+Your Attribute Provider receives:
 
 ```json
 {
@@ -265,7 +252,7 @@ Your webhook receives:
 }
 ```
 
-See [Webhooks](../../architecture/webhooks.md#claims-webhook-request-format) for full payload details.
+See [Attribute Providers](attribute-provider.md) for setup details, request/response formats, and full payload documentation.
 
 ---
 
@@ -336,9 +323,7 @@ Configure IAE action on the credential configuration:
             ]
         }
     },
-    "claimsWebhook": {
-        "url": "https://your-service.example.com/iae-claims"
-    }
+    "attributeProviderId": "iae-claims-provider"
 }
 ```
 
@@ -395,11 +380,11 @@ flowchart TD
 
     C --> H{Where are claims?}
     H -->|Known at offer creation| I[Include claims in offer]
-    H -->|Need to fetch later| J[Use webhook]
+    H -->|Need to fetch later| J[Use Attribute Provider]
 
-    E --> K[Webhook required]
-    F --> L[Webhook required]
-    G --> M[Webhook required]
+    E --> K[Attribute Provider required]
+    F --> L[Attribute Provider required]
+    G --> M[Attribute Provider required]
 
     style C fill:#90EE90
     style E fill:#87CEEB
@@ -418,9 +403,9 @@ EUDIPLO supports **deferred credential issuance** for scenarios where credential
 - **External data sources** need time to respond
 - **Asynchronous processing** is required
 
-When your claims webhook returns `{ "deferred": true }`, EUDIPLO returns a `transaction_id` to the wallet. The wallet then polls the `/deferred_credential` endpoint until the credential is ready.
+When your Attribute Provider returns `{ "deferred": true }`, EUDIPLO returns a `transaction_id` to the wallet. The wallet then polls the `/deferred_credential` endpoint until the credential is ready.
 
-For detailed information on implementing deferred issuance, see the [Deferred Credential Issuance](../../architecture/webhooks.md#deferred-credential-issuance) section in the Webhooks documentation.
+For detailed information on implementing deferred issuance, see the [Deferred Issuance](../../architecture/attribute-providers.md#deferred-issuance) section in the Attribute Providers documentation.
 
 ---
 
@@ -434,6 +419,8 @@ This issuance documentation is organized into the following sections:
 - **[Issuance Configuration](issuance-configuration.md)** - Understand how to
   create issuance configurations that group multiple credentials and define
   issuance parameters such as authorization and webhooks
+- **[Attribute Providers](attribute-provider.md)** - Configure reusable webhook
+  endpoints for fetching claims dynamically during credential issuance
 
 ---
 
@@ -441,11 +428,13 @@ This issuance documentation is organized into the following sections:
 
 For a quick start, follow these steps:
 
-1. **Create a credential configuration** - Define your credential type using the
+1. **Create Attribute Providers** (optional) - If you need dynamic claims, create
+   Attribute Providers using the [Attribute Providers](attribute-provider.md) guide
+2. **Create a credential configuration** - Define your credential type using the
    [Credential Configuration](credential-configuration.md) guide
-2. **Create an issuance configuration** - Define the issuance configuration using
+3. **Create an issuance configuration** - Define the issuance configuration using
    the [Issuance Configuration](issuance-configuration.md) guide
-3. **Issue credentials** - Start the issuance flow by creating credential offers
+4. **Issue credentials** - Start the issuance flow by creating credential offers
 
 ---
 
@@ -457,20 +446,19 @@ EUDIPLO provides multiple methods to pass claims (data) for credentials during i
 
 Claims are resolved in the following priority order (highest to lowest):
 
-1. **Offer-level webhook** - Webhook specified in the credential offer
-2. **Offer-level static claims** - Claims specified in the credential offer
-3. **Configuration-level webhook** - Webhook defined in the credential configuration
-4. **Configuration-level static claims** - Claims defined in the credential configuration
+1. **Offer-level claims** - Inline claims, webhook, or Attribute Provider reference passed at offer time
+2. **Configuration-level Attribute Provider** - The `attributeProviderId` on the credential configuration
+3. **Configuration-level static claims** - Claims defined in the credential configuration
 
 !!! warning "Claims are not merged"
 
-    Higher priority sources completely override lower priority sources - claims are not merged. If an offer-level webhook is provided, all configuration-level claims will be entirely ignored.
+    Higher priority sources completely override lower priority sources - claims are not merged. If an offer-level webhook is provided, the configuration-level Attribute Provider will not be called.
 
 For a detailed explanation of the claims priority system and how to configure each method, see the [Fetching Claims](credential-configuration.md#fetching-claims) section in the Credential Configuration documentation.
 
 ### When to Use Each Method
 
 - **Configuration-level static claims** - Default values for all credentials of this type, fixed metadata (e.g., issuing country, authority)
-- **Configuration-level webhook** - Dynamic claims based on authentication context, personalized credentials requiring real-time data
-- **Offer-level static claims** - Claims known at offer creation time, overriding specific values for individual issuances
-- **Offer-level webhook** - Custom data source per offer, testing different webhook endpoints
+- **Configuration-level Attribute Provider** - Dynamic claims based on authentication context, personalized credentials requiring real-time data
+- **Offer-level inline claims** - Claims known at offer creation time, overriding specific values for individual issuances
+- **Offer-level webhook/Attribute Provider** - Custom data source per offer, testing different webhook endpoints

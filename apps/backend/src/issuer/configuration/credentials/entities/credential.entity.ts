@@ -18,9 +18,10 @@ import {
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { TenantEntity } from "../../../../auth/tenant/entitites/tenant.entity";
 import { KeyChainEntity } from "../../../../crypto/key/entities/key-chain.entity";
-import { WebhookConfig } from "../../../../shared/utils/webhook/webhook.dto";
 import { SchemaResponse } from "../../../issuance/oid4vci/metadata/dto/schema-response.dto";
 import { VCT } from "../../../issuance/oid4vci/metadata/dto/vct.dto";
+import { AttributeProviderEntity } from "../../attribute-provider/entities/attribute-provider.entity";
+import { WebhookEndpointEntity } from "../../webhook-endpoint/entities/webhook-endpoint.entity";
 import {
     IaeAction,
     IaeActionBase,
@@ -150,22 +151,40 @@ export class CredentialConfig {
     claims?: Record<string, any> | null;
 
     /**
-     * Webhook to receive claims for the issuance process.
+     * Reference to the attribute provider used for fetching claims.
+     * Optional: if set, claims will be fetched from this provider during issuance.
      */
     @IsOptional()
-    @ValidateNested()
-    @Type(() => WebhookConfig)
-    @Column("json", { nullable: true })
-    claimsWebhook?: WebhookConfig | null;
+    @IsString()
+    @Column("varchar", { nullable: true })
+    attributeProviderId?: string | null;
+
+    @ManyToOne(() => AttributeProviderEntity, {
+        createForeignKeyConstraints: false,
+    })
+    @JoinColumn([
+        { name: "attributeProviderId", referencedColumnName: "id" },
+        { name: "tenantId", referencedColumnName: "tenantId" },
+    ])
+    attributeProvider?: AttributeProviderEntity;
 
     /**
-     * Webhook to receive claims for the issuance process.
+     * Reference to the webhook endpoint used for notifications.
+     * Optional: if set, notifications will be sent to this endpoint.
      */
     @IsOptional()
-    @ValidateNested()
-    @Type(() => WebhookConfig)
-    @Column("json", { nullable: true })
-    notificationWebhook?: WebhookConfig | null;
+    @IsString()
+    @Column("varchar", { nullable: true })
+    webhookEndpointId?: string | null;
+
+    @ManyToOne(() => WebhookEndpointEntity, {
+        createForeignKeyConstraints: false,
+    })
+    @JoinColumn([
+        { name: "webhookEndpointId", referencedColumnName: "id" },
+        { name: "tenantId", referencedColumnName: "tenantId" },
+    ])
+    webhookEndpoint?: WebhookEndpointEntity;
 
     // has to be optional since there may be credentials that are disclosed without a frame
     @Column("json", { nullable: true })
