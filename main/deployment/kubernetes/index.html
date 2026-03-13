@@ -3877,7 +3877,7 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Backend API (port 3000)</span>
 <a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>kubectl<span class="w"> </span>-n<span class="w"> </span>eudiplo<span class="w"> </span>port-forward<span class="w"> </span>svc/eudiplo<span class="w"> </span><span class="m">3000</span>:3000<span class="w"> </span><span class="p">&amp;</span>
 <a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># Client UI (port 4200 → 80)</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># Client UI (port 4200 → 8080)</span>
 <a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>kubectl<span class="w"> </span>-n<span class="w"> </span>eudiplo<span class="w"> </span>port-forward<span class="w"> </span>svc/eudiplo-client<span class="w"> </span><span class="m">4200</span>:80<span class="w"> </span><span class="p">&amp;</span>
 <a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
 <a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="c1"># MinIO Console (port 9001)</span>
