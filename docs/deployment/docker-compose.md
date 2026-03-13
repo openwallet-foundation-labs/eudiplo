@@ -511,7 +511,7 @@ services:
 
     eudiplo-client:
         ports:
-            - '8081:80' # Change 4200 to 8081
+            - '8081:8080' # Change 4200 to 8081
 ```
 
 ### Resource Limits

@@ -80,17 +80,12 @@ RUN addgroup -g 101 -S nginx || true && \
 
 USER nginx
 
-# Expose port 80
-EXPOSE 80
-
-# --- Healthcheck dependencies ---
-USER root
-RUN apk add --no-cache curl
-USER nginx
+# Expose port 8080 (non-privileged for rootless container compatibility)
+EXPOSE 8080
 
 # --- HEALTHCHECK (Client / Nginx) ---
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-  CMD curl -f http://localhost/ || exit 1
+  CMD wget -qO /dev/null http://localhost:8080/ || exit 1
 
 # Use our custom entrypoint script
 ENTRYPOINT ["/docker-entrypoint.sh"]
