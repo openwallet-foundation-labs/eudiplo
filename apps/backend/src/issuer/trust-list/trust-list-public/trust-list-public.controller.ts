@@ -6,7 +6,7 @@ import { TrustListService } from "../trustlist.service";
  * Public controller for accessing trust lists
  */
 @ApiTags("Issuer")
-@Controller(":tenantId/trust-list/:id")
+@Controller("issuers/:tenantId/trust-list/:id")
 export class TrustListPublicController {
     /**
      * Creates an instance of TrustListPublicController.

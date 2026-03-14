@@ -32,7 +32,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
     describe("Initial Request", () => {
         test("should return openid4vp interaction response", async () => {
             const response = await request(app.getHttpServer())
-                .post(`/${tenantId}/authorize/interactive`)
+                .post(`/issuers/${tenantId}/authorize/interactive`)
                 .send({
                     response_type: "code",
                     client_id: "test-wallet",
@@ -51,7 +51,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
 
         test("should return redirect_to_web interaction response", async () => {
             const response = await request(app.getHttpServer())
-                .post(`/${tenantId}/authorize/interactive`)
+                .post(`/issuers/${tenantId}/authorize/interactive`)
                 .send({
                     response_type: "code",
                     client_id: "test-wallet",
@@ -72,7 +72,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
 
         test("should prefer openid4vp when both types are supported", async () => {
             const response = await request(app.getHttpServer())
-                .post(`/${tenantId}/authorize/interactive`)
+                .post(`/issuers/${tenantId}/authorize/interactive`)
                 .send({
                     response_type: "code",
                     client_id: "test-wallet",
@@ -87,7 +87,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
 
         test("should return error when client_id is missing", async () => {
             const response = await request(app.getHttpServer())
-                .post(`/${tenantId}/authorize/interactive`)
+                .post(`/issuers/${tenantId}/authorize/interactive`)
                 .send({
                     response_type: "code",
                     interaction_types_supported: "openid4vp_presentation",
@@ -100,7 +100,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
 
         test("should return error when interaction_types_supported is missing", async () => {
             const response = await request(app.getHttpServer())
-                .post(`/${tenantId}/authorize/interactive`)
+                .post(`/issuers/${tenantId}/authorize/interactive`)
                 .send({
                     response_type: "code",
                     client_id: "test-wallet",
@@ -112,7 +112,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
 
         test("should accept authorization_details with credential configuration", async () => {
             const response = await request(app.getHttpServer())
-                .post(`/${tenantId}/authorize/interactive`)
+                .post(`/issuers/${tenantId}/authorize/interactive`)
                 .send({
                     response_type: "code",
                     client_id: "test-wallet",
@@ -150,7 +150,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
 
             if (issuerState) {
                 const response = await request(app.getHttpServer())
-                    .post(`/${tenantId}/authorize/interactive`)
+                    .post(`/issuers/${tenantId}/authorize/interactive`)
                     .send({
                         response_type: "code",
                         client_id: "test-wallet",
@@ -167,7 +167,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
     describe("Follow-up Request", () => {
         test("should return error for invalid auth_session", async () => {
             const response = await request(app.getHttpServer())
-                .post(`/${tenantId}/authorize/interactive`)
+                .post(`/issuers/${tenantId}/authorize/interactive`)
                 .send({
                     auth_session: "invalid-session-id",
                     openid4vp_response: JSON.stringify({ vp_token: "token" }),
@@ -183,7 +183,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
         test("should return error when neither openid4vp_response nor code_verifier provided", async () => {
             // First get a valid auth_session
             const initialResponse = await request(app.getHttpServer())
-                .post(`/${tenantId}/authorize/interactive`)
+                .post(`/issuers/${tenantId}/authorize/interactive`)
                 .send({
                     response_type: "code",
                     client_id: "test-wallet",
@@ -194,7 +194,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
             const authSession = initialResponse.body.auth_session;
 
             const response = await request(app.getHttpServer())
-                .post(`/${tenantId}/authorize/interactive`)
+                .post(`/issuers/${tenantId}/authorize/interactive`)
                 .send({
                     auth_session: authSession,
                     // Missing openid4vp_response and code_verifier
@@ -207,7 +207,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
         test("should issue authorization code on valid openid4vp_response", async () => {
             // First get a valid auth_session
             const initialResponse = await request(app.getHttpServer())
-                .post(`/${tenantId}/authorize/interactive`)
+                .post(`/issuers/${tenantId}/authorize/interactive`)
                 .send({
                     response_type: "code",
                     client_id: "test-wallet",
@@ -229,7 +229,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
             };
 
             const response = await request(app.getHttpServer())
-                .post(`/${tenantId}/authorize/interactive`)
+                .post(`/issuers/${tenantId}/authorize/interactive`)
                 .send({
                     auth_session: authSession,
                     openid4vp_response: JSON.stringify(vpResponse),
@@ -248,7 +248,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
 
             // Step 1: Initial request with redirect_to_web
             const initialResponse = await request(app.getHttpServer())
-                .post(`/${tenantId}/authorize/interactive`)
+                .post(`/issuers/${tenantId}/authorize/interactive`)
                 .send({
                     response_type: "code",
                     client_id: "test-wallet",
@@ -264,7 +264,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
             // Step 2: Complete web authorization (simulating user completing web flow)
             const completeResponse = await request(app.getHttpServer())
                 .post(
-                    `/${tenantId}/authorize/interactive/complete-web-auth/${authSession}`,
+                    `/issuers/${tenantId}/authorize/interactive/complete-web-auth/${authSession}`,
                 )
                 .expect(200);
 
@@ -272,7 +272,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
 
             // Step 3: Follow-up request with code_verifier
             const followUpResponse = await request(app.getHttpServer())
-                .post(`/${tenantId}/authorize/interactive`)
+                .post(`/issuers/${tenantId}/authorize/interactive`)
                 .send({
                     auth_session: authSession,
                     code_verifier: codeVerifier,
@@ -289,7 +289,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
 
             // Step 1: Initial request
             const initialResponse = await request(app.getHttpServer())
-                .post(`/${tenantId}/authorize/interactive`)
+                .post(`/issuers/${tenantId}/authorize/interactive`)
                 .send({
                     response_type: "code",
                     client_id: "test-wallet",
@@ -303,7 +303,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
 
             // Step 2: Try to submit code_verifier without completing web auth
             const response = await request(app.getHttpServer())
-                .post(`/${tenantId}/authorize/interactive`)
+                .post(`/issuers/${tenantId}/authorize/interactive`)
                 .send({
                     auth_session: authSession,
                     code_verifier: codeVerifier,
@@ -319,7 +319,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
 
             // Step 1: Initial request
             const initialResponse = await request(app.getHttpServer())
-                .post(`/${tenantId}/authorize/interactive`)
+                .post(`/issuers/${tenantId}/authorize/interactive`)
                 .send({
                     response_type: "code",
                     client_id: "test-wallet",
@@ -334,13 +334,13 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
             // Complete web auth
             await request(app.getHttpServer())
                 .post(
-                    `/${tenantId}/authorize/interactive/complete-web-auth/${authSession}`,
+                    `/issuers/${tenantId}/authorize/interactive/complete-web-auth/${authSession}`,
                 )
                 .expect(200);
 
             // Step 2: Try with wrong code_verifier
             const response = await request(app.getHttpServer())
-                .post(`/${tenantId}/authorize/interactive`)
+                .post(`/issuers/${tenantId}/authorize/interactive`)
                 .send({
                     auth_session: authSession,
                     code_verifier: "wrong-verifier",
@@ -356,7 +356,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
         test("should return error for non-existent session", async () => {
             const response = await request(app.getHttpServer())
                 .post(
-                    `/${tenantId}/authorize/interactive/complete-web-auth/non-existent-session`,
+                    `/issuers/${tenantId}/authorize/interactive/complete-web-auth/non-existent-session`,
                 )
                 .expect(200);
 
@@ -367,7 +367,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
     describe("Metadata", () => {
         test("should include interactive_authorization_endpoint in metadata", async () => {
             const response = await request(app.getHttpServer())
-                .get(`/${tenantId}/.well-known/oauth-authorization-server`)
+                .get(`/.well-known/oauth-authorization-server/${tenantId}`)
                 .expect(200);
 
             expect(
@@ -386,7 +386,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
 
             // Step 1: Initial request supporting both interaction types
             const initialResponse = await request(app.getHttpServer())
-                .post(`/${tenantId}/authorize/interactive`)
+                .post(`/issuers/${tenantId}/authorize/interactive`)
                 .send({
                     response_type: "code",
                     client_id: "test-wallet",
@@ -413,7 +413,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
             };
 
             const step2Response = await request(app.getHttpServer())
-                .post(`/${tenantId}/authorize/interactive`)
+                .post(`/issuers/${tenantId}/authorize/interactive`)
                 .send({
                     auth_session: authSession,
                     openid4vp_response: JSON.stringify(vpResponse),
@@ -430,7 +430,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
             // This test verifies the flow when a credential has explicit iaeActions configured
             // The credential config would need iaeActions: [{ type: 'openid4vp_presentation', presentationConfigId: '...' }]
             const response = await request(app.getHttpServer())
-                .post(`/${tenantId}/authorize/interactive`)
+                .post(`/issuers/${tenantId}/authorize/interactive`)
                 .send({
                     response_type: "code",
                     client_id: "test-wallet",
