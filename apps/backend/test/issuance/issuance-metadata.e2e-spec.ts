@@ -40,7 +40,7 @@ describe("Issuance - Metadata", () => {
         expect(res.body).toBeDefined();
         expect(res.body.credential_issuer).toBeDefined();
         expect(res.body.credential_issuer).toBe(
-            `http://localhost:3000/${tenantId}`,
+            `http://localhost:3000/issuers/${tenantId}`,
         );
     });
 

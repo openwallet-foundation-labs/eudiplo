@@ -118,7 +118,7 @@ export class ChainedAsService {
      */
     private getChainedAsBaseUrl(tenantId: string): string {
         const publicUrl = this.configService.getOrThrow<string>("PUBLIC_URL");
-        return `${publicUrl}/${tenantId}/chained-as`;
+        return `${publicUrl}/issuers/${tenantId}/chained-as`;
     }
 
     /**

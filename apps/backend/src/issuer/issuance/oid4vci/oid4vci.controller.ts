@@ -29,7 +29,7 @@ import { Oid4vciService } from "./oid4vci.service";
  */
 @ApiTags("OID4VCI")
 @ApiParam({ name: "tenantId", required: true })
-@Controller(":tenantId/vci")
+@Controller("issuers/:tenantId/vci")
 @UseInterceptors(SessionLoggerInterceptor)
 export class Oid4vciController {
     constructor(private readonly oid4vciService: Oid4vciService) {}

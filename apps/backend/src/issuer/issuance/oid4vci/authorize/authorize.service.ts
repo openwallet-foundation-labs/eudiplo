@@ -93,7 +93,7 @@ export class AuthorizeService {
     }
 
     getAuthzIssuer(tenantId: string) {
-        return `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${tenantId}`;
+        return `${this.configService.getOrThrow<string>("PUBLIC_URL")}/issuers/${tenantId}`;
     }
 
     async authzMetadata(

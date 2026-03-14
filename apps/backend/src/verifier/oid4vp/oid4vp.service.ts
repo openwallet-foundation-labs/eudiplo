@@ -73,7 +73,7 @@ export class Oid4vpService {
 
         try {
             const host = this.configService.getOrThrow<string>("PUBLIC_URL");
-            const tenantHost = `${host}/${session.tenantId}`;
+            const tenantHost = `${host}/issuers/${session.tenantId}`;
 
             const presentationConfig =
                 await this.presentationsService.getPresentationConfig(
@@ -147,7 +147,7 @@ export class Oid4vpService {
                 payload: {
                     response_type: "vp_token",
                     client_id: "x509_hash:" + certHash,
-                    response_uri: `${host}/${session.id}/oid4vp`,
+                    response_uri: `${host}/presentations/${session.id}/oid4vp`,
                     response_mode: session.useDcApi
                         ? "dc_api.jwt"
                         : "direct_post.jwt",
@@ -262,7 +262,7 @@ export class Oid4vpService {
 
         const params = {
             client_id: "x509_hash:" + certHash,
-            request_uri: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${values.session}/oid4vp/request`,
+            request_uri: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/presentations/${values.session}/oid4vp/request`,
             request_uri_method,
         };
         const queryString = Object.entries(params)
@@ -275,7 +275,7 @@ export class Oid4vpService {
         // Create cross-device params with /no-redirect appended to request_uri
         const crossDeviceParams = {
             ...params,
-            request_uri: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${values.session}/oid4vp/request/no-redirect`,
+            request_uri: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/presentations/${values.session}/oid4vp/request/no-redirect`,
         };
         const crossDeviceQueryString = Object.entries(crossDeviceParams)
             .map(
@@ -293,7 +293,7 @@ export class Oid4vpService {
             const clientId = "x509_hash:" + certHash;
             const responseUri = useDcApi
                 ? undefined
-                : `${host}/${values.session}/oid4vp`;
+                : `${host}/presentations/${values.session}/oid4vp`;
 
             // Use transaction_data from options if provided, otherwise fall back to config
             const transaction_data =

@@ -3,7 +3,7 @@ import { ApiTags } from "@nestjs/swagger";
 import { CredentialsService } from "../../../configuration/credentials/credentials.service";
 
 @ApiTags("OID4VCI")
-@Controller(":tenantId/credentials-metadata")
+@Controller("issuers/:tenantId/credentials-metadata")
 export class Oid4vciMetadataController {
     constructor(private readonly credentialsService: CredentialsService) {}
 
