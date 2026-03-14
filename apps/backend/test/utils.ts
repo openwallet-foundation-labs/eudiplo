@@ -197,7 +197,7 @@ export async function preparePresentation(
 
     const credential = await createCredential({
         claims: {
-            vct: "http://localhost:3000/demo/credentials-metadata/vct/pid",
+            vct: "http://localhost:3000/issuers/demo/credentials-metadata/vct/pid",
             status,
         },
         privateKey,

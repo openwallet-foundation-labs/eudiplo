@@ -182,7 +182,7 @@ export class CredentialsService {
         let vct: string;
         if (entity.vct && typeof entity.vct === "object") {
             // Generate URL for object-based vct hosted by EUDIPLO
-            vct = `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${tenantId}/credentials-metadata/vct/${entity.id}`;
+            vct = `${this.configService.getOrThrow<string>("PUBLIC_URL")}/issuers/${tenantId}/credentials-metadata/vct/${entity.id}`;
         } else if (typeof entity.vct === "string") {
             // Use the string URI directly
             vct = entity.vct;
@@ -538,7 +538,7 @@ export class CredentialsService {
             );
         }
         const host = this.configService.getOrThrow<string>("PUBLIC_URL");
-        credentialConfig.vct.vct = `${host}/${tenantId}/credentials-metadata/vct/${credentialConfig.id}`;
+        credentialConfig.vct.vct = `${host}/issuers/${tenantId}/credentials-metadata/vct/${credentialConfig.id}`;
         return credentialConfig.vct;
     }
 }

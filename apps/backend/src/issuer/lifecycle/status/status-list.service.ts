@@ -100,7 +100,7 @@ export class StatusListService {
      */
     private buildStatusListUri(tenantId: string, listId: string): string {
         const baseUrl = this.configService.getOrThrow<string>("PUBLIC_URL");
-        return `${baseUrl}/${tenantId}/status-management/status-list/${listId}`;
+        return `${baseUrl}/issuers/${tenantId}/status-management/status-list/${listId}`;
     }
 
     /**
@@ -110,7 +110,7 @@ export class StatusListService {
      */
     private buildAggregationUri(tenantId: string): string {
         const baseUrl = this.configService.getOrThrow<string>("PUBLIC_URL");
-        return `${baseUrl}/${tenantId}/status-management/status-list-aggregation`;
+        return `${baseUrl}/issuers/${tenantId}/status-management/status-list-aggregation`;
     }
 
     /**

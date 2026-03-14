@@ -93,7 +93,7 @@ export class AuthorizeService {
     }
 
     getAuthzIssuer(tenantId: string) {
-        return `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${tenantId}`;
+        return `${this.configService.getOrThrow<string>("PUBLIC_URL")}/issuers/${tenantId}`;
     }
 
     async authzMetadata(
@@ -107,13 +107,14 @@ export class AuthorizeService {
         const walletAttestationRequired =
             issuanceConfig.walletAttestationRequired ?? false;
 
+        const publicUrl = this.configService.getOrThrow<string>("PUBLIC_URL");
         const authServer = this.getAuthzIssuer(tenantId);
         const metadata: Record<string, unknown> = {
             issuer: authServer,
             token_endpoint: `${authServer}/authorize/token`,
             authorization_endpoint: `${authServer}/authorize`,
             interactive_authorization_endpoint: `${authServer}/authorize/interactive`,
-            jwks_uri: `${authServer}/.well-known/jwks.json`,
+            jwks_uri: `${publicUrl}/.well-known/jwks.json/issuers/${tenantId}`,
             grant_types_supported: [
                 "authorization_code",
                 "urn:ietf:params:oauth:grant-type:pre-authorized_code",
@@ -153,7 +154,7 @@ export class AuthorizeService {
                 .getBy({ request_uri: values.request_uri })
                 .then(async (session) => {
                     const code = await this.setAuthCode(session.id);
-                    const iss = `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${tenantId}`;
+                    const iss = this.getAuthzIssuer(tenantId);
                     return `${session.auth_queries!.redirect_uri}?code=${code}&state=${session.auth_queries!.state}&iss=${iss}`;
                 })
                 .catch(async () => {
@@ -325,7 +326,7 @@ export class AuthorizeService {
 
         return this.getAuthorizationServer(tenantId)
             .createAccessTokenResponse({
-                audience: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${tenantId}`,
+                audience: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/issuers/${tenantId}`,
                 signer: {
                     method: "jwk",
                     alg: "ES256",

@@ -45,7 +45,7 @@ import {
  * 5. Wallet → Token (receives EUDIPLO-issued access token with issuer_state)
  */
 @ApiTags("Chained AS")
-@Controller(":tenant/chained-as")
+@Controller("issuers/:tenantId/chained-as")
 export class ChainedAsController {
     constructor(private readonly chainedAsService: ChainedAsService) {}
 
@@ -62,7 +62,7 @@ export class ChainedAsController {
         description:
             "Submit authorization request parameters. Returns a request_uri for use at the authorization endpoint.",
     })
-    @ApiParam({ name: "tenant", description: "Tenant identifier" })
+    @ApiParam({ name: "tenantId", description: "Tenant identifier" })
     @ApiHeader({
         name: "DPoP",
         required: false,
@@ -89,7 +89,7 @@ export class ChainedAsController {
         type: ChainedAsErrorResponseDto,
     })
     async par(
-        @Param("tenant") tenantId: string,
+        @Param("tenantId") tenantId: string,
         @Body() body: ChainedAsParRequestDto,
         @Headers("dpop") dpopJwt?: string,
         @Headers("oauth-client-attestation") clientAttestationJwt?: string,
@@ -124,7 +124,7 @@ export class ChainedAsController {
         description:
             "Validates the request_uri from PAR and redirects to the upstream OIDC provider for authentication.",
     })
-    @ApiParam({ name: "tenant", description: "Tenant identifier" })
+    @ApiParam({ name: "tenantId", description: "Tenant identifier" })
     @ApiResponse({
         status: 302,
         description: "Redirect to upstream OIDC provider",
@@ -135,7 +135,7 @@ export class ChainedAsController {
         type: ChainedAsErrorResponseDto,
     })
     async authorize(
-        @Param("tenant") tenantId: string,
+        @Param("tenantId") tenantId: string,
         @Query() query: ChainedAsAuthorizeQueryDto,
         @Res() res: Response,
     ): Promise<void> {
@@ -158,7 +158,7 @@ export class ChainedAsController {
         description:
             "Receives the authorization response from the upstream OIDC provider, exchanges the code, and redirects back to the wallet.",
     })
-    @ApiParam({ name: "tenant", description: "Tenant identifier" })
+    @ApiParam({ name: "tenantId", description: "Tenant identifier" })
     @ApiResponse({
         status: 302,
         description: "Redirect to wallet with authorization code",
@@ -169,7 +169,7 @@ export class ChainedAsController {
         type: ChainedAsErrorResponseDto,
     })
     async callback(
-        @Param("tenant") tenantId: string,
+        @Param("tenantId") tenantId: string,
         @Res() res: Response,
         @Query("code") code?: string,
         @Query("state") state?: string,
@@ -198,7 +198,7 @@ export class ChainedAsController {
         description:
             "Exchanges the authorization code for an access token containing issuer_state.",
     })
-    @ApiParam({ name: "tenant", description: "Tenant identifier" })
+    @ApiParam({ name: "tenantId", description: "Tenant identifier" })
     @ApiHeader({
         name: "DPoP",
         required: false,
@@ -220,7 +220,7 @@ export class ChainedAsController {
         type: ChainedAsErrorResponseDto,
     })
     async token(
-        @Param("tenant") tenantId: string,
+        @Param("tenantId") tenantId: string,
         @Body() body: ChainedAsTokenRequestDto,
         @Headers("dpop") dpopJwt?: string,
     ): Promise<ChainedAsTokenResponseDto> {
@@ -237,13 +237,13 @@ export class ChainedAsController {
         description:
             "Returns the public keys for verifying tokens issued by this Chained AS.",
     })
-    @ApiParam({ name: "tenant", description: "Tenant identifier" })
+    @ApiParam({ name: "tenantId", description: "Tenant identifier" })
     @ApiResponse({
         status: 200,
         description: "JWKS document",
     })
     async jwks(
-        @Param("tenant") tenantId: string,
+        @Param("tenantId") tenantId: string,
     ): Promise<{ keys: Record<string, unknown>[] }> {
         return this.chainedAsService.getJwks(tenantId);
     }
@@ -258,13 +258,13 @@ export class ChainedAsController {
         description:
             "Returns the OAuth Authorization Server metadata for the Chained AS.",
     })
-    @ApiParam({ name: "tenant", description: "Tenant identifier" })
+    @ApiParam({ name: "tenantId", description: "Tenant identifier" })
     @ApiResponse({
         status: 200,
         description: "OAuth AS metadata",
     })
     getMetadata(
-        @Param("tenant") tenantId: string,
+        @Param("tenantId") tenantId: string,
     ): Promise<Record<string, unknown>> {
         return this.chainedAsService.getMetadata(tenantId);
     }

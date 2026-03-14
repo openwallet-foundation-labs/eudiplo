@@ -109,7 +109,7 @@ export class InteractiveAuthorizationService {
     getAuthorizationServerMetadata(
         tenantId: string,
     ): AuthorizationServerMetadata {
-        const authServer = `${this.configService.getOrThrow<string>("PUBLIC_URL")}/${tenantId}`;
+        const authServer = `${this.configService.getOrThrow<string>("PUBLIC_URL")}/issuers/${tenantId}`;
         return {
             issuer: authServer,
             authorization_endpoint: `${authServer}/authorize`,

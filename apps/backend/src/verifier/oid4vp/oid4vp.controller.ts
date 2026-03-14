@@ -20,9 +20,9 @@ import { Oid4vpService } from "./oid4vp.service";
  * Controller for handling OID4VP (OpenID for Verifiable Presentations) requests.
  */
 @ApiTags("OID4VP")
-@Controller(":session/oid4vp")
+@Controller("presentations/:sessionId/oid4vp")
 @UseInterceptors(SessionLoggerInterceptor)
-@ApiParam({ name: "session", required: true })
+@ApiParam({ name: "sessionId", required: true })
 export class Oid4vpController {
     /**
      * Constructor for the Oid4vpController.
@@ -39,7 +39,7 @@ export class Oid4vpController {
     @Get("request")
     @SessionLogger("session", "OID4VP")
     getRequestWithSession(
-        @Param("session") sessionId: string,
+        @Param("sessionId") sessionId: string,
         @Req() req: Request,
     ) {
         const origin = req.get("origin") as string;
@@ -55,7 +55,7 @@ export class Oid4vpController {
     @Get("request/no-redirect")
     @SessionLogger("session", "OID4VP")
     getRequestNoRedirectWithSession(
-        @Param("session") sessionId: string,
+        @Param("sessionId") sessionId: string,
         @Req() req: Request,
     ) {
         const origin = req.get("origin") as string;
@@ -75,7 +75,7 @@ export class Oid4vpController {
     @Post("request")
     @SessionLogger("session", "OID4VP")
     getPostRequestWithSession(
-        @Param("session") sessionId: string,
+        @Param("sessionId") sessionId: string,
         @Req() req: Request,
     ) {
         const origin = req.get("origin") as string;
@@ -92,7 +92,7 @@ export class Oid4vpController {
     @SessionLogger("session", "OID4VP")
     getResponse(
         @Body() body: AuthorizationResponse,
-        @Param("session") sessionId: string,
+        @Param("sessionId") sessionId: string,
     ) {
         return this.oid4vpService.getResponse(body, sessionId);
     }

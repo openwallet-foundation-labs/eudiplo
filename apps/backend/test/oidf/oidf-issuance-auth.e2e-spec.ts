@@ -62,7 +62,7 @@ describe("OIDF - issuance - auth code flow", () => {
             description:
                 "VCI tests of wallet initiated flow with client attestation",
             server: {
-                discoveryIssuer: `https://${PUBLIC_DOMAIN}`,
+                discoveryIssuer: `https://${PUBLIC_DOMAIN}/issuers/haip`,
             },
             client: {
                 jwks: {
@@ -145,7 +145,7 @@ describe("OIDF - issuance - auth code flow", () => {
                     "https://e0ea-2a02-8071-b781-bbe-ed43-c7cd-6384-7530.ngrok-free.app/credential",
             },
             vci: {
-                credential_issuer_url: `https://${PUBLIC_DOMAIN}/haip`,
+                credential_issuer_url: `https://${PUBLIC_DOMAIN}/issuers/haip`,
                 credential_configuration_id: "pid",
                 client_attester_keys_jwks: {
                     keys: [
