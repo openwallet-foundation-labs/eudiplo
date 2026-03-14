@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateWebhookEndpointDto.schema.json",
+  "title": "UpdateWebhookEndpointDto",
+  "type": "object",
+  "properties": {
+    "auth": {
+      "oneOf": [
+        {
+          "$ref": "./WebHookAuthConfigNone.schema.json"
+        },
+        {
+          "$ref": "./WebHookAuthConfigHeader.schema.json"
+        }
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string",
+      "nullable": true
+    },
+    "url": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

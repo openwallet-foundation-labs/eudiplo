@@ -4,6 +4,9 @@ node_modules
 /build
 /site
 swagger.json
+swagger-management.json
+swagger-protocol.json
+*.db
 docs/compodoc
 venv/
 .cache/
@@ -54,6 +57,7 @@ test-report.junit.xml
 .temp
 .tmp
 tmp/
+assets/uploads/
 
 # Runtime data
 pids

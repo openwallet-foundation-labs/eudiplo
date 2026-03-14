@@ -29,7 +29,7 @@
         }
     },
     "scripts": {
-        "generate": "openapi-ts",
+        "generate": "openapi-ts && tsup",
         "build": "tsup",
         "dev": "tsup --watch",
         "prepublishOnly": "pnpm build"

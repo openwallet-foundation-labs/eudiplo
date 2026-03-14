@@ -81,13 +81,9 @@
         }
       ]
     },
-    "notifyWebhook": {
-      "description": "Webhook configuration to send the result of the notification response.",
-      "allOf": [
-        {
-          "$ref": "./WebhookConfig.schema.json"
-        }
-      ]
+    "webhookEndpointId": {
+      "type": "string",
+      "description": "ID of the webhook endpoint to notify about issuance status."
     },
     "notifications": {
       "description": "Notifications associated with the session.",

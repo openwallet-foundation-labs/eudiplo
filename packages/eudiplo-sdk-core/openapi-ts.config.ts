@@ -1,7 +1,7 @@
 import { defineConfig } from '@hey-api/openapi-ts';
 
 export default defineConfig({
-  input: 'http://localhost:3000/api-json',
+  input: 'http://localhost:3000/api/docs-json',
   output: {    
     postProcess: ["eslint", "prettier"],
     path: './src/api',

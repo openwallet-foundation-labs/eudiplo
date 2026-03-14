@@ -835,6 +835,131 @@
     }
   },
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/OfferRequestDto.schema.json",
+    "fileMatch": ["a://b/OfferRequestDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/OfferRequestDto.schema.json",
+      "title": "OfferRequestDto",
+      "type": "object",
+      "properties": {
+        "response_type": {
+          "enum": ["uri", "dc-api"],
+          "type": "string",
+          "examples": [
+            {
+              "value": "qrcode"
+            }
+          ],
+          "description": "The type of response expected for the offer request."
+        },
+        "credentialClaims": {
+          "type": "object",
+          "description": "Credential claims configuration per credential. Keys must match credentialConfigurationIds.",
+          "properties": {
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["inline"]
+                    },
+                    "claims": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  },
+                  "required": ["type", "claims"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["attributeProvider"]
+                    },
+                    "attributeProviderId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["type", "attributeProviderId"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["webhook"]
+                    },
+                    "webhook": {
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "type": "string"
+                        },
+                        "auth": {
+                          "type": "object"
+                        }
+                      },
+                      "required": ["url"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["type", "webhook"],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "example": {
+            "citizen": {
+              "type": "inline",
+              "claims": {
+                "given_name": "John",
+                "family_name": "Doe"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "flow": {
+          "description": "The flow type for the offer request.",
+          "enum": ["authorization_code", "pre_authorized_code"],
+          "type": "string"
+        },
+        "tx_code": {
+          "type": "string",
+          "description": "Transaction code for pre-authorized code flow."
+        },
+        "tx_code_description": {
+          "type": "string",
+          "description": "Description for the transaction code (e.g., \"Please enter the PIN sent to your email\")."
+        },
+        "credentialConfigurationIds": {
+          "description": "List of credential configuration ids to be included in the offer.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "authorization_server": {
+          "type": "string",
+          "description": "Optional authorization server to be used for this issuance flow."
+        },
+        "webhookEndpointId": {
+          "type": "string",
+          "description": "ID of the webhook endpoint to notify about the status of the issuance process."
+        }
+      },
+      "required": ["response_type", "flow", "credentialConfigurationIds"],
+      "additionalProperties": false
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/WebHookAuthConfigNone.schema.json",
     "fileMatch": ["a://b/WebHookAuthConfigNone*.schema.json"],
     "schema": {
@@ -928,111 +1053,6 @@
         }
       },
       "required": ["auth", "url"],
-      "additionalProperties": false
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/OfferRequestDto.schema.json",
-    "fileMatch": ["a://b/OfferRequestDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/OfferRequestDto.schema.json",
-      "title": "OfferRequestDto",
-      "type": "object",
-      "properties": {
-        "response_type": {
-          "enum": ["uri", "dc-api"],
-          "type": "string",
-          "examples": [
-            {
-              "value": "qrcode"
-            }
-          ],
-          "description": "The type of response expected for the offer request."
-        },
-        "credentialClaims": {
-          "type": "object",
-          "description": "Credential claims configuration per credential. Keys must match credentialConfigurationIds.",
-          "properties": {
-            "additionalProperties": {
-              "oneOf": [
-                {
-                  "type": "object",
-                  "properties": {
-                    "type": {
-                      "type": "string",
-                      "enum": ["inline"]
-                    },
-                    "claims": {
-                      "type": "object",
-                      "additionalProperties": true
-                    }
-                  },
-                  "required": ["type", "claims"],
-                  "additionalProperties": false
-                },
-                {
-                  "type": "object",
-                  "properties": {
-                    "type": {
-                      "type": "string",
-                      "enum": ["webhook"]
-                    },
-                    "webhook": {
-                      "type": "object"
-                    }
-                  },
-                  "required": ["type", "webhook"],
-                  "additionalProperties": false
-                }
-              ]
-            }
-          },
-          "example": {
-            "citizen": {
-              "type": "inline",
-              "claims": {
-                "given_name": "John",
-                "family_name": "Doe"
-              }
-            }
-          },
-          "additionalProperties": false
-        },
-        "flow": {
-          "description": "The flow type for the offer request.",
-          "enum": ["authorization_code", "pre_authorized_code"],
-          "type": "string"
-        },
-        "tx_code": {
-          "type": "string",
-          "description": "Transaction code for pre-authorized code flow."
-        },
-        "tx_code_description": {
-          "type": "string",
-          "description": "Description for the transaction code (e.g., \"Please enter the PIN sent to your email\")."
-        },
-        "credentialConfigurationIds": {
-          "description": "List of credential configuration ids to be included in the offer.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "authorization_server": {
-          "type": "string",
-          "description": "Optional authorization server to be used for this issuance flow."
-        },
-        "notifyWebhook": {
-          "description": "Webhook to notify about the status of the issuance process.",
-          "allOf": [
-            {
-              "$ref": "./WebhookConfig.schema.json"
-            }
-          ]
-        }
-      },
-      "required": ["response_type", "flow", "credentialConfigurationIds"],
       "additionalProperties": false
     }
   },
@@ -1139,13 +1159,9 @@
             }
           ]
         },
-        "notifyWebhook": {
-          "description": "Webhook configuration to send the result of the notification response.",
-          "allOf": [
-            {
-              "$ref": "./WebhookConfig.schema.json"
-            }
-          ]
+        "webhookEndpointId": {
+          "type": "string",
+          "description": "ID of the webhook endpoint to notify about issuance status."
         },
         "notifications": {
           "description": "Notifications associated with the session.",
@@ -2116,6 +2132,92 @@
     }
   },
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AttributeProviderEntity.schema.json",
+    "fileMatch": ["a://b/AttributeProviderEntity*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AttributeProviderEntity.schema.json",
+      "title": "AttributeProviderEntity",
+      "type": "object",
+      "properties": {
+        "auth": {
+          "oneOf": [
+            {
+              "$ref": "./WebHookAuthConfigNone.schema.json"
+            },
+            {
+              "$ref": "./WebHookAuthConfigHeader.schema.json"
+            }
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string"
+        },
+        "tenant": {
+          "$ref": "./TenantEntity.schema.json"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": ["auth", "id", "tenantId", "tenant", "name", "url"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/WebhookEndpointEntity.schema.json",
+    "fileMatch": ["a://b/WebhookEndpointEntity*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/WebhookEndpointEntity.schema.json",
+      "title": "WebhookEndpointEntity",
+      "type": "object",
+      "properties": {
+        "auth": {
+          "oneOf": [
+            {
+              "$ref": "./WebHookAuthConfigNone.schema.json"
+            },
+            {
+              "$ref": "./WebHookAuthConfigHeader.schema.json"
+            }
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string"
+        },
+        "tenant": {
+          "$ref": "./TenantEntity.schema.json"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": ["auth", "id", "tenantId", "tenant", "name", "url"],
+      "additionalProperties": false
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/KeyChainEntity.schema.json",
     "fileMatch": ["a://b/KeyChainEntity*.schema.json"],
     "schema": {
@@ -2348,23 +2450,21 @@
           "type": "object",
           "nullable": true
         },
-        "claimsWebhook": {
+        "attributeProviderId": {
+          "type": "string",
           "nullable": true,
-          "description": "Webhook to receive claims for the issuance process.",
-          "allOf": [
-            {
-              "$ref": "./WebhookConfig.schema.json"
-            }
-          ]
+          "description": "Reference to the attribute provider used for fetching claims.\nOptional: if set, claims will be fetched from this provider during issuance."
         },
-        "notificationWebhook": {
+        "attributeProvider": {
+          "$ref": "./AttributeProviderEntity.schema.json"
+        },
+        "webhookEndpointId": {
+          "type": "string",
           "nullable": true,
-          "description": "Webhook to receive claims for the issuance process.",
-          "allOf": [
-            {
-              "$ref": "./WebhookConfig.schema.json"
-            }
-          ]
+          "description": "Reference to the webhook endpoint used for notifications.\nOptional: if set, notifications will be sent to this endpoint."
+        },
+        "webhookEndpoint": {
+          "$ref": "./WebhookEndpointEntity.schema.json"
         },
         "disclosureFrame": {
           "type": "object",
@@ -2474,23 +2574,15 @@
           "type": "object",
           "nullable": true
         },
-        "claimsWebhook": {
+        "attributeProviderId": {
+          "type": "string",
           "nullable": true,
-          "description": "Webhook to receive claims for the issuance process.",
-          "allOf": [
-            {
-              "$ref": "./WebhookConfig.schema.json"
-            }
-          ]
+          "description": "Reference to the attribute provider used for fetching claims.\nOptional: if set, claims will be fetched from this provider during issuance."
         },
-        "notificationWebhook": {
+        "webhookEndpointId": {
+          "type": "string",
           "nullable": true,
-          "description": "Webhook to receive claims for the issuance process.",
-          "allOf": [
-            {
-              "$ref": "./WebhookConfig.schema.json"
-            }
-          ]
+          "description": "Reference to the webhook endpoint used for notifications.\nOptional: if set, notifications will be sent to this endpoint."
         },
         "disclosureFrame": {
           "type": "object",
@@ -2597,23 +2689,15 @@
           "type": "object",
           "nullable": true
         },
-        "claimsWebhook": {
+        "attributeProviderId": {
+          "type": "string",
           "nullable": true,
-          "description": "Webhook to receive claims for the issuance process.",
-          "allOf": [
-            {
-              "$ref": "./WebhookConfig.schema.json"
-            }
-          ]
+          "description": "Reference to the attribute provider used for fetching claims.\nOptional: if set, claims will be fetched from this provider during issuance."
         },
-        "notificationWebhook": {
+        "webhookEndpointId": {
+          "type": "string",
           "nullable": true,
-          "description": "Webhook to receive claims for the issuance process.",
-          "allOf": [
-            {
-              "$ref": "./WebhookConfig.schema.json"
-            }
-          ]
+          "description": "Reference to the webhook endpoint used for notifications.\nOptional: if set, notifications will be sent to this endpoint."
         },
         "disclosureFrame": {
           "type": "object",
@@ -2639,6 +2723,152 @@
               "$ref": "./SchemaResponse.schema.json"
             }
           ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateAttributeProviderDto.schema.json",
+    "fileMatch": ["a://b/CreateAttributeProviderDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateAttributeProviderDto.schema.json",
+      "title": "CreateAttributeProviderDto",
+      "type": "object",
+      "properties": {
+        "auth": {
+          "oneOf": [
+            {
+              "$ref": "./WebHookAuthConfigNone.schema.json"
+            },
+            {
+              "$ref": "./WebHookAuthConfigHeader.schema.json"
+            }
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": ["auth", "id", "name", "url"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateAttributeProviderDto.schema.json",
+    "fileMatch": ["a://b/UpdateAttributeProviderDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateAttributeProviderDto.schema.json",
+      "title": "UpdateAttributeProviderDto",
+      "type": "object",
+      "properties": {
+        "auth": {
+          "oneOf": [
+            {
+              "$ref": "./WebHookAuthConfigNone.schema.json"
+            },
+            {
+              "$ref": "./WebHookAuthConfigHeader.schema.json"
+            }
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateWebhookEndpointDto.schema.json",
+    "fileMatch": ["a://b/CreateWebhookEndpointDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateWebhookEndpointDto.schema.json",
+      "title": "CreateWebhookEndpointDto",
+      "type": "object",
+      "properties": {
+        "auth": {
+          "oneOf": [
+            {
+              "$ref": "./WebHookAuthConfigNone.schema.json"
+            },
+            {
+              "$ref": "./WebHookAuthConfigHeader.schema.json"
+            }
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": ["auth", "id", "name", "url"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateWebhookEndpointDto.schema.json",
+    "fileMatch": ["a://b/UpdateWebhookEndpointDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateWebhookEndpointDto.schema.json",
+      "title": "UpdateWebhookEndpointDto",
+      "type": "object",
+      "properties": {
+        "auth": {
+          "oneOf": [
+            {
+              "$ref": "./WebHookAuthConfigNone.schema.json"
+            },
+            {
+              "$ref": "./WebHookAuthConfigHeader.schema.json"
+            }
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true
+        },
+        "url": {
+          "type": "string"
         }
       },
       "additionalProperties": false
@@ -4134,6 +4364,131 @@
         "createdAt",
         "updatedAt"
       ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ExportEcJwk.schema.json",
+    "fileMatch": ["a://b/ExportEcJwk*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ExportEcJwk.schema.json",
+      "title": "ExportEcJwk",
+      "type": "object",
+      "properties": {
+        "kty": {
+          "type": "string",
+          "description": "Key type",
+          "example": "EC"
+        },
+        "crv": {
+          "type": "string",
+          "description": "Curve",
+          "example": "P-256"
+        },
+        "x": {
+          "type": "string",
+          "description": "X coordinate (base64url)"
+        },
+        "y": {
+          "type": "string",
+          "description": "Y coordinate (base64url)"
+        },
+        "d": {
+          "type": "string",
+          "description": "Private key (base64url)"
+        },
+        "alg": {
+          "type": "string",
+          "description": "Algorithm",
+          "example": "ES256"
+        },
+        "kid": {
+          "type": "string",
+          "description": "Key ID"
+        }
+      },
+      "required": ["kty", "crv", "x", "y", "d"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ExportRotationPolicyDto.schema.json",
+    "fileMatch": ["a://b/ExportRotationPolicyDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ExportRotationPolicyDto.schema.json",
+      "title": "ExportRotationPolicyDto",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether rotation is enabled."
+        },
+        "intervalDays": {
+          "type": "number",
+          "description": "Rotation interval in days."
+        },
+        "certValidityDays": {
+          "type": "number",
+          "description": "Certificate validity in days."
+        }
+      },
+      "required": ["enabled"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/KeyChainExportDto.schema.json",
+    "fileMatch": ["a://b/KeyChainExportDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/KeyChainExportDto.schema.json",
+      "title": "KeyChainExportDto",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Key chain ID."
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description."
+        },
+        "usageType": {
+          "enum": ["access", "attestation", "trustList", "statusList", "encrypt"],
+          "type": "string",
+          "description": "Usage type for this key chain."
+        },
+        "key": {
+          "description": "The private key in JWK format (EC).",
+          "allOf": [
+            {
+              "$ref": "./ExportEcJwk.schema.json"
+            }
+          ]
+        },
+        "crt": {
+          "description": "Certificate chain in PEM format (leaf first, then intermediates/CA).",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "kmsProvider": {
+          "type": "string",
+          "description": "KMS provider name."
+        },
+        "rotationPolicy": {
+          "description": "Rotation policy.",
+          "allOf": [
+            {
+              "$ref": "./ExportRotationPolicyDto.schema.json"
+            }
+          ]
+        }
+      },
+      "required": ["id", "usageType", "key"],
       "additionalProperties": false
     }
   },

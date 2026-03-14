@@ -50,7 +50,7 @@ export class RegistrarService {
   async getConfig(): Promise<RegistrarConfig | null> {
     try {
       const response = await firstValueFrom(
-        this.http.get<RegistrarConfig>(`${this.getBaseUrl()}/registrar/config`)
+        this.http.get<RegistrarConfig>(`${this.getBaseUrl()}/api/registrar/config`)
       );
       return response;
     } catch (error: any) {
@@ -67,7 +67,7 @@ export class RegistrarService {
    */
   async saveConfig(config: Omit<RegistrarConfig, 'tenantId'>): Promise<RegistrarConfig> {
     return firstValueFrom(
-      this.http.post<RegistrarConfig>(`${this.getBaseUrl()}/registrar/config`, config)
+      this.http.post<RegistrarConfig>(`${this.getBaseUrl()}/api/registrar/config`, config)
     );
   }
 
@@ -77,7 +77,7 @@ export class RegistrarService {
    */
   async updateConfig(config: Partial<Omit<RegistrarConfig, 'tenantId'>>): Promise<RegistrarConfig> {
     return firstValueFrom(
-      this.http.patch<RegistrarConfig>(`${this.getBaseUrl()}/registrar/config`, config)
+      this.http.patch<RegistrarConfig>(`${this.getBaseUrl()}/api/registrar/config`, config)
     );
   }
 
@@ -85,7 +85,7 @@ export class RegistrarService {
    * Delete the registrar configuration.
    */
   async deleteConfig(): Promise<void> {
-    await firstValueFrom(this.http.delete<void>(`${this.getBaseUrl()}/registrar/config`));
+    await firstValueFrom(this.http.delete<void>(`${this.getBaseUrl()}/api/registrar/config`));
   }
 
   /**
@@ -95,7 +95,7 @@ export class RegistrarService {
   async createAccessCertificate(keyId: string): Promise<AccessCertificateResponse> {
     return firstValueFrom(
       this.http.post<AccessCertificateResponse>(
-        `${this.getBaseUrl()}/registrar/access-certificate`,
+        `${this.getBaseUrl()}/api/registrar/access-certificate`,
         {
           keyId,
         }

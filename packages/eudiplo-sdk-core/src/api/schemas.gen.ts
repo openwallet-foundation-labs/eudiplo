@@ -781,6 +781,28 @@ export const OfferRequestDtoSchema = {
               },
               required: ["type", "attributeProviderId"],
             },
+            {
+              type: "object",
+              properties: {
+                type: {
+                  type: "string",
+                  enum: ["webhook"],
+                },
+                webhook: {
+                  type: "object",
+                  properties: {
+                    url: {
+                      type: "string",
+                    },
+                    auth: {
+                      type: "object",
+                    },
+                  },
+                  required: ["url"],
+                },
+              },
+              required: ["type", "webhook"],
+            },
           ],
         },
       },

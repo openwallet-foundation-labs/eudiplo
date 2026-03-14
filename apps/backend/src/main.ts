@@ -1,14 +1,81 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { ValidationPipe } from "@nestjs/common";
+import { RequestMethod, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { NestExpressApplication } from "@nestjs/platform-express";
-import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import {
+    DocumentBuilder,
+    type OpenAPIObject,
+    SwaggerModule,
+} from "@nestjs/swagger";
 import { Logger } from "nestjs-pino";
 import { cleanupOpenApiDoc } from "nestjs-zod";
 import { AllExceptionsFilter } from "./all-exceptions.filter";
 import { AppModule } from "./app.module";
 import { ValidationErrorFilter } from "./shared/common/filters/validation-error.filter";
+
+/**
+ * Protocol routes excluded from the `/api` global prefix.
+ * These are wallet-facing and infrastructure endpoints that must remain
+ * at the root path for protocol compliance and discoverability.
+ */
+const PROTOCOL_ROUTE_EXCLUSIONS: { path: string; method: RequestMethod }[] = [
+    // Infrastructure
+    { path: "/", method: RequestMethod.GET },
+    { path: "health", method: RequestMethod.ALL },
+    { path: "metrics", method: RequestMethod.ALL },
+    // OAuth2 & Discovery
+    { path: "oauth2/(.*)", method: RequestMethod.ALL },
+    { path: ".well-known/(.*)", method: RequestMethod.ALL },
+    // OID4VCI Protocol
+    { path: ":tenantId/.well-known/(.*)", method: RequestMethod.ALL },
+    { path: ":tenantId/vci/(.*)", method: RequestMethod.ALL },
+    { path: ":tenantId/authorize", method: RequestMethod.ALL },
+    { path: ":tenantId/authorize/(.*)", method: RequestMethod.ALL },
+    { path: ":tenantId/credentials-metadata/(.*)", method: RequestMethod.ALL },
+    { path: ":tenant/chained-as/(.*)", method: RequestMethod.ALL },
+    // OID4VP Protocol
+    { path: ":session/oid4vp", method: RequestMethod.ALL },
+    { path: ":session/oid4vp/(.*)", method: RequestMethod.ALL },
+    // Public Status & Trust Lists
+    { path: ":tenantId/status-management/(.*)", method: RequestMethod.ALL },
+    { path: ":tenantId/trust-list/(.*)", method: RequestMethod.ALL },
+];
+
+/**
+ * Filter an OpenAPI document to only include paths matching (or not matching)
+ * a given prefix. Also prunes the tag list to only include used tags.
+ */
+function filterOpenApiPaths(
+    document: OpenAPIObject,
+    predicate: (path: string) => boolean,
+): OpenAPIObject {
+    const filteredPaths: OpenAPIObject["paths"] = {};
+    const usedTags = new Set<string>();
+
+    for (const [path, pathItem] of Object.entries(document.paths)) {
+        if (predicate(path)) {
+            filteredPaths[path] = pathItem;
+            for (const operation of Object.values(
+                pathItem as Record<string, any>,
+            )) {
+                if (operation?.tags) {
+                    for (const tag of operation.tags) {
+                        usedTags.add(tag);
+                    }
+                }
+            }
+        }
+    }
+
+    return {
+        ...document,
+        paths: filteredPaths,
+        tags: document.tags?.filter((tag: { name: string }) =>
+            usedTags.has(tag.name),
+        ),
+    };
+}
 
 /**
  * TLS configuration options for HTTPS server.
@@ -96,6 +163,10 @@ async function bootstrap() {
     app.useBodyParser("json", { limit: "10mb" });
     app.enableCors();
 
+    // Global route prefix: all management endpoints under /api/,
+    // protocol endpoints (wallet-facing) stay at root for compliance
+    app.setGlobalPrefix("api", { exclude: PROTOCOL_ROUTE_EXCLUSIONS });
+
     // Global exception filter for ValidationError
     app.useGlobalFilters(
         new ValidationErrorFilter(),
@@ -114,11 +185,15 @@ async function bootstrap() {
     );
 
     const configService = app.get(ConfigService);
+    const publicUrl = configService.getOrThrow<string>("PUBLIC_URL");
+    const useExternalOIDC = configService.get<string>("OIDC");
 
-    const config = new DocumentBuilder()
-        .setTitle("EUDIPLO Service API")
+    // ── Management API OpenAPI config ────────────────────────────────
+    const managementConfigBuilder = new DocumentBuilder()
+        .setTitle("EUDIPLO Management API")
         .setDescription(
-            "This is the API documentation for the EUDIPLO Service, which provides credential issuance and verification services",
+            "API for managing credentials, sessions, keys, and configurations. " +
+                "All endpoints require OAuth2 authentication.",
         )
         .setExternalDoc(
             "Documentation",
@@ -126,17 +201,13 @@ async function bootstrap() {
         )
         .setOpenAPIVersion("3.1.0")
         .setVersion(process.env.VERSION ?? "main");
-    // Add OAuth2 configuration - either external OIDC or integrated OAuth2 server
-    const useExternalOIDC = configService.get<string>("OIDC");
-    const publicUrl = configService.getOrThrow<string>("PUBLIC_URL");
 
     if (useExternalOIDC) {
-        // External OIDC provider (e.g., Keycloak)
         const oidcIssuerUrl = configService.get<string>(
             "OIDC_INTERNAL_ISSUER_URL",
         );
         if (oidcIssuerUrl) {
-            config.addOAuth2(
+            managementConfigBuilder.addOAuth2(
                 {
                     type: "openIdConnect",
                     openIdConnectUrl: `${oidcIssuerUrl}/.well-known/openid-configuration`,
@@ -144,67 +215,108 @@ async function bootstrap() {
                 "oauth2",
             );
         }
-    } else {
-        // Integrated OAuth2 server (Client Credentials Flow Only)
-        if (publicUrl) {
-            config.addOAuth2(
-                {
-                    type: "oauth2",
-                    flows: {
-                        clientCredentials: {
-                            tokenUrl: `${publicUrl}/oauth2/token`,
-                            scopes: {},
-                        },
+    } else if (publicUrl) {
+        managementConfigBuilder.addOAuth2(
+            {
+                type: "oauth2",
+                flows: {
+                    clientCredentials: {
+                        tokenUrl: `${publicUrl}/oauth2/token`,
+                        scopes: {},
                     },
                 },
-                "oauth2",
-            );
-        }
+            },
+            "oauth2",
+        );
     }
 
-    const documentConfig = config.build();
-    const documentFactory = () =>
-        cleanupOpenApiDoc(SwaggerModule.createDocument(app, documentConfig));
+    const managementDocConfig = managementConfigBuilder.build();
+
+    // ── Protocol API OpenAPI config ──────────────────────────────────
+    const protocolDocConfig = new DocumentBuilder()
+        .setTitle("EUDIPLO Protocol API")
+        .setDescription(
+            "Wallet-facing protocol endpoints for OID4VCI, OID4VP, and related standards. " +
+                "These endpoints are public and secured at the protocol level (DPoP, Wallet Attestation, etc.).",
+        )
+        .setExternalDoc(
+            "Documentation",
+            "https://openwallet-foundation-labs.github.io/eudiplo/latest/",
+        )
+        .setOpenAPIVersion("3.1.0")
+        .setVersion(process.env.VERSION ?? "main")
+        .build();
+
+    // ── Document factories ───────────────────────────────────────────
+    const fullDocFactory = () =>
+        cleanupOpenApiDoc(
+            SwaggerModule.createDocument(app, managementDocConfig),
+        );
+
+    const managementDocFactory = () =>
+        filterOpenApiPaths(fullDocFactory(), (path) =>
+            path.startsWith("/api/"),
+        );
+
+    const protocolDocFactory = () =>
+        filterOpenApiPaths(
+            cleanupOpenApiDoc(
+                SwaggerModule.createDocument(app, protocolDocConfig),
+            ),
+            (path) => !path.startsWith("/api/"),
+        );
 
     if (process.env.DOC_GENERATE) {
         writeFileSync(
-            "swagger.json",
-            JSON.stringify(documentFactory(), null, 2),
+            "swagger-management.json",
+            JSON.stringify(managementDocFactory(), null, 2),
+        );
+        writeFileSync(
+            "swagger-protocol.json",
+            JSON.stringify(protocolDocFactory(), null, 2),
         );
         process.exit();
     } else {
-        const swaggerOptions: any = {
+        const sharedSwaggerOptions = {
             swaggerOptions: {
-                persistAuthorization: true, // Keep authorization between page refreshes
-                displayRequestDuration: true, // Show request duration
-                filter: true, // Enable filtering
+                persistAuthorization: true,
+                displayRequestDuration: true,
+                filter: true,
                 showExtensions: true,
                 showCommonExtensions: true,
                 tryItOutEnabled: true,
-                // Additional convenience features
-                deepLinking: true, // Enable deep linking for sharing authenticated URLs
-                displayOperationId: false, // Cleaner operation display
-                defaultModelsExpandDepth: 1, // Auto-expand request/response models
+                deepLinking: true,
+                displayOperationId: false,
+                defaultModelsExpandDepth: 1,
                 defaultModelExpandDepth: 1,
-                docExpansion: "list", // Show all operations collapsed by default
-                operationsSorter: "alpha", // Sort operations alphabetically
-                tagsSorter: "alpha", // Sort tags alphabetically
+                docExpansion: "list",
+                operationsSorter: "alpha",
+                tagsSorter: "alpha",
             },
-            customSiteTitle: "EUDIPLO API Documentation",
         };
 
-        // Add middleware to set cache-control headers for Swagger
-        app.use("/api", (req, res, next) => {
-            res.setHeader(
-                "Cache-Control",
-                "no-cache, no-store, must-revalidate",
-            );
-            res.setHeader("Pragma", "no-cache");
-            res.setHeader("Expires", "0");
-            next();
+        // Cache-control headers for Swagger UI assets
+        for (const swaggerPath of ["/api/docs", "/docs"]) {
+            app.use(swaggerPath, (_req, res, next) => {
+                res.setHeader(
+                    "Cache-Control",
+                    "no-cache, no-store, must-revalidate",
+                );
+                res.setHeader("Pragma", "no-cache");
+                res.setHeader("Expires", "0");
+                next();
+            });
+        }
+
+        SwaggerModule.setup("/api/docs", app, managementDocFactory, {
+            ...sharedSwaggerOptions,
+            customSiteTitle: "EUDIPLO Management API",
         });
 
-        SwaggerModule.setup("/api", app, documentFactory, swaggerOptions);
+        SwaggerModule.setup("/docs", app, protocolDocFactory, {
+            ...sharedSwaggerOptions,
+            customSiteTitle: "EUDIPLO Protocol API",
+        });
 
         const logger =
             app.getHttpAdapter().getInstance().locals?.logger || console;
@@ -231,7 +343,8 @@ async function bootstrap() {
             logger.log(`🌐 Public URL:     ${publicUrl || "Not configured"}`);
             logger.log("");
             logger.log("📚 API Documentation:");
-            logger.log(`   → Swagger UI:   ${baseUrl}/api`);
+            logger.log(`   → Management:   ${baseUrl}/api/docs`);
+            logger.log(`   → Protocol:     ${baseUrl}/docs`);
             logger.log(
                 `   → Full Docs:    https://openwallet-foundation-labs.github.io/eudiplo/latest/`,
             );

@@ -5,12 +5,11 @@ import {
   formDataBodySerializer,
   type Options as Options2,
   type TDataShape,
-  urlSearchParamsBodySerializer,
 } from "./client";
 import { client } from "./client.gen";
 import type {
-  AppControllerMainData,
-  AppControllerMainResponses,
+  AppControllerGetVersionData,
+  AppControllerGetVersionResponses,
   AttributeProviderControllerCreateData,
   AttributeProviderControllerCreateResponses,
   AttributeProviderControllerDeleteData,
@@ -24,19 +23,6 @@ import type {
   AttributeProviderControllerUpdateData,
   AttributeProviderControllerUpdateErrors,
   AttributeProviderControllerUpdateResponses,
-  AuthControllerGetGlobalJwksData,
-  AuthControllerGetGlobalJwksResponses,
-  AuthControllerGetOAuth2TokenData,
-  AuthControllerGetOAuth2TokenErrors,
-  AuthControllerGetOAuth2TokenResponses,
-  AuthControllerGetOidcDiscoveryData,
-  AuthControllerGetOidcDiscoveryResponses,
-  AuthorizeControllerAuthorizeData,
-  AuthorizeControllerAuthorizeResponses,
-  AuthorizeControllerParData,
-  AuthorizeControllerParResponses,
-  AuthorizeControllerTokenData,
-  AuthorizeControllerTokenResponses,
   CacheControllerClearAllCachesData,
   CacheControllerClearAllCachesResponses,
   CacheControllerClearStatusListCacheData,
@@ -45,22 +31,6 @@ import type {
   CacheControllerClearTrustListCacheResponses,
   CacheControllerGetStatsData,
   CacheControllerGetStatsResponses,
-  ChainedAsControllerAuthorizeData,
-  ChainedAsControllerAuthorizeErrors,
-  ChainedAsControllerAuthorizeResponses,
-  ChainedAsControllerCallbackData,
-  ChainedAsControllerCallbackErrors,
-  ChainedAsControllerCallbackResponses,
-  ChainedAsControllerGetMetadataData,
-  ChainedAsControllerGetMetadataResponses,
-  ChainedAsControllerJwksData,
-  ChainedAsControllerJwksResponses,
-  ChainedAsControllerParData,
-  ChainedAsControllerParErrors,
-  ChainedAsControllerParResponses,
-  ChainedAsControllerTokenData,
-  ChainedAsControllerTokenErrors,
-  ChainedAsControllerTokenResponses,
   ClientControllerCreateClientData,
   ClientControllerCreateClientResponses,
   ClientControllerDeleteClientData,
@@ -93,15 +63,6 @@ import type {
   DeferredControllerFailDeferredData,
   DeferredControllerFailDeferredErrors,
   DeferredControllerFailDeferredResponses,
-  HealthControllerCheckData,
-  HealthControllerCheckErrors,
-  HealthControllerCheckResponses,
-  InteractiveAuthorizationControllerCompleteWebAuthData,
-  InteractiveAuthorizationControllerCompleteWebAuthErrors,
-  InteractiveAuthorizationControllerCompleteWebAuthResponses,
-  InteractiveAuthorizationControllerInteractiveAuthorizationData,
-  InteractiveAuthorizationControllerInteractiveAuthorizationErrors,
-  InteractiveAuthorizationControllerInteractiveAuthorizationResponses,
   IssuanceConfigControllerGetIssuanceConfigurationsData,
   IssuanceConfigControllerGetIssuanceConfigurationsResponses,
   IssuanceConfigControllerStoreIssuanceConfigurationData,
@@ -129,24 +90,6 @@ import type {
   KeyChainControllerUpdateData,
   KeyChainControllerUpdateErrors,
   KeyChainControllerUpdateResponses,
-  Oid4VciControllerCredentialData,
-  Oid4VciControllerCredentialResponses,
-  Oid4VciControllerDeferredCredentialData,
-  Oid4VciControllerDeferredCredentialResponses,
-  Oid4VciControllerNonceData,
-  Oid4VciControllerNonceResponses,
-  Oid4VciControllerNotificationsData,
-  Oid4VciControllerNotificationsResponses,
-  Oid4VciMetadataControllerVctData,
-  Oid4VciMetadataControllerVctResponses,
-  Oid4VpControllerGetPostRequestWithSessionData,
-  Oid4VpControllerGetPostRequestWithSessionResponses,
-  Oid4VpControllerGetRequestNoRedirectWithSessionData,
-  Oid4VpControllerGetRequestNoRedirectWithSessionResponses,
-  Oid4VpControllerGetRequestWithSessionData,
-  Oid4VpControllerGetRequestWithSessionResponses,
-  Oid4VpControllerGetResponseData,
-  Oid4VpControllerGetResponseResponses,
   PresentationManagementControllerConfigurationData,
   PresentationManagementControllerConfigurationResponses,
   PresentationManagementControllerDeleteConfigurationData,
@@ -193,10 +136,6 @@ import type {
   StatusListConfigControllerResetConfigResponses,
   StatusListConfigControllerUpdateConfigData,
   StatusListConfigControllerUpdateConfigResponses,
-  StatusListControllerGetListData,
-  StatusListControllerGetListResponses,
-  StatusListControllerGetStatusListAggregationData,
-  StatusListControllerGetStatusListAggregationResponses,
   StatusListManagementControllerCreateListData,
   StatusListManagementControllerCreateListResponses,
   StatusListManagementControllerDeleteListData,
@@ -237,8 +176,6 @@ import type {
   TrustListControllerGetTrustListVersionsResponses,
   TrustListControllerUpdateTrustListData,
   TrustListControllerUpdateTrustListResponses,
-  TrustListPublicControllerGetTrustListJwtData,
-  TrustListPublicControllerGetTrustListJwtResponses,
   VerifierOfferControllerGetOfferData,
   VerifierOfferControllerGetOfferResponses,
   WebhookEndpointControllerCreateData,
@@ -254,20 +191,6 @@ import type {
   WebhookEndpointControllerUpdateData,
   WebhookEndpointControllerUpdateErrors,
   WebhookEndpointControllerUpdateResponses,
-  WellKnownControllerAuthzMetadata0Data,
-  WellKnownControllerAuthzMetadata0Responses,
-  WellKnownControllerAuthzMetadata1Data,
-  WellKnownControllerAuthzMetadata1Responses,
-  WellKnownControllerChainedAsMetadataData,
-  WellKnownControllerChainedAsMetadataResponses,
-  WellKnownControllerGetJwks0Data,
-  WellKnownControllerGetJwks0Responses,
-  WellKnownControllerGetJwks1Data,
-  WellKnownControllerGetJwks1Responses,
-  WellKnownControllerIssuerMetadata0Data,
-  WellKnownControllerIssuerMetadata0Responses,
-  WellKnownControllerIssuerMetadata1Data,
-  WellKnownControllerIssuerMetadata1Responses,
 } from "./types.gen";
 
 export type Options<
@@ -288,82 +211,20 @@ export type Options<
 };
 
 /**
- * Main endpoint providing service info
+ * Get service version
  */
-export const appControllerMain = <ThrowOnError extends boolean = true>(
-  options?: Options<AppControllerMainData, ThrowOnError>,
+export const appControllerGetVersion = <ThrowOnError extends boolean = true>(
+  options?: Options<AppControllerGetVersionData, ThrowOnError>,
 ) =>
   (options?.client ?? client).get<
-    AppControllerMainResponses,
+    AppControllerGetVersionResponses,
     unknown,
-    ThrowOnError
-  >({ url: "/", ...options });
-
-/**
- * Endpoint to check the health of the service.
- */
-export const healthControllerCheck = <ThrowOnError extends boolean = true>(
-  options?: Options<HealthControllerCheckData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    HealthControllerCheckResponses,
-    HealthControllerCheckErrors,
-    ThrowOnError
-  >({ url: "/health", ...options });
-
-/**
- * OAuth2 Token endpoint - supports client credentials flow only
- * Accepts client credentials either in Authorization header (Basic auth) or request body
- */
-export const authControllerGetOAuth2Token = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<AuthControllerGetOAuth2TokenData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    AuthControllerGetOAuth2TokenResponses,
-    AuthControllerGetOAuth2TokenErrors,
     ThrowOnError
   >({
-    url: "/oauth2/token",
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/version",
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
   });
-
-/**
- * OIDC Discovery Configuration
- *
- * Returns the OpenID Connect discovery configuration for client credentials authentication.
- */
-export const authControllerGetOidcDiscovery = <
-  ThrowOnError extends boolean = true,
->(
-  options?: Options<AuthControllerGetOidcDiscoveryData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    AuthControllerGetOidcDiscoveryResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/.well-known/oauth-authorization-server", ...options });
-
-/**
- * JSON Web Key Set
- *
- * Returns the JSON Web Key Set for token verification.
- */
-export const authControllerGetGlobalJwks = <
-  ThrowOnError extends boolean = true,
->(
-  options?: Options<AuthControllerGetGlobalJwksData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    AuthControllerGetGlobalJwksResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/.well-known/jwks.json", ...options });
 
 /**
  * Get all tenants
@@ -377,7 +238,7 @@ export const tenantControllerGetTenants = <ThrowOnError extends boolean = true>(
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/tenant",
+    url: "/api/tenant",
     ...options,
   });
 
@@ -393,7 +254,7 @@ export const tenantControllerInitTenant = <ThrowOnError extends boolean = true>(
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/tenant",
+    url: "/api/tenant",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -415,7 +276,7 @@ export const tenantControllerDeleteTenant = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/tenant/{id}",
+    url: "/api/tenant/{id}",
     ...options,
   });
 
@@ -431,7 +292,7 @@ export const tenantControllerGetTenant = <ThrowOnError extends boolean = true>(
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/tenant/{id}",
+    url: "/api/tenant/{id}",
     ...options,
   });
 
@@ -449,7 +310,7 @@ export const tenantControllerUpdateTenant = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/tenant/{id}",
+    url: "/api/tenant/{id}",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -469,7 +330,7 @@ export const clientControllerGetClients = <ThrowOnError extends boolean = true>(
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/client",
+    url: "/api/client",
     ...options,
   });
 
@@ -487,7 +348,7 @@ export const clientControllerCreateClient = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/client",
+    url: "/api/client",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -509,7 +370,7 @@ export const clientControllerDeleteClient = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/client/{id}",
+    url: "/api/client/{id}",
     ...options,
   });
 
@@ -525,7 +386,7 @@ export const clientControllerGetClient = <ThrowOnError extends boolean = true>(
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/client/{id}",
+    url: "/api/client/{id}",
     ...options,
   });
 
@@ -543,7 +404,7 @@ export const clientControllerUpdateClient = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/client/{id}",
+    url: "/api/client/{id}",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -562,7 +423,7 @@ export const clientControllerGetClientSecret = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/client/{id}/secret",
+    url: "/api/client/{id}/secret",
     ...options,
   });
 
@@ -584,43 +445,7 @@ export const clientControllerRotateClientSecret = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/client/{id}/rotate-secret",
-    ...options,
-  });
-
-/**
- * Get the JWT for a specific status list.
- */
-export const statusListControllerGetList = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<StatusListControllerGetListData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    StatusListControllerGetListResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/{tenantId}/status-management/status-list/{listId}", ...options });
-
-/**
- * Get all status list URIs
- *
- * Returns a list of all status list token URIs for the tenant. This allows relying parties to pre-fetch all status lists for offline validation. See RFC draft-ietf-oauth-status-list Section 9.
- */
-export const statusListControllerGetStatusListAggregation = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<
-    StatusListControllerGetStatusListAggregationData,
-    ThrowOnError
-  >,
-) =>
-  (options.client ?? client).get<
-    StatusListControllerGetStatusListAggregationResponses,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/{tenantId}/status-management/status-list-aggregation",
+    url: "/api/client/{id}/rotate-secret",
     ...options,
   });
 
@@ -640,7 +465,7 @@ export const statusListConfigControllerResetConfig = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/status-list-config",
+    url: "/api/status-list-config",
     ...options,
   });
 
@@ -660,7 +485,7 @@ export const statusListConfigControllerGetConfig = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/status-list-config",
+    url: "/api/status-list-config",
     ...options,
   });
 
@@ -680,7 +505,7 @@ export const statusListConfigControllerUpdateConfig = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/status-list-config",
+    url: "/api/status-list-config",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -704,7 +529,7 @@ export const statusListManagementControllerGetLists = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/status-lists",
+    url: "/api/status-lists",
     ...options,
   });
 
@@ -724,7 +549,7 @@ export const statusListManagementControllerCreateList = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/status-lists",
+    url: "/api/status-lists",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -748,7 +573,7 @@ export const statusListManagementControllerDeleteList = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/status-lists/{listId}",
+    url: "/api/status-lists/{listId}",
     ...options,
   });
 
@@ -768,7 +593,7 @@ export const statusListManagementControllerGetList = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/status-lists/{listId}",
+    url: "/api/status-lists/{listId}",
     ...options,
   });
 
@@ -788,7 +613,7 @@ export const statusListManagementControllerUpdateList = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/status-lists/{listId}",
+    url: "/api/status-lists/{listId}",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -810,7 +635,7 @@ export const sessionControllerGetAllSessions = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/session",
+    url: "/api/session",
     ...options,
   });
 
@@ -828,7 +653,7 @@ export const sessionControllerDeleteSession = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/session/{id}",
+    url: "/api/session/{id}",
     ...options,
   });
 
@@ -846,7 +671,7 @@ export const sessionControllerGetSession = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/session/{id}",
+    url: "/api/session/{id}",
     ...options,
   });
 
@@ -862,7 +687,7 @@ export const sessionControllerRevokeAll = <ThrowOnError extends boolean = true>(
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/session/revoke",
+    url: "/api/session/revoke",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -886,7 +711,7 @@ export const sessionConfigControllerResetConfig = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/session-config",
+    url: "/api/session-config",
     ...options,
   });
 
@@ -906,7 +731,7 @@ export const sessionConfigControllerGetConfig = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/session-config",
+    url: "/api/session-config",
     ...options,
   });
 
@@ -926,7 +751,7 @@ export const sessionConfigControllerUpdateConfig = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/session-config",
+    url: "/api/session-config",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -951,7 +776,7 @@ export const sessionEventsControllerSubscribeToSessionEvents = <
     SessionEventsControllerSubscribeToSessionEventsResponses,
     unknown,
     ThrowOnError
-  >({ url: "/session/{id}/events", ...options });
+  >({ url: "/api/session/{id}/events", ...options });
 
 /**
  * Returns the issuance configurations for this tenant. Creates a default one if it does not exist.
@@ -970,7 +795,7 @@ export const issuanceConfigControllerGetIssuanceConfigurations = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer/config",
+    url: "/api/issuer/config",
     ...options,
   });
 
@@ -991,7 +816,7 @@ export const issuanceConfigControllerStoreIssuanceConfiguration = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer/config",
+    url: "/api/issuer/config",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1013,7 +838,7 @@ export const credentialConfigControllerGetConfigs = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer/credentials",
+    url: "/api/issuer/credentials",
     ...options,
   });
 
@@ -1034,7 +859,7 @@ export const credentialConfigControllerStoreCredentialConfiguration = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer/credentials",
+    url: "/api/issuer/credentials",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1059,7 +884,7 @@ export const credentialConfigControllerDeleteIssuanceConfiguration = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer/credentials/{id}",
+    url: "/api/issuer/credentials/{id}",
     ...options,
   });
 
@@ -1077,7 +902,7 @@ export const credentialConfigControllerGetConfigById = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer/credentials/{id}",
+    url: "/api/issuer/credentials/{id}",
     ...options,
   });
 
@@ -1098,7 +923,7 @@ export const credentialConfigControllerUpdateCredentialConfiguration = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer/credentials/{id}",
+    url: "/api/issuer/credentials/{id}",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1120,7 +945,7 @@ export const attributeProviderControllerGetAll = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer/attribute-providers",
+    url: "/api/issuer/attribute-providers",
     ...options,
   });
 
@@ -1138,7 +963,7 @@ export const attributeProviderControllerCreate = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer/attribute-providers",
+    url: "/api/issuer/attribute-providers",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1160,7 +985,7 @@ export const attributeProviderControllerDelete = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer/attribute-providers/{id}",
+    url: "/api/issuer/attribute-providers/{id}",
     ...options,
   });
 
@@ -1178,7 +1003,7 @@ export const attributeProviderControllerGetById = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer/attribute-providers/{id}",
+    url: "/api/issuer/attribute-providers/{id}",
     ...options,
   });
 
@@ -1196,7 +1021,7 @@ export const attributeProviderControllerUpdate = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer/attribute-providers/{id}",
+    url: "/api/issuer/attribute-providers/{id}",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1218,7 +1043,7 @@ export const webhookEndpointControllerGetAll = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer/webhook-endpoints",
+    url: "/api/issuer/webhook-endpoints",
     ...options,
   });
 
@@ -1236,7 +1061,7 @@ export const webhookEndpointControllerCreate = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer/webhook-endpoints",
+    url: "/api/issuer/webhook-endpoints",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1258,7 +1083,7 @@ export const webhookEndpointControllerDelete = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer/webhook-endpoints/{id}",
+    url: "/api/issuer/webhook-endpoints/{id}",
     ...options,
   });
 
@@ -1276,7 +1101,7 @@ export const webhookEndpointControllerGetById = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer/webhook-endpoints/{id}",
+    url: "/api/issuer/webhook-endpoints/{id}",
     ...options,
   });
 
@@ -1294,7 +1119,7 @@ export const webhookEndpointControllerUpdate = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer/webhook-endpoints/{id}",
+    url: "/api/issuer/webhook-endpoints/{id}",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1319,7 +1144,7 @@ export const presentationManagementControllerConfiguration = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/verifier/config",
+    url: "/api/verifier/config",
     ...options,
   });
 
@@ -1340,7 +1165,7 @@ export const presentationManagementControllerStorePresentationConfig = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/verifier/config",
+    url: "/api/verifier/config",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1365,7 +1190,7 @@ export const presentationManagementControllerDeleteConfiguration = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/verifier/config/{id}",
+    url: "/api/verifier/config/{id}",
     ...options,
   });
 
@@ -1386,7 +1211,7 @@ export const presentationManagementControllerGetConfiguration = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/verifier/config/{id}",
+    url: "/api/verifier/config/{id}",
     ...options,
   });
 
@@ -1407,7 +1232,7 @@ export const presentationManagementControllerUpdateConfiguration = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/verifier/config/{id}",
+    url: "/api/verifier/config/{id}",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1429,7 +1254,7 @@ export const cacheControllerGetStats = <ThrowOnError extends boolean = true>(
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/cache/stats",
+    url: "/api/cache/stats",
     ...options,
   });
 
@@ -1449,7 +1274,7 @@ export const cacheControllerClearAllCaches = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/cache",
+    url: "/api/cache",
     ...options,
   });
 
@@ -1469,7 +1294,7 @@ export const cacheControllerClearTrustListCache = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/cache/trust-list",
+    url: "/api/cache/trust-list",
     ...options,
   });
 
@@ -1489,289 +1314,7 @@ export const cacheControllerClearStatusListCache = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/cache/status-list",
-    ...options,
-  });
-
-/**
- * Endpoint to issue credentials
- */
-export const oid4VciControllerCredential = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<Oid4VciControllerCredentialData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    Oid4VciControllerCredentialResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/{tenantId}/vci/credential", ...options });
-
-/**
- * Deferred Credential Endpoint
- *
- * According to OID4VCI Section 9, this endpoint is used by the wallet to poll
- * for credentials that were not immediately available.
- */
-export const oid4VciControllerDeferredCredential = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<Oid4VciControllerDeferredCredentialData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    Oid4VciControllerDeferredCredentialResponses,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/{tenantId}/vci/deferred_credential",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Notification endpoint
- */
-export const oid4VciControllerNotifications = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<Oid4VciControllerNotificationsData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    Oid4VciControllerNotificationsResponses,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/{tenantId}/vci/notification",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-export const oid4VciControllerNonce = <ThrowOnError extends boolean = true>(
-  options: Options<Oid4VciControllerNonceData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    Oid4VciControllerNonceResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/{tenantId}/vci/nonce", ...options });
-
-/**
- * Endpoint to handle the Authorization Request.
- */
-export const authorizeControllerAuthorize = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<AuthorizeControllerAuthorizeData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    AuthorizeControllerAuthorizeResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/{tenantId}/authorize", ...options });
-
-/**
- * Endpoint to handle the Pushed Authorization Request (PAR).
- */
-export const authorizeControllerPar = <ThrowOnError extends boolean = true>(
-  options: Options<AuthorizeControllerParData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    AuthorizeControllerParResponses,
-    unknown,
-    ThrowOnError
-  >({
-    ...urlSearchParamsBodySerializer,
-    url: "/{tenantId}/authorize/par",
-    ...options,
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      ...options.headers,
-    },
-  });
-
-/**
- * Endpoint to validate the token request.
- * This endpoint is used to exchange the authorization code for an access token.
- */
-export const authorizeControllerToken = <ThrowOnError extends boolean = true>(
-  options: Options<AuthorizeControllerTokenData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    AuthorizeControllerTokenResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/{tenantId}/authorize/token", ...options });
-
-/**
- * Interactive Authorization Endpoint
- *
- *
- * Handles interactive authorization requests during credential issuance.
- *
- * **Initial Request:**
- * - Contains `interaction_types_supported` (e.g., "openid4vp_presentation,redirect_to_web")
- * - Response will indicate required interaction (OpenID4VP presentation or web redirect)
- *
- * **Follow-up Request:**
- * - Contains `auth_session` from previous response
- * - Contains `openid4vp_response` (for presentation flow) or `code_verifier` (for web flow)
- * - Response will contain authorization code on success
- *
- */
-export const interactiveAuthorizationControllerInteractiveAuthorization = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<
-    InteractiveAuthorizationControllerInteractiveAuthorizationData,
-    ThrowOnError
-  >,
-) =>
-  (options.client ?? client).post<
-    InteractiveAuthorizationControllerInteractiveAuthorizationResponses,
-    InteractiveAuthorizationControllerInteractiveAuthorizationErrors,
-    ThrowOnError
-  >({
-    url: "/{tenantId}/authorize/interactive",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Complete web authorization
- *
- * Mark a web authorization session as completed after user interaction
- */
-export const interactiveAuthorizationControllerCompleteWebAuth = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<
-    InteractiveAuthorizationControllerCompleteWebAuthData,
-    ThrowOnError
-  >,
-) =>
-  (options.client ?? client).post<
-    InteractiveAuthorizationControllerCompleteWebAuthResponses,
-    InteractiveAuthorizationControllerCompleteWebAuthErrors,
-    ThrowOnError
-  >({
-    url: "/{tenantId}/authorize/interactive/complete-web-auth/{authSession}",
-    ...options,
-  });
-
-/**
- * Pushed Authorization Request
- *
- * Submit authorization request parameters. Returns a request_uri for use at the authorization endpoint.
- */
-export const chainedAsControllerPar = <ThrowOnError extends boolean = true>(
-  options: Options<ChainedAsControllerParData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    ChainedAsControllerParResponses,
-    ChainedAsControllerParErrors,
-    ThrowOnError
-  >({
-    ...urlSearchParamsBodySerializer,
-    url: "/{tenant}/chained-as/par",
-    ...options,
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      ...options.headers,
-    },
-  });
-
-/**
- * Authorization endpoint
- *
- * Validates the request_uri from PAR and redirects to the upstream OIDC provider for authentication.
- */
-export const chainedAsControllerAuthorize = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<ChainedAsControllerAuthorizeData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    ChainedAsControllerAuthorizeResponses,
-    ChainedAsControllerAuthorizeErrors,
-    ThrowOnError
-  >({ url: "/{tenant}/chained-as/authorize", ...options });
-
-/**
- * Upstream OIDC callback
- *
- * Receives the authorization response from the upstream OIDC provider, exchanges the code, and redirects back to the wallet.
- */
-export const chainedAsControllerCallback = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<ChainedAsControllerCallbackData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    ChainedAsControllerCallbackResponses,
-    ChainedAsControllerCallbackErrors,
-    ThrowOnError
-  >({ url: "/{tenant}/chained-as/callback", ...options });
-
-/**
- * Token endpoint
- *
- * Exchanges the authorization code for an access token containing issuer_state.
- */
-export const chainedAsControllerToken = <ThrowOnError extends boolean = true>(
-  options: Options<ChainedAsControllerTokenData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    ChainedAsControllerTokenResponses,
-    ChainedAsControllerTokenErrors,
-    ThrowOnError
-  >({
-    url: "/{tenant}/chained-as/token",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * JSON Web Key Set
- *
- * Returns the public keys for verifying tokens issued by this Chained AS.
- */
-export const chainedAsControllerJwks = <ThrowOnError extends boolean = true>(
-  options: Options<ChainedAsControllerJwksData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    ChainedAsControllerJwksResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/{tenant}/chained-as/.well-known/jwks.json", ...options });
-
-/**
- * OAuth AS Metadata
- *
- * Returns the OAuth Authorization Server metadata for the Chained AS.
- */
-export const chainedAsControllerGetMetadata = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<ChainedAsControllerGetMetadataData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    ChainedAsControllerGetMetadataResponses,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/{tenant}/chained-as/.well-known/oauth-authorization-server",
+    url: "/api/cache/status-list",
     ...options,
   });
 
@@ -1789,7 +1332,7 @@ export const credentialOfferControllerGetOffer = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer/offer",
+    url: "/api/issuer/offer",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1813,7 +1356,7 @@ export const deferredControllerCompleteDeferred = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer/deferred/{transactionId}/complete",
+    url: "/api/issuer/deferred/{transactionId}/complete",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1837,194 +1380,7 @@ export const deferredControllerFailDeferred = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/issuer/deferred/{transactionId}/fail",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Retrieves the VCT (Verifiable Credential Type) from the credentials service.
- */
-export const oid4VciMetadataControllerVct = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<Oid4VciMetadataControllerVctData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    Oid4VciMetadataControllerVctResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/{tenantId}/credentials-metadata/vct/{id}", ...options });
-
-/**
- * Get OpenID4VCI issuer metadata
- *
- * Returns the OpenID4VCI issuer metadata.
- */
-export const wellKnownControllerIssuerMetadata0 = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<WellKnownControllerIssuerMetadata0Data, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    WellKnownControllerIssuerMetadata0Responses,
-    unknown,
-    ThrowOnError
-  >({ url: "/.well-known/openid-credential-issuer/{tenantId}", ...options });
-
-/**
- * Get OpenID4VCI issuer metadata
- *
- * Returns the OpenID4VCI issuer metadata.
- */
-export const wellKnownControllerIssuerMetadata1 = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<WellKnownControllerIssuerMetadata1Data, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    WellKnownControllerIssuerMetadata1Responses,
-    unknown,
-    ThrowOnError
-  >({ url: "/{tenantId}/.well-known/openid-credential-issuer", ...options });
-
-/**
- * Authorization Server Metadata
- */
-export const wellKnownControllerAuthzMetadata0 = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<WellKnownControllerAuthzMetadata0Data, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    WellKnownControllerAuthzMetadata0Responses,
-    unknown,
-    ThrowOnError
-  >({ url: "/.well-known/oauth-authorization-server/{tenantId}", ...options });
-
-/**
- * Authorization Server Metadata
- */
-export const wellKnownControllerAuthzMetadata1 = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<WellKnownControllerAuthzMetadata1Data, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    WellKnownControllerAuthzMetadata1Responses,
-    unknown,
-    ThrowOnError
-  >({ url: "/{tenantId}/.well-known/oauth-authorization-server", ...options });
-
-/**
- * Chained Authorization Server Metadata (RFC 8414 alternative path format).
- * Supports discovery via `/.well-known/oauth-authorization-server/:tenantId/chained-as`
- * for wallets that construct the discovery URL per RFC 8414.
- */
-export const wellKnownControllerChainedAsMetadata = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<WellKnownControllerChainedAsMetadataData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    WellKnownControllerChainedAsMetadataResponses,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/.well-known/oauth-authorization-server/{tenantId}/chained-as",
-    ...options,
-  });
-
-/**
- * Returns the JSON Web Key Set (JWKS) for the authorization server.
- */
-export const wellKnownControllerGetJwks0 = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<WellKnownControllerGetJwks0Data, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    WellKnownControllerGetJwks0Responses,
-    unknown,
-    ThrowOnError
-  >({ url: "/.well-known/jwks.json/{tenantId}", ...options });
-
-/**
- * Returns the JSON Web Key Set (JWKS) for the authorization server.
- */
-export const wellKnownControllerGetJwks1 = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<WellKnownControllerGetJwks1Data, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    WellKnownControllerGetJwks1Responses,
-    unknown,
-    ThrowOnError
-  >({ url: "/{tenantId}/.well-known/jwks.json", ...options });
-
-/**
- * Returns the authorization request for a given requestId and session.
- */
-export const oid4VpControllerGetRequestWithSession = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<Oid4VpControllerGetRequestWithSessionData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    Oid4VpControllerGetRequestWithSessionResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/{session}/oid4vp/request", ...options });
-
-/**
- * Returns the authorization request for a given requestId and session.
- */
-export const oid4VpControllerGetPostRequestWithSession = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<Oid4VpControllerGetPostRequestWithSessionData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    Oid4VpControllerGetPostRequestWithSessionResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/{session}/oid4vp/request", ...options });
-
-/**
- * Returns the authorization request for a given requestId and session, but does not redirect in the end.
- */
-export const oid4VpControllerGetRequestNoRedirectWithSession = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<
-    Oid4VpControllerGetRequestNoRedirectWithSessionData,
-    ThrowOnError
-  >,
-) =>
-  (options.client ?? client).get<
-    Oid4VpControllerGetRequestNoRedirectWithSessionResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/{session}/oid4vp/request/no-redirect", ...options });
-
-/**
- * Endpoint to receive the response from the wallet.
- */
-export const oid4VpControllerGetResponse = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<Oid4VpControllerGetResponseData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    Oid4VpControllerGetResponseResponses,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/{session}/oid4vp",
+    url: "/api/issuer/deferred/{transactionId}/fail",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -2046,7 +1402,7 @@ export const registrarControllerDeleteConfig = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/registrar/config",
+    url: "/api/registrar/config",
     ...options,
   });
 
@@ -2064,7 +1420,7 @@ export const registrarControllerGetConfig = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/registrar/config",
+    url: "/api/registrar/config",
     ...options,
   });
 
@@ -2082,7 +1438,7 @@ export const registrarControllerUpdateConfig = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/registrar/config",
+    url: "/api/registrar/config",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -2104,7 +1460,7 @@ export const registrarControllerCreateConfig = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/registrar/config",
+    url: "/api/registrar/config",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -2131,7 +1487,7 @@ export const registrarControllerCreateAccessCertificate = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/registrar/access-certificate",
+    url: "/api/registrar/access-certificate",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -2153,7 +1509,7 @@ export const trustListControllerGetAllTrustLists = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/trust-list",
+    url: "/api/trust-list",
     ...options,
   });
 
@@ -2171,7 +1527,7 @@ export const trustListControllerCreateTrustList = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/trust-list",
+    url: "/api/trust-list",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -2193,7 +1549,7 @@ export const trustListControllerDeleteTrustList = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/trust-list/{id}",
+    url: "/api/trust-list/{id}",
     ...options,
   });
 
@@ -2211,7 +1567,7 @@ export const trustListControllerGetTrustList = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/trust-list/{id}",
+    url: "/api/trust-list/{id}",
     ...options,
   });
 
@@ -2230,7 +1586,7 @@ export const trustListControllerUpdateTrustList = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/trust-list/{id}",
+    url: "/api/trust-list/{id}",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -2252,7 +1608,7 @@ export const trustListControllerExportTrustList = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/trust-list/{id}/export",
+    url: "/api/trust-list/{id}/export",
     ...options,
   });
 
@@ -2270,7 +1626,7 @@ export const trustListControllerGetTrustListVersions = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/trust-list/{id}/versions",
+    url: "/api/trust-list/{id}/versions",
     ...options,
   });
 
@@ -2288,23 +1644,9 @@ export const trustListControllerGetTrustListVersion = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/trust-list/{id}/versions/{versionId}",
+    url: "/api/trust-list/{id}/versions/{versionId}",
     ...options,
   });
-
-/**
- * Returns the JWT of the trust list
- */
-export const trustListPublicControllerGetTrustListJwt = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<TrustListPublicControllerGetTrustListJwtData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    TrustListPublicControllerGetTrustListJwtResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/{tenantId}/trust-list/{id}", ...options });
 
 /**
  * Get available KMS providers
@@ -2320,7 +1662,7 @@ export const keyChainControllerGetProviders = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/key-chain/providers",
+    url: "/api/key-chain/providers",
     ...options,
   });
 
@@ -2336,7 +1678,7 @@ export const keyChainControllerGetAll = <ThrowOnError extends boolean = true>(
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/key-chain",
+    url: "/api/key-chain",
     ...options,
   });
 
@@ -2352,7 +1694,7 @@ export const keyChainControllerCreate = <ThrowOnError extends boolean = true>(
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/key-chain",
+    url: "/api/key-chain",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -2372,7 +1714,7 @@ export const keyChainControllerDelete = <ThrowOnError extends boolean = true>(
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/key-chain/{id}",
+    url: "/api/key-chain/{id}",
     ...options,
   });
 
@@ -2388,7 +1730,7 @@ export const keyChainControllerGetById = <ThrowOnError extends boolean = true>(
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/key-chain/{id}",
+    url: "/api/key-chain/{id}",
     ...options,
   });
 
@@ -2404,7 +1746,7 @@ export const keyChainControllerUpdate = <ThrowOnError extends boolean = true>(
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/key-chain/{id}",
+    url: "/api/key-chain/{id}",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -2426,7 +1768,7 @@ export const keyChainControllerExport = <ThrowOnError extends boolean = true>(
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/key-chain/{id}/export",
+    url: "/api/key-chain/{id}/export",
     ...options,
   });
 
@@ -2442,7 +1784,7 @@ export const keyChainControllerImport = <ThrowOnError extends boolean = true>(
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/key-chain/import",
+    url: "/api/key-chain/import",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -2462,7 +1804,7 @@ export const keyChainControllerRotate = <ThrowOnError extends boolean = true>(
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/key-chain/{id}/rotate",
+    url: "/api/key-chain/{id}/rotate",
     ...options,
   });
 
@@ -2480,7 +1822,7 @@ export const verifierOfferControllerGetOffer = <
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/verifier/offer",
+    url: "/api/verifier/offer",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -2501,7 +1843,7 @@ export const storageControllerUpload = <ThrowOnError extends boolean = true>(
   >({
     ...formDataBodySerializer,
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/storage",
+    url: "/api/storage",
     ...options,
     headers: {
       "Content-Type": null,
@@ -2516,4 +1858,4 @@ export const storageControllerDownload = <ThrowOnError extends boolean = true>(
     StorageControllerDownloadResponses,
     unknown,
     ThrowOnError
-  >({ url: "/storage/{key}", ...options });
+  >({ url: "/api/storage/{key}", ...options });

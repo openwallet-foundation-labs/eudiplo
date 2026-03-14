@@ -1,14 +1,10 @@
 import { client } from './api/client.gen';
 import {
-  authControllerGetOAuth2Token,
   credentialOfferControllerGetOffer,
-  healthControllerCheck,
   sessionControllerGetSession,
   verifierOfferControllerGetOffer,
 } from './api/sdk.gen';
 import type {
-  HealthControllerCheckError,
-  HealthControllerCheckResponse,
   OfferRequestDto,
   PresentationRequest,
   Session,
@@ -251,21 +247,24 @@ export class EudiploClient {
     }
   }
 
-  private async _doAuthenticate(): Promise<void> {    
-    const res = await authControllerGetOAuth2Token({
-      body: {
+  private async _doAuthenticate(): Promise<void> {
+    const fetchFn = this.config.fetch ?? globalThis.fetch;
+    const res = await fetchFn(`${this.config.baseUrl}/oauth2/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         grant_type: 'client_credentials',
         client_id: this.config.clientId,
         client_secret: this.config.clientSecret,
-      },
+      }),
     });
 
-    if (!res.response.ok) {
-      const error = await res.response.text();
-      throw new Error(`Authentication failed: ${res.response.status} ${error}`);
+    if (!res.ok) {
+      const error = await res.text();
+      throw new Error(`Authentication failed: ${res.status} ${error}`);
     }
 
-    const data = res.data;
+    const data = await res.json();
     this.accessToken = data.access_token;
     this.tokenExpiresAt = Date.now() + data.expires_in * 1000;    
 
@@ -403,14 +402,15 @@ export class EudiploClient {
    * The health of the components is listed in the response under `info`/`error`/`details`.
    * If the EUDIPLO connector itself is unreachable, no components are listed.
    */
-  async getHealth(): Promise<HealthControllerCheckResponse | HealthControllerCheckError> {
-    const response = await healthControllerCheck({ throwOnError: false });
+  async getHealth(): Promise<Record<string, unknown>> {
+    const fetchFn = this.config.fetch ?? globalThis.fetch;
+    const res = await fetchFn(`${this.config.baseUrl}/health`);
 
-    if (!response.data) {
-      return { status: "error" };
+    if (!res.ok) {
+      return { status: 'error' };
     }
 
-    return response.data;
+    return res.json();
   }
 
   /**

@@ -16,7 +16,7 @@ import { Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { EnvironmentService } from '../services/environment.service';
 import { JwtService } from '../services/jwt.service';
-import { appControllerMain } from '@eudiplo/sdk-core';
+import { appControllerGetVersion } from '@eudiplo/sdk-core';
 import { ApiService } from '../core';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { DashboardService } from './dashboard.service';
@@ -145,7 +145,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
    */
   private async fetchBackendVersion(): Promise<void> {
     try {
-      const response = await appControllerMain();
+      const response = await appControllerGetVersion();
       if (response.data && typeof response.data === 'object' && 'version' in response.data) {
         this.backendVersion = (response.data as any).version;
       }

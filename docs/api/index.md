@@ -10,16 +10,30 @@ The documentation also includes a [rendered OpenAPI specification](./openapi.md)
 
 When running EUDIPLO, the following endpoints are available:
 
-- **Swagger UI**: [http://localhost:3000/api](http://localhost:3000/api)
-- **OpenAPI Spec (JSON)**:
-  [http://localhost:3000/api-json](http://localhost:3000/api-json)
+- **Management API Swagger UI**: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
+- **Protocol API Swagger UI**: [http://localhost:3000/docs](http://localhost:3000/docs)
+- **Management API Spec (JSON)**: [http://localhost:3000/api/docs-json](http://localhost:3000/api/docs-json)
+- **Protocol API Spec (JSON)**: [http://localhost:3000/docs-json](http://localhost:3000/docs-json)
 
 !!! Info
 
-    By default it will only include the endpoints that are relevant to interact with
-    it from the server side (it is excluding the routes that are relevant for e.g.
-    OID4VCI and OID4VP). To generate the full OpenAPI specification, you can set the
-    environment variable `SWAGGER_ALL` to `true` when starting the service like `SWAGGER_ALL=true pnpm run start:dev`.
+    The API is split into two OpenAPI documents:
+
+    - **Management API** (`/api/docs`): Endpoints for managing credentials, sessions, keys, and configurations (requires authentication).
+    - **Protocol API** (`/docs`): Wallet-facing protocol endpoints for OID4VCI, OID4VP, and related standards (public).
+
+    Because all management endpoints share the `/api/` prefix, a reverse proxy
+    (e.g. nginx) can enforce additional network-level protections such as IP
+    allowlisting on management routes while keeping protocol endpoints publicly
+    accessible:
+
+    ```nginx
+    location /api/ {
+        allow 10.0.0.0/8;
+        deny all;
+        proxy_pass http://backend:3000;
+    }
+    ```
 
 You can use this OpenAPI specification to generate client libraries with e.g the
 [OpenAPI Generator](https://openapi-generator.tech/).
