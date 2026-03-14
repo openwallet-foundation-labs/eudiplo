@@ -137,7 +137,7 @@
                 <h3>Prefix</h3>
             </p>
             <p class="comment">
-                <code>:session/oid4vp</code>
+                <code>presentations/:sessionId/oid4vp</code>
             </p>
 
 
@@ -594,9 +594,9 @@ import { Oid4vpService } from &quot;./oid4vp.service&quot;;
  * Controller for handling OID4VP (OpenID for Verifiable Presentations) requests.
  */
 @ApiTags(&quot;OID4VP&quot;)
-@Controller(&quot;:session/oid4vp&quot;)
+@Controller(&quot;presentations/:sessionId/oid4vp&quot;)
 @UseInterceptors(SessionLoggerInterceptor)
-@ApiParam({ name: &quot;session&quot;, required: true })
+@ApiParam({ name: &quot;sessionId&quot;, required: true })
 export class Oid4vpController {
     /**
      * Constructor for the Oid4vpController.
@@ -613,7 +613,7 @@ export class Oid4vpController {
     @Get(&quot;request&quot;)
     @SessionLogger(&quot;session&quot;, &quot;OID4VP&quot;)
     getRequestWithSession(
-        @Param(&quot;session&quot;) sessionId: string,
+        @Param(&quot;sessionId&quot;) sessionId: string,
         @Req() req: Request,
     ) {
         const origin &#x3D; req.get(&quot;origin&quot;) as string;
@@ -629,7 +629,7 @@ export class Oid4vpController {
     @Get(&quot;request/no-redirect&quot;)
     @SessionLogger(&quot;session&quot;, &quot;OID4VP&quot;)
     getRequestNoRedirectWithSession(
-        @Param(&quot;session&quot;) sessionId: string,
+        @Param(&quot;sessionId&quot;) sessionId: string,
         @Req() req: Request,
     ) {
         const origin &#x3D; req.get(&quot;origin&quot;) as string;
@@ -649,7 +649,7 @@ export class Oid4vpController {
     @Post(&quot;request&quot;)
     @SessionLogger(&quot;session&quot;, &quot;OID4VP&quot;)
     getPostRequestWithSession(
-        @Param(&quot;session&quot;) sessionId: string,
+        @Param(&quot;sessionId&quot;) sessionId: string,
         @Req() req: Request,
     ) {
         const origin &#x3D; req.get(&quot;origin&quot;) as string;
@@ -666,7 +666,7 @@ export class Oid4vpController {
     @SessionLogger(&quot;session&quot;, &quot;OID4VP&quot;)
     getResponse(
         @Body() body: AuthorizationResponse,
-        @Param(&quot;session&quot;) sessionId: string,
+        @Param(&quot;sessionId&quot;) sessionId: string,
     ) {
         return this.oid4vpService.getResponse(body, sessionId);
     }

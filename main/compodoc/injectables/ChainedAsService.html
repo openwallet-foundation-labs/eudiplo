@@ -2165,7 +2165,7 @@ export class ChainedAsService {
      */
     private getChainedAsBaseUrl(tenantId: string): string {
         const publicUrl &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
-        return &#x60;${publicUrl}/${tenantId}/chained-as&#x60;;
+        return &#x60;${publicUrl}/issuers/${tenantId}/chained-as&#x60;;
     }
 
     /**
@@ -2614,7 +2614,7 @@ export class ChainedAsService {
         const payload: Record&lt;string, unknown&gt; &#x3D; {
             iss: this.getChainedAsBaseUrl(tenantId),
             sub: session.clientId,
-            aud: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${tenantId}&#x60;,
+            aud: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/issuers/${tenantId}&#x60;,
             iat: now,
             exp: now + tokenLifetime,
             jti,

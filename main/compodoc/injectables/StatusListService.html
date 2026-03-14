@@ -2348,7 +2348,7 @@ export class StatusListService {
      */
     private buildStatusListUri(tenantId: string, listId: string): string {
         const baseUrl &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
-        return &#x60;${baseUrl}/${tenantId}/status-management/status-list/${listId}&#x60;;
+        return &#x60;${baseUrl}/issuers/${tenantId}/status-management/status-list/${listId}&#x60;;
     }
 
     /**
@@ -2358,7 +2358,7 @@ export class StatusListService {
      */
     private buildAggregationUri(tenantId: string): string {
         const baseUrl &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
-        return &#x60;${baseUrl}/${tenantId}/status-management/status-list-aggregation&#x60;;
+        return &#x60;${baseUrl}/issuers/${tenantId}/status-management/status-list-aggregation&#x60;;
     }
 
     /**

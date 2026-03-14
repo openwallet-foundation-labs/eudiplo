@@ -285,8 +285,8 @@ into two new first-class entities: AttributeProvider and WebhookEndpoint.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="219"
-                                    class="link-to-prism">src/database/migrations/1748000000000-ExtractAttributeProviderAndWebhookEndpoint.ts:219</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="224"
+                                    class="link-to-prism">src/database/migrations/1748000000000-ExtractAttributeProviderAndWebhookEndpoint.ts:224</a></div>
                         </td>
                     </tr>
 
@@ -564,6 +564,11 @@ export class ExtractAttributeProviderAndWebhookEndpoint1748000000000
                 &#x60;SELECT &quot;id&quot;, &quot;tenantId&quot;, &quot;claimsWebhook&quot; FROM &quot;credential_config&quot; WHERE &quot;claimsWebhook&quot; IS NOT NULL&#x60;,
             );
 
+            // Use driver-appropriate SQL placeholders (Postgres: $1,$2,... / SQLite: ?,?,...)
+            const isPostgres &#x3D;
+                queryRunner.connection.options.type &#x3D;&#x3D;&#x3D; &quot;postgres&quot;;
+            const param &#x3D; (n: number) &#x3D;&gt; (isPostgres ? &#x60;$${n}&#x60; : &quot;?&quot;);
+
             for (const row of rows) {
                 const webhook &#x3D;
                     typeof row.claimsWebhook &#x3D;&#x3D;&#x3D; &quot;string&quot;
@@ -574,7 +579,7 @@ export class ExtractAttributeProviderAndWebhookEndpoint1748000000000
                 const apId &#x3D; &#x60;ap-migrated-${row.id}&#x60;;
                 // Insert into attribute_provider_entity
                 await queryRunner.query(
-                    &#x60;INSERT INTO &quot;attribute_provider_entity&quot; (&quot;id&quot;, &quot;tenantId&quot;, &quot;name&quot;, &quot;url&quot;, &quot;auth&quot;) VALUES (?, ?, ?, ?, ?)&#x60;,
+                    &#x60;INSERT INTO &quot;attribute_provider_entity&quot; (&quot;id&quot;, &quot;tenantId&quot;, &quot;name&quot;, &quot;url&quot;, &quot;auth&quot;) VALUES (${param(1)}, ${param(2)}, ${param(3)}, ${param(4)}, ${param(5)})&#x60;,
                     [
                         apId,
                         row.tenantId,
@@ -585,7 +590,7 @@ export class ExtractAttributeProviderAndWebhookEndpoint1748000000000
                 );
                 // Update credential_config to reference the new attribute provider
                 await queryRunner.query(
-                    &#x60;UPDATE &quot;credential_config&quot; SET &quot;attributeProviderId&quot; &#x3D; ? WHERE &quot;id&quot; &#x3D; ? AND &quot;tenantId&quot; &#x3D; ?&#x60;,
+                    &#x60;UPDATE &quot;credential_config&quot; SET &quot;attributeProviderId&quot; &#x3D; ${param(1)} WHERE &quot;id&quot; &#x3D; ${param(2)} AND &quot;tenantId&quot; &#x3D; ${param(3)}&#x60;,
                     [apId, row.id, row.tenantId],
                 );
             }

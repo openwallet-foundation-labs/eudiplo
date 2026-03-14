@@ -1854,21 +1854,29 @@ This is necessary because TypeORM transformers don&#39;t support dependency inje
     { path: &quot;health&quot;, method: RequestMethod.ALL },
     { path: &quot;metrics&quot;, method: RequestMethod.ALL },
     // OAuth2 &amp; Discovery
-    { path: &quot;oauth2/(.*)&quot;, method: RequestMethod.ALL },
-    { path: &quot;.well-known/(.*)&quot;, method: RequestMethod.ALL },
+    { path: &quot;oauth2/{*path}&quot;, method: RequestMethod.ALL },
+    { path: &quot;.well-known/{*path}&quot;, method: RequestMethod.ALL },
     // OID4VCI Protocol
-    { path: &quot;:tenantId/.well-known/(.*)&quot;, method: RequestMethod.ALL },
-    { path: &quot;:tenantId/vci/(.*)&quot;, method: RequestMethod.ALL },
-    { path: &quot;:tenantId/authorize&quot;, method: RequestMethod.ALL },
-    { path: &quot;:tenantId/authorize/(.*)&quot;, method: RequestMethod.ALL },
-    { path: &quot;:tenantId/credentials-metadata/(.*)&quot;, method: RequestMethod.ALL },
-    { path: &quot;:tenant/chained-as/(.*)&quot;, method: RequestMethod.ALL },
+    { path: &quot;issuers/:tenantId/vci/{*path}&quot;, method: RequestMethod.ALL },
+    { path: &quot;issuers/:tenantId/authorize&quot;, method: RequestMethod.ALL },
+    { path: &quot;issuers/:tenantId/authorize/{*path}&quot;, method: RequestMethod.ALL },
+    {
+        path: &quot;issuers/:tenantId/credentials-metadata/{*path}&quot;,
+        method: RequestMethod.ALL,
+    },
+    { path: &quot;issuers/:tenantId/chained-as/{*path}&quot;, method: RequestMethod.ALL },
     // OID4VP Protocol
-    { path: &quot;:session/oid4vp&quot;, method: RequestMethod.ALL },
-    { path: &quot;:session/oid4vp/(.*)&quot;, method: RequestMethod.ALL },
+    { path: &quot;presentations/:sessionId/oid4vp&quot;, method: RequestMethod.ALL },
+    {
+        path: &quot;presentations/:sessionId/oid4vp/{*path}&quot;,
+        method: RequestMethod.ALL,
+    },
     // Public Status &amp; Trust Lists
-    { path: &quot;:tenantId/status-management/(.*)&quot;, method: RequestMethod.ALL },
-    { path: &quot;:tenantId/trust-list/(.*)&quot;, method: RequestMethod.ALL },
+    {
+        path: &quot;issuers/:tenantId/status-management/{*path}&quot;,
+        method: RequestMethod.ALL,
+    },
+    { path: &quot;issuers/:tenantId/trust-list/{*path}&quot;, method: RequestMethod.ALL },
 ]</code>
                     </td>
                 </tr>

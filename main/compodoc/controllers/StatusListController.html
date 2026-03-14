@@ -137,7 +137,7 @@
                 <h3>Prefix</h3>
             </p>
             <p class="comment">
-                <code>:tenantId/status-management</code>
+                <code>issuers/:tenantId/status-management</code>
             </p>
 
 
@@ -397,7 +397,7 @@ import { StatusListService } from &quot;./status-list.service&quot;;
 
 @ApiExtraModels(StatusListImportDto)
 @ApiTags(&quot;Issuer&quot;)
-@Controller(&quot;:tenantId/status-management&quot;)
+@Controller(&quot;issuers/:tenantId/status-management&quot;)
 export class StatusListController {
     constructor(private readonly statusListService: StatusListService) {}
 

@@ -454,7 +454,7 @@ export class SdjwtvcIssuerService {
         const vct &#x3D;
             typeof credentialConfiguration.vct &#x3D;&#x3D;&#x3D; &quot;string&quot;
                 ? credentialConfiguration.vct
-                : &#x60;${host}/${session.tenantId}/credentials-metadata/vct/${credentialConfiguration.id}&#x60;;
+                : &#x60;${host}/issuers/${session.tenantId}/credentials-metadata/vct/${credentialConfiguration.id}&#x60;;
 
         return sdjwt.issue(
             {

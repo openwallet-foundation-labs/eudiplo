@@ -137,7 +137,7 @@
                 <h3>Prefix</h3>
             </p>
             <p class="comment">
-                <code>:tenant/chained-as</code>
+                <code>issuers/:tenantId/chained-as</code>
             </p>
 
 
@@ -287,7 +287,7 @@ issuing its own tokens containing issuer_state for session correlation.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Public()<br />@Get(&#x27;authorize&#x27;)<br />@ApiOperation({summary: &#x27;Authorization endpoint&#x27;, description: &#x27;Validates the request_uri from PAR and redirects to the upstream OIDC provider for authentication.&#x27;})<br />@ApiParam({name: &#x27;tenant&#x27;, description: &#x27;Tenant identifier&#x27;})<br />@ApiResponse({status: 302, description: &#x27;Redirect to upstream OIDC provider&#x27;})<br />@ApiResponse({status: 400, description: &#x27;Invalid request&#x27;, type: ChainedAsErrorResponseDto})<br /></code>
+                    <code>@Public()<br />@Get(&#x27;authorize&#x27;)<br />@ApiOperation({summary: &#x27;Authorization endpoint&#x27;, description: &#x27;Validates the request_uri from PAR and redirects to the upstream OIDC provider for authentication.&#x27;})<br />@ApiParam({name: &#x27;tenantId&#x27;, description: &#x27;Tenant identifier&#x27;})<br />@ApiResponse({status: 302, description: &#x27;Redirect to upstream OIDC provider&#x27;})<br />@ApiResponse({status: 400, description: &#x27;Invalid request&#x27;, type: ChainedAsErrorResponseDto})<br /></code>
                 </td>
             </tr>
 
@@ -396,7 +396,7 @@ Validates the request_uri and redirects to the upstream OIDC provider.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Public()<br />@Get(&#x27;callback&#x27;)<br />@ApiOperation({summary: &#x27;Upstream OIDC callback&#x27;, description: &#x27;Receives the authorization response from the upstream OIDC provider, exchanges the code, and redirects back to the wallet.&#x27;})<br />@ApiParam({name: &#x27;tenant&#x27;, description: &#x27;Tenant identifier&#x27;})<br />@ApiResponse({status: 302, description: &#x27;Redirect to wallet with authorization code&#x27;})<br />@ApiResponse({status: 400, description: &#x27;Invalid callback&#x27;, type: ChainedAsErrorResponseDto})<br /></code>
+                    <code>@Public()<br />@Get(&#x27;callback&#x27;)<br />@ApiOperation({summary: &#x27;Upstream OIDC callback&#x27;, description: &#x27;Receives the authorization response from the upstream OIDC provider, exchanges the code, and redirects back to the wallet.&#x27;})<br />@ApiParam({name: &#x27;tenantId&#x27;, description: &#x27;Tenant identifier&#x27;})<br />@ApiResponse({status: 302, description: &#x27;Redirect to wallet with authorization code&#x27;})<br />@ApiResponse({status: 400, description: &#x27;Invalid callback&#x27;, type: ChainedAsErrorResponseDto})<br /></code>
                 </td>
             </tr>
 
@@ -539,7 +539,7 @@ Receives the authorization code from upstream and redirects the wallet.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Public()<br />@Get(&#x27;.well-known/oauth-authorization-server&#x27;)<br />@ApiOperation({summary: &#x27;OAuth AS Metadata&#x27;, description: &#x27;Returns the OAuth Authorization Server metadata for the Chained AS.&#x27;})<br />@ApiParam({name: &#x27;tenant&#x27;, description: &#x27;Tenant identifier&#x27;})<br />@ApiResponse({status: 200, description: &#x27;OAuth AS metadata&#x27;})<br /></code>
+                    <code>@Public()<br />@Get(&#x27;.well-known/oauth-authorization-server&#x27;)<br />@ApiOperation({summary: &#x27;OAuth AS Metadata&#x27;, description: &#x27;Returns the OAuth Authorization Server metadata for the Chained AS.&#x27;})<br />@ApiParam({name: &#x27;tenantId&#x27;, description: &#x27;Tenant identifier&#x27;})<br />@ApiResponse({status: 200, description: &#x27;OAuth AS metadata&#x27;})<br /></code>
                 </td>
             </tr>
 
@@ -622,7 +622,7 @@ Receives the authorization code from upstream and redirects the wallet.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Public()<br />@Get(&#x27;.well-known/jwks.json&#x27;)<br />@ApiOperation({summary: &#x27;JSON Web Key Set&#x27;, description: &#x27;Returns the public keys for verifying tokens issued by this Chained AS.&#x27;})<br />@ApiParam({name: &#x27;tenant&#x27;, description: &#x27;Tenant identifier&#x27;})<br />@ApiResponse({status: 200, description: &#x27;JWKS document&#x27;})<br /></code>
+                    <code>@Public()<br />@Get(&#x27;.well-known/jwks.json&#x27;)<br />@ApiOperation({summary: &#x27;JSON Web Key Set&#x27;, description: &#x27;Returns the public keys for verifying tokens issued by this Chained AS.&#x27;})<br />@ApiParam({name: &#x27;tenantId&#x27;, description: &#x27;Tenant identifier&#x27;})<br />@ApiResponse({status: 200, description: &#x27;JWKS document&#x27;})<br /></code>
                 </td>
             </tr>
 
@@ -711,7 +711,7 @@ Receives the authorization code from upstream and redirects the wallet.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Public()<br />@Post(&#x27;par&#x27;)<br />@HttpCode(HttpStatus.CREATED)<br />@ApiConsumes(&#x27;application/x-www-form-urlencoded&#x27;)<br />@ApiOperation({summary: &#x27;Pushed Authorization Request&#x27;, description: &#x27;Submit authorization request parameters. Returns a request_uri for use at the authorization endpoint.&#x27;})<br />@ApiParam({name: &#x27;tenant&#x27;, description: &#x27;Tenant identifier&#x27;})<br />@ApiHeader({name: &#x27;DPoP&#x27;, required: false, description: &#x27;DPoP proof JWT&#x27;})<br />@ApiHeader({name: &#x27;OAuth-Client-Attestation&#x27;, required: false, description: &#x27;Wallet attestation JWT&#x27;})<br />@ApiHeader({name: &#x27;OAuth-Client-Attestation-PoP&#x27;, required: false, description: &#x27;Wallet attestation proof-of-possession JWT&#x27;})<br />@ApiResponse({status: 201, description: &#x27;PAR request accepted&#x27;, type: ChainedAsParResponseDto})<br />@ApiResponse({status: 400, description: &#x27;Invalid request&#x27;, type: ChainedAsErrorResponseDto})<br /></code>
+                    <code>@Public()<br />@Post(&#x27;par&#x27;)<br />@HttpCode(HttpStatus.CREATED)<br />@ApiConsumes(&#x27;application/x-www-form-urlencoded&#x27;)<br />@ApiOperation({summary: &#x27;Pushed Authorization Request&#x27;, description: &#x27;Submit authorization request parameters. Returns a request_uri for use at the authorization endpoint.&#x27;})<br />@ApiParam({name: &#x27;tenantId&#x27;, description: &#x27;Tenant identifier&#x27;})<br />@ApiHeader({name: &#x27;DPoP&#x27;, required: false, description: &#x27;DPoP proof JWT&#x27;})<br />@ApiHeader({name: &#x27;OAuth-Client-Attestation&#x27;, required: false, description: &#x27;Wallet attestation JWT&#x27;})<br />@ApiHeader({name: &#x27;OAuth-Client-Attestation-PoP&#x27;, required: false, description: &#x27;Wallet attestation proof-of-possession JWT&#x27;})<br />@ApiResponse({status: 201, description: &#x27;PAR request accepted&#x27;, type: ChainedAsParResponseDto})<br />@ApiResponse({status: 400, description: &#x27;Invalid request&#x27;, type: ChainedAsErrorResponseDto})<br /></code>
                 </td>
             </tr>
 
@@ -847,7 +847,7 @@ Wallets submit authorization parameters here before redirecting to authorize.</p
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Public()<br />@Post(&#x27;token&#x27;)<br />@HttpCode(HttpStatus.OK)<br />@ApiOperation({summary: &#x27;Token endpoint&#x27;, description: &#x27;Exchanges the authorization code for an access token containing issuer_state.&#x27;})<br />@ApiParam({name: &#x27;tenant&#x27;, description: &#x27;Tenant identifier&#x27;})<br />@ApiHeader({name: &#x27;DPoP&#x27;, required: false, description: &#x27;DPoP proof JWT&#x27;})<br />@ApiResponse({status: 200, description: &#x27;Token issued successfully&#x27;, type: ChainedAsTokenResponseDto})<br />@ApiResponse({status: 400, description: &#x27;Invalid request&#x27;, type: ChainedAsErrorResponseDto})<br />@ApiResponse({status: 401, description: &#x27;Invalid authorization code&#x27;, type: ChainedAsErrorResponseDto})<br /></code>
+                    <code>@Public()<br />@Post(&#x27;token&#x27;)<br />@HttpCode(HttpStatus.OK)<br />@ApiOperation({summary: &#x27;Token endpoint&#x27;, description: &#x27;Exchanges the authorization code for an access token containing issuer_state.&#x27;})<br />@ApiParam({name: &#x27;tenantId&#x27;, description: &#x27;Tenant identifier&#x27;})<br />@ApiHeader({name: &#x27;DPoP&#x27;, required: false, description: &#x27;DPoP proof JWT&#x27;})<br />@ApiResponse({status: 200, description: &#x27;Token issued successfully&#x27;, type: ChainedAsTokenResponseDto})<br />@ApiResponse({status: 400, description: &#x27;Invalid request&#x27;, type: ChainedAsErrorResponseDto})<br />@ApiResponse({status: 401, description: &#x27;Invalid authorization code&#x27;, type: ChainedAsErrorResponseDto})<br /></code>
                 </td>
             </tr>
 
@@ -978,7 +978,7 @@ import {
  * 5. Wallet → Token (receives EUDIPLO-issued access token with issuer_state)
  */
 @ApiTags(&quot;Chained AS&quot;)
-@Controller(&quot;:tenant/chained-as&quot;)
+@Controller(&quot;issuers/:tenantId/chained-as&quot;)
 export class ChainedAsController {
     constructor(private readonly chainedAsService: ChainedAsService) {}
 
@@ -995,7 +995,7 @@ export class ChainedAsController {
         description:
             &quot;Submit authorization request parameters. Returns a request_uri for use at the authorization endpoint.&quot;,
     })
-    @ApiParam({ name: &quot;tenant&quot;, description: &quot;Tenant identifier&quot; })
+    @ApiParam({ name: &quot;tenantId&quot;, description: &quot;Tenant identifier&quot; })
     @ApiHeader({
         name: &quot;DPoP&quot;,
         required: false,
@@ -1022,7 +1022,7 @@ export class ChainedAsController {
         type: ChainedAsErrorResponseDto,
     })
     async par(
-        @Param(&quot;tenant&quot;) tenantId: string,
+        @Param(&quot;tenantId&quot;) tenantId: string,
         @Body() body: ChainedAsParRequestDto,
         @Headers(&quot;dpop&quot;) dpopJwt?: string,
         @Headers(&quot;oauth-client-attestation&quot;) clientAttestationJwt?: string,
@@ -1057,7 +1057,7 @@ export class ChainedAsController {
         description:
             &quot;Validates the request_uri from PAR and redirects to the upstream OIDC provider for authentication.&quot;,
     })
-    @ApiParam({ name: &quot;tenant&quot;, description: &quot;Tenant identifier&quot; })
+    @ApiParam({ name: &quot;tenantId&quot;, description: &quot;Tenant identifier&quot; })
     @ApiResponse({
         status: 302,
         description: &quot;Redirect to upstream OIDC provider&quot;,
@@ -1068,7 +1068,7 @@ export class ChainedAsController {
         type: ChainedAsErrorResponseDto,
     })
     async authorize(
-        @Param(&quot;tenant&quot;) tenantId: string,
+        @Param(&quot;tenantId&quot;) tenantId: string,
         @Query() query: ChainedAsAuthorizeQueryDto,
         @Res() res: Response,
     ): Promise&lt;void&gt; {
@@ -1091,7 +1091,7 @@ export class ChainedAsController {
         description:
             &quot;Receives the authorization response from the upstream OIDC provider, exchanges the code, and redirects back to the wallet.&quot;,
     })
-    @ApiParam({ name: &quot;tenant&quot;, description: &quot;Tenant identifier&quot; })
+    @ApiParam({ name: &quot;tenantId&quot;, description: &quot;Tenant identifier&quot; })
     @ApiResponse({
         status: 302,
         description: &quot;Redirect to wallet with authorization code&quot;,
@@ -1102,7 +1102,7 @@ export class ChainedAsController {
         type: ChainedAsErrorResponseDto,
     })
     async callback(
-        @Param(&quot;tenant&quot;) tenantId: string,
+        @Param(&quot;tenantId&quot;) tenantId: string,
         @Res() res: Response,
         @Query(&quot;code&quot;) code?: string,
         @Query(&quot;state&quot;) state?: string,
@@ -1131,7 +1131,7 @@ export class ChainedAsController {
         description:
             &quot;Exchanges the authorization code for an access token containing issuer_state.&quot;,
     })
-    @ApiParam({ name: &quot;tenant&quot;, description: &quot;Tenant identifier&quot; })
+    @ApiParam({ name: &quot;tenantId&quot;, description: &quot;Tenant identifier&quot; })
     @ApiHeader({
         name: &quot;DPoP&quot;,
         required: false,
@@ -1153,7 +1153,7 @@ export class ChainedAsController {
         type: ChainedAsErrorResponseDto,
     })
     async token(
-        @Param(&quot;tenant&quot;) tenantId: string,
+        @Param(&quot;tenantId&quot;) tenantId: string,
         @Body() body: ChainedAsTokenRequestDto,
         @Headers(&quot;dpop&quot;) dpopJwt?: string,
     ): Promise&lt;ChainedAsTokenResponseDto&gt; {
@@ -1170,13 +1170,13 @@ export class ChainedAsController {
         description:
             &quot;Returns the public keys for verifying tokens issued by this Chained AS.&quot;,
     })
-    @ApiParam({ name: &quot;tenant&quot;, description: &quot;Tenant identifier&quot; })
+    @ApiParam({ name: &quot;tenantId&quot;, description: &quot;Tenant identifier&quot; })
     @ApiResponse({
         status: 200,
         description: &quot;JWKS document&quot;,
     })
     async jwks(
-        @Param(&quot;tenant&quot;) tenantId: string,
+        @Param(&quot;tenantId&quot;) tenantId: string,
     ): Promise&lt;{ keys: Record&lt;string, unknown&gt;[] }&gt; {
         return this.chainedAsService.getJwks(tenantId);
     }
@@ -1191,13 +1191,13 @@ export class ChainedAsController {
         description:
             &quot;Returns the OAuth Authorization Server metadata for the Chained AS.&quot;,
     })
-    @ApiParam({ name: &quot;tenant&quot;, description: &quot;Tenant identifier&quot; })
+    @ApiParam({ name: &quot;tenantId&quot;, description: &quot;Tenant identifier&quot; })
     @ApiResponse({
         status: 200,
         description: &quot;OAuth AS metadata&quot;,
     })
     getMetadata(
-        @Param(&quot;tenant&quot;) tenantId: string,
+        @Param(&quot;tenantId&quot;) tenantId: string,
     ): Promise&lt;Record&lt;string, unknown&gt;&gt; {
         return this.chainedAsService.getMetadata(tenantId);
     }

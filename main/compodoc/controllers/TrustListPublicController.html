@@ -137,7 +137,7 @@
                 <h3>Prefix</h3>
             </p>
             <p class="comment">
-                <code>:tenantId/trust-list/:id</code>
+                <code>issuers/:tenantId/trust-list/:id</code>
             </p>
 
 
@@ -288,7 +288,7 @@ import { TrustListService } from &quot;../trustlist.service&quot;;
  * Public controller for accessing trust lists
  */
 @ApiTags(&quot;Issuer&quot;)
-@Controller(&quot;:tenantId/trust-list/:id&quot;)
+@Controller(&quot;issuers/:tenantId/trust-list/:id&quot;)
 export class TrustListPublicController {
     /**
      * Creates an instance of TrustListPublicController.

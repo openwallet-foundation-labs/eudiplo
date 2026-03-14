@@ -137,7 +137,7 @@
                 <h3>Prefix</h3>
             </p>
             <p class="comment">
-                <code>:tenantId/authorize</code>
+                <code>issuers/:tenantId/authorize</code>
             </p>
 
 
@@ -513,7 +513,7 @@ import { ParResponseDto } from &quot;./dto/par-response.dto&quot;;
  * This controller handles the authorization requests, token requests.
  */
 @ApiTags(&quot;OID4VCI&quot;)
-@Controller(&quot;:tenantId/authorize&quot;)
+@Controller(&quot;issuers/:tenantId/authorize&quot;)
 export class AuthorizeController {
     constructor(
         private readonly authorizeService: AuthorizeService,

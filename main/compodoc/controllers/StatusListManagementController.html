@@ -827,7 +827,7 @@ export class StatusListManagementController {
             capacity: entity.elements.length,
             usedEntries: entity.elements.length - entity.stack.length,
             availableEntries: entity.stack.length,
-            uri: &#x60;${baseUrl}/${entity.tenantId}/status-management/status-list/${entity.id}&#x60;,
+            uri: &#x60;${baseUrl}/issuers/${entity.tenantId}/status-management/status-list/${entity.id}&#x60;,
             createdAt: entity.createdAt,
             expiresAt: entity.expiresAt,
         };

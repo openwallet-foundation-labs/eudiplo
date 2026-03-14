@@ -2210,7 +2210,7 @@ export class Oid4vciService {
         if (issuanceConfig.chainedAs?.enabled) {
             const publicUrl &#x3D;
                 this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
-            return &#x60;${publicUrl}/${tenantId}/chained-as&#x60;;
+            return &#x60;${publicUrl}/issuers/${tenantId}/chained-as&#x60;;
         }
 
         return this.authzService.getAuthzIssuer(tenantId);
@@ -2251,7 +2251,7 @@ export class Oid4vciService {
     ): Promise&lt;IssuerMetadataResult&gt; {
         issuer ??&#x3D; this.getIssuer(tenantId);
 
-        const credential_issuer &#x3D; &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${tenantId}&#x60;;
+        const credential_issuer &#x3D; &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/issuers/${tenantId}&#x60;;
 
         const issuanceConfig &#x3D;
             await this.issuanceService.getIssuanceConfiguration(tenantId);
@@ -2559,7 +2559,7 @@ export class Oid4vciService {
     }&gt; {
         const localIssuer &#x3D; this.authzService.getAuthzIssuer(tenantId);
         const publicUrl &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
-        const chainedAsIssuer &#x3D; &#x60;${publicUrl}/${tenantId}/chained-as&#x60;;
+        const chainedAsIssuer &#x3D; &#x60;${publicUrl}/issuers/${tenantId}/chained-as&#x60;;
 
         const isLocalAsToken &#x3D; tokenPayload.iss &#x3D;&#x3D;&#x3D; localIssuer;
         const isChainedAsToken &#x3D; tokenPayload.iss &#x3D;&#x3D;&#x3D; chainedAsIssuer;
