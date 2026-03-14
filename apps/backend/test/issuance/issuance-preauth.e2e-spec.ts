@@ -83,6 +83,8 @@ describe("Issuance - Pre-authorized Code Flow", () => {
             offerResponse.body.uri,
         );
 
+        console.log(credentialOffer.credential_issuer);
+
         const issuerMetadata = await client.resolveIssuerMetadata(
             credentialOffer.credential_issuer,
         );

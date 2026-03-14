@@ -248,7 +248,9 @@ describe("Issuance - Chained AS Flow", () => {
         await configureChainedAs();
 
         const metadataResponse = await request(app.getHttpServer())
-            .get("/.well-known/oauth-authorization-server/haip/chained-as")
+            .get(
+                "/.well-known/oauth-authorization-server/issuers/haip/chained-as",
+            )
             .trustLocalhost()
             .expect(200);
 

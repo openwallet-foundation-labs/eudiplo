@@ -367,7 +367,9 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
     describe("Metadata", () => {
         test("should include interactive_authorization_endpoint in metadata", async () => {
             const response = await request(app.getHttpServer())
-                .get(`/.well-known/oauth-authorization-server/${tenantId}`)
+                .get(
+                    `/.well-known/oauth-authorization-server/issuers/${tenantId}`,
+                )
                 .expect(200);
 
             expect(

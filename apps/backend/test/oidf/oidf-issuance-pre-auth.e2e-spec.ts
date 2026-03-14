@@ -64,7 +64,7 @@ describe("OIDF - issuance - pre auth", () => {
             description:
                 "VCI tests of wallet initiated flow with client attestation",
             server: {
-                discoveryIssuer: `https://${PUBLIC_DOMAIN}`,
+                discoveryIssuer: `https://${PUBLIC_DOMAIN}/issuers/haip`,
             },
             client: {
                 jwks: {
@@ -119,7 +119,7 @@ describe("OIDF - issuance - pre auth", () => {
             },
             alias: "acme-vci-test-3",
             vci: {
-                credential_issuer_url: `https://${PUBLIC_DOMAIN}/haip`,
+                credential_issuer_url: `https://${PUBLIC_DOMAIN}/issuers/haip`,
                 credential_configuration_id: "pid",
                 client_attester_keys_jwks: {
                     keys: [

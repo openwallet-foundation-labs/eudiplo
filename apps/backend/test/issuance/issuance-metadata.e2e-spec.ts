@@ -33,7 +33,7 @@ describe("Issuance - Metadata", () => {
         const tenantId = "root";
 
         const res = await request(app.getHttpServer())
-            .get(`/.well-known/openid-credential-issuer/${tenantId}`)
+            .get(`/.well-known/openid-credential-issuer/issuers/${tenantId}`)
             .trustLocalhost()
             .set("Accept", "application/json")
             .expect(200);
@@ -48,7 +48,7 @@ describe("Issuance - Metadata", () => {
         const tenantId = "root";
 
         const res = await request(app.getHttpServer())
-            .get(`/.well-known/openid-credential-issuer/${tenantId}`)
+            .get(`/.well-known/openid-credential-issuer/issuers/${tenantId}`)
             .trustLocalhost()
             .set("Accept", "application/jwt")
             .expect(200);
