@@ -242,8 +242,8 @@ before issuing credentials.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="157"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/interactive-authorization.controller.ts:157</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="150"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/interactive-authorization.controller.ts:150</a></div>
                         </td>
                     </tr>
 
@@ -363,8 +363,8 @@ Handles interactive authorization requests during credential issuance.
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="107"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/interactive-authorization.controller.ts:107</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="100"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/interactive-authorization.controller.ts:100</a></div>
                         </td>
                     </tr>
 
@@ -502,13 +502,7 @@ depending on the interaction type used.</p>
     Req,
     Res,
 } from &quot;@nestjs/common&quot;;
-import {
-    ApiBody,
-    ApiExcludeController,
-    ApiOperation,
-    ApiResponse,
-    ApiTags,
-} from &quot;@nestjs/swagger&quot;;
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from &quot;@nestjs/swagger&quot;;
 import type { Request, Response } from &quot;express&quot;;
 import {
     InteractiveAuthorizationCodeResponseDto,
@@ -531,7 +525,6 @@ import { InteractiveAuthorizationService } from &quot;./interactive-authorizatio
  * @see https://openid.net/specs/openid-4-verifiable-credential-issuance-1_1.html
  */
 @ApiTags(&quot;OID4VCI&quot;, &quot;Interactive Authorization&quot;)
-@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
 @Controller(&quot;:tenantId/authorize/interactive&quot;)
 export class InteractiveAuthorizationController {
     constructor(

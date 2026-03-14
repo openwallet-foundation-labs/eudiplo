@@ -229,8 +229,8 @@ This controller handles the authorization requests, token requests.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="43"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:43</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="37"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:37</a></div>
                         </td>
                     </tr>
 
@@ -334,8 +334,8 @@ This controller handles the authorization requests, token requests.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="67"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:67</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="61"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:61</a></div>
                         </td>
                     </tr>
 
@@ -412,8 +412,8 @@ This controller handles the authorization requests, token requests.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="88"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:88</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="82"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:82</a></div>
                         </td>
                     </tr>
 
@@ -501,12 +501,7 @@ import {
     Req,
     Res,
 } from &quot;@nestjs/common&quot;;
-import {
-    ApiBody,
-    ApiConsumes,
-    ApiExcludeController,
-    ApiTags,
-} from &quot;@nestjs/swagger&quot;;
+import { ApiBody, ApiConsumes, ApiTags } from &quot;@nestjs/swagger&quot;;
 import type { Request, Response } from &quot;express&quot;;
 import { SessionService } from &quot;../../../../session/session.service&quot;;
 import { AuthorizeService } from &quot;./authorize.service&quot;;
@@ -518,7 +513,6 @@ import { ParResponseDto } from &quot;./dto/par-response.dto&quot;;
  * This controller handles the authorization requests, token requests.
  */
 @ApiTags(&quot;OID4VCI&quot;)
-@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
 @Controller(&quot;:tenantId/authorize&quot;)
 export class AuthorizeController {
     constructor(

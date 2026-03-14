@@ -161,6 +161,14 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                <a href="#getVersion" >getVersion</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
                                 <a href="#main" >main</a>
                             </li>
                         </ul>
@@ -180,6 +188,58 @@
     <h3 id="methods">
         Methods
     </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getVersion"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>getVersion</b></span>
+                        <a href="#getVersion"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getVersion()</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;version&#x27;)<br />@UseGuards(JwtAuthGuard)<br />@ApiSecurity(&#x27;oauth2&#x27;)<br />@ApiOperation({summary: &#x27;Get service version&#x27;})<br />@ApiResponse({status: 200, description: &#x27;Service version info&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="36"
+                                    class="link-to-prism">src/core/app/app.controller.ts:36</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Returns the running service version. Requires authentication.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>{ version: any; }</code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -209,8 +269,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="15"
-                                    class="link-to-prism">src/core/app/app.controller.ts:15</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="20"
+                                    class="link-to-prism">src/core/app/app.controller.ts:20</a></div>
                         </td>
                     </tr>
 
@@ -221,12 +281,9 @@
 </div>
 
                         <div class="io-description">
-                            <b>Returns : </b>    <code>{ service: string; version: any; documentation: string; }</code>
+                            <b>Returns : </b>    <code>{ service: string; documentation: string; }</code>
 
                         </div>
-                            <div class="io-description">
-                                
-                            </div>
                 </td>
             </tr>
         </tbody>
@@ -235,8 +292,14 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get } from &quot;@nestjs/common&quot;;
-import { ApiTags } from &quot;@nestjs/swagger&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, UseGuards } from &quot;@nestjs/common&quot;;
+import {
+    ApiOperation,
+    ApiResponse,
+    ApiSecurity,
+    ApiTags,
+} from &quot;@nestjs/swagger&quot;;
+import { JwtAuthGuard } from &quot;../../auth/auth.guard&quot;;
 
 /**
  * Main application controller
@@ -246,15 +309,27 @@ import { ApiTags } from &quot;@nestjs/swagger&quot;;
 export class AppController {
     /**
      * Main endpoint providing service info
-     * @returns
      */
     @Get()
     main() {
         return {
             service: &quot;EUDIPLO&quot;,
-            version: process.env.VERSION ?? &quot;main&quot;,
             documentation:
                 &quot;https://openwallet-foundation-labs.github.io/eudiplo/latest/&quot;,
+        };
+    }
+
+    /**
+     * Returns the running service version. Requires authentication.
+     */
+    @Get(&quot;version&quot;)
+    @UseGuards(JwtAuthGuard)
+    @ApiSecurity(&quot;oauth2&quot;)
+    @ApiOperation({ summary: &quot;Get service version&quot; })
+    @ApiResponse({ status: 200, description: &quot;Service version info&quot; })
+    getVersion() {
+        return {
+            version: process.env.VERSION ?? &quot;main&quot;,
         };
     }
 }

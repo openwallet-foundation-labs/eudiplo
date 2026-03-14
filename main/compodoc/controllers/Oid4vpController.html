@@ -233,8 +233,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="78"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:78</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="77"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:77</a></div>
                         </td>
                     </tr>
 
@@ -324,8 +324,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="58"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:58</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="57"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:57</a></div>
                         </td>
                     </tr>
 
@@ -415,8 +415,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="42"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:42</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="41"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -507,8 +507,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="94"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:94</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="93"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:93</a></div>
                         </td>
                     </tr>
 
@@ -583,7 +583,7 @@
     Req,
     UseInterceptors,
 } from &quot;@nestjs/common&quot;;
-import { ApiExcludeController, ApiParam, ApiTags } from &quot;@nestjs/swagger&quot;;
+import { ApiParam, ApiTags } from &quot;@nestjs/swagger&quot;;
 import { Request } from &quot;express&quot;;
 import { SessionLogger } from &quot;../../shared/utils/logger/session-logger.decorator&quot;;
 import { SessionLoggerInterceptor } from &quot;../../shared/utils/logger/session-logger.interceptor&quot;;
@@ -597,7 +597,6 @@ import { Oid4vpService } from &quot;./oid4vp.service&quot;;
 @Controller(&quot;:session/oid4vp&quot;)
 @UseInterceptors(SessionLoggerInterceptor)
 @ApiParam({ name: &quot;session&quot;, required: true })
-@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
 export class Oid4vpController {
     /**
      * Constructor for the Oid4vpController.
