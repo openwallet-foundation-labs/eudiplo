@@ -21,7 +21,7 @@ import { ParResponseDto } from "./dto/par-response.dto";
  * This controller handles the authorization requests, token requests.
  */
 @ApiTags("OID4VCI")
-@Controller(":tenantId/authorize")
+@Controller("issuers/:tenantId/authorize")
 export class AuthorizeController {
     constructor(
         private readonly authorizeService: AuthorizeService,

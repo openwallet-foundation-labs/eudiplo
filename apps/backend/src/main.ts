@@ -28,18 +28,23 @@ const PROTOCOL_ROUTE_EXCLUSIONS: { path: string; method: RequestMethod }[] = [
     { path: "oauth2/(.*)", method: RequestMethod.ALL },
     { path: ".well-known/(.*)", method: RequestMethod.ALL },
     // OID4VCI Protocol
-    { path: ":tenantId/.well-known/(.*)", method: RequestMethod.ALL },
-    { path: ":tenantId/vci/(.*)", method: RequestMethod.ALL },
-    { path: ":tenantId/authorize", method: RequestMethod.ALL },
-    { path: ":tenantId/authorize/(.*)", method: RequestMethod.ALL },
-    { path: ":tenantId/credentials-metadata/(.*)", method: RequestMethod.ALL },
-    { path: ":tenant/chained-as/(.*)", method: RequestMethod.ALL },
+    { path: "issuers/:tenantId/vci/(.*)", method: RequestMethod.ALL },
+    { path: "issuers/:tenantId/authorize", method: RequestMethod.ALL },
+    { path: "issuers/:tenantId/authorize/(.*)", method: RequestMethod.ALL },
+    {
+        path: "issuers/:tenantId/credentials-metadata/(.*)",
+        method: RequestMethod.ALL,
+    },
+    { path: "issuers/:tenantId/chained-as/(.*)", method: RequestMethod.ALL },
     // OID4VP Protocol
-    { path: ":session/oid4vp", method: RequestMethod.ALL },
-    { path: ":session/oid4vp/(.*)", method: RequestMethod.ALL },
+    { path: "presentations/:sessionId/oid4vp", method: RequestMethod.ALL },
+    { path: "presentations/:sessionId/oid4vp/(.*)", method: RequestMethod.ALL },
     // Public Status & Trust Lists
-    { path: ":tenantId/status-management/(.*)", method: RequestMethod.ALL },
-    { path: ":tenantId/trust-list/(.*)", method: RequestMethod.ALL },
+    {
+        path: "issuers/:tenantId/status-management/(.*)",
+        method: RequestMethod.ALL,
+    },
+    { path: "issuers/:tenantId/trust-list/(.*)", method: RequestMethod.ALL },
 ];
 
 /**

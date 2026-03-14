@@ -29,10 +29,7 @@ export class WellKnownController {
     })
     //we can not set the accept in the apiheader via swagger.
     @ApiProduces(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JWT)
-    @Get([
-        ".well-known/openid-credential-issuer/:tenantId",
-        ":tenantId/.well-known/openid-credential-issuer",
-    ])
+    @Get(".well-known/openid-credential-issuer/:tenantId")
     issuerMetadata(
         @ContentType() contentType: MediaType,
         @Param("tenantId") tenantId: string,
@@ -49,10 +46,7 @@ export class WellKnownController {
      * Authorization Server Metadata
      * @returns
      */
-    @Get([
-        ".well-known/oauth-authorization-server/:tenantId",
-        ":tenantId/.well-known/oauth-authorization-server",
-    ])
+    @Get(".well-known/oauth-authorization-server/:tenantId")
     authzMetadata(@Param("tenantId") tenantId: string) {
         return this.wellKnownService.getAuthzMetadata(tenantId);
     }
@@ -73,7 +67,7 @@ export class WellKnownController {
      * @returns
      */
     @Header("Content-Type", "application/jwk-set+json")
-    @Get([".well-known/jwks.json/:tenantId", ":tenantId/.well-known/jwks.json"])
+    @Get(".well-known/jwks.json/:tenantId")
     getJwks(@Param("tenantId") tenantId: string): Promise<JwksResponseDto> {
         return this.wellKnownService.getJwks(tenantId);
     }

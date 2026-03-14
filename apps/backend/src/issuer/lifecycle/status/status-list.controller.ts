@@ -11,7 +11,7 @@ import { StatusListService } from "./status-list.service";
 
 @ApiExtraModels(StatusListImportDto)
 @ApiTags("Issuer")
-@Controller(":tenantId/status-management")
+@Controller("issuers/:tenantId/status-management")
 export class StatusListController {
     constructor(private readonly statusListService: StatusListService) {}
 

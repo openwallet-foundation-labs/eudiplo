@@ -388,8 +388,8 @@ export const UpdateClientDtoSchema = {
       description: "The description of the client.",
     },
     roles: {
-      type: "array",
       description: "The roles assigned to the client.",
+      type: "array",
       items: {
         type: "string",
         enum: [
@@ -443,8 +443,8 @@ export const CreateClientDtoSchema = {
       description: "The description of the client.",
     },
     roles: {
-      type: "array",
       description: "The roles assigned to the client.",
+      type: "array",
       items: {
         type: "string",
         enum: [
@@ -1492,8 +1492,8 @@ export const TrustedAuthorityQuerySchema = {
   type: "object",
   properties: {
     type: {
-      type: "string",
       enum: ["aki", "etsi_tl"],
+      type: "string",
     },
     values: {
       type: "array",
@@ -1779,8 +1779,8 @@ export const IssuerMetadataCredentialConfigSchema = {
   type: "object",
   properties: {
     format: {
-      type: "string",
       enum: ["mso_mdoc", "dc+sd-jwt"],
+      type: "string",
     },
     display: {
       type: "array",
@@ -1907,14 +1907,14 @@ export const KeyChainEntitySchema = {
       description: "Human-readable description of the key chain.",
     },
     usageType: {
-      type: "string",
       description: "The purpose/role of this key chain in the system.",
       enum: ["access", "attestation", "trustList", "statusList", "encrypt"],
+      type: "string",
     },
     usage: {
-      type: "string",
       description: "The usage type of the keys (sign or encrypt).",
       enum: ["sign", "encrypt"],
+      type: "string",
     },
     kmsProvider: {
       type: "string",
@@ -4081,10 +4081,10 @@ export const PresentationRequestSchema = {
   type: "object",
   properties: {
     response_type: {
-      type: "string",
       description:
         "The type of response expected from the presentation request.",
       enum: ["uri", "dc-api"],
+      type: "string",
     },
     requestId: {
       type: "string",

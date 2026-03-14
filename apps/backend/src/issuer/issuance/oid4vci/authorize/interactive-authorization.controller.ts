@@ -32,7 +32,7 @@ import { InteractiveAuthorizationService } from "./interactive-authorization.ser
  * @see https://openid.net/specs/openid-4-verifiable-credential-issuance-1_1.html
  */
 @ApiTags("OID4VCI", "Interactive Authorization")
-@Controller(":tenantId/authorize/interactive")
+@Controller("issuers/:tenantId/authorize/interactive")
 export class InteractiveAuthorizationController {
     constructor(
         private readonly interactiveAuthorizationService: InteractiveAuthorizationService,
