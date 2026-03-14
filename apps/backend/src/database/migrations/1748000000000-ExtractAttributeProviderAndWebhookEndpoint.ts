@@ -150,6 +150,11 @@ export class ExtractAttributeProviderAndWebhookEndpoint1748000000000
                 `SELECT "id", "tenantId", "claimsWebhook" FROM "credential_config" WHERE "claimsWebhook" IS NOT NULL`,
             );
 
+            // Use driver-appropriate SQL placeholders (Postgres: $1,$2,... / SQLite: ?,?,...)
+            const isPostgres =
+                queryRunner.connection.options.type === "postgres";
+            const param = (n: number) => (isPostgres ? `$${n}` : "?");
+
             for (const row of rows) {
                 const webhook =
                     typeof row.claimsWebhook === "string"
@@ -160,7 +165,7 @@ export class ExtractAttributeProviderAndWebhookEndpoint1748000000000
                 const apId = `ap-migrated-${row.id}`;
                 // Insert into attribute_provider_entity
                 await queryRunner.query(
-                    `INSERT INTO "attribute_provider_entity" ("id", "tenantId", "name", "url", "auth") VALUES (?, ?, ?, ?, ?)`,
+                    `INSERT INTO "attribute_provider_entity" ("id", "tenantId", "name", "url", "auth") VALUES (${param(1)}, ${param(2)}, ${param(3)}, ${param(4)}, ${param(5)})`,
                     [
                         apId,
                         row.tenantId,
@@ -171,7 +176,7 @@ export class ExtractAttributeProviderAndWebhookEndpoint1748000000000
                 );
                 // Update credential_config to reference the new attribute provider
                 await queryRunner.query(
-                    `UPDATE "credential_config" SET "attributeProviderId" = ? WHERE "id" = ? AND "tenantId" = ?`,
+                    `UPDATE "credential_config" SET "attributeProviderId" = ${param(1)} WHERE "id" = ${param(2)} AND "tenantId" = ${param(3)}`,
                     [apId, row.id, row.tenantId],
                 );
             }
