@@ -252,7 +252,9 @@ describe("Issuance - Chained AS Flow", () => {
             .trustLocalhost()
             .expect(200);
 
-        expect(metadataResponse.body.issuer).toContain("/issuers/haip/chained-as");
+        expect(metadataResponse.body.issuer).toContain(
+            "/issuers/haip/chained-as",
+        );
         expect(metadataResponse.body.authorization_endpoint).toContain(
             "/issuers/haip/chained-as/authorize",
         );
