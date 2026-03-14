@@ -9,7 +9,7 @@ import {
     Req,
     UseInterceptors,
 } from "@nestjs/common";
-import { ApiExcludeController, ApiParam, ApiTags } from "@nestjs/swagger";
+import { ApiParam, ApiTags } from "@nestjs/swagger";
 import { Request } from "express";
 import { SessionLogger } from "../../shared/utils/logger/session-logger.decorator";
 import { SessionLoggerInterceptor } from "../../shared/utils/logger/session-logger.interceptor";
@@ -23,7 +23,6 @@ import { Oid4vpService } from "./oid4vp.service";
 @Controller(":session/oid4vp")
 @UseInterceptors(SessionLoggerInterceptor)
 @ApiParam({ name: "session", required: true })
-@ApiExcludeController(process.env.SWAGGER_ALL !== "true")
 export class Oid4vpController {
     /**
      * Constructor for the Oid4vpController.

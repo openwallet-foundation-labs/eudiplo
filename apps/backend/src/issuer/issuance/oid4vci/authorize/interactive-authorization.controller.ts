@@ -9,13 +9,7 @@ import {
     Req,
     Res,
 } from "@nestjs/common";
-import {
-    ApiBody,
-    ApiExcludeController,
-    ApiOperation,
-    ApiResponse,
-    ApiTags,
-} from "@nestjs/swagger";
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import type { Request, Response } from "express";
 import {
     InteractiveAuthorizationCodeResponseDto,
@@ -38,7 +32,6 @@ import { InteractiveAuthorizationService } from "./interactive-authorization.ser
  * @see https://openid.net/specs/openid-4-verifiable-credential-issuance-1_1.html
  */
 @ApiTags("OID4VCI", "Interactive Authorization")
-@ApiExcludeController(process.env.SWAGGER_ALL !== "true")
 @Controller(":tenantId/authorize/interactive")
 export class InteractiveAuthorizationController {
     constructor(

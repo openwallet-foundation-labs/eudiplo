@@ -440,6 +440,15 @@ export type OfferRequestDto = {
       | {
           type: "attributeProvider";
           attributeProviderId: string;
+        }
+      | {
+          type: "webhook";
+          webhook: {
+            url: string;
+            auth?: {
+              [key: string]: unknown;
+            };
+          };
         };
   };
   /**
@@ -2356,133 +2365,16 @@ export type FileUploadDto = {
   file: Blob | File;
 };
 
-export type AppControllerMainData = {
+export type AppControllerGetVersionData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/";
+  url: "/api/version";
 };
 
-export type AppControllerMainResponses = {
-  200: unknown;
-};
-
-export type HealthControllerCheckData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/health";
-};
-
-export type HealthControllerCheckErrors = {
+export type AppControllerGetVersionResponses = {
   /**
-   * The Health Check is not successful
-   */
-  503: {
-    status?: string;
-    info?: {
-      [key: string]: {
-        status: string;
-        [key: string]: unknown;
-      };
-    };
-    error?: {
-      [key: string]: {
-        status: string;
-        [key: string]: unknown;
-      };
-    };
-    details?: {
-      [key: string]: {
-        status: string;
-        [key: string]: unknown;
-      };
-    };
-  };
-};
-
-export type HealthControllerCheckError =
-  HealthControllerCheckErrors[keyof HealthControllerCheckErrors];
-
-export type HealthControllerCheckResponses = {
-  /**
-   * The Health Check is successful
-   */
-  200: {
-    status?: string;
-    info?: {
-      [key: string]: {
-        status: string;
-        [key: string]: unknown;
-      };
-    };
-    error?: {
-      [key: string]: {
-        status: string;
-        [key: string]: unknown;
-      };
-    };
-    details?: {
-      [key: string]: {
-        status: string;
-        [key: string]: unknown;
-      };
-    };
-  };
-};
-
-export type HealthControllerCheckResponse =
-  HealthControllerCheckResponses[keyof HealthControllerCheckResponses];
-
-export type AuthControllerGetOAuth2TokenData = {
-  body: ClientCredentialsDto;
-  path?: never;
-  query?: never;
-  url: "/oauth2/token";
-};
-
-export type AuthControllerGetOAuth2TokenErrors = {
-  /**
-   * Invalid client credentials
-   */
-  401: unknown;
-};
-
-export type AuthControllerGetOAuth2TokenResponses = {
-  /**
-   * OAuth2 token response
-   */
-  200: TokenResponse;
-  201: TokenResponse;
-};
-
-export type AuthControllerGetOAuth2TokenResponse =
-  AuthControllerGetOAuth2TokenResponses[keyof AuthControllerGetOAuth2TokenResponses];
-
-export type AuthControllerGetOidcDiscoveryData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/.well-known/oauth-authorization-server";
-};
-
-export type AuthControllerGetOidcDiscoveryResponses = {
-  /**
-   * OIDC Discovery Configuration
-   */
-  200: unknown;
-};
-
-export type AuthControllerGetGlobalJwksData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/.well-known/jwks.json";
-};
-
-export type AuthControllerGetGlobalJwksResponses = {
-  /**
-   * JSON Web Key Set
+   * Service version info
    */
   200: unknown;
 };
@@ -2491,7 +2383,7 @@ export type TenantControllerGetTenantsData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/tenant";
+  url: "/api/tenant";
 };
 
 export type TenantControllerGetTenantsResponses = {
@@ -2505,7 +2397,7 @@ export type TenantControllerInitTenantData = {
   body: CreateTenantDto;
   path?: never;
   query?: never;
-  url: "/tenant";
+  url: "/api/tenant";
 };
 
 export type TenantControllerInitTenantResponses = {
@@ -2523,7 +2415,7 @@ export type TenantControllerDeleteTenantData = {
     id: string;
   };
   query?: never;
-  url: "/tenant/{id}";
+  url: "/api/tenant/{id}";
 };
 
 export type TenantControllerDeleteTenantResponses = {
@@ -2536,7 +2428,7 @@ export type TenantControllerGetTenantData = {
     id: string;
   };
   query?: never;
-  url: "/tenant/{id}";
+  url: "/api/tenant/{id}";
 };
 
 export type TenantControllerGetTenantResponses = {
@@ -2552,7 +2444,7 @@ export type TenantControllerUpdateTenantData = {
     id: string;
   };
   query?: never;
-  url: "/tenant/{id}";
+  url: "/api/tenant/{id}";
 };
 
 export type TenantControllerUpdateTenantResponses = {
@@ -2566,7 +2458,7 @@ export type ClientControllerGetClientsData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/client";
+  url: "/api/client";
 };
 
 export type ClientControllerGetClientsResponses = {
@@ -2580,7 +2472,7 @@ export type ClientControllerCreateClientData = {
   body: CreateClientDto;
   path?: never;
   query?: never;
-  url: "/client";
+  url: "/api/client";
 };
 
 export type ClientControllerCreateClientResponses = {
@@ -2596,7 +2488,7 @@ export type ClientControllerDeleteClientData = {
     id: string;
   };
   query?: never;
-  url: "/client/{id}";
+  url: "/api/client/{id}";
 };
 
 export type ClientControllerDeleteClientResponses = {
@@ -2609,7 +2501,7 @@ export type ClientControllerGetClientData = {
     id: string;
   };
   query?: never;
-  url: "/client/{id}";
+  url: "/api/client/{id}";
 };
 
 export type ClientControllerGetClientResponses = {
@@ -2625,7 +2517,7 @@ export type ClientControllerUpdateClientData = {
     id: string;
   };
   query?: never;
-  url: "/client/{id}";
+  url: "/api/client/{id}";
 };
 
 export type ClientControllerUpdateClientResponses = {
@@ -2643,7 +2535,7 @@ export type ClientControllerGetClientSecretData = {
     id: string;
   };
   query?: never;
-  url: "/client/{id}/secret";
+  url: "/api/client/{id}/secret";
 };
 
 export type ClientControllerGetClientSecretResponses = {
@@ -2659,7 +2551,7 @@ export type ClientControllerRotateClientSecretData = {
     id: string;
   };
   query?: never;
-  url: "/client/{id}/rotate-secret";
+  url: "/api/client/{id}/rotate-secret";
 };
 
 export type ClientControllerRotateClientSecretResponses = {
@@ -2669,47 +2561,11 @@ export type ClientControllerRotateClientSecretResponses = {
 export type ClientControllerRotateClientSecretResponse =
   ClientControllerRotateClientSecretResponses[keyof ClientControllerRotateClientSecretResponses];
 
-export type StatusListControllerGetListData = {
-  body?: never;
-  path: {
-    tenantId: string;
-    listId: string;
-  };
-  query?: never;
-  url: "/{tenantId}/status-management/status-list/{listId}";
-};
-
-export type StatusListControllerGetListResponses = {
-  200: string;
-};
-
-export type StatusListControllerGetListResponse =
-  StatusListControllerGetListResponses[keyof StatusListControllerGetListResponses];
-
-export type StatusListControllerGetStatusListAggregationData = {
-  body?: never;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/{tenantId}/status-management/status-list-aggregation";
-};
-
-export type StatusListControllerGetStatusListAggregationResponses = {
-  /**
-   * List of status list URIs
-   */
-  200: StatusListAggregationDto;
-};
-
-export type StatusListControllerGetStatusListAggregationResponse =
-  StatusListControllerGetStatusListAggregationResponses[keyof StatusListControllerGetStatusListAggregationResponses];
-
 export type StatusListConfigControllerResetConfigData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/status-list-config";
+  url: "/api/status-list-config";
 };
 
 export type StatusListConfigControllerResetConfigResponses = {
@@ -2726,7 +2582,7 @@ export type StatusListConfigControllerGetConfigData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/status-list-config";
+  url: "/api/status-list-config";
 };
 
 export type StatusListConfigControllerGetConfigResponses = {
@@ -2743,7 +2599,7 @@ export type StatusListConfigControllerUpdateConfigData = {
   body: UpdateStatusListConfigDto;
   path?: never;
   query?: never;
-  url: "/status-list-config";
+  url: "/api/status-list-config";
 };
 
 export type StatusListConfigControllerUpdateConfigResponses = {
@@ -2760,7 +2616,7 @@ export type StatusListManagementControllerGetListsData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/status-lists";
+  url: "/api/status-lists";
 };
 
 export type StatusListManagementControllerGetListsResponses = {
@@ -2777,7 +2633,7 @@ export type StatusListManagementControllerCreateListData = {
   body: CreateStatusListDto;
   path?: never;
   query?: never;
-  url: "/status-lists";
+  url: "/api/status-lists";
 };
 
 export type StatusListManagementControllerCreateListResponses = {
@@ -2799,7 +2655,7 @@ export type StatusListManagementControllerDeleteListData = {
     listId: string;
   };
   query?: never;
-  url: "/status-lists/{listId}";
+  url: "/api/status-lists/{listId}";
 };
 
 export type StatusListManagementControllerDeleteListResponses = {
@@ -2821,7 +2677,7 @@ export type StatusListManagementControllerGetListData = {
     listId: string;
   };
   query?: never;
-  url: "/status-lists/{listId}";
+  url: "/api/status-lists/{listId}";
 };
 
 export type StatusListManagementControllerGetListResponses = {
@@ -2843,7 +2699,7 @@ export type StatusListManagementControllerUpdateListData = {
     listId: string;
   };
   query?: never;
-  url: "/status-lists/{listId}";
+  url: "/api/status-lists/{listId}";
 };
 
 export type StatusListManagementControllerUpdateListResponses = {
@@ -2860,7 +2716,7 @@ export type SessionControllerGetAllSessionsData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/session";
+  url: "/api/session";
 };
 
 export type SessionControllerGetAllSessionsResponses = {
@@ -2876,7 +2732,7 @@ export type SessionControllerDeleteSessionData = {
     id: string;
   };
   query?: never;
-  url: "/session/{id}";
+  url: "/api/session/{id}";
 };
 
 export type SessionControllerDeleteSessionResponses = {
@@ -2892,7 +2748,7 @@ export type SessionControllerGetSessionData = {
     id: string;
   };
   query?: never;
-  url: "/session/{id}";
+  url: "/api/session/{id}";
 };
 
 export type SessionControllerGetSessionResponses = {
@@ -2906,7 +2762,7 @@ export type SessionControllerRevokeAllData = {
   body: StatusUpdateDto;
   path?: never;
   query?: never;
-  url: "/session/revoke";
+  url: "/api/session/revoke";
 };
 
 export type SessionControllerRevokeAllResponses = {
@@ -2917,7 +2773,7 @@ export type SessionConfigControllerResetConfigData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/session-config";
+  url: "/api/session-config";
 };
 
 export type SessionConfigControllerResetConfigResponses = {
@@ -2931,7 +2787,7 @@ export type SessionConfigControllerGetConfigData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/session-config";
+  url: "/api/session-config";
 };
 
 export type SessionConfigControllerGetConfigResponses = {
@@ -2948,7 +2804,7 @@ export type SessionConfigControllerUpdateConfigData = {
   body: UpdateSessionConfigDto;
   path?: never;
   query?: never;
-  url: "/session-config";
+  url: "/api/session-config";
 };
 
 export type SessionConfigControllerUpdateConfigResponses = {
@@ -2975,7 +2831,7 @@ export type SessionEventsControllerSubscribeToSessionEventsData = {
      */
     token: string;
   };
-  url: "/session/{id}/events";
+  url: "/api/session/{id}/events";
 };
 
 export type SessionEventsControllerSubscribeToSessionEventsResponses = {
@@ -2986,7 +2842,7 @@ export type IssuanceConfigControllerGetIssuanceConfigurationsData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/issuer/config";
+  url: "/api/issuer/config";
 };
 
 export type IssuanceConfigControllerGetIssuanceConfigurationsResponses = {
@@ -3000,7 +2856,7 @@ export type IssuanceConfigControllerStoreIssuanceConfigurationData = {
   body: IssuanceDto;
   path?: never;
   query?: never;
-  url: "/issuer/config";
+  url: "/api/issuer/config";
 };
 
 export type IssuanceConfigControllerStoreIssuanceConfigurationResponses = {
@@ -3016,7 +2872,7 @@ export type CredentialConfigControllerGetConfigsData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/issuer/credentials";
+  url: "/api/issuer/credentials";
 };
 
 export type CredentialConfigControllerGetConfigsResponses = {
@@ -3030,7 +2886,7 @@ export type CredentialConfigControllerStoreCredentialConfigurationData = {
   body: CredentialConfigCreate;
   path?: never;
   query?: never;
-  url: "/issuer/credentials";
+  url: "/api/issuer/credentials";
 };
 
 export type CredentialConfigControllerStoreCredentialConfigurationResponses = {
@@ -3048,7 +2904,7 @@ export type CredentialConfigControllerDeleteIssuanceConfigurationData = {
     id: string;
   };
   query?: never;
-  url: "/issuer/credentials/{id}";
+  url: "/api/issuer/credentials/{id}";
 };
 
 export type CredentialConfigControllerDeleteIssuanceConfigurationResponses = {
@@ -3061,7 +2917,7 @@ export type CredentialConfigControllerGetConfigByIdData = {
     id: string;
   };
   query?: never;
-  url: "/issuer/credentials/{id}";
+  url: "/api/issuer/credentials/{id}";
 };
 
 export type CredentialConfigControllerGetConfigByIdResponses = {
@@ -3077,7 +2933,7 @@ export type CredentialConfigControllerUpdateCredentialConfigurationData = {
     id: string;
   };
   query?: never;
-  url: "/issuer/credentials/{id}";
+  url: "/api/issuer/credentials/{id}";
 };
 
 export type CredentialConfigControllerUpdateCredentialConfigurationResponses = {
@@ -3093,7 +2949,7 @@ export type AttributeProviderControllerGetAllData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/issuer/attribute-providers";
+  url: "/api/issuer/attribute-providers";
 };
 
 export type AttributeProviderControllerGetAllResponses = {
@@ -3107,7 +2963,7 @@ export type AttributeProviderControllerCreateData = {
   body: CreateAttributeProviderDto;
   path?: never;
   query?: never;
-  url: "/issuer/attribute-providers";
+  url: "/api/issuer/attribute-providers";
 };
 
 export type AttributeProviderControllerCreateResponses = {
@@ -3123,7 +2979,7 @@ export type AttributeProviderControllerDeleteData = {
     id: string;
   };
   query?: never;
-  url: "/issuer/attribute-providers/{id}";
+  url: "/api/issuer/attribute-providers/{id}";
 };
 
 export type AttributeProviderControllerDeleteErrors = {
@@ -3146,7 +3002,7 @@ export type AttributeProviderControllerGetByIdData = {
     id: string;
   };
   query?: never;
-  url: "/issuer/attribute-providers/{id}";
+  url: "/api/issuer/attribute-providers/{id}";
 };
 
 export type AttributeProviderControllerGetByIdErrors = {
@@ -3169,7 +3025,7 @@ export type AttributeProviderControllerUpdateData = {
     id: string;
   };
   query?: never;
-  url: "/issuer/attribute-providers/{id}";
+  url: "/api/issuer/attribute-providers/{id}";
 };
 
 export type AttributeProviderControllerUpdateErrors = {
@@ -3190,7 +3046,7 @@ export type WebhookEndpointControllerGetAllData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/issuer/webhook-endpoints";
+  url: "/api/issuer/webhook-endpoints";
 };
 
 export type WebhookEndpointControllerGetAllResponses = {
@@ -3204,7 +3060,7 @@ export type WebhookEndpointControllerCreateData = {
   body: CreateWebhookEndpointDto;
   path?: never;
   query?: never;
-  url: "/issuer/webhook-endpoints";
+  url: "/api/issuer/webhook-endpoints";
 };
 
 export type WebhookEndpointControllerCreateResponses = {
@@ -3220,7 +3076,7 @@ export type WebhookEndpointControllerDeleteData = {
     id: string;
   };
   query?: never;
-  url: "/issuer/webhook-endpoints/{id}";
+  url: "/api/issuer/webhook-endpoints/{id}";
 };
 
 export type WebhookEndpointControllerDeleteErrors = {
@@ -3243,7 +3099,7 @@ export type WebhookEndpointControllerGetByIdData = {
     id: string;
   };
   query?: never;
-  url: "/issuer/webhook-endpoints/{id}";
+  url: "/api/issuer/webhook-endpoints/{id}";
 };
 
 export type WebhookEndpointControllerGetByIdErrors = {
@@ -3266,7 +3122,7 @@ export type WebhookEndpointControllerUpdateData = {
     id: string;
   };
   query?: never;
-  url: "/issuer/webhook-endpoints/{id}";
+  url: "/api/issuer/webhook-endpoints/{id}";
 };
 
 export type WebhookEndpointControllerUpdateErrors = {
@@ -3287,7 +3143,7 @@ export type PresentationManagementControllerConfigurationData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/verifier/config";
+  url: "/api/verifier/config";
 };
 
 export type PresentationManagementControllerConfigurationResponses = {
@@ -3301,7 +3157,7 @@ export type PresentationManagementControllerStorePresentationConfigData = {
   body: PresentationConfigCreateDto;
   path?: never;
   query?: never;
-  url: "/verifier/config";
+  url: "/api/verifier/config";
 };
 
 export type PresentationManagementControllerStorePresentationConfigResponses = {
@@ -3319,7 +3175,7 @@ export type PresentationManagementControllerDeleteConfigurationData = {
     id: string;
   };
   query?: never;
-  url: "/verifier/config/{id}";
+  url: "/api/verifier/config/{id}";
 };
 
 export type PresentationManagementControllerDeleteConfigurationResponses = {
@@ -3332,7 +3188,7 @@ export type PresentationManagementControllerGetConfigurationData = {
     id: string;
   };
   query?: never;
-  url: "/verifier/config/{id}";
+  url: "/api/verifier/config/{id}";
 };
 
 export type PresentationManagementControllerGetConfigurationResponses = {
@@ -3348,7 +3204,7 @@ export type PresentationManagementControllerUpdateConfigurationData = {
     id: string;
   };
   query?: never;
-  url: "/verifier/config/{id}";
+  url: "/api/verifier/config/{id}";
 };
 
 export type PresentationManagementControllerUpdateConfigurationResponses = {
@@ -3364,7 +3220,7 @@ export type CacheControllerGetStatsData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/cache/stats";
+  url: "/api/cache/stats";
 };
 
 export type CacheControllerGetStatsResponses = {
@@ -3378,7 +3234,7 @@ export type CacheControllerClearAllCachesData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/cache";
+  url: "/api/cache";
 };
 
 export type CacheControllerClearAllCachesResponses = {
@@ -3395,7 +3251,7 @@ export type CacheControllerClearTrustListCacheData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/cache/trust-list";
+  url: "/api/cache/trust-list";
 };
 
 export type CacheControllerClearTrustListCacheResponses = {
@@ -3412,7 +3268,7 @@ export type CacheControllerClearStatusListCacheData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/cache/status-list";
+  url: "/api/cache/status-list";
 };
 
 export type CacheControllerClearStatusListCacheResponses = {
@@ -3425,381 +3281,11 @@ export type CacheControllerClearStatusListCacheResponses = {
 export type CacheControllerClearStatusListCacheResponse =
   CacheControllerClearStatusListCacheResponses[keyof CacheControllerClearStatusListCacheResponses];
 
-export type Oid4VciControllerCredentialData = {
-  body?: never;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/{tenantId}/vci/credential";
-};
-
-export type Oid4VciControllerCredentialResponses = {
-  200: {
-    [key: string]: unknown;
-  };
-};
-
-export type Oid4VciControllerCredentialResponse =
-  Oid4VciControllerCredentialResponses[keyof Oid4VciControllerCredentialResponses];
-
-export type Oid4VciControllerDeferredCredentialData = {
-  body: DeferredCredentialRequestDto;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/{tenantId}/vci/deferred_credential";
-};
-
-export type Oid4VciControllerDeferredCredentialResponses = {
-  200: unknown;
-};
-
-export type Oid4VciControllerNotificationsData = {
-  body: NotificationRequestDto;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/{tenantId}/vci/notification";
-};
-
-export type Oid4VciControllerNotificationsResponses = {
-  201: unknown;
-};
-
-export type Oid4VciControllerNonceData = {
-  body?: never;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/{tenantId}/vci/nonce";
-};
-
-export type Oid4VciControllerNonceResponses = {
-  200: unknown;
-};
-
-export type AuthorizeControllerAuthorizeData = {
-  body?: never;
-  path: {
-    tenantId: string;
-  };
-  query?: {
-    issuer_state?: string;
-    response_type?: string;
-    client_id?: string;
-    redirect_uri?: string;
-    resource?: string;
-    scope?: string;
-    code_challenge?: string;
-    code_challenge_method?: string;
-    dpop_jkt?: string;
-    request_uri?: string;
-    auth_session?: string;
-    state?: string;
-  };
-  url: "/{tenantId}/authorize";
-};
-
-export type AuthorizeControllerAuthorizeResponses = {
-  200: unknown;
-};
-
-export type AuthorizeControllerParData = {
-  /**
-   * Pushed Authorization Request
-   */
-  body: AuthorizeQueries;
-  path?: never;
-  query?: never;
-  url: "/{tenantId}/authorize/par";
-};
-
-export type AuthorizeControllerParResponses = {
-  201: ParResponseDto;
-};
-
-export type AuthorizeControllerParResponse =
-  AuthorizeControllerParResponses[keyof AuthorizeControllerParResponses];
-
-export type AuthorizeControllerTokenData = {
-  body?: never;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/{tenantId}/authorize/token";
-};
-
-export type AuthorizeControllerTokenResponses = {
-  201: {
-    [key: string]: unknown;
-  };
-};
-
-export type AuthorizeControllerTokenResponse =
-  AuthorizeControllerTokenResponses[keyof AuthorizeControllerTokenResponses];
-
-export type InteractiveAuthorizationControllerInteractiveAuthorizationData = {
-  /**
-   * Interactive authorization request
-   */
-  body: InteractiveAuthorizationRequestDto;
-  headers: {
-    origin: string;
-  };
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/{tenantId}/authorize/interactive";
-};
-
-export type InteractiveAuthorizationControllerInteractiveAuthorizationErrors = {
-  /**
-   * Error response
-   */
-  400: InteractiveAuthorizationErrorResponseDto;
-};
-
-export type InteractiveAuthorizationControllerInteractiveAuthorizationError =
-  InteractiveAuthorizationControllerInteractiveAuthorizationErrors[keyof InteractiveAuthorizationControllerInteractiveAuthorizationErrors];
-
-export type InteractiveAuthorizationControllerInteractiveAuthorizationResponses =
-  {
-    /**
-     * Authorization code response (successful completion)
-     */
-    200: InteractiveAuthorizationCodeResponseDto;
-  };
-
-export type InteractiveAuthorizationControllerInteractiveAuthorizationResponse =
-  InteractiveAuthorizationControllerInteractiveAuthorizationResponses[keyof InteractiveAuthorizationControllerInteractiveAuthorizationResponses];
-
-export type InteractiveAuthorizationControllerCompleteWebAuthData = {
-  body?: never;
-  path: {
-    authSession: string;
-    tenantId: string;
-  };
-  query?: never;
-  url: "/{tenantId}/authorize/interactive/complete-web-auth/{authSession}";
-};
-
-export type InteractiveAuthorizationControllerCompleteWebAuthErrors = {
-  /**
-   * Auth session not found
-   */
-  404: unknown;
-};
-
-export type InteractiveAuthorizationControllerCompleteWebAuthResponses = {
-  /**
-   * Web authorization marked as completed
-   */
-  200: unknown;
-};
-
-export type ChainedAsControllerParData = {
-  body: ChainedAsParRequestDto;
-  headers?: {
-    /**
-     * DPoP proof JWT
-     */
-    DPoP?: string;
-    /**
-     * Wallet attestation JWT
-     */
-    "OAuth-Client-Attestation"?: string;
-    /**
-     * Wallet attestation proof-of-possession JWT
-     */
-    "OAuth-Client-Attestation-PoP"?: string;
-  };
-  path: {
-    /**
-     * Tenant identifier
-     */
-    tenant: string;
-  };
-  query?: never;
-  url: "/{tenant}/chained-as/par";
-};
-
-export type ChainedAsControllerParErrors = {
-  /**
-   * Invalid request
-   */
-  400: ChainedAsErrorResponseDto;
-};
-
-export type ChainedAsControllerParError =
-  ChainedAsControllerParErrors[keyof ChainedAsControllerParErrors];
-
-export type ChainedAsControllerParResponses = {
-  /**
-   * PAR request accepted
-   */
-  201: ChainedAsParResponseDto;
-};
-
-export type ChainedAsControllerParResponse =
-  ChainedAsControllerParResponses[keyof ChainedAsControllerParResponses];
-
-export type ChainedAsControllerAuthorizeData = {
-  body?: never;
-  path: {
-    /**
-     * Tenant identifier
-     */
-    tenant: string;
-  };
-  query: {
-    /**
-     * Client identifier
-     */
-    client_id: string;
-    /**
-     * Request URI from PAR response
-     */
-    request_uri: string;
-  };
-  url: "/{tenant}/chained-as/authorize";
-};
-
-export type ChainedAsControllerAuthorizeErrors = {
-  /**
-   * Invalid request
-   */
-  400: ChainedAsErrorResponseDto;
-};
-
-export type ChainedAsControllerAuthorizeError =
-  ChainedAsControllerAuthorizeErrors[keyof ChainedAsControllerAuthorizeErrors];
-
-export type ChainedAsControllerAuthorizeResponses = {
-  200: unknown;
-};
-
-export type ChainedAsControllerCallbackData = {
-  body?: never;
-  path: {
-    /**
-     * Tenant identifier
-     */
-    tenant: string;
-  };
-  query: {
-    code: string;
-    state: string;
-    error: string;
-    error_description: string;
-  };
-  url: "/{tenant}/chained-as/callback";
-};
-
-export type ChainedAsControllerCallbackErrors = {
-  /**
-   * Invalid callback
-   */
-  400: ChainedAsErrorResponseDto;
-};
-
-export type ChainedAsControllerCallbackError =
-  ChainedAsControllerCallbackErrors[keyof ChainedAsControllerCallbackErrors];
-
-export type ChainedAsControllerCallbackResponses = {
-  200: unknown;
-};
-
-export type ChainedAsControllerTokenData = {
-  body: ChainedAsTokenRequestDto;
-  headers?: {
-    /**
-     * DPoP proof JWT
-     */
-    DPoP?: string;
-  };
-  path: {
-    /**
-     * Tenant identifier
-     */
-    tenant: string;
-  };
-  query?: never;
-  url: "/{tenant}/chained-as/token";
-};
-
-export type ChainedAsControllerTokenErrors = {
-  /**
-   * Invalid request
-   */
-  400: ChainedAsErrorResponseDto;
-  /**
-   * Invalid authorization code
-   */
-  401: ChainedAsErrorResponseDto;
-};
-
-export type ChainedAsControllerTokenError =
-  ChainedAsControllerTokenErrors[keyof ChainedAsControllerTokenErrors];
-
-export type ChainedAsControllerTokenResponses = {
-  /**
-   * Token issued successfully
-   */
-  200: ChainedAsTokenResponseDto;
-};
-
-export type ChainedAsControllerTokenResponse =
-  ChainedAsControllerTokenResponses[keyof ChainedAsControllerTokenResponses];
-
-export type ChainedAsControllerJwksData = {
-  body?: never;
-  path: {
-    /**
-     * Tenant identifier
-     */
-    tenant: string;
-  };
-  query?: never;
-  url: "/{tenant}/chained-as/.well-known/jwks.json";
-};
-
-export type ChainedAsControllerJwksResponses = {
-  /**
-   * JWKS document
-   */
-  200: unknown;
-};
-
-export type ChainedAsControllerGetMetadataData = {
-  body?: never;
-  path: {
-    /**
-     * Tenant identifier
-     */
-    tenant: string;
-  };
-  query?: never;
-  url: "/{tenant}/chained-as/.well-known/oauth-authorization-server";
-};
-
-export type ChainedAsControllerGetMetadataResponses = {
-  /**
-   * OAuth AS metadata
-   */
-  200: unknown;
-};
-
 export type CredentialOfferControllerGetOfferData = {
   body: OfferRequestDto;
   path?: never;
   query?: never;
-  url: "/issuer/offer";
+  url: "/api/issuer/offer";
 };
 
 export type CredentialOfferControllerGetOfferResponses = {
@@ -3818,7 +3304,7 @@ export type DeferredControllerCompleteDeferredData = {
     transactionId: string;
   };
   query?: never;
-  url: "/issuer/deferred/{transactionId}/complete";
+  url: "/api/issuer/deferred/{transactionId}/complete";
 };
 
 export type DeferredControllerCompleteDeferredErrors = {
@@ -3844,7 +3330,7 @@ export type DeferredControllerFailDeferredData = {
     transactionId: string;
   };
   query?: never;
-  url: "/issuer/deferred/{transactionId}/fail";
+  url: "/api/issuer/deferred/{transactionId}/fail";
 };
 
 export type DeferredControllerFailDeferredErrors = {
@@ -3864,206 +3350,11 @@ export type DeferredControllerFailDeferredResponses = {
 export type DeferredControllerFailDeferredResponse =
   DeferredControllerFailDeferredResponses[keyof DeferredControllerFailDeferredResponses];
 
-export type Oid4VciMetadataControllerVctData = {
-  body?: never;
-  path: {
-    id: string;
-    tenantId: string;
-  };
-  query?: never;
-  url: "/{tenantId}/credentials-metadata/vct/{id}";
-};
-
-export type Oid4VciMetadataControllerVctResponses = {
-  200: Vct;
-};
-
-export type Oid4VciMetadataControllerVctResponse =
-  Oid4VciMetadataControllerVctResponses[keyof Oid4VciMetadataControllerVctResponses];
-
-export type WellKnownControllerIssuerMetadata0Data = {
-  body?: never;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/.well-known/openid-credential-issuer/{tenantId}";
-};
-
-export type WellKnownControllerIssuerMetadata0Responses = {
-  200: {
-    [key: string]: unknown;
-  };
-};
-
-export type WellKnownControllerIssuerMetadata0Response =
-  WellKnownControllerIssuerMetadata0Responses[keyof WellKnownControllerIssuerMetadata0Responses];
-
-export type WellKnownControllerIssuerMetadata1Data = {
-  body?: never;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/{tenantId}/.well-known/openid-credential-issuer";
-};
-
-export type WellKnownControllerIssuerMetadata1Responses = {
-  200: {
-    [key: string]: unknown;
-  };
-};
-
-export type WellKnownControllerIssuerMetadata1Response =
-  WellKnownControllerIssuerMetadata1Responses[keyof WellKnownControllerIssuerMetadata1Responses];
-
-export type WellKnownControllerAuthzMetadata0Data = {
-  body?: never;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/.well-known/oauth-authorization-server/{tenantId}";
-};
-
-export type WellKnownControllerAuthzMetadata0Responses = {
-  200: unknown;
-};
-
-export type WellKnownControllerAuthzMetadata1Data = {
-  body?: never;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/{tenantId}/.well-known/oauth-authorization-server";
-};
-
-export type WellKnownControllerAuthzMetadata1Responses = {
-  200: unknown;
-};
-
-export type WellKnownControllerChainedAsMetadataData = {
-  body?: never;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/.well-known/oauth-authorization-server/{tenantId}/chained-as";
-};
-
-export type WellKnownControllerChainedAsMetadataResponses = {
-  200: {
-    [key: string]: unknown;
-  };
-};
-
-export type WellKnownControllerChainedAsMetadataResponse =
-  WellKnownControllerChainedAsMetadataResponses[keyof WellKnownControllerChainedAsMetadataResponses];
-
-export type WellKnownControllerGetJwks0Data = {
-  body?: never;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/.well-known/jwks.json/{tenantId}";
-};
-
-export type WellKnownControllerGetJwks0Responses = {
-  200: JwksResponseDto;
-};
-
-export type WellKnownControllerGetJwks0Response =
-  WellKnownControllerGetJwks0Responses[keyof WellKnownControllerGetJwks0Responses];
-
-export type WellKnownControllerGetJwks1Data = {
-  body?: never;
-  path: {
-    tenantId: string;
-  };
-  query?: never;
-  url: "/{tenantId}/.well-known/jwks.json";
-};
-
-export type WellKnownControllerGetJwks1Responses = {
-  200: JwksResponseDto;
-};
-
-export type WellKnownControllerGetJwks1Response =
-  WellKnownControllerGetJwks1Responses[keyof WellKnownControllerGetJwks1Responses];
-
-export type Oid4VpControllerGetRequestWithSessionData = {
-  body?: never;
-  path: {
-    session: string;
-  };
-  query?: never;
-  url: "/{session}/oid4vp/request";
-};
-
-export type Oid4VpControllerGetRequestWithSessionResponses = {
-  200: string;
-};
-
-export type Oid4VpControllerGetRequestWithSessionResponse =
-  Oid4VpControllerGetRequestWithSessionResponses[keyof Oid4VpControllerGetRequestWithSessionResponses];
-
-export type Oid4VpControllerGetPostRequestWithSessionData = {
-  body?: never;
-  path: {
-    session: string;
-  };
-  query?: never;
-  url: "/{session}/oid4vp/request";
-};
-
-export type Oid4VpControllerGetPostRequestWithSessionResponses = {
-  201: string;
-};
-
-export type Oid4VpControllerGetPostRequestWithSessionResponse =
-  Oid4VpControllerGetPostRequestWithSessionResponses[keyof Oid4VpControllerGetPostRequestWithSessionResponses];
-
-export type Oid4VpControllerGetRequestNoRedirectWithSessionData = {
-  body?: never;
-  path: {
-    session: string;
-  };
-  query?: never;
-  url: "/{session}/oid4vp/request/no-redirect";
-};
-
-export type Oid4VpControllerGetRequestNoRedirectWithSessionResponses = {
-  200: string;
-};
-
-export type Oid4VpControllerGetRequestNoRedirectWithSessionResponse =
-  Oid4VpControllerGetRequestNoRedirectWithSessionResponses[keyof Oid4VpControllerGetRequestNoRedirectWithSessionResponses];
-
-export type Oid4VpControllerGetResponseData = {
-  body: AuthorizationResponse;
-  path: {
-    session: string;
-  };
-  query?: never;
-  url: "/{session}/oid4vp";
-};
-
-export type Oid4VpControllerGetResponseResponses = {
-  200: {
-    [key: string]: unknown;
-  };
-};
-
-export type Oid4VpControllerGetResponseResponse =
-  Oid4VpControllerGetResponseResponses[keyof Oid4VpControllerGetResponseResponses];
-
 export type RegistrarControllerDeleteConfigData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/registrar/config";
+  url: "/api/registrar/config";
 };
 
 export type RegistrarControllerDeleteConfigResponses = {
@@ -4080,7 +3371,7 @@ export type RegistrarControllerGetConfigData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/registrar/config";
+  url: "/api/registrar/config";
 };
 
 export type RegistrarControllerGetConfigErrors = {
@@ -4104,7 +3395,7 @@ export type RegistrarControllerUpdateConfigData = {
   body: UpdateRegistrarConfigDto;
   path?: never;
   query?: never;
-  url: "/registrar/config";
+  url: "/api/registrar/config";
 };
 
 export type RegistrarControllerUpdateConfigErrors = {
@@ -4132,7 +3423,7 @@ export type RegistrarControllerCreateConfigData = {
   body: CreateRegistrarConfigDto;
   path?: never;
   query?: never;
-  url: "/registrar/config";
+  url: "/api/registrar/config";
 };
 
 export type RegistrarControllerCreateConfigErrors = {
@@ -4156,7 +3447,7 @@ export type RegistrarControllerCreateAccessCertificateData = {
   body: CreateAccessCertificateDto;
   path?: never;
   query?: never;
-  url: "/registrar/access-certificate";
+  url: "/api/registrar/access-certificate";
 };
 
 export type RegistrarControllerCreateAccessCertificateErrors = {
@@ -4193,7 +3484,7 @@ export type TrustListControllerGetAllTrustListsData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/trust-list";
+  url: "/api/trust-list";
 };
 
 export type TrustListControllerGetAllTrustListsResponses = {
@@ -4207,7 +3498,7 @@ export type TrustListControllerCreateTrustListData = {
   body: TrustListCreateDto;
   path?: never;
   query?: never;
-  url: "/trust-list";
+  url: "/api/trust-list";
 };
 
 export type TrustListControllerCreateTrustListResponses = {
@@ -4223,7 +3514,7 @@ export type TrustListControllerDeleteTrustListData = {
     id: string;
   };
   query?: never;
-  url: "/trust-list/{id}";
+  url: "/api/trust-list/{id}";
 };
 
 export type TrustListControllerDeleteTrustListResponses = {
@@ -4236,7 +3527,7 @@ export type TrustListControllerGetTrustListData = {
     id: string;
   };
   query?: never;
-  url: "/trust-list/{id}";
+  url: "/api/trust-list/{id}";
 };
 
 export type TrustListControllerGetTrustListResponses = {
@@ -4252,7 +3543,7 @@ export type TrustListControllerUpdateTrustListData = {
     id: string;
   };
   query?: never;
-  url: "/trust-list/{id}";
+  url: "/api/trust-list/{id}";
 };
 
 export type TrustListControllerUpdateTrustListResponses = {
@@ -4268,7 +3559,7 @@ export type TrustListControllerExportTrustListData = {
     id: string;
   };
   query?: never;
-  url: "/trust-list/{id}/export";
+  url: "/api/trust-list/{id}/export";
 };
 
 export type TrustListControllerExportTrustListResponses = {
@@ -4284,7 +3575,7 @@ export type TrustListControllerGetTrustListVersionsData = {
     id: string;
   };
   query?: never;
-  url: "/trust-list/{id}/versions";
+  url: "/api/trust-list/{id}/versions";
 };
 
 export type TrustListControllerGetTrustListVersionsResponses = {
@@ -4301,7 +3592,7 @@ export type TrustListControllerGetTrustListVersionData = {
     versionId: string;
   };
   query?: never;
-  url: "/trust-list/{id}/versions/{versionId}";
+  url: "/api/trust-list/{id}/versions/{versionId}";
 };
 
 export type TrustListControllerGetTrustListVersionResponses = {
@@ -4311,28 +3602,11 @@ export type TrustListControllerGetTrustListVersionResponses = {
 export type TrustListControllerGetTrustListVersionResponse =
   TrustListControllerGetTrustListVersionResponses[keyof TrustListControllerGetTrustListVersionResponses];
 
-export type TrustListPublicControllerGetTrustListJwtData = {
-  body?: never;
-  path: {
-    tenantId: string;
-    id: string;
-  };
-  query?: never;
-  url: "/{tenantId}/trust-list/{id}";
-};
-
-export type TrustListPublicControllerGetTrustListJwtResponses = {
-  200: string;
-};
-
-export type TrustListPublicControllerGetTrustListJwtResponse =
-  TrustListPublicControllerGetTrustListJwtResponses[keyof TrustListPublicControllerGetTrustListJwtResponses];
-
 export type KeyChainControllerGetProvidersData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/key-chain/providers";
+  url: "/api/key-chain/providers";
 };
 
 export type KeyChainControllerGetProvidersResponses = {
@@ -4349,7 +3623,7 @@ export type KeyChainControllerGetAllData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/key-chain";
+  url: "/api/key-chain";
 };
 
 export type KeyChainControllerGetAllResponses = {
@@ -4366,7 +3640,7 @@ export type KeyChainControllerCreateData = {
   body: KeyChainCreateDto;
   path?: never;
   query?: never;
-  url: "/key-chain";
+  url: "/api/key-chain";
 };
 
 export type KeyChainControllerCreateResponses = {
@@ -4382,7 +3656,7 @@ export type KeyChainControllerDeleteData = {
     id: string;
   };
   query?: never;
-  url: "/key-chain/{id}";
+  url: "/api/key-chain/{id}";
 };
 
 export type KeyChainControllerDeleteErrors = {
@@ -4405,7 +3679,7 @@ export type KeyChainControllerGetByIdData = {
     id: string;
   };
   query?: never;
-  url: "/key-chain/{id}";
+  url: "/api/key-chain/{id}";
 };
 
 export type KeyChainControllerGetByIdErrors = {
@@ -4431,7 +3705,7 @@ export type KeyChainControllerUpdateData = {
     id: string;
   };
   query?: never;
-  url: "/key-chain/{id}";
+  url: "/api/key-chain/{id}";
 };
 
 export type KeyChainControllerUpdateErrors = {
@@ -4454,7 +3728,7 @@ export type KeyChainControllerExportData = {
     id: string;
   };
   query?: never;
-  url: "/key-chain/{id}/export";
+  url: "/api/key-chain/{id}/export";
 };
 
 export type KeyChainControllerExportErrors = {
@@ -4478,7 +3752,7 @@ export type KeyChainControllerImportData = {
   body: KeyChainImportDto;
   path?: never;
   query?: never;
-  url: "/key-chain/import";
+  url: "/api/key-chain/import";
 };
 
 export type KeyChainControllerImportResponses = {
@@ -4494,7 +3768,7 @@ export type KeyChainControllerRotateData = {
     id: string;
   };
   query?: never;
-  url: "/key-chain/{id}/rotate";
+  url: "/api/key-chain/{id}/rotate";
 };
 
 export type KeyChainControllerRotateErrors = {
@@ -4516,7 +3790,7 @@ export type VerifierOfferControllerGetOfferData = {
   body: PresentationRequest;
   path?: never;
   query?: never;
-  url: "/verifier/offer";
+  url: "/api/verifier/offer";
 };
 
 export type VerifierOfferControllerGetOfferResponses = {
@@ -4536,7 +3810,7 @@ export type StorageControllerUploadData = {
   body: FileUploadDto;
   path?: never;
   query?: never;
-  url: "/storage";
+  url: "/api/storage";
 };
 
 export type StorageControllerUploadResponses = {
@@ -4554,7 +3828,7 @@ export type StorageControllerDownloadData = {
     key: string;
   };
   query?: never;
-  url: "/storage/{key}";
+  url: "/api/storage/{key}";
 };
 
 export type StorageControllerDownloadResponses = {

@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Headers, Post } from "@nestjs/common";
 import {
     ApiBody,
-    ApiExcludeController,
     ApiExtraModels,
     ApiOperation,
     ApiResponse,
@@ -18,7 +17,6 @@ import { TokenResponse } from "./dto/token-response.dto";
  * Authentication Controller
  */
 @ApiExtraModels(RoleDto)
-@ApiExcludeController(process.env.SWAGGER_ALL !== "true")
 @ApiTags("Authentication")
 @Controller()
 export class AuthController {

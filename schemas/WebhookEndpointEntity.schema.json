@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/WebhookEndpointEntity.schema.json",
+  "title": "WebhookEndpointEntity",
+  "type": "object",
+  "properties": {
+    "auth": {
+      "oneOf": [
+        {
+          "$ref": "./WebHookAuthConfigNone.schema.json"
+        },
+        {
+          "$ref": "./WebHookAuthConfigHeader.schema.json"
+        }
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "tenantId": {
+      "type": "string"
+    },
+    "tenant": {
+      "$ref": "./TenantEntity.schema.json"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string",
+      "nullable": true
+    },
+    "url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "auth",
+    "id",
+    "tenantId",
+    "tenant",
+    "name",
+    "url"
+  ],
+  "additionalProperties": false
+}

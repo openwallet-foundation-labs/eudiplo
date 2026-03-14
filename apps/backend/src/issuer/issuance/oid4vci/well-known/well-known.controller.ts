@@ -1,10 +1,5 @@
 import { Controller, Get, Header, Param } from "@nestjs/common";
-import {
-    ApiExcludeController,
-    ApiOperation,
-    ApiProduces,
-    ApiTags,
-} from "@nestjs/swagger";
+import { ApiOperation, ApiProduces, ApiTags } from "@nestjs/swagger";
 import { ContentType } from "../../../../shared/utils/mediaType/media-type.decorator";
 import { MediaType } from "../../../../shared/utils/mediaType/media-type.enum";
 import { JwksResponseDto } from "./dto/jwks-response.dto";
@@ -14,7 +9,6 @@ import { WellKnownService } from "./well-known.service";
  * Controller for the OpenID4VCI well-known endpoints.
  */
 @ApiTags("OID4VCI")
-@ApiExcludeController(process.env.SWAGGER_ALL !== "true")
 @Controller()
 export class WellKnownController {
     /**

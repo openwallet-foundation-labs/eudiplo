@@ -9,12 +9,7 @@ import {
     Req,
     Res,
 } from "@nestjs/common";
-import {
-    ApiBody,
-    ApiConsumes,
-    ApiExcludeController,
-    ApiTags,
-} from "@nestjs/swagger";
+import { ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import type { Request, Response } from "express";
 import { SessionService } from "../../../../session/session.service";
 import { AuthorizeService } from "./authorize.service";
@@ -26,7 +21,6 @@ import { ParResponseDto } from "./dto/par-response.dto";
  * This controller handles the authorization requests, token requests.
  */
 @ApiTags("OID4VCI")
-@ApiExcludeController(process.env.SWAGGER_ALL !== "true")
 @Controller(":tenantId/authorize")
 export class AuthorizeController {
     constructor(

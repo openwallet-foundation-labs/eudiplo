@@ -11,7 +11,7 @@ import {
     Res,
     UseInterceptors,
 } from "@nestjs/common";
-import { ApiExcludeController, ApiParam, ApiTags } from "@nestjs/swagger";
+import { ApiParam, ApiTags } from "@nestjs/swagger";
 import type {
     CreateCredentialResponseReturn,
     CredentialResponse,
@@ -29,7 +29,6 @@ import { Oid4vciService } from "./oid4vci.service";
  */
 @ApiTags("OID4VCI")
 @ApiParam({ name: "tenantId", required: true })
-@ApiExcludeController(process.env.SWAGGER_ALL !== "true")
 @Controller(":tenantId/vci")
 @UseInterceptors(SessionLoggerInterceptor)
 export class Oid4vciController {

@@ -1,6 +1,5 @@
 import { Controller, Get, Header, Param } from "@nestjs/common";
 import {
-    ApiExcludeController,
     ApiExtraModels,
     ApiOkResponse,
     ApiOperation,
@@ -11,7 +10,6 @@ import { StatusListImportDto } from "./dto/status-list-import.dto";
 import { StatusListService } from "./status-list.service";
 
 @ApiExtraModels(StatusListImportDto)
-@ApiExcludeController(process.env.SWAGGER_ALL !== "true")
 @ApiTags("Issuer")
 @Controller(":tenantId/status-management")
 export class StatusListController {

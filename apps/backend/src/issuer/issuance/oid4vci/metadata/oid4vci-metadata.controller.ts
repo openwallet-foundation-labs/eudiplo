@@ -1,8 +1,7 @@
 import { Controller, Get, Param } from "@nestjs/common";
-import { ApiExcludeController, ApiTags } from "@nestjs/swagger";
+import { ApiTags } from "@nestjs/swagger";
 import { CredentialsService } from "../../../configuration/credentials/credentials.service";
 
-@ApiExcludeController(process.env.SWAGGER_ALL !== "true")
 @ApiTags("OID4VCI")
 @Controller(":tenantId/credentials-metadata")
 export class Oid4vciMetadataController {

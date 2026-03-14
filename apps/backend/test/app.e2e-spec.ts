@@ -26,9 +26,13 @@ describe("Home", () => {
             .expect((res) => {
                 expect(res.body).toEqual({
                     service: "EUDIPLO",
-                    version: expect.any(String),
                     documentation: expect.any(String),
                 });
+                expect(res.body).not.toHaveProperty("version");
             });
+    });
+
+    test("GET /version requires authentication", () => {
+        return request(app.getHttpServer()).get("/version").expect(401);
     });
 });
