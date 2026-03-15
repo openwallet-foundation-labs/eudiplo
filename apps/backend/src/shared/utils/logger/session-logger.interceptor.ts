@@ -148,8 +148,11 @@ export class SessionLoggerInterceptor implements NestInterceptor {
     private sanitizeBody(body: any): any {
         if (!body) return body;
 
+        // Non-object bodies (e.g. JWT strings) are returned as-is
+        if (typeof body !== "object") return body;
+
         // Create a copy to avoid modifying the original
-        const sanitized = { ...body };
+        const sanitized = Array.isArray(body) ? [...body] : { ...body };
 
         // Remove sensitive fields
         const sensitiveFields = [
