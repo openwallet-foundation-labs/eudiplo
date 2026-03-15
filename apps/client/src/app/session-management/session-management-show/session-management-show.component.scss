@@ -188,3 +188,64 @@
   word-break: break-word; // Break words if necessary to prevent overflow
   max-width: 100%; // Ensure it doesn't exceed the parent container
 }
+
+// Session log entries
+.log-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.log-entry {
+  padding: 12px;
+  border-radius: 4px;
+  border-left: 4px solid #90caf9;
+  background: #fafafa;
+
+  &.log-error {
+    border-left-color: #ef5350;
+    background: #fff5f5;
+  }
+
+  &.log-warn {
+    border-left-color: #ffa726;
+    background: #fffbf0;
+  }
+}
+
+.log-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.log-level-chip {
+  font-size: 10px;
+  min-height: 20px;
+  padding: 0 8px;
+}
+
+.log-stage {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.log-timestamp {
+  margin-left: auto;
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 11px;
+}
+
+.log-message {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.log-detail {
+  margin-top: 8px;
+  font-size: 12px;
+  padding: 8px;
+}

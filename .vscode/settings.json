@@ -107,5 +107,6 @@
     "connectionId": "eudiplo",
     "projectKey": "openwallet-foundation-labs_eudiplo"
   },
-  "chat.useNestedAgentsMdFiles": true
+  "chat.useNestedAgentsMdFiles": true,
+  "npm.exclude": ["**/dist/**", "**/site/**", "**/tmp/**"]
 }

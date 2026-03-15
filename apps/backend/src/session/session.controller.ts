@@ -1,10 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
-import { ApiParam, ApiTags } from "@nestjs/swagger";
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Role } from "../auth/roles/role.enum";
 import { Secured } from "../auth/secure.decorator";
 import { Token, TokenPayload } from "../auth/token.decorator";
 import { StatusUpdateDto } from "../issuer/lifecycle/status/dto/status-update.dto";
 import { StatusListService } from "../issuer/lifecycle/status/status-list.service";
+import { SessionLogStoreService } from "../shared/utils/logger/session-log-store.service";
+import { SessionLogEntryResponseDto } from "./dto/session-log-entry-response.dto";
 import { Session } from "./entities/session.entity";
 import { SessionService } from "./session.service";
 
@@ -15,6 +17,7 @@ export class SessionController {
     constructor(
         private readonly sessionService: SessionService,
         private readonly statusListService: StatusListService,
+        private readonly logStoreService: SessionLogStoreService,
     ) {}
 
     /**
@@ -47,6 +50,20 @@ export class SessionController {
         @Token() user: TokenPayload,
     ): Promise<void> {
         return this.sessionService.delete(id, user.entity!.id);
+    }
+
+    /**
+     * Retrieves the log entries for a given session.
+     * @param id - The session ID.
+     */
+    @ApiParam({ name: "id", description: "The session ID", type: String })
+    @ApiOperation({ summary: "Get session log entries" })
+    @ApiResponse({ status: 200, type: [SessionLogEntryResponseDto] })
+    @Get(":id/logs")
+    getSessionLogs(
+        @Param("id") id: string,
+    ): Promise<SessionLogEntryResponseDto[]> {
+        return this.logStoreService.findBySessionId(id);
     }
 
     /**

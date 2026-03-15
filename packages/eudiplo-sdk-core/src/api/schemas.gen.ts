@@ -388,8 +388,8 @@ export const UpdateClientDtoSchema = {
       description: "The description of the client.",
     },
     roles: {
-      description: "The roles assigned to the client.",
       type: "array",
+      description: "The roles assigned to the client.",
       items: {
         type: "string",
         enum: [
@@ -443,8 +443,8 @@ export const CreateClientDtoSchema = {
       description: "The description of the client.",
     },
     roles: {
-      description: "The roles assigned to the client.",
       type: "array",
+      description: "The roles assigned to the client.",
       items: {
         type: "string",
         enum: [
@@ -1103,6 +1103,43 @@ export const SessionSchema = {
   ],
 } as const;
 
+export const SessionLogEntryResponseDtoSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description: "Log entry ID",
+    },
+    sessionId: {
+      type: "string",
+      description: "Session ID",
+    },
+    timestamp: {
+      format: "date-time",
+      type: "string",
+      description: "Timestamp of the log entry",
+    },
+    level: {
+      type: "string",
+      description: "Log level",
+      enum: ["info", "warn", "error"],
+    },
+    stage: {
+      type: "string",
+      description: "Flow stage",
+    },
+    message: {
+      type: "string",
+      description: "Log message",
+    },
+    detail: {
+      type: "object",
+      description: "Additional structured detail",
+    },
+  },
+  required: ["id", "sessionId", "timestamp", "level", "message"],
+} as const;
+
 export const StatusUpdateDtoSchema = {
   type: "object",
   properties: {
@@ -1492,8 +1529,8 @@ export const TrustedAuthorityQuerySchema = {
   type: "object",
   properties: {
     type: {
-      enum: ["aki", "etsi_tl"],
       type: "string",
+      enum: ["aki", "etsi_tl"],
     },
     values: {
       type: "array",
@@ -1779,8 +1816,8 @@ export const IssuerMetadataCredentialConfigSchema = {
   type: "object",
   properties: {
     format: {
-      enum: ["mso_mdoc", "dc+sd-jwt"],
       type: "string",
+      enum: ["mso_mdoc", "dc+sd-jwt"],
     },
     display: {
       type: "array",
@@ -1907,14 +1944,14 @@ export const KeyChainEntitySchema = {
       description: "Human-readable description of the key chain.",
     },
     usageType: {
+      type: "string",
       description: "The purpose/role of this key chain in the system.",
       enum: ["access", "attestation", "trustList", "statusList", "encrypt"],
-      type: "string",
     },
     usage: {
+      type: "string",
       description: "The usage type of the keys (sign or encrypt).",
       enum: ["sign", "encrypt"],
-      type: "string",
     },
     kmsProvider: {
       type: "string",
@@ -4081,10 +4118,10 @@ export const PresentationRequestSchema = {
   type: "object",
   properties: {
     response_type: {
+      type: "string",
       description:
         "The type of response expected from the presentation request.",
       enum: ["uri", "dc-api"],
-      type: "string",
     },
     requestId: {
       type: "string",

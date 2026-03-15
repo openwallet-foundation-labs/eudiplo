@@ -125,6 +125,8 @@ import type {
   SessionControllerGetAllSessionsData,
   SessionControllerGetAllSessionsResponses,
   SessionControllerGetSessionData,
+  SessionControllerGetSessionLogsData,
+  SessionControllerGetSessionLogsResponses,
   SessionControllerGetSessionResponses,
   SessionControllerRevokeAllData,
   SessionControllerRevokeAllResponses,
@@ -672,6 +674,24 @@ export const sessionControllerGetSession = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/session/{id}",
+    ...options,
+  });
+
+/**
+ * Get session log entries
+ */
+export const sessionControllerGetSessionLogs = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<SessionControllerGetSessionLogsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    SessionControllerGetSessionLogsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/session/{id}/logs",
     ...options,
   });
 

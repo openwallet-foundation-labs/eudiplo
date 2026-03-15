@@ -1,4 +1,5 @@
 import { Component, type OnDestroy, type OnInit } from '@angular/core';
+import { UpperCasePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -11,7 +12,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import * as QRCode from 'qrcode';
 import { Session, isDcApiAvailable, type DigitalCredentialResponse } from '@eudiplo/sdk-core';
-import { SessionManagementService } from '../session-management.service';
+import { SessionManagementService, type SessionLogEntry } from '../session-management.service';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { decodeJwt } from 'jose';
@@ -27,6 +28,7 @@ import { decodeJwt } from 'jose';
     MatChipsModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    UpperCasePipe,
   ],
   templateUrl: './session-management-show.component.html',
   styleUrl: './session-management-show.component.scss',
@@ -34,6 +36,7 @@ import { decodeJwt } from 'jose';
 export class SessionManagementShowComponent implements OnInit, OnDestroy {
   session: Session | null = null;
   loading = false;
+  sessionLogs: SessionLogEntry[] = [];
 
   // QR Code functionality
   qrCodeDataUrl: string | null = null;
@@ -76,6 +79,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     const sessionId = this.route.snapshot.params['id'];
     await this.loadSession(sessionId);
+    this.loadSessionLogs(sessionId);
     await this.startPolling(sessionId);
   }
 
@@ -309,6 +313,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
       const currentStatus = this.getSessionStatusValue(updatedSession);
 
       this.session = updatedSession;
+      this.loadSessionLogs(sessionId);
 
       // Notify user of status changes
       if (previousStatus && previousStatus !== currentStatus) {
@@ -378,5 +383,25 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
   getOfferUri(): string | null {
     if (!this.session || this.session.status !== 'active') return null;
     return this.offerUri;
+  }
+
+  async loadSessionLogs(sessionId: string): Promise<void> {
+    try {
+      this.sessionLogs = await this.sessionManagementService.getSessionLogs(sessionId);
+    } catch {
+      // Logs may not be available if LOG_SESSION_STORE is off
+      this.sessionLogs = [];
+    }
+  }
+
+  getLogLevelClass(level: string): string {
+    switch (level) {
+      case 'error':
+        return 'log-error';
+      case 'warn':
+        return 'log-warn';
+      default:
+        return 'log-info';
+    }
   }
 }

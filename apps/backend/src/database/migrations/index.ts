@@ -14,3 +14,4 @@ export { RenameSigningToAttestation1745000000000 } from "./1745000000000-RenameS
 export { FlattenKeyUsageType1746000000000 } from "./1746000000000-FlattenKeyUsageType";
 export { MigrateKeysToKeyChain1747000000000 } from "./1747000000000-MigrateKeysToKeyChain";
 export { ExtractAttributeProviderAndWebhookEndpoint1748000000000 } from "./1748000000000-ExtractAttributeProviderAndWebhookEndpoint";
+export { AddSessionLogEntry1749000000000 } from "./1749000000000-AddSessionLogEntry";
