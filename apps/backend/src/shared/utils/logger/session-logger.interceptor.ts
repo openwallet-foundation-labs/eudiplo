@@ -7,9 +7,9 @@ import {
 import { Reflector } from "@nestjs/core";
 import { Observable } from "rxjs";
 import { catchError, tap } from "rxjs/operators";
+import { LoggerConfigService } from "./logger-config.service";
 import { SESSION_LOGGER_KEY } from "./session-logger.decorator";
 import { SessionLoggerService } from "./session-logger.service";
-import { LoggerConfigService } from "./logger-config.service";
 import { SessionLogContext } from "./session-logger-context";
 
 /**
@@ -92,8 +92,7 @@ export class SessionLoggerInterceptor implements NestInterceptor {
                     responseSize: JSON.stringify(data || {}).length,
                 };
                 if (this.loggerConfigService.isVerboseMode()) {
-                    responseDetail.responseBody =
-                        this.sanitizeBody(data);
+                    responseDetail.responseBody = this.sanitizeBody(data);
                 }
                 // Log successful request completion
                 this.sessionLoggerService.logSession(
@@ -104,17 +103,26 @@ export class SessionLoggerInterceptor implements NestInterceptor {
             }),
             catchError((error) => {
                 const duration = Date.now() - startTime;
+                const errorDetail: Record<string, unknown> = {
+                    event: "request_error",
+                    method,
+                    url,
+                    duration,
+                };
+                if (this.loggerConfigService.isVerboseMode()) {
+                    errorDetail.requestBody =
+                        this.sanitizeBody(request.body);
+                    if (error?.response) {
+                        errorDetail.errorResponse =
+                            this.sanitizeBody(error.response);
+                    }
+                }
                 // Log request error
                 this.sessionLoggerService.logSessionError(
                     logContext,
                     error,
                     `Error in ${method} ${url}`,
-                    {
-                        event: "request_error",
-                        method,
-                        url,
-                        duration,
-                    },
+                    errorDetail,
                 );
                 throw error;
             }),
