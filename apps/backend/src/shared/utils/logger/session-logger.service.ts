@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { PinoLogger } from "nestjs-pino";
+import { SessionLogLevel } from "../../../session/entities/session-log-entry.entity";
 import { LoggerConfigService } from "./logger-config.service";
 import { SessionLogStoreService } from "./session-log-store.service";
 import { SessionLogContext } from "./session-logger-context";
-import { SessionLogLevel } from "../../../session/entities/session-log-entry.entity";
 
 /**
  * Service for logging session-related events and errors.

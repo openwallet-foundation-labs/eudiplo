@@ -10,7 +10,10 @@ import { catchError, tap } from "rxjs/operators";
 import { LoggerConfigService } from "./logger-config.service";
 import { SESSION_LOGGER_KEY } from "./session-logger.decorator";
 import { SessionLoggerService } from "./session-logger.service";
-import { SessionLogContext } from "./session-logger-context";
+import {
+    RESOLVED_SESSION_ID,
+    SessionLogContext,
+} from "./session-logger-context";
 
 /**
  * Interceptor for logging session-related requests and responses.
@@ -82,6 +85,10 @@ export class SessionLoggerInterceptor implements NestInterceptor {
 
         return next.handle().pipe(
             tap((data) => {
+                // Resolve session ID from request if not available from route params
+                if (!logContext.sessionId && request[RESOLVED_SESSION_ID]) {
+                    logContext.sessionId = request[RESOLVED_SESSION_ID];
+                }
                 const duration = Date.now() - startTime;
                 const responseDetail: Record<string, unknown> = {
                     event: "request_success",
@@ -102,6 +109,10 @@ export class SessionLoggerInterceptor implements NestInterceptor {
                 );
             }),
             catchError((error) => {
+                // Resolve session ID from request if not available from route params
+                if (!logContext.sessionId && request[RESOLVED_SESSION_ID]) {
+                    logContext.sessionId = request[RESOLVED_SESSION_ID];
+                }
                 const duration = Date.now() - startTime;
                 const errorDetail: Record<string, unknown> = {
                     event: "request_error",
@@ -110,11 +121,11 @@ export class SessionLoggerInterceptor implements NestInterceptor {
                     duration,
                 };
                 if (this.loggerConfigService.isVerboseMode()) {
-                    errorDetail.requestBody =
-                        this.sanitizeBody(request.body);
+                    errorDetail.requestBody = this.sanitizeBody(request.body);
                     if (error?.response) {
-                        errorDetail.errorResponse =
-                            this.sanitizeBody(error.response);
+                        errorDetail.errorResponse = this.sanitizeBody(
+                            error.response,
+                        );
                     }
                 }
                 // Log request error

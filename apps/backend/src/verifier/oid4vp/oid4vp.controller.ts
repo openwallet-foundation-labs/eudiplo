@@ -37,7 +37,7 @@ export class Oid4vpController {
      * @returns
      */
     @Get("request")
-    @SessionLogger("session", "OID4VP")
+    @SessionLogger("sessionId", "OID4VP")
     getRequestWithSession(
         @Param("sessionId") sessionId: string,
         @Req() req: Request,
@@ -53,7 +53,7 @@ export class Oid4vpController {
      * @returns
      */
     @Get("request/no-redirect")
-    @SessionLogger("session", "OID4VP")
+    @SessionLogger("sessionId", "OID4VP")
     getRequestNoRedirectWithSession(
         @Param("sessionId") sessionId: string,
         @Req() req: Request,
@@ -73,7 +73,7 @@ export class Oid4vpController {
      * @returns
      */
     @Post("request")
-    @SessionLogger("session", "OID4VP")
+    @SessionLogger("sessionId", "OID4VP")
     getPostRequestWithSession(
         @Param("sessionId") sessionId: string,
         @Req() req: Request,
@@ -89,7 +89,7 @@ export class Oid4vpController {
      */
     @Post()
     @HttpCode(HttpStatus.OK)
-    @SessionLogger("session", "OID4VP")
+    @SessionLogger("sessionId", "OID4VP")
     getResponse(
         @Body() body: AuthorizationResponse,
         @Param("sessionId") sessionId: string,

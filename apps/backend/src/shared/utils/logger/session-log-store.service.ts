@@ -29,6 +29,7 @@ export class SessionLogStoreService {
         stage?: string,
         detail?: Record<string, unknown>,
     ): Promise<void> {
+        if (!sessionId) return;
         if (this.mode === "off") return;
         if (this.mode === "errors" && level === "info") return;
         // "all" and "verbose" store everything; verbose callers pass richer detail

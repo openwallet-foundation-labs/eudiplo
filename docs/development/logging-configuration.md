@@ -100,13 +100,13 @@ be retrieved via `GET /api/session/{id}/logs`. The Web Client shows them in the
 **Logs** tab on the session detail page.
 
 !!! warning
-    `verbose` mode captures full HTTP response bodies and error stack traces.
-    This can generate large amounts of data and may include sensitive information.
-    Use it only for debugging and disable it in production.
+`verbose` mode captures full HTTP response bodies and error stack traces.
+This can generate large amounts of data and may include sensitive information.
+Use it only for debugging and disable it in production.
 
 !!! note
-    `LOG_SESSION_STORE` requires `LOG_ENABLE_SESSION_LOGGER=true` to have any
-    effect, since the session logger is the source of the persisted events.
+`LOG_SESSION_STORE` requires `LOG_ENABLE_SESSION_LOGGER=true` to have any
+effect, since the session logger is the source of the persisted events.
 
 ## Disabling Specific Logger Services
 
@@ -186,15 +186,15 @@ Session logs include structured data:
 
 ```json
 {
-  "level": "info",
-  "time": "2025-07-20T10:30:45.123Z",
-  "context": "SessionLoggerService",
-  "sessionId": "session_123",
-  "tenantId": "tenant_456",
-  "flowType": "OID4VCI",
-  "event": "flow_start",
-  "stage": "initialization",
-  "msg": "[OID4VCI] Flow started for session session_123 in tenant tenant_456"
+    "level": "info",
+    "time": "2025-07-20T10:30:45.123Z",
+    "context": "SessionLoggerService",
+    "sessionId": "session_123",
+    "tenantId": "tenant_456",
+    "flowType": "OID4VCI",
+    "event": "flow_start",
+    "stage": "initialization",
+    "msg": "[OID4VCI] Flow started for session session_123 in tenant tenant_456"
 }
 ```
 

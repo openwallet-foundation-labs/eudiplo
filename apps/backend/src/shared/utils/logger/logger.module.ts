@@ -12,6 +12,10 @@ import { SessionLoggerService } from "./session-logger.service";
         SessionLogStoreService,
         SessionLoggerService,
     ],
-    exports: [SessionLoggerService, SessionLogStoreService],
+    exports: [
+        SessionLoggerService,
+        SessionLogStoreService,
+        LoggerConfigService,
+    ],
 })
 export class LoggerModule {}
