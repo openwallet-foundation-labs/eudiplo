@@ -12,6 +12,7 @@ import { SessionLogLevel } from "../../../session/entities/session-log-entry.ent
 @Injectable()
 export class SessionLoggerService {
     private readonly isEnabled: boolean;
+    private readonly verbose: boolean;
 
     /**
      * Constructor for SessionLoggerService.
@@ -26,6 +27,7 @@ export class SessionLoggerService {
     ) {
         this.logger.setContext("SessionLoggerService");
         this.isEnabled = this.loggerConfigService.isSessionLoggerEnabled();
+        this.verbose = this.loggerConfigService.isVerboseMode();
     }
 
     private persistLog(
@@ -61,7 +63,13 @@ export class SessionLoggerService {
             },
             message,
         );
-        this.persistLog(context, "info", message, "initialization", additionalData);
+        this.persistLog(
+            context,
+            "info",
+            message,
+            "initialization",
+            additionalData,
+        );
     }
 
     /**
@@ -112,6 +120,7 @@ export class SessionLoggerService {
         this.persistLog(context, "error", message, "error", {
             errorName: error.name,
             errorMessage: error.message,
+            ...(this.verbose && { errorStack: error.stack }),
             ...additionalData,
         });
     }
@@ -308,6 +317,7 @@ export class SessionLoggerService {
             {
                 errorName: error.name,
                 errorMessage: error.message,
+                ...(this.verbose && { errorStack: error.stack }),
                 ...additionalData,
             },
         );

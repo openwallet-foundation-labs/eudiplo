@@ -1,7 +1,7 @@
 import { Injectable, LogLevel } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
-export type SessionStoreMode = "off" | "errors" | "all";
+export type SessionStoreMode = "off" | "errors" | "all" | "verbose";
 
 export interface LoggerConfiguration {
     level: LogLevel;
@@ -76,6 +76,10 @@ export class LoggerConfigService {
 
     isSessionStoreEnabled(): boolean {
         return this.config.sessionStoreMode !== "off";
+    }
+
+    isVerboseMode(): boolean {
+        return this.config.sessionStoreMode === "verbose";
     }
 
     isHttpLoggerEnabled(): boolean {

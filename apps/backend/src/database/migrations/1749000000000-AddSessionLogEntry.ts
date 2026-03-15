@@ -16,8 +16,7 @@ export class AddSessionLogEntry1749000000000 implements MigrationInterface {
     name = "AddSessionLogEntry1749000000000";
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        const existingTable =
-            await queryRunner.getTable("session_log_entry");
+        const existingTable = await queryRunner.getTable("session_log_entry");
         if (existingTable) {
             console.log(
                 "[Migration] session_log_entry table already exists — skipping.",
@@ -34,8 +33,7 @@ export class AddSessionLogEntry1749000000000 implements MigrationInterface {
             return;
         }
 
-        const isPostgres =
-            queryRunner.connection.options.type === "postgres";
+        const isPostgres = queryRunner.connection.options.type === "postgres";
 
         await queryRunner.createTable(
             new Table({

@@ -7,7 +7,11 @@ import { SessionLoggerService } from "./session-logger.service";
 
 @Module({
     imports: [TypeOrmModule.forFeature([SessionLogEntry])],
-    providers: [LoggerConfigService, SessionLogStoreService, SessionLoggerService],
+    providers: [
+        LoggerConfigService,
+        SessionLogStoreService,
+        SessionLoggerService,
+    ],
     exports: [SessionLoggerService, SessionLogStoreService],
 })
 export class LoggerModule {}

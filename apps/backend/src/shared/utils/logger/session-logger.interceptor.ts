@@ -9,6 +9,7 @@ import { Observable } from "rxjs";
 import { catchError, tap } from "rxjs/operators";
 import { SESSION_LOGGER_KEY } from "./session-logger.decorator";
 import { SessionLoggerService } from "./session-logger.service";
+import { LoggerConfigService } from "./logger-config.service";
 import { SessionLogContext } from "./session-logger-context";
 
 /**
@@ -24,6 +25,7 @@ export class SessionLoggerInterceptor implements NestInterceptor {
     constructor(
         private readonly reflector: Reflector,
         private readonly sessionLoggerService: SessionLoggerService,
+        private readonly loggerConfigService: LoggerConfigService,
     ) {}
 
     /**
@@ -81,18 +83,23 @@ export class SessionLoggerInterceptor implements NestInterceptor {
         return next.handle().pipe(
             tap((data) => {
                 const duration = Date.now() - startTime;
+                const responseDetail: Record<string, unknown> = {
+                    event: "request_success",
+                    method,
+                    url,
+                    statusCode: response.statusCode,
+                    duration,
+                    responseSize: JSON.stringify(data || {}).length,
+                };
+                if (this.loggerConfigService.isVerboseMode()) {
+                    responseDetail.responseBody =
+                        this.sanitizeBody(data);
+                }
                 // Log successful request completion
                 this.sessionLoggerService.logSession(
                     logContext,
                     `Completed ${method} ${url} in ${duration}ms`,
-                    {
-                        event: "request_success",
-                        method,
-                        url,
-                        statusCode: response.statusCode,
-                        duration,
-                        responseSize: JSON.stringify(data || {}).length,
-                    },
+                    responseDetail,
                 );
             }),
             catchError((error) => {

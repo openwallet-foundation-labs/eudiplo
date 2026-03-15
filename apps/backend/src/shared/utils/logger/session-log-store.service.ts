@@ -5,10 +5,7 @@ import {
     SessionLogEntry,
     SessionLogLevel,
 } from "../../../session/entities/session-log-entry.entity";
-import {
-    LoggerConfigService,
-    SessionStoreMode,
-} from "./logger-config.service";
+import { LoggerConfigService, SessionStoreMode } from "./logger-config.service";
 
 @Injectable()
 export class SessionLogStoreService {
@@ -34,6 +31,7 @@ export class SessionLogStoreService {
     ): Promise<void> {
         if (this.mode === "off") return;
         if (this.mode === "errors" && level === "info") return;
+        // "all" and "verbose" store everything; verbose callers pass richer detail
 
         await this.logRepository.save({
             sessionId,

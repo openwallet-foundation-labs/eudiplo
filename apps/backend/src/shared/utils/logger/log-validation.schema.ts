@@ -18,11 +18,12 @@ export const LOG_VALIDATION_SCHEMA = Joi.object({
         .description("Enable session flow logging")
         .meta({ group: "log", order: 30 }),
     LOG_SESSION_STORE: Joi.string()
-        .valid("off", "errors", "all")
+        .valid("off", "errors", "all", "verbose")
         .default("off")
         .description(
             "Controls whether session log entries are persisted to the database. " +
-                "'off' disables storage, 'errors' stores only warn/error entries, 'all' stores everything.",
+                "'off' disables storage, 'errors' stores only warn/error entries, " +
+                "'all' stores everything, 'verbose' stores everything including full request/response bodies and error stacks.",
         )
         .meta({ group: "log", order: 35 }),
     LOG_DEBUG_MODE: Joi.boolean()

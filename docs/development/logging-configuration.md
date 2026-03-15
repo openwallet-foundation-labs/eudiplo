@@ -90,11 +90,19 @@ LOG_SESSION_STORE=errors
 
 # Store all session log entries
 LOG_SESSION_STORE=all
+
+# Store all entries with full request/response bodies and error stacks
+LOG_SESSION_STORE=verbose
 ```
 
 When enabled, log entries are written to the `session_log_entry` table and can
 be retrieved via `GET /api/session/{id}/logs`. The Web Client shows them in the
 **Logs** tab on the session detail page.
+
+!!! warning
+    `verbose` mode captures full HTTP response bodies and error stack traces.
+    This can generate large amounts of data and may include sensitive information.
+    Use it only for debugging and disable it in production.
 
 !!! note
     `LOG_SESSION_STORE` requires `LOG_ENABLE_SESSION_LOGGER=true` to have any
