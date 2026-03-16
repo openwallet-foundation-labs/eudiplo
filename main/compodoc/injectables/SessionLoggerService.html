@@ -166,6 +166,11 @@ Uses PinoLogger for structured logging.</p>
                                     <span class="modifier">Readonly</span>
                                 <a href="#isEnabled" >isEnabled</a>
                             </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Readonly</span>
+                                <a href="#verbose" >verbose</a>
+                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -210,6 +215,10 @@ Uses PinoLogger for structured logging.</p>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
+                                <a href="#persistLog" >persistLog</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
                                 <a href="#shouldLog" >shouldLog</a>
                             </li>
                         </ul>
@@ -230,12 +239,12 @@ Uses PinoLogger for structured logging.</p>
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(logger: PinoLogger, loggerConfigService: <a href="../injectables/LoggerConfigService.html" target="_self">LoggerConfigService</a>)</code>
+<code>constructor(logger: PinoLogger, loggerConfigService: <a href="../injectables/LoggerConfigService.html" target="_self">LoggerConfigService</a>, logStore: <a href="../injectables/SessionLogStoreService.html" target="_self">SessionLogStoreService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:12</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:15</a></div>
                             </td>
                         </tr>
 
@@ -287,6 +296,24 @@ Uses PinoLogger for structured logging.</p>
                                                         <td>
                                                         </td>
                                                 </tr>
+                                                <tr>
+                                                        <td>logStore</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/SessionLogStoreService.html" target="_self" >SessionLogStoreService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                        <td>
+                                                                <ul>
+<li>SessionLogStoreService for persisting logs to DB.</li>
+</ul>
+
+                                                        </td>
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -321,8 +348,8 @@ Uses PinoLogger for structured logging.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="143"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:143</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="189"
+                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:189</a></div>
                         </td>
                     </tr>
 
@@ -402,8 +429,8 @@ Uses PinoLogger for structured logging.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="99"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:99</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="131"
+                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:131</a></div>
                         </td>
                     </tr>
 
@@ -495,8 +522,8 @@ Uses PinoLogger for structured logging.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="121"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:121</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="160"
+                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:160</a></div>
                         </td>
                     </tr>
 
@@ -588,8 +615,8 @@ Uses PinoLogger for structured logging.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="53"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:53</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="78"
+                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:78</a></div>
                         </td>
                     </tr>
 
@@ -669,8 +696,8 @@ Uses PinoLogger for structured logging.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="72"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:72</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="98"
+                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:98</a></div>
                         </td>
                     </tr>
 
@@ -762,8 +789,8 @@ Uses PinoLogger for structured logging.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="34"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:34</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="52"
+                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:52</a></div>
                         </td>
                     </tr>
 
@@ -843,8 +870,8 @@ Uses PinoLogger for structured logging.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="177"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:177</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="237"
+                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:237</a></div>
                         </td>
                     </tr>
 
@@ -936,8 +963,8 @@ Uses PinoLogger for structured logging.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="199"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:199</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="266"
+                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:266</a></div>
                         </td>
                     </tr>
 
@@ -1029,8 +1056,8 @@ Uses PinoLogger for structured logging.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="218"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:218</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="292"
+                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:292</a></div>
                         </td>
                     </tr>
 
@@ -1134,8 +1161,8 @@ Uses PinoLogger for structured logging.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="160"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:160</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="213"
+                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:213</a></div>
                         </td>
                     </tr>
 
@@ -1199,6 +1226,123 @@ Uses PinoLogger for structured logging.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="persistLog"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>persistLog</b></span>
+                        <a href="#persistLog"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>persistLog(context: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, level: <a href="../miscellaneous/typealiases.html#SessionLogLevel" target="_self">SessionLogLevel</a>, message: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, stage?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, detail?: Record<string | unknown>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="33"
+                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:33</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>context</td>
+                                            <td>
+                                                            <code><a href="../interfaces/SessionLogContext.html" target="_self" >SessionLogContext</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>level</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#SessionLogLevel" target="_self" >SessionLogLevel</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>message</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>stage</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>detail</td>
+                                            <td>
+                                                        <code>Record&lt;string | unknown&gt;</code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="shouldLog"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
@@ -1217,8 +1361,8 @@ Uses PinoLogger for structured logging.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="27"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:27</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="45"
+                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:45</a></div>
                         </td>
                     </tr>
 
@@ -1261,7 +1405,35 @@ Uses PinoLogger for structured logging.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:12</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:14</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="verbose"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Readonly</span>
+                        <span ><b>verbose</b></span>
+                        <a href="#verbose"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:15</a></div>
                         </td>
                     </tr>
 
@@ -1276,7 +1448,9 @@ Uses PinoLogger for structured logging.</p>
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
 import { PinoLogger } from &quot;nestjs-pino&quot;;
+import { SessionLogLevel } from &quot;../../../session/entities/session-log-entry.entity&quot;;
 import { LoggerConfigService } from &quot;./logger-config.service&quot;;
+import { SessionLogStoreService } from &quot;./session-log-store.service&quot;;
 import { SessionLogContext } from &quot;./session-logger-context&quot;;
 
 /**
@@ -1286,18 +1460,34 @@ import { SessionLogContext } from &quot;./session-logger-context&quot;;
 @Injectable()
 export class SessionLoggerService {
     private readonly isEnabled: boolean;
+    private readonly verbose: boolean;
 
     /**
      * Constructor for SessionLoggerService.
      * @param logger - PinoLogger instance for logging.
      * @param configService - ConfigService for accessing environment configuration.
+     * @param logStore - SessionLogStoreService for persisting logs to DB.
      */
     constructor(
         private readonly logger: PinoLogger,
         private readonly loggerConfigService: LoggerConfigService,
+        private readonly logStore: SessionLogStoreService,
     ) {
         this.logger.setContext(&quot;SessionLoggerService&quot;);
         this.isEnabled &#x3D; this.loggerConfigService.isSessionLoggerEnabled();
+        this.verbose &#x3D; this.loggerConfigService.isVerboseMode();
+    }
+
+    private persistLog(
+        context: SessionLogContext,
+        level: SessionLogLevel,
+        message: string,
+        stage?: string,
+        detail?: Record&lt;string, unknown&gt;,
+    ): void {
+        this.logStore
+            .append(context.sessionId, level, message, stage, detail)
+            .catch(() &#x3D;&gt; {});
     }
 
     private shouldLog(): boolean {
@@ -1321,6 +1511,13 @@ export class SessionLoggerService {
             },
             message,
         );
+        this.persistLog(
+            context,
+            &quot;info&quot;,
+            message,
+            &quot;initialization&quot;,
+            additionalData,
+        );
     }
 
     /**
@@ -1340,6 +1537,7 @@ export class SessionLoggerService {
             },
             message,
         );
+        this.persistLog(context, &quot;info&quot;, message, &quot;completion&quot;, additionalData);
     }
 
     /**
@@ -1367,6 +1565,12 @@ export class SessionLoggerService {
             },
             message,
         );
+        this.persistLog(context, &quot;error&quot;, message, &quot;error&quot;, {
+            errorName: error.name,
+            errorMessage: error.message,
+            ...(this.verbose &amp;&amp; { errorStack: error.stack }),
+            ...additionalData,
+        });
     }
 
     /**
@@ -1388,6 +1592,13 @@ export class SessionLoggerService {
                 ...additionalData,
             },
             &#x60;[${context.flowType}] Issuing credential of type ${credentialType} for session ${context.sessionId}&#x60;,
+        );
+        this.persistLog(
+            context,
+            &quot;info&quot;,
+            &#x60;[${context.flowType}] Issuing credential of type ${credentialType} for session ${context.sessionId}&#x60;,
+            &quot;credential_creation&quot;,
+            { credentialType, ...additionalData },
         );
     }
 
@@ -1411,6 +1622,13 @@ export class SessionLoggerService {
             },
             &#x60;[${context.flowType}] Credential verification ${verificationResult ? &quot;succeeded&quot; : &quot;failed&quot;} for session ${context.sessionId}&#x60;,
         );
+        this.persistLog(
+            context,
+            &quot;info&quot;,
+            &#x60;[${context.flowType}] Credential verification ${verificationResult ? &quot;succeeded&quot; : &quot;failed&quot;} for session ${context.sessionId}&#x60;,
+            &quot;verification&quot;,
+            { verificationResult, ...additionalData },
+        );
     }
 
     /**
@@ -1428,6 +1646,13 @@ export class SessionLoggerService {
             },
             &#x60;[${context.flowType}] Authorization request created for session ${context.sessionId}&#x60;,
         );
+        this.persistLog(
+            context,
+            &quot;info&quot;,
+            &#x60;[${context.flowType}] Authorization request created for session ${context.sessionId}&#x60;,
+            &quot;authorization&quot;,
+            additionalData,
+        );
     }
 
     /**
@@ -1444,6 +1669,13 @@ export class SessionLoggerService {
                 ...additionalData,
             },
             &#x60;[${context.flowType}] Token exchange for session ${context.sessionId}&#x60;,
+        );
+        this.persistLog(
+            context,
+            &quot;info&quot;,
+            &#x60;[${context.flowType}] Token exchange for session ${context.sessionId}&#x60;,
+            &quot;token_exchange&quot;,
+            additionalData,
         );
     }
 
@@ -1467,6 +1699,13 @@ export class SessionLoggerService {
             },
             &#x60;[${context.flowType}] Notification ${notificationEvent} for session ${context.sessionId}&#x60;,
         );
+        this.persistLog(
+            context,
+            &quot;info&quot;,
+            &#x60;[${context.flowType}] Notification ${notificationEvent} for session ${context.sessionId}&#x60;,
+            &quot;notification&quot;,
+            { notificationEvent, ...additionalData },
+        );
     }
 
     /**
@@ -1485,6 +1724,13 @@ export class SessionLoggerService {
                 ...additionalData,
             },
             &#x60;[${context.flowType}] ${message}&#x60;,
+        );
+        this.persistLog(
+            context,
+            &quot;info&quot;,
+            &#x60;[${context.flowType}] ${message}&#x60;,
+            context.stage,
+            additionalData,
         );
     }
 
@@ -1510,6 +1756,18 @@ export class SessionLoggerService {
                 ...additionalData,
             },
             &#x60;[${context.flowType}] ${message}: ${error.message}&#x60;,
+        );
+        this.persistLog(
+            context,
+            &quot;error&quot;,
+            &#x60;[${context.flowType}] ${message}: ${error.message}&#x60;,
+            context.stage,
+            {
+                errorName: error.name,
+                errorMessage: error.message,
+                ...(this.verbose &amp;&amp; { errorStack: error.stack }),
+                ...additionalData,
+            },
         );
     }
 }

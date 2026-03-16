@@ -173,6 +173,13 @@
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                <a href="#getSessionLogs" >getSessionLogs</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
                                 <a href="#revokeAll" >revokeAll</a>
                             </li>
                         </ul>
@@ -221,8 +228,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="45"
-                                    class="link-to-prism">src/session/session.controller.ts:45</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="48"
+                                    class="link-to-prism">src/session/session.controller.ts:48</a></div>
                         </td>
                     </tr>
 
@@ -311,8 +318,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="24"
-                                    class="link-to-prism">src/session/session.controller.ts:24</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="27"
+                                    class="link-to-prism">src/session/session.controller.ts:27</a></div>
                         </td>
                     </tr>
 
@@ -390,8 +397,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="34"
-                                    class="link-to-prism">src/session/session.controller.ts:34</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="37"
+                                    class="link-to-prism">src/session/session.controller.ts:37</a></div>
                         </td>
                     </tr>
 
@@ -450,6 +457,94 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="getSessionLogs"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>getSessionLogs</b></span>
+                        <a href="#getSessionLogs"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getSessionLogs(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@ApiParam({name: &#x27;id&#x27;, description: &#x27;The session ID&#x27;, type: String})<br />@ApiOperation({summary: &#x27;Get session log entries&#x27;})<br />@ApiResponse({status: 200, type: undefined})<br />@Get(&#x27;:id/logs&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="63"
+                                    class="link-to-prism">src/session/session.controller.ts:63</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Retrieves the log entries for a given session.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The session ID.</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/SessionLogEntryResponseDto.html" target="_self" >Promise&lt;SessionLogEntryResponseDto[]&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="revokeAll"></a>
                     <span class="name">
                             <span class="modifier"></span>
@@ -475,8 +570,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="58"
-                                    class="link-to-prism">src/session/session.controller.ts:58</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="75"
+                                    class="link-to-prism">src/session/session.controller.ts:75</a></div>
                         </td>
                     </tr>
 
@@ -541,12 +636,14 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Body, Controller, Delete, Get, Param, Post } from &quot;@nestjs/common&quot;;
-import { ApiParam, ApiTags } from &quot;@nestjs/swagger&quot;;
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from &quot;@nestjs/swagger&quot;;
 import { Role } from &quot;../auth/roles/role.enum&quot;;
 import { Secured } from &quot;../auth/secure.decorator&quot;;
 import { Token, TokenPayload } from &quot;../auth/token.decorator&quot;;
 import { StatusUpdateDto } from &quot;../issuer/lifecycle/status/dto/status-update.dto&quot;;
 import { StatusListService } from &quot;../issuer/lifecycle/status/status-list.service&quot;;
+import { SessionLogStoreService } from &quot;../shared/utils/logger/session-log-store.service&quot;;
+import { SessionLogEntryResponseDto } from &quot;./dto/session-log-entry-response.dto&quot;;
 import { Session } from &quot;./entities/session.entity&quot;;
 import { SessionService } from &quot;./session.service&quot;;
 
@@ -557,6 +654,7 @@ export class SessionController {
     constructor(
         private readonly sessionService: SessionService,
         private readonly statusListService: StatusListService,
+        private readonly logStoreService: SessionLogStoreService,
     ) {}
 
     /**
@@ -589,6 +687,20 @@ export class SessionController {
         @Token() user: TokenPayload,
     ): Promise&lt;void&gt; {
         return this.sessionService.delete(id, user.entity!.id);
+    }
+
+    /**
+     * Retrieves the log entries for a given session.
+     * @param id - The session ID.
+     */
+    @ApiParam({ name: &quot;id&quot;, description: &quot;The session ID&quot;, type: String })
+    @ApiOperation({ summary: &quot;Get session log entries&quot; })
+    @ApiResponse({ status: 200, type: [SessionLogEntryResponseDto] })
+    @Get(&quot;:id/logs&quot;)
+    getSessionLogs(
+        @Param(&quot;id&quot;) id: string,
+    ): Promise&lt;SessionLogEntryResponseDto[]&gt; {
+        return this.logStoreService.findBySessionId(id);
     }
 
     /**

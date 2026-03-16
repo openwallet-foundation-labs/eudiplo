@@ -1671,6 +1671,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#session-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Session Logs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#global-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2587,6 +2598,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#session-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Session Logs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#global-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2641,8 +2663,8 @@
 to each tenant. When using the <a href="../iae/">Interactive Authorization Endpoint (IAE)</a>,
 the session tracks the multi-step authorization flow, including completed steps
 and collected data. Sessions are stored in the database and can be
-managed via the <code>/sessions</code> endpoint. You can retrieve a specific session via
-<code>/sessions/{id}</code>.</p>
+managed via the <code>/api/sessions</code> endpoint. You can retrieve a specific session via
+<code>/api/sessions/{id}</code>.</p>
 <h2 id="session-cleanup">Session Cleanup<a class="headerlink" href="#session-cleanup" title="Permanent link">¶</a></h2>
 <p>To tidy up old sessions, an interval is set to clean up older sessions. The
 cleanup behavior can be configured both globally (via environment variables) and
@@ -2687,6 +2709,15 @@ endpoint or through the client UI under <strong>Session Management &gt; Session 
 </tr>
 </tbody>
 </table>
+<h2 id="session-logs">Session Logs<a class="headerlink" href="#session-logs" title="Permanent link">¶</a></h2>
+<p>Session flow events (e.g. flow start, credential issuance, token exchange,
+errors) can optionally be persisted to the database per session. This is
+controlled by the <code>LOG_SESSION_STORE</code> environment variable — see
+<a href="../../development/logging-configuration/#session-log-persistence">Logging Configuration</a>
+for details.</p>
+<p>When enabled, logs are available via <code>GET /api/session/{id}/logs</code> and are
+visible in the Web Client under the <strong>Logs</strong> tab on the session detail page.
+The tab only appears when log entries exist for the session.</p>
 <h2 id="global-configuration">Global Configuration<a class="headerlink" href="#global-configuration" title="Permanent link">¶</a></h2>
 <p>The global defaults are configured via environment variables:</p>
 <table>

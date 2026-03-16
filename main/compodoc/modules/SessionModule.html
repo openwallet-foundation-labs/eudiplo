@@ -393,6 +393,7 @@ import { TenantEntity } from &quot;../auth/tenant/entitites/tenant.entity&quot;;
 import { StatusListModule } from &quot;../issuer/lifecycle/status/status-list.module&quot;;
 import { LoggerModule } from &quot;../shared/utils/logger/logger.module&quot;;
 import { Session } from &quot;./entities/session.entity&quot;;
+import { SessionLogEntry } from &quot;./entities/session-log-entry.entity&quot;;
 import { SessionController } from &quot;./session.controller&quot;;
 import { SessionService } from &quot;./session.service&quot;;
 import { SessionConfigController } from &quot;./session-config.controller&quot;;
@@ -405,7 +406,7 @@ import { SessionEventsService } from &quot;./session-events.service&quot;;
  */
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Session, TenantEntity]),
+        TypeOrmModule.forFeature([Session, TenantEntity, SessionLogEntry]),
         StatusListModule,
         LoggerModule,
         forwardRef(() &#x3D;&gt; AuthModule),

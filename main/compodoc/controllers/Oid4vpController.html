@@ -227,7 +227,7 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post(&#x27;request&#x27;)<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)<br /></code>
+                    <code>@Post(&#x27;request&#x27;)<br />@SessionLogger(&#x27;sessionId&#x27;, &#x27;OID4VP&#x27;)<br /></code>
                 </td>
             </tr>
 
@@ -318,7 +318,7 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get(&#x27;request/no-redirect&#x27;)<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)<br /></code>
+                    <code>@Get(&#x27;request/no-redirect&#x27;)<br />@SessionLogger(&#x27;sessionId&#x27;, &#x27;OID4VP&#x27;)<br /></code>
                 </td>
             </tr>
 
@@ -409,7 +409,7 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get(&#x27;request&#x27;)<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)<br /></code>
+                    <code>@Get(&#x27;request&#x27;)<br />@SessionLogger(&#x27;sessionId&#x27;, &#x27;OID4VP&#x27;)<br /></code>
                 </td>
             </tr>
 
@@ -501,7 +501,7 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post()<br />@HttpCode(HttpStatus.OK)<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)<br /></code>
+                    <code>@Post()<br />@HttpCode(HttpStatus.OK)<br />@SessionLogger(&#x27;sessionId&#x27;, &#x27;OID4VP&#x27;)<br /></code>
                 </td>
             </tr>
 
@@ -611,7 +611,7 @@ export class Oid4vpController {
      * @returns
      */
     @Get(&quot;request&quot;)
-    @SessionLogger(&quot;session&quot;, &quot;OID4VP&quot;)
+    @SessionLogger(&quot;sessionId&quot;, &quot;OID4VP&quot;)
     getRequestWithSession(
         @Param(&quot;sessionId&quot;) sessionId: string,
         @Req() req: Request,
@@ -627,7 +627,7 @@ export class Oid4vpController {
      * @returns
      */
     @Get(&quot;request/no-redirect&quot;)
-    @SessionLogger(&quot;session&quot;, &quot;OID4VP&quot;)
+    @SessionLogger(&quot;sessionId&quot;, &quot;OID4VP&quot;)
     getRequestNoRedirectWithSession(
         @Param(&quot;sessionId&quot;) sessionId: string,
         @Req() req: Request,
@@ -647,7 +647,7 @@ export class Oid4vpController {
      * @returns
      */
     @Post(&quot;request&quot;)
-    @SessionLogger(&quot;session&quot;, &quot;OID4VP&quot;)
+    @SessionLogger(&quot;sessionId&quot;, &quot;OID4VP&quot;)
     getPostRequestWithSession(
         @Param(&quot;sessionId&quot;) sessionId: string,
         @Req() req: Request,
@@ -663,7 +663,7 @@ export class Oid4vpController {
      */
     @Post()
     @HttpCode(HttpStatus.OK)
-    @SessionLogger(&quot;session&quot;, &quot;OID4VP&quot;)
+    @SessionLogger(&quot;sessionId&quot;, &quot;OID4VP&quot;)
     getResponse(
         @Body() body: AuthorizationResponse,
         @Param(&quot;sessionId&quot;) sessionId: string,

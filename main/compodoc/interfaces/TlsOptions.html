@@ -400,6 +400,8 @@ const PROTOCOL_ROUTE_EXCLUSIONS: { path: string; method: RequestMethod }[] &#x3D
         method: RequestMethod.ALL,
     },
     { path: &quot;issuers/:tenantId/trust-list/{*path}&quot;, method: RequestMethod.ALL },
+    // Public Storage (credential images, logos)
+    { path: &quot;storage/:key&quot;, method: RequestMethod.GET },
 ];
 
 /**

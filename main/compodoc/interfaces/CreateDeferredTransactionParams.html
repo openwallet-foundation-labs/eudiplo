@@ -437,7 +437,10 @@ import { CryptoService } from &quot;../../../crypto/crypto.service&quot;;
 import { Session } from &quot;../../../session/entities/session.entity&quot;;
 import { SessionService } from &quot;../../../session/session.service&quot;;
 import { SessionLoggerService } from &quot;../../../shared/utils/logger/session-logger.service&quot;;
-import { SessionLogContext } from &quot;../../../shared/utils/logger/session-logger-context&quot;;
+import {
+    RESOLVED_SESSION_ID,
+    SessionLogContext,
+} from &quot;../../../shared/utils/logger/session-logger-context&quot;;
 import { CredentialsService } from &quot;../../configuration/credentials/credentials.service&quot;;
 import { IssuanceService } from &quot;../../configuration/issuance/issuance.service&quot;;
 import { DeferredCredentialRequestDto } from &quot;./dto/deferred-credential-request.dto&quot;;
@@ -662,6 +665,9 @@ export class DeferredCredentialService {
                 &quot;The transaction has expired&quot;,
             );
         }
+
+        // Expose session ID for the interceptor (not available in route params for OID4VCI)
+        req[RESOLVED_SESSION_ID] &#x3D; deferredTransaction.sessionId;
 
         // Create logging context
         const logContext: SessionLogContext &#x3D; {
