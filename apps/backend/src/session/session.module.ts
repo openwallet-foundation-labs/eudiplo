@@ -6,6 +6,7 @@ import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
 import { StatusListModule } from "../issuer/lifecycle/status/status-list.module";
 import { LoggerModule } from "../shared/utils/logger/logger.module";
 import { Session } from "./entities/session.entity";
+import { SessionLogEntry } from "./entities/session-log-entry.entity";
 import { SessionController } from "./session.controller";
 import { SessionService } from "./session.service";
 import { SessionConfigController } from "./session-config.controller";
@@ -18,7 +19,7 @@ import { SessionEventsService } from "./session-events.service";
  */
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Session, TenantEntity]),
+        TypeOrmModule.forFeature([Session, TenantEntity, SessionLogEntry]),
         StatusListModule,
         LoggerModule,
         forwardRef(() => AuthModule),

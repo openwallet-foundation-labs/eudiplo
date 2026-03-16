@@ -1,10 +1,22 @@
 import { Injectable } from '@angular/core';
 import {
+  client,
   sessionControllerDeleteSession,
   sessionControllerGetAllSessions,
   sessionControllerGetSession,
   Session,
 } from '@eudiplo/sdk-core';
+
+export interface SessionLogEntry {
+  id: string;
+  sessionId: string;
+  timestamp: string;
+  level: 'info' | 'warn' | 'error';
+  stage?: string;
+  message: string;
+  detail?: Record<string, unknown>;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -73,5 +85,17 @@ export class SessionManagementService {
       console.error('Error deleting session:', error);
       throw new Error(`Failed to delete session ${sessionId}`, { cause: error });
     }
+  }
+
+  /**
+   * Get log entries for a session
+   */
+  async getSessionLogs(sessionId: string): Promise<SessionLogEntry[]> {
+    const response = await client.get<SessionLogEntry[]>({
+      security: [{ scheme: 'bearer', type: 'http' }],
+      url: '/api/session/{id}/logs',
+      path: { id: sessionId },
+    });
+    return (response.data as SessionLogEntry[]) ?? [];
   }
 }

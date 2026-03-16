@@ -393,6 +393,33 @@
           </div>
         </mat-tab>
       }
+
+      <!-- Session Logs Tab -->
+      @if (sessionLogs.length > 0) {
+        <mat-tab label="Logs ({{ sessionLogs.length }})">
+          <div class="tab-content">
+            <div class="log-entries">
+              @for (log of sessionLogs; track log.id) {
+                <div class="log-entry" [class]="getLogLevelClass(log.level)">
+                  <div class="log-header">
+                    <mat-chip class="log-level-chip" [class]="getLogLevelClass(log.level)">
+                      {{ log.level | uppercase }}
+                    </mat-chip>
+                    @if (log.stage) {
+                      <span class="log-stage">{{ log.stage }}</span>
+                    }
+                    <span class="log-timestamp">{{ formatDate(log.timestamp) }}</span>
+                  </div>
+                  <div class="log-message">{{ log.message }}</div>
+                  @if (log.detail) {
+                    <pre class="json-display log-detail">{{ formatJson(log.detail) }}</pre>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </mat-tab>
+      }
     </mat-tab-group>
   </div>
 } @else {

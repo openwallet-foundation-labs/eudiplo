@@ -4,8 +4,8 @@ EUDIPLO manages sessions for credential issuance and verification, bound
 to each tenant. When using the [Interactive Authorization Endpoint (IAE)](./iae.md),
 the session tracks the multi-step authorization flow, including completed steps
 and collected data. Sessions are stored in the database and can be
-managed via the `/sessions` endpoint. You can retrieve a specific session via
-`/sessions/{id}`.
+managed via the `/api/sessions` endpoint. You can retrieve a specific session via
+`/api/sessions/{id}`.
 
 ## Session Cleanup
 
@@ -43,6 +43,18 @@ For the full API specification, see the [Session Config API](../api/index.md#tag
 | ------------- | -------- | ----------------------------------------------------------------- |
 | `ttlSeconds`  | `number` | Time-to-live in seconds (minimum 60). Omit to use global default. |
 | `cleanupMode` | `string` | Either `full` or `anonymize`. Omit to use global default.         |
+
+## Session Logs
+
+Session flow events (e.g. flow start, credential issuance, token exchange,
+errors) can optionally be persisted to the database per session. This is
+controlled by the `LOG_SESSION_STORE` environment variable — see
+[Logging Configuration](../development/logging-configuration.md#session-log-persistence)
+for details.
+
+When enabled, logs are available via `GET /api/session/{id}/logs` and are
+visible in the Web Client under the **Logs** tab on the session detail page.
+The tab only appears when log entries exist for the session.
 
 ## Global Configuration
 

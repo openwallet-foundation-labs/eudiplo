@@ -1,9 +1,12 @@
 import { Injectable, LogLevel } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
+export type SessionStoreMode = "off" | "errors" | "all" | "verbose";
+
 export interface LoggerConfiguration {
     level: LogLevel;
     enableSessionLogger: boolean;
+    sessionStoreMode: SessionStoreMode;
     enableHttpLogger: boolean;
     enableDebugMode: boolean;
     logFormat: "json" | "pretty";
@@ -30,6 +33,10 @@ export class LoggerConfigService {
             enableSessionLogger: this.configService.getOrThrow<boolean>(
                 "LOG_ENABLE_SESSION_LOGGER",
             ),
+            sessionStoreMode:
+                this.configService.getOrThrow<SessionStoreMode>(
+                    "LOG_SESSION_STORE",
+                ),
             enableHttpLogger: this.configService.getOrThrow<boolean>(
                 "LOG_ENABLE_HTTP_LOGGER",
             ),
@@ -61,6 +68,18 @@ export class LoggerConfigService {
 
     isSessionLoggerEnabled(): boolean {
         return this.config.enableSessionLogger;
+    }
+
+    getSessionStoreMode(): SessionStoreMode {
+        return this.config.sessionStoreMode;
+    }
+
+    isSessionStoreEnabled(): boolean {
+        return this.config.sessionStoreMode !== "off";
+    }
+
+    isVerboseMode(): boolean {
+        return this.config.sessionStoreMode === "verbose";
     }
 
     isHttpLoggerEnabled(): boolean {

@@ -642,6 +642,39 @@ export type Session = {
   externalSubject?: string;
 };
 
+export type SessionLogEntryResponseDto = {
+  /**
+   * Log entry ID
+   */
+  id: string;
+  /**
+   * Session ID
+   */
+  sessionId: string;
+  /**
+   * Timestamp of the log entry
+   */
+  timestamp: string;
+  /**
+   * Log level
+   */
+  level: "info" | "warn" | "error";
+  /**
+   * Flow stage
+   */
+  stage?: string;
+  /**
+   * Log message
+   */
+  message: string;
+  /**
+   * Additional structured detail
+   */
+  detail?: {
+    [key: string]: unknown;
+  };
+};
+
 export type StatusUpdateDto = {
   /**
    * The session ID of the user
@@ -2757,6 +2790,25 @@ export type SessionControllerGetSessionResponses = {
 
 export type SessionControllerGetSessionResponse =
   SessionControllerGetSessionResponses[keyof SessionControllerGetSessionResponses];
+
+export type SessionControllerGetSessionLogsData = {
+  body?: never;
+  path: {
+    /**
+     * The session ID
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/session/{id}/logs";
+};
+
+export type SessionControllerGetSessionLogsResponses = {
+  200: Array<SessionLogEntryResponseDto>;
+};
+
+export type SessionControllerGetSessionLogsResponse =
+  SessionControllerGetSessionLogsResponses[keyof SessionControllerGetSessionLogsResponses];
 
 export type SessionControllerRevokeAllData = {
   body: StatusUpdateDto;

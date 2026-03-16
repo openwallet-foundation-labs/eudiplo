@@ -40,7 +40,10 @@ import {
 } from "../../../session/entities/session.entity";
 import { SessionService } from "../../../session/session.service";
 import { SessionLoggerService } from "../../../shared/utils/logger/session-logger.service";
-import { SessionLogContext } from "../../../shared/utils/logger/session-logger-context";
+import {
+    RESOLVED_SESSION_ID,
+    SessionLogContext,
+} from "../../../shared/utils/logger/session-logger-context";
 import { WebhookService } from "../../../shared/utils/webhook/webhook.service";
 import { CredentialsService } from "../../configuration/credentials/credentials.service";
 import { AuthorizationIdentity } from "../../configuration/credentials/dto/authorization-identity";
@@ -774,6 +777,9 @@ export class Oid4vciService {
                 issuanceConfig,
             );
 
+        // Expose session ID for the interceptor (not available in route params for OID4VCI)
+        req[RESOLVED_SESSION_ID] = session.id;
+
         // Create session logging context
         const logContext: SessionLogContext = {
             sessionId: session.id,
@@ -901,6 +907,9 @@ export class Oid4vciService {
         if (session.id !== tokenPayload.sub) {
             throw new BadRequestException("Session not found");
         }
+
+        // Expose session ID for the interceptor (not available in route params for OID4VCI)
+        req[RESOLVED_SESSION_ID] = session.id;
 
         // Create session logging context
         const logContext: SessionLogContext = {

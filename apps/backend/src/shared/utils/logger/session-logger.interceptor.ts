@@ -7,9 +7,13 @@ import {
 import { Reflector } from "@nestjs/core";
 import { Observable } from "rxjs";
 import { catchError, tap } from "rxjs/operators";
+import { LoggerConfigService } from "./logger-config.service";
 import { SESSION_LOGGER_KEY } from "./session-logger.decorator";
 import { SessionLoggerService } from "./session-logger.service";
-import { SessionLogContext } from "./session-logger-context";
+import {
+    RESOLVED_SESSION_ID,
+    SessionLogContext,
+} from "./session-logger-context";
 
 /**
  * Interceptor for logging session-related requests and responses.
@@ -24,6 +28,7 @@ export class SessionLoggerInterceptor implements NestInterceptor {
     constructor(
         private readonly reflector: Reflector,
         private readonly sessionLoggerService: SessionLoggerService,
+        private readonly loggerConfigService: LoggerConfigService,
     ) {}
 
     /**
@@ -80,34 +85,55 @@ export class SessionLoggerInterceptor implements NestInterceptor {
 
         return next.handle().pipe(
             tap((data) => {
+                // Resolve session ID from request if not available from route params
+                if (!logContext.sessionId && request[RESOLVED_SESSION_ID]) {
+                    logContext.sessionId = request[RESOLVED_SESSION_ID];
+                }
                 const duration = Date.now() - startTime;
+                const responseDetail: Record<string, unknown> = {
+                    event: "request_success",
+                    method,
+                    url,
+                    statusCode: response.statusCode,
+                    duration,
+                    responseSize: JSON.stringify(data || {}).length,
+                };
+                if (this.loggerConfigService.isVerboseMode()) {
+                    responseDetail.responseBody = this.sanitizeBody(data);
+                }
                 // Log successful request completion
                 this.sessionLoggerService.logSession(
                     logContext,
                     `Completed ${method} ${url} in ${duration}ms`,
-                    {
-                        event: "request_success",
-                        method,
-                        url,
-                        statusCode: response.statusCode,
-                        duration,
-                        responseSize: JSON.stringify(data || {}).length,
-                    },
+                    responseDetail,
                 );
             }),
             catchError((error) => {
+                // Resolve session ID from request if not available from route params
+                if (!logContext.sessionId && request[RESOLVED_SESSION_ID]) {
+                    logContext.sessionId = request[RESOLVED_SESSION_ID];
+                }
                 const duration = Date.now() - startTime;
+                const errorDetail: Record<string, unknown> = {
+                    event: "request_error",
+                    method,
+                    url,
+                    duration,
+                };
+                if (this.loggerConfigService.isVerboseMode()) {
+                    errorDetail.requestBody = this.sanitizeBody(request.body);
+                    if (error?.response) {
+                        errorDetail.errorResponse = this.sanitizeBody(
+                            error.response,
+                        );
+                    }
+                }
                 // Log request error
                 this.sessionLoggerService.logSessionError(
                     logContext,
                     error,
                     `Error in ${method} ${url}`,
-                    {
-                        event: "request_error",
-                        method,
-                        url,
-                        duration,
-                    },
+                    errorDetail,
                 );
                 throw error;
             }),
@@ -122,8 +148,11 @@ export class SessionLoggerInterceptor implements NestInterceptor {
     private sanitizeBody(body: any): any {
         if (!body) return body;
 
+        // Non-object bodies (e.g. JWT strings) are returned as-is
+        if (typeof body !== "object") return body;
+
         // Create a copy to avoid modifying the original
-        const sanitized = { ...body };
+        const sanitized = Array.isArray(body) ? [...body] : { ...body };
 
         // Remove sensitive fields
         const sensitiveFields = [

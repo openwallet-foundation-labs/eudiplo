@@ -2,6 +2,13 @@
  * Context for session logging, including session ID, tenant ID, flow type, and optional stage.
  */
 
+/**
+ * Key for attaching a resolved session ID to the request object.
+ * Used when the session ID is not available in route params and is resolved
+ * by the service (e.g., from an access token in OID4VCI flows).
+ */
+export const RESOLVED_SESSION_ID = "resolvedSessionId";
+
 export interface SessionLogContext {
     /**
      * Unique identifier for the session.

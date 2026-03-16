@@ -1,6 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { PinoLogger } from "nestjs-pino";
+import { SessionLogLevel } from "../../../session/entities/session-log-entry.entity";
 import { LoggerConfigService } from "./logger-config.service";
+import { SessionLogStoreService } from "./session-log-store.service";
 import { SessionLogContext } from "./session-logger-context";
 
 /**
@@ -10,18 +12,34 @@ import { SessionLogContext } from "./session-logger-context";
 @Injectable()
 export class SessionLoggerService {
     private readonly isEnabled: boolean;
+    private readonly verbose: boolean;
 
     /**
      * Constructor for SessionLoggerService.
      * @param logger - PinoLogger instance for logging.
      * @param configService - ConfigService for accessing environment configuration.
+     * @param logStore - SessionLogStoreService for persisting logs to DB.
      */
     constructor(
         private readonly logger: PinoLogger,
         private readonly loggerConfigService: LoggerConfigService,
+        private readonly logStore: SessionLogStoreService,
     ) {
         this.logger.setContext("SessionLoggerService");
         this.isEnabled = this.loggerConfigService.isSessionLoggerEnabled();
+        this.verbose = this.loggerConfigService.isVerboseMode();
+    }
+
+    private persistLog(
+        context: SessionLogContext,
+        level: SessionLogLevel,
+        message: string,
+        stage?: string,
+        detail?: Record<string, unknown>,
+    ): void {
+        this.logStore
+            .append(context.sessionId, level, message, stage, detail)
+            .catch(() => {});
     }
 
     private shouldLog(): boolean {
@@ -45,6 +63,13 @@ export class SessionLoggerService {
             },
             message,
         );
+        this.persistLog(
+            context,
+            "info",
+            message,
+            "initialization",
+            additionalData,
+        );
     }
 
     /**
@@ -64,6 +89,7 @@ export class SessionLoggerService {
             },
             message,
         );
+        this.persistLog(context, "info", message, "completion", additionalData);
     }
 
     /**
@@ -91,6 +117,12 @@ export class SessionLoggerService {
             },
             message,
         );
+        this.persistLog(context, "error", message, "error", {
+            errorName: error.name,
+            errorMessage: error.message,
+            ...(this.verbose && { errorStack: error.stack }),
+            ...additionalData,
+        });
     }
 
     /**
@@ -112,6 +144,13 @@ export class SessionLoggerService {
                 ...additionalData,
             },
             `[${context.flowType}] Issuing credential of type ${credentialType} for session ${context.sessionId}`,
+        );
+        this.persistLog(
+            context,
+            "info",
+            `[${context.flowType}] Issuing credential of type ${credentialType} for session ${context.sessionId}`,
+            "credential_creation",
+            { credentialType, ...additionalData },
         );
     }
 
@@ -135,6 +174,13 @@ export class SessionLoggerService {
             },
             `[${context.flowType}] Credential verification ${verificationResult ? "succeeded" : "failed"} for session ${context.sessionId}`,
         );
+        this.persistLog(
+            context,
+            "info",
+            `[${context.flowType}] Credential verification ${verificationResult ? "succeeded" : "failed"} for session ${context.sessionId}`,
+            "verification",
+            { verificationResult, ...additionalData },
+        );
     }
 
     /**
@@ -152,6 +198,13 @@ export class SessionLoggerService {
             },
             `[${context.flowType}] Authorization request created for session ${context.sessionId}`,
         );
+        this.persistLog(
+            context,
+            "info",
+            `[${context.flowType}] Authorization request created for session ${context.sessionId}`,
+            "authorization",
+            additionalData,
+        );
     }
 
     /**
@@ -168,6 +221,13 @@ export class SessionLoggerService {
                 ...additionalData,
             },
             `[${context.flowType}] Token exchange for session ${context.sessionId}`,
+        );
+        this.persistLog(
+            context,
+            "info",
+            `[${context.flowType}] Token exchange for session ${context.sessionId}`,
+            "token_exchange",
+            additionalData,
         );
     }
 
@@ -191,6 +251,13 @@ export class SessionLoggerService {
             },
             `[${context.flowType}] Notification ${notificationEvent} for session ${context.sessionId}`,
         );
+        this.persistLog(
+            context,
+            "info",
+            `[${context.flowType}] Notification ${notificationEvent} for session ${context.sessionId}`,
+            "notification",
+            { notificationEvent, ...additionalData },
+        );
     }
 
     /**
@@ -209,6 +276,13 @@ export class SessionLoggerService {
                 ...additionalData,
             },
             `[${context.flowType}] ${message}`,
+        );
+        this.persistLog(
+            context,
+            "info",
+            `[${context.flowType}] ${message}`,
+            context.stage,
+            additionalData,
         );
     }
 
@@ -234,6 +308,18 @@ export class SessionLoggerService {
                 ...additionalData,
             },
             `[${context.flowType}] ${message}: ${error.message}`,
+        );
+        this.persistLog(
+            context,
+            "error",
+            `[${context.flowType}] ${message}: ${error.message}`,
+            context.stage,
+            {
+                errorName: error.name,
+                errorMessage: error.message,
+                ...(this.verbose && { errorStack: error.stack }),
+                ...additionalData,
+            },
         );
     }
 }

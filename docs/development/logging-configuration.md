@@ -4,7 +4,7 @@ The EUDIPLO Service provides flexible logging configuration to help with debuggi
 
 ## Configuration
 
---8<-- "docs/generated/config-logging.md"
+--8<-- "docs/generated/config-log.md"
 
 ## Basic Log Level Configuration
 
@@ -75,6 +75,38 @@ The log files are written in JSON format for easy parsing and analysis by extern
 #### Log Rotation
 
 The current implementation does not include built-in log rotation. For production environments, it is recommended to use external log rotation tools like `logrotate` to manage log file size and retention.
+
+## Session Log Persistence
+
+In addition to Pino console/file logging, session flow events can be persisted
+to the database so they are available per-session via the API and the Web Client.
+
+```bash
+# Disable persistence (default)
+LOG_SESSION_STORE=off
+
+# Store only warn/error entries
+LOG_SESSION_STORE=errors
+
+# Store all session log entries
+LOG_SESSION_STORE=all
+
+# Store all entries with full request/response bodies and error stacks
+LOG_SESSION_STORE=verbose
+```
+
+When enabled, log entries are written to the `session_log_entry` table and can
+be retrieved via `GET /api/session/{id}/logs`. The Web Client shows them in the
+**Logs** tab on the session detail page.
+
+!!! warning
+`verbose` mode captures full HTTP response bodies and error stack traces.
+This can generate large amounts of data and may include sensitive information.
+Use it only for debugging and disable it in production.
+
+!!! note
+`LOG_SESSION_STORE` requires `LOG_ENABLE_SESSION_LOGGER=true` to have any
+effect, since the session logger is the source of the persisted events.
 
 ## Disabling Specific Logger Services
 
@@ -154,15 +186,15 @@ Session logs include structured data:
 
 ```json
 {
-  "level": "info",
-  "time": "2025-07-20T10:30:45.123Z",
-  "context": "SessionLoggerService",
-  "sessionId": "session_123",
-  "tenantId": "tenant_456",
-  "flowType": "OID4VCI",
-  "event": "flow_start",
-  "stage": "initialization",
-  "msg": "[OID4VCI] Flow started for session session_123 in tenant tenant_456"
+    "level": "info",
+    "time": "2025-07-20T10:30:45.123Z",
+    "context": "SessionLoggerService",
+    "sessionId": "session_123",
+    "tenantId": "tenant_456",
+    "flowType": "OID4VCI",
+    "event": "flow_start",
+    "stage": "initialization",
+    "msg": "[OID4VCI] Flow started for session session_123 in tenant tenant_456"
 }
 ```
 
@@ -184,6 +216,9 @@ LOG_ENABLE_HTTP_LOGGER=false
 
 # Session logger control
 LOG_ENABLE_SESSION_LOGGER=true
+
+# Persist session logs to the database (off | errors | all)
+LOG_SESSION_STORE=off
 ```
 
 ## Runtime Control
