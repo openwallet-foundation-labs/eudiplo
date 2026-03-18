@@ -16,7 +16,7 @@ export class SessionLogEntry {
     id!: string;
 
     @Index()
-    @Column("varchar")
+    @Column("uuid")
     sessionId!: string;
 
     @ManyToOne(() => Session, { onDelete: "CASCADE" })
