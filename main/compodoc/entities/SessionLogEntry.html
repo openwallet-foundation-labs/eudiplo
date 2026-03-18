@@ -408,7 +408,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Index()<br />@Column(&#x27;varchar&#x27;)<br />
+                            @Index()<br />@Column(&#x27;uuid&#x27;)<br />
                         </code>
                     </td>
                 </tr>
@@ -517,7 +517,7 @@ export class SessionLogEntry {
     id!: string;
 
     @Index()
-    @Column(&quot;varchar&quot;)
+    @Column(&quot;uuid&quot;)
     sessionId!: string;
 
     @ManyToOne(() &#x3D;&gt; Session, { onDelete: &quot;CASCADE&quot; })

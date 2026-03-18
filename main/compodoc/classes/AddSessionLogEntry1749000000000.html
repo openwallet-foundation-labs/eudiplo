@@ -454,7 +454,7 @@ export class AddSessionLogEntry1749000000000 implements MigrationInterface {
                     },
                     {
                         name: &quot;sessionId&quot;,
-                        type: &quot;varchar&quot;,
+                        type: isPostgres ? &quot;uuid&quot; : &quot;varchar&quot;,
                         isNullable: false,
                     },
                     {

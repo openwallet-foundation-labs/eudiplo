@@ -24,13 +24,13 @@
 <title>cluster_IssuanceModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="8,-70 8,-268 2220,-268 2220,-70 8,-70"/>
 </g>
-<g id="clust4" class="cluster">
-<title>cluster_IssuanceModule_exports</title>
-<polygon fill="none" stroke="black" points="568,-208 568,-260 1185,-260 1185,-208 568,-208"/>
-</g>
 <g id="clust6" class="cluster">
 <title>cluster_IssuanceModule_providers</title>
 <polygon fill="none" stroke="black" points="794,-78 794,-130 2212,-130 2212,-78 794,-78"/>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_IssuanceModule_exports</title>
+<polygon fill="none" stroke="black" points="568,-208 568,-260 1185,-260 1185,-208 568,-208"/>
 </g>
 <g id="clust3" class="cluster">
 <title>cluster_IssuanceModule_imports</title>
