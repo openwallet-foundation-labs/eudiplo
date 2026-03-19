@@ -24,13 +24,13 @@
 <title>cluster_ConfigurationModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="8,-70 8,-268 2180,-268 2180,-70 8,-70"/>
 </g>
-<g id="clust4" class="cluster">
-<title>cluster_ConfigurationModule_exports</title>
-<polygon fill="none" stroke="black" points="738,-208 738,-260 1683,-260 1683,-208 738,-208"/>
-</g>
 <g id="clust3" class="cluster">
 <title>cluster_ConfigurationModule_imports</title>
 <polygon fill="none" stroke="black" points="1652,-78 1652,-130 2172,-130 2172,-78 1652,-78"/>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_ConfigurationModule_exports</title>
+<polygon fill="none" stroke="black" points="738,-208 738,-260 1683,-260 1683,-208 738,-208"/>
 </g>
 <g id="clust6" class="cluster">
 <title>cluster_ConfigurationModule_providers</title>
