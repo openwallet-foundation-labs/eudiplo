@@ -208,7 +208,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/storage/adapters/local.storage.ts:15</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="18" class="link-to-prism">src/storage/adapters/local.storage.ts:18</a></div>
                             </td>
                         </tr>
 
@@ -274,8 +274,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="55"
-                                    class="link-to-prism">src/storage/adapters/local.storage.ts:55</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="78"
+                                    class="link-to-prism">src/storage/adapters/local.storage.ts:78</a></div>
                         </td>
                     </tr>
 
@@ -343,8 +343,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="64"
-                                    class="link-to-prism">src/storage/adapters/local.storage.ts:64</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="91"
+                                    class="link-to-prism">src/storage/adapters/local.storage.ts:91</a></div>
                         </td>
                     </tr>
 
@@ -412,8 +412,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="45"
-                                    class="link-to-prism">src/storage/adapters/local.storage.ts:45</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="59"
+                                    class="link-to-prism">src/storage/adapters/local.storage.ts:59</a></div>
                         </td>
                     </tr>
 
@@ -476,15 +476,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>put(key: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: Buffer | Readable)</code>
+                    <code>put(key: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: Buffer | Readable, opts?: <a href="../miscellaneous/typealiases.html#PutOptions" target="_self">PutOptions</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="27"
-                                    class="link-to-prism">src/storage/adapters/local.storage.ts:27</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="30"
+                                    class="link-to-prism">src/storage/adapters/local.storage.ts:30</a></div>
                         </td>
                     </tr>
 
@@ -530,6 +530,18 @@
 
 
                                         </tr>
+                                        <tr>
+                                                <td>opts</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#PutOptions" target="_self" >PutOptions</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -559,11 +571,14 @@
     createWriteStream,
     existsSync,
     mkdirSync,
+    readFileSync,
     rmSync,
+    statSync,
+    writeFileSync,
 } from &quot;node:fs&quot;;
 import { dirname, join } from &quot;node:path&quot;;
 import { Readable } from &quot;stream&quot;;
-import { FileStorage } from &quot;../storage.types&quot;;
+import { FileStorage, type PutOptions } from &quot;../storage.types&quot;;
 
 /**
  * Local file storage implementation for development and testing.
@@ -580,7 +595,11 @@ export class LocalFileStorage implements FileStorage {
      * @param key
      * @param body
      */
-    async put(key: string, body: Buffer | Readable): Promise&lt;void&gt; {
+    async put(
+        key: string,
+        body: Buffer | Readable,
+        opts?: PutOptions,
+    ): Promise&lt;void&gt; {
         const fullPath &#x3D; join(this.baseDir, key);
         mkdirSync(dirname(fullPath), { recursive: true });
 
@@ -591,6 +610,13 @@ export class LocalFileStorage implements FileStorage {
                 .on(&quot;finish&quot;, () &#x3D;&gt; resolve())
                 .on(&quot;error&quot;, reject);
         });
+
+        if (opts?.contentType) {
+            writeFileSync(
+                &#x60;${fullPath}.meta&#x60;,
+                JSON.stringify({ contentType: opts.contentType }),
+            );
+        }
     }
 
     /**
@@ -600,7 +626,16 @@ export class LocalFileStorage implements FileStorage {
      */
     getStream(key: string) {
         const fullPath &#x3D; join(this.baseDir, key);
-        return Promise.resolve({ stream: createReadStream(fullPath) });
+        const stat &#x3D; statSync(fullPath);
+        const metaPath &#x3D; &#x60;${fullPath}.meta&#x60;;
+        const contentType &#x3D; existsSync(metaPath)
+            ? JSON.parse(readFileSync(metaPath, &quot;utf-8&quot;)).contentType
+            : undefined;
+        return Promise.resolve({
+            stream: createReadStream(fullPath),
+            contentType,
+            size: stat.size,
+        });
     }
 
     /**
@@ -609,7 +644,11 @@ export class LocalFileStorage implements FileStorage {
      * @returns
      */
     delete(key: string) {
-        return Promise.resolve(rmSync(join(this.baseDir, key)));
+        const fullPath &#x3D; join(this.baseDir, key);
+        rmSync(fullPath);
+        const metaPath &#x3D; &#x60;${fullPath}.meta&#x60;;
+        if (existsSync(metaPath)) rmSync(metaPath);
+        return Promise.resolve();
     }
 
     /**

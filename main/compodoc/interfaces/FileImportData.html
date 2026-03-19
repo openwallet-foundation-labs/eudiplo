@@ -255,6 +255,7 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &quot;node:crypto&quot;;
 import { readFileSync } from &quot;node:fs&quot;;
+import { extname } from &quot;node:path&quot;;
 import { Inject, Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
@@ -270,6 +271,17 @@ import {
     StoredObject,
 } from &quot;../storage/storage.types&quot;;
 import { FileEntity } from &quot;./entities/files.entity&quot;;
+
+const MIME_TYPES: Record&lt;string, string&gt; &#x3D; {
+    &quot;.png&quot;: &quot;image/png&quot;,
+    &quot;.jpg&quot;: &quot;image/jpeg&quot;,
+    &quot;.jpeg&quot;: &quot;image/jpeg&quot;,
+    &quot;.gif&quot;: &quot;image/gif&quot;,
+    &quot;.svg&quot;: &quot;image/svg+xml&quot;,
+    &quot;.webp&quot;: &quot;image/webp&quot;,
+    &quot;.ico&quot;: &quot;image/x-icon&quot;,
+    &quot;.bmp&quot;: &quot;image/bmp&quot;,
+};
 
 interface FileImportData {
     filename: string;
@@ -318,8 +330,11 @@ export class FilesService {
                 },
                 processItem: async (_tenantId, data) &#x3D;&gt; {
                     const key &#x3D; randomUUID();
+                    const contentType &#x3D;
+                        MIME_TYPES[extname(data.filename).toLowerCase()] ??
+                        &quot;application/octet-stream&quot;;
                     await this.storage.put(key, data.content, {
-                        contentType: &quot;application/octet-stream&quot;,
+                        contentType,
                         acl: &quot;public&quot;,
                         metadata: { originalName: data.filename },
                     });

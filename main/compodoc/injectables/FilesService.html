@@ -198,7 +198,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/storage/files.service.ts:25</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">src/storage/files.service.ts:37</a></div>
                             </td>
                         </tr>
 
@@ -309,8 +309,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="141"
-                                    class="link-to-prism">src/storage/files.service.ts:141</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="156"
+                                    class="link-to-prism">src/storage/files.service.ts:156</a></div>
                         </td>
                     </tr>
 
@@ -386,8 +386,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="149"
-                                    class="link-to-prism">src/storage/files.service.ts:149</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="164"
+                                    class="link-to-prism">src/storage/files.service.ts:164</a></div>
                         </td>
                     </tr>
 
@@ -460,8 +460,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="132"
-                                    class="link-to-prism">src/storage/files.service.ts:132</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="147"
+                                    class="link-to-prism">src/storage/files.service.ts:147</a></div>
                         </td>
                     </tr>
 
@@ -537,8 +537,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="44"
-                                    class="link-to-prism">src/storage/files.service.ts:44</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="56"
+                                    class="link-to-prism">src/storage/files.service.ts:56</a></div>
                         </td>
                     </tr>
 
@@ -606,8 +606,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="87"
-                                    class="link-to-prism">src/storage/files.service.ts:87</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="102"
+                                    class="link-to-prism">src/storage/files.service.ts:102</a></div>
                         </td>
                     </tr>
 
@@ -689,8 +689,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="105"
-                                    class="link-to-prism">src/storage/files.service.ts:105</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="120"
+                                    class="link-to-prism">src/storage/files.service.ts:120</a></div>
                         </td>
                     </tr>
 
@@ -792,6 +792,7 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &quot;node:crypto&quot;;
 import { readFileSync } from &quot;node:fs&quot;;
+import { extname } from &quot;node:path&quot;;
 import { Inject, Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
@@ -807,6 +808,17 @@ import {
     StoredObject,
 } from &quot;../storage/storage.types&quot;;
 import { FileEntity } from &quot;./entities/files.entity&quot;;
+
+const MIME_TYPES: Record&lt;string, string&gt; &#x3D; {
+    &quot;.png&quot;: &quot;image/png&quot;,
+    &quot;.jpg&quot;: &quot;image/jpeg&quot;,
+    &quot;.jpeg&quot;: &quot;image/jpeg&quot;,
+    &quot;.gif&quot;: &quot;image/gif&quot;,
+    &quot;.svg&quot;: &quot;image/svg+xml&quot;,
+    &quot;.webp&quot;: &quot;image/webp&quot;,
+    &quot;.ico&quot;: &quot;image/x-icon&quot;,
+    &quot;.bmp&quot;: &quot;image/bmp&quot;,
+};
 
 interface FileImportData {
     filename: string;
@@ -855,8 +867,11 @@ export class FilesService {
                 },
                 processItem: async (_tenantId, data) &#x3D;&gt; {
                     const key &#x3D; randomUUID();
+                    const contentType &#x3D;
+                        MIME_TYPES[extname(data.filename).toLowerCase()] ??
+                        &quot;application/octet-stream&quot;;
                     await this.storage.put(key, data.content, {
-                        contentType: &quot;application/octet-stream&quot;,
+                        contentType,
                         acl: &quot;public&quot;,
                         metadata: { originalName: data.filename },
                     });
