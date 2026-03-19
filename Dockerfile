@@ -73,10 +73,10 @@ RUN addgroup -g 101 -S nginx || true && \
     adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx || true && \
     chown -R nginx:nginx /usr/share/nginx/html && \
     chown -R nginx:nginx /var/cache/nginx && \
+    rm -f /var/log/nginx/access.log /var/log/nginx/error.log && \
+    touch /var/log/nginx/access.log /var/log/nginx/error.log && \
     chown -R nginx:nginx /var/log/nginx && \
-    chown -R nginx:nginx /etc/nginx/conf.d && \
-    touch /var/run/nginx.pid && \
-    chown -R nginx:nginx /var/run/nginx.pid
+    chown -R nginx:nginx /etc/nginx/conf.d
 
 USER nginx
 
@@ -85,7 +85,7 @@ EXPOSE 8080
 
 # --- HEALTHCHECK (Client / Nginx) ---
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-  CMD wget -qO /dev/null http://localhost:8080/ || exit 1
+  CMD wget -qO /dev/null http://localhost:8080/health || exit 1
 
 # Use our custom entrypoint script
 ENTRYPOINT ["/docker-entrypoint.sh"]
