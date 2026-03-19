@@ -9,6 +9,7 @@ import {
 } from "class-validator";
 import { WebhookConfig } from "../../../shared/utils/webhook/webhook.dto";
 import { TransactionData } from "../../presentations/entities/presentation-config.entity";
+import { IsTransactionData } from "../../presentations/validators/transaction-data.validator";
 
 /**
  * Enum for the type of response expected from the presentation request.
@@ -63,7 +64,7 @@ export class PresentationRequest {
      */
     @IsOptional()
     @IsArray()
-    @ValidateNested({ each: true })
+    @IsTransactionData()
     @Type(() => TransactionData)
     transaction_data?: TransactionData[];
 }

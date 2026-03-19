@@ -22,6 +22,7 @@ import {
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { WebhookConfig } from "../../../shared/utils/webhook/webhook.dto";
 import { RegistrationCertificateRequest } from "../dto/vp-request.dto";
+import { IsTransactionData } from "../validators/transaction-data.validator";
 
 export enum TrustedAuthorityType {
     AKI = "aki",
@@ -184,7 +185,7 @@ export class PresentationConfig {
     @Column("json", { nullable: true })
     @IsOptional()
     @IsArray()
-    //@ValidateNested({ each: true })
+    @IsTransactionData()
     @Type(() => TransactionData)
     transaction_data?: TransactionData[];
 
