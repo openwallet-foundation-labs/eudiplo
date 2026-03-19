@@ -184,7 +184,7 @@ export class PresentationConfig {
     @Column("json", { nullable: true })
     @IsOptional()
     @IsArray()
-    @ValidateNested({ each: true })
+    //@ValidateNested({ each: true })
     @Type(() => TransactionData)
     transaction_data?: TransactionData[];
 

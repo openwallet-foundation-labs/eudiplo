@@ -3390,9 +3390,100 @@ export const CreateAccessCertificateDtoSchema = {
   required: ["keyId"],
 } as const;
 
+export const TrustListEntityInfoSchema = {
+  type: "object",
+  properties: {
+    name: {
+      type: "string",
+    },
+    lang: {
+      type: "string",
+    },
+    uri: {
+      type: "string",
+    },
+    country: {
+      type: "string",
+    },
+    locality: {
+      type: "string",
+    },
+    postalCode: {
+      type: "string",
+    },
+    streetAddress: {
+      type: "string",
+    },
+    contactUri: {
+      type: "string",
+    },
+  },
+  required: ["name"],
+} as const;
+
+export const InternalTrustListEntitySchema = {
+  type: "object",
+  properties: {
+    type: {
+      type: "string",
+      enum: ["internal"],
+    },
+    issuerKeyChainId: {
+      type: "string",
+    },
+    revocationKeyChainId: {
+      type: "string",
+    },
+    info: {
+      $ref: "#/components/schemas/TrustListEntityInfo",
+    },
+  },
+  required: ["type", "issuerKeyChainId", "revocationKeyChainId", "info"],
+} as const;
+
+export const ExternalTrustListEntitySchema = {
+  type: "object",
+  properties: {
+    type: {
+      type: "string",
+      enum: ["external"],
+    },
+    issuerCertPem: {
+      type: "string",
+    },
+    revocationCertPem: {
+      type: "string",
+    },
+    info: {
+      $ref: "#/components/schemas/TrustListEntityInfo",
+    },
+  },
+  required: ["type", "issuerCertPem", "revocationCertPem", "info"],
+} as const;
+
 export const TrustListCreateDtoSchema = {
   type: "object",
   properties: {
+    entities: {
+      type: "array",
+      items: {
+        oneOf: [
+          {
+            $ref: "#/components/schemas/InternalTrustListEntity",
+          },
+          {
+            $ref: "#/components/schemas/ExternalTrustListEntity",
+          },
+        ],
+        discriminator: {
+          propertyName: "type",
+          mapping: {
+            internal: "#/components/schemas/InternalTrustListEntity",
+            external: "#/components/schemas/ExternalTrustListEntity",
+          },
+        },
+      },
+    },
     id: {
       type: "string",
     },
@@ -3401,12 +3492,6 @@ export const TrustListCreateDtoSchema = {
     },
     keyChainId: {
       type: "string",
-    },
-    entities: {
-      type: "array",
-      items: {
-        type: "object",
-      },
     },
     data: {
       type: "object",
