@@ -148,8 +148,6 @@ import type {
   StatusListManagementControllerGetListsResponses,
   StatusListManagementControllerUpdateListData,
   StatusListManagementControllerUpdateListResponses,
-  StorageControllerDownloadData,
-  StorageControllerDownloadResponses,
   StorageControllerUploadData,
   StorageControllerUploadResponses,
   TenantControllerDeleteTenantData,
@@ -1870,12 +1868,3 @@ export const storageControllerUpload = <ThrowOnError extends boolean = true>(
       ...options.headers,
     },
   });
-
-export const storageControllerDownload = <ThrowOnError extends boolean = true>(
-  options: Options<StorageControllerDownloadData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    StorageControllerDownloadResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/api/storage/{key}", ...options });

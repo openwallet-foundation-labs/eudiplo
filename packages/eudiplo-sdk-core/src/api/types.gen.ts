@@ -1914,13 +1914,43 @@ export type CreateAccessCertificateDto = {
   keyId: string;
 };
 
+export type TrustListEntityInfo = {
+  name: string;
+  lang?: string;
+  uri?: string;
+  country?: string;
+  locality?: string;
+  postalCode?: string;
+  streetAddress?: string;
+  contactUri?: string;
+};
+
+export type InternalTrustListEntity = {
+  type: "internal";
+  issuerKeyChainId: string;
+  revocationKeyChainId: string;
+  info: TrustListEntityInfo;
+};
+
+export type ExternalTrustListEntity = {
+  type: "external";
+  issuerCertPem: string;
+  revocationCertPem: string;
+  info: TrustListEntityInfo;
+};
+
 export type TrustListCreateDto = {
+  entities: Array<
+    | ({
+        type: "internal";
+      } & InternalTrustListEntity)
+    | ({
+        type: "external";
+      } & ExternalTrustListEntity)
+  >;
   id?: string;
   description?: string;
   keyChainId?: string;
-  entities: Array<{
-    [key: string]: unknown;
-  }>;
   /**
    * The full trust list JSON (generated LoTE structure)
    */
@@ -3873,16 +3903,3 @@ export type StorageControllerUploadResponses = {
 
 export type StorageControllerUploadResponse =
   StorageControllerUploadResponses[keyof StorageControllerUploadResponses];
-
-export type StorageControllerDownloadData = {
-  body?: never;
-  path: {
-    key: string;
-  };
-  query?: never;
-  url: "/api/storage/{key}";
-};
-
-export type StorageControllerDownloadResponses = {
-  200: unknown;
-};

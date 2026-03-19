@@ -497,4 +497,18 @@ describe("Presentation - Transaction Data", () => {
         expect(submitRes).toBeDefined();
         expect(submitRes.response.status).toBe(200);
     });
+
+    test("should persist and retrieve dynamic transaction data (Data Integrity Check)", async () => {
+        const res = await request(app.getHttpServer())
+            .get("/verifier/config/pid-with-transaction-data")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .expect(200);
+
+        const transactionData = res.body.transaction_data[0];
+
+        expect(transactionData.amount).toBe("100.00");
+        expect(transactionData.currency).toBe("EUR");
+        expect(transactionData.merchant).toBe("Test Merchant");
+    });
 });

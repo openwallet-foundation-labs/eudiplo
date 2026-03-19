@@ -617,7 +617,12 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
     }).compile();
 
     const app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(
+        new ValidationPipe({
+            whitelist: true,
+            transform: true,
+        }),
+    );
 
     const configService = app.get(ConfigService);
     const configFolder = resolve(__dirname + "/fixtures");
