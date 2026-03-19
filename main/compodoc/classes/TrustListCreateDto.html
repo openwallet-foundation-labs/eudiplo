@@ -240,7 +240,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="107" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:107</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="109" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:109</a></div>
                         </td>
                     </tr>
 
@@ -279,7 +279,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="141" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:141</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="143" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:143</a></div>
                         </td>
                     </tr>
 
@@ -317,7 +317,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="103" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:103</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="105" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:105</a></div>
                         </td>
                     </tr>
 
@@ -355,7 +355,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="111" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:111</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="113" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:113</a></div>
                         </td>
                     </tr>
 
@@ -424,6 +424,7 @@ export class TrustListEntityInfo {
  * Internal trust list entity - references certificates already in the system
  */
 export class InternalTrustListEntity {
+    @ApiProperty({ enum: [&quot;internal&quot;] })
     @IsString()
     type: &quot;internal&quot;;
 
@@ -442,6 +443,7 @@ export class InternalTrustListEntity {
  * External trust list entity - uses PEM certificates directly
  */
 export class ExternalTrustListEntity {
+    @ApiProperty({ enum: [&quot;external&quot;] })
     @IsString()
     type: &quot;external&quot;;
 
