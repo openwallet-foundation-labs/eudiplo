@@ -128,7 +128,7 @@
         "tsx": "^4.21.0",
         "typescript": "^5.9.3",
         "unplugin-swc": "^1.5.9",
-        "vitest": "4.0.18"
+        "vitest": "4.1.0"
     },
     "packageManager": "pnpm@10.13.1"
 }

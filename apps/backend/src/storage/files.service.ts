@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
+import { extname } from "node:path";
 import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -15,6 +16,17 @@ import {
     StoredObject,
 } from "../storage/storage.types";
 import { FileEntity } from "./entities/files.entity";
+
+const MIME_TYPES: Record<string, string> = {
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".gif": "image/gif",
+    ".svg": "image/svg+xml",
+    ".webp": "image/webp",
+    ".ico": "image/x-icon",
+    ".bmp": "image/bmp",
+};
 
 interface FileImportData {
     filename: string;
@@ -63,8 +75,11 @@ export class FilesService {
                 },
                 processItem: async (_tenantId, data) => {
                     const key = randomUUID();
+                    const contentType =
+                        MIME_TYPES[extname(data.filename).toLowerCase()] ??
+                        "application/octet-stream";
                     await this.storage.put(key, data.content, {
-                        contentType: "application/octet-stream",
+                        contentType,
                         acl: "public",
                         metadata: { originalName: data.filename },
                     });
