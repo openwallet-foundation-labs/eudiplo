@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListEntityInfo.schema.json",
+  "title": "TrustListEntityInfo",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "lang": {
+      "type": "string"
+    },
+    "uri": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "locality": {
+      "type": "string"
+    },
+    "postalCode": {
+      "type": "string"
+    },
+    "streetAddress": {
+      "type": "string"
+    },
+    "contactUri": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "additionalProperties": false
+}

@@ -4,6 +4,26 @@
   "title": "TrustListCreateDto",
   "type": "object",
   "properties": {
+    "entities": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "./InternalTrustListEntity.schema.json"
+          },
+          {
+            "$ref": "./ExternalTrustListEntity.schema.json"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "internal": "#/components/schemas/InternalTrustListEntity",
+            "external": "#/components/schemas/ExternalTrustListEntity"
+          }
+        }
+      }
+    },
     "id": {
       "type": "string"
     },
@@ -12,12 +32,6 @@
     },
     "keyChainId": {
       "type": "string"
-    },
-    "entities": {
-      "type": "array",
-      "items": {
-        "type": "object"
-      }
     },
     "data": {
       "type": "object",
