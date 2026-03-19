@@ -150,23 +150,6 @@
 
             </p>
 
-            <p class="comment">
-                <h3>Extends</h3>
-            </p>
-            <p class="comment">
-                            <code><a href="../entitys/TrustList.html" target="_self" >OmitType(TrustList, [
-    &quot;tenant&quot;,
-    &quot;tenantId&quot;,
-    &quot;jwt&quot;,
-    &quot;keyChain&quot;,
-    &quot;keyChainId&quot;,
-    &quot;sequenceNumber&quot;,
-    &quot;createdAt&quot;,
-    &quot;updatedAt&quot;,
-    &quot;entityConfig&quot;,
-    &quot;id&quot;,
-] as const)</a></code>
-            </p>
 
 
 
@@ -189,6 +172,7 @@
                                 <a href="#description" >description</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
@@ -256,7 +240,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="101" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:101</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="107" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:107</a></div>
                         </td>
                     </tr>
 
@@ -269,6 +253,7 @@
                 <td class="col-md-4">
                     <a name="entities"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
@@ -288,13 +273,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsOptional()<br />@ValidateNested({each: true})<br />@Type(undefined, {discriminator: undefined, keepDiscriminatorProperty: true})<br />
+                            @IsOptional()<br />@ValidateNested({each: true})<br />@ApiProperty({type: &#x27;array&#x27;, items: undefined})<br />@Type(undefined, {discriminator: undefined, keepDiscriminatorProperty: true})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="119" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:119</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="141" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:141</a></div>
                         </td>
                     </tr>
 
@@ -332,7 +317,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="97" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:97</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="103" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:103</a></div>
                         </td>
                     </tr>
 
@@ -370,7 +355,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="105" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:105</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="111" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:111</a></div>
                         </td>
                     </tr>
 
@@ -389,7 +374,12 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { OmitType } from &quot;@nestjs/swagger&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    ApiExtraModels,
+    ApiProperty,
+    getSchemaPath,
+    OmitType,
+} from &quot;@nestjs/swagger&quot;;
 import { Type } from &quot;class-transformer&quot;;
 import { IsOptional, IsString, ValidateNested } from &quot;class-validator&quot;;
 import { TrustList } from &quot;../entities/trust-list.entity&quot;;
@@ -471,6 +461,7 @@ export type TrustListEntity &#x3D; InternalTrustListEntity | ExternalTrustListEn
 /**
  * DTO for creating a new Trust List, omitting tenant-related and auto-generated fields.
  */
+@ApiExtraModels(InternalTrustListEntity, ExternalTrustListEntity)
 export class TrustListCreateDto extends OmitType(TrustList, [
     &quot;tenant&quot;,
     &quot;tenantId&quot;,
@@ -497,6 +488,22 @@ export class TrustListCreateDto extends OmitType(TrustList, [
 
     @IsOptional()
     @ValidateNested({ each: true })
+    @ApiProperty({
+        type: &quot;array&quot;,
+        items: {
+            oneOf: [
+                { $ref: getSchemaPath(InternalTrustListEntity) },
+                { $ref: getSchemaPath(ExternalTrustListEntity) },
+            ],
+            discriminator: {
+                propertyName: &quot;type&quot;,
+                mapping: {
+                    internal: getSchemaPath(InternalTrustListEntity),
+                    external: getSchemaPath(ExternalTrustListEntity),
+                },
+            },
+        },
+    })
     @Type(() &#x3D;&gt; Object, {
         discriminator: {
             property: &quot;type&quot;,

@@ -231,7 +231,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="75" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:75</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="80" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:80</a></div>
                         </td>
                     </tr>
 
@@ -267,7 +267,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="68" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:68</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="73" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:73</a></div>
                         </td>
                     </tr>
 
@@ -303,7 +303,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="71" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:71</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="76" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:76</a></div>
                         </td>
                     </tr>
 
@@ -339,7 +339,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:65</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="70" class="link-to-prism">src/issuer/trust-list/dto/trust-list-create.dto.ts:70</a></div>
                         </td>
                     </tr>
 
@@ -358,7 +358,12 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { OmitType } from &quot;@nestjs/swagger&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+    ApiExtraModels,
+    ApiProperty,
+    getSchemaPath,
+    OmitType,
+} from &quot;@nestjs/swagger&quot;;
 import { Type } from &quot;class-transformer&quot;;
 import { IsOptional, IsString, ValidateNested } from &quot;class-validator&quot;;
 import { TrustList } from &quot;../entities/trust-list.entity&quot;;
@@ -440,6 +445,7 @@ export type TrustListEntity &#x3D; InternalTrustListEntity | ExternalTrustListEn
 /**
  * DTO for creating a new Trust List, omitting tenant-related and auto-generated fields.
  */
+@ApiExtraModels(InternalTrustListEntity, ExternalTrustListEntity)
 export class TrustListCreateDto extends OmitType(TrustList, [
     &quot;tenant&quot;,
     &quot;tenantId&quot;,
@@ -466,6 +472,22 @@ export class TrustListCreateDto extends OmitType(TrustList, [
 
     @IsOptional()
     @ValidateNested({ each: true })
+    @ApiProperty({
+        type: &quot;array&quot;,
+        items: {
+            oneOf: [
+                { $ref: getSchemaPath(InternalTrustListEntity) },
+                { $ref: getSchemaPath(ExternalTrustListEntity) },
+            ],
+            discriminator: {
+                propertyName: &quot;type&quot;,
+                mapping: {
+                    internal: getSchemaPath(InternalTrustListEntity),
+                    external: getSchemaPath(ExternalTrustListEntity),
+                },
+            },
+        },
+    })
     @Type(() &#x3D;&gt; Object, {
         discriminator: {
             property: &quot;type&quot;,
