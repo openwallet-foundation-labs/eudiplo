@@ -1,4 +1,4 @@
-import { ApiHideProperty, ApiProperty } from "@nestjs/swagger";
+import { ApiHideProperty, ApiProperty, ApiSchema } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
     IsArray,
@@ -120,6 +120,7 @@ export class DCQL {
     credential_sets?: CredentialSetQuery[];
 }
 
+@ApiSchema({ additionalProperties: true } as any)
 export class TransactionData {
     @IsString()
     type: string;
