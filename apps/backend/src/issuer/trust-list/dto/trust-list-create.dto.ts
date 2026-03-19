@@ -48,6 +48,7 @@ export class TrustListEntityInfo {
  * Internal trust list entity - references certificates already in the system
  */
 export class InternalTrustListEntity {
+    @ApiProperty({ enum: ["internal"] })
     @IsString()
     type: "internal";
 
@@ -66,6 +67,7 @@ export class InternalTrustListEntity {
  * External trust list entity - uses PEM certificates directly
  */
 export class ExternalTrustListEntity {
+    @ApiProperty({ enum: ["external"] })
     @IsString()
     type: "external";
 
