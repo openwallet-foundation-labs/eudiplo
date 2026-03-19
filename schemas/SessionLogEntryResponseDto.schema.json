@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/SessionLogEntryResponseDto.schema.json",
+  "title": "SessionLogEntryResponseDto",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Log entry ID"
+    },
+    "sessionId": {
+      "type": "string",
+      "description": "Session ID"
+    },
+    "timestamp": {
+      "format": "date-time",
+      "type": "string",
+      "description": "Timestamp of the log entry"
+    },
+    "level": {
+      "type": "string",
+      "description": "Log level",
+      "enum": [
+        "info",
+        "warn",
+        "error"
+      ]
+    },
+    "stage": {
+      "type": "string",
+      "description": "Flow stage"
+    },
+    "message": {
+      "type": "string",
+      "description": "Log message"
+    },
+    "detail": {
+      "type": "object",
+      "description": "Additional structured detail"
+    }
+  },
+  "required": [
+    "id",
+    "sessionId",
+    "timestamp",
+    "level",
+    "message"
+  ],
+  "additionalProperties": false
+}
