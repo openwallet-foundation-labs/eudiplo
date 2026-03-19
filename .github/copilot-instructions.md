@@ -64,9 +64,11 @@
 - Follow existing flow patterns in the feature module — never duplicate protocol logic.
 
 ## Database & Migrations
+- **Dual database support**: The backend supports both **SQLite** (default, local dev) and **PostgreSQL** (production). All migrations, queries, column types, and schema changes **must work on both databases**. Always consider type differences (e.g., `uuid` vs `varchar` for primary/foreign keys, `jsonb` vs `json`, `timestamp with time zone` vs `datetime`). Use the `DB_TYPE` env var or `queryRunner.connection.options.type` to branch when needed.
 - Generate migrations using `pnpm --filter @eudiplo/backend migration:generate`. Never edit migrations manually unless absolutely necessary.
 - Always use TypeORM query builder or repository methods — never create raw/dynamic SQL queries.
 - When adding new DB columns: update entity → create migration → update DTOs → update API schemas.
+- When adding foreign keys in migrations, ensure column types **exactly match** the referenced table's primary key type on both SQLite and PostgreSQL.
 
 ## Error Handling & Logging
 - All custom errors must extend NestJS `HttpException` — never throw generic `Error`.
