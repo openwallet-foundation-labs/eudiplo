@@ -5,7 +5,10 @@
   "type": "object",
   "properties": {
     "type": {
-      "type": "string"
+      "type": "string",
+      "enum": [
+        "external"
+      ]
     },
     "issuerCertPem": {
       "type": "string"
