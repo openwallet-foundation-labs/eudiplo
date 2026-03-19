@@ -3,11 +3,14 @@ import {
     createWriteStream,
     existsSync,
     mkdirSync,
+    readFileSync,
     rmSync,
+    statSync,
+    writeFileSync,
 } from "node:fs";
 import { dirname, join } from "node:path";
 import { Readable } from "stream";
-import { FileStorage } from "../storage.types";
+import { FileStorage, type PutOptions } from "../storage.types";
 
 /**
  * Local file storage implementation for development and testing.
@@ -24,7 +27,11 @@ export class LocalFileStorage implements FileStorage {
      * @param key
      * @param body
      */
-    async put(key: string, body: Buffer | Readable): Promise<void> {
+    async put(
+        key: string,
+        body: Buffer | Readable,
+        opts?: PutOptions,
+    ): Promise<void> {
         const fullPath = join(this.baseDir, key);
         mkdirSync(dirname(fullPath), { recursive: true });
 
@@ -35,6 +42,13 @@ export class LocalFileStorage implements FileStorage {
                 .on("finish", () => resolve())
                 .on("error", reject);
         });
+
+        if (opts?.contentType) {
+            writeFileSync(
+                `${fullPath}.meta`,
+                JSON.stringify({ contentType: opts.contentType }),
+            );
+        }
     }
 
     /**
@@ -44,7 +58,16 @@ export class LocalFileStorage implements FileStorage {
      */
     getStream(key: string) {
         const fullPath = join(this.baseDir, key);
-        return Promise.resolve({ stream: createReadStream(fullPath) });
+        const stat = statSync(fullPath);
+        const metaPath = `${fullPath}.meta`;
+        const contentType = existsSync(metaPath)
+            ? JSON.parse(readFileSync(metaPath, "utf-8")).contentType
+            : undefined;
+        return Promise.resolve({
+            stream: createReadStream(fullPath),
+            contentType,
+            size: stat.size,
+        });
     }
 
     /**
@@ -53,7 +76,11 @@ export class LocalFileStorage implements FileStorage {
      * @returns
      */
     delete(key: string) {
-        return Promise.resolve(rmSync(join(this.baseDir, key)));
+        const fullPath = join(this.baseDir, key);
+        rmSync(fullPath);
+        const metaPath = `${fullPath}.meta`;
+        if (existsSync(metaPath)) rmSync(metaPath);
+        return Promise.resolve();
     }
 
     /**
