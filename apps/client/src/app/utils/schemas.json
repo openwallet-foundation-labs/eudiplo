@@ -1242,6 +1242,50 @@
     }
   },
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/SessionLogEntryResponseDto.schema.json",
+    "fileMatch": ["a://b/SessionLogEntryResponseDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/SessionLogEntryResponseDto.schema.json",
+      "title": "SessionLogEntryResponseDto",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Log entry ID"
+        },
+        "sessionId": {
+          "type": "string",
+          "description": "Session ID"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "type": "string",
+          "description": "Timestamp of the log entry"
+        },
+        "level": {
+          "type": "string",
+          "description": "Log level",
+          "enum": ["info", "warn", "error"]
+        },
+        "stage": {
+          "type": "string",
+          "description": "Flow stage"
+        },
+        "message": {
+          "type": "string",
+          "description": "Log message"
+        },
+        "detail": {
+          "type": "object",
+          "description": "Additional structured detail"
+        }
+      },
+      "required": ["id", "sessionId", "timestamp", "level", "message"],
+      "additionalProperties": false
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/StatusUpdateDto.schema.json",
     "fileMatch": ["a://b/StatusUpdateDto*.schema.json"],
     "schema": {
@@ -3900,6 +3944,96 @@
     }
   },
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListEntityInfo.schema.json",
+    "fileMatch": ["a://b/TrustListEntityInfo*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListEntityInfo.schema.json",
+      "title": "TrustListEntityInfo",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "uri": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "locality": {
+          "type": "string"
+        },
+        "postalCode": {
+          "type": "string"
+        },
+        "streetAddress": {
+          "type": "string"
+        },
+        "contactUri": {
+          "type": "string"
+        }
+      },
+      "required": ["name"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InternalTrustListEntity.schema.json",
+    "fileMatch": ["a://b/InternalTrustListEntity*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InternalTrustListEntity.schema.json",
+      "title": "InternalTrustListEntity",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "issuerKeyChainId": {
+          "type": "string"
+        },
+        "revocationKeyChainId": {
+          "type": "string"
+        },
+        "info": {
+          "$ref": "./TrustListEntityInfo.schema.json"
+        }
+      },
+      "required": ["type", "issuerKeyChainId", "revocationKeyChainId", "info"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ExternalTrustListEntity.schema.json",
+    "fileMatch": ["a://b/ExternalTrustListEntity*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ExternalTrustListEntity.schema.json",
+      "title": "ExternalTrustListEntity",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "issuerCertPem": {
+          "type": "string"
+        },
+        "revocationCertPem": {
+          "type": "string"
+        },
+        "info": {
+          "$ref": "./TrustListEntityInfo.schema.json"
+        }
+      },
+      "required": ["type", "issuerCertPem", "revocationCertPem", "info"],
+      "additionalProperties": false
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListCreateDto.schema.json",
     "fileMatch": ["a://b/TrustListCreateDto*.schema.json"],
     "schema": {
@@ -3908,6 +4042,26 @@
       "title": "TrustListCreateDto",
       "type": "object",
       "properties": {
+        "entities": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "./InternalTrustListEntity.schema.json"
+              },
+              {
+                "$ref": "./ExternalTrustListEntity.schema.json"
+              }
+            ],
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "internal": "#/components/schemas/InternalTrustListEntity",
+                "external": "#/components/schemas/ExternalTrustListEntity"
+              }
+            }
+          }
+        },
         "id": {
           "type": "string"
         },
@@ -3916,12 +4070,6 @@
         },
         "keyChainId": {
           "type": "string"
-        },
-        "entities": {
-          "type": "array",
-          "items": {
-            "type": "object"
-          }
         },
         "data": {
           "type": "object",

@@ -1,4 +1,9 @@
-import { OmitType } from "@nestjs/swagger";
+import {
+    ApiExtraModels,
+    ApiProperty,
+    getSchemaPath,
+    OmitType,
+} from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsOptional, IsString, ValidateNested } from "class-validator";
 import { TrustList } from "../entities/trust-list.entity";
@@ -80,6 +85,7 @@ export type TrustListEntity = InternalTrustListEntity | ExternalTrustListEntity;
 /**
  * DTO for creating a new Trust List, omitting tenant-related and auto-generated fields.
  */
+@ApiExtraModels(InternalTrustListEntity, ExternalTrustListEntity)
 export class TrustListCreateDto extends OmitType(TrustList, [
     "tenant",
     "tenantId",
@@ -106,6 +112,22 @@ export class TrustListCreateDto extends OmitType(TrustList, [
 
     @IsOptional()
     @ValidateNested({ each: true })
+    @ApiProperty({
+        type: "array",
+        items: {
+            oneOf: [
+                { $ref: getSchemaPath(InternalTrustListEntity) },
+                { $ref: getSchemaPath(ExternalTrustListEntity) },
+            ],
+            discriminator: {
+                propertyName: "type",
+                mapping: {
+                    internal: getSchemaPath(InternalTrustListEntity),
+                    external: getSchemaPath(ExternalTrustListEntity),
+                },
+            },
+        },
+    })
     @Type(() => Object, {
         discriminator: {
             property: "type",
