@@ -444,22 +444,32 @@ export class TrustListService {
             .addCertificate(revocationCertBase64)
             .build();
 
-        // Build the trusted entity
+        // Build the trusted entity - only add optional fields if they have values
         const entityBuilder = trustedEntity()
             .name(info.name, lang)
-            .infoUri(info.uri || "", lang)
-            .postalAddress(
-                {
-                    Country: info.country || "",
-                    Locality: info.locality || "",
-                    PostalCode: info.postalCode || "",
-                    StreetAddress: info.streetAddress || "",
-                },
-                lang.split("-")[0], // Use short lang code for postal
-            )
-            .email(info.contactUri || "", lang)
             .addService(issuanceService)
             .addService(revocationService);
+
+        // Only add infoUri if a valid URI is provided
+        if (info.uri) {
+            entityBuilder.infoUri(info.uri, lang);
+        }
+
+        // Postal address is required by @owf/eudi-lote - use "EU" as default country
+        entityBuilder.postalAddress(
+            {
+                Country: info.country || "EU",
+                Locality: info.locality || "",
+                PostalCode: info.postalCode || "",
+                StreetAddress: info.streetAddress || "",
+            },
+            lang.split("-")[0], // Use short lang code for postal
+        );
+
+        // Only add email if a valid URI is provided
+        if (info.contactUri) {
+            entityBuilder.email(info.contactUri, lang);
+        }
 
         return entityBuilder.build();
     }
