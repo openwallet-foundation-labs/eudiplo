@@ -2,8 +2,15 @@ import { X509Certificate } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import {
+    createLoTE,
+    type LoTEDocument,
+    type TrustedEntity as LoTETrustedEntity,
+    service,
+    signLoTE,
+    trustedEntity,
+} from "@owf/eudi-lote";
 import { plainToClass } from "class-transformer";
-import { JWTHeaderParameters } from "jose";
 import { Repository } from "typeorm";
 import { v4 } from "uuid";
 import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
@@ -22,7 +29,6 @@ import {
     TrustListCreateDto,
     TrustListEntityInfo,
 } from "./dto/trust-list-create.dto";
-import { LoTE, TrustedEntitiesList, TrustedEntity } from "./dto/types";
 import { TrustList } from "./entities/trust-list.entity";
 import { TrustListVersion } from "./entities/trust-list-version.entity";
 
@@ -267,7 +273,7 @@ export class TrustListService {
             trustList.sequenceNumber = 1;
         }
 
-        const entries: TrustedEntity[] = [];
+        const entries: LoTETrustedEntity[] = [];
         for (const entity of config.entities || []) {
             if (entity.type === "internal") {
                 // Internal: fetch certificates from database by ID
@@ -357,9 +363,9 @@ export class TrustListService {
     }
 
     /**
-     * Generate a signed JWT for the trust list
-     * @param id
-     * @returns
+     * Generate a signed JWT for the trust list using @owf/eudi-lote
+     * @param trustList The trust list to sign
+     * @returns Signed JWT string
      */
     async generateJwt(trustList: TrustList): Promise<string> {
         const cert = await this.certService.find({
@@ -367,28 +373,31 @@ export class TrustListService {
             type: KeyUsageType.TrustList,
         });
 
-        // Prepare payload and header
-        const payload = { ...trustList.data };
-        const protectedHeader: JWTHeaderParameters = {
-            alg: "ES256",
-            iat: Math.floor(Date.now() / 1000),
-            typ: "JWT",
-            x5c: this.certService.getCertChain(cert),
-        };
-
-        return this.keyChainService.signJWT(
-            payload,
-            protectedHeader,
+        // Get the signer from key chain service
+        const signer = await this.keyChainService.signer(
             trustList.tenantId,
             cert.keyId,
         );
+
+        // Sign using @owf/eudi-lote
+        const signed = await signLoTE({
+            lote: trustList.data as LoTEDocument,
+            keyId: cert.keyId,
+            signer,
+            certificates: cert.crt,
+        });
+
+        return signed.jws;
     }
 
+    /**
+     * Create a LoTE trusted entity from internal certificate references
+     */
     private createEntityFromCert(
         issuerCert: CertificateInfo,
         revocationCert: CertificateInfo,
         info: TrustListEntityInfo,
-    ): TrustedEntity {
+    ): LoTETrustedEntity {
         return this.createEntityFromData(
             this.formatCertEntity(issuerCert),
             this.formatCertEntity(revocationCert),
@@ -396,11 +405,14 @@ export class TrustListService {
         );
     }
 
+    /**
+     * Create a LoTE trusted entity from PEM certificates
+     */
     private createEntityFromPem(
         issuerCertPem: string,
         revocationCertPem: string,
         info: TrustListEntityInfo,
-    ): TrustedEntity {
+    ): LoTETrustedEntity {
         return this.createEntityFromData(
             this.formatPem(issuerCertPem),
             this.formatPem(revocationCertPem),
@@ -408,100 +420,79 @@ export class TrustListService {
         );
     }
 
+    /**
+     * Create a LoTE trusted entity using the @owf/eudi-lote builders
+     */
     private createEntityFromData(
         issuerCertBase64: string,
         revocationCertBase64: string,
         info: TrustListEntityInfo,
-    ): TrustedEntity {
+    ): LoTETrustedEntity {
         const lang = info.lang || DEFAULT_LANG;
-        return {
-            TrustedEntityInformation: {
-                TEInformationURI: [
-                    {
-                        lang,
-                        uriValue: info.uri || "",
-                    },
-                ],
-                TEName: [
-                    {
-                        lang,
-                        value: info.name,
-                    },
-                ],
-                TEAddress: {
-                    TEElectronicAddress: [
-                        {
-                            lang,
-                            uriValue: info.contactUri || "",
-                        },
-                    ],
-                    TEPostalAddress: [
-                        {
-                            Country: info.country || "",
-                            lang: lang.split("-")[0], // Use short lang code for postal
-                            Locality: info.locality || "",
-                            PostalCode: info.postalCode || "",
-                            StreetAddress: info.streetAddress || "",
-                        },
-                    ],
-                },
+
+        // Build the issuance service
+        const issuanceService = service()
+            .name("EAA-Issuance-Service", lang)
+            .type(ServiceTypeIdentifier.EaaIssuance)
+            .addCertificate(issuerCertBase64)
+            .build();
+
+        // Build the revocation service
+        const revocationService = service()
+            .name("EAA-Revocation-Service", lang)
+            .type(ServiceTypeIdentifier.EaaRevocation)
+            .addCertificate(revocationCertBase64)
+            .build();
+
+        // Build the trusted entity - only add optional fields if they have values
+        const entityBuilder = trustedEntity()
+            .name(info.name, lang)
+            .addService(issuanceService)
+            .addService(revocationService);
+
+        // Only add infoUri if a valid URI is provided
+        if (info.uri) {
+            entityBuilder.infoUri(info.uri, lang);
+        }
+
+        // Postal address is required by @owf/eudi-lote - use "EU" as default country
+        entityBuilder.postalAddress(
+            {
+                Country: info.country || "EU",
+                Locality: info.locality || "",
+                PostalCode: info.postalCode || "",
+                StreetAddress: info.streetAddress || "",
             },
-            TrustedEntityServices: [
-                {
-                    ServiceInformation: {
-                        ServiceTypeIdentifier:
-                            ServiceTypeIdentifier.EaaIssuance,
-                        ServiceName: [
-                            {
-                                lang,
-                                value: "EAA-Issuance-Service",
-                            },
-                        ],
-                        ServiceDigitalIdentity: {
-                            X509Certificates: [
-                                {
-                                    val: issuerCertBase64,
-                                },
-                            ],
-                        },
-                    },
-                },
-                {
-                    ServiceInformation: {
-                        ServiceName: [
-                            {
-                                lang,
-                                value: "EAA-Revocation-Service",
-                            },
-                        ],
-                        ServiceTypeIdentifier:
-                            ServiceTypeIdentifier.EaaRevocation,
-                        ServiceDigitalIdentity: {
-                            X509Certificates: [
-                                {
-                                    val: revocationCertBase64,
-                                },
-                            ],
-                        },
-                    },
-                },
-            ],
-        };
+            lang.split("-")[0], // Use short lang code for postal
+        );
+
+        // Only add email if a valid URI is provided
+        if (info.contactUri) {
+            entityBuilder.email(info.contactUri, lang);
+        }
+
+        return entityBuilder.build();
     }
 
+    /**
+     * Create a LoTE document using @owf/eudi-lote
+     */
     createList(
         tenant: TenantEntity,
-        list: TrustedEntity[],
+        entities: LoTETrustedEntity[],
         sequenceNumber = 1,
-    ): LoTE {
-        const date = new Date();
+    ): LoTEDocument {
         const nextUpdate = new Date();
-        nextUpdate.setDate(date.getDate() + 30);
+        nextUpdate.setDate(nextUpdate.getDate() + 30);
 
-        return {
-            ListAndSchemeInformation: {
-                LoTEVersionIdentifier: 1,
-                LoTESequenceNumber: sequenceNumber,
+        return createLoTE(
+            {
+                SchemeOperatorName: [
+                    {
+                        lang: DEFAULT_LANG,
+                        value: tenant.name,
+                    },
+                ],
                 LoTEType:
                     "http://uri.etsi.org/19602/LoTEType/EUEAAProvidersList",
                 StatusDeterminationApproach:
@@ -513,19 +504,12 @@ export class TrustListService {
                             "http://uri.etsi.org/19602/EUEAAProviders/schemerules/EU",
                     },
                 ],
-                //TODO: add historical endpoint
                 SchemeTerritory: "EU",
                 NextUpdate: nextUpdate.toISOString(),
-                SchemeOperatorName: [
-                    {
-                        lang: DEFAULT_LANG,
-                        value: tenant.name,
-                    },
-                ],
-                ListIssueDateTime: date.toISOString(),
+                LoTESequenceNumber: sequenceNumber,
             },
-            TrustedEntitiesList: list as TrustedEntitiesList,
-        };
+            entities,
+        );
     }
 
     /**

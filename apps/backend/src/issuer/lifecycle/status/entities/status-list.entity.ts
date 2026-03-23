@@ -1,4 +1,4 @@
-import { BitsPerStatus } from "@sd-jwt/jwt-status-list";
+import { BitsPerStatus } from "@owf/token-status-list";
 import { IsOptional, IsString } from "class-validator";
 import { Column, CreateDateColumn, Entity, ManyToOne } from "typeorm";
 import { TenantEntity } from "../../../../auth/tenant/entitites/tenant.entity";

@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { LoTE } from "../../issuer/trust-list/dto/types";
+import type { LoTE } from "@owf/eudi-lote";
 import {
     ServiceTypeIdentifier,
     TrustedEntity,

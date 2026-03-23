@@ -41,7 +41,7 @@
           "TEInformationURI": [
             {
               "lang": "en",
-              "uriValue": ""
+              "uriValue": "http://example.com/te-info"
             }
           ],
           "TEName": [
@@ -54,12 +54,12 @@
             "TEElectronicAddress": [
               {
                 "lang": "en",
-                "uriValue": ""
+                "uriValue": "mailto:example@example.com"
               }
             ],
             "TEPostalAddress": [
               {
-                "Country": "",
+                "Country": "DE",
                 "lang": "en",
                 "Locality": "",
                 "PostalCode": "",

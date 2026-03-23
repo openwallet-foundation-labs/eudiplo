@@ -1,6 +1,6 @@
-import { CoseKey, DeviceKey, Issuer, SignatureAlgorithm } from "@animo-id/mdoc";
 import { Injectable, Logger } from "@nestjs/common";
 import type { Jwk } from "@openid4vc/oauth2";
+import { CoseKey, DeviceKey, Issuer, SignatureAlgorithm } from "@owf/mdoc";
 import { X509Certificate } from "@peculiar/x509";
 import { exportJWK } from "jose";
 import { CertService } from "../../../../../crypto/key/cert/cert.service";

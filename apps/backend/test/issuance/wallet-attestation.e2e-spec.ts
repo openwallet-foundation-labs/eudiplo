@@ -5,9 +5,9 @@ import {
     Jwk,
 } from "@openid4vc/oauth2";
 import { Openid4vciClient } from "@openid4vc/openid4vci";
+import { BitsPerStatus, StatusList } from "@owf/token-status-list";
 import * as x509 from "@peculiar/x509";
 import { X509Certificate, X509CertificateGenerator } from "@peculiar/x509";
-import { BitsPerStatus, StatusList } from "@sd-jwt/jwt-status-list";
 import { exportJWK, generateKeyPair, importPKCS8, SignJWT } from "jose";
 import nock from "nock";
 import request from "supertest";
@@ -222,7 +222,9 @@ async function createStatusListJwt(
     }
 
     const statusList = new StatusList(elements, bits);
-    const compressedList = statusList.compressStatusList();
+    // Convert compressed bytes to base64 for JWT payload
+    const compressedBytes = statusList.compressStatusListToBytes();
+    const compressedList = Buffer.from(compressedBytes).toString("base64url");
 
     const payload = {
         iss: "https://wallet-provider.example.com",

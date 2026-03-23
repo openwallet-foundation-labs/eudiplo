@@ -3,7 +3,7 @@
  * This is needed due to TypeScript version differences where newer TS versions
  * use Uint8Array<ArrayBufferLike> which is not assignable to BufferSource.
  *
- * Used primarily for mDOC operations where the @animo-id/mdoc library
+ * Used primarily for mDOC operations where the @owf/mdoc library
  * requires Uint8Array<ArrayBuffer>.
  *
  * @param bytes - The Uint8Array to convert

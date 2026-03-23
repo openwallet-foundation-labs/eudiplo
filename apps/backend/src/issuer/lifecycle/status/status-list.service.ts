@@ -15,7 +15,7 @@ import {
     JWTwithStatusListPayload,
     StatusList,
     StatusListJWTHeaderParameters,
-} from "@sd-jwt/jwt-status-list";
+} from "@owf/token-status-list";
 import { JwtPayload } from "@sd-jwt/types";
 import { IsNull, Repository } from "typeorm";
 import { v4 } from "uuid";
