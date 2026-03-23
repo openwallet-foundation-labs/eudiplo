@@ -12,6 +12,11 @@ on:
         required: false
         type: boolean
         default: false
+      confirm_major:
+        description: 'Type CONFIRM to allow major version bump (breaking changes)'
+        required: false
+        type: string
+        default: ''
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -748,6 +753,52 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
+
+      - name: Check for major version bump
+        id: version_check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Running semantic-release dry-run to detect version bump..."
+          DRY_OUTPUT=$(npx semantic-release --dry-run 2>&1) || true
+          echo "$DRY_OUTPUT"
+
+          # Extract the next version from dry-run output
+          NEXT_VERSION=$(echo "$DRY_OUTPUT" | grep -oP "The next release version is \K[0-9]+\.[0-9]+\.[0-9]+" || echo "")
+          CURRENT_VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
+
+          echo "Current version: $CURRENT_VERSION"
+          echo "Next version: $NEXT_VERSION"
+
+          if [ -z "$NEXT_VERSION" ]; then
+            echo "No release will be created"
+            echo "is_major=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Extract major versions
+          CURRENT_MAJOR=$(echo "$CURRENT_VERSION" | cut -d. -f1)
+          NEXT_MAJOR=$(echo "$NEXT_VERSION" | cut -d. -f1)
+
+          if [ "$NEXT_MAJOR" -gt "$CURRENT_MAJOR" ]; then
+            echo "⚠️  MAJOR VERSION BUMP DETECTED: $CURRENT_VERSION → $NEXT_VERSION"
+            echo "is_major=true" >> $GITHUB_OUTPUT
+          else
+            echo "Minor/patch release: $CURRENT_VERSION → $NEXT_VERSION"
+            echo "is_major=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Abort if major release not confirmed
+        if: steps.version_check.outputs.is_major == 'true' && github.event.inputs.confirm_major != 'CONFIRM'
+        run: |
+          echo "❌ MAJOR VERSION RELEASE BLOCKED"
+          echo ""
+          echo "A major version bump was detected but not confirmed."
+          echo "To release a major version, trigger this workflow manually with:"
+          echo "  confirm_major: CONFIRM"
+          echo ""
+          echo "This safeguard prevents accidental breaking changes from being released."
+          exit 1
 
       - name: Run semantic-release
         id: semantic_release
