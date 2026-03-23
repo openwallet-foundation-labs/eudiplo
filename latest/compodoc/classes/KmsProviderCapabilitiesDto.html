@@ -317,7 +317,7 @@ Returned by the providers endpoint so the UI can adapt accordingly.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty } from &quot;@nestjs/swagger&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty, ApiPropertyOptional } from &quot;@nestjs/swagger&quot;;
 
 /**
  * Describes what operations a KMS provider supports.
@@ -348,10 +348,22 @@ export class KmsProviderCapabilitiesDto {
  */
 export class KmsProviderInfoDto {
     @ApiProperty({
-        description: &quot;Unique provider name (matches the key in kms.json).&quot;,
-        example: &quot;db&quot;,
+        description: &quot;Unique provider ID (matches the id in kms.json).&quot;,
+        example: &quot;main-vault&quot;,
     })
     name!: string;
+
+    @ApiProperty({
+        description: &quot;Type of the KMS provider (db, vault, aws-kms).&quot;,
+        example: &quot;vault&quot;,
+    })
+    type!: string;
+
+    @ApiPropertyOptional({
+        description: &quot;Human-readable description of this provider instance.&quot;,
+        example: &quot;Production HashiCorp Vault&quot;,
+    })
+    description?: string;
 
     @ApiProperty({
         description: &quot;Capabilities of this provider.&quot;,

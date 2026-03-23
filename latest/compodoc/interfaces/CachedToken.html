@@ -274,10 +274,8 @@ import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { TenantEntity } from &quot;../auth/tenant/entitites/tenant.entity&quot;;
-import { CryptoService } from &quot;../crypto/crypto.service&quot;;
 import { CertService } from &quot;../crypto/key/cert/cert.service&quot;;
-import { CertUsage } from &quot;../crypto/key/entities/cert-usage.entity&quot;;
-import { KeyService } from &quot;../crypto/key/key.service&quot;;
+import { KeyChainService } from &quot;../crypto/key/key-chain.service&quot;;
 import {
     ConfigImportOrchestratorService,
     ImportPhase,
@@ -321,12 +319,11 @@ export class RegistrarService {
 
     constructor(
         private readonly configService: ConfigService,
-        private readonly cryptoService: CryptoService,
         configImportOrchestrator: ConfigImportOrchestratorService,
         @InjectRepository(RegistrarConfigEntity)
         private readonly configRepository: Repository&lt;RegistrarConfigEntity&gt;,
         private readonly certService: CertService,
-        private readonly keyService: KeyService,
+        private readonly keyChainService: KeyChainService,
     ) {
         // Register for config import at CORE phase (same as certificates)
         configImportOrchestrator.register(
@@ -668,7 +665,7 @@ export class RegistrarService {
             this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
         ).hostname;
 
-        const publicKey &#x3D; await this.keyService.getPublicKey(
+        const publicKey &#x3D; await this.keyChainService.getPublicKey(
             &quot;pem&quot;,
             tenantId,
             dto.keyId,
@@ -699,7 +696,6 @@ export class RegistrarService {
         const certId &#x3D; await this.certService.addCertificate(tenantId, {
             crt: [crt],
             keyId: dto.keyId,
-            certUsageTypes: [CertUsage.Access],
             description: &#x60;Access certificate from registrar (ID: ${id})&#x60;,
         });
 

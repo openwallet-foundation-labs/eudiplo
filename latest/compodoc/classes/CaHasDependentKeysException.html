@@ -114,7 +114,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Classes</li>
-  <li class="breadcrumb-item" >UpdateKeyDto</li>
+  <li class="breadcrumb-item" >CaHasDependentKeysException</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -138,21 +138,89 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/crypto/key/dto/key-update.dto.ts</code>
+            <code>src/crypto/key/exceptions/ca-has-dependent-keys.exception.ts</code>
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Thrown when attempting to delete a CA key that has dependent signing keys.
+Users must delete the dependent keys first before deleting the CA.</p>
+
+            </p>
 
             <p class="comment">
                 <h3>Extends</h3>
             </p>
             <p class="comment">
-                        <code>OmitType(KeyImportDto, [&quot;key&quot;] as const)</code>
+                        <code>ConflictException</code>
             </p>
 
 
 
 
+            <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(caKeyId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dependentKeyIds: string[])</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="7" class="link-to-prism">src/crypto/key/exceptions/ca-has-dependent-keys.exception.ts:7</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>caKeyId</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>dependentKeyIds</td>
+                                                  
+                                                        <td>
+                                                                    <code>string[]</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
 
 
 
@@ -165,10 +233,21 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { OmitType } from &quot;@nestjs/swagger&quot;;
-import { KeyImportDto } from &quot;./key-import.dto&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ConflictException } from &quot;@nestjs/common&quot;;
 
-export class UpdateKeyDto extends OmitType(KeyImportDto, [&quot;key&quot;] as const) {}
+/**
+ * Thrown when attempting to delete a CA key that has dependent signing keys.
+ * Users must delete the dependent keys first before deleting the CA.
+ */
+export class CaHasDependentKeysException extends ConflictException {
+    constructor(caKeyId: string, dependentKeyIds: string[]) {
+        super({
+            message: &#x60;Cannot delete CA key &quot;${caKeyId}&quot;: ${dependentKeyIds.length} dependent key(s) still reference it&#x60;,
+            dependentKeyIds,
+            hint: &quot;Delete the dependent keys first, or remove their signingCaKeyId reference&quot;,
+        });
+    }
+}
 </code></pre>
     </div>
 </div>
@@ -207,7 +286,7 @@ export class UpdateKeyDto extends OmitType(KeyImportDto, [&quot;key&quot;] as co
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
-            var COMPODOC_CURRENT_PAGE_URL = 'UpdateKeyDto.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'CaHasDependentKeysException.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

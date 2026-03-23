@@ -137,7 +137,7 @@
                 <h3>Prefix</h3>
             </p>
             <p class="comment">
-                <code>:tenantId/status-management</code>
+                <code>issuers/:tenantId/status-management</code>
             </p>
 
 
@@ -218,8 +218,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="28"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.controller.ts:28</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="26"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.controller.ts:26</a></div>
                         </td>
                     </tr>
 
@@ -322,8 +322,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="56"
-                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.controller.ts:56</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="54"
+                                    class="link-to-prism">src/issuer/lifecycle/status/status-list.controller.ts:54</a></div>
                         </td>
                     </tr>
 
@@ -386,7 +386,6 @@ See RFC draft-ietf-oauth-status-list Section 9.3.</p>
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Header, Param } from &quot;@nestjs/common&quot;;
 import {
-    ApiExcludeController,
     ApiExtraModels,
     ApiOkResponse,
     ApiOperation,
@@ -397,9 +396,8 @@ import { StatusListImportDto } from &quot;./dto/status-list-import.dto&quot;;
 import { StatusListService } from &quot;./status-list.service&quot;;
 
 @ApiExtraModels(StatusListImportDto)
-@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
 @ApiTags(&quot;Issuer&quot;)
-@Controller(&quot;:tenantId/status-management&quot;)
+@Controller(&quot;issuers/:tenantId/status-management&quot;)
 export class StatusListController {
     constructor(private readonly statusListService: StatusListService) {}
 

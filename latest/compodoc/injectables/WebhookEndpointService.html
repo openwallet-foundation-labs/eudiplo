@@ -94,7 +94,7 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content controller">
+               <div class="content injectable">
                    <div class="content-data">
 
 
@@ -105,9 +105,12 @@
 
 
 
+
+
+
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Controllers</li>
-  <li class="breadcrumb-item" >KeyController</li>
+  <li class="breadcrumb-item">Injectables</li>
+  <li class="breadcrumb-item" >WebhookEndpointService</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -131,23 +134,9 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/crypto/key/key.controller.ts</code>
+            <code>src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts</code>
         </p>
-            <p class="comment">
-                <h3>Prefix</h3>
-            </p>
-            <p class="comment">
-                <code>key</code>
-            </p>
 
-
-            <p class="comment">
-                <h3>Description</h3>
-            </p>
-            <p class="comment">
-                <p>KeyController is responsible for managing keys in the system.</p>
-
-            </p>
 
 
 
@@ -166,49 +155,27 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
+                                <a href="#create" >create</a>
+                            </li>
+                            <li>
                                     <span class="modifier">Async</span>
-                                <a href="#addKey" >addKey</a>
+                                <a href="#delete" >delete</a>
                             </li>
                             <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                <a href="#deleteKey" >deleteKey</a>
+                                <a href="#getAll" >getAll</a>
                             </li>
                             <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
                                     <span class="modifier">Async</span>
-                                <a href="#generateKey" >generateKey</a>
+                                <a href="#getById" >getById</a>
                             </li>
                             <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                <a href="#getKey" >getKey</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                <a href="#getKeys" >getKeys</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                <a href="#getProviders" >getProviders</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
+                                    <span class="modifier">Private</span>
                                     <span class="modifier">Async</span>
-                                <a href="#updateKey" >updateKey</a>
+                                <a href="#importForTenant" >importForTenant</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#update" >update</a>
                             </li>
                         </ul>
                     </td>
@@ -222,6 +189,79 @@
     </table>
 </section>
 
+            <section data-compodoc="block-constructor">
+    <h3 id="constructor">Constructor</h3>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+<code>constructor(repo: <a href="../entitys/WebhookEndpointEntity.html" target="_self">Repository&lt;WebhookEndpointEntity&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>)</code>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:16</a></div>
+                            </td>
+                        </tr>
+
+                <tr>
+                    <td class="col-md-4">
+                            <div>
+                                    <b>Parameters :</b>
+                                    <table class="params">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                    <td>Type</td>
+                                                <td>Optional</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                <tr>
+                                                        <td>repo</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../entitys/WebhookEndpointEntity.html" target="_self" >Repository&lt;WebhookEndpointEntity&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>configImportService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/ConfigImportService.html" target="_self" >ConfigImportService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>configImportOrchestrator</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/ConfigImportOrchestratorService.html" target="_self" >ConfigImportOrchestratorService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                        </tbody>
+                                    </table>
+                            </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+</section>
+
             <section data-compodoc="block-methods">
     
     <h3 id="methods">
@@ -231,44 +271,30 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="addKey"></a>
+                    <a name="create"></a>
                     <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier">Async</span>
-                        <span ><b>addKey</b></span>
-                        <a href="#addKey"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>create</b></span>
+                        <a href="#create"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>addKey(token: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>, body: <a href="../classes/KeyImportDto.html" target="_self">KeyImportDto</a>)</code>
+<code>create(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/CreateWebhookEndpointDto.html" target="_self">CreateWebhookEndpointDto</a>)</code>
                 </td>
             </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <b>Decorators : </b>
-                    <br />
-                    <code>@Post()<br />@ApiOperation({summary: &#x27;Import a key&#x27;})<br />@ApiResponse({status: 201, description: &#x27;Key imported successfully&#x27;})<br /></code>
-                </td>
-            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="115"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:115</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="69"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:69</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Add a new key to the key service.</p>
-</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -283,9 +309,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>token</td>
+                                                <td>tenantId</td>
                                             <td>
-                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -295,9 +321,9 @@
 
                                         </tr>
                                         <tr>
-                                                <td>body</td>
+                                                <td>dto</td>
                                             <td>
-                                                            <code><a href="../classes/KeyImportDto.html" target="_self" >KeyImportDto</a></code>
+                                                            <code><a href="../classes/CreateWebhookEndpointDto.html" target="_self" >CreateWebhookEndpointDto</a></code>
                                             </td>
 
                                             <td>
@@ -310,7 +336,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;literal type&gt;</code>
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
                             <div class="io-description">
@@ -324,43 +350,32 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="deleteKey"></a>
+                    <a name="delete"></a>
                     <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                        <span ><b>deleteKey</b></span>
-                        <a href="#deleteKey"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Async</span>
+                        <span ><b>delete</b></span>
+                        <a href="#delete"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>deleteKey(token: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>delete(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <b>Decorators : </b>
-                    <br />
-                    <code>@Delete(&#x27;:id&#x27;)<br />@ApiOperation({summary: &#x27;Delete a key&#x27;})<br />@ApiResponse({status: 200, description: &#x27;Key deleted successfully&#x27;})<br /></code>
-                </td>
-            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="148"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:148</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="78"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:78</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Delete a key from the key service.</p>
-</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -375,9 +390,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>token</td>
+                                                <td>tenantId</td>
                                             <td>
-                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -402,7 +417,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+                            <b>Returns : </b>    <code>unknown</code>
 
                         </div>
                             <div class="io-description">
@@ -416,44 +431,30 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="generateKey"></a>
+                    <a name="getAll"></a>
                     <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier">Async</span>
-                        <span ><b>generateKey</b></span>
-                        <a href="#generateKey"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>getAll</b></span>
+                        <a href="#getAll"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>generateKey(token: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>, body: <a href="../classes/KeyGenerateDto.html" target="_self">KeyGenerateDto</a>)</code>
+<code>getAll(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <b>Decorators : </b>
-                    <br />
-                    <code>@Post(&#x27;generate&#x27;)<br />@ApiOperation({summary: &#x27;Generate a key on the server&#x27;})<br />@ApiResponse({status: 201, description: &#x27;Key generated successfully&#x27;})<br /></code>
-                </td>
-            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="98"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:98</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="57"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:57</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Generate a new key on the server (no private key upload required).</p>
-</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -468,21 +469,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>token</td>
+                                                <td>tenantId</td>
                                             <td>
-                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>body</td>
-                                            <td>
-                                                            <code><a href="../classes/KeyGenerateDto.html" target="_self" >KeyGenerateDto</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -495,7 +484,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;literal type&gt;</code>
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
                             <div class="io-description">
@@ -509,43 +498,32 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getKey"></a>
+                    <a name="getById"></a>
                     <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                        <span ><b>getKey</b></span>
-                        <a href="#getKey"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Async</span>
+                        <span ><b>getById</b></span>
+                        <a href="#getById"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getKey(token: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>getById(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <b>Decorators : </b>
-                    <br />
-                    <code>@Get(&#x27;:id&#x27;)<br />@ApiOperation({summary: &#x27;Get a key by ID&#x27;})<br />@ApiResponse({status: 200, type: KeyEntity})<br /></code>
-                </td>
-            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="80"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:80</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="61"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:61</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Get a specific key by ID</p>
-</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -560,9 +538,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>token</td>
+                                                <td>tenantId</td>
                                             <td>
-                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -587,7 +565,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../classes/Key.html" target="_self" >Promise&lt;KeyEntity&gt;</a></code>
+                            <b>Returns : </b>    <code>unknown</code>
 
                         </div>
                             <div class="io-description">
@@ -601,43 +579,33 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getKeys"></a>
+                    <a name="importForTenant"></a>
                     <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                        <span ><b>getKeys</b></span>
-                        <a href="#getKeys"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>importForTenant</b></span>
+                        <a href="#importForTenant"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getKeys(token: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                    <code>importForTenant(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <b>Decorators : </b>
-                    <br />
-                    <code>@Get()<br />@ApiOperation({summary: &#x27;List all keys for the tenant&#x27;})<br />@ApiResponse({status: 200, type: undefined})<br /></code>
-                </td>
-            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="67"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:67</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="30"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:30</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Get all keys for the tenant.</p>
-</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -652,9 +620,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>token</td>
+                                                <td>tenantId</td>
                                             <td>
-                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -667,7 +635,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../classes/Key.html" target="_self" >Promise&lt;KeyEntity[]&gt;</a></code>
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
 
                         </div>
                             <div class="io-description">
@@ -681,98 +649,32 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getProviders"></a>
+                    <a name="update"></a>
                     <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                        <span ><b>getProviders</b></span>
-                        <a href="#getProviders"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getProviders()</code>
-                </td>
-            </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <b>Decorators : </b>
-                    <br />
-                    <code>@Get(&#x27;providers&#x27;)<br />@ApiOperation({summary: &#x27;List available KMS providers&#x27;})<br />@ApiResponse({status: 200, description: &#x27;List of available KMS providers&#x27;, type: KmsProvidersResponseDto})<br /></code>
-                </td>
-            </tr>
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="52"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:52</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Get all available KMS providers.</p>
-</div>
-
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../classes/KmsProvidersResponseDto.html" target="_self" >KmsProvidersResponseDto</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                <p>List of available KMS provider names and the default.</p>
-
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="updateKey"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
-                        <span ><b>updateKey</b></span>
-                        <a href="#updateKey"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>update</b></span>
+                        <a href="#update"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>updateKey(token: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: <a href="../classes/UpdateKeyDto.html" target="_self">UpdateKeyDto</a>)</code>
+                    <code>update(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/UpdateWebhookEndpointDto.html" target="_self">UpdateWebhookEndpointDto</a>)</code>
                 </td>
             </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <b>Decorators : </b>
-                    <br />
-                    <code>@Put(&#x27;:id&#x27;)<br />@ApiOperation({summary: &#x27;Update key metadata&#x27;})<br />@ApiResponse({status: 200, description: &#x27;Key updated successfully&#x27;})<br /></code>
-                </td>
-            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="132"
-                                    class="link-to-prism">src/crypto/key/key.controller.ts:132</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="73"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:73</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Updates an existing key in the key service.</p>
-</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -787,9 +689,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>token</td>
+                                                <td>tenantId</td>
                                             <td>
-                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -811,9 +713,9 @@
 
                                         </tr>
                                         <tr>
-                                                <td>body</td>
+                                                <td>dto</td>
                                             <td>
-                                                            <code><a href="../classes/UpdateKeyDto.html" target="_self" >UpdateKeyDto</a></code>
+                                                            <code><a href="../classes/UpdateWebhookEndpointDto.html" target="_self" >UpdateWebhookEndpointDto</a></code>
                                             </td>
 
                                             <td>
@@ -826,7 +728,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+                            <b>Returns : </b>    <code>unknown</code>
 
                         </div>
                             <div class="io-description">
@@ -836,170 +738,98 @@
             </tr>
         </tbody>
     </table>
-</section>    </div>
+</section>
+
+    </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    Post,
-    Put,
-} from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { readFileSync } from &quot;node:fs&quot;;
+import { Injectable, NotFoundException } from &quot;@nestjs/common&quot;;
+import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
+import { plainToClass } from &quot;class-transformer&quot;;
+import { Repository } from &quot;typeorm&quot;;
+import { ConfigImportService } from &quot;../../../shared/utils/config-import/config-import.service&quot;;
 import {
-    ApiExtraModels,
-    ApiOperation,
-    ApiResponse,
-    ApiTags,
-} from &quot;@nestjs/swagger&quot;;
-import { Role } from &quot;../../auth/roles/role.enum&quot;;
-import { Secured } from &quot;../../auth/secure.decorator&quot;;
-import { Token, TokenPayload } from &quot;../../auth/token.decorator&quot;;
-import { KeyGenerateDto } from &quot;./dto/key-generate.dto&quot;;
-import { KeyImportDto } from &quot;./dto/key-import.dto&quot;;
-import { UpdateKeyDto } from &quot;./dto/key-update.dto&quot;;
-import { KmsConfigDto } from &quot;./dto/kms-config.dto&quot;;
-import { KmsProvidersResponseDto } from &quot;./dto/kms-providers-response.dto&quot;;
-import { KeyEntity } from &quot;./entities/keys.entity&quot;;
-import { KeyService } from &quot;./key.service&quot;;
-import { KmsRegistry } from &quot;./kms-registry.service&quot;;
+    ConfigImportOrchestratorService,
+    ImportPhase,
+} from &quot;../../../shared/utils/config-import/config-import-orchestrator.service&quot;;
+import { CreateWebhookEndpointDto } from &quot;./dto/create-webhook-endpoint.dto&quot;;
+import { UpdateWebhookEndpointDto } from &quot;./dto/update-webhook-endpoint.dto&quot;;
+import { WebhookEndpointEntity } from &quot;./entities/webhook-endpoint.entity&quot;;
 
-/**
- * KeyController is responsible for managing keys in the system.
- */
-@ApiExtraModels(KmsConfigDto)
-@ApiTags(&quot;Key&quot;)
-@Secured([Role.Issuances, Role.Presentations])
-@Controller(&quot;key&quot;)
-export class KeyController {
+@Injectable()
+export class WebhookEndpointService {
     constructor(
-        private readonly keyService: KeyService,
-        private readonly kmsRegistry: KmsRegistry,
-    ) {}
-
-    /**
-     * Get all available KMS providers.
-     * @returns List of available KMS provider names and the default.
-     */
-    @Get(&quot;providers&quot;)
-    @ApiOperation({ summary: &quot;List available KMS providers&quot; })
-    @ApiResponse({
-        status: 200,
-        description: &quot;List of available KMS providers&quot;,
-        type: KmsProvidersResponseDto,
-    })
-    getProviders(): KmsProvidersResponseDto {
-        return {
-            providers: this.kmsRegistry.getProviderInfoList(),
-            default: this.kmsRegistry.getDefaultProviderName(),
-        };
+        @InjectRepository(WebhookEndpointEntity)
+        private readonly repo: Repository&lt;WebhookEndpointEntity&gt;,
+        private readonly configImportService: ConfigImportService,
+        private readonly configImportOrchestrator: ConfigImportOrchestratorService,
+    ) {
+        this.configImportOrchestrator.register(
+            &quot;webhook-endpoints&quot;,
+            ImportPhase.CORE,
+            (tenantId) &#x3D;&gt; this.importForTenant(tenantId),
+        );
     }
 
-    /**
-     * Get all keys for the tenant.
-     * @param token
-     * @returns
-     */
-    @Get()
-    @ApiOperation({ summary: &quot;List all keys for the tenant&quot; })
-    @ApiResponse({ status: 200, type: [KeyEntity] })
-    getKeys(@Token() token: TokenPayload): Promise&lt;KeyEntity[]&gt; {
-        return this.keyService.getKeys(token.entity!.id);
+    private async importForTenant(tenantId: string) {
+        await this.configImportService.importConfigsForTenant&lt;CreateWebhookEndpointDto&gt;(
+            tenantId,
+            {
+                subfolder: &quot;webhook-endpoints&quot;,
+                fileExtension: &quot;.json&quot;,
+                validationClass: CreateWebhookEndpointDto,
+                resourceType: &quot;webhook endpoint&quot;,
+                checkExists: (tid, data) &#x3D;&gt;
+                    this.getById(tid, data.id)
+                        .then(() &#x3D;&gt; true)
+                        .catch(() &#x3D;&gt; false),
+                deleteExisting: (tid, data) &#x3D;&gt;
+                    this.repo
+                        .delete({ id: data.id, tenantId: tid })
+                        .then(() &#x3D;&gt; undefined),
+                loadData: (filePath) &#x3D;&gt; {
+                    const payload &#x3D; JSON.parse(readFileSync(filePath, &quot;utf8&quot;));
+                    return plainToClass(CreateWebhookEndpointDto, payload);
+                },
+                processItem: async (tid, dto) &#x3D;&gt; {
+                    await this.create(tid, dto);
+                },
+            },
+        );
     }
 
-    /**
-     * Get a specific key by ID
-     * @param token
-     * @param id
-     * @returns
-     */
-    @Get(&quot;:id&quot;)
-    @ApiOperation({ summary: &quot;Get a key by ID&quot; })
-    @ApiResponse({ status: 200, type: KeyEntity })
-    getKey(
-        @Token() token: TokenPayload,
-        @Param(&quot;id&quot;) id: string,
-    ): Promise&lt;KeyEntity&gt; {
-        return this.keyService.getKey(token.entity!.id, id);
+    getAll(tenantId: string) {
+        return this.repo.find({ where: { tenantId } });
     }
 
-    /**
-     * Generate a new key on the server (no private key upload required).
-     * @param token
-     * @param body
-     */
-    @Post(&quot;generate&quot;)
-    @ApiOperation({ summary: &quot;Generate a key on the server&quot; })
-    @ApiResponse({
-        status: 201,
-        description: &quot;Key generated successfully&quot;,
-    })
-    async generateKey(
-        @Token() token: TokenPayload,
-        @Body() body: KeyGenerateDto,
-    ): Promise&lt;{ id: string }&gt; {
-        const id &#x3D; await this.keyService.create(token.entity!.id, body);
-        return { id };
+    async getById(tenantId: string, id: string) {
+        const entity &#x3D; await this.repo.findOneBy({ id, tenantId });
+        if (!entity) {
+            throw new NotFoundException(&#x60;Webhook endpoint &#x27;${id}&#x27; not found&#x60;);
+        }
+        return entity;
     }
 
-    /**
-     * Add a new key to the key service.
-     * @param token
-     * @param body
-     * @returns
-     */
-    @Post()
-    @ApiOperation({ summary: &quot;Import a key&quot; })
-    @ApiResponse({ status: 201, description: &quot;Key imported successfully&quot; })
-    async addKey(
-        @Token() token: TokenPayload,
-        @Body() body: KeyImportDto,
-    ): Promise&lt;{ id: string }&gt; {
-        const id &#x3D; await this.keyService.import(token.entity!.id, body);
-        return { id };
+    create(tenantId: string, dto: CreateWebhookEndpointDto) {
+        return this.repo.save({ ...dto, tenantId });
     }
 
-    /**
-     * Updates an existing key in the key service.
-     * @param token
-     * @param id
-     * @param body
-     */
-    @Put(&quot;:id&quot;)
-    @ApiOperation({ summary: &quot;Update key metadata&quot; })
-    @ApiResponse({ status: 200, description: &quot;Key updated successfully&quot; })
-    async updateKey(
-        @Token() token: TokenPayload,
-        @Param(&quot;id&quot;) id: string,
-        @Body() body: UpdateKeyDto,
-    ): Promise&lt;void&gt; {
-        await this.keyService.update(token.entity!.id, id, body);
+    async update(tenantId: string, id: string, dto: UpdateWebhookEndpointDto) {
+        const existing &#x3D; await this.getById(tenantId, id);
+        return this.repo.save({ ...existing, ...dto, id, tenantId });
     }
 
-    /**
-     * Delete a key from the key service.
-     * @param token
-     * @param id
-     */
-    @Delete(&quot;:id&quot;)
-    @ApiOperation({ summary: &quot;Delete a key&quot; })
-    @ApiResponse({ status: 200, description: &quot;Key deleted successfully&quot; })
-    deleteKey(
-        @Token() token: TokenPayload,
-        @Param(&quot;id&quot;) id: string,
-    ): Promise&lt;void&gt; {
-        return this.keyService.deleteKey(token.entity!.id, id);
+    async delete(tenantId: string, id: string) {
+        await this.getById(tenantId, id);
+        return this.repo.delete({ id, tenantId });
     }
 }
 </code></pre>
     </div>
+
 </div>
-
-
-
 
 
 
@@ -1038,8 +868,8 @@ export class KeyController {
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'controller';
-            var COMPODOC_CURRENT_PAGE_URL = 'KeyController.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
+            var COMPODOC_CURRENT_PAGE_URL = 'WebhookEndpointService.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

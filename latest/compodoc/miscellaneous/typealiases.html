@@ -134,6 +134,9 @@
                             <a href="#BuiltTrustStore" title="src/shared/trust/trust-store.service.ts" ><b>BuiltTrustStore</b>&nbsp;&nbsp;&nbsp;(src/.../trust-store.service.ts)</a>
                         </li>
                         <li>
+                            <a href="#ClaimsSource" title="src/issuer/issuance/oid4vci/dto/offer-request.dto.ts" ><b>ClaimsSource</b>&nbsp;&nbsp;&nbsp;(src/.../offer-request.dto.ts)</a>
+                        </li>
+                        <li>
                             <a href="#CoseAlgorithm" title="src/crypto/key/crypto-implementation/crypto-implementation.service.ts" ><b>CoseAlgorithm</b>&nbsp;&nbsp;&nbsp;(src/.../crypto-implementation.service.ts)</a>
                         </li>
                         <li>
@@ -179,13 +182,10 @@
                             <a href="#KeyPair" title="src/crypto/key/crypto-implementation/crypto-implementation.ts" ><b>KeyPair</b>&nbsp;&nbsp;&nbsp;(src/.../crypto-implementation.ts)</a>
                         </li>
                         <li>
-                            <a href="#KeyUsage" title="src/crypto/key/entities/keys.entity.ts" ><b>KeyUsage</b>&nbsp;&nbsp;&nbsp;(src/.../keys.entity.ts)</a>
+                            <a href="#KmsProviderConfigDto" title="src/crypto/key/dto/kms-config.dto.ts" ><b>KmsProviderConfigDto</b>&nbsp;&nbsp;&nbsp;(src/.../kms-config.dto.ts)</a>
                         </li>
                         <li>
-                            <a href="#KmsAdapterFactoryFn" title="src/crypto/key/adapters/kms-adapter.factory.ts" ><b>KmsAdapterFactoryFn</b>&nbsp;&nbsp;&nbsp;(src/.../kms-adapter.factory.ts)</a>
-                        </li>
-                        <li>
-                            <a href="#KmsAdapterType" title="src/crypto/key/adapters/kms-adapter.factory.ts" ><b>KmsAdapterType</b>&nbsp;&nbsp;&nbsp;(src/.../kms-adapter.factory.ts)</a>
+                            <a href="#KmsProviderType" title="src/crypto/key/dto/kms-config.dto.ts" ><b>KmsProviderType</b>&nbsp;&nbsp;&nbsp;(src/.../kms-config.dto.ts)</a>
                         </li>
                         <li>
                             <a href="#ListIssueDateTime" title="src/issuer/trust-list/dto/types.ts" ><b>ListIssueDateTime</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
@@ -308,6 +308,12 @@
                             <a href="#ServiceTypeIdentifier" title="src/issuer/trust-list/dto/types.ts" ><b>ServiceTypeIdentifier</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
                         </li>
                         <li>
+                            <a href="#SessionLogLevel" title="src/session/entities/session-log-entry.entity.ts" ><b>SessionLogLevel</b>&nbsp;&nbsp;&nbsp;(src/.../session-log-entry.entity.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#SessionStoreMode" title="src/shared/utils/logger/logger-config.service.ts" ><b>SessionStoreMode</b>&nbsp;&nbsp;&nbsp;(src/.../logger-config.service.ts)</a>
+                        </li>
+                        <li>
                             <a href="#Signer" title="src/crypto/key/crypto-implementation/crypto-implementation.ts" ><b>Signer</b>&nbsp;&nbsp;&nbsp;(src/.../crypto-implementation.ts)</a>
                         </li>
                         <li>
@@ -413,6 +419,30 @@
             </tr>
         </tbody>
     </table>
+</section>    <h3>src/issuer/issuance/oid4vci/dto/offer-request.dto.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ClaimsSource"></a>
+                    <span class="name "><b>ClaimsSource</b><a href="#ClaimsSource"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Union type for all claims source types.</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>        <code><a href="../miscellaneous/typealiases.html#ClaimsSource" target="_self" >InlineClaimsSource | AttributeProviderClaimsSource | WebhookClaimsSource</a></code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>    <h3>src/crypto/key/crypto-implementation/crypto-implementation.service.ts</h3>
     <section data-compodoc="block-typealias">
     <table class="table table-sm table-bordered">
@@ -448,7 +478,7 @@ Uses RFC 9864 fully-specified algorithm identifiers</p>
             </tr>
             <tr>
                 <td class="col-md-4">
-                    <code>    <code>&quot;ES256&quot; | &quot;Ed25519&quot;</code>
+                    <code>    <code>unknown</code>
 </code>
                 </td>
             </tr>
@@ -470,7 +500,7 @@ Uses RFC 9864 fully-specified algorithm identifiers</p>
             </tr>
             <tr>
                 <td class="col-md-4">
-                    <code>    <code>&quot;ES256&quot; | &quot;ES384&quot; | &quot;ES512&quot; | &quot;EdDSA&quot;</code>
+                    <code>    <code>&quot;ES256&quot; | &quot;ES384&quot; | &quot;ES512&quot;</code>
 </code>
                 </td>
             </tr>
@@ -1434,49 +1464,25 @@ This is a discriminated union based on the <code>type</code> field.</p>
             </tr>
         </tbody>
     </table>
-</section>    <h3>src/crypto/key/entities/keys.entity.ts</h3>
+</section>    <h3>src/crypto/key/dto/kms-config.dto.ts</h3>
     <section data-compodoc="block-typealias">
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="KeyUsage"></a>
-                    <span class="name "><b>KeyUsage</b><a href="#KeyUsage"><span class="icon ion-ios-link"></span></a></span>
+                    <a name="KmsProviderConfigDto"></a>
+                    <span class="name "><b>KmsProviderConfigDto</b><a href="#KmsProviderConfigDto"><span class="icon ion-ios-link"></span></a></span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Key usage types.</p>
+                    <div class="io-description"><p>Union type for all provider configurations.</p>
 </div>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-                    <code>    <code>&quot;sign&quot; | &quot;encrypt&quot;</code>
-</code>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</section>    <h3>src/crypto/key/adapters/kms-adapter.factory.ts</h3>
-    <section data-compodoc="block-typealias">
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="KmsAdapterFactoryFn"></a>
-                    <span class="name "><b>KmsAdapterFactoryFn</b><a href="#KmsAdapterFactoryFn"><span class="icon ion-ios-link"></span></a></span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>A function that creates a KmsAdapter from provider-specific config + shared dependencies.</p>
-</div>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <code>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/function" target="_blank" >function</a></code>
+                    <code>    <code>DbKmsConfigDto | VaultKmsConfigDto | AwsKmsConfigDto</code>
 </code>
                 </td>
             </tr>
@@ -1486,8 +1492,8 @@ This is a discriminated union based on the <code>type</code> field.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="KmsAdapterType"></a>
-                    <span class="name "><b>KmsAdapterType</b><a href="#KmsAdapterType"><span class="icon ion-ios-link"></span></a></span>
+                    <a name="KmsProviderType"></a>
+                    <span class="name "><b>KmsProviderType</b><a href="#KmsProviderType"><span class="icon ion-ios-link"></span></a></span>
                 </td>
             </tr>
             <tr>
@@ -1923,6 +1929,42 @@ from the same entity.</p>
             <tr>
                 <td class="col-md-4">
                     <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/session/entities/session-log-entry.entity.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="SessionLogLevel"></a>
+                    <span class="name "><b>SessionLogLevel</b><a href="#SessionLogLevel"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;info&quot; | &quot;warn&quot; | &quot;error&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/shared/utils/logger/logger-config.service.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="SessionStoreMode"></a>
+                    <span class="name "><b>SessionStoreMode</b><a href="#SessionStoreMode"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;off&quot; | &quot;errors&quot; | &quot;all&quot; | &quot;verbose&quot;</code>
 </code>
                 </td>
             </tr>

@@ -224,7 +224,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="120" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:120</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="121" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:121</a></div>
                         </td>
                     </tr>
 
@@ -262,7 +262,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="114" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:114</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="115" class="link-to-prism">src/verifier/presentations/entities/presentation-config.entity.ts:115</a></div>
                         </td>
                     </tr>
 
@@ -305,6 +305,7 @@ import {
 import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
 import { WebhookConfig } from &quot;../../../shared/utils/webhook/webhook.dto&quot;;
 import { RegistrationCertificateRequest } from &quot;../dto/vp-request.dto&quot;;
+import { IsTransactionData } from &quot;../validators/transaction-data.validator&quot;;
 
 export enum TrustedAuthorityType {
     AKI &#x3D; &quot;aki&quot;,
@@ -467,7 +468,7 @@ export class PresentationConfig {
     @Column(&quot;json&quot;, { nullable: true })
     @IsOptional()
     @IsArray()
-    @ValidateNested({ each: true })
+    @IsTransactionData()
     @Type(() &#x3D;&gt; TransactionData)
     transaction_data?: TransactionData[];
 
@@ -533,7 +534,7 @@ export class PresentationConfig {
     @IsOptional()
     @IsString()
     @Column(&quot;varchar&quot;, { nullable: true })
-    accessCertId?: string | null;
+    accessKeyChainId?: string | null;
 }
 </code></pre>
     </div>

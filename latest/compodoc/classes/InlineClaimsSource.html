@@ -311,7 +311,18 @@ export class InlineClaimsSource {
 }
 
 /**
- * Webhook claims source - claims fetched dynamically via webhook.
+ * Attribute provider claims source - claims fetched dynamically via a configured attribute provider.
+ */
+export class AttributeProviderClaimsSource {
+    @IsIn([&quot;attributeProvider&quot;])
+    type!: &quot;attributeProvider&quot;;
+
+    @IsString()
+    attributeProviderId!: string;
+}
+
+/**
+ * Webhook claims source - claims fetched dynamically via an inline webhook configuration.
  */
 export class WebhookClaimsSource {
     @IsIn([&quot;webhook&quot;])
@@ -321,6 +332,14 @@ export class WebhookClaimsSource {
     @Type(() &#x3D;&gt; WebhookConfig)
     webhook!: WebhookConfig;
 }
+
+/**
+ * Union type for all claims source types.
+ */
+export type ClaimsSource &#x3D;
+    | InlineClaimsSource
+    | AttributeProviderClaimsSource
+    | WebhookClaimsSource;
 
 /**
  * Custom validator to ensure credentialClaims keys are subset of credentialConfigurationIds
@@ -438,8 +457,29 @@ export class OfferRequestDto {
                     {
                         type: &quot;object&quot;,
                         properties: {
-                            type: { type: &quot;string&quot;, enum: [&quot;webhook&quot;] },
-                            webhook: { type: &quot;object&quot; },
+                            type: {
+                                type: &quot;string&quot;,
+                                enum: [&quot;attributeProvider&quot;],
+                            },
+                            attributeProviderId: { type: &quot;string&quot; },
+                        },
+                        required: [&quot;type&quot;, &quot;attributeProviderId&quot;],
+                    },
+                    {
+                        type: &quot;object&quot;,
+                        properties: {
+                            type: {
+                                type: &quot;string&quot;,
+                                enum: [&quot;webhook&quot;],
+                            },
+                            webhook: {
+                                type: &quot;object&quot;,
+                                properties: {
+                                    url: { type: &quot;string&quot; },
+                                    auth: { type: &quot;object&quot; },
+                                },
+                                required: [&quot;url&quot;],
+                            },
                         },
                         required: [&quot;type&quot;, &quot;webhook&quot;],
                     },
@@ -458,12 +498,15 @@ export class OfferRequestDto {
     @Validate(CredentialClaimsMatchIdsConstraint)
     @Transform(({ value }) &#x3D;&gt; {
         if (!value) return value;
-        const result: Record&lt;string, InlineClaimsSource | WebhookClaimsSource&gt; &#x3D;
-            {};
+        const result: Record&lt;string, ClaimsSource&gt; &#x3D; {};
         for (const [key, val] of Object.entries(value)) {
             const source &#x3D; val as any;
             if (source.type &#x3D;&#x3D;&#x3D; &quot;inline&quot;) {
                 result[key] &#x3D; plainToClass(InlineClaimsSource, val, {
+                    enableImplicitConversion: true,
+                });
+            } else if (source.type &#x3D;&#x3D;&#x3D; &quot;attributeProvider&quot;) {
+                result[key] &#x3D; plainToClass(AttributeProviderClaimsSource, val, {
                     enableImplicitConversion: true,
                 });
             } else if (source.type &#x3D;&#x3D;&#x3D; &quot;webhook&quot;) {
@@ -474,16 +517,14 @@ export class OfferRequestDto {
         }
         return result;
     })
-    credentialClaims?: Record&lt;string, InlineClaimsSource | WebhookClaimsSource&gt;;
+    credentialClaims?: Record&lt;string, ClaimsSource&gt;;
 
     /**
-     * Webhook to notify about the status of the issuance process.
+     * ID of the webhook endpoint to notify about the status of the issuance process.
      */
-    @IsObject()
+    @IsString()
     @IsOptional()
-    @ValidateNested()
-    @Type(() &#x3D;&gt; WebhookConfig)
-    notifyWebhook?: WebhookConfig;
+    webhookEndpointId?: string;
 }
 
 export class OfferResponse {

@@ -243,7 +243,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="58" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:58</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="59" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:59</a></div>
                         </td>
                     </tr>
 
@@ -286,7 +286,7 @@ You can use the <code>{sessionId}</code> placeholder in the URI, which will be r
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:41</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:42</a></div>
                         </td>
                     </tr>
 
@@ -328,7 +328,7 @@ You can use the <code>{sessionId}</code> placeholder in the URI, which will be r
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:35</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:36</a></div>
                         </td>
                     </tr>
 
@@ -368,13 +368,13 @@ You can use the <code>{sessionId}</code> placeholder in the URI, which will be r
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsOptional()<br />@IsArray()<br />@ValidateNested({each: true})<br />@Type(undefined)<br />
+                            @IsOptional()<br />@IsArray()<br />@IsTransactionData()<br />@Type(undefined)<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="68" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:68</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="69" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:69</a></div>
                         </td>
                     </tr>
 
@@ -419,7 +419,7 @@ If provided, this will override the transaction_data from the presentation confi
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:49</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">src/verifier/oid4vp/dto/presentation-request.dto.ts:50</a></div>
                         </td>
                     </tr>
 
@@ -456,6 +456,7 @@ import {
 } from &quot;class-validator&quot;;
 import { WebhookConfig } from &quot;../../../shared/utils/webhook/webhook.dto&quot;;
 import { TransactionData } from &quot;../../presentations/entities/presentation-config.entity&quot;;
+import { IsTransactionData } from &quot;../../presentations/validators/transaction-data.validator&quot;;
 
 /**
  * Enum for the type of response expected from the presentation request.
@@ -510,7 +511,7 @@ export class PresentationRequest {
      */
     @IsOptional()
     @IsArray()
-    @ValidateNested({ each: true })
+    @IsTransactionData()
     @Type(() &#x3D;&gt; TransactionData)
     transaction_data?: TransactionData[];
 }

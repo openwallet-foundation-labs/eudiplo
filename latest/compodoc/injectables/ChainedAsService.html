@@ -289,7 +289,7 @@ the upstream OIDC provider (e.g., Keycloak).</p>
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, httpService: HttpService, keyService: <a href="../injectables/KeyService.html" target="_self">KeyService</a>, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, issuanceService: <a href="../injectables/IssuanceService.html" target="_self">IssuanceService</a>, walletAttestationService: <a href="../injectables/WalletAttestationService.html" target="_self">WalletAttestationService</a>, sessionRepository: Repository<ChainedAsSessionEntity>)</code>
+<code>constructor(configService: ConfigService, httpService: HttpService, keyChainService: <a href="../injectables/KeyChainService.html" target="_self">KeyChainService</a>, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, issuanceService: <a href="../injectables/IssuanceService.html" target="_self">IssuanceService</a>, walletAttestationService: <a href="../injectables/WalletAttestationService.html" target="_self">WalletAttestationService</a>, sessionRepository: Repository<ChainedAsSessionEntity>)</code>
                     </td>
                 </tr>
                         <tr>
@@ -336,10 +336,10 @@ the upstream OIDC provider (e.g., Keycloak).</p>
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>keyService</td>
+                                                        <td>keyChainService</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../injectables/KeyService.html" target="_self" >KeyService</a></code>
+                                                                        <code><a href="../injectables/KeyChainService.html" target="_self" >KeyChainService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -2060,7 +2060,7 @@ import { decodeJwt, decodeProtectedHeader } from &quot;jose&quot;;
 import { firstValueFrom } from &quot;rxjs&quot;;
 import { LessThan, Repository } from &quot;typeorm&quot;;
 import { v4 } from &quot;uuid&quot;;
-import { KeyService } from &quot;../../../../crypto/key/key.service&quot;;
+import { KeyChainService } from &quot;../../../../crypto/key/key-chain.service&quot;;
 import { SessionService } from &quot;../../../../session/session.service&quot;;
 import { WalletAttestationService } from &quot;../../../../shared/trust/wallet-attestation.service&quot;;
 import { AuthorizationIdentity } from &quot;../../../configuration/credentials/dto/authorization-identity&quot;;
@@ -2152,7 +2152,7 @@ export class ChainedAsService {
     constructor(
         private readonly configService: ConfigService,
         private readonly httpService: HttpService,
-        private readonly keyService: KeyService,
+        private readonly keyChainService: KeyChainService,
         private readonly sessionService: SessionService,
         private readonly issuanceService: IssuanceService,
         private readonly walletAttestationService: WalletAttestationService,
@@ -2165,7 +2165,7 @@ export class ChainedAsService {
      */
     private getChainedAsBaseUrl(tenantId: string): string {
         const publicUrl &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
-        return &#x60;${publicUrl}/${tenantId}/chained-as&#x60;;
+        return &#x60;${publicUrl}/issuers/${tenantId}/chained-as&#x60;;
     }
 
     /**
@@ -2614,7 +2614,7 @@ export class ChainedAsService {
         const payload: Record&lt;string, unknown&gt; &#x3D; {
             iss: this.getChainedAsBaseUrl(tenantId),
             sub: session.clientId,
-            aud: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${tenantId}&#x60;,
+            aud: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/issuers/${tenantId}&#x60;,
             iat: now,
             exp: now + tokenLifetime,
             jti,
@@ -2701,9 +2701,9 @@ export class ChainedAsService {
         // Get the key ID to use - either from config or resolve from key service
         const signingKeyId &#x3D;
             config.token?.signingKeyId ||
-            (await this.keyService.getKid(tenantId, &quot;sign&quot;));
+            (await this.keyChainService.getKid(tenantId));
 
-        const publicKey &#x3D; await this.keyService.getPublicKey(
+        const publicKey &#x3D; await this.keyChainService.getPublicKey(
             &quot;jwk&quot;,
             tenantId,
             signingKeyId,
@@ -2712,7 +2712,7 @@ export class ChainedAsService {
         // Use the resolved signing key ID as the kid in the JWT header
         const kid &#x3D; (publicKey as { kid?: string }).kid || signingKeyId;
 
-        const accessToken &#x3D; await this.keyService.signJWT(
+        const accessToken &#x3D; await this.keyChainService.signJWT(
             tokenPayload as any,
             { alg: &quot;ES256&quot;, kid, typ: &quot;at+jwt&quot; },
             tenantId,
@@ -2747,9 +2747,9 @@ export class ChainedAsService {
         // Get the key ID to use - either from config or resolve from key service
         const signingKeyId &#x3D;
             config.token?.signingKeyId ||
-            (await this.keyService.getKid(tenantId, &quot;sign&quot;));
+            (await this.keyChainService.getKid(tenantId));
 
-        const publicKey &#x3D; await this.keyService.getPublicKey(
+        const publicKey &#x3D; await this.keyChainService.getPublicKey(
             &quot;jwk&quot;,
             tenantId,
             signingKeyId,

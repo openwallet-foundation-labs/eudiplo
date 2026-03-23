@@ -147,14 +147,18 @@
             </p>
             <p class="comment">
                 <p>Root DTO for kms.json.</p>
-<p>Provider keys act as both the provider name and the adapter type.</p>
+<p>Providers are configured as an array of provider instances.
+Each provider has a unique <code>id</code> that can be referenced when generating keys,
+a <code>type</code> that determines which adapter to use, and optional <code>description</code>.</p>
 <p>Example:</p>
 <b>Example :</b><div><pre class="line-numbers"><code class="language-json">{
-  &quot;defaultProvider&quot;: &quot;db&quot;,
-  &quot;providers&quot;: {
-    &quot;db&quot;: {},
-    &quot;vault&quot;: { &quot;vaultUrl&quot;: &quot;${VAULT_URL}&quot;, &quot;vaultToken&quot;: &quot;${VAULT_TOKEN}&quot; }
-  }
+  &quot;defaultProvider&quot;: &quot;main-vault&quot;,
+  &quot;providers&quot;: [
+    { &quot;id&quot;: &quot;db&quot;, &quot;type&quot;: &quot;db&quot;, &quot;description&quot;: &quot;Default database provider&quot; },
+    { &quot;id&quot;: &quot;main-vault&quot;, &quot;type&quot;: &quot;vault&quot;, &quot;description&quot;: &quot;Production Vault&quot;, &quot;vaultUrl&quot;: &quot;${VAULT_URL}&quot;, &quot;vaultToken&quot;: &quot;${VAULT_TOKEN}&quot; },
+    { &quot;id&quot;: &quot;backup-vault&quot;, &quot;type&quot;: &quot;vault&quot;, &quot;description&quot;: &quot;Backup Vault&quot;, &quot;vaultUrl&quot;: &quot;${BACKUP_VAULT_URL}&quot;, &quot;vaultToken&quot;: &quot;${BACKUP_VAULT_TOKEN}&quot; },
+    { &quot;id&quot;: &quot;aws&quot;, &quot;type&quot;: &quot;aws-kms&quot;, &quot;description&quot;: &quot;AWS KMS&quot;, &quot;region&quot;: &quot;${AWS_REGION}&quot; }
+  ]
 }</code></pre></div>
             </p>
 
@@ -181,6 +185,8 @@
                                 <a href="#defaultProvider" >defaultProvider</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#providers" >providers</a>
@@ -230,13 +236,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiPropertyOptional({description: &#x27;Name of the default KMS provider. Defaults to &quot;db&quot; if not set.&#x27;, example: &#x27;db&#x27;})<br />@IsString()<br />@IsOptional()<br />
+                            @ApiPropertyOptional({description: &#x27;ID of the default KMS provider. Defaults to &quot;db&quot; if not set.&#x27;, example: &#x27;main-vault&#x27;})<br />@IsString()<br />@IsOptional()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="57" class="link-to-prism">src/crypto/key/dto/kms-config.dto.ts:57</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="172" class="link-to-prism">src/crypto/key/dto/kms-config.dto.ts:172</a></div>
                         </td>
                     </tr>
 
@@ -251,6 +257,8 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>providers</b></span>
                         <a href="#providers"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -258,7 +266,7 @@
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>    <code>literal type</code>
+                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#KmsProviderConfigDto" target="_self" >KmsProviderConfigDto[]</a></code>
 
                     </td>
                 </tr>
@@ -267,13 +275,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty({description: &#x27;Map of provider type → provider-specific config. Keys must match a supported adapter type (e.g., db, vault).&#x27;, example: undefined})<br />@IsObject()<br />
+                            @ApiProperty({description: &#x27;List of KMS provider configurations. Each provider must have a unique id and a type.&#x27;, type: undefined, example: undefined})<br />@IsArray()<br />@ValidateNested({each: true})<br />@Type(undefined, {discriminator: undefined, keepDiscriminatorProperty: true})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="71" class="link-to-prism">src/crypto/key/dto/kms-config.dto.ts:71</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="208" class="link-to-prism">src/crypto/key/dto/kms-config.dto.ts:208</a></div>
                         </td>
                     </tr>
 
@@ -293,18 +301,81 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty, ApiPropertyOptional } from &quot;@nestjs/swagger&quot;;
-import { IsNotEmpty, IsObject, IsOptional, IsString } from &quot;class-validator&quot;;
+import { Type } from &quot;class-transformer&quot;;
+import {
+    IsArray,
+    IsIn,
+    IsNotEmpty,
+    IsOptional,
+    IsString,
+    ValidateNested,
+} from &quot;class-validator&quot;;
+
+/**
+ * Supported KMS adapter types.
+ */
+export const KMS_PROVIDER_TYPES &#x3D; [&quot;db&quot;, &quot;vault&quot;, &quot;aws-kms&quot;] as const;
+export type KmsProviderType &#x3D; (typeof KMS_PROVIDER_TYPES)[number];
+
+/**
+ * Base configuration for all KMS providers.
+ * Each provider must have a unique id and a type.
+ */
+export class BaseKmsProviderConfigDto {
+    @ApiProperty({
+        description:
+            &quot;Unique identifier for this provider instance. Used when generating keys to specify which provider to use.&quot;,
+        example: &quot;main-vault&quot;,
+    })
+    @IsString()
+    @IsNotEmpty()
+    id!: string;
+
+    @ApiProperty({
+        description:
+            &quot;Type of the KMS provider. Must match a supported adapter type.&quot;,
+        enum: KMS_PROVIDER_TYPES,
+        example: &quot;vault&quot;,
+    })
+    @IsString()
+    @IsIn(KMS_PROVIDER_TYPES)
+    type!: KmsProviderType;
+
+    @ApiPropertyOptional({
+        description: &quot;Human-readable description of this provider instance.&quot;,
+        example: &quot;Production HashiCorp Vault for signing keys&quot;,
+    })
+    @IsString()
+    @IsOptional()
+    description?: string;
+}
 
 /**
  * Configuration for the DB KMS provider.
  * No additional configuration required — keys are stored in the database.
  */
-export class DbKmsConfigDto {}
+export class DbKmsConfigDto extends BaseKmsProviderConfigDto {
+    @ApiProperty({
+        description: &quot;Type of the KMS provider.&quot;,
+        enum: [&quot;db&quot;],
+        example: &quot;db&quot;,
+    })
+    @IsIn([&quot;db&quot;])
+    declare type: &quot;db&quot;;
+}
 
 /**
  * Configuration for the HashiCorp Vault KMS provider.
  */
-export class VaultKmsConfigDto {
+export class VaultKmsConfigDto extends BaseKmsProviderConfigDto {
+    @ApiProperty({
+        description: &quot;Type of the KMS provider.&quot;,
+        enum: [&quot;vault&quot;],
+        example: &quot;vault&quot;,
+    })
+    @IsIn([&quot;vault&quot;])
+    declare type: &quot;vault&quot;;
+
     @ApiProperty({
         description:
             &quot;URL of the HashiCorp Vault instance. Supports ${ENV_VAR} placeholders.&quot;,
@@ -325,26 +396,78 @@ export class VaultKmsConfigDto {
 }
 
 /**
+ * Configuration for the AWS KMS provider.
+ * Uses AWS SDK credential chain if credentials are not provided.
+ */
+export class AwsKmsConfigDto extends BaseKmsProviderConfigDto {
+    @ApiProperty({
+        description: &quot;Type of the KMS provider.&quot;,
+        enum: [&quot;aws-kms&quot;],
+        example: &quot;aws-kms&quot;,
+    })
+    @IsIn([&quot;aws-kms&quot;])
+    declare type: &quot;aws-kms&quot;;
+
+    @ApiProperty({
+        description: &quot;AWS region for KMS. Supports ${ENV_VAR} placeholders.&quot;,
+        example: &quot;${AWS_REGION}&quot;,
+    })
+    @IsString()
+    @IsNotEmpty()
+    region!: string;
+
+    @ApiPropertyOptional({
+        description:
+            &quot;AWS access key ID. Optional — uses SDK credential chain if not provided. Supports ${ENV_VAR} placeholders.&quot;,
+        example: &quot;${AWS_ACCESS_KEY_ID}&quot;,
+    })
+    @IsString()
+    @IsOptional()
+    accessKeyId?: string;
+
+    @ApiPropertyOptional({
+        description:
+            &quot;AWS secret access key. Optional — uses SDK credential chain if not provided. Supports ${ENV_VAR} placeholders.&quot;,
+        example: &quot;${AWS_SECRET_ACCESS_KEY}&quot;,
+    })
+    @IsString()
+    @IsOptional()
+    secretAccessKey?: string;
+}
+
+/**
+ * Union type for all provider configurations.
+ */
+export type KmsProviderConfigDto &#x3D;
+    | DbKmsConfigDto
+    | VaultKmsConfigDto
+    | AwsKmsConfigDto;
+
+/**
  * Root DTO for kms.json.
  *
- * Provider keys act as both the provider name and the adapter type.
+ * Providers are configured as an array of provider instances.
+ * Each provider has a unique &#x60;id&#x60; that can be referenced when generating keys,
+ * a &#x60;type&#x60; that determines which adapter to use, and optional &#x60;description&#x60;.
  *
  * Example:
  * &#x60;&#x60;&#x60;json
  * {
- *   &quot;defaultProvider&quot;: &quot;db&quot;,
- *   &quot;providers&quot;: {
- *     &quot;db&quot;: {},
- *     &quot;vault&quot;: { &quot;vaultUrl&quot;: &quot;${VAULT_URL}&quot;, &quot;vaultToken&quot;: &quot;${VAULT_TOKEN}&quot; }
- *   }
+ *   &quot;defaultProvider&quot;: &quot;main-vault&quot;,
+ *   &quot;providers&quot;: [
+ *     { &quot;id&quot;: &quot;db&quot;, &quot;type&quot;: &quot;db&quot;, &quot;description&quot;: &quot;Default database provider&quot; },
+ *     { &quot;id&quot;: &quot;main-vault&quot;, &quot;type&quot;: &quot;vault&quot;, &quot;description&quot;: &quot;Production Vault&quot;, &quot;vaultUrl&quot;: &quot;${VAULT_URL}&quot;, &quot;vaultToken&quot;: &quot;${VAULT_TOKEN}&quot; },
+ *     { &quot;id&quot;: &quot;backup-vault&quot;, &quot;type&quot;: &quot;vault&quot;, &quot;description&quot;: &quot;Backup Vault&quot;, &quot;vaultUrl&quot;: &quot;${BACKUP_VAULT_URL}&quot;, &quot;vaultToken&quot;: &quot;${BACKUP_VAULT_TOKEN}&quot; },
+ *     { &quot;id&quot;: &quot;aws&quot;, &quot;type&quot;: &quot;aws-kms&quot;, &quot;description&quot;: &quot;AWS KMS&quot;, &quot;region&quot;: &quot;${AWS_REGION}&quot; }
+ *   ]
  * }
  * &#x60;&#x60;&#x60;
  */
 export class KmsConfigDto {
     @ApiPropertyOptional({
         description:
-            &#x27;Name of the default KMS provider. Defaults to &quot;db&quot; if not set.&#x27;,
-        example: &quot;db&quot;,
+            &#x27;ID of the default KMS provider. Defaults to &quot;db&quot; if not set.&#x27;,
+        example: &quot;main-vault&quot;,
     })
     @IsString()
     @IsOptional()
@@ -352,20 +475,39 @@ export class KmsConfigDto {
 
     @ApiProperty({
         description:
-            &quot;Map of provider type → provider-specific config. Keys must match a supported adapter type (e.g., db, vault).&quot;,
-        example: {
-            db: {},
-            vault: {
+            &quot;List of KMS provider configurations. Each provider must have a unique id and a type.&quot;,
+        type: [BaseKmsProviderConfigDto],
+        example: [
+            { id: &quot;db&quot;, type: &quot;db&quot;, description: &quot;Default database provider&quot; },
+            {
+                id: &quot;main-vault&quot;,
+                type: &quot;vault&quot;,
+                description: &quot;Production Vault&quot;,
                 vaultUrl: &quot;${VAULT_URL}&quot;,
                 vaultToken: &quot;${VAULT_TOKEN}&quot;,
             },
-        },
+            {
+                id: &quot;aws&quot;,
+                type: &quot;aws-kms&quot;,
+                description: &quot;AWS KMS&quot;,
+                region: &quot;${AWS_REGION}&quot;,
+            },
+        ],
     })
-    @IsObject()
-    providers!: {
-        db?: DbKmsConfigDto;
-        vault?: VaultKmsConfigDto;
-    };
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() &#x3D;&gt; BaseKmsProviderConfigDto, {
+        discriminator: {
+            property: &quot;type&quot;,
+            subTypes: [
+                { value: DbKmsConfigDto, name: &quot;db&quot; },
+                { value: VaultKmsConfigDto, name: &quot;vault&quot; },
+                { value: AwsKmsConfigDto, name: &quot;aws-kms&quot; },
+            ],
+        },
+        keepDiscriminatorProperty: true,
+    })
+    providers!: KmsProviderConfigDto[];
 }
 </code></pre>
     </div>

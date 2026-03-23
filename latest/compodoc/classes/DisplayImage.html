@@ -210,7 +210,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:41</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:42</a></div>
                         </td>
                     </tr>
 
@@ -248,10 +248,11 @@ import {
 } from &quot;class-validator&quot;;
 import { Column, Entity, JoinColumn, ManyToOne } from &quot;typeorm&quot;;
 import { TenantEntity } from &quot;../../../../auth/tenant/entitites/tenant.entity&quot;;
-import { CertEntity } from &quot;../../../../crypto/key/entities/cert.entity&quot;;
-import { WebhookConfig } from &quot;../../../../shared/utils/webhook/webhook.dto&quot;;
+import { KeyChainEntity } from &quot;../../../../crypto/key/entities/key-chain.entity&quot;;
 import { SchemaResponse } from &quot;../../../issuance/oid4vci/metadata/dto/schema-response.dto&quot;;
 import { VCT } from &quot;../../../issuance/oid4vci/metadata/dto/vct.dto&quot;;
+import { AttributeProviderEntity } from &quot;../../attribute-provider/entities/attribute-provider.entity&quot;;
+import { WebhookEndpointEntity } from &quot;../../webhook-endpoint/entities/webhook-endpoint.entity&quot;;
 import {
     IaeAction,
     IaeActionBase,
@@ -381,22 +382,40 @@ export class CredentialConfig {
     claims?: Record&lt;string, any&gt; | null;
 
     /**
-     * Webhook to receive claims for the issuance process.
+     * Reference to the attribute provider used for fetching claims.
+     * Optional: if set, claims will be fetched from this provider during issuance.
      */
     @IsOptional()
-    @ValidateNested()
-    @Type(() &#x3D;&gt; WebhookConfig)
-    @Column(&quot;json&quot;, { nullable: true })
-    claimsWebhook?: WebhookConfig | null;
+    @IsString()
+    @Column(&quot;varchar&quot;, { nullable: true })
+    attributeProviderId?: string | null;
+
+    @ManyToOne(() &#x3D;&gt; AttributeProviderEntity, {
+        createForeignKeyConstraints: false,
+    })
+    @JoinColumn([
+        { name: &quot;attributeProviderId&quot;, referencedColumnName: &quot;id&quot; },
+        { name: &quot;tenantId&quot;, referencedColumnName: &quot;tenantId&quot; },
+    ])
+    attributeProvider?: AttributeProviderEntity;
 
     /**
-     * Webhook to receive claims for the issuance process.
+     * Reference to the webhook endpoint used for notifications.
+     * Optional: if set, notifications will be sent to this endpoint.
      */
     @IsOptional()
-    @ValidateNested()
-    @Type(() &#x3D;&gt; WebhookConfig)
-    @Column(&quot;json&quot;, { nullable: true })
-    notificationWebhook?: WebhookConfig | null;
+    @IsString()
+    @Column(&quot;varchar&quot;, { nullable: true })
+    webhookEndpointId?: string | null;
+
+    @ManyToOne(() &#x3D;&gt; WebhookEndpointEntity, {
+        createForeignKeyConstraints: false,
+    })
+    @JoinColumn([
+        { name: &quot;webhookEndpointId&quot;, referencedColumnName: &quot;id&quot; },
+        { name: &quot;tenantId&quot;, referencedColumnName: &quot;tenantId&quot; },
+    ])
+    webhookEndpoint?: WebhookEndpointEntity;
 
     // has to be optional since there may be credentials that are disclosed without a frame
     @Column(&quot;json&quot;, { nullable: true })
@@ -423,22 +442,20 @@ export class CredentialConfig {
     keyBinding?: boolean;
 
     /**
-     * Reference to the certificate used for signing.
-     * Note: No DB-level FK constraint because CertEntity has a composite PK
-     * (id + tenantId) and SET NULL behavior cannot work when tenantId is
-     * part of this entity&#x27;s own PK.
+     * Reference to the key chain used for signing.
+     * Optional: if not specified, the default attestation key chain will be used.
      */
     @IsOptional()
     @IsString()
     @Column(&quot;varchar&quot;, { nullable: true })
-    certId?: string;
+    keyChainId?: string;
 
-    @ManyToOne(() &#x3D;&gt; CertEntity, { createForeignKeyConstraints: false })
+    @ManyToOne(() &#x3D;&gt; KeyChainEntity, { createForeignKeyConstraints: false })
     @JoinColumn([
-        { name: &quot;certId&quot;, referencedColumnName: &quot;id&quot; },
+        { name: &quot;keyChainId&quot;, referencedColumnName: &quot;id&quot; },
         { name: &quot;tenantId&quot;, referencedColumnName: &quot;tenantId&quot; },
     ])
-    cert?: CertEntity;
+    keyChain?: KeyChainEntity;
 
     @IsOptional()
     @Column(&quot;boolean&quot;, { default: false })

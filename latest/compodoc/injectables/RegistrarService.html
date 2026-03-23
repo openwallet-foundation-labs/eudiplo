@@ -259,12 +259,12 @@ to connect to their own registrar instance with their own credentials.</p>
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>, configRepository: <a href="../entitys/RegistrarConfigEntity.html" target="_self">Repository&lt;RegistrarConfigEntity&gt;</a>, certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, keyService: <a href="../injectables/KeyService.html" target="_self">KeyService</a>)</code>
+<code>constructor(configService: ConfigService, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>, configRepository: <a href="../entitys/RegistrarConfigEntity.html" target="_self">Repository&lt;RegistrarConfigEntity&gt;</a>, certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, keyChainService: <a href="../injectables/KeyChainService.html" target="_self">KeyChainService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="58" class="link-to-prism">src/registrar/registrar.service.ts:58</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/registrar/registrar.service.ts:56</a></div>
                             </td>
                         </tr>
 
@@ -286,18 +286,6 @@ to connect to their own registrar instance with their own credentials.</p>
                                                   
                                                         <td>
                                                                     <code>ConfigService</code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>cryptoService</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/CryptoService.html" target="_self" >CryptoService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -342,10 +330,10 @@ to connect to their own registrar instance with their own credentials.</p>
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>keyService</td>
+                                                        <td>keyChainService</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../injectables/KeyService.html" target="_self" >KeyService</a></code>
+                                                                        <code><a href="../injectables/KeyChainService.html" target="_self" >KeyChainService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -389,8 +377,8 @@ to connect to their own registrar instance with their own credentials.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="460"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:460</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="456"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:456</a></div>
                         </td>
                     </tr>
 
@@ -515,8 +503,8 @@ This is called during VP flows to get a registration certificate from the regist
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="396"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:396</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="393"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:393</a></div>
                         </td>
                     </tr>
 
@@ -614,8 +602,8 @@ and stores it in EUDIPLO.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="234"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:234</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="231"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:231</a></div>
                         </td>
                     </tr>
 
@@ -693,8 +681,8 @@ and stores it in EUDIPLO.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="279"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:279</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="276"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:276</a></div>
                         </td>
                     </tr>
 
@@ -774,8 +762,8 @@ Uses Resource Owner Password Credentials (ROPC) flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="335"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:335</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="332"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:332</a></div>
                         </td>
                     </tr>
 
@@ -851,8 +839,8 @@ Uses Resource Owner Password Credentials (ROPC) flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="153"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:153</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="150"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:150</a></div>
                         </td>
                     </tr>
 
@@ -931,8 +919,8 @@ Uses Resource Owner Password Credentials (ROPC) flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="360"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:360</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="357"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:357</a></div>
                         </td>
                     </tr>
 
@@ -1012,8 +1000,8 @@ Assumes the user has exactly one relying party.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="82"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:82</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="79"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:79</a></div>
                         </td>
                     </tr>
 
@@ -1091,8 +1079,8 @@ Looks for a registrar.json file in the tenant&#39;s folder.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="131"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:131</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="128"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:128</a></div>
                         </td>
                     </tr>
 
@@ -1170,8 +1158,8 @@ Looks for a registrar.json file in the tenant&#39;s folder.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="143"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:143</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="140"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:140</a></div>
                         </td>
                     </tr>
 
@@ -1250,8 +1238,8 @@ The tenant must explicitly configure their registrar settings.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="164"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:164</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="161"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:161</a></div>
                         </td>
                     </tr>
 
@@ -1349,8 +1337,8 @@ Tests the credentials before saving.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="245"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:245</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="242"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:242</a></div>
                         </td>
                     </tr>
 
@@ -1427,8 +1415,8 @@ Tests the credentials before saving.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="190"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:190</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="187"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:187</a></div>
                         </td>
                     </tr>
 
@@ -1535,7 +1523,7 @@ Tests the credentials before saving if auth-related fields are updated.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">src/registrar/registrar.service.ts:53</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="51" class="link-to-prism">src/registrar/registrar.service.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -1568,7 +1556,7 @@ Tests the credentials before saving if auth-related fields are updated.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="58" class="link-to-prism">src/registrar/registrar.service.ts:58</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/registrar/registrar.service.ts:56</a></div>
                         </td>
                     </tr>
 
@@ -1601,10 +1589,8 @@ import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { TenantEntity } from &quot;../auth/tenant/entitites/tenant.entity&quot;;
-import { CryptoService } from &quot;../crypto/crypto.service&quot;;
 import { CertService } from &quot;../crypto/key/cert/cert.service&quot;;
-import { CertUsage } from &quot;../crypto/key/entities/cert-usage.entity&quot;;
-import { KeyService } from &quot;../crypto/key/key.service&quot;;
+import { KeyChainService } from &quot;../crypto/key/key-chain.service&quot;;
 import {
     ConfigImportOrchestratorService,
     ImportPhase,
@@ -1648,12 +1634,11 @@ export class RegistrarService {
 
     constructor(
         private readonly configService: ConfigService,
-        private readonly cryptoService: CryptoService,
         configImportOrchestrator: ConfigImportOrchestratorService,
         @InjectRepository(RegistrarConfigEntity)
         private readonly configRepository: Repository&lt;RegistrarConfigEntity&gt;,
         private readonly certService: CertService,
-        private readonly keyService: KeyService,
+        private readonly keyChainService: KeyChainService,
     ) {
         // Register for config import at CORE phase (same as certificates)
         configImportOrchestrator.register(
@@ -1995,7 +1980,7 @@ export class RegistrarService {
             this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
         ).hostname;
 
-        const publicKey &#x3D; await this.keyService.getPublicKey(
+        const publicKey &#x3D; await this.keyChainService.getPublicKey(
             &quot;pem&quot;,
             tenantId,
             dto.keyId,
@@ -2026,7 +2011,6 @@ export class RegistrarService {
         const certId &#x3D; await this.certService.addCertificate(tenantId, {
             crt: [crt],
             keyId: dto.keyId,
-            certUsageTypes: [CertUsage.Access],
             description: &#x60;Access certificate from registrar (ID: ${id})&#x60;,
         });
 

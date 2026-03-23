@@ -822,12 +822,12 @@ export class StatusListManagementController {
             id: entity.id,
             tenantId: entity.tenantId,
             credentialConfigurationId: entity.credentialConfigurationId,
-            certId: entity.certId,
+            keyChainId: entity.keyChainId,
             bits: entity.bits,
             capacity: entity.elements.length,
             usedEntries: entity.elements.length - entity.stack.length,
             availableEntries: entity.stack.length,
-            uri: &#x60;${baseUrl}/${entity.tenantId}/status-management/status-list/${entity.id}&#x60;,
+            uri: &#x60;${baseUrl}/issuers/${entity.tenantId}/status-management/status-list/${entity.id}&#x60;,
             createdAt: entity.createdAt,
             expiresAt: entity.expiresAt,
         };
@@ -901,7 +901,7 @@ export class StatusListManagementController {
             token.entity!.id,
             {
                 credentialConfigurationId: dto.credentialConfigurationId,
-                certId: dto.certId,
+                keyChainId: dto.keyChainId,
                 bits: dto.bits,
                 capacity: dto.capacity,
             },
@@ -936,7 +936,7 @@ export class StatusListManagementController {
             listId,
             {
                 credentialConfigurationId: dto.credentialConfigurationId,
-                certId: dto.certId,
+                keyChainId: dto.keyChainId,
             },
         );
         return this.toResponseDto(list);

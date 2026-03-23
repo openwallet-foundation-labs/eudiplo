@@ -286,8 +286,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="206"
-                                    class="link-to-prism">src/shared/utils/webhook/webhook.service.ts:206</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="207"
+                                    class="link-to-prism">src/shared/utils/webhook/webhook.service.ts:207</a></div>
                         </td>
                     </tr>
 
@@ -422,15 +422,15 @@ Sends a consistent payload regardless of AS type (internal or external).</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>sendWebhookNotification(session: <a href="../entitys/Session.html" target="_self">Session</a>, logContext: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, notification: <a href="../miscellaneous/typealiases.html#Notification" target="_self">Notification</a>)</code>
+                    <code>sendWebhookNotification(webhook: <a href="../classes/WebhookConfig.html" target="_self">WebhookConfig</a>, session: <a href="../entitys/Session.html" target="_self">Session</a>, logContext: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, notification: <a href="../miscellaneous/typealiases.html#Notification" target="_self">Notification</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="137"
-                                    class="link-to-prism">src/shared/utils/webhook/webhook.service.ts:137</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="138"
+                                    class="link-to-prism">src/shared/utils/webhook/webhook.service.ts:138</a></div>
                         </td>
                     </tr>
 
@@ -449,9 +449,26 @@ Sends a consistent payload regardless of AS type (internal or external).</p>
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <tr>
+                                                <td>webhook</td>
+                                            <td>
+                                                            <code><a href="../classes/WebhookConfig.html" target="_self" >WebhookConfig</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The webhook configuration</p>
+
+                                            </td>
+                                        </tr>
                                         <tr>
                                                 <td>session</td>
                                             <td>
@@ -463,6 +480,10 @@ Sends a consistent payload regardless of AS type (internal or external).</p>
                                             </td>
 
 
+                                            <td>
+                                                    <p>The session</p>
+
+                                            </td>
                                         </tr>
                                         <tr>
                                                 <td>logContext</td>
@@ -475,6 +496,8 @@ Sends a consistent payload regardless of AS type (internal or external).</p>
                                             </td>
 
 
+                                            <td>
+                                            </td>
                                         </tr>
                                         <tr>
                                                 <td>notification</td>
@@ -487,6 +510,8 @@ Sends a consistent payload regardless of AS type (internal or external).</p>
                                             </td>
 
 
+                                            <td>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -640,17 +665,18 @@ export class WebhookService {
 
     /**
      * Sends a webhook notification for a session.
-     * @param session
+     * @param webhook The webhook configuration
+     * @param session The session
      * @param logContext
      * @param notification
      */
     async sendWebhookNotification(
+        webhook: WebhookConfig,
         session: Session,
         logContext: SessionLogContext,
         notification: Notification,
     ) {
         const headers: Record&lt;string, string&gt; &#x3D; {};
-        const webhook &#x3D; session.notifyWebhook!;
 
         if (webhook.auth &amp;&amp; webhook.auth.type &#x3D;&#x3D;&#x3D; &quot;apiKey&quot;) {
             headers[webhook.auth.config.headerName] &#x3D; webhook.auth.config.value;

@@ -142,7 +142,10 @@
                 <h3>Description</h3>
             </p>
             <p class="comment">
-                <p>Service for managing certificates associated with keys.</p>
+                <p>Service for managing certificates.</p>
+<p>In the new unified model, certificates are stored directly in KeyChainEntity
+(activeCertificate, rootCertificate, previousCertificate).
+This service provides a compatibility layer for existing consumers.</p>
 
             </p>
 
@@ -183,21 +186,11 @@
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#addSelfSignedCert" >addSelfSignedCert</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#deleteCertificate" >deleteCertificate</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Async</span>
                                 <a href="#find" >find</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#findOrCreate" >findOrCreate</a>
-                            </li>
-                            <li>
-                                <a href="#getAllCertificates" >getAllCertificates</a>
                             </li>
                             <li>
                                 <a href="#getCertChain" >getCertChain</a>
@@ -206,34 +199,16 @@
                                 <a href="#getCertHash" >getCertHash</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#getCertificateById" >getCertificateById</a>
                             </li>
                             <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#getCertificateConfig" >getCertificateConfig</a>
+                                    <span class="modifier">Private</span>
+                                <a href="#getHostname" >getHostname</a>
                             </li>
                             <li>
-                                <a href="#getCertificates" >getCertificates</a>
-                            </li>
-                            <li>
-                                <a href="#getCertificateValidity" >getCertificateValidity</a>
-                            </li>
-                            <li>
-                                <a href="#hasEntry" >hasEntry</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#importForTenant" >importForTenant</a>
-                            </li>
-                            <li>
-                                <a href="#isCertificateExpired" >isCertificateExpired</a>
-                            </li>
-                            <li>
-                                <a href="#updateCert" >updateCert</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#updateCertificate" >updateCertificate</a>
+                                    <span class="modifier">Private</span>
+                                <a href="#parseCertificateChain" >parseCertificateChain</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
@@ -257,12 +232,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(certRepository: <a href="../entitys/CertEntity.html" target="_self">Repository&lt;CertEntity&gt;</a>, certUsageRepository: <a href="../classes/CertUsageEntity.html" target="_self">Repository&lt;CertUsageEntity&gt;</a>, configService: ConfigService, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>, keyService: <a href="../injectables/KeyService.html" target="_self">KeyService</a>, crlValidationService?: <a href="../injectables/CrlValidationService.html" target="_self">CrlValidationService</a>)</code>
+<code>constructor(keyChainService: <a href="../injectables/KeyChainService.html" target="_self">KeyChainService</a>, configService: ConfigService, tenantRepository: <a href="../entitys/TenantEntity.html" target="_self">Repository&lt;TenantEntity&gt;</a>, crlValidationService?: <a href="../injectables/CrlValidationService.html" target="_self">CrlValidationService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">src/crypto/key/cert/cert.service.ts:65</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="71" class="link-to-prism">src/crypto/key/cert/cert.service.ts:71</a></div>
                             </td>
                         </tr>
 
@@ -280,22 +255,10 @@
                                         </thead>
                                         <tbody>
                                                 <tr>
-                                                        <td>certRepository</td>
+                                                        <td>keyChainService</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../entitys/CertEntity.html" target="_self" >Repository&lt;CertEntity&gt;</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>certUsageRepository</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../classes/CertUsageEntity.html" target="_self" >Repository&lt;CertUsageEntity&gt;</a></code>
+                                                                        <code><a href="../injectables/KeyChainService.html" target="_self" >KeyChainService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -320,42 +283,6 @@
                                                   
                                                         <td>
                                                                         <code><a href="../entitys/TenantEntity.html" target="_self" >Repository&lt;TenantEntity&gt;</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>configImportService</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/ConfigImportService.html" target="_self" >ConfigImportService</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>configImportOrchestrator</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/ConfigImportOrchestratorService.html" target="_self" >ConfigImportOrchestratorService</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>keyService</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/KeyService.html" target="_self" >KeyService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -404,22 +331,23 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>addCertificate(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/CertImportDto.html" target="_self">CertImportDto</a>)</code>
+                    <code>addCertificate(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, options: literal type)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="163"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:163</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="239"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:239</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Add a new certificate to a key.</p>
+                        <div class="io-description"><p>Add an external certificate to an existing key chain.
+Used for storing certificates obtained from external sources (e.g., registrar).</p>
 </div>
 
                             <div class="io-description">
@@ -431,7 +359,6 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
-                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -446,17 +373,11 @@
                                             </td>
 
 
-                                            <td>
-                                                    <ul>
-<li>The tenant ID</li>
-</ul>
-
-                                            </td>
                                         </tr>
                                         <tr>
-                                                <td>dto</td>
+                                                <td>options</td>
                                             <td>
-                                                            <code><a href="../classes/CertImportDto.html" target="_self" >CertImportDto</a></code>
+                                                        <code>literal type</code>
                                             </td>
 
                                             <td>
@@ -464,210 +385,12 @@
                                             </td>
 
 
-                                            <td>
-                                                    <ul>
-<li>Certificate data</li>
-</ul>
-
-                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         <div class="io-description">
                             <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
-
-                        </div>
-                            <div class="io-description">
-                                <p>The created certificate with its ID</p>
-
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="addSelfSignedCert"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>addSelfSignedCert</b></span>
-                        <a href="#addSelfSignedCert"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>addSelfSignedCert(tenant: <a href="../entitys/TenantEntity.html" target="_self">TenantEntity</a>, keyId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/CertImportDto.html" target="_self">CertImportDto</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="191"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:191</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Generates a self-signed certificate for the given tenant/key id.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenant</td>
-                                            <td>
-                                                            <code><a href="../entitys/TenantEntity.html" target="_self" >TenantEntity</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>keyId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>dto</td>
-                                            <td>
-                                                            <code><a href="../classes/CertImportDto.html" target="_self" >CertImportDto</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>unknown</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="deleteCertificate"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>deleteCertificate</b></span>
-                        <a href="#deleteCertificate"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>deleteCertificate(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, certId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="302"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:302</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Delete a certificate.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The tenant ID</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>certId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The certificate ID to delete</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -692,22 +415,23 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>find(value: <a href="../interfaces/FindCertOptions.html" target="_self">FindCertOptions</a>)</code>
+                    <code>find(options: <a href="../interfaces/FindCertOptions.html" target="_self">FindCertOptions</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="321"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:321</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="85"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:85</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Find a certificate by tenantId and usage type.</p>
+                        <div class="io-description"><p>Find a certificate by type (usage type).
+Returns the certificate from the matching key chain.</p>
 </div>
 
                             <div class="io-description">
@@ -719,12 +443,11 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
-                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>value</td>
+                                                <td>options</td>
                                             <td>
                                                             <code><a href="../interfaces/FindCertOptions.html" target="_self" >FindCertOptions</a></code>
                                             </td>
@@ -734,23 +457,16 @@
                                             </td>
 
 
-                                            <td>
-                                                    <ul>
-<li>The search criteria</li>
-</ul>
-
-                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../entitys/CertEntity.html" target="_self" >Promise&lt;CertEntity&gt;</a></code>
+                            <b>Returns : </b>        <code><a href="../interfaces/CertificateInfo.html" target="_self" >Promise&lt;CertificateInfo&gt;</a></code>
 
                         </div>
                             <div class="io-description">
-                                <p>The matching certificate</p>
-
+                                
                             </div>
                 </td>
             </tr>
@@ -762,6 +478,7 @@
                 <td class="col-md-4">
                     <a name="findOrCreate"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>findOrCreate</b></span>
                         <a href="#findOrCreate"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -769,22 +486,25 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>findOrCreate(value: <a href="../interfaces/FindCertOptions.html" target="_self">FindCertOptions</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>findOrCreate(options: <a href="../interfaces/FindCertOptions.html" target="_self">FindCertOptions</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="473"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:473</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="127"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:127</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Find a certificate or create one if it does not exist.</p>
+                        <div class="io-description"><p>Find or create a certificate for a key chain.
+In the new model, certificates are always created with the key chain,
+so this just returns the existing one.</p>
 </div>
 
                             <div class="io-description">
@@ -800,7 +520,7 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>value</td>
+                                                <td>options</td>
                                             <td>
                                                             <code><a href="../interfaces/FindCertOptions.html" target="_self" >FindCertOptions</a></code>
                                             </td>
@@ -815,88 +535,11 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../entitys/CertEntity.html" target="_self" >Promise&lt;CertEntity&gt;</a></code>
+                            <b>Returns : </b>        <code><a href="../interfaces/CertificateInfo.html" target="_self" >Promise&lt;CertificateInfo&gt;</a></code>
 
                         </div>
                             <div class="io-description">
                                 
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getAllCertificates"></a>
-                    <span class="name">
-                        <span ><b>getAllCertificates</b></span>
-                        <a href="#getAllCertificates"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getAllCertificates(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="92"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:92</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Get all certificates for a tenant (across all keys).</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The tenant ID</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../entitys/CertEntity.html" target="_self" >Promise&lt;CertEntity[]&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                <p>Array of certificates with their associated key information</p>
-
                             </div>
                 </td>
             </tr>
@@ -915,22 +558,23 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getCertChain(cert: <a href="../entitys/CertEntity.html" target="_self">CertEntity</a>)</code>
+<code>getCertChain(cert: <a href="../interfaces/CertificateInfo.html" target="_self">CertificateInfo</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="527"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:527</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="157"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:157</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Get the certificate chain to be included in the JWS header.</p>
+                        <div class="io-description"><p>Get the certificate chain as an array of base64-encoded DER certificates.
+Used for the x5c header in JWTs.</p>
 </div>
 
                             <div class="io-description">
@@ -942,14 +586,13 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
-                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                                 <td>cert</td>
                                             <td>
-                                                            <code><a href="../entitys/CertEntity.html" target="_self" >CertEntity</a></code>
+                                                            <code><a href="../interfaces/CertificateInfo.html" target="_self" >CertificateInfo</a></code>
                                             </td>
 
                                             <td>
@@ -957,12 +600,6 @@
                                             </td>
 
 
-                                            <td>
-                                                    <ul>
-<li>The certificate entity</li>
-</ul>
-
-                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -972,8 +609,7 @@
 
                         </div>
                             <div class="io-description">
-                                <p>Array with base64-encoded certificates (leaf first, then intermediates/root)</p>
-
+                                
                             </div>
                 </td>
             </tr>
@@ -992,22 +628,23 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getCertHash(cert: <a href="../entitys/CertEntity.html" target="_self">CertEntity</a>)</code>
+<code>getCertHash(cert: <a href="../interfaces/CertificateInfo.html" target="_self">CertificateInfo</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="541"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:541</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="290"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:290</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Get the base64 url encoded SHA-256 hash of the leaf certificate.</p>
+                        <div class="io-description"><p>Compute the SHA-256 hash of the leaf certificate (for x509_hash client_id).
+Returns the hash as a base64url-encoded string.</p>
 </div>
 
                             <div class="io-description">
@@ -1019,14 +656,13 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
-                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                                 <td>cert</td>
                                             <td>
-                                                            <code><a href="../entitys/CertEntity.html" target="_self" >CertEntity</a></code>
+                                                            <code><a href="../interfaces/CertificateInfo.html" target="_self" >CertificateInfo</a></code>
                                             </td>
 
                                             <td>
@@ -1034,12 +670,6 @@
                                             </td>
 
 
-                                            <td>
-                                                    <ul>
-<li>The certificate entity</li>
-</ul>
-
-                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -1049,8 +679,7 @@
 
                         </div>
                             <div class="io-description">
-                                <p>The certificate hash as base64url encoded string</p>
-
+                                
                             </div>
                 </td>
             </tr>
@@ -1062,6 +691,7 @@
                 <td class="col-md-4">
                     <a name="getCertificateById"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>getCertificateById</b></span>
                         <a href="#getCertificateById"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -1069,22 +699,23 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getCertificateById(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, certId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getCertificateById(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, certId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="121"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:121</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="134"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:134</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Get a specific certificate by ID (without keyId requirement).</p>
+                        <div class="io-description"><p>Get a certificate by ID (key chain ID).</p>
 </div>
 
                             <div class="io-description">
@@ -1096,7 +727,6 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
-                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1111,12 +741,6 @@
                                             </td>
 
 
-                                            <td>
-                                                    <ul>
-<li>The tenant ID</li>
-</ul>
-
-                                            </td>
                                         </tr>
                                         <tr>
                                                 <td>certId</td>
@@ -1129,23 +753,16 @@
                                             </td>
 
 
-                                            <td>
-                                                    <ul>
-<li>The certificate ID</li>
-</ul>
-
-                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../entitys/CertEntity.html" target="_self" >Promise&lt;CertEntity&gt;</a></code>
+                            <b>Returns : </b>        <code><a href="../interfaces/CertificateInfo.html" target="_self" >Promise&lt;CertificateInfo&gt;</a></code>
 
                         </div>
                             <div class="io-description">
-                                <p>The certificate entity</p>
-
+                                
                             </div>
                 </td>
             </tr>
@@ -1155,81 +772,39 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getCertificateConfig"></a>
+                    <a name="getHostname"></a>
                     <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>getCertificateConfig</b></span>
-                        <a href="#getCertificateConfig"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Private</span>
+                        <span ><b>getHostname</b></span>
+                        <a href="#getHostname"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getCertificateConfig(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, certId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>getHostname()</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="137"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:137</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="230"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:230</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Get the configuration of a certificate for import/export.</p>
+                        <div class="io-description"><p>Get the hostname from the PUBLIC_URL config.</p>
 </div>
 
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>id</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>certId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../classes/CertImportDto.html" target="_self" >Promise&lt;CertImportDto&gt;</a></code>
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 
                         </div>
-                            <div class="io-description">
-                                
-                            </div>
                 </td>
             </tr>
         </tbody>
@@ -1238,300 +813,33 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getCertificates"></a>
+                    <a name="parseCertificateChain"></a>
                     <span class="name">
-                        <span ><b>getCertificates</b></span>
-                        <a href="#getCertificates"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getCertificates(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, keyId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="105"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:105</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Get all certificates for a specific key.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The tenant ID</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>keyId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The key ID</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../entitys/CertEntity.html" target="_self" >Promise&lt;CertEntity[]&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                <p>Array of certificates</p>
-
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getCertificateValidity"></a>
-                    <span class="name">
-                        <span ><b>getCertificateValidity</b></span>
-                        <a href="#getCertificateValidity"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>getCertificateValidity(cert: <a href="../entitys/CertEntity.html" target="_self">CertEntity</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="456"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:456</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Get certificate validity information.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>cert</td>
-                                            <td>
-                                                            <code><a href="../entitys/CertEntity.html" target="_self" >CertEntity</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The certificate entity</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>literal type</code>
-
-                        </div>
-                            <div class="io-description">
-                                <p>Object with validFrom and expiresAt dates</p>
-
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="hasEntry"></a>
-                    <span class="name">
-                        <span ><b>hasEntry</b></span>
-                        <a href="#hasEntry"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>hasEntry(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, certId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="506"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:506</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Check if a certificate exists for the given tenant and certId.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The tenant ID</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>certId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The certificate ID</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;boolean&gt;</code>
-
-                        </div>
-                            <div class="io-description">
-                                <p>True if certificate exists</p>
-
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="importForTenant"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>importForTenant</b></span>
-                        <a href="#importForTenant"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Private</span>
+                        <span ><b>parseCertificateChain</b></span>
+                        <a href="#parseCertificateChain"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>importForTenant(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>parseCertificateChain(pemChain: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="558"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:558</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="268"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:268</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Imports certificates for a specific tenant from the file system.</p>
+                        <div class="io-description"><p>Parse a PEM certificate chain into an array of PEM strings.</p>
 </div>
 
                             <div class="io-description">
@@ -1547,7 +855,7 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>tenantId</td>
+                                                <td>pemChain</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -1562,310 +870,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="isCertificateExpired"></a>
-                    <span class="name">
-                        <span ><b>isCertificateExpired</b></span>
-                        <a href="#isCertificateExpired"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>isCertificateExpired(cert: <a href="../entitys/CertEntity.html" target="_self">CertEntity</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="440"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:440</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Check if a certificate is expired.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>cert</td>
-                                            <td>
-                                                            <code><a href="../entitys/CertEntity.html" target="_self" >CertEntity</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The certificate entity to check</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                <p>True if the certificate is expired</p>
-
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="updateCert"></a>
-                    <span class="name">
-                        <span ><b>updateCert</b></span>
-                        <a href="#updateCert"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>updateCert(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: <a href="../classes/UpdateKeyDto.html" target="_self">UpdateKeyDto</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="518"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:518</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Update an existing certificate.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The tenant ID</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>id</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The certificate ID</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>body</td>
-                                            <td>
-                                                            <code><a href="../classes/UpdateKeyDto.html" target="_self" >UpdateKeyDto</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>Update data</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="updateCertificate"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>updateCertificate</b></span>
-                        <a href="#updateCertificate"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>updateCertificate(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, certId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, updates: <a href="../classes/CertUpdateDto.html" target="_self">CertUpdateDto</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="264"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:264</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Update certificate metadata (description and usage types).</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The tenant ID</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>certId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The certificate ID to update</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>updates</td>
-                                            <td>
-                                                            <code><a href="../classes/CertUpdateDto.html" target="_self" >CertUpdateDto</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The updates to apply</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+                            <b>Returns : </b>    <code>string[]</code>
 
                         </div>
                             <div class="io-description">
@@ -1890,22 +895,22 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>validateCertificate(cert: <a href="../entitys/CertEntity.html" target="_self">CertEntity</a>)</code>
+                    <code>validateCertificate(cert: <a href="../interfaces/CertificateInfo.html" target="_self">CertificateInfo</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="352"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:352</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="177"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:177</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Validate a certificate for expiry and revocation status.</p>
+                        <div class="io-description"><p>Validate a certificate for expiry and revocation.</p>
 </div>
 
                             <div class="io-description">
@@ -1917,14 +922,13 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
-                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                                 <td>cert</td>
                                             <td>
-                                                            <code><a href="../entitys/CertEntity.html" target="_self" >CertEntity</a></code>
+                                                            <code><a href="../interfaces/CertificateInfo.html" target="_self" >CertificateInfo</a></code>
                                             </td>
 
                                             <td>
@@ -1932,12 +936,6 @@
                                             </td>
 
 
-                                            <td>
-                                                    <ul>
-<li>The certificate entity to validate</li>
-</ul>
-
-                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -1947,8 +945,7 @@
 
                         </div>
                             <div class="io-description">
-                                <p>Validation result with details</p>
-
+                                
                             </div>
                 </td>
             </tr>
@@ -1986,7 +983,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">src/crypto/key/cert/cert.service.ts:65</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="71" class="link-to-prism">src/crypto/key/cert/cert.service.ts:71</a></div>
                         </td>
                     </tr>
 
@@ -2000,39 +997,28 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash } from &quot;node:crypto&quot;;
-import { readFileSync } from &quot;node:fs&quot;;
-import { Injectable, Logger } from &quot;@nestjs/common&quot;;
+import { Injectable, Logger, NotFoundException } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import * as x509 from &quot;@peculiar/x509&quot;;
-import { plainToClass } from &quot;class-transformer&quot;;
-import { importJWK } from &quot;jose&quot;;
 import { Repository } from &quot;typeorm&quot;;
-import { v4 } from &quot;uuid&quot;;
 import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
-import { ConfigImportService } from &quot;../../../shared/utils/config-import/config-import.service&quot;;
-import {
-    ConfigImportOrchestratorService,
-    ImportPhase,
-} from &quot;../../../shared/utils/config-import/config-import-orchestrator.service&quot;;
-import { CertImportDto } from &quot;../dto/cert-import.dto&quot;;
-import { CertUpdateDto } from &quot;../dto/cert-update.dto&quot;;
-import { UpdateKeyDto } from &quot;../dto/key-update.dto&quot;;
-import { CertEntity } from &quot;../entities/cert.entity&quot;;
-import { CertUsage, CertUsageEntity } from &quot;../entities/cert-usage.entity&quot;;
-import { KeyService } from &quot;../key.service&quot;;
+import { KeyChainEntity, KeyUsageType } from &quot;../entities/key-chain.entity&quot;;
+import { KeyChainService } from &quot;../key-chain.service&quot;;
 import { CrlValidationService } from &quot;./crl-validation.service&quot;;
-
-const ECDSA_P256 &#x3D; {
-    name: &quot;ECDSA&quot;,
-    namedCurve: &quot;P-256&quot;,
-    hash: &quot;SHA-256&quot; as const,
-};
 
 export interface FindCertOptions {
     tenantId: string;
-    type: CertUsage;
-    id?: string;
+    type: KeyUsageType;
+    /**
+     * Optional key chain ID to find a specific key chain.
+     * @deprecated Use &#x60;keyId&#x60; instead.
+     */
+    certId?: string;
+    /**
+     * Optional key chain ID to find a specific key chain.
+     */
+    keyId?: string;
     /**
      * Skip certificate validation (expiry and CRL check).
      * Default: false
@@ -2059,550 +1045,258 @@ export interface CertValidationResult {
 }
 
 /**
- * Service for managing certificates associated with keys.
+ * Virtual certificate entity for backward compatibility.
+ * Maps KeyChainEntity data to the old CertEntity interface.
+ */
+export interface CertificateInfo {
+    id: string;
+    tenantId: string;
+    crt: string[];
+    description?: string;
+    keyId: string;
+    keyChain: KeyChainEntity;
+}
+
+/**
+ * Service for managing certificates.
+ *
+ * In the new unified model, certificates are stored directly in KeyChainEntity
+ * (activeCertificate, rootCertificate, previousCertificate).
+ * This service provides a compatibility layer for existing consumers.
  */
 @Injectable()
 export class CertService {
     private readonly logger &#x3D; new Logger(CertService.name);
 
     constructor(
-        @InjectRepository(CertEntity)
-        private readonly certRepository: Repository&lt;CertEntity&gt;,
-        @InjectRepository(CertUsageEntity)
-        private readonly certUsageRepository: Repository&lt;CertUsageEntity&gt;,
+        private readonly keyChainService: KeyChainService,
         private readonly configService: ConfigService,
         @InjectRepository(TenantEntity)
         private readonly tenantRepository: Repository&lt;TenantEntity&gt;,
-        private readonly configImportService: ConfigImportService,
-        configImportOrchestrator: ConfigImportOrchestratorService,
-        private readonly keyService: KeyService,
         private readonly crlValidationService?: CrlValidationService,
-    ) {
-        configImportOrchestrator.register(
-            &quot;certificates&quot;,
-            ImportPhase.CORE,
-            (tenantId) &#x3D;&gt; this.importForTenant(tenantId),
+    ) {}
+
+    /**
+     * Find a certificate by type (usage type).
+     * Returns the certificate from the matching key chain.
+     */
+    async find(options: FindCertOptions): Promise&lt;CertificateInfo&gt; {
+        const { tenantId, type, skipValidation } &#x3D; options;
+        // Support both certId (deprecated) and keyId
+        const keyId &#x3D; options.keyId || options.certId;
+
+        const keyChain &#x3D; await this.keyChainService.findByUsageType(
+            tenantId,
+            type,
+            keyId,
         );
+
+        // Parse the certificate PEM to extract chain
+        const certChain &#x3D; this.parseCertificateChain(
+            keyChain.activeCertificate,
+        );
+
+        const certInfo: CertificateInfo &#x3D; {
+            id: keyChain.id,
+            tenantId,
+            crt: certChain,
+            description: keyChain.description,
+            keyId: keyChain.id,
+            keyChain,
+        };
+
+        if (!skipValidation) {
+            const validation &#x3D; await this.validateCertificate(certInfo);
+            if (!validation.isValid) {
+                throw new NotFoundException(
+                    &#x60;Certificate validation failed: ${validation.error}&#x60;,
+                );
+            }
+        }
+
+        return certInfo;
     }
 
     /**
-     * Get all certificates for a tenant (across all keys).
-     * @param tenantId - The tenant ID
-     * @returns Array of certificates with their associated key information
+     * Find or create a certificate for a key chain.
+     * In the new model, certificates are always created with the key chain,
+     * so this just returns the existing one.
      */
-    getAllCertificates(tenantId: string): Promise&lt;CertEntity[]&gt; {
-        return this.certRepository.find({
-            where: { tenantId },
-            relations: [&quot;key&quot;],
-        });
+    async findOrCreate(options: FindCertOptions): Promise&lt;CertificateInfo&gt; {
+        return this.find(options);
     }
 
     /**
-     * Get all certificates for a specific key.
-     * @param tenantId - The tenant ID
-     * @param keyId - The key ID
-     * @returns Array of certificates
+     * Get a certificate by ID (key chain ID).
      */
-    getCertificates(tenantId: string, keyId: string): Promise&lt;CertEntity[]&gt; {
-        return this.certRepository.find({
-            where: {
-                tenantId,
-                key: { id: keyId, tenantId },
-            },
-            relations: [&quot;key&quot;],
-        });
-    }
-
-    /**
-     * Get a specific certificate by ID (without keyId requirement).
-     * @param tenantId - The tenant ID
-     * @param certId - The certificate ID
-     * @returns The certificate entity
-     */
-    getCertificateById(tenantId: string, certId: string): Promise&lt;CertEntity&gt; {
-        return this.certRepository.findOneOrFail({
-            where: {
-                tenantId,
-                id: certId,
-            },
-            relations: [&quot;key&quot;],
-        });
-    }
-
-    /**
-     * Get the configuration of a certificate for import/export.
-     * @param id
-     * @param certId
-     * @returns
-     */
-    async getCertificateConfig(
-        id: string,
+    async getCertificateById(
+        tenantId: string,
         certId: string,
-    ): Promise&lt;CertImportDto&gt; {
-        const cert &#x3D; await this.getCertificateById(id, certId);
-        const usages &#x3D; await this.certUsageRepository.findBy({
-            tenantId: id,
-            certId: cert.id,
-        });
+    ): Promise&lt;CertificateInfo&gt; {
+        const keyChain &#x3D; await this.keyChainService.getEntity(tenantId, certId);
+        const certChain &#x3D; this.parseCertificateChain(
+            keyChain.activeCertificate,
+        );
 
         return {
-            id: cert.id,
-            keyId: cert.key.id,
-            description: cert.description,
-            crt: cert.crt,
-            certUsageTypes: usages.map((u) &#x3D;&gt; u.usage),
+            id: keyChain.id,
+            tenantId,
+            crt: certChain,
+            description: keyChain.description,
+            keyId: keyChain.id,
+            keyChain,
         };
     }
 
     /**
-     * Add a new certificate to a key.
-     * @param tenantId - The tenant ID
-     * @param keyId - The key ID
-     * @param dto - Certificate data
-     * @returns The created certificate with its ID
+     * Get the certificate chain as an array of base64-encoded DER certificates.
+     * Used for the x5c header in JWTs.
      */
-    async addCertificate(
-        tenantId: string,
-        dto: CertImportDto,
-    ): Promise&lt;string&gt; {
-        //check if the key exists
-        await this.keyService.getKey(tenantId, dto.keyId);
-
-        const certId &#x3D; dto.id ?? v4();
-
-        await this.certRepository.save({
-            id: certId,
-            tenantId,
-            crt: dto.crt,
-            description: dto.description,
-            key: { id: dto.keyId, tenantId },
-            usages: dto.certUsageTypes.map((usage) &#x3D;&gt; ({
-                certId,
-                usage,
-                tenantId,
-            })),
-        });
-
-        return certId;
-    }
-
-    /**
-     * Generates a self-signed certificate for the given tenant/key id.
-     */
-    async addSelfSignedCert(
-        tenant: TenantEntity,
-        keyId: string,
-        dto: CertImportDto,
-    ) {
-        // &#x3D;&#x3D;&#x3D; Inputs/parameters (subject + SAN hostname) &#x3D;&#x3D;&#x3D;
-        const subjectCN &#x3D; dto.subjectName || tenant.name;
-        const hostname &#x3D; new URL(
-            this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
-        ).hostname;
-
-        // &#x3D;&#x3D;&#x3D; Get the key pair for the certificate &#x3D;&#x3D;&#x3D;
-        const subjectSpkiPem &#x3D; await this.keyService.getPublicKey(
-            &quot;pem&quot;,
-            tenant.id,
-            keyId,
-        );
-        const publicKey &#x3D; await new x509.PublicKey(subjectSpkiPem).export(
-            { name: &quot;ECDSA&quot;, namedCurve: &quot;P-256&quot; },
-            [&quot;verify&quot;],
-        );
-
-        // Get the private key from the database
-        const keyEntity &#x3D; await this.keyService.getKey(tenant.id, keyId);
-        const privateJwk &#x3D; keyEntity.key;
-        const privateKey &#x3D; (await importJWK(privateJwk, &quot;ES256&quot;)) as CryptoKey;
-
-        const now &#x3D; new Date();
-        const inOneYear &#x3D; new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
-
-        // &#x3D;&#x3D;&#x3D; Create a single self-signed certificate &#x3D;&#x3D;&#x3D;
-        const selfSignedCert &#x3D;
-            await x509.X509CertificateGenerator.createSelfSigned({
-                serialNumber: &quot;01&quot;,
-                name: &#x60;C&#x3D;DE, CN&#x3D;${subjectCN}&#x60;,
-                notBefore: now,
-                notAfter: inOneYear,
-                signingAlgorithm: ECDSA_P256,
-                keys: { publicKey, privateKey },
-                extensions: [
-                    new x509.SubjectAlternativeNameExtension([
-                        { type: &quot;dns&quot;, value: hostname },
-                    ]),
-                    new x509.BasicConstraintsExtension(true, undefined, true), // CA:TRUE, critical
-                    new x509.KeyUsagesExtension(
-                        x509.KeyUsageFlags.digitalSignature |
-                            x509.KeyUsageFlags.keyEncipherment |
-                            x509.KeyUsageFlags.keyCertSign, // Allow signing other certificates
-                        true,
-                    ),
-                    await x509.SubjectKeyIdentifierExtension.create(publicKey),
-                ],
-            });
-
-        const crtPem &#x3D; selfSignedCert.toString(&quot;pem&quot;); // PEM-encoded certificate
-
-        return this.addCertificate(tenant.id, {
-            crt: [crtPem],
-            certUsageTypes: dto.certUsageTypes,
-            description:
-                dto.description ??
-                &#x60;Self-signed certificate (${dto.certUsageTypes.join(&quot;, &quot;)}) for tenant ${tenant.name}&#x60;,
-            keyId,
-        });
-    }
-
-    /**
-     * Update certificate metadata (description and usage types).
-     * @param tenantId - The tenant ID
-     * @param keyId - The key ID
-     * @param certId - The certificate ID to update
-     * @param updates - The updates to apply
-     */
-    async updateCertificate(
-        tenantId: string,
-        certId: string,
-        updates: CertUpdateDto,
-    ): Promise&lt;void&gt; {
-        // Update description or other simple fields (not usages)
-        await this.certRepository.update(
-            {
-                tenantId,
-                id: certId,
-            },
-            {
-                description: updates.description,
-            },
-        );
-
-        // Remove old usages
-        await this.certUsageRepository.delete({ tenantId, certId });
-
-        // Add new usages
-        if (updates.certUsageTypes &amp;&amp; updates.certUsageTypes.length &gt; 0) {
-            const newUsages &#x3D; updates.certUsageTypes.map((usage) &#x3D;&gt;
-                this.certUsageRepository.create({
-                    certId,
-                    usage,
-                    tenantId,
-                }),
-            );
-            await this.certUsageRepository.save(newUsages);
-        }
-    }
-
-    /**
-     * Delete a certificate.
-     * @param tenantId - The tenant ID
-     * @param keyId - The key ID
-     * @param certId - The certificate ID to delete
-     */
-    async deleteCertificate(tenantId: string, certId: string): Promise&lt;void&gt; {
-        const result &#x3D; await this.certRepository.delete({
-            id: certId,
-            tenantId,
-        });
-
-        if (result.affected &#x3D;&#x3D;&#x3D; 0) {
-            throw new Error(&#x60;Certificate ${certId} not found&#x60;);
-        }
-    }
-
-    /**
-     * Find a certificate by tenantId and type.
-     * @param value - The search criteria
-     * @returns The matching certificate
-     */
-    /**
-     * Find a certificate by tenantId and usage type.
-     */
-    async find(value: FindCertOptions): Promise&lt;CertEntity&gt; {
-        const certUsage &#x3D; await this.certUsageRepository.findOneOrFail({
-            where: {
-                tenantId: value.tenantId,
-                usage: value.type,
-                certId: value.id || undefined,
-            },
-            relations: [&quot;cert&quot;],
-        });
-
-        const cert &#x3D; certUsage.cert;
-
-        // Validate the certificate unless explicitly skipped
-        if (!value.skipValidation) {
-            const validationResult &#x3D; await this.validateCertificate(cert);
-            if (!validationResult.isValid) {
-                throw new Error(
-                    &#x60;Certificate ${cert.id} validation failed: ${validationResult.error}&#x60;,
-                );
+    getCertChain(cert: CertificateInfo): string[] {
+        return cert.crt.map((pem) &#x3D;&gt; {
+            try {
+                const x509Cert &#x3D; new x509.X509Certificate(pem);
+                // Convert raw DER bytes to base64 (not base64url)
+                return Buffer.from(x509Cert.rawData).toString(&quot;base64&quot;);
+            } catch {
+                // If parsing fails, try to extract base64 from PEM directly
+                const base64 &#x3D; pem
+                    .replace(&quot;-----BEGIN CERTIFICATE-----&quot;, &quot;&quot;)
+                    .replace(&quot;-----END CERTIFICATE-----&quot;, &quot;&quot;)
+                    .replace(/\s/g, &quot;&quot;);
+                return base64;
             }
-        }
-
-        return cert;
+        });
     }
 
     /**
-     * Validate a certificate for expiry and revocation status.
-     *
-     * @param cert - The certificate entity to validate
-     * @returns Validation result with details
+     * Validate a certificate for expiry and revocation.
      */
-    async validateCertificate(cert: CertEntity): Promise&lt;CertValidationResult&gt; {
+    async validateCertificate(
+        cert: CertificateInfo,
+    ): Promise&lt;CertValidationResult&gt; {
         try {
-            // Use the first certificate (leaf) for validation
-            const x509Cert &#x3D; new x509.X509Certificate(cert.crt[0]);
-
-            // Check time validity
+            const leafPem &#x3D; cert.crt[0];
+            const x509Cert &#x3D; new x509.X509Certificate(leafPem);
             const now &#x3D; new Date();
-            const validFrom &#x3D; x509Cert.notBefore;
-            const expiresAt &#x3D; x509Cert.notAfter;
 
-            if (now &lt; validFrom) {
+            // Check expiry
+            if (x509Cert.notAfter &lt; now) {
                 return {
                     isValid: false,
-                    error: &#x60;Certificate is not yet valid (valid from: ${validFrom.toISOString()})&#x60;,
-                    isExpired: false,
-                    validFrom,
-                    expiresAt,
-                };
-            }
-
-            if (now &gt; expiresAt) {
-                this.logger.warn(
-                    &#x60;Certificate ${cert.id} has expired at ${expiresAt.toISOString()}&#x60;,
-                );
-                return {
-                    isValid: false,
-                    error: &#x60;Certificate expired at ${expiresAt.toISOString()}&#x60;,
                     isExpired: true,
-                    validFrom,
-                    expiresAt,
+                    error: &#x60;Certificate expired on ${x509Cert.notAfter.toISOString()}&#x60;,
+                    expiresAt: x509Cert.notAfter,
+                    validFrom: x509Cert.notBefore,
                 };
             }
 
-            // Check CRL if the service is available
+            // Check CRL revocation if service is available
             if (this.crlValidationService) {
                 const crlResult &#x3D;
                     await this.crlValidationService.checkCertificateRevocation(
-                        cert.crt[0],
+                        leafPem,
                     );
-
-                if (
-                    !crlResult.isValid &amp;&amp;
-                    !crlResult.error?.includes(&quot;No CRL&quot;)
-                ) {
-                    this.logger.warn(
-                        &#x60;Certificate ${cert.id} revocation check failed: ${crlResult.error || &quot;revoked&quot;}&#x60;,
-                    );
+                if (!crlResult.isValid &amp;&amp; crlResult.revokedAt) {
                     return {
                         isValid: false,
-                        error:
-                            crlResult.error ||
-                            &#x60;Certificate revoked at ${crlResult.revokedAt?.toISOString()}&#x60;,
                         isRevoked: true,
-                        validFrom,
-                        expiresAt,
+                        error:
+                            crlResult.reason || &quot;Certificate has been revoked&quot;,
+                        expiresAt: x509Cert.notAfter,
+                        validFrom: x509Cert.notBefore,
                     };
-                }
-
-                // Log if CRL couldn&#x27;t be checked but don&#x27;t fail
-                if (crlResult.error?.includes(&quot;No CRL&quot;)) {
-                    this.logger.debug(
-                        &#x60;Certificate ${cert.id} has no CRL Distribution Points, skipping revocation check&#x60;,
-                    );
                 }
             }
 
             return {
                 isValid: true,
-                validFrom,
-                expiresAt,
+                expiresAt: x509Cert.notAfter,
+                validFrom: x509Cert.notBefore,
             };
         } catch (error: any) {
-            this.logger.error(
-                &#x60;Failed to validate certificate ${cert.id}: ${error.message}&#x60;,
-            );
             return {
                 isValid: false,
-                error: &#x60;Certificate validation error: ${error.message}&#x60;,
+                error: &#x60;Failed to validate certificate: ${error.message}&#x60;,
             };
         }
     }
 
     /**
-     * Check if a certificate is expired.
-     *
-     * @param cert - The certificate entity to check
-     * @returns True if the certificate is expired
+     * Get the hostname from the PUBLIC_URL config.
      */
-    isCertificateExpired(cert: CertEntity): boolean {
-        try {
-            // Use the first certificate (leaf) for expiry check
-            const x509Cert &#x3D; new x509.X509Certificate(cert.crt[0]);
-            return new Date() &gt; x509Cert.notAfter;
-        } catch {
-            return true; // Assume expired if we can&#x27;t parse
-        }
+    private getHostname(): string {
+        return new URL(this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;))
+            .hostname;
     }
 
     /**
-     * Get certificate validity information.
-     *
-     * @param cert - The certificate entity
-     * @returns Object with validFrom and expiresAt dates
+     * Add an external certificate to an existing key chain.
+     * Used for storing certificates obtained from external sources (e.g., registrar).
      */
-    getCertificateValidity(cert: CertEntity): {
-        validFrom: Date;
-        expiresAt: Date;
-    } {
-        // Use the first certificate (leaf) for validity
-        const x509Cert &#x3D; new x509.X509Certificate(cert.crt[0]);
-        return {
-            validFrom: x509Cert.notBefore,
-            expiresAt: x509Cert.notAfter,
-        };
-    }
+    async addCertificate(
+        tenantId: string,
+        options: {
+            crt: string[];
+            keyId: string;
+            description?: string;
+        },
+    ): Promise&lt;string&gt; {
+        const { crt, keyId, description } &#x3D; options;
 
-    /**
-     * Find a certificate or create one if it does not exist.
-     * @param value
-     * @returns
-     */
-    findOrCreate(value: FindCertOptions): Promise&lt;CertEntity&gt; {
-        return this.find(value).catch(async () &#x3D;&gt; {
-            // Create a new key using the default KMS provider
-            const keyId &#x3D; await this.keyService.create(value.tenantId);
+        // Get the existing key chain
+        const keyChain &#x3D; await this.keyChainService.getEntity(tenantId, keyId);
 
-            const dto: CertImportDto &#x3D; {
-                certUsageTypes: [value.type],
-                keyId,
-            };
-
-            // Create a self-signed certificate for the new key
-            const certId &#x3D; await this.addSelfSignedCert(
-                await this.tenantRepository.findOneByOrFail({
-                    id: value.tenantId,
-                }),
-                keyId,
-                dto,
-            );
-
-            // Retrieve and return the newly created certificate
-            return this.certRepository.findOneByOrFail({
-                tenantId: value.tenantId,
-                id: certId,
-            });
+        // Update the key chain with the new certificate
+        await this.keyChainService.update(tenantId, keyId, {
+            activeCertificate: crt.join(&quot;\n&quot;),
+            description: description || keyChain.description,
         });
-    }
 
-    /**
-     * Check if a certificate exists for the given tenant and certId.
-     * @param tenantId - The tenant ID
-     * @param certId - The certificate ID
-     * @returns True if certificate exists
-     */
-    hasEntry(tenantId: string, certId: string): Promise&lt;boolean&gt; {
-        return this.certRepository
-            .findOneBy({ tenantId, id: certId })
-            .then((cert) &#x3D;&gt; !!cert);
-    }
-
-    /**
-     * Update an existing certificate.
-     * @param tenantId - The tenant ID
-     * @param id - The certificate ID
-     * @param body - Update data
-     */
-    updateCert(tenantId: string, id: string, body: UpdateKeyDto) {
-        this.certRepository.update({ tenantId, id }, body);
-    }
-
-    /**
-     * Get the certificate chain to be included in the JWS header.
-     * @param cert - The certificate entity
-     * @returns Array with base64-encoded certificates (leaf first, then intermediates/root)
-     */
-    getCertChain(cert: CertEntity): string[] {
-        return cert.crt.map((pem) &#x3D;&gt;
-            pem
-                .replace(&quot;-----BEGIN CERTIFICATE-----&quot;, &quot;&quot;)
-                .replace(&quot;-----END CERTIFICATE-----&quot;, &quot;&quot;)
-                .replaceAll(/\s/g, &quot;&quot;),
+        this.logger.log(
+            &#x60;[${tenantId}] Added certificate to key chain ${keyId}&#x60;,
         );
+
+        return keyId;
     }
 
     /**
-     * Get the base64 url encoded SHA-256 hash of the leaf certificate.
-     * @param cert - The certificate entity
-     * @returns The certificate hash as base64url encoded string
+     * Parse a PEM certificate chain into an array of PEM strings.
      */
-    getCertHash(cert: CertEntity): string {
-        // Extract DER from PEM (PEM is base64 encoded, not base64url)
-        // Use the first certificate (leaf) for the hash
-        const der &#x3D; Buffer.from(
-            cert.crt[0]
-                .replace(&quot;-----BEGIN CERTIFICATE-----&quot;, &quot;&quot;)
-                .replace(&quot;-----END CERTIFICATE-----&quot;, &quot;&quot;)
-                .replaceAll(/\r?\n|\r/g, &quot;&quot;),
-            &quot;base64&quot;,
-        );
-        // Hash the DER and return as base64url
-        return createHash(&quot;sha256&quot;).update(der).digest(&quot;base64url&quot;);
+    private parseCertificateChain(pemChain: string): string[] {
+        const certs: string[] &#x3D; [];
+        const certRegex &#x3D;
+            /-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g;
+        let match;
+
+        while ((match &#x3D; certRegex.exec(pemChain)) !&#x3D;&#x3D; null) {
+            certs.push(match[0]);
+        }
+
+        // If no certificates found, treat the whole string as one cert
+        if (certs.length &#x3D;&#x3D;&#x3D; 0 &amp;&amp; pemChain.includes(&quot;CERTIFICATE&quot;)) {
+            certs.push(pemChain);
+        }
+
+        return certs;
     }
 
     /**
-     * Imports certificates for a specific tenant from the file system.
+     * Compute the SHA-256 hash of the leaf certificate (for x509_hash client_id).
+     * Returns the hash as a base64url-encoded string.
      */
-    async importForTenant(tenantId: string) {
-        await this.configImportService.importConfigsForTenant&lt;CertImportDto&gt;(
-            tenantId,
-            {
-                subfolder: &quot;certs&quot;,
-                fileExtension: &quot;.json&quot;,
-                validationClass: CertImportDto,
-                resourceType: &quot;cert&quot;,
-                loadData: (filePath) &#x3D;&gt; {
-                    const payload &#x3D; JSON.parse(readFileSync(filePath, &quot;utf8&quot;));
-                    return plainToClass(CertImportDto, payload);
-                },
-                checkExists: (tid, data) &#x3D;&gt; {
-                    return data.id
-                        ? this.hasEntry(tid, data.id)
-                        : Promise.resolve(false);
-                },
-                deleteExisting: async (tid, data) &#x3D;&gt; {
-                    // Find and delete matching certs
-                    const certs &#x3D; await this.certRepository.findBy({
-                        tenantId: tid,
-                    });
-                    const existingCert &#x3D; certs.find((c) &#x3D;&gt; c.id &#x3D;&#x3D;&#x3D; data.id);
-                    if (existingCert) {
-                        await this.certRepository
-                            .delete({
-                                id: existingCert.id,
-                                tenantId: tid,
-                            })
-                            .catch((err) &#x3D;&gt; {
-                                this.logger.error(
-                                    &#x60;[${tid}] Error deleting existing cert ${existingCert.id}: ${err.message}&#x60;,
-                                );
-                                throw err;
-                            });
-                    }
-                },
-                processItem: async (tid, config) &#x3D;&gt; {
-                    const tenantEntity &#x3D;
-                        await this.tenantRepository.findOneByOrFail({
-                            id: tid,
-                        });
-
-                    this.addCertificate(tid, config);
-                },
-            },
-        );
+    getCertHash(cert: CertificateInfo): string {
+        const leafPem &#x3D; cert.crt[0];
+        const x509Cert &#x3D; new x509.X509Certificate(leafPem);
+        const hash &#x3D; createHash(&quot;sha256&quot;)
+            .update(Buffer.from(x509Cert.rawData))
+            .digest();
+        // Return as base64url (no padding)
+        return hash
+            .toString(&quot;base64&quot;)
+            .replace(/\+/g, &quot;-&quot;)
+            .replace(/\//g, &quot;_&quot;)
+            .replace(/&#x3D;+$/, &quot;&quot;);
     }
 }
 </code></pre>

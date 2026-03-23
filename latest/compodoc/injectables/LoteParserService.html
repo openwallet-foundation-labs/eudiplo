@@ -392,7 +392,7 @@ This allows pairing issuance and revocation certificates from the same entity.</
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, Logger } from &quot;@nestjs/common&quot;;
-import { LoTE } from &quot;../../issuer/trust-list/dto/types&quot;;
+import type { LoTE } from &quot;@owf/eudi-lote&quot;;
 import {
     ServiceTypeIdentifier,
     TrustedEntity,

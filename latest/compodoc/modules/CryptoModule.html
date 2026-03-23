@@ -256,16 +256,6 @@
                     </ul>
                 </div>
                 <div class="col-sm-3">
-                    <h3>Controllers<a href="https://docs.nestjs.com/controllers" target="_blank" rel="noopener noreferrer"
-                            title="Official documentation about module controllers"><span
-                                class="icon ion-ios-information-circle-outline"></a></h3>
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            <a href="../controllers/CertController.html">CertController</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-sm-3">
                     <h3>Exports<a href="https://angular.io/api/core/NgModule#exports" target="_blank" rel="noopener noreferrer"
                             title="Official documentation about module exports"><span
                                 class="icon ion-ios-information-circle-outline"></a></h3>
@@ -288,26 +278,11 @@
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &quot;@nestjs/common&quot;;
 import { ConfigModule } from &quot;@nestjs/config&quot;;
-import { TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
-import { TenantEntity } from &quot;../auth/tenant/entitites/tenant.entity&quot;;
 import { CryptoService } from &quot;./crypto.service&quot;;
 import { EncryptionService } from &quot;./encryption/encryption.service&quot;;
-import { CertController } from &quot;./key/cert/cert.controller&quot;;
-import { CertEntity } from &quot;./key/entities/cert.entity&quot;;
-import { CertUsageEntity } from &quot;./key/entities/cert-usage.entity&quot;;
-import { KeyEntity } from &quot;./key/entities/keys.entity&quot;;
 
 @Module({
-    imports: [
-        ConfigModule,
-        TypeOrmModule.forFeature([
-            CertEntity,
-            CertUsageEntity,
-            KeyEntity,
-            TenantEntity,
-        ]),
-    ],
-    controllers: [CertController],
+    imports: [ConfigModule],
     providers: [CryptoService, EncryptionService],
     exports: [CryptoService, EncryptionService],
 })

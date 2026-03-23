@@ -137,7 +137,7 @@
                 <h3>Prefix</h3>
             </p>
             <p class="comment">
-                <code>:tenantId/vci</code>
+                <code>issuers/:tenantId/vci</code>
             </p>
 
 
@@ -238,8 +238,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="48"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:48</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="47"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:47</a></div>
                         </td>
                     </tr>
 
@@ -342,8 +342,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="96"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:96</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="95"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:95</a></div>
                         </td>
                     </tr>
 
@@ -462,8 +462,8 @@ for credentials that were not immediately available.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="122"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:122</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="121"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:121</a></div>
                         </td>
                     </tr>
 
@@ -539,8 +539,8 @@ for credentials that were not immediately available.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="111"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:111</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="110"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:110</a></div>
                         </td>
                     </tr>
 
@@ -629,7 +629,7 @@ for credentials that were not immediately available.</p>
     Res,
     UseInterceptors,
 } from &quot;@nestjs/common&quot;;
-import { ApiExcludeController, ApiParam, ApiTags } from &quot;@nestjs/swagger&quot;;
+import { ApiParam, ApiTags } from &quot;@nestjs/swagger&quot;;
 import type {
     CreateCredentialResponseReturn,
     CredentialResponse,
@@ -647,8 +647,7 @@ import { Oid4vciService } from &quot;./oid4vci.service&quot;;
  */
 @ApiTags(&quot;OID4VCI&quot;)
 @ApiParam({ name: &quot;tenantId&quot;, required: true })
-@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
-@Controller(&quot;:tenantId/vci&quot;)
+@Controller(&quot;issuers/:tenantId/vci&quot;)
 @UseInterceptors(SessionLoggerInterceptor)
 export class Oid4vciController {
     constructor(private readonly oid4vciService: Oid4vciService) {}

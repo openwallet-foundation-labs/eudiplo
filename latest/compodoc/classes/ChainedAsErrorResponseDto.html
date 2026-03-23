@@ -222,7 +222,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="198" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/dto/chained-as.dto.ts:198</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="209" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/dto/chained-as.dto.ts:209</a></div>
                         </td>
                     </tr>
 
@@ -259,7 +259,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="203" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/dto/chained-as.dto.ts:203</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="214" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/dto/chained-as.dto.ts:214</a></div>
                         </td>
                     </tr>
 
@@ -279,6 +279,7 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty, ApiPropertyOptional } from &quot;@nestjs/swagger&quot;;
+import { Transform } from &quot;class-transformer&quot;;
 import { IsArray, IsOptional, IsString } from &quot;class-validator&quot;;
 
 /**
@@ -345,6 +346,16 @@ export class ChainedAsParRequestDto {
 
     @ApiPropertyOptional({
         description: &quot;Authorization details (JSON array)&quot;,
+    })
+    @Transform(({ value }) &#x3D;&gt; {
+        if (typeof value &#x3D;&#x3D;&#x3D; &quot;string&quot;) {
+            try {
+                return JSON.parse(value);
+            } catch {
+                return value;
+            }
+        }
+        return value;
     })
     @IsArray()
     @IsOptional()

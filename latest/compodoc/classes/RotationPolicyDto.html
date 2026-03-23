@@ -114,7 +114,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Classes</li>
-  <li class="breadcrumb-item" >CertUpdateDto</li>
+  <li class="breadcrumb-item" >RotationPolicyDto</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -138,7 +138,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/crypto/key/dto/cert-update.dto.ts</code>
+            <code>src/crypto/key/dto/rotation-policy.dto.ts</code>
         </p>
 
 
@@ -146,19 +146,10 @@
                 <h3>Description</h3>
             </p>
             <p class="comment">
-                <p>DTO for updating certificate metadata (description and usage types).</p>
+                <p>DTO for key rotation policy configuration.</p>
 
             </p>
 
-            <p class="comment">
-                <h3>Extends</h3>
-            </p>
-            <p class="comment">
-                            <code><a href="../entitys/CertEntity.html" target="_self" >PickType(CertEntity, [
-    &quot;usages&quot;,
-    &quot;description&quot;,
-] as const)</a></code>
-            </p>
 
 
 
@@ -176,7 +167,31 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
-                                <a href="#certUsageTypes" >certUsageTypes</a>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#certValidityDays" >certValidityDays</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                <a href="#enabled" >enabled</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#intervalDays" >intervalDays</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#signingCaKeyId" >signingCaKeyId</a>
                             </li>
                         </ul>
                     </td>
@@ -201,17 +216,21 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="certUsageTypes"></a>
+                    <a name="certValidityDays"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                        <span ><b>certUsageTypes</b></span>
-                        <a href="#certUsageTypes"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>certValidityDays</b></span>
+                        <a href="#certValidityDays"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../miscellaneous/enumerations.html#CertUsage" target="_self" >CertUsage[]</a></code>
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
 
                     </td>
                 </tr>
@@ -220,22 +239,132 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsEnum(CertUsage, {each: true})<br />
+                            @ApiPropertyOptional({description: &#x27;Certificate validity in days when generating new certificates.&#x27;, example: 90, minimum: 1})<br />@IsNumber()<br />@IsOptional()<br />@Min(1)<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/crypto/key/dto/cert-update.dto.ts:17</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="41" class="link-to-prism">src/crypto/key/dto/rotation-policy.dto.ts:41</a></div>
                         </td>
                     </tr>
 
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Usage types for the certificate.</p>
-</div>
+                    <a name="enabled"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>enabled</b></span>
+                        <a href="#enabled"><span class="icon ion-ios-link"></span></a>
+                    </span>
                 </td>
             </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @ApiProperty({description: &#x27;Whether automatic key rotation is enabled.&#x27;, example: true})<br />@IsBoolean()<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/crypto/key/dto/rotation-policy.dto.ts:19</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="intervalDays"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>intervalDays</b></span>
+                        <a href="#intervalDays"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @ApiPropertyOptional({description: &#x27;Rotation interval in days. Key material will be rotated after this many days.&#x27;, example: 30, minimum: 1})<br />@IsNumber()<br />@IsOptional()<br />@Min(1)<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/crypto/key/dto/rotation-policy.dto.ts:30</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="signingCaKeyId"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>signingCaKeyId</b></span>
+                        <a href="#signingCaKeyId"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @ApiPropertyOptional({description: &#x27;The ID of the CA key used to sign certificates for this key. If not set, certificates will be self-signed.&#x27;, example: &#x27;ca-key-id&#x27;})<br />@IsString()<br />@IsOptional()<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">src/crypto/key/dto/rotation-policy.dto.ts:50</a></div>
+                        </td>
+                    </tr>
+
 
         </tbody>
     </table>
@@ -251,23 +380,56 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { PickType } from &quot;@nestjs/swagger&quot;;
-import { IsEnum } from &quot;class-validator&quot;;
-import { CertEntity } from &quot;../entities/cert.entity&quot;;
-import { CertUsage } from &quot;../entities/cert-usage.entity&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty, ApiPropertyOptional } from &quot;@nestjs/swagger&quot;;
+import {
+    IsBoolean,
+    IsNumber,
+    IsOptional,
+    IsString,
+    Min,
+} from &quot;class-validator&quot;;
 
 /**
- * DTO for updating certificate metadata (description and usage types).
+ * DTO for key rotation policy configuration.
  */
-export class CertUpdateDto extends PickType(CertEntity, [
-    &quot;usages&quot;,
-    &quot;description&quot;,
-] as const) {
-    /**
-     * Usage types for the certificate.
-     */
-    @IsEnum(CertUsage, { each: true })
-    certUsageTypes: CertUsage[];
+export class RotationPolicyDto {
+    @ApiProperty({
+        description: &quot;Whether automatic key rotation is enabled.&quot;,
+        example: true,
+    })
+    @IsBoolean()
+    enabled!: boolean;
+
+    @ApiPropertyOptional({
+        description:
+            &quot;Rotation interval in days. Key material will be rotated after this many days.&quot;,
+        example: 30,
+        minimum: 1,
+    })
+    @IsNumber()
+    @IsOptional()
+    @Min(1)
+    intervalDays?: number;
+
+    @ApiPropertyOptional({
+        description:
+            &quot;Certificate validity in days when generating new certificates.&quot;,
+        example: 90,
+        minimum: 1,
+    })
+    @IsNumber()
+    @IsOptional()
+    @Min(1)
+    certValidityDays?: number;
+
+    @ApiPropertyOptional({
+        description:
+            &quot;The ID of the CA key used to sign certificates for this key. If not set, certificates will be self-signed.&quot;,
+        example: &quot;ca-key-id&quot;,
+    })
+    @IsString()
+    @IsOptional()
+    signingCaKeyId?: string;
 }
 </code></pre>
     </div>
@@ -307,7 +469,7 @@ export class CertUpdateDto extends PickType(CertEntity, [
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
-            var COMPODOC_CURRENT_PAGE_URL = 'CertUpdateDto.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'RotationPolicyDto.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

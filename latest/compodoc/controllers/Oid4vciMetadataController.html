@@ -137,7 +137,7 @@
                 <h3>Prefix</h3>
             </p>
             <p class="comment">
-                <code>:tenantId/credentials-metadata</code>
+                <code>issuers/:tenantId/credentials-metadata</code>
             </p>
 
 
@@ -208,8 +208,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="16"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/metadata/oid4vci-metadata.controller.ts:16</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="15"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/metadata/oid4vci-metadata.controller.ts:15</a></div>
                         </td>
                     </tr>
 
@@ -283,12 +283,11 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Param } from &quot;@nestjs/common&quot;;
-import { ApiExcludeController, ApiTags } from &quot;@nestjs/swagger&quot;;
+import { ApiTags } from &quot;@nestjs/swagger&quot;;
 import { CredentialsService } from &quot;../../../configuration/credentials/credentials.service&quot;;
 
-@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
 @ApiTags(&quot;OID4VCI&quot;)
-@Controller(&quot;:tenantId/credentials-metadata&quot;)
+@Controller(&quot;issuers/:tenantId/credentials-metadata&quot;)
 export class Oid4vciMetadataController {
     constructor(private readonly credentialsService: CredentialsService) {}
 

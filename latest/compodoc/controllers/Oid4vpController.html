@@ -137,7 +137,7 @@
                 <h3>Prefix</h3>
             </p>
             <p class="comment">
-                <code>:session/oid4vp</code>
+                <code>presentations/:sessionId/oid4vp</code>
             </p>
 
 
@@ -227,14 +227,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post(&#x27;request&#x27;)<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)<br /></code>
+                    <code>@Post(&#x27;request&#x27;)<br />@SessionLogger(&#x27;sessionId&#x27;, &#x27;OID4VP&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="78"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:78</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="77"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:77</a></div>
                         </td>
                     </tr>
 
@@ -318,14 +318,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get(&#x27;request/no-redirect&#x27;)<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)<br /></code>
+                    <code>@Get(&#x27;request/no-redirect&#x27;)<br />@SessionLogger(&#x27;sessionId&#x27;, &#x27;OID4VP&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="58"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:58</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="57"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:57</a></div>
                         </td>
                     </tr>
 
@@ -409,14 +409,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get(&#x27;request&#x27;)<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)<br /></code>
+                    <code>@Get(&#x27;request&#x27;)<br />@SessionLogger(&#x27;sessionId&#x27;, &#x27;OID4VP&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="42"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:42</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="41"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -501,14 +501,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post()<br />@HttpCode(HttpStatus.OK)<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VP&#x27;)<br /></code>
+                    <code>@Post()<br />@HttpCode(HttpStatus.OK)<br />@SessionLogger(&#x27;sessionId&#x27;, &#x27;OID4VP&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="94"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:94</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="93"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.controller.ts:93</a></div>
                         </td>
                     </tr>
 
@@ -583,7 +583,7 @@
     Req,
     UseInterceptors,
 } from &quot;@nestjs/common&quot;;
-import { ApiExcludeController, ApiParam, ApiTags } from &quot;@nestjs/swagger&quot;;
+import { ApiParam, ApiTags } from &quot;@nestjs/swagger&quot;;
 import { Request } from &quot;express&quot;;
 import { SessionLogger } from &quot;../../shared/utils/logger/session-logger.decorator&quot;;
 import { SessionLoggerInterceptor } from &quot;../../shared/utils/logger/session-logger.interceptor&quot;;
@@ -594,10 +594,9 @@ import { Oid4vpService } from &quot;./oid4vp.service&quot;;
  * Controller for handling OID4VP (OpenID for Verifiable Presentations) requests.
  */
 @ApiTags(&quot;OID4VP&quot;)
-@Controller(&quot;:session/oid4vp&quot;)
+@Controller(&quot;presentations/:sessionId/oid4vp&quot;)
 @UseInterceptors(SessionLoggerInterceptor)
-@ApiParam({ name: &quot;session&quot;, required: true })
-@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
+@ApiParam({ name: &quot;sessionId&quot;, required: true })
 export class Oid4vpController {
     /**
      * Constructor for the Oid4vpController.
@@ -612,9 +611,9 @@ export class Oid4vpController {
      * @returns
      */
     @Get(&quot;request&quot;)
-    @SessionLogger(&quot;session&quot;, &quot;OID4VP&quot;)
+    @SessionLogger(&quot;sessionId&quot;, &quot;OID4VP&quot;)
     getRequestWithSession(
-        @Param(&quot;session&quot;) sessionId: string,
+        @Param(&quot;sessionId&quot;) sessionId: string,
         @Req() req: Request,
     ) {
         const origin &#x3D; req.get(&quot;origin&quot;) as string;
@@ -628,9 +627,9 @@ export class Oid4vpController {
      * @returns
      */
     @Get(&quot;request/no-redirect&quot;)
-    @SessionLogger(&quot;session&quot;, &quot;OID4VP&quot;)
+    @SessionLogger(&quot;sessionId&quot;, &quot;OID4VP&quot;)
     getRequestNoRedirectWithSession(
-        @Param(&quot;session&quot;) sessionId: string,
+        @Param(&quot;sessionId&quot;) sessionId: string,
         @Req() req: Request,
     ) {
         const origin &#x3D; req.get(&quot;origin&quot;) as string;
@@ -648,9 +647,9 @@ export class Oid4vpController {
      * @returns
      */
     @Post(&quot;request&quot;)
-    @SessionLogger(&quot;session&quot;, &quot;OID4VP&quot;)
+    @SessionLogger(&quot;sessionId&quot;, &quot;OID4VP&quot;)
     getPostRequestWithSession(
-        @Param(&quot;session&quot;) sessionId: string,
+        @Param(&quot;sessionId&quot;) sessionId: string,
         @Req() req: Request,
     ) {
         const origin &#x3D; req.get(&quot;origin&quot;) as string;
@@ -664,10 +663,10 @@ export class Oid4vpController {
      */
     @Post()
     @HttpCode(HttpStatus.OK)
-    @SessionLogger(&quot;session&quot;, &quot;OID4VP&quot;)
+    @SessionLogger(&quot;sessionId&quot;, &quot;OID4VP&quot;)
     getResponse(
         @Body() body: AuthorizationResponse,
-        @Param(&quot;session&quot;) sessionId: string,
+        @Param(&quot;sessionId&quot;) sessionId: string,
     ) {
         return this.oid4vpService.getResponse(body, sessionId);
     }

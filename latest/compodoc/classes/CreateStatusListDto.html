@@ -185,14 +185,14 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier">Optional</span>
-                                <a href="#certId" >certId</a>
+                                <a href="#credentialConfigurationId" >credentialConfigurationId</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier">Optional</span>
-                                <a href="#credentialConfigurationId" >credentialConfigurationId</a>
+                                <a href="#keyChainId" >keyChainId</a>
                             </li>
                         </ul>
                     </td>
@@ -310,52 +310,6 @@ If not provided, uses the tenant&#39;s configured default or the global default.
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="certId"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier">Optional</span>
-                        <span ><b>certId</b></span>
-                        <a href="#certId"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @ApiPropertyOptional({description: &#x27;Certificate ID to use for signing. Leave empty to use the tenant&#x27;s default StatusList certificate.&#x27;, example: &#x27;my-status-list-cert&#x27;})<br />@IsOptional()<br />@IsString()<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/issuer/lifecycle/status/dto/create-status-list.dto.ts:33</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Optional certificate ID to use for signing this status list&#39;s JWT.
-If not provided, uses the tenant&#39;s default StatusList certificate.</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="credentialConfigurationId"></a>
                     <span class="name">
                             <span class="modifier"></span>
@@ -398,6 +352,52 @@ If not provided, the list will be shared and available for any credential config
 
         </tbody>
     </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="keyChainId"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>keyChainId</b></span>
+                        <a href="#keyChainId"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @ApiPropertyOptional({description: &#x27;Key chain ID to use for signing. Leave empty to use the tenant&#x27;s default StatusList key chain.&#x27;, example: &#x27;my-status-list-keychain&#x27;})<br />@IsOptional()<br />@IsString()<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/issuer/lifecycle/status/dto/create-status-list.dto.ts:33</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Optional key chain ID to use for signing this status list&#39;s JWT.
+If not provided, uses the tenant&#39;s default StatusList key chain.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
 </section>
 
 
@@ -411,7 +411,7 @@ If not provided, the list will be shared and available for any credential config
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiPropertyOptional } from &quot;@nestjs/swagger&quot;;
-import { BitsPerStatus } from &quot;@sd-jwt/jwt-status-list&quot;;
+import { BitsPerStatus } from &quot;@owf/token-status-list&quot;;
 import { IsIn, IsInt, IsOptional, IsString, Min } from &quot;class-validator&quot;;
 
 /**
@@ -432,17 +432,17 @@ export class CreateStatusListDto {
     credentialConfigurationId?: string;
 
     /**
-     * Optional certificate ID to use for signing this status list&#x27;s JWT.
-     * If not provided, uses the tenant&#x27;s default StatusList certificate.
+     * Optional key chain ID to use for signing this status list&#x27;s JWT.
+     * If not provided, uses the tenant&#x27;s default StatusList key chain.
      */
     @ApiPropertyOptional({
         description:
-            &quot;Certificate ID to use for signing. Leave empty to use the tenant&#x27;s default StatusList certificate.&quot;,
-        example: &quot;my-status-list-cert&quot;,
+            &quot;Key chain ID to use for signing. Leave empty to use the tenant&#x27;s default StatusList key chain.&quot;,
+        example: &quot;my-status-list-keychain&quot;,
     })
     @IsOptional()
     @IsString()
-    certId?: string;
+    keyChainId?: string;
 
     /**
      * Number of bits per status entry.

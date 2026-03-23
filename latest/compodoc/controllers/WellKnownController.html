@@ -218,14 +218,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get([&#x27;.well-known/oauth-authorization-server/:tenantId&#x27;, &#x27;:tenantId/.well-known/oauth-authorization-server&#x27;])<br /></code>
+                    <code>@Get(&#x27;.well-known/oauth-authorization-server/issuers/:tenantId&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="62"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.controller.ts:62</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="50"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.controller.ts:50</a></div>
                         </td>
                     </tr>
 
@@ -296,14 +296,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get(&#x27;.well-known/oauth-authorization-server/:tenantId/chained-as&#x27;)<br /></code>
+                    <code>@Get(&#x27;.well-known/oauth-authorization-server/issuers/:tenantId/chained-as&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="73"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.controller.ts:73</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="61"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.controller.ts:61</a></div>
                         </td>
                     </tr>
 
@@ -377,14 +377,14 @@ for wallets that construct the discovery URL per RFC 8414.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Header(&#x27;Content-Type&#x27;, &#x27;application/jwk-set+json&#x27;)<br />@Get([&#x27;.well-known/jwks.json/:tenantId&#x27;, &#x27;:tenantId/.well-known/jwks.json&#x27;])<br /></code>
+                    <code>@Header(&#x27;Content-Type&#x27;, &#x27;application/jwk-set+json&#x27;)<br />@Get(&#x27;.well-known/jwks.json/issuers/:tenantId&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="83"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.controller.ts:83</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="71"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.controller.ts:71</a></div>
                         </td>
                     </tr>
 
@@ -457,14 +457,14 @@ for wallets that construct the discovery URL per RFC 8414.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@ApiOperation({summary: &#x27;Get OpenID4VCI issuer metadata&#x27;, description: &#x27;Returns the OpenID4VCI issuer metadata.&#x27;})<br />@ApiProduces(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JWT)<br />@Get([&#x27;.well-known/openid-credential-issuer/:tenantId&#x27;, &#x27;:tenantId/.well-known/openid-credential-issuer&#x27;])<br /></code>
+                    <code>@ApiOperation({summary: &#x27;Get OpenID4VCI issuer metadata&#x27;, description: &#x27;Returns the OpenID4VCI issuer metadata.&#x27;})<br />@ApiProduces(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JWT)<br />@Get(&#x27;.well-known/openid-credential-issuer/issuers/:tenantId&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="42"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.controller.ts:42</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="33"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.controller.ts:33</a></div>
                         </td>
                     </tr>
 
@@ -529,12 +529,7 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Header, Param } from &quot;@nestjs/common&quot;;
-import {
-    ApiExcludeController,
-    ApiOperation,
-    ApiProduces,
-    ApiTags,
-} from &quot;@nestjs/swagger&quot;;
+import { ApiOperation, ApiProduces, ApiTags } from &quot;@nestjs/swagger&quot;;
 import { ContentType } from &quot;../../../../shared/utils/mediaType/media-type.decorator&quot;;
 import { MediaType } from &quot;../../../../shared/utils/mediaType/media-type.enum&quot;;
 import { JwksResponseDto } from &quot;./dto/jwks-response.dto&quot;;
@@ -544,7 +539,6 @@ import { WellKnownService } from &quot;./well-known.service&quot;;
  * Controller for the OpenID4VCI well-known endpoints.
  */
 @ApiTags(&quot;OID4VCI&quot;)
-@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
 @Controller()
 export class WellKnownController {
     /**
@@ -565,10 +559,7 @@ export class WellKnownController {
     })
     //we can not set the accept in the apiheader via swagger.
     @ApiProduces(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JWT)
-    @Get([
-        &quot;.well-known/openid-credential-issuer/:tenantId&quot;,
-        &quot;:tenantId/.well-known/openid-credential-issuer&quot;,
-    ])
+    @Get(&quot;.well-known/openid-credential-issuer/issuers/:tenantId&quot;)
     issuerMetadata(
         @ContentType() contentType: MediaType,
         @Param(&quot;tenantId&quot;) tenantId: string,
@@ -585,10 +576,7 @@ export class WellKnownController {
      * Authorization Server Metadata
      * @returns
      */
-    @Get([
-        &quot;.well-known/oauth-authorization-server/:tenantId&quot;,
-        &quot;:tenantId/.well-known/oauth-authorization-server&quot;,
-    ])
+    @Get(&quot;.well-known/oauth-authorization-server/issuers/:tenantId&quot;)
     authzMetadata(@Param(&quot;tenantId&quot;) tenantId: string) {
         return this.wellKnownService.getAuthzMetadata(tenantId);
     }
@@ -599,7 +587,7 @@ export class WellKnownController {
      * for wallets that construct the discovery URL per RFC 8414.
      * @returns
      */
-    @Get(&quot;.well-known/oauth-authorization-server/:tenantId/chained-as&quot;)
+    @Get(&quot;.well-known/oauth-authorization-server/issuers/:tenantId/chained-as&quot;)
     chainedAsMetadata(@Param(&quot;tenantId&quot;) tenantId: string) {
         return this.wellKnownService.getChainedAsMetadata(tenantId);
     }
@@ -609,7 +597,7 @@ export class WellKnownController {
      * @returns
      */
     @Header(&quot;Content-Type&quot;, &quot;application/jwk-set+json&quot;)
-    @Get([&quot;.well-known/jwks.json/:tenantId&quot;, &quot;:tenantId/.well-known/jwks.json&quot;])
+    @Get(&quot;.well-known/jwks.json/issuers/:tenantId&quot;)
     getJwks(@Param(&quot;tenantId&quot;) tenantId: string): Promise&lt;JwksResponseDto&gt; {
         return this.wellKnownService.getJwks(tenantId);
     }

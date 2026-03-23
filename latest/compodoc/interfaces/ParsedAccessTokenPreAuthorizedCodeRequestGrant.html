@@ -315,7 +315,7 @@ import {
 import type { Request } from &quot;express&quot;;
 import { v4 } from &quot;uuid&quot;;
 import { CryptoService } from &quot;../../../../crypto/crypto.service&quot;;
-import { KeyService } from &quot;../../../../crypto/key/key.service&quot;;
+import { KeyChainService } from &quot;../../../../crypto/key/key-chain.service&quot;;
 import { SessionService } from &quot;../../../../session/session.service&quot;;
 import { WalletAttestationService } from &quot;../../../../shared/trust/wallet-attestation.service&quot;;
 import { IssuanceService } from &quot;../../../configuration/issuance/issuance.service&quot;;
@@ -344,7 +344,7 @@ export class AuthorizeService {
         private readonly sessionService: SessionService,
         private readonly issuanceService: IssuanceService,
         private readonly walletAttestationService: WalletAttestationService,
-        private readonly keyService: KeyService,
+        private readonly keyChainService: KeyChainService,
     ) {}
 
     getAuthorizationServer(tenantId: string): Oauth2AuthorizationServer {
@@ -393,7 +393,7 @@ export class AuthorizeService {
     }
 
     getAuthzIssuer(tenantId: string) {
-        return &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${tenantId}&#x60;;
+        return &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/issuers/${tenantId}&#x60;;
     }
 
     async authzMetadata(
@@ -407,13 +407,14 @@ export class AuthorizeService {
         const walletAttestationRequired &#x3D;
             issuanceConfig.walletAttestationRequired ?? false;
 
+        const publicUrl &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
         const authServer &#x3D; this.getAuthzIssuer(tenantId);
         const metadata: Record&lt;string, unknown&gt; &#x3D; {
             issuer: authServer,
             token_endpoint: &#x60;${authServer}/authorize/token&#x60;,
             authorization_endpoint: &#x60;${authServer}/authorize&#x60;,
             interactive_authorization_endpoint: &#x60;${authServer}/authorize/interactive&#x60;,
-            jwks_uri: &#x60;${authServer}/.well-known/jwks.json&#x60;,
+            jwks_uri: &#x60;${publicUrl}/.well-known/jwks.json/issuers/${tenantId}&#x60;,
             grant_types_supported: [
                 &quot;authorization_code&quot;,
                 &quot;urn:ietf:params:oauth:grant-type:pre-authorized_code&quot;,
@@ -453,7 +454,7 @@ export class AuthorizeService {
                 .getBy({ request_uri: values.request_uri })
                 .then(async (session) &#x3D;&gt; {
                     const code &#x3D; await this.setAuthCode(session.id);
-                    const iss &#x3D; &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${tenantId}&#x60;;
+                    const iss &#x3D; this.getAuthzIssuer(tenantId);
                     return &#x60;${session.auth_queries!.redirect_uri}?code&#x3D;${code}&amp;state&#x3D;${session.auth_queries!.state}&amp;iss&#x3D;${iss}&#x60;;
                 })
                 .catch(async () &#x3D;&gt; {
@@ -615,9 +616,9 @@ export class AuthorizeService {
         // Use pinned key from issuance config, or fall back to first available key
         const signingKeyId &#x3D;
             issuanceConfig.signingKeyId ||
-            (await this.keyService.getKid(tenantId));
+            (await this.keyChainService.getKid(tenantId));
 
-        const publicKey &#x3D; await this.keyService.getPublicKey(
+        const publicKey &#x3D; await this.keyChainService.getPublicKey(
             &quot;jwk&quot;,
             tenantId,
             signingKeyId,
@@ -625,7 +626,7 @@ export class AuthorizeService {
 
         return this.getAuthorizationServer(tenantId)
             .createAccessTokenResponse({
-                audience: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/${tenantId}&#x60;,
+                audience: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/issuers/${tenantId}&#x60;,
                 signer: {
                     method: &quot;jwk&quot;,
                     alg: &quot;ES256&quot;,

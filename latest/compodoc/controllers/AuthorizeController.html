@@ -137,7 +137,7 @@
                 <h3>Prefix</h3>
             </p>
             <p class="comment">
-                <code>:tenantId/authorize</code>
+                <code>issuers/:tenantId/authorize</code>
             </p>
 
 
@@ -172,6 +172,7 @@ This controller handles the authorization requests, token requests.</p>
                                 <a href="#authorize" >authorize</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier">Async</span>
@@ -228,8 +229,8 @@ This controller handles the authorization requests, token requests.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="38"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:38</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="37"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:37</a></div>
                         </td>
                     </tr>
 
@@ -309,6 +310,7 @@ This controller handles the authorization requests, token requests.</p>
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
                         <span ><b>par</b></span>
                         <a href="#par"><span class="icon ion-ios-link"></span></a>
@@ -326,7 +328,7 @@ This controller handles the authorization requests, token requests.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@ApiBody({description: &#x27;Pushed Authorization Request&#x27;, type: AuthorizeQueries})<br />@Post(&#x27;par&#x27;)<br /></code>
+                    <code>@ApiBody({description: &#x27;Pushed Authorization Request&#x27;, type: AuthorizeQueries})<br />@ApiConsumes(&#x27;application/x-www-form-urlencoded&#x27;)<br />@Post(&#x27;par&#x27;)<br /></code>
                 </td>
             </tr>
 
@@ -499,7 +501,7 @@ import {
     Req,
     Res,
 } from &quot;@nestjs/common&quot;;
-import { ApiBody, ApiExcludeController, ApiTags } from &quot;@nestjs/swagger&quot;;
+import { ApiBody, ApiConsumes, ApiTags } from &quot;@nestjs/swagger&quot;;
 import type { Request, Response } from &quot;express&quot;;
 import { SessionService } from &quot;../../../../session/session.service&quot;;
 import { AuthorizeService } from &quot;./authorize.service&quot;;
@@ -511,8 +513,7 @@ import { ParResponseDto } from &quot;./dto/par-response.dto&quot;;
  * This controller handles the authorization requests, token requests.
  */
 @ApiTags(&quot;OID4VCI&quot;)
-@ApiExcludeController(process.env.SWAGGER_ALL !&#x3D;&#x3D; &quot;true&quot;)
-@Controller(&quot;:tenantId/authorize&quot;)
+@Controller(&quot;issuers/:tenantId/authorize&quot;)
 export class AuthorizeController {
     constructor(
         private readonly authorizeService: AuthorizeService,
@@ -547,6 +548,7 @@ export class AuthorizeController {
         description: &quot;Pushed Authorization Request&quot;,
         type: AuthorizeQueries,
     })
+    @ApiConsumes(&quot;application/x-www-form-urlencoded&quot;)
     @Post(&quot;par&quot;)
     async par(@Body() body: AuthorizeQueries): Promise&lt;ParResponseDto&gt; {
         const request_uri &#x3D; &#x60;urn:${randomUUID()}&#x60;;
