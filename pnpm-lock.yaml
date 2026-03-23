@@ -66,9 +66,6 @@ importers:
 
   apps/backend:
     dependencies:
-      '@animo-id/mdoc':
-        specifier: 0.6.0-alpha-20260202121208
-        version: 0.6.0-alpha-20260202121208
       '@aws-sdk/client-kms':
         specifier: ^3.1002.0
         version: 3.1010.0
@@ -147,6 +144,9 @@ importers:
       '@owf/eudi-lote':
         specifier: 0.1.0-alpha-20260317093905
         version: 0.1.0-alpha-20260317093905
+      '@owf/mdoc':
+        specifier: 0.6.0-alpha-20260323111323
+        version: 0.6.0-alpha-20260323111323
       '@owf/token-status-list':
         specifier: 0.1.0-alpha-20260317093905
         version: 0.1.0-alpha-20260317093905
@@ -864,9 +864,6 @@ packages:
       '@angular/core': 21.2.0
       '@angular/platform-browser': 21.2.0
       rxjs: ^6.5.3 || ^7.4.0
-
-  '@animo-id/mdoc@0.6.0-alpha-20260202121208':
-    resolution: {integrity: sha512-W8m4iTatI2oyvQrfjOGQG2oZR05vYjYOxDGz7TsJBiCSrJeKBf+n5b2Z8IgNxj52vIOTGI28RJqLCx/VlgU//Q==}
 
   '@apidevtools/json-schema-ref-parser@15.3.1':
     resolution: {integrity: sha512-FIweGOR9zrNuskfDXn8dfsA4eJEe8LmmGsGSDikEZvgYm36SO36yMhasXSOX7/OTGZ3b7I9iPhOxB24D8xL5uQ==}
@@ -1703,19 +1700,9 @@ packages:
   '@borewit/text-codec@0.2.1':
     resolution: {integrity: sha512-k7vvKPbf7J2fZ5klGRD9AeKfUvojuZIQ3BT5u7Jfv+puwXkUBUT5PVyMDfJZpy30CBDXGMgw7fguK/lpOMBvgw==}
 
-  '@cbor-extract/cbor-extract-darwin-arm64@2.2.0':
-    resolution: {integrity: sha512-P7swiOAdF7aSi0H+tHtHtr6zrpF3aAq/W9FXx5HektRvLTM2O89xCyXF3pk7pLc7QpaY7AoaE8UowVf9QBdh3w==}
-    cpu: [arm64]
-    os: [darwin]
-
   '@cbor-extract/cbor-extract-darwin-arm64@2.2.2':
     resolution: {integrity: sha512-ZKZ/F8US7JR92J4DMct6cLW/Y66o2K576+zjlEN/MevH70bFIsB10wkZEQPLzl2oNh2SMGy55xpJ9JoBRl5DOA==}
     cpu: [arm64]
-    os: [darwin]
-
-  '@cbor-extract/cbor-extract-darwin-x64@2.2.0':
-    resolution: {integrity: sha512-1liF6fgowph0JxBbYnAS7ZlqNYLf000Qnj4KjqPNW4GViKrEql2MgZnAsExhY9LSy8dnvA4C0qHEBgPrll0z0w==}
-    cpu: [x64]
     os: [darwin]
 
   '@cbor-extract/cbor-extract-darwin-x64@2.2.2':
@@ -1723,19 +1710,9 @@ packages:
     cpu: [x64]
     os: [darwin]
 
-  '@cbor-extract/cbor-extract-linux-arm64@2.2.0':
-    resolution: {integrity: sha512-rQvhNmDuhjTVXSPFLolmQ47/ydGOFXtbR7+wgkSY0bdOxCFept1hvg59uiLPT2fVDuJFuEy16EImo5tE2x3RsQ==}
-    cpu: [arm64]
-    os: [linux]
-
   '@cbor-extract/cbor-extract-linux-arm64@2.2.2':
     resolution: {integrity: sha512-wfqgzqCAy/Vn8i6WVIh7qZd0DdBFaWBjPdB6ma+Wihcjv0gHqD/mw3ouVv7kbbUNrab6dKEx/w3xQZEdeXIlzg==}
     cpu: [arm64]
-    os: [linux]
-
-  '@cbor-extract/cbor-extract-linux-arm@2.2.0':
-    resolution: {integrity: sha512-QeBcBXk964zOytiedMPQNZr7sg0TNavZeuUCD6ON4vEOU/25+pLhNN6EDIKJ9VLTKaZ7K7EaAriyYQ1NQ05s/Q==}
-    cpu: [arm]
     os: [linux]
 
   '@cbor-extract/cbor-extract-linux-arm@2.2.2':
@@ -1743,20 +1720,10 @@ packages:
     cpu: [arm]
     os: [linux]
 
-  '@cbor-extract/cbor-extract-linux-x64@2.2.0':
-    resolution: {integrity: sha512-cWLAWtT3kNLHSvP4RKDzSTX9o0wvQEEAj4SKvhWuOVZxiDAeQazr9A+PSiRILK1VYMLeDml89ohxCnUNQNQNCw==}
-    cpu: [x64]
-    os: [linux]
-
   '@cbor-extract/cbor-extract-linux-x64@2.2.2':
     resolution: {integrity: sha512-rpiLnVEsqtPJ+mXTdx1rfz4RtUGYIUg2rUAZgd1KjiC1SehYUSkJN7Yh+aVfSjvCGtVP0/bfkQkXpPXKbmSUaA==}
     cpu: [x64]
     os: [linux]
-
-  '@cbor-extract/cbor-extract-win32-x64@2.2.0':
-    resolution: {integrity: sha512-l2M+Z8DO2vbvADOBNLbbh9y5ST1RY5sqkWOg/58GkUPBYou/cuNZ68SGQ644f1CvZ8kcOxyZtw06+dxWHIoN/w==}
-    cpu: [x64]
-    os: [win32]
 
   '@cbor-extract/cbor-extract-win32-x64@2.2.2':
     resolution: {integrity: sha512-dI+9P7cfWxkTQ+oE+7Aa6onEn92PHgfWXZivjNheCRmTBDBf2fx6RyTi0cmgpYLnD1KLZK9ZYrMxaPZ4oiXhGA==}
@@ -3108,6 +3075,9 @@ packages:
 
   '@owf/identity-common@0.1.0-alpha-20260317093905':
     resolution: {integrity: sha512-PSXsqcLEua7+YEyynbVr8MQ13hoXDL6oNRF3OjKtWbm6UZXU5jx9bvWq8cL9kGo124TMWd1UQLK1PrWxkKa8CA==}
+
+  '@owf/mdoc@0.6.0-alpha-20260323111323':
+    resolution: {integrity: sha512-CwmuQxwvRSLNFeL2Jyk9f3JWk6GuLzIgwn9cgGnran1EnpKWnBHn0gHw/ivZPJvgliSIVR59AtzZ5NnXFa0nkA==}
 
   '@owf/token-status-list@0.1.0-alpha-20260317093905':
     resolution: {integrity: sha512-GPXQmVEaK6zKj9bpaeTK7iKU6d2647rukXbJ2tWagomijyQih7h0x5GGs3JCDAGoU/dxey2cXRDiMVRbOhvR+w==}
@@ -4945,16 +4915,9 @@ packages:
   caniuse-lite@1.0.30001775:
     resolution: {integrity: sha512-s3Qv7Lht9zbVKE9XoTyRG6wVDCKdtOFIjBGg3+Yhn6JaytuNKPIjBMTMIY1AnOH3seL5mvF+x33oGAyK3hVt3A==}
 
-  cbor-extract@2.2.0:
-    resolution: {integrity: sha512-Ig1zM66BjLfTXpNgKpvBePq271BPOvu8MR0Jl080yG7Jsl+wAZunfrwiwA+9ruzm/WEdIV5QF/bjDZTqyAIVHA==}
-    hasBin: true
-
   cbor-extract@2.2.2:
     resolution: {integrity: sha512-hlSxxI9XO2yQfe9g6msd3g4xCfDqK5T5P0fRMLuaLHhxn4ViPrm+a+MUfhrvH2W962RGxcBwEGzLQyjbDG1gng==}
     hasBin: true
-
-  cbor-x@1.6.0:
-    resolution: {integrity: sha512-0kareyRwHSkL6ws5VXHEf8uY1liitysCVJjlmhaLG+IXLqhSaOO+t63coaso7yjwEzWZzLy8fJo06gZDVQM9Qg==}
 
   cbor-x@1.6.4:
     resolution: {integrity: sha512-UGKHjp6RHC6QuZ2yy5LCKm7MojM4716DwoSaqwQpaH4DvZvbBTGcoDNTiG9Y2lByXZYFEs9WRkS5tLl96IrF1Q==}
@@ -10438,12 +10401,6 @@ snapshots:
       rxjs: 7.8.2
       tslib: 2.8.1
 
-  '@animo-id/mdoc@0.6.0-alpha-20260202121208':
-    dependencies:
-      cbor-x: 1.6.0
-      zod: 4.3.6
-      zod-validation-error: 5.0.0(zod@4.3.6)
-
   '@apidevtools/json-schema-ref-parser@15.3.1(@types/json-schema@7.0.15)':
     dependencies:
       '@types/json-schema': 7.0.15
@@ -11879,37 +11836,19 @@ snapshots:
 
   '@borewit/text-codec@0.2.1': {}
 
-  '@cbor-extract/cbor-extract-darwin-arm64@2.2.0':
-    optional: true
-
   '@cbor-extract/cbor-extract-darwin-arm64@2.2.2':
-    optional: true
-
-  '@cbor-extract/cbor-extract-darwin-x64@2.2.0':
     optional: true
 
   '@cbor-extract/cbor-extract-darwin-x64@2.2.2':
     optional: true
 
-  '@cbor-extract/cbor-extract-linux-arm64@2.2.0':
-    optional: true
-
   '@cbor-extract/cbor-extract-linux-arm64@2.2.2':
-    optional: true
-
-  '@cbor-extract/cbor-extract-linux-arm@2.2.0':
     optional: true
 
   '@cbor-extract/cbor-extract-linux-arm@2.2.2':
     optional: true
 
-  '@cbor-extract/cbor-extract-linux-x64@2.2.0':
-    optional: true
-
   '@cbor-extract/cbor-extract-linux-x64@2.2.2':
-    optional: true
-
-  '@cbor-extract/cbor-extract-win32-x64@2.2.0':
     optional: true
 
   '@cbor-extract/cbor-extract-win32-x64@2.2.2':
@@ -13211,6 +13150,12 @@ snapshots:
       zod: 4.3.6
 
   '@owf/identity-common@0.1.0-alpha-20260317093905': {}
+
+  '@owf/mdoc@0.6.0-alpha-20260323111323':
+    dependencies:
+      cbor-x: 1.6.4
+      zod: 4.3.6
+      zod-validation-error: 5.0.0(zod@4.3.6)
 
   '@owf/token-status-list@0.1.0-alpha-20260317093905':
     dependencies:
@@ -15388,18 +15333,6 @@ snapshots:
 
   caniuse-lite@1.0.30001775: {}
 
-  cbor-extract@2.2.0:
-    dependencies:
-      node-gyp-build-optional-packages: 5.1.1
-    optionalDependencies:
-      '@cbor-extract/cbor-extract-darwin-arm64': 2.2.0
-      '@cbor-extract/cbor-extract-darwin-x64': 2.2.0
-      '@cbor-extract/cbor-extract-linux-arm': 2.2.0
-      '@cbor-extract/cbor-extract-linux-arm64': 2.2.0
-      '@cbor-extract/cbor-extract-linux-x64': 2.2.0
-      '@cbor-extract/cbor-extract-win32-x64': 2.2.0
-    optional: true
-
   cbor-extract@2.2.2:
     dependencies:
       node-gyp-build-optional-packages: 5.1.1
@@ -15411,10 +15344,6 @@ snapshots:
       '@cbor-extract/cbor-extract-linux-x64': 2.2.2
       '@cbor-extract/cbor-extract-win32-x64': 2.2.2
     optional: true
-
-  cbor-x@1.6.0:
-    optionalDependencies:
-      cbor-extract: 2.2.0
 
   cbor-x@1.6.4:
     optionalDependencies:

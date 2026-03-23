@@ -1,3 +1,4 @@
+import { Injectable, Logger } from "@nestjs/common";
 import {
     base64,
     DeviceRequest,
@@ -7,8 +8,7 @@ import {
     ItemsRequest,
     SessionTranscript,
     Verifier,
-} from "@animo-id/mdoc";
-import { Injectable, Logger } from "@nestjs/common";
+} from "@owf/mdoc";
 import * as x509 from "@peculiar/x509";
 import { VerifierOptions } from "../../../../shared/trust/types";
 import { mdocContext } from "../../mdoc-context";

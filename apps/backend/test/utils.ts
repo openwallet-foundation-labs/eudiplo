@@ -1,6 +1,16 @@
 import crypto from "node:crypto";
 import { readFileSync, rmSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { INestApplication, ValidationPipe } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { Test, TestingModule } from "@nestjs/testing";
+import {
+    CallbackContext,
+    Jwk,
+    JwtHeader,
+    SignJwtCallback,
+} from "@openid4vc/oauth2";
+import { ResolvedOpenid4vpAuthorizationRequest } from "@openid4vc/openid4vp";
 import {
     CoseKey,
     DeviceKey,
@@ -12,17 +22,7 @@ import {
     ItemsRequest,
     SessionTranscript,
     SignatureAlgorithm,
-} from "@animo-id/mdoc";
-import { INestApplication, ValidationPipe } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { Test, TestingModule } from "@nestjs/testing";
-import {
-    CallbackContext,
-    Jwk,
-    JwtHeader,
-    SignJwtCallback,
-} from "@openid4vc/oauth2";
-import { ResolvedOpenid4vpAuthorizationRequest } from "@openid4vc/openid4vp";
+} from "@owf/mdoc";
 import { X509Certificate } from "@peculiar/x509";
 import { digest, ES256 } from "@sd-jwt/crypto-nodejs";
 import { SDJwtVcInstance } from "@sd-jwt/sd-jwt-vc";

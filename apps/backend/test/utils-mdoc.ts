@@ -1,4 +1,7 @@
 import crypto from "node:crypto";
+import { p256 } from "@noble/curves/nist.js";
+import { hmac } from "@noble/hashes/hmac.js";
+import { sha256 } from "@noble/hashes/sha2.js";
 import {
     CoseKey,
     hex,
@@ -7,10 +10,7 @@ import {
     MacAlgorithm,
     type MdocContext,
     stringToBytes,
-} from "@animo-id/mdoc";
-import { p256 } from "@noble/curves/nist.js";
-import { hmac } from "@noble/hashes/hmac.js";
-import { sha256 } from "@noble/hashes/sha2.js";
+} from "@owf/mdoc";
 import { hkdf } from "@panva/hkdf";
 import * as x509 from "@peculiar/x509";
 import { X509Certificate } from "@peculiar/x509";
