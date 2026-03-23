@@ -5,7 +5,7 @@ import {
     getStatusListFromJWT,
     StatusList,
     StatusListEntry,
-} from "@sd-jwt/jwt-status-list";
+} from "@owf/token-status-list";
 import { decodeJwt } from "jose";
 import { firstValueFrom } from "rxjs";
 

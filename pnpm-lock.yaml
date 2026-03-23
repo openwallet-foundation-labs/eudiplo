@@ -144,6 +144,12 @@ importers:
       '@openid4vc/utils':
         specifier: 0.5.0-alpha-20260309092538
         version: 0.5.0-alpha-20260309092538
+      '@owf/eudi-lote':
+        specifier: 0.1.0-alpha-20260317093905
+        version: 0.1.0-alpha-20260317093905
+      '@owf/token-status-list':
+        specifier: 0.1.0-alpha-20260317093905
+        version: 0.1.0-alpha-20260317093905
       '@panva/hkdf':
         specifier: ^1.2.1
         version: 1.2.1
@@ -157,9 +163,6 @@ importers:
         specifier: ^1.14.3
         version: 1.14.3
       '@sd-jwt/crypto-nodejs':
-        specifier: ^0.19.0
-        version: 0.19.0
-      '@sd-jwt/jwt-status-list':
         specifier: ^0.19.0
         version: 0.19.0
       '@sd-jwt/sd-jwt-vc':
@@ -1705,8 +1708,18 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
+  '@cbor-extract/cbor-extract-darwin-arm64@2.2.2':
+    resolution: {integrity: sha512-ZKZ/F8US7JR92J4DMct6cLW/Y66o2K576+zjlEN/MevH70bFIsB10wkZEQPLzl2oNh2SMGy55xpJ9JoBRl5DOA==}
+    cpu: [arm64]
+    os: [darwin]
+
   '@cbor-extract/cbor-extract-darwin-x64@2.2.0':
     resolution: {integrity: sha512-1liF6fgowph0JxBbYnAS7ZlqNYLf000Qnj4KjqPNW4GViKrEql2MgZnAsExhY9LSy8dnvA4C0qHEBgPrll0z0w==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@cbor-extract/cbor-extract-darwin-x64@2.2.2':
+    resolution: {integrity: sha512-32b1mgc+P61Js+KW9VZv/c+xRw5EfmOcPx990JbCBSkYJFY0l25VinvyyWfl+3KjibQmAcYwmyzKF9J4DyKP/Q==}
     cpu: [x64]
     os: [darwin]
 
@@ -1715,8 +1728,18 @@ packages:
     cpu: [arm64]
     os: [linux]
 
+  '@cbor-extract/cbor-extract-linux-arm64@2.2.2':
+    resolution: {integrity: sha512-wfqgzqCAy/Vn8i6WVIh7qZd0DdBFaWBjPdB6ma+Wihcjv0gHqD/mw3ouVv7kbbUNrab6dKEx/w3xQZEdeXIlzg==}
+    cpu: [arm64]
+    os: [linux]
+
   '@cbor-extract/cbor-extract-linux-arm@2.2.0':
     resolution: {integrity: sha512-QeBcBXk964zOytiedMPQNZr7sg0TNavZeuUCD6ON4vEOU/25+pLhNN6EDIKJ9VLTKaZ7K7EaAriyYQ1NQ05s/Q==}
+    cpu: [arm]
+    os: [linux]
+
+  '@cbor-extract/cbor-extract-linux-arm@2.2.2':
+    resolution: {integrity: sha512-tNg0za41TpQfkhWjptD+0gSD2fggMiDCSacuIeELyb2xZhr7PrhPe5h66Jc67B/5dmpIhI2QOUtv4SBsricyYQ==}
     cpu: [arm]
     os: [linux]
 
@@ -1725,8 +1748,18 @@ packages:
     cpu: [x64]
     os: [linux]
 
+  '@cbor-extract/cbor-extract-linux-x64@2.2.2':
+    resolution: {integrity: sha512-rpiLnVEsqtPJ+mXTdx1rfz4RtUGYIUg2rUAZgd1KjiC1SehYUSkJN7Yh+aVfSjvCGtVP0/bfkQkXpPXKbmSUaA==}
+    cpu: [x64]
+    os: [linux]
+
   '@cbor-extract/cbor-extract-win32-x64@2.2.0':
     resolution: {integrity: sha512-l2M+Z8DO2vbvADOBNLbbh9y5ST1RY5sqkWOg/58GkUPBYou/cuNZ68SGQ644f1CvZ8kcOxyZtw06+dxWHIoN/w==}
+    cpu: [x64]
+    os: [win32]
+
+  '@cbor-extract/cbor-extract-win32-x64@2.2.2':
+    resolution: {integrity: sha512-dI+9P7cfWxkTQ+oE+7Aa6onEn92PHgfWXZivjNheCRmTBDBf2fx6RyTi0cmgpYLnD1KLZK9ZYrMxaPZ4oiXhGA==}
     cpu: [x64]
     os: [win32]
 
@@ -3066,6 +3099,18 @@ packages:
   '@opentelemetry/api@1.9.0':
     resolution: {integrity: sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==}
     engines: {node: '>=8.0.0'}
+
+  '@owf/crypto@0.1.0-alpha-20260317093905':
+    resolution: {integrity: sha512-kcw318HXASbWEn0nnLDBurnermyJoTLwoWYDF7pmdSRALy5K/bAt0jo2X9yz/TBGI5Iev4J6oeAjIqEOgr39BA==}
+
+  '@owf/eudi-lote@0.1.0-alpha-20260317093905':
+    resolution: {integrity: sha512-OVL5HR9YSIfcAr5foGCM8+CM7MJgSA+mZ3UAhizbkdIzIFwgw9VVzbTdEheykW2r3dXq+mpB/i0nuTjmUQubIA==}
+
+  '@owf/identity-common@0.1.0-alpha-20260317093905':
+    resolution: {integrity: sha512-PSXsqcLEua7+YEyynbVr8MQ13hoXDL6oNRF3OjKtWbm6UZXU5jx9bvWq8cL9kGo124TMWd1UQLK1PrWxkKa8CA==}
+
+  '@owf/token-status-list@0.1.0-alpha-20260317093905':
+    resolution: {integrity: sha512-GPXQmVEaK6zKj9bpaeTK7iKU6d2647rukXbJ2tWagomijyQih7h0x5GGs3JCDAGoU/dxey2cXRDiMVRbOhvR+w==}
 
   '@oxc-project/types@0.113.0':
     resolution: {integrity: sha512-Tp3XmgxwNQ9pEN9vxgJBAqdRamHibi76iowQ38O2I4PMpcvNRQNVsU2n1x1nv9yh0XoTrGFzf7cZSGxmixxrhA==}
@@ -4904,8 +4949,15 @@ packages:
     resolution: {integrity: sha512-Ig1zM66BjLfTXpNgKpvBePq271BPOvu8MR0Jl080yG7Jsl+wAZunfrwiwA+9ruzm/WEdIV5QF/bjDZTqyAIVHA==}
     hasBin: true
 
+  cbor-extract@2.2.2:
+    resolution: {integrity: sha512-hlSxxI9XO2yQfe9g6msd3g4xCfDqK5T5P0fRMLuaLHhxn4ViPrm+a+MUfhrvH2W962RGxcBwEGzLQyjbDG1gng==}
+    hasBin: true
+
   cbor-x@1.6.0:
     resolution: {integrity: sha512-0kareyRwHSkL6ws5VXHEf8uY1liitysCVJjlmhaLG+IXLqhSaOO+t63coaso7yjwEzWZzLy8fJo06gZDVQM9Qg==}
+
+  cbor-x@1.6.4:
+    resolution: {integrity: sha512-UGKHjp6RHC6QuZ2yy5LCKm7MojM4716DwoSaqwQpaH4DvZvbBTGcoDNTiG9Y2lByXZYFEs9WRkS5tLl96IrF1Q==}
 
   ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
@@ -11830,19 +11882,37 @@ snapshots:
   '@cbor-extract/cbor-extract-darwin-arm64@2.2.0':
     optional: true
 
+  '@cbor-extract/cbor-extract-darwin-arm64@2.2.2':
+    optional: true
+
   '@cbor-extract/cbor-extract-darwin-x64@2.2.0':
+    optional: true
+
+  '@cbor-extract/cbor-extract-darwin-x64@2.2.2':
     optional: true
 
   '@cbor-extract/cbor-extract-linux-arm64@2.2.0':
     optional: true
 
+  '@cbor-extract/cbor-extract-linux-arm64@2.2.2':
+    optional: true
+
   '@cbor-extract/cbor-extract-linux-arm@2.2.0':
+    optional: true
+
+  '@cbor-extract/cbor-extract-linux-arm@2.2.2':
     optional: true
 
   '@cbor-extract/cbor-extract-linux-x64@2.2.0':
     optional: true
 
+  '@cbor-extract/cbor-extract-linux-x64@2.2.2':
+    optional: true
+
   '@cbor-extract/cbor-extract-win32-x64@2.2.0':
+    optional: true
+
+  '@cbor-extract/cbor-extract-win32-x64@2.2.2':
     optional: true
 
   '@cloudflare/kv-asset-handler@0.4.2': {}
@@ -13128,6 +13198,25 @@ snapshots:
       zod-validation-error: 5.0.0(zod@4.3.6)
 
   '@opentelemetry/api@1.9.0': {}
+
+  '@owf/crypto@0.1.0-alpha-20260317093905':
+    dependencies:
+      '@noble/hashes': 2.0.1
+      '@owf/identity-common': 0.1.0-alpha-20260317093905
+
+  '@owf/eudi-lote@0.1.0-alpha-20260317093905':
+    dependencies:
+      '@owf/crypto': 0.1.0-alpha-20260317093905
+      '@owf/identity-common': 0.1.0-alpha-20260317093905
+      zod: 4.3.6
+
+  '@owf/identity-common@0.1.0-alpha-20260317093905': {}
+
+  '@owf/token-status-list@0.1.0-alpha-20260317093905':
+    dependencies:
+      '@owf/identity-common': 0.1.0-alpha-20260317093905
+      cbor-x: 1.6.4
+      pako: 2.1.0
 
   '@oxc-project/types@0.113.0': {}
 
@@ -15311,9 +15400,25 @@ snapshots:
       '@cbor-extract/cbor-extract-win32-x64': 2.2.0
     optional: true
 
+  cbor-extract@2.2.2:
+    dependencies:
+      node-gyp-build-optional-packages: 5.1.1
+    optionalDependencies:
+      '@cbor-extract/cbor-extract-darwin-arm64': 2.2.2
+      '@cbor-extract/cbor-extract-darwin-x64': 2.2.2
+      '@cbor-extract/cbor-extract-linux-arm': 2.2.2
+      '@cbor-extract/cbor-extract-linux-arm64': 2.2.2
+      '@cbor-extract/cbor-extract-linux-x64': 2.2.2
+      '@cbor-extract/cbor-extract-win32-x64': 2.2.2
+    optional: true
+
   cbor-x@1.6.0:
     optionalDependencies:
       cbor-extract: 2.2.0
+
+  cbor-x@1.6.4:
+    optionalDependencies:
+      cbor-extract: 2.2.2
 
   ccount@2.0.1: {}
 

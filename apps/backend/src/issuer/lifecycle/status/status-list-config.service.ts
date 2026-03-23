@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
-import { BitsPerStatus } from "@sd-jwt/jwt-status-list";
+import { BitsPerStatus } from "@owf/token-status-list";
 import { Repository } from "typeorm";
 import { StatusListConfig } from "../../../auth/tenant/entitites/status-list-config";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";

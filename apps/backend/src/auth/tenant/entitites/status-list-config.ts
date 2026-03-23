@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import { BitsPerStatus } from "@sd-jwt/jwt-status-list";
+import { BitsPerStatus } from "@owf/token-status-list";
 import { IsBoolean, IsIn, IsInt, IsOptional, Min } from "class-validator";
 
 /**
