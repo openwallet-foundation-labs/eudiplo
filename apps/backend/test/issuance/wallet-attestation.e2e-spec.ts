@@ -222,7 +222,9 @@ async function createStatusListJwt(
     }
 
     const statusList = new StatusList(elements, bits);
-    const compressedList = statusList.compressStatusList();
+    // Convert compressed bytes to base64 for JWT payload
+    const compressedBytes = statusList.compressStatusListToBytes();
+    const compressedList = Buffer.from(compressedBytes).toString("base64url");
 
     const payload = {
         iss: "https://wallet-provider.example.com",

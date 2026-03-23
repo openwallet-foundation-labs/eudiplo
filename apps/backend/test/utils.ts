@@ -650,6 +650,7 @@ export async function setupPresentationTestApp(): Promise<PresentationTestContex
             );
             console.error("Response body:", JSON.stringify(res.body, null, 2));
         }
+        console.log(res.body);
         expect(res.status).toBe(expectedStatus);
         return res;
     }
