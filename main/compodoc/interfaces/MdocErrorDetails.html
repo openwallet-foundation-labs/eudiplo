@@ -377,7 +377,8 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, Logger } from &quot;@nestjs/common&quot;;
+import {
     base64,
     DeviceRequest,
     DeviceResponse,
@@ -386,8 +387,7 @@
     ItemsRequest,
     SessionTranscript,
     Verifier,
-} from &quot;@animo-id/mdoc&quot;;
-import { Injectable, Logger } from &quot;@nestjs/common&quot;;
+} from &quot;@owf/mdoc&quot;;
 import * as x509 from &quot;@peculiar/x509&quot;;
 import { VerifierOptions } from &quot;../../../../shared/trust/types&quot;;
 import { mdocContext } from &quot;../../mdoc-context&quot;;
