@@ -121,7 +121,7 @@ export class WebhookService {
             this.httpService.post(
                 values.webhook.url,
                 {
-                    credentials: values.credentials,
+                    credentials: payloadCredentials,
                     session: values.session.id,
                 },
                 {
