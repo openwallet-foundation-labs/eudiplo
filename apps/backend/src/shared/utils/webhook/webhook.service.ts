@@ -9,6 +9,7 @@ import { SessionService } from "../../../session/session.service";
 import { SessionLoggerService } from "../logger/session-logger.service";
 import { SessionLogContext } from "../logger/session-logger-context";
 import { WebhookConfig } from "./webhook.dto";
+import { extractRawTokenFromSubmission } from './webhook.utils';
 
 /**
  * Response from a webhook to receive credentials.
@@ -68,6 +69,7 @@ export class WebhookService {
         session: Session;
         credentials?: any[];
         expectResponse: boolean;
+        rawPresentationPayload?: any;
     }): Promise<WebhookResponse> {
         const headers: Record<string, string> = {};
 
@@ -75,6 +77,34 @@ export class WebhookService {
             headers[values.webhook.auth.config.headerName] =
                 values.webhook.auth.config.value;
         }
+
+        let payloadCredentials = values.credentials;
+
+        if (
+            payloadCredentials && 
+            values.webhook.includeRawTokensFor?.length && 
+            values.rawPresentationPayload 
+        ) {
+            const requestedIds = values.webhook.includeRawTokensFor;
+            const rawPayload = values.rawPresentationPayload;
+
+            payloadCredentials = payloadCredentials.map(cred => {
+                if (requestedIds.includes(cred.id)) {
+                    // Extract the raw cryptographic token using the utility function
+                    const rawToken = extractRawTokenFromSubmission(cred.id, rawPayload);
+                    return {
+                        ...cred,
+                        rawToken
+                    };
+                }
+                return cred;
+            });
+            
+            this.sessionLogger.logSession(values.logContext, "Appended raw tokens to credentials", {
+                requestedIds
+            });
+        }
+
         this.sessionLogger.logSession(values.logContext, "Sending webhook", {
             webhookUrl: values.webhook.url,
             authType: values.webhook.auth?.type || "none",
