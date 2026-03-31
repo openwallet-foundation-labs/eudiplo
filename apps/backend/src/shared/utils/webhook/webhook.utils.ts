@@ -7,8 +7,8 @@
  * @returns The raw cryptographic token as a string, or null if not found/parseable
  */
 export function extractRawTokenFromSubmission(
-    credentialId: string, 
-    rawPayload: any
+    credentialId: string,
+    rawPayload: any,
 ): string | null {
     try {
         const submission = rawPayload?.presentation_submission;
@@ -19,8 +19,10 @@ export function extractRawTokenFromSubmission(
         }
 
         // Find the entry in the descriptor_map that corresponds to this ID
-        const descriptor = submission.descriptor_map.find((d: any) => d.id === credentialId);
-        
+        const descriptor = submission.descriptor_map.find(
+            (d: any) => d.id === credentialId,
+        );
+
         if (!descriptor) {
             return null;
         }
@@ -29,7 +31,7 @@ export function extractRawTokenFromSubmission(
 
         // Logic according to the OID4VP specification:
         // If vp_token is a single string, the path is usually "$" or "$[0]"
-        if (typeof vpToken === 'string' && (path === '$' || path === '$[0]')) {
+        if (typeof vpToken === "string" && (path === "$" || path === "$[0]")) {
             return vpToken;
         }
 
@@ -46,6 +48,6 @@ export function extractRawTokenFromSubmission(
         return null;
     } catch (error) {
         // Fallback to prevent the webhook from crashing due to a parsing error
-        return null; 
+        return null;
     }
 }

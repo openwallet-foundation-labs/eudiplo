@@ -109,7 +109,7 @@ export class WebhookConfig {
 
     /**
      * Optional array of credential configuration IDs.
-     * If provided, the webhook payload will include the raw cryptographic 
+     * If provided, the webhook payload will include the raw cryptographic
      * presentation (e.g., vp_token) for these specific credentials.
      */
     @IsOptional()
@@ -118,7 +118,8 @@ export class WebhookConfig {
     @ApiProperty({
         required: false,
         type: [String],
-        description: "List of credential IDs to include raw tokens for (e.g., ['sca_credential'])"
+        description:
+            "List of credential IDs to include raw tokens for (e.g., ['sca_credential'])",
     })
     includeRawTokensFor?: string[];
 }

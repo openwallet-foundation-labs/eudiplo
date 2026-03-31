@@ -9,7 +9,7 @@ import { SessionService } from "../../../session/session.service";
 import { SessionLoggerService } from "../logger/session-logger.service";
 import { SessionLogContext } from "../logger/session-logger-context";
 import { WebhookConfig } from "./webhook.dto";
-import { extractRawTokenFromSubmission } from './webhook.utils';
+import { extractRawTokenFromSubmission } from "./webhook.utils";
 
 /**
  * Response from a webhook to receive credentials.
@@ -81,28 +81,35 @@ export class WebhookService {
         let payloadCredentials = values.credentials;
 
         if (
-            payloadCredentials && 
-            values.webhook.includeRawTokensFor?.length && 
-            values.rawPresentationPayload 
+            payloadCredentials &&
+            values.webhook.includeRawTokensFor?.length &&
+            values.rawPresentationPayload
         ) {
             const requestedIds = values.webhook.includeRawTokensFor;
             const rawPayload = values.rawPresentationPayload;
 
-            payloadCredentials = payloadCredentials.map(cred => {
+            payloadCredentials = payloadCredentials.map((cred) => {
                 if (requestedIds.includes(cred.id)) {
                     // Extract the raw cryptographic token using the utility function
-                    const rawToken = extractRawTokenFromSubmission(cred.id, rawPayload);
+                    const rawToken = extractRawTokenFromSubmission(
+                        cred.id,
+                        rawPayload,
+                    );
                     return {
                         ...cred,
-                        rawToken
+                        rawToken,
                     };
                 }
                 return cred;
             });
-            
-            this.sessionLogger.logSession(values.logContext, "Appended raw tokens to credentials", {
-                requestedIds
-            });
+
+            this.sessionLogger.logSession(
+                values.logContext,
+                "Appended raw tokens to credentials",
+                {
+                    requestedIds,
+                },
+            );
         }
 
         this.sessionLogger.logSession(values.logContext, "Sending webhook", {
