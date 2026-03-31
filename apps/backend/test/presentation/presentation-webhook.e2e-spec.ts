@@ -43,6 +43,7 @@ describe("Presentation - Webhook Integration", () => {
         requestId: string;
         credentialId: string;
         webhookUrl?: string;
+        includeRawTokensFor?: string[];
         privateKey: CryptoKey;
         issuerCert: string;
     }) {
@@ -53,6 +54,7 @@ describe("Presentation - Webhook Integration", () => {
                 webhook: {
                     url: values.webhookUrl,
                     auth: { type: AuthConfig.NONE },
+                    includeRawTokensFor: values.includeRawTokensFor,
                 },
             }),
         };
@@ -180,6 +182,41 @@ describe("Presentation - Webhook Integration", () => {
             issuerCert,
             credentialId: "pid",
             webhookUrl: "http://localhost:8787/custom",
+        });
+
+        expect(submitRes).toBeDefined();
+        expect(submitRes.response.status).toBe(200);
+        expect(nock.isDone()).toBe(true);
+    });
+
+    test("webhook with raw token pass-through", async () => {
+        // Wir erwarten, dass der Webhook-Body jetzt das Feld 'rawToken' enthält
+        nock("http://localhost:8787")
+            .post("/raw-token-test", (body) => {
+                expect(body).toBeDefined();
+                expect(body.credentials).toBeDefined();
+                expect(body.credentials[0].id).toBe("pid");
+
+                // DAS IST DER ENTSCHEIDENDE CHECK:
+                expect(body.credentials[0].rawToken).toBeDefined();
+                expect(typeof body.credentials[0].rawToken).toBe("string");
+
+                // Optional: Prüfen, ob es wie ein JWT/JWS aussieht (3 Teile mit Punkt)
+                expect(
+                    body.credentials[0].rawToken.split(".").length,
+                ).toBeGreaterThanOrEqual(2);
+
+                return true;
+            })
+            .reply(200);
+
+        const { submitRes } = await submitPresentation({
+            requestId: "pid",
+            privateKey: privateIssuerKey,
+            issuerCert,
+            credentialId: "pid",
+            webhookUrl: "http://localhost:8787/raw-token-test",
+            includeRawTokensFor: ["pid"], // Wir fordern das Token für 'pid' an
         });
 
         expect(submitRes).toBeDefined();
