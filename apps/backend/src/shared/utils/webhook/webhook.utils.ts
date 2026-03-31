@@ -1,53 +1,49 @@
 /**
- * Extracts the raw token (e.g., SD-JWT, mDoc) for a specific credential ID
- * based on the OpenID4VP presentation_submission descriptor_map.
- *
- * @param credentialId The ID of the credential requested (e.g., 'sca_credential')
- * @param rawPayload The raw OID4VP presentation response from the wallet
- * @returns The raw cryptographic token as a string, or null if not found/parseable
+ * Extracts the raw cryptographic token from the presentation payload.
+ * Supporting Multi-Credential-Flows by evaluating the descriptor_map or falling back to ID-mapping.
  */
 export function extractRawTokenFromSubmission(
-    credentialId: string,
-    rawPayload: any,
-): string | null {
-    try {
-        const submission = rawPayload?.presentation_submission;
-        const vpToken = rawPayload?.vp_token;
+    id: string, 
+    payload: { vp_token?: unknown; presentation_submission?: any } | null | undefined
+): string | undefined {
+    const vpToken = payload?.vp_token;
+    if (!vpToken) return undefined;
 
-        if (!submission?.descriptor_map || !vpToken) {
-            return null;
+    // 1. PRIMARY STRATEGY: Use the descriptor_map
+    const descriptor = payload?.presentation_submission?.descriptor_map?.find(
+        (d: any) => d.id === id
+    );
+
+    if (descriptor && Array.isArray(vpToken)) {
+        const path = descriptor.path as string;
+
+        // Path is "$" or "$[0]" -> First element
+        if (path === "$" || path === "$[0]") {
+            return typeof vpToken[0] === 'string' ? vpToken[0] : undefined;
         }
 
-        // Find the entry in the descriptor_map that corresponds to this ID
-        const descriptor = submission.descriptor_map.find(
-            (d: any) => d.id === credentialId,
-        );
-
-        if (!descriptor) {
-            return null;
+        // Path is an index like "$[1]" (Crucial for Multi-Credential-Flows!)
+        const indexMatch = path.match(/^\$\[(\d+)\]$/);
+        if (indexMatch) {
+            const index = parseInt(indexMatch[1], 10);
+            return typeof vpToken[index] === 'string' ? vpToken[index] : undefined;
         }
-
-        const path = descriptor.path; // e.g., "$", "$[0]", "$[1]"
-
-        // Logic according to the OID4VP specification:
-        // If vp_token is a single string, the path is usually "$" or "$[0]"
-        if (typeof vpToken === "string" && (path === "$" || path === "$[0]")) {
-            return vpToken;
-        }
-
-        // If vp_token is an array (multiple presentations in a single request)
-        if (Array.isArray(vpToken)) {
-            // Parse the JSONPath (basic implementation for $[0], $[1], etc.)
-            const match = path.match(/\$\[(\d+)\]/);
-            if (match && match[1]) {
-                const index = parseInt(match[1], 10);
-                return vpToken[index] || null;
-            }
-        }
-
-        return null;
-    } catch (error) {
-        // Fallback to prevent the webhook from crashing due to a parsing error
-        return null;
     }
+
+    // 2. FALLBACK STRATEGY: ID-Mapping
+    if (typeof vpToken === 'object' && vpToken !== null && !Array.isArray(vpToken)) {
+        const mapping = vpToken as Record<string, unknown>;
+        if (Object.prototype.hasOwnProperty.call(mapping, id)) {
+            const tokenForId = mapping[id];
+            if (Array.isArray(tokenForId)) return typeof tokenForId[0] === 'string' ? tokenForId[0] : undefined;
+            if (typeof tokenForId === 'string') return tokenForId;
+        }
+    }
+
+    // 3. LAST RESORT: Simple String (Single credential flow)
+    if (typeof vpToken === 'string') {
+        return vpToken;
+    }
+
+    return undefined;
 }
