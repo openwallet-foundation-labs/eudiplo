@@ -29,3 +29,60 @@ be requested from users.
 !!! Info
 
     If no webhook is configured, the presentation result can be fetched by querying the `/session` endpoint with the `sessionId`.
+
+---
+
+## Configuring Trust Lists for Verification
+
+To validate that a credential was issued by a trusted entity, you can configure trust lists per credential inside the DCQL query using the `trusted_authorities` field on each credential query.
+
+This follows the [OID4VP Trusted Authorities Query](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-trusted-authorities-query) specification.
+
+### Structure
+
+Each entry in `trusted_authorities` specifies:
+
+- `type`: The trust framework type. Supported values:
+    - `etsi_tl` — ETSI TS 119 602 List of Trusted Entities (LoTE)
+    - `aki` — Authority Key Identifier
+- `values`: Array of trust anchors. For `etsi_tl`, these are URLs pointing to signed LoTE JWTs.
+
+### Example
+
+```json
+{
+    "id": "pid-mso-mdoc",
+    "format": "mso_mdoc",
+    "meta": {
+        "doctype_value": "eu.europa.ec.eudi.pid.1"
+    },
+    "claims": [
+        {
+            "path": ["eu.europa.ec.eudi.pid.1", "age_over_18"]
+        }
+    ],
+    "trusted_authorities": [
+        {
+            "type": "etsi_tl",
+            "values": [
+                "https://example.com/trust-list/pid-provider.jwt"
+            ]
+        }
+    ]
+}
+```
+
+During verification, EUDIPLO will:
+
+1. Fetch the LoTE JWT(s) from the provided URLs
+2. Parse the trusted entities and their certificates
+3. Validate that the credential's issuer certificate chains to one of the trusted entities
+4. Ensure the status list (if present) is signed by the revocation certificate from the **same** trusted entity
+
+!!! warning "Trust validation is opt-in per credential"
+
+    If `trusted_authorities` is not specified on a credential query, trust list validation is **skipped** for that credential. To enforce trust validation, always include `trusted_authorities` in your DCQL credential queries.
+
+!!! tip "Using your own trust lists"
+
+    You can reference trust lists published by your own EUDIPLO instance at `/{tenantId}/trust-list/{trustListId}`. You can also use the `<TENANT_URL>` placeholder in trust list URLs, which will be replaced with the tenant's base URL at runtime. See [Trust Framework](../../architecture/trust-framework.md) for details on creating and managing trust lists.
