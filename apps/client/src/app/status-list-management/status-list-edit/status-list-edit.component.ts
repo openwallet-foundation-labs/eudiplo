@@ -57,7 +57,7 @@ export class StatusListEditComponent implements OnInit {
   /** Available credential configs for binding */
   credentialConfigs: CredentialConfig[] = [];
 
-  /** Available key chains with statusList usage */
+  /** Available key chains with statusList or attestation usage */
   keyChains: KeyChainResponseDto[] = [];
 
   /** Available bits per status options */
@@ -102,7 +102,8 @@ export class StatusListEditComponent implements OnInit {
 
       this.credentialConfigs = configsResponse.data || [];
       this.keyChains = (keyChainResponse.data || []).filter(
-        (kc: KeyChainResponseDto) => kc.usageType === 'statusList'
+        (kc: KeyChainResponseDto) =>
+          kc.usageType === 'statusList' || kc.usageType === 'attestation'
       );
 
       if (this.listId) {

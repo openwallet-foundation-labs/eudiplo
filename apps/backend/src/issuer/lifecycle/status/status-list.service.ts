@@ -144,6 +144,7 @@ export class StatusListService {
             const cert = await this.certService.find({
                 tenantId,
                 type: KeyUsageType.StatusList,
+                fallbackType: KeyUsageType.Attestation,
                 keyId: options.keyChainId,
             });
             if (!cert) {
@@ -199,16 +200,19 @@ export class StatusListService {
             ttl, // Maximum cache time in seconds for verifiers
         };
 
-        // Use the pinned key chain if specified, otherwise use the tenant's default status list key chain
+        // Use the pinned key chain if specified, otherwise use the tenant's default status list key chain.
+        // Falls back to attestation key chains when no dedicated status list key exists.
         const cert = entry.keyChainId
             ? await this.certService.find({
                   tenantId: entry.tenantId,
                   type: KeyUsageType.StatusList,
+                  fallbackType: KeyUsageType.Attestation,
                   keyId: entry.keyChainId,
               })
             : await this.certService.find({
                   tenantId: entry.tenantId,
                   type: KeyUsageType.StatusList,
+                  fallbackType: KeyUsageType.Attestation,
               });
 
         if (!cert) {
@@ -541,6 +545,7 @@ export class StatusListService {
             const cert = await this.certService.find({
                 tenantId,
                 type: KeyUsageType.StatusList,
+                fallbackType: KeyUsageType.Attestation,
                 keyId: updates.keyChainId,
             });
             if (!cert) {
@@ -640,6 +645,7 @@ export class StatusListService {
             const cert = await this.certService.find({
                 tenantId,
                 type: KeyUsageType.StatusList,
+                fallbackType: KeyUsageType.Attestation,
                 keyId: config.keyChainId,
             });
             if (!cert) {

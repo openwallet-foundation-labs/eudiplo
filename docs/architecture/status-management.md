@@ -212,6 +212,23 @@ certificate. You can pin a specific certificate to a status list for:
 - Compliance with specific signing requirements
 - Isolation of signing keys per use case
 
+### Signing Key Resolution
+
+When signing a status list JWT, EUDIPLO looks for a key chain with usage type
+`statusList`. If no dedicated status list key chain exists for the tenant, it
+automatically falls back to the `attestation` key chain. This ensures that
+status lists share the same trust anchor as the issued credentials, which is
+required by wallets that validate the authority of the revocation provider
+against the credential issuer (e.g., Paradym/Credo).
+
+!!! tip "Shared Trust Chain"
+
+    If your deployment policy does **not** require the status list to be signed
+    under the same trust anchor as the credentials, you can create a separate
+    `statusList` key chain (e.g., Standalone / self-signed). This is useful when
+    the security level required for status list protection differs from that of
+    credential signatures.
+
 ## API Operations
 
 The Status Management API provides endpoints for managing status lists and
