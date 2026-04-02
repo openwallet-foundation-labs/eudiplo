@@ -428,6 +428,14 @@ export class Oid4vpService {
                         session,
                         credentials,
                         expectResponse: false,
+                        // ==========================================================
+                        // Direct Pass-through of the raw presentation payload.
+                        // We intentionally do not persist this in the database (Session entity)
+                        // to adhere to privacy-by-design principles (data minimization).
+                        // Since webhooks currently do not support retries, keeping
+                        // the raw PII/tokens only in memory for this call is sufficient.
+                        // ==========================================================
+                        rawPresentationPayload: decrypted,
                     })
                     .catch((error) => {
                         this.sessionLogger.logFlowError(

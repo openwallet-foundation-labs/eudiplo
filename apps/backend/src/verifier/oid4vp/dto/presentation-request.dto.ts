@@ -5,7 +5,6 @@ import {
     IsObject,
     IsOptional,
     IsString,
-    ValidateNested,
 } from "class-validator";
 import { WebhookConfig } from "../../../shared/utils/webhook/webhook.dto";
 import { TransactionData } from "../../presentations/entities/presentation-config.entity";
