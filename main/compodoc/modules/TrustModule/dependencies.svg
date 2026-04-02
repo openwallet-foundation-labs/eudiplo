@@ -24,13 +24,13 @@
 <title>cluster_TrustModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="8,-70 8,-268 1272,-268 1272,-70 8,-70"/>
 </g>
-<g id="clust6" class="cluster">
-<title>cluster_TrustModule_providers</title>
-<polygon fill="none" stroke="black" points="16,-78 16,-130 1264,-130 1264,-78 16,-78"/>
-</g>
 <g id="clust4" class="cluster">
 <title>cluster_TrustModule_exports</title>
 <polygon fill="none" stroke="black" points="318,-208 318,-260 982,-260 982,-208 318,-208"/>
+</g>
+<g id="clust6" class="cluster">
+<title>cluster_TrustModule_providers</title>
+<polygon fill="none" stroke="black" points="16,-78 16,-130 1264,-130 1264,-78 16,-78"/>
 </g>
 <!-- StatusListVerifierService  -->
 <g id="node1" class="node">
