@@ -24,7 +24,6 @@ import { UpdateClientDto } from "./dto/update-client.dto";
  * Controller to manage clients.
  */
 @ApiTags("Client")
-@Secured([Role.Clients, Role.Tenants])
 @Controller("client")
 export class ClientController {
     constructor(
@@ -36,6 +35,7 @@ export class ClientController {
      * @param user
      * @returns
      */
+    @Secured([Role.Clients])
     @Get()
     getClients(@Token() user: TokenPayload) {
         return this.clients.getClients(user.entity!.id);
@@ -47,6 +47,7 @@ export class ClientController {
      * @param user
      * @returns
      */
+    @Secured([Role.Clients])
     @Get(":id")
     getClient(@Param("id") id: string, @Token() user: TokenPayload) {
         return this.clients.getClient(user.entity!.id, id);
@@ -59,6 +60,7 @@ export class ClientController {
      * @param user
      * @returns
      */
+    @Secured([Role.Clients])
     @Get(":id/secret")
     getClientSecret(
         @Param("id") id: string,
@@ -81,6 +83,7 @@ export class ClientController {
      * @param user
      * @returns The new client secret (displayed only once)
      */
+    @Secured([Role.Clients, Role.Tenants])
     @Post(":id/rotate-secret")
     async rotateClientSecret(
         @Param("id") id: string,
@@ -102,6 +105,7 @@ export class ClientController {
      * @param user
      * @returns
      */
+    @Secured([Role.Clients])
     @Patch(":id")
     updateClient(
         @Param("id") id: string,
@@ -126,6 +130,7 @@ export class ClientController {
      * @param user
      * @returns
      */
+    @Secured([Role.Clients])
     @Post()
     createClient(
         @Body() createClientDto: CreateClientDto,
@@ -149,6 +154,7 @@ export class ClientController {
      * @param user
      * @returns
      */
+    @Secured([Role.Clients])
     @Delete(":id")
     deleteClient(@Param("id") id: string, @Token() user: TokenPayload) {
         return this.clients.removeClient(user.entity!.id, id);
