@@ -117,10 +117,15 @@ The **presentation webhook** receives verified claims from the wallet after a pr
                 "headerName": "x-api-key",
                 "value": "your-api-key"
             }
-        }
+        },
+        "includeRawTokensFor": ["pid"]
     }
 }
 ```
+
+!!! info "Raw Token Pass-Through"
+
+    By default, EUDIPLO only forwards the extracted claims. If your use case requires the original cryptographic proof, you can use the optional `includeRawTokensFor` array to specify credential IDs. The raw `vp_token` will then be appended to those specific credentials.
 
 ### Webhook Request Format
 
@@ -131,6 +136,7 @@ EUDIPLO sends an HTTP `POST` request with the following structure:
     - `values`: The claims presented by the wallet.
         - SD-JWT VC–specific fields (e.g., `cnf`, `status`) are removed for simplicity.
     - `error`: Present instead of `values` if verification failed.
+    - `rawToken`: (Optional) The raw cryptographic proof (the `vp_token`), present only if explicitly requested via `includeRawTokensFor`.
 - `session`: The session ID identifying the request.
 
 ```json
@@ -147,7 +153,8 @@ EUDIPLO sends an HTTP `POST` request with the following structure:
                     "postal_code": "51147",
                     "street_address": "HEIDESTRAẞE 17"
                 }
-            }
+            },
+            "rawToken": "eyJ0eXAiOiJkYytzZC1qd3QiLCJhbGciOiJFUzI1NiJ9..."
         },
         {
             "id": "citizen",

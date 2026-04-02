@@ -6,6 +6,8 @@ import {
     IsObject,
     IsString,
     ValidateNested,
+    IsArray,
+    IsOptional,
 } from "class-validator";
 
 /**
@@ -104,4 +106,20 @@ export class WebhookConfig {
     })
     @IsObject()
     auth!: WebHookAuthConfigNone | WebHookAuthConfigHeader;
+
+    /**
+     * Optional array of credential configuration IDs.
+     * If provided, the webhook payload will include the raw cryptographic
+     * presentation (e.g., vp_token) for these specific credentials.
+     */
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    @ApiProperty({
+        required: false,
+        type: [String],
+        description:
+            "List of credential IDs to include raw tokens for (e.g., ['sca_credential'])",
+    })
+    includeRawTokensFor?: string[];
 }
