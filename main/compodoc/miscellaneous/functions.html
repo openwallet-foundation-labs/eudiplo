@@ -152,6 +152,9 @@
                             <a href="#extractDpopJkt" title="src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts" ><b>extractDpopJkt</b>&nbsp;&nbsp;&nbsp;(src/.../chained-as.service.ts)</a>
                         </li>
                         <li>
+                            <a href="#extractRawTokenFromSubmission" title="src/shared/utils/webhook/webhook.utils.ts" ><b>extractRawTokenFromSubmission</b>&nbsp;&nbsp;&nbsp;(src/.../webhook.utils.ts)</a>
+                        </li>
+                        <li>
                             <a href="#filterOpenApiPaths" title="src/main.ts" ><b>filterOpenApiPaths</b>&nbsp;&nbsp;&nbsp;(src/.../main.ts)</a>
                         </li>
                         <li>
@@ -1344,6 +1347,83 @@ Returns undefined if parsing fails or DPoP is not provided.</p>
 
                                             <td>
                                                     Yes
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>string | undefined</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/shared/utils/webhook/webhook.utils.ts</h3>
+    <section data-compodoc="block-methods">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="extractRawTokenFromSubmission"></a>
+                    <span class="name">
+                        <span ><b>extractRawTokenFromSubmission</b></span>
+                        <a href="#extractRawTokenFromSubmission"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>extractRawTokenFromSubmission(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, payload)</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Extracts the raw cryptographic token from the presentation payload.
+Supporting Multi-Credential-Flows by evaluating the descriptor_map or falling back to ID-mapping.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>payload</td>
+                                            <td>
+                                            </td>
+
+                                            <td>
+                                                    No
                                             </td>
 
 

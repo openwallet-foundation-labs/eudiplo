@@ -2890,10 +2890,15 @@ This confirms that the wallet has received and accepted the credential.</p>
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">                </span><span class="nt">"headerName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"x-api-key"</span><span class="p">,</span>
 <a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">                </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"your-api-key"</span>
 <a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">            </span><span class="p">}</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="p">}</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">        </span><span class="nt">"includeRawTokensFor"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"pid"</span><span class="p">]</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="p">}</span>
 </code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">Raw Token Pass-Through</p>
+<p>By default, EUDIPLO only forwards the extracted claims. If your use case requires the original cryptographic proof, you can use the optional <code>includeRawTokensFor</code> array to specify credential IDs. The raw <code>vp_token</code> will then be appended to those specific credentials.</p>
+</div>
 <h3 id="webhook-request-format">Webhook Request Format<a class="headerlink" href="#webhook-request-format" title="Permanent link">¶</a></h3>
 <p>EUDIPLO sends an HTTP <code>POST</code> request with the following structure:</p>
 <ul>
@@ -2904,6 +2909,7 @@ This confirms that the wallet has received and accepted the credential.</p>
 </ul>
 </li>
 <li><code>error</code>: Present instead of <code>values</code> if verification failed.</li>
+<li><code>rawToken</code>: (Optional) The raw cryptographic proof (the <code>vp_token</code>), present only if explicitly requested via <code>includeRawTokensFor</code>.</li>
 </ul>
 </li>
 <li><code>session</code>: The session ID identifying the request.</li>
@@ -2921,15 +2927,16 @@ This confirms that the wallet has received and accepted the credential.</p>
 <a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">                    </span><span class="nt">"postal_code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"51147"</span><span class="p">,</span>
 <a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">                    </span><span class="nt">"street_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"HEIDESTRAẞE 17"</span>
 <a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">                </span><span class="p">}</span>
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">            </span><span class="p">}</span>
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">        </span><span class="p">{</span>
-<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"citizen"</span><span class="p">,</span>
-<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">            </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Credential verification failed: invalid signature"</span>
-<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">    </span><span class="p">],</span>
-<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="w">    </span><span class="nt">"session"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a6318799-dff4-4b60-9d1d-58703611bd23"</span>
-<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="p">}</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">            </span><span class="p">},</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">            </span><span class="nt">"rawToken"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJ0eXAiOiJkYytzZC1qd3QiLCJhbGciOiJFUzI1NiJ9..."</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"citizen"</span><span class="p">,</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="w">            </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Credential verification failed: invalid signature"</span>
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="w">    </span><span class="p">],</span>
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="w">    </span><span class="nt">"session"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a6318799-dff4-4b60-9d1d-58703611bd23"</span>
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="p">}</span>
 </code></pre></div>
 <div class="admonition info">
 <p class="admonition-title">Info</p>

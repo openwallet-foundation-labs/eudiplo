@@ -208,7 +208,7 @@ Can include claims data for immediate issuance or a deferred flag for deferred i
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/shared/utils/webhook/webhook.service.ts:31</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/shared/utils/webhook/webhook.service.ts:32</a></div>
                             </td>
                         </tr>
                 <tr>
@@ -374,6 +374,7 @@ import { SessionService } from &quot;../../../session/session.service&quot;;
 import { SessionLoggerService } from &quot;../logger/session-logger.service&quot;;
 import { SessionLogContext } from &quot;../logger/session-logger-context&quot;;
 import { WebhookConfig } from &quot;./webhook.dto&quot;;
+import { extractRawTokenFromSubmission } from &quot;./webhook.utils&quot;;
 
 /**
  * Response from a webhook to receive credentials.
@@ -433,6 +434,7 @@ export class WebhookService {
         session: Session;
         credentials?: any[];
         expectResponse: boolean;
+        rawPresentationPayload?: any;
     }): Promise&lt;WebhookResponse&gt; {
         const headers: Record&lt;string, string&gt; &#x3D; {};
 
@@ -440,6 +442,41 @@ export class WebhookService {
             headers[values.webhook.auth.config.headerName] &#x3D;
                 values.webhook.auth.config.value;
         }
+
+        let payloadCredentials &#x3D; values.credentials;
+
+        if (
+            payloadCredentials &amp;&amp;
+            values.webhook.includeRawTokensFor?.length &amp;&amp;
+            values.rawPresentationPayload
+        ) {
+            const requestedIds &#x3D; values.webhook.includeRawTokensFor;
+            const rawPayload &#x3D; values.rawPresentationPayload;
+
+            payloadCredentials &#x3D; payloadCredentials.map((cred) &#x3D;&gt; {
+                if (requestedIds.includes(cred.id)) {
+                    // Extract the raw cryptographic token using the utility function
+                    const rawToken &#x3D; extractRawTokenFromSubmission(
+                        cred.id,
+                        rawPayload,
+                    );
+                    return {
+                        ...cred,
+                        rawToken,
+                    };
+                }
+                return cred;
+            });
+
+            this.sessionLogger.logSession(
+                values.logContext,
+                &quot;Appended raw tokens to credentials&quot;,
+                {
+                    requestedIds,
+                },
+            );
+        }
+
         this.sessionLogger.logSession(values.logContext, &quot;Sending webhook&quot;, {
             webhookUrl: values.webhook.url,
             authType: values.webhook.auth?.type || &quot;none&quot;,
@@ -449,7 +486,7 @@ export class WebhookService {
             this.httpService.post(
                 values.webhook.url,
                 {
-                    credentials: values.credentials,
+                    credentials: payloadCredentials,
                     session: values.session.id,
                 },
                 {

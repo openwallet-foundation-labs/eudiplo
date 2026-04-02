@@ -230,7 +230,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="51" class="link-to-prism">src/shared/utils/webhook/webhook.dto.ts:51</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">src/shared/utils/webhook/webhook.dto.ts:53</a></div>
                         </td>
                     </tr>
 
@@ -274,7 +274,7 @@ This is required if the type is &#39;apiKey&#39;.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">src/shared/utils/webhook/webhook.dto.ts:44</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="46" class="link-to-prism">src/shared/utils/webhook/webhook.dto.ts:46</a></div>
                         </td>
                     </tr>
 
@@ -307,6 +307,8 @@ import {
     IsObject,
     IsString,
     ValidateNested,
+    IsArray,
+    IsOptional,
 } from &quot;class-validator&quot;;
 
 /**
@@ -405,6 +407,22 @@ export class WebhookConfig {
     })
     @IsObject()
     auth!: WebHookAuthConfigNone | WebHookAuthConfigHeader;
+
+    /**
+     * Optional array of credential configuration IDs.
+     * If provided, the webhook payload will include the raw cryptographic
+     * presentation (e.g., vp_token) for these specific credentials.
+     */
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    @ApiProperty({
+        required: false,
+        type: [String],
+        description:
+            &quot;List of credential IDs to include raw tokens for (e.g., [&#x27;sca_credential&#x27;])&quot;,
+    })
+    includeRawTokensFor?: string[];
 }
 </code></pre>
     </div>
