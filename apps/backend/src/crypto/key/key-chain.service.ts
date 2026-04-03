@@ -578,11 +578,16 @@ export class KeyChainService {
 
     /**
      * Find a key chain by usage type.
+     * If a fallbackUsageType is provided and no key chain is found for
+     * the primary type, a second lookup is performed with the fallback.
+     * This enables attestation keys to also sign status lists when no
+     * dedicated status-list key chain has been configured.
      */
     async findByUsageType(
         tenantId: string,
         usageType: KeyUsageType,
         keyId?: string,
+        fallbackUsageType?: KeyUsageType,
     ): Promise<KeyChainEntity> {
         const whereClause: Record<string, unknown> = {
             tenantId,
@@ -593,13 +598,29 @@ export class KeyChainService {
             whereClause.id = keyId;
         }
 
-        const keyChain = await this.keyChainRepository.findOne({
+        let keyChain = await this.keyChainRepository.findOne({
             where: whereClause,
         });
 
+        if (!keyChain && fallbackUsageType) {
+            const fallbackWhere: Record<string, unknown> = {
+                tenantId,
+                usageType: fallbackUsageType,
+            };
+            if (keyId) {
+                fallbackWhere.id = keyId;
+            }
+            keyChain = await this.keyChainRepository.findOne({
+                where: fallbackWhere,
+            });
+        }
+
         if (!keyChain) {
+            const types = fallbackUsageType
+                ? `'${usageType}' or '${fallbackUsageType}'`
+                : `'${usageType}'`;
             throw new NotFoundException(
-                `No key chain found with usage type '${usageType}' for tenant ${tenantId}`,
+                `No key chain found with usage type ${types} for tenant ${tenantId}`,
             );
         }
 

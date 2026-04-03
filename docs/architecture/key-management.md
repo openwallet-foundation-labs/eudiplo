@@ -330,6 +330,13 @@ Each key chain is assigned a usage type that determines how it can be used:
 | `statusList`  | Status list (credential revocation) signing        |
 | `encrypt`     | Encryption (JWE)                                   |
 
+!!! note "Attestation fallback for status lists"
+
+    If no `statusList` key chain is configured, the `attestation` key chain is
+    used as a fallback for signing status list JWTs. This keeps status lists
+    under the same trust anchor as the issued credentials. Create a dedicated
+    `statusList` key chain only when a different signing key is required.
+
 ### Key Chain Types
 
 **Standalone Key Chain**:

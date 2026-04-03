@@ -22,6 +22,11 @@ export interface FindCertOptions {
      */
     keyId?: string;
     /**
+     * Optional fallback usage type. If no key chain is found for the
+     * primary `type`, a second lookup using this type is attempted.
+     */
+    fallbackType?: KeyUsageType;
+    /**
      * Skip certificate validation (expiry and CRL check).
      * Default: false
      */
@@ -83,7 +88,7 @@ export class CertService {
      * Returns the certificate from the matching key chain.
      */
     async find(options: FindCertOptions): Promise<CertificateInfo> {
-        const { tenantId, type, skipValidation } = options;
+        const { tenantId, type, skipValidation, fallbackType } = options;
         // Support both certId (deprecated) and keyId
         const keyId = options.keyId || options.certId;
 
@@ -91,6 +96,7 @@ export class CertService {
             tenantId,
             type,
             keyId,
+            fallbackType,
         );
 
         // Parse the certificate PEM to extract chain
