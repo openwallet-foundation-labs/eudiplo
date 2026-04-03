@@ -14,14 +14,6 @@ scrape_configs:
     scrape_interval: 30s
     scrape_timeout: 10s
 
-  # For local development: collector on localhost
-  - job_name: 'otel-collector-local'
-    static_configs:
-      - targets: ['host.docker.internal:8889']
-    scrape_interval: 30s
-    scrape_timeout: 10s
-    # This job will fail when local collector is not running, which is fine
-
 # Alerting configuration (optional)
 # alerting:
 #   alertmanagers:
