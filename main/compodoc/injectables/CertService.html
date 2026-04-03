@@ -237,7 +237,7 @@ This service provides a compatibility layer for existing consumers.</p>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="71" class="link-to-prism">src/crypto/key/cert/cert.service.ts:71</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="76" class="link-to-prism">src/crypto/key/cert/cert.service.ts:76</a></div>
                             </td>
                         </tr>
 
@@ -338,8 +338,8 @@ This service provides a compatibility layer for existing consumers.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="239"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:239</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="245"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:245</a></div>
                         </td>
                     </tr>
 
@@ -422,8 +422,8 @@ Used for storing certificates obtained from external sources (e.g., registrar).<
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="85"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:85</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="90"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:90</a></div>
                         </td>
                     </tr>
 
@@ -494,8 +494,8 @@ Returns the certificate from the matching key chain.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="127"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:127</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="133"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:133</a></div>
                         </td>
                     </tr>
 
@@ -565,8 +565,8 @@ so this just returns the existing one.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="157"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:157</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="163"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:163</a></div>
                         </td>
                     </tr>
 
@@ -635,8 +635,8 @@ Used for the x5c header in JWTs.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="290"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:290</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="296"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:296</a></div>
                         </td>
                     </tr>
 
@@ -707,8 +707,8 @@ Returns the hash as a base64url-encoded string.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="134"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:134</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="140"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:140</a></div>
                         </td>
                     </tr>
 
@@ -790,8 +790,8 @@ Returns the hash as a base64url-encoded string.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="230"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:230</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="236"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:236</a></div>
                         </td>
                     </tr>
 
@@ -831,8 +831,8 @@ Returns the hash as a base64url-encoded string.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="268"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:268</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="274"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:274</a></div>
                         </td>
                     </tr>
 
@@ -902,8 +902,8 @@ Returns the hash as a base64url-encoded string.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="177"
-                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:177</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="183"
+                                    class="link-to-prism">src/crypto/key/cert/cert.service.ts:183</a></div>
                         </td>
                     </tr>
 
@@ -983,7 +983,7 @@ Returns the hash as a base64url-encoded string.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="71" class="link-to-prism">src/crypto/key/cert/cert.service.ts:71</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="76" class="link-to-prism">src/crypto/key/cert/cert.service.ts:76</a></div>
                         </td>
                     </tr>
 
@@ -1019,6 +1019,11 @@ export interface FindCertOptions {
      * Optional key chain ID to find a specific key chain.
      */
     keyId?: string;
+    /**
+     * Optional fallback usage type. If no key chain is found for the
+     * primary &#x60;type&#x60;, a second lookup using this type is attempted.
+     */
+    fallbackType?: KeyUsageType;
     /**
      * Skip certificate validation (expiry and CRL check).
      * Default: false
@@ -1081,7 +1086,7 @@ export class CertService {
      * Returns the certificate from the matching key chain.
      */
     async find(options: FindCertOptions): Promise&lt;CertificateInfo&gt; {
-        const { tenantId, type, skipValidation } &#x3D; options;
+        const { tenantId, type, skipValidation, fallbackType } &#x3D; options;
         // Support both certId (deprecated) and keyId
         const keyId &#x3D; options.keyId || options.certId;
 
@@ -1089,6 +1094,7 @@ export class CertService {
             tenantId,
             type,
             keyId,
+            fallbackType,
         );
 
         // Parse the certificate PEM to extract chain

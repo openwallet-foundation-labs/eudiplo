@@ -476,8 +476,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1198"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1198</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1219"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1219</a></div>
                         </td>
                     </tr>
 
@@ -1372,8 +1372,8 @@ Used for encryption keys (e.g., ECDH-ES) that don&#39;t need certificates.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="648"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:648</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="669"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:669</a></div>
                         </td>
                     </tr>
 
@@ -1532,22 +1532,26 @@ Includes private key material so the output can be saved as a JSON config file.<
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>findByUsageType(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, usageType: <a href="../miscellaneous/enumerations.html#KeyUsageType" target="_self">KeyUsageType</a>, keyId?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>findByUsageType(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, usageType: <a href="../miscellaneous/enumerations.html#KeyUsageType" target="_self">KeyUsageType</a>, keyId?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, fallbackUsageType?: <a href="../miscellaneous/enumerations.html#KeyUsageType" target="_self">KeyUsageType</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="582"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:582</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="586"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:586</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Find a key chain by usage type.</p>
+                        <div class="io-description"><p>Find a key chain by usage type.
+If a fallbackUsageType is provided and no key chain is found for
+the primary type, a second lookup is performed with the fallback.
+This enables attestation keys to also sign status lists when no
+dedicated status-list key chain has been configured.</p>
 </div>
 
                             <div class="io-description">
@@ -1598,6 +1602,18 @@ Includes private key material so the output can be saved as a JSON config file.<
 
 
                                         </tr>
+                                        <tr>
+                                                <td>fallbackUsageType</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/enumerations.html#KeyUsageType" target="_self" >KeyUsageType</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -1634,8 +1650,8 @@ Includes private key material so the output can be saved as a JSON config file.<
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1102"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1102</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1123"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1123</a></div>
                         </td>
                     </tr>
 
@@ -1673,8 +1689,8 @@ Includes private key material so the output can be saved as a JSON config file.<
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="978"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:978</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="999"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:999</a></div>
                         </td>
                     </tr>
 
@@ -1756,8 +1772,8 @@ Includes private key material so the output can be saved as a JSON config file.<
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="962"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:962</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="983"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:983</a></div>
                         </td>
                     </tr>
 
@@ -2148,8 +2164,8 @@ Includes private key material so the output can be saved as a JSON config file.<
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1079"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1079</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1100"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1100</a></div>
                         </td>
                     </tr>
 
@@ -2219,8 +2235,8 @@ Includes private key material so the output can be saved as a JSON config file.<
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1097"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1097</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1118"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1118</a></div>
                         </td>
                     </tr>
 
@@ -2258,8 +2274,8 @@ Includes private key material so the output can be saved as a JSON config file.<
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1071"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1071</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1092"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1092</a></div>
                         </td>
                     </tr>
 
@@ -2370,8 +2386,8 @@ If no config file exists, returns the default &#39;db&#39; provider.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1108"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1108</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1129"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1129</a></div>
                         </td>
                     </tr>
 
@@ -2437,8 +2453,8 @@ If no config file exists, returns the default &#39;db&#39; provider.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1043"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1043</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1064"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1064</a></div>
                         </td>
                     </tr>
 
@@ -2541,8 +2557,8 @@ If no config file exists, returns the default &#39;db&#39; provider.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1044"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1044</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1065"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1065</a></div>
                         </td>
                     </tr>
 
@@ -2634,8 +2650,8 @@ If no config file exists, returns the default &#39;db&#39; provider.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1049"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1049</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1070"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1070</a></div>
                         </td>
                     </tr>
 
@@ -2727,8 +2743,8 @@ If no config file exists, returns the default &#39;db&#39; provider.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="970"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:970</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="991"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:991</a></div>
                         </td>
                     </tr>
 
@@ -2810,8 +2826,8 @@ If no config file exists, returns the default &#39;db&#39; provider.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="667"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:667</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="688"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:688</a></div>
                         </td>
                     </tr>
 
@@ -2886,8 +2902,8 @@ If no config file exists, returns the default &#39;db&#39; provider.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="701"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:701</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="722"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:722</a></div>
                         </td>
                     </tr>
 
@@ -2973,8 +2989,8 @@ which requires credential signing certificates to NOT be self-signed.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="786"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:786</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="807"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:807</a></div>
                         </td>
                     </tr>
 
@@ -3105,8 +3121,8 @@ The imported key becomes the root CA, and a new leaf key is generated.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="878"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:878</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="899"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:899</a></div>
                         </td>
                     </tr>
 
@@ -3189,8 +3205,8 @@ Creates new key material and certificate, moves current to previous.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="992"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:992</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1013"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1013</a></div>
                         </td>
                     </tr>
 
@@ -3274,8 +3290,8 @@ Otherwise uses the first available key chain.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1014"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1014</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1035"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1035</a></div>
                         </td>
                     </tr>
 
@@ -3452,8 +3468,8 @@ Otherwise uses the first available key chain.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1177"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1177</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1198"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1198</a></div>
                         </td>
                     </tr>
 
@@ -3521,8 +3537,8 @@ Otherwise uses the first available key chain.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1165"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1165</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1186"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1186</a></div>
                         </td>
                     </tr>
 
@@ -3590,8 +3606,8 @@ Otherwise uses the first available key chain.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1116"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1116</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1137"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:1137</a></div>
                         </td>
                     </tr>
 
@@ -3659,8 +3675,8 @@ Otherwise uses the first available key chain.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="612"
-                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:612</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="633"
+                                    class="link-to-prism">src/crypto/key/key-chain.service.ts:633</a></div>
                         </td>
                     </tr>
 
@@ -4357,11 +4373,16 @@ export class KeyChainService {
 
     /**
      * Find a key chain by usage type.
+     * If a fallbackUsageType is provided and no key chain is found for
+     * the primary type, a second lookup is performed with the fallback.
+     * This enables attestation keys to also sign status lists when no
+     * dedicated status-list key chain has been configured.
      */
     async findByUsageType(
         tenantId: string,
         usageType: KeyUsageType,
         keyId?: string,
+        fallbackUsageType?: KeyUsageType,
     ): Promise&lt;KeyChainEntity&gt; {
         const whereClause: Record&lt;string, unknown&gt; &#x3D; {
             tenantId,
@@ -4372,13 +4393,29 @@ export class KeyChainService {
             whereClause.id &#x3D; keyId;
         }
 
-        const keyChain &#x3D; await this.keyChainRepository.findOne({
+        let keyChain &#x3D; await this.keyChainRepository.findOne({
             where: whereClause,
         });
 
+        if (!keyChain &amp;&amp; fallbackUsageType) {
+            const fallbackWhere: Record&lt;string, unknown&gt; &#x3D; {
+                tenantId,
+                usageType: fallbackUsageType,
+            };
+            if (keyId) {
+                fallbackWhere.id &#x3D; keyId;
+            }
+            keyChain &#x3D; await this.keyChainRepository.findOne({
+                where: fallbackWhere,
+            });
+        }
+
         if (!keyChain) {
+            const types &#x3D; fallbackUsageType
+                ? &#x60;&#x27;${usageType}&#x27; or &#x27;${fallbackUsageType}&#x27;&#x60;
+                : &#x60;&#x27;${usageType}&#x27;&#x60;;
             throw new NotFoundException(
-                &#x60;No key chain found with usage type &#x27;${usageType}&#x27; for tenant ${tenantId}&#x60;,
+                &#x60;No key chain found with usage type ${types} for tenant ${tenantId}&#x60;,
             );
         }
 

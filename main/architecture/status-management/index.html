@@ -1872,6 +1872,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#signing-key-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signing Key Resolution
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3060,6 +3071,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#signing-key-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signing Key Resolution
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3556,6 +3578,21 @@ certificate. You can pin a specific certificate to a status list for:</p>
 <li>Compliance with specific signing requirements</li>
 <li>Isolation of signing keys per use case</li>
 </ul>
+<h3 id="signing-key-resolution">Signing Key Resolution<a class="headerlink" href="#signing-key-resolution" title="Permanent link">¶</a></h3>
+<p>When signing a status list JWT, EUDIPLO looks for a key chain with usage type
+<code>statusList</code>. If no dedicated status list key chain exists for the tenant, it
+automatically falls back to the <code>attestation</code> key chain. This ensures that
+status lists share the same trust anchor as the issued credentials, which is
+required by wallets that validate the authority of the revocation provider
+against the credential issuer (e.g., Paradym/Credo).</p>
+<div class="admonition tip">
+<p class="admonition-title">Shared Trust Chain</p>
+<p>If your deployment policy does <strong>not</strong> require the status list to be signed
+under the same trust anchor as the credentials, you can create a separate
+<code>statusList</code> key chain (e.g., Standalone / self-signed). This is useful when
+the security level required for status list protection differs from that of
+credential signatures.</p>
+</div>
 <h2 id="api-operations">API Operations<a class="headerlink" href="#api-operations" title="Permanent link">¶</a></h2>
 <p>The Status Management API provides endpoints for managing status lists and
 updating credential status entries.</p>

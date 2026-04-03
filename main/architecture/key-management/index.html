@@ -3597,6 +3597,13 @@ contact the maintainers.</p>
 </tr>
 </tbody>
 </table>
+<div class="admonition note">
+<p class="admonition-title">Attestation fallback for status lists</p>
+<p>If no <code>statusList</code> key chain is configured, the <code>attestation</code> key chain is
+used as a fallback for signing status list JWTs. This keeps status lists
+under the same trust anchor as the issued credentials. Create a dedicated
+<code>statusList</code> key chain only when a different signing key is required.</p>
+</div>
 <h3 id="key-chain-types">Key Chain Types<a class="headerlink" href="#key-chain-types" title="Permanent link">¶</a></h3>
 <p><strong>Standalone Key Chain</strong>:</p>
 <ul>
