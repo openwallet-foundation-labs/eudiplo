@@ -172,7 +172,9 @@
               <mat-select formControlName="keyChainId">
                 <mat-option [value]="null">Default (auto-managed)</mat-option>
                 @for (keyChain of keyChains; track keyChain.id) {
-                  <mat-option [value]="keyChain.id">{{ keyChain.id }} ({{ keyChain.usageType }})</mat-option>
+                  <mat-option [value]="keyChain.id"
+                    >{{ keyChain.id }} ({{ keyChain.usageType }})</mat-option
+                  >
                 }
               </mat-select>
               <mat-icon matSuffix>key</mat-icon>
@@ -183,8 +185,9 @@
               <div class="info-box">
                 <mat-icon>info</mat-icon>
                 <span>
-                  No key chains with <strong>statusList</strong> or <strong>attestation</strong> usage found.
-                  The tenant's default key chain will be used for signing.
+                  No key chains with <strong>statusList</strong> or
+                  <strong>attestation</strong> usage found. The tenant's default key chain will be
+                  used for signing.
                 </span>
               </div>
             }
