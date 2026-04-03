@@ -1,4 +1,7 @@
+// OTel SDK MUST be imported first — before any module that loads `http`, `express`, etc.
+// Auto-instrumentations patch Node built-ins at import time.
 import otelSDK from "./tracing";
+
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { RequestMethod, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";

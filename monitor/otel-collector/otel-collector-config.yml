@@ -19,18 +19,18 @@ exporters:
       enabled: true
 
   # Traces: forward to Tempo via OTLP gRPC
-  otlp/tempo:
+  otlp_grpc/tempo:
     endpoint: tempo:4317
     tls:
       insecure: true
 
-  # Logs: forward to Loki via OTLP (Loki 3.x native OTLP support)
-  otlphttp/loki:
+  # Logs: forward to Loki via OTLP HTTP (Loki 3.x native OTLP support)
+  otlp_http/loki:
     endpoint: http://loki:3100/otlp
     tls:
       insecure: true
 
-  # Debug: log telemetry to collector stdout (useful for troubleshooting)
+  # Debug: log telemetry to collector stdout (uncomment in pipelines to troubleshoot)
   debug:
     verbosity: basic
 
@@ -43,8 +43,8 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp/tempo]
+      exporters: [otlp_grpc/tempo]
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlphttp/loki]
+      exporters: [otlp_http/loki]
