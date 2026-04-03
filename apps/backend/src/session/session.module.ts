@@ -1,6 +1,5 @@
 import { forwardRef, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { makeGaugeProvider } from "@willsoto/nestjs-prometheus";
 import { AuthModule } from "../auth/auth.module";
 import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
 import { StatusListModule } from "../issuer/lifecycle/status/status-list.module";
@@ -24,16 +23,7 @@ import { SessionEventsService } from "./session-events.service";
         LoggerModule,
         forwardRef(() => AuthModule),
     ],
-    providers: [
-        SessionService,
-        SessionConfigService,
-        SessionEventsService,
-        makeGaugeProvider({
-            name: "sessions",
-            help: "Total number of sessions by status",
-            labelNames: ["tenant_id", "session_type", "status"],
-        }),
-    ],
+    providers: [SessionService, SessionConfigService, SessionEventsService],
     exports: [
         SessionService,
         SessionConfigService,

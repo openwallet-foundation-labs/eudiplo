@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
+import { OpenTelemetryModule } from "nestjs-otel";
 import { AppController } from "./app/app.controller";
 import { HealthModule } from "./health/health.module";
-import { MetricsModule } from "./metrics/metrics.module";
 
 /**
  * Core Module - Platform infrastructure and observability
@@ -9,11 +9,18 @@ import { MetricsModule } from "./metrics/metrics.module";
  * Responsibilities:
  * - Service information endpoint
  * - Health checks
- * - Metrics and monitoring
+ * - OpenTelemetry metrics and tracing
  */
 @Module({
-    imports: [HealthModule, MetricsModule],
+    imports: [
+        HealthModule,
+        OpenTelemetryModule.forRoot({
+            metrics: {
+                hostMetrics: true,
+            },
+        }),
+    ],
     controllers: [AppController],
-    exports: [HealthModule, MetricsModule],
+    exports: [HealthModule],
 })
 export class CoreModule {}

@@ -1,4 +1,52 @@
 services:
+    # ── OpenTelemetry Collector ────────────────────────────────────────
+    # Central hub for all telemetry signals (metrics, traces, logs).
+    # The backend exports OTLP to this collector, which fans out to backends.
+    otel-collector:
+        image: otel/opentelemetry-collector-contrib:latest
+        restart: always
+        container_name: otel-collector
+        ports:
+            - '4317:4317' # OTLP gRPC (for containerized services)
+            - '4318:4318' # OTLP HTTP (for local dev)
+            - '8889:8889' # Prometheus metrics (scraped by Prometheus)
+        volumes:
+            - ./otel-collector/otel-collector-config.yml:/etc/otelcol-contrib/config.yaml:ro
+        networks:
+            - monitoring
+        depends_on:
+            - tempo
+            - loki
+
+    # ── Tempo (Traces) ────────────────────────────────────────────────
+    tempo:
+        image: grafana/tempo:latest
+        restart: always
+        container_name: tempo
+        ports:
+            - '3200:3200' # Tempo query API
+        volumes:
+            - ./tempo/tempo.yml:/etc/tempo/tempo.yml:ro
+            - tempo_data:/var/tempo
+        command: ['-config.file=/etc/tempo/tempo.yml']
+        networks:
+            - monitoring
+
+    # ── Loki (Logs) ───────────────────────────────────────────────────
+    loki:
+        image: grafana/loki:3-latest
+        restart: always
+        container_name: loki
+        ports:
+            - '3100:3100'
+        volumes:
+            - ./loki/loki.yml:/etc/loki/loki.yml:ro
+            - loki_data:/loki
+        command: ['-config.file=/etc/loki/loki.yml']
+        networks:
+            - monitoring
+
+    # ── Prometheus (Metrics) ──────────────────────────────────────────
     prometheus:
         image: prom/prometheus:latest
         restart: always
@@ -19,7 +67,10 @@ services:
             - '--web.enable-admin-api'
         networks:
             - monitoring
+        depends_on:
+            - otel-collector
 
+    # ── Grafana (Dashboards) ──────────────────────────────────────────
     grafana:
         image: grafana/grafana:latest
         restart: always
@@ -35,13 +86,12 @@ services:
             - ./grafana/provisioning:/etc/grafana/provisioning:ro
             - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
             - ./grafana/custom.ini:/etc/grafana/grafana.ini:ro
-            # Optional: Uncomment for read-write access (less secure)
-            # - ./grafana/provisioning:/etc/grafana/provisioning:rw
-            # - ./grafana/dashboards:/var/lib/grafana/dashboards:rw
         networks:
             - monitoring
         depends_on:
             - prometheus
+            - tempo
+            - loki
 
 networks:
     monitoring:
@@ -50,3 +100,5 @@ networks:
 volumes:
     prometheus_data:
     grafana_data:
+    tempo_data:
+    loki_data:

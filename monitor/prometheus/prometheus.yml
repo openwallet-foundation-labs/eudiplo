@@ -6,22 +6,21 @@ rule_files:
   - "rules/*.yml"
 
 scrape_configs:
-  # EUDIPLO service metrics (containerized)
-  - job_name: 'eudiplo-docker'
+  # Scrape metrics from the OpenTelemetry Collector
+  # The collector receives OTLP from the backend and exposes /metrics
+  - job_name: 'otel-collector'
     static_configs:
-      - targets: ['eudiplo:3000']
-    metrics_path: '/metrics'
+      - targets: ['otel-collector:8889']
     scrape_interval: 30s
     scrape_timeout: 10s
 
-  # EUDIPLO service metrics (local development)
-  - job_name: 'eudiplo-local'
+  # For local development: collector on localhost
+  - job_name: 'otel-collector-local'
     static_configs:
-      - targets: ['host.docker.internal:3000']
-    metrics_path: '/metrics'
+      - targets: ['host.docker.internal:8889']
     scrape_interval: 30s
     scrape_timeout: 10s
-    # This job will fail when local app is not running, which is fine
+    # This job will fail when local collector is not running, which is fine
 
 # Alerting configuration (optional)
 # alerting:

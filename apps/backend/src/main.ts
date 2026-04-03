@@ -1,3 +1,4 @@
+import otelSDK from "./tracing";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { RequestMethod, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
@@ -23,7 +24,6 @@ const PROTOCOL_ROUTE_EXCLUSIONS: { path: string; method: RequestMethod }[] = [
     // Infrastructure
     { path: "/", method: RequestMethod.GET },
     { path: "health", method: RequestMethod.ALL },
-    { path: "metrics", method: RequestMethod.ALL },
     // OAuth2 & Discovery
     { path: "oauth2/{*path}", method: RequestMethod.ALL },
     { path: ".well-known/{*path}", method: RequestMethod.ALL },
@@ -155,6 +155,10 @@ function loadTlsOptions(): TlsOptions | undefined {
  * Bootstrap function to initialize the NestJS application.
  */
 async function bootstrap() {
+    // Start OpenTelemetry SDK before NestJS initializes —
+    // instrumentations must be registered before any framework code runs.
+    await otelSDK.start();
+
     // Load TLS options if configured
     const tlsOptions = loadTlsOptions();
     const isTlsEnabled = tlsOptions !== undefined;
