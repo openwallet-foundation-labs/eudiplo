@@ -28,10 +28,7 @@ export class MigrateKeysToKeyChain1747000000000 implements MigrationInterface {
      * Returns parameterized placeholder for the given database type.
      * PostgreSQL uses $1, $2, ... while SQLite uses ?, ?, ...
      */
-    private getPlaceholder(
-        dbType: string,
-        index: number,
-    ): string {
+    private getPlaceholder(dbType: string, index: number): string {
         return dbType === "postgres" ? `$${index}` : "?";
     }
 
