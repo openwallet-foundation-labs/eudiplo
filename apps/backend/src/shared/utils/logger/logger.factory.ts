@@ -69,8 +69,15 @@ export const createLoggerOptions = (configService: ConfigService) => {
             target: "pino-opentelemetry-transport",
             level: logLevel,
             options: {
-                // Resource attributes are already set in tracing.ts
-                // The transport automatically picks up the active span context
+                // Resource attributes must be explicitly passed to the transport
+                // (it doesn't inherit from the OTel SDK automatically)
+                resourceAttributes: {
+                    "service.name":
+                        configService.get("OTEL_SERVICE_NAME") ||
+                        "eudiplo-backend",
+                    "service.version":
+                        configService.get("VERSION") || "unknown",
+                },
             },
         });
     }

@@ -20,7 +20,12 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { AttributeProviderEntity, CredentialConfig, type IssuanceConfig, type OfferRequestDto } from '@eudiplo/sdk-core';
+import {
+  AttributeProviderEntity,
+  CredentialConfig,
+  type IssuanceConfig,
+  type OfferRequestDto,
+} from '@eudiplo/sdk-core';
 import { IssuanceConfigService } from '../issuance-config/issuance-config.service';
 import { AttributeProviderService } from '../attribute-provider/attribute-provider.service';
 import { FormlyJsonschema } from '@ngx-formly/core/json-schema';

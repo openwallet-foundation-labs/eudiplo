@@ -44,8 +44,9 @@ export class WellKnownService {
      */
     async getIssuerMetadata(tenantId: string, contentType: MediaType) {
         try {
-            const metadata = (await this.oid4vciService.issuerMetadata(tenantId))
-                .credentialIssuer as unknown as CredentialIssuerMetadataDto;
+            const metadata = (
+                await this.oid4vciService.issuerMetadata(tenantId)
+            ).credentialIssuer as unknown as CredentialIssuerMetadataDto;
 
             if (contentType === MediaType.APPLICATION_JWT) {
                 const cert = await this.certService.find({
