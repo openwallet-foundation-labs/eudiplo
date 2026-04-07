@@ -142,8 +142,8 @@ importers:
         specifier: 0.5.0-alpha-20260317094507
         version: 0.5.0-alpha-20260317094507
       '@owf/eudi-lote':
-        specifier: 0.1.0-alpha-20260323122115
-        version: 0.1.0-alpha-20260323122115
+        specifier: 0.1.0-alpha-20260407070950
+        version: 0.1.0-alpha-20260407070950
       '@owf/mdoc':
         specifier: 0.6.0-alpha-20260323111323
         version: 0.6.0-alpha-20260323111323
@@ -3092,17 +3092,17 @@ packages:
     resolution: {integrity: sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==}
     engines: {node: '>=8.0.0'}
 
-  '@owf/crypto@0.1.0-alpha-20260323122115':
-    resolution: {integrity: sha512-OsH/I9xZgHOM1fKiTN9RtCPErmM6T/T/nf1xsDBE95brsIH+uG2Ah7jrvZTYCSdnHIsLc8XvnN9C62jnAxs8OQ==}
+  '@owf/crypto@0.1.0-alpha-20260407070950':
+    resolution: {integrity: sha512-3VsPFnSt6iteKZPeoFHhVtbMBugkgb9nBVAe+pRWzXDikZ+fEjuirB7dypZB1EQUsaWpzDQTL2B17SRLQSJJrw==}
 
-  '@owf/eudi-lote@0.1.0-alpha-20260323122115':
-    resolution: {integrity: sha512-d4fKtzxrzLDhzxqeWVzRJNUu1zV5E+zM1luXuLWmRfMDyb40L5pFINQ/zqNgFOtDjoXC9o0qnq532cFLnmnI8A==}
+  '@owf/eudi-lote@0.1.0-alpha-20260407070950':
+    resolution: {integrity: sha512-pDtxBFWQb5hQjOcK9SS+l9ixzRGRzIvAKd+QaUWMizetpwbZSqWVr7rMreJs3vHrES3+kRNaEDa/b4OCfxDfWA==}
 
   '@owf/identity-common@0.1.0-alpha-20260317093905':
     resolution: {integrity: sha512-PSXsqcLEua7+YEyynbVr8MQ13hoXDL6oNRF3OjKtWbm6UZXU5jx9bvWq8cL9kGo124TMWd1UQLK1PrWxkKa8CA==}
 
-  '@owf/identity-common@0.1.0-alpha-20260323122115':
-    resolution: {integrity: sha512-yUBTlj+nmW5o9/q7nKy9erk3SOJAHsnDd2do0ZC3DVGUirbEV1asaIsxzEp1mEMTd7QwQhcmDlhwNuOhAF/3hw==}
+  '@owf/identity-common@0.1.0-alpha-20260407070950':
+    resolution: {integrity: sha512-QKinAtOg5GE/OB22z9mwI0aEsefWXHdYRxHwZkI+fG7JPTo9clD5IC6hQrybuZxJ7hxUI96hnc94ej0zYMD25A==}
 
   '@owf/mdoc@0.6.0-alpha-20260323111323':
     resolution: {integrity: sha512-CwmuQxwvRSLNFeL2Jyk9f3JWk6GuLzIgwn9cgGnran1EnpKWnBHn0gHw/ivZPJvgliSIVR59AtzZ5NnXFa0nkA==}
@@ -13380,20 +13380,20 @@ snapshots:
 
   '@opentelemetry/api@1.9.0': {}
 
-  '@owf/crypto@0.1.0-alpha-20260323122115':
+  '@owf/crypto@0.1.0-alpha-20260407070950':
     dependencies:
       '@noble/hashes': 2.0.1
-      '@owf/identity-common': 0.1.0-alpha-20260323122115
+      '@owf/identity-common': 0.1.0-alpha-20260407070950
 
-  '@owf/eudi-lote@0.1.0-alpha-20260323122115':
+  '@owf/eudi-lote@0.1.0-alpha-20260407070950':
     dependencies:
-      '@owf/crypto': 0.1.0-alpha-20260323122115
-      '@owf/identity-common': 0.1.0-alpha-20260323122115
+      '@owf/crypto': 0.1.0-alpha-20260407070950
+      '@owf/identity-common': 0.1.0-alpha-20260407070950
       zod: 4.3.6
 
   '@owf/identity-common@0.1.0-alpha-20260317093905': {}
 
-  '@owf/identity-common@0.1.0-alpha-20260323122115': {}
+  '@owf/identity-common@0.1.0-alpha-20260407070950': {}
 
   '@owf/mdoc@0.6.0-alpha-20260323111323':
     dependencies:
