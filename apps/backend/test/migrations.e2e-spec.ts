@@ -5,8 +5,8 @@ import {
     PostgreSqlContainer,
     StartedPostgreSqlContainer,
 } from "@testcontainers/postgresql";
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { DataSource } from "typeorm";
+import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AddKeyUsageEntity1743000000000 } from "../src/database/migrations/1743000000000-AddKeyUsageEntity";
 import { FlattenKeyUsageType1746000000000 } from "../src/database/migrations/1746000000000-FlattenKeyUsageType";
 import { MigrateKeysToKeyChain1747000000000 } from "../src/database/migrations/1747000000000-MigrateKeysToKeyChain";
@@ -269,7 +269,9 @@ describe("Migration tests", () => {
             let postgresContainer: StartedPostgreSqlContainer;
 
             beforeAll(async () => {
-                postgresContainer = await new PostgreSqlContainer("postgres:alpine")
+                postgresContainer = await new PostgreSqlContainer(
+                    "postgres:alpine",
+                )
                     .withUsername("test_user")
                     .withPassword("test_password")
                     .withDatabase("test_db")
@@ -373,7 +375,8 @@ describe("Migration tests", () => {
             dbType: "sqlite" | "postgres",
         ): Promise<void> {
             const queryRunner = dataSource.createQueryRunner();
-            const timestampType = dbType === "sqlite" ? "datetime" : "timestamp";
+            const timestampType =
+                dbType === "sqlite" ? "datetime" : "timestamp";
 
             await queryRunner.query(`
                 CREATE TABLE IF NOT EXISTS "tenant_entity" (
@@ -509,7 +512,9 @@ describe("Migration tests", () => {
             let postgresContainer: StartedPostgreSqlContainer;
 
             beforeAll(async () => {
-                postgresContainer = await new PostgreSqlContainer("postgres:alpine")
+                postgresContainer = await new PostgreSqlContainer(
+                    "postgres:alpine",
+                )
                     .withUsername("test_user")
                     .withPassword("test_password")
                     .withDatabase("test_db")
@@ -528,7 +533,10 @@ describe("Migration tests", () => {
                 });
 
                 await dataSource.initialize();
-                await createSchemaAfterKeyUsageMigration(dataSource, "postgres");
+                await createSchemaAfterKeyUsageMigration(
+                    dataSource,
+                    "postgres",
+                );
                 await insertTestDataForFlatten(dataSource);
             }, 60_000);
 
@@ -587,8 +595,10 @@ describe("Migration tests", () => {
             dbType: "sqlite" | "postgres",
         ): Promise<void> {
             const queryRunner = dataSource.createQueryRunner();
-            const timestampType = dbType === "sqlite" ? "datetime" : "timestamp";
+            const timestampType =
+                dbType === "sqlite" ? "datetime" : "timestamp";
             const boolType = dbType === "sqlite" ? "integer" : "boolean";
+            const boolDefault = dbType === "sqlite" ? "0" : "false";
 
             await queryRunner.query(`
                 CREATE TABLE IF NOT EXISTS "tenant_entity" (
@@ -609,7 +619,7 @@ describe("Migration tests", () => {
                     "kmsProvider" varchar,
                     "externalKeyId" varchar,
                     "signingCaKeyId" varchar,
-                    "rotationEnabled" ${boolType} DEFAULT 0,
+                    "rotationEnabled" ${boolType} DEFAULT ${boolDefault},
                     "rotationIntervalDays" integer,
                     "certValidityDays" integer,
                     "lastRotatedAt" ${timestampType},
@@ -646,7 +656,7 @@ describe("Migration tests", () => {
                     "rootCertificate" text,
                     "activeKey" text,
                     "activeCertificate" text,
-                    "rotationEnabled" ${boolType} DEFAULT 0,
+                    "rotationEnabled" ${boolType} DEFAULT ${boolDefault},
                     "rotationIntervalDays" integer,
                     "certValidityDays" integer,
                     "lastRotatedAt" ${timestampType},
@@ -780,7 +790,9 @@ describe("Migration tests", () => {
             let postgresContainer: StartedPostgreSqlContainer;
 
             beforeAll(async () => {
-                postgresContainer = await new PostgreSqlContainer("postgres:alpine")
+                postgresContainer = await new PostgreSqlContainer(
+                    "postgres:alpine",
+                )
                     .withUsername("test_user")
                     .withPassword("test_password")
                     .withDatabase("test_db")

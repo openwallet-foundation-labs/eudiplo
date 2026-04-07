@@ -24,7 +24,20 @@ export class MigrateKeysToKeyChain1747000000000 implements MigrationInterface {
         return !!table;
     }
 
+    /**
+     * Returns parameterized placeholder for the given database type.
+     * PostgreSQL uses $1, $2, ... while SQLite uses ?, ?, ...
+     */
+    private getPlaceholder(
+        dbType: string,
+        index: number,
+    ): string {
+        return dbType === "postgres" ? `$${index}` : "?";
+    }
+
     async up(queryRunner: QueryRunner): Promise<void> {
+        const dbType = queryRunner.connection.options.type;
+
         // Check if key_entity table exists (might be a fresh install)
         const keyEntityExists = await this.tableExists(
             queryRunner,
@@ -52,23 +65,23 @@ export class MigrateKeysToKeyChain1747000000000 implements MigrationInterface {
         // Fetch all keys that have a usageType (signing keys, not standalone CA keys)
         const keys = await queryRunner.query(`
             SELECT 
-                k.id,
-                k.tenantId,
-                k.description,
-                k.usageType,
-                k.usage,
-                k.kmsProvider,
-                k.externalKeyId,
-                k.signingCaKeyId,
-                k.rotationEnabled,
-                k.rotationIntervalDays,
-                k.certValidityDays,
-                k.lastRotatedAt,
-                k.createdAt,
-                k.updatedAt,
-                k.key
-            FROM key_entity k
-            WHERE k.usageType IS NOT NULL
+                k."id",
+                k."tenantId",
+                k."description",
+                k."usageType",
+                k."usage",
+                k."kmsProvider",
+                k."externalKeyId",
+                k."signingCaKeyId",
+                k."rotationEnabled",
+                k."rotationIntervalDays",
+                k."certValidityDays",
+                k."lastRotatedAt",
+                k."createdAt",
+                k."updatedAt",
+                k."key"
+            FROM "key_entity" k
+            WHERE k."usageType" IS NOT NULL
         `);
 
         console.log(
@@ -79,10 +92,10 @@ export class MigrateKeysToKeyChain1747000000000 implements MigrationInterface {
             // Find the active certificate for this key
             const certs = await queryRunner.query(
                 `
-                SELECT c.id, c.crt, c.description, c.signingCaKeyId
-                FROM cert_entity c
-                WHERE c.keyId = ? AND c.tenantId = ?
-                ORDER BY c.createdAt DESC
+                SELECT c."id", c."crt", c."description", c."signingCaKeyId"
+                FROM "cert_entity" c
+                WHERE c."keyId" = ${this.getPlaceholder(dbType, 1)} AND c."tenantId" = ${this.getPlaceholder(dbType, 2)}
+                ORDER BY c."createdAt" DESC
                 LIMIT 1
             `,
                 [key.id, key.tenantId],
@@ -115,9 +128,9 @@ export class MigrateKeysToKeyChain1747000000000 implements MigrationInterface {
                 // Fetch the CA key
                 const caKeys = await queryRunner.query(
                     `
-                    SELECT k.key, k.id
-                    FROM key_entity k
-                    WHERE k.id = ? AND k.tenantId = ?
+                    SELECT k."key", k."id"
+                    FROM "key_entity" k
+                    WHERE k."id" = ${this.getPlaceholder(dbType, 1)} AND k."tenantId" = ${this.getPlaceholder(dbType, 2)}
                 `,
                     [key.signingCaKeyId, key.tenantId],
                 );
@@ -128,10 +141,10 @@ export class MigrateKeysToKeyChain1747000000000 implements MigrationInterface {
                     // Fetch the CA certificate
                     const caCerts = await queryRunner.query(
                         `
-                        SELECT c.crt
-                        FROM cert_entity c
-                        WHERE c.keyId = ? AND c.tenantId = ?
-                        ORDER BY c.createdAt DESC
+                        SELECT c."crt"
+                        FROM "cert_entity" c
+                        WHERE c."keyId" = ${this.getPlaceholder(dbType, 1)} AND c."tenantId" = ${this.getPlaceholder(dbType, 2)}
+                        ORDER BY c."createdAt" DESC
                         LIMIT 1
                     `,
                         [key.signingCaKeyId, key.tenantId],
@@ -152,7 +165,7 @@ export class MigrateKeysToKeyChain1747000000000 implements MigrationInterface {
 
             // Check if key_chain entry already exists
             const existingKeyChain = await queryRunner.query(
-                `SELECT id FROM key_chain WHERE id = ? AND tenantId = ?`,
+                `SELECT "id" FROM "key_chain" WHERE "id" = ${this.getPlaceholder(dbType, 1)} AND "tenantId" = ${this.getPlaceholder(dbType, 2)}`,
                 [key.id, key.tenantId],
             );
 
@@ -164,30 +177,34 @@ export class MigrateKeysToKeyChain1747000000000 implements MigrationInterface {
             }
 
             // Insert into key_chain
+            const placeholders = Array.from({ length: 20 }, (_, i) =>
+                this.getPlaceholder(dbType, i + 1),
+            ).join(", ");
+
             await queryRunner.query(
                 `
-                INSERT INTO key_chain (
-                    id,
-                    tenantId,
-                    description,
-                    usageType,
-                    usage,
-                    kmsProvider,
-                    externalKeyId,
-                    rootKey,
-                    rootCertificate,
-                    activeKey,
-                    activeCertificate,
-                    rotationEnabled,
-                    rotationIntervalDays,
-                    certValidityDays,
-                    lastRotatedAt,
-                    previousKey,
-                    previousCertificate,
-                    previousKeyExpiry,
-                    createdAt,
-                    updatedAt
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO "key_chain" (
+                    "id",
+                    "tenantId",
+                    "description",
+                    "usageType",
+                    "usage",
+                    "kmsProvider",
+                    "externalKeyId",
+                    "rootKey",
+                    "rootCertificate",
+                    "activeKey",
+                    "activeCertificate",
+                    "rotationEnabled",
+                    "rotationIntervalDays",
+                    "certValidityDays",
+                    "lastRotatedAt",
+                    "previousKey",
+                    "previousCertificate",
+                    "previousKeyExpiry",
+                    "createdAt",
+                    "updatedAt"
+                ) VALUES (${placeholders})
             `,
                 [
                     key.id,
@@ -223,22 +240,22 @@ export class MigrateKeysToKeyChain1747000000000 implements MigrationInterface {
 
         // Drop foreign key dependent tables first
         if (await this.tableExists(queryRunner, "cert_usage_entity")) {
-            await queryRunner.query(`DROP TABLE cert_usage_entity`);
+            await queryRunner.query(`DROP TABLE "cert_usage_entity"`);
             console.log("[Migration] Dropped cert_usage_entity table.");
         }
 
         if (await this.tableExists(queryRunner, "key_usage_entity")) {
-            await queryRunner.query(`DROP TABLE key_usage_entity`);
+            await queryRunner.query(`DROP TABLE "key_usage_entity"`);
             console.log("[Migration] Dropped key_usage_entity table.");
         }
 
         if (await this.tableExists(queryRunner, "cert_entity")) {
-            await queryRunner.query(`DROP TABLE cert_entity`);
+            await queryRunner.query(`DROP TABLE "cert_entity"`);
             console.log("[Migration] Dropped cert_entity table.");
         }
 
         if (await this.tableExists(queryRunner, "key_entity")) {
-            await queryRunner.query(`DROP TABLE key_entity`);
+            await queryRunner.query(`DROP TABLE "key_entity"`);
             console.log("[Migration] Dropped key_entity table.");
         }
 
