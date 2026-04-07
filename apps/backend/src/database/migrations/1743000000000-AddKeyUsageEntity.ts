@@ -115,13 +115,14 @@ export class AddKeyUsageEntity1743000000000 implements MigrationInterface {
 
         // Migrate: for each cert usage, find the associated key and create key usage
         // Using INSERT ... SELECT with JOIN to efficiently migrate data
+        // Note: Column names must be quoted to preserve case in PostgreSQL
         await queryRunner.query(`
-            INSERT INTO key_usage_entity (tenantId, keyId, usage)
-            SELECT DISTINCT cu.tenantId, c.keyId, cu.usage
-            FROM cert_usage_entity cu
-            INNER JOIN cert_entity c ON cu.tenantId = c.tenantId AND cu.certId = c.id
-            WHERE c.keyId IS NOT NULL
-            ON CONFLICT (tenantId, keyId, usage) DO NOTHING
+            INSERT INTO "key_usage_entity" ("tenantId", "keyId", "usage")
+            SELECT DISTINCT cu."tenantId", c."keyId", cu."usage"
+            FROM "cert_usage_entity" cu
+            INNER JOIN "cert_entity" c ON cu."tenantId" = c."tenantId" AND cu."certId" = c."id"
+            WHERE c."keyId" IS NOT NULL
+            ON CONFLICT ("tenantId", "keyId", "usage") DO NOTHING
         `);
 
         console.log("[Migration] Data migration complete.");
