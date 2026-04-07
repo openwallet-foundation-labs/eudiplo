@@ -3,7 +3,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { AuthModule } from "../auth/auth.module";
 import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
 import { StatusListModule } from "../issuer/lifecycle/status/status-list.module";
-import { LoggerModule } from "../shared/utils/logger/logger.module";
+import { AuditLogModule } from "../shared/utils/logger/audit-log.module";
 import { Session } from "./entities/session.entity";
 import { SessionLogEntry } from "./entities/session-log-entry.entity";
 import { SessionController } from "./session.controller";
@@ -20,7 +20,7 @@ import { SessionEventsService } from "./session-events.service";
     imports: [
         TypeOrmModule.forFeature([Session, TenantEntity, SessionLogEntry]),
         StatusListModule,
-        LoggerModule,
+        AuditLogModule,
         forwardRef(() => AuthModule),
     ],
     providers: [SessionService, SessionConfigService, SessionEventsService],
@@ -28,7 +28,7 @@ import { SessionEventsService } from "./session-events.service";
         SessionService,
         SessionConfigService,
         SessionEventsService,
-        LoggerModule,
+        AuditLogModule,
     ],
     controllers: [
         SessionController,

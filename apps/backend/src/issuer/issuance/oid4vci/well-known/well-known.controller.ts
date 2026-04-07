@@ -34,12 +34,7 @@ export class WellKnownController {
         @ContentType() contentType: MediaType,
         @Param("tenantId") tenantId: string,
     ) {
-        return this.wellKnownService
-            .getIssuerMetadata(tenantId, contentType)
-            .catch((err) => {
-                console.error("Error in issuerMetadata:", err);
-                throw err;
-            });
+        return this.wellKnownService.getIssuerMetadata(tenantId, contentType);
     }
 
     /**
@@ -70,5 +65,17 @@ export class WellKnownController {
     @Get(".well-known/jwks.json/issuers/:tenantId")
     getJwks(@Param("tenantId") tenantId: string): Promise<JwksResponseDto> {
         return this.wellKnownService.getJwks(tenantId);
+    }
+
+    /**
+     * Returns the JSON Web Key Set (JWKS) for the Chained Authorization Server.
+     * @returns
+     */
+    @Header("Content-Type", "application/jwk-set+json")
+    @Get(".well-known/jwks.json/issuers/:tenantId/chained-as")
+    getChainedAsJwks(
+        @Param("tenantId") tenantId: string,
+    ): Promise<{ keys: Record<string, unknown>[] }> {
+        return this.wellKnownService.getChainedAsJwks(tenantId);
     }
 }

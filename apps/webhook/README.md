@@ -76,11 +76,9 @@ pnpm run deploy
 
 ## Available Endpoints
 
-| Endpoint                   | Description                                                   |
-| -------------------------- | ------------------------------------------------------------- |
-| `POST /claims`             | Unified claims webhook (auth code + presentation flows)       |
-| `POST /notify`             | Notification webhook                                          |
-| `POST /process`            | Alias for `/claims`                                           |
-| `POST /external-as-claims` | Alias for `/claims` (kept for compatibility)                  |
-| `POST /deferred-claims`    | Returns deferred response                                     |
-| `POST /consume`            | Authenticated webhook example (requires `x-api-key: foo-bar`) |
+| Endpoint                | Description                                                   |
+| ----------------------- | ------------------------------------------------------------- |
+| `POST /claims`          | Unified claims webhook (auth code + presentation flows)       |
+| `POST /notify`          | Notification webhook                                          |
+| `POST /deferred-claims` | Returns deferred response                                     |
+| `POST /consume`         | Authenticated webhook example (requires `x-api-key: foo-bar`) |

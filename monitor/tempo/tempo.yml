@@ -11,6 +11,22 @@ distributor:
         grpc:
           endpoint: "0.0.0.0:4317"
 
+# Metrics generator for TraceQL rate() and span metrics
+metrics_generator:
+  registry:
+    external_labels:
+      source: tempo
+  storage:
+    path: /var/tempo/generator/wal
+    remote_write:
+      - url: http://prometheus:9090/api/v1/write
+        send_exemplars: true
+
+overrides:
+  defaults:
+    metrics_generator:
+      processors: [service-graphs, span-metrics, local-blocks]
+
 storage:
   trace:
     backend: local

@@ -17,7 +17,7 @@ import { ConfigService } from "@nestjs/config";
  * @returns The logger configuration object
  */
 export const createLoggerOptions = (configService: ConfigService) => {
-    // Disable pino-http's autoLogging - SessionLoggerService provides better structured logs
+    // Disable pino-http's autoLogging - we handle HTTP logging explicitly
     const enableHttpLogger = configService.get<boolean>(
         "LOG_ENABLE_HTTP_LOGGER",
         false,

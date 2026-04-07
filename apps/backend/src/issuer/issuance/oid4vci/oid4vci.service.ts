@@ -29,6 +29,7 @@ import {
 } from "@openid4vc/openid4vci";
 import type { Request } from "express";
 import { decodeJwt } from "jose";
+import { Span, TraceService } from "nestjs-otel";
 import { firstValueFrom } from "rxjs";
 import { LessThan, Repository } from "typeorm";
 import { v4 } from "uuid";
@@ -39,11 +40,10 @@ import {
     SessionStatus,
 } from "../../../session/entities/session.entity";
 import { SessionService } from "../../../session/session.service";
-import { SessionLoggerService } from "../../../shared/utils/logger/session-logger.service";
 import {
-    RESOLVED_SESSION_ID,
-    SessionLogContext,
-} from "../../../shared/utils/logger/session-logger-context";
+    AuditLogContext,
+    AuditLogService,
+} from "../../../shared/utils/logger/audit-log.service";
 import { WebhookService } from "../../../shared/utils/webhook/webhook.service";
 import { CredentialsService } from "../../configuration/credentials/credentials.service";
 import { AuthorizationIdentity } from "../../configuration/credentials/dto/authorization-identity";
@@ -96,13 +96,14 @@ export class Oid4vciService {
         public readonly credentialsService: CredentialsService,
         private readonly configService: ConfigService,
         private readonly sessionService: SessionService,
-        private readonly sessionLogger: SessionLoggerService,
+        private readonly auditLogger: AuditLogService,
         private readonly issuanceService: IssuanceService,
         private readonly webhookService: WebhookService,
         private readonly httpService: HttpService,
         private readonly statusListConfigService: StatusListConfigService,
         private readonly chainedAsService: ChainedAsService,
         private readonly deferredCredentialService: DeferredCredentialService,
+        private readonly traceService: TraceService,
         @InjectRepository(NonceEntity)
         private readonly nonceRepository: Repository<NonceEntity>,
         @InjectRepository(WebhookEndpointEntity)
@@ -203,18 +204,9 @@ export class Oid4vciService {
             const chainedAsIssuer = `${credential_issuer}/chained-as`;
             authServers.push(chainedAsIssuer);
             authorizationServers.push(
-                await firstValueFrom(
-                    this.httpService.get(
-                        `${chainedAsIssuer}/.well-known/oauth-authorization-server`,
-                    ),
-                ).then(
-                    (response) => response.data,
-                    () => {
-                        throw new BadRequestException(
-                            "Failed to fetch Chained AS metadata",
-                        );
-                    },
-                ),
+                (await this.chainedAsService.getMetadata(
+                    tenantId,
+                )) as AuthorizationServerMetadata,
             );
         }
 
@@ -288,6 +280,7 @@ export class Oid4vciService {
      * @param tenantId The ID of the tenant.
      * @returns The created credential offer.
      */
+    @Span("oid4vci.createOffer")
     async createOffer(
         body: OfferRequestDto,
         user: TokenPayload,
@@ -355,6 +348,16 @@ export class Oid4vciService {
             tenantId: user.entity!.id,
             authorization_code,
             webhookEndpointId: body.webhookEndpointId,
+        });
+
+        // Add session context to span for trace correlation
+        const span = this.traceService.getSpan();
+        span?.setAttributes({
+            "session.id": session.id,
+            "session.tenantId": session.tenantId,
+            "oid4vci.flow": body.flow,
+            "oid4vci.credentialConfigurationIds":
+                credentialConfigurationIds.join(","),
         });
 
         const issuer = this.getIssuer(session.tenantId);
@@ -579,7 +582,7 @@ export class Oid4vciService {
     private async validateAndConsumeNonces(
         proofs: string[],
         tenantId: string,
-        logContext: SessionLogContext,
+        logContext: AuditLogContext,
         credentialConfigurationId: string,
     ): Promise<void> {
         // OID4VCI spec Section 8.3.1.2: When the Credential Issuer has a Nonce Endpoint,
@@ -607,7 +610,7 @@ export class Oid4vciService {
                     "invalid_nonce",
                     "The nonce in the key proof is invalid or has already been used",
                 );
-                this.sessionLogger.logFlowError(logContext, nonceError, {
+                this.auditLogger.logFlowError(logContext, nonceError, {
                     credentialConfigurationId,
                 });
                 throw nonceError;
@@ -619,7 +622,7 @@ export class Oid4vciService {
                     "invalid_nonce",
                     "The nonce in the key proof has expired",
                 );
-                this.sessionLogger.logFlowError(logContext, nonceError, {
+                this.auditLogger.logFlowError(logContext, nonceError, {
                     credentialConfigurationId,
                 });
                 throw nonceError;
@@ -639,7 +642,7 @@ export class Oid4vciService {
         session: Session,
         credentialConfigurationId: string,
         claimsResult: ClaimsWebhookResult | undefined,
-        logContext: SessionLogContext,
+        logContext: AuditLogContext,
     ): Promise<{ credential: string }[]> {
         const credentials: { credential: string }[] = [];
 
@@ -663,7 +666,7 @@ export class Oid4vciService {
 
             credentials.push({ credential: cred });
 
-            this.sessionLogger.logCredentialIssuance(
+            this.auditLogger.logCredentialIssuance(
                 logContext,
                 credentialConfigurationId,
                 {
@@ -721,6 +724,7 @@ export class Oid4vciService {
      * @param tenantId The tenant identifier
      * @returns The credential response or deferred response
      */
+    @Span("oid4vci.getCredential")
     async getCredential(
         req: Request,
         tenantId: string,
@@ -777,18 +781,26 @@ export class Oid4vciService {
                 issuanceConfig,
             );
 
-        // Expose session ID for the interceptor (not available in route params for OID4VCI)
-        req[RESOLVED_SESSION_ID] = session.id;
+        // Add session context to span for trace correlation
+        const span = this.traceService.getSpan();
+        span?.setAttributes({
+            "session.id": session.id,
+            "session.tenantId": session.tenantId,
+            "oid4vci.credentialConfigurationId": credentialConfigurationId,
+            "oid4vci.proofCount": parsedCredentialRequest.proofs.jwt.length,
+            "oid4vci.isExternalAs": isExternalAsToken,
+            "oid4vci.isChainedAs": isChainedAsToken,
+        });
 
         // Create session logging context
-        const logContext: SessionLogContext = {
+        const logContext: AuditLogContext = {
             sessionId: session.id,
             tenantId,
             flowType: "OID4VCI",
             stage: "credential_request",
         };
 
-        this.sessionLogger.logFlowStart(logContext, {
+        this.auditLogger.logFlowStart(logContext, {
             credentialConfigurationId,
             proofCount: parsedCredentialRequest.proofs.jwt.length,
             isExternalAs: isExternalAsToken,
@@ -811,7 +823,6 @@ export class Oid4vciService {
                         interval: claimsResult.interval,
                         issuerMetadata,
                     },
-                    logContext,
                 );
             }
 
@@ -844,7 +855,7 @@ export class Oid4vciService {
                 status: SessionStatus.Fetched,
             });
 
-            this.sessionLogger.logFlowComplete(logContext, {
+            this.auditLogger.logFlowComplete(logContext, {
                 credentialsIssued: credentials.length,
                 notificationId,
             });
@@ -856,7 +867,7 @@ export class Oid4vciService {
                 notificationId,
             });
         } catch (error) {
-            this.sessionLogger.logFlowError(logContext, error as Error, {
+            this.auditLogger.logFlowError(logContext, error as Error, {
                 credentialConfigurationId,
             });
             this.mapToCredentialRequestException(error);
@@ -868,6 +879,7 @@ export class Oid4vciService {
      * @param req
      * @param body
      */
+    @Span("oid4vci.handleNotification")
     async handleNotification(
         req: Request,
         body: NotificationRequestDto,
@@ -908,11 +920,17 @@ export class Oid4vciService {
             throw new BadRequestException("Session not found");
         }
 
-        // Expose session ID for the interceptor (not available in route params for OID4VCI)
-        req[RESOLVED_SESSION_ID] = session.id;
+        // Add session context to span for trace correlation
+        const span = this.traceService.getSpan();
+        span?.setAttributes({
+            "session.id": session.id,
+            "session.tenantId": session.tenantId,
+            "oid4vci.notificationId": body.notification_id,
+            "oid4vci.event": body.event ?? "",
+        });
 
         // Create session logging context
-        const logContext: SessionLogContext = {
+        const logContext: AuditLogContext = {
             sessionId: session.id,
             tenantId,
             flowType: "OID4VCI",
@@ -934,11 +952,6 @@ export class Oid4vciService {
                 notifications: session.notifications,
             });
 
-            this.sessionLogger.logNotification(logContext, body.event || "", {
-                notificationId: body.notification_id,
-                notificationIndex: index,
-            });
-
             //check for the webhook and send it.
             //TODO: in case multiple batches are included, check if each time the notification endpoint is triggered. Also when multiple credentials got offered in the request, try to bundle them maybe?
             if (session.webhookEndpointId) {
@@ -950,7 +963,6 @@ export class Oid4vciService {
                     await this.webhookService.sendWebhookNotification(
                         { url: endpoint.url, auth: endpoint.auth },
                         session,
-                        logContext,
                         session.notifications[index],
                     );
                 }
@@ -961,7 +973,7 @@ export class Oid4vciService {
                     : SessionStatus.Failed;
             await this.sessionService.setState(session, state);
         } catch (error) {
-            this.sessionLogger.logSessionError(
+            this.auditLogger.logError(
                 logContext,
                 error as Error,
                 "Failed to handle notification",
@@ -981,11 +993,19 @@ export class Oid4vciService {
      * @param tenantId The tenant ID
      * @returns Credential response or issuance_pending error
      */
+    @Span("oid4vci.getDeferredCredential")
     async getDeferredCredential(
         req: Request,
         body: DeferredCredentialRequestDto,
         tenantId: string,
     ): Promise<CredentialResponse> {
+        // Add context to span for trace correlation
+        const span = this.traceService.getSpan();
+        span?.setAttributes({
+            "oid4vci.transactionId": body.transaction_id,
+            "session.tenantId": tenantId,
+        });
+
         const issuer = this.getIssuer(tenantId);
         const issuerMetadata = await this.issuerMetadata(tenantId, issuer);
         return this.deferredCredentialService.getDeferredCredential(

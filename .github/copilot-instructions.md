@@ -43,7 +43,7 @@
 ## Rules for Backend Code
 - When creating a module, always generate `<feature>.module.ts`, `<feature>.controller.ts`, `<feature>.service.ts` and create subfolders: `dto/`, `entities/`, `exceptions/` as needed.
 - Always add Swagger annotations (`@ApiTags`, `@ApiOperation`, `@ApiResponse`, `@ApiBody`) on all controller endpoints.
-- Use the **Pino logger** (`nestjs-pino` / `PinoLogger`). For session-scoped logging, use `SessionLoggerService`.
+- Use the **Pino logger** (`nestjs-pino` / `PinoLogger`). For audit logging (compliance events persisted to DB), use `AuditLogService`.
 - Always wrap external calls in `try/catch` and throw domain-specific exceptions from the module's `exceptions/` folder.
 - Custom exceptions must extend NestJS `HttpException` — there is no custom base exception class.
 - When adding credential/protocol-related functions, follow existing abstractions in `packages/eudiplo-sdk-core`. Never duplicate protocol logic across modules.

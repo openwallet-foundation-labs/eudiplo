@@ -8,12 +8,9 @@ import {
     Param,
     Post,
     Req,
-    UseInterceptors,
 } from "@nestjs/common";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
 import { Request } from "express";
-import { SessionLogger } from "../../shared/utils/logger/session-logger.decorator";
-import { SessionLoggerInterceptor } from "../../shared/utils/logger/session-logger.interceptor";
 import { AuthorizationResponse } from "./dto/authorization-response.dto";
 import { Oid4vpService } from "./oid4vp.service";
 
@@ -23,7 +20,6 @@ import { Oid4vpService } from "./oid4vp.service";
  */
 @ApiTags("OID4VP")
 @Controller("presentations/:sessionId/oid4vp")
-@UseInterceptors(SessionLoggerInterceptor)
 @ApiParam({ name: "sessionId", required: true })
 export class Oid4vpController {
     /**
@@ -42,7 +38,6 @@ export class Oid4vpController {
      */
     @Get("request")
     @Header("Content-Type", "application/oauth-authz-req+jwt")
-    @SessionLogger("sessionId", "OID4VP")
     getRequestWithSession(
         @Param("sessionId") sessionId: string,
         @Req() req: Request,
@@ -61,7 +56,6 @@ export class Oid4vpController {
      */
     @Get("request/no-redirect")
     @Header("Content-Type", "application/oauth-authz-req+jwt")
-    @SessionLogger("sessionId", "OID4VP")
     getRequestNoRedirectWithSession(
         @Param("sessionId") sessionId: string,
         @Req() req: Request,
@@ -84,7 +78,6 @@ export class Oid4vpController {
      */
     @Post("request")
     @Header("Content-Type", "application/oauth-authz-req+jwt")
-    @SessionLogger("sessionId", "OID4VP")
     getPostRequestWithSession(
         @Param("sessionId") sessionId: string,
         @Req() req: Request,
@@ -100,7 +93,6 @@ export class Oid4vpController {
      */
     @Post()
     @HttpCode(HttpStatus.OK)
-    @SessionLogger("sessionId", "OID4VP")
     getResponse(
         @Body() body: AuthorizationResponse,
         @Param("sessionId") sessionId: string,

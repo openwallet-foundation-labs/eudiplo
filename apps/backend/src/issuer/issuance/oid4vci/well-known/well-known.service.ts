@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { HttpStatus, Injectable } from "@nestjs/common";
 import { CertService } from "../../../../crypto/key/cert/cert.service";
 import { CryptoImplementationService } from "../../../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { KeyUsageType } from "../../../../crypto/key/entities/key-chain.entity";
@@ -7,6 +7,7 @@ import { MediaType } from "../../../../shared/utils/mediaType/media-type.enum";
 import { IssuanceService } from "../../../configuration/issuance/issuance.service";
 import { AuthorizeService } from "../authorize/authorize.service";
 import { ChainedAsService } from "../chained-as/chained-as.service";
+import { WellKnownException } from "../exceptions";
 import { Oid4vciService } from "../oid4vci.service";
 import { CredentialIssuerMetadataDto } from "./dto/credential-issuer-metadata.dto";
 import { EC_Public, JwksResponseDto } from "./dto/jwks-response.dto";
@@ -42,34 +43,44 @@ export class WellKnownService {
      * @returns
      */
     async getIssuerMetadata(tenantId: string, contentType: MediaType) {
-        const metadata = (await this.oid4vciService.issuerMetadata(tenantId))
-            .credentialIssuer as unknown as CredentialIssuerMetadataDto;
+        try {
+            const metadata = (await this.oid4vciService.issuerMetadata(tenantId))
+                .credentialIssuer as unknown as CredentialIssuerMetadataDto;
 
-        if (contentType === MediaType.APPLICATION_JWT) {
-            const cert = await this.certService.find({
-                tenantId,
-                type: KeyUsageType.Access,
-            });
-            return this.keyChainService.signJWT(
-                {
-                    ...metadata,
-                    iss: metadata.credential_issuer,
-                    sub: metadata.credential_issuer,
-                    iat: Math.floor(Date.now() / 1000),
-                    // [Review]: should we add `exp` value here?
-                    //MM: the value makes sense when we cache the issuer metadata so it must not be signed on every request. Like when it is issued every hour, its lifetime is 1 hour and the jwt is in the cache.
-                },
-                {
-                    typ: "openidvci-issuer-metadata+jwt",
-                    alg: this.cryptoImplementationService.getAlg(),
-                    x5c: this.certService.getCertChain(cert),
-                },
-                tenantId,
-                cert.keyId,
+            if (contentType === MediaType.APPLICATION_JWT) {
+                const cert = await this.certService.find({
+                    tenantId,
+                    type: KeyUsageType.Access,
+                });
+                return this.keyChainService.signJWT(
+                    {
+                        ...metadata,
+                        iss: metadata.credential_issuer,
+                        sub: metadata.credential_issuer,
+                        iat: Math.floor(Date.now() / 1000),
+                        // [Review]: should we add `exp` value here?
+                        //MM: the value makes sense when we cache the issuer metadata so it must not be signed on every request. Like when it is issued every hour, its lifetime is 1 hour and the jwt is in the cache.
+                    },
+                    {
+                        typ: "openidvci-issuer-metadata+jwt",
+                        alg: this.cryptoImplementationService.getAlg(),
+                        x5c: this.certService.getCertChain(cert),
+                    },
+                    tenantId,
+                    cert.keyId,
+                );
+            }
+
+            return metadata;
+        } catch (error) {
+            if (error instanceof WellKnownException) {
+                throw error;
+            }
+            throw new WellKnownException(
+                `Failed to retrieve issuer metadata for tenant ${tenantId}: ${error instanceof Error ? error.message : "Unknown error"}`,
+                HttpStatus.INTERNAL_SERVER_ERROR,
             );
         }
-
-        return metadata;
     }
 
     /**
@@ -77,7 +88,17 @@ export class WellKnownService {
      * @returns
      */
     async getAuthzMetadata(tenantId: string) {
-        return this.authorizeService.authzMetadata(tenantId);
+        try {
+            return await this.authorizeService.authzMetadata(tenantId);
+        } catch (error) {
+            if (error instanceof WellKnownException) {
+                throw error;
+            }
+            throw new WellKnownException(
+                `Failed to retrieve authorization server metadata for tenant ${tenantId}: ${error instanceof Error ? error.message : "Unknown error"}`,
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
     }
 
     /**
@@ -87,25 +108,35 @@ export class WellKnownService {
      * @returns
      */
     async getJwks(tenantId: string): Promise<JwksResponseDto> {
-        const issuanceConfig =
-            await this.issuanceService.getIssuanceConfiguration(tenantId);
+        try {
+            const issuanceConfig =
+                await this.issuanceService.getIssuanceConfiguration(tenantId);
 
-        const signingKeyId =
-            issuanceConfig.signingKeyId ||
-            (await this.keyChainService.getKid(tenantId));
+            const signingKeyId =
+                issuanceConfig.signingKeyId ||
+                (await this.keyChainService.getKid(tenantId));
 
-        const publicKey = await this.keyChainService.getPublicKey(
-            "jwk",
-            tenantId,
-            signingKeyId,
-        );
+            const publicKey = await this.keyChainService.getPublicKey(
+                "jwk",
+                tenantId,
+                signingKeyId,
+            );
 
-        const keyWithKid = {
-            ...publicKey,
-            kid: (publicKey as { kid?: string }).kid || signingKeyId,
-        };
+            const keyWithKid = {
+                ...publicKey,
+                kid: (publicKey as { kid?: string }).kid || signingKeyId,
+            };
 
-        return { keys: [keyWithKid as EC_Public] };
+            return { keys: [keyWithKid as EC_Public] };
+        } catch (error) {
+            if (error instanceof WellKnownException) {
+                throw error;
+            }
+            throw new WellKnownException(
+                `Failed to retrieve JWKS for tenant ${tenantId}: ${error instanceof Error ? error.message : "Unknown error"}`,
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
     }
 
     /**
@@ -118,6 +149,37 @@ export class WellKnownService {
     async getChainedAsMetadata(
         tenantId: string,
     ): Promise<Record<string, unknown>> {
-        return this.chainedAsService.getMetadata(tenantId);
+        try {
+            return await this.chainedAsService.getMetadata(tenantId);
+        } catch (error) {
+            if (error instanceof WellKnownException) {
+                throw error;
+            }
+            throw new WellKnownException(
+                `Failed to retrieve Chained AS metadata for tenant ${tenantId}: ${error instanceof Error ? error.message : "Unknown error"}`,
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    /**
+     * Returns the JSON Web Key Set (JWKS) for the Chained Authorization Server.
+     * @param tenantId
+     * @returns
+     */
+    async getChainedAsJwks(
+        tenantId: string,
+    ): Promise<{ keys: Record<string, unknown>[] }> {
+        try {
+            return await this.chainedAsService.getJwks(tenantId);
+        } catch (error) {
+            if (error instanceof WellKnownException) {
+                throw error;
+            }
+            throw new WellKnownException(
+                `Failed to retrieve Chained AS JWKS for tenant ${tenantId}: ${error instanceof Error ? error.message : "Unknown error"}`,
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
     }
 }

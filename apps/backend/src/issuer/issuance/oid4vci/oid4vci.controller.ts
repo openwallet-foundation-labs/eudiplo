@@ -9,7 +9,6 @@ import {
     Post,
     Req,
     Res,
-    UseInterceptors,
 } from "@nestjs/common";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
 import type {
@@ -18,8 +17,6 @@ import type {
     DeferredCredentialResponse,
 } from "@openid4vc/openid4vci";
 import type { Request, Response } from "express";
-import { SessionLogger } from "../../../shared/utils/logger/session-logger.decorator";
-import { SessionLoggerInterceptor } from "../../../shared/utils/logger/session-logger.interceptor";
 import { DeferredCredentialRequestDto } from "./dto/deferred-credential-request.dto";
 import { NotificationRequestDto } from "./dto/notification-request.dto";
 import { Oid4vciService } from "./oid4vci.service";
@@ -30,7 +27,6 @@ import { Oid4vciService } from "./oid4vci.service";
 @ApiTags("OID4VCI")
 @ApiParam({ name: "tenantId", required: true })
 @Controller("issuers/:tenantId/vci")
-@UseInterceptors(SessionLoggerInterceptor)
 export class Oid4vciController {
     constructor(private readonly oid4vciService: Oid4vciService) {}
 
@@ -43,7 +39,6 @@ export class Oid4vciController {
      */
     @Post("credential")
     @HttpCode(HttpStatus.OK)
-    @SessionLogger("session", "OID4VCI")
     async credential(
         @Req() req: Request,
         @Res({ passthrough: true }) res: Response,
@@ -90,7 +85,6 @@ export class Oid4vciController {
      * @returns The credential response if ready, or issuance_pending error
      */
     @Post("deferred_credential")
-    @SessionLogger("transaction_id", "OID4VCI")
     @HttpCode(HttpStatus.OK)
     deferredCredential(
         @Req() req: Request,
@@ -106,7 +100,6 @@ export class Oid4vciController {
      * @returns
      */
     @Post("notification")
-    @SessionLogger("notification_id", "OID4VCI")
     notifications(
         @Body() body: NotificationRequestDto,
         @Req() req: Request,

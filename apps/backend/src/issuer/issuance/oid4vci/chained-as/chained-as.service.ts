@@ -10,6 +10,7 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { decodeJwt, decodeProtectedHeader } from "jose";
+import { TraceService } from "nestjs-otel";
 import { firstValueFrom } from "rxjs";
 import { LessThan, Repository } from "typeorm";
 import { v4 } from "uuid";
@@ -109,6 +110,7 @@ export class ChainedAsService {
         private readonly sessionService: SessionService,
         private readonly issuanceService: IssuanceService,
         private readonly walletAttestationService: WalletAttestationService,
+        private readonly traceService: TraceService,
         @InjectRepository(ChainedAsSessionEntity)
         private readonly sessionRepository: Repository<ChainedAsSessionEntity>,
     ) {}
@@ -252,6 +254,14 @@ export class ChainedAsService {
 
         await this.sessionRepository.save(session);
 
+        // Add session context to span for trace correlation
+        this.traceService.getSpan()?.setAttributes({
+            "session.id": issuerState,
+            "chained_as.session.id": sessionId,
+            "session.tenantId": tenantId,
+            "chained_as.endpoint": "par",
+        });
+
         this.logger.debug(
             `Created Chained AS PAR session ${sessionId} for tenant ${tenantId}`,
         );
@@ -298,6 +308,14 @@ export class ChainedAsService {
         if (!session) {
             throw new BadRequestException("Invalid or expired request_uri");
         }
+
+        // Add session context to span for trace correlation
+        this.traceService.getSpan()?.setAttributes({
+            "session.id": session.issuerState,
+            "chained_as.session.id": sessionId,
+            "session.tenantId": tenantId,
+            "chained_as.endpoint": "authorize",
+        });
 
         // Verify client_id matches
         if (session.clientId !== clientId) {
@@ -479,6 +497,14 @@ export class ChainedAsService {
             throw new BadRequestException("Invalid or expired callback state");
         }
 
+        // Add session context to span for trace correlation
+        this.traceService.getSpan()?.setAttributes({
+            "session.id": session.issuerState,
+            "chained_as.session.id": session.id,
+            "session.tenantId": tenantId,
+            "chained_as.endpoint": "callback",
+        });
+
         const config = await this.getChainedAsConfig(tenantId);
         if (!config.upstream) {
             throw new BadRequestException(
@@ -611,6 +637,14 @@ export class ChainedAsService {
             throw new UnauthorizedException("Invalid authorization code");
         }
 
+        // Add session context to span for trace correlation
+        this.traceService.getSpan()?.setAttributes({
+            "session.id": session.issuerState,
+            "chained_as.session.id": session.id,
+            "session.tenantId": tenantId,
+            "chained_as.endpoint": "token",
+        });
+
         if (
             session.authorizationCodeExpiresAt &&
             session.authorizationCodeExpiresAt < new Date()
@@ -724,6 +758,7 @@ export class ChainedAsService {
      */
     async getMetadata(tenantId: string): Promise<Record<string, unknown>> {
         const baseUrl = this.getChainedAsBaseUrl(tenantId);
+        const publicUrl = this.configService.getOrThrow<string>("PUBLIC_URL");
 
         const issuanceConfig =
             await this.issuanceService.getIssuanceConfiguration(tenantId);
@@ -735,7 +770,7 @@ export class ChainedAsService {
             authorization_endpoint: `${baseUrl}/authorize`,
             token_endpoint: `${baseUrl}/token`,
             pushed_authorization_request_endpoint: `${baseUrl}/par`,
-            jwks_uri: `${baseUrl}/.well-known/jwks.json`,
+            jwks_uri: `${publicUrl}/.well-known/jwks.json/issuers/${tenantId}/chained-as`,
             response_types_supported: ["code"],
             grant_types_supported: ["authorization_code"],
             code_challenge_methods_supported: ["S256"],

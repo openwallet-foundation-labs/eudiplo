@@ -1,13 +1,12 @@
 import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
+import { PinoLogger } from "nestjs-pino";
 import { firstValueFrom } from "rxjs";
 import {
     Notification,
     Session,
 } from "../../../session/entities/session.entity";
 import { SessionService } from "../../../session/session.service";
-import { SessionLoggerService } from "../logger/session-logger.service";
-import { SessionLogContext } from "../logger/session-logger-context";
 import { WebhookConfig } from "./webhook.dto";
 import { extractRawTokenFromSubmission } from "./webhook.utils";
 
@@ -44,20 +43,17 @@ export interface WebhookResponse {
 
 /**
  * Service for handling webhooks in the application.
+ * HTTP calls are auto-instrumented by OpenTelemetry for distributed tracing.
  */
 @Injectable()
 export class WebhookService {
-    /**
-     * Constructor for WebhookService.
-     * @param httpService
-     * @param sessionService
-     * @param sessionLogger
-     */
     constructor(
         private readonly httpService: HttpService,
         private readonly sessionService: SessionService,
-        private readonly sessionLogger: SessionLoggerService,
-    ) {}
+        private readonly logger: PinoLogger,
+    ) {
+        this.logger.setContext("WebhookService");
+    }
 
     /**
      * Sends a webhook with the optional provided credentials, return the response data.
@@ -65,7 +61,6 @@ export class WebhookService {
      */
     sendWebhook(values: {
         webhook: WebhookConfig;
-        logContext: SessionLogContext;
         session: Session;
         credentials?: any[];
         expectResponse: boolean;
@@ -90,7 +85,6 @@ export class WebhookService {
 
             payloadCredentials = payloadCredentials.map((cred) => {
                 if (requestedIds.includes(cred.id)) {
-                    // Extract the raw cryptographic token using the utility function
                     const rawToken = extractRawTokenFromSubmission(
                         cred.id,
                         rawPayload,
@@ -102,20 +96,12 @@ export class WebhookService {
                 }
                 return cred;
             });
-
-            this.sessionLogger.logSession(
-                values.logContext,
-                "Appended raw tokens to credentials",
-                {
-                    requestedIds,
-                },
-            );
         }
 
-        this.sessionLogger.logSession(values.logContext, "Sending webhook", {
-            webhookUrl: values.webhook.url,
-            authType: values.webhook.auth?.type || "none",
-        });
+        this.logger.debug(
+            { webhookUrl: values.webhook.url, sessionId: values.session.id },
+            "Sending webhook",
+        );
 
         return firstValueFrom(
             this.httpService.post(
@@ -130,20 +116,9 @@ export class WebhookService {
             ),
         ).then(
             async (webhookResponse) => {
-                this.sessionLogger.logSession(
-                    values.logContext,
-                    "Webhook sent successfully",
-                    {
-                        responseStatus: webhookResponse.status,
-                        hasResponseData: !!webhookResponse.data,
-                    },
-                );
-
-                //check if a redirect URI is passed, we either expect a redirect or claims, but never both.
                 if (webhookResponse.data?.redirectUri) {
                     // redirectUri is returned but no special handling needed here
                 } else if (webhookResponse.data && values.expectResponse) {
-                    // Store received webhook response
                     await this.sessionService.add(values.session.id, {
                         credentialPayload: values.session.credentialPayload,
                     });
@@ -152,13 +127,9 @@ export class WebhookService {
                 return webhookResponse.data;
             },
             (err) => {
-                this.sessionLogger.logSessionError(
-                    values.logContext,
-                    err,
+                this.logger.error(
+                    { webhookUrl: values.webhook.url, error: err.message },
                     "Error sending webhook",
-                    {
-                        webhookUrl: values.webhook.url,
-                    },
                 );
                 throw new Error(`Error sending webhook: ${err.message || err}`);
             },
@@ -169,13 +140,11 @@ export class WebhookService {
      * Sends a webhook notification for a session.
      * @param webhook The webhook configuration
      * @param session The session
-     * @param logContext
-     * @param notification
+     * @param notification The notification payload
      */
     async sendWebhookNotification(
         webhook: WebhookConfig,
         session: Session,
-        logContext: SessionLogContext,
         notification: Notification,
     ) {
         const headers: Record<string, string> = {};
@@ -183,13 +152,10 @@ export class WebhookService {
         if (webhook.auth && webhook.auth.type === "apiKey") {
             headers[webhook.auth.config.headerName] = webhook.auth.config.value;
         }
-        this.sessionLogger.logSession(
-            logContext,
+
+        this.logger.debug(
+            { webhookUrl: webhook.url, sessionId: session.id },
             "Sending webhook notification",
-            {
-                webhookUrl: webhook.url,
-                authType: webhook.auth?.type || "none",
-            },
         );
 
         await firstValueFrom(
@@ -204,25 +170,13 @@ export class WebhookService {
                 },
             ),
         ).then(
-            (webhookResponse) => {
-                //TODO: update notification status based on response
-                this.sessionLogger.logSession(
-                    logContext,
-                    "Webhook notification sent successfully",
-                    {
-                        responseStatus: webhookResponse.status,
-                        hasResponseData: !!webhookResponse.data,
-                    },
-                );
+            () => {
+                // Success - OTel traces capture the HTTP call details
             },
             (err) => {
-                this.sessionLogger.logSessionError(
-                    logContext,
-                    err,
-                    "Error sending webhook",
-                    {
-                        webhookUrl: webhook.url,
-                    },
+                this.logger.error(
+                    { webhookUrl: webhook.url, error: err.message },
+                    "Error sending webhook notification",
                 );
                 throw new Error(`Error sending webhook: ${err.message || err}`);
             },
@@ -234,16 +188,14 @@ export class WebhookService {
      * Sends a consistent payload regardless of AS type (internal or external).
      *
      * @param values.webhook The webhook configuration
-     * @param values.logContext Logging context
      * @param values.session The session ID
      * @param values.credentialConfigurationId The credential configuration being requested
-     * @param values.identity Optional identity context from authorization (works for both internal and external AS)
+     * @param values.identity Optional identity context from authorization
      * @param values.credentials Optional presented credentials (for presentation flows)
      * @returns WebhookResponse containing claims data or deferred issuance indicator
      */
     async sendClaimsWebhook(values: {
         webhook: WebhookConfig;
-        logContext: SessionLogContext;
         session: string;
         credentialConfigurationId: string;
         identity?: {
@@ -260,16 +212,13 @@ export class WebhookService {
                 values.webhook.auth.config.value;
         }
 
-        this.sessionLogger.logSession(
-            values.logContext,
-            "Sending claims webhook",
+        this.logger.debug(
             {
                 webhookUrl: values.webhook.url,
-                authType: values.webhook.auth?.type || "none",
+                sessionId: values.session,
                 credentialConfigurationId: values.credentialConfigurationId,
-                hasIdentity: !!values.identity,
-                hasCredentials: !!values.credentials?.length,
             },
+            "Sending claims webhook",
         );
 
         const payload: Record<string, unknown> = {
@@ -277,12 +226,10 @@ export class WebhookService {
             credential_configuration_id: values.credentialConfigurationId,
         };
 
-        // Include identity context when available (from internal or external AS)
         if (values.identity) {
             payload.identity = values.identity;
         }
 
-        // Include presented credentials when available (presentation flow)
         if (values.credentials?.length) {
             payload.credentials = values.credentials;
         }
@@ -291,24 +238,12 @@ export class WebhookService {
             this.httpService.post(values.webhook.url, payload, { headers }),
         ).then(
             (webhookResponse) => {
-                this.sessionLogger.logSession(
-                    values.logContext,
-                    "Claims webhook sent successfully",
-                    {
-                        responseStatus: webhookResponse.status,
-                        hasResponseData: !!webhookResponse.data,
-                    },
-                );
                 return webhookResponse.data;
             },
             (err) => {
-                this.sessionLogger.logSessionError(
-                    values.logContext,
-                    err,
+                this.logger.error(
+                    { webhookUrl: values.webhook.url, error: err.message },
                     "Error sending claims webhook",
-                    {
-                        webhookUrl: values.webhook.url,
-                    },
                 );
                 throw new Error(
                     `Error sending claims webhook: ${err.message || err}`,
