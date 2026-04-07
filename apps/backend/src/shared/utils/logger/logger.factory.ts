@@ -3,6 +3,16 @@ import { ConfigService } from "@nestjs/config";
 
 /**
  * Factory function for configuring the logger module
+ *
+ * Logging targets:
+ * - Console: pino-pretty for human-readable output
+ * - File: JSON logs (optional, via LOG_TO_FILE)
+ * - OpenTelemetry: pino-opentelemetry-transport sends logs to OTel Collector
+ *
+ * Trace correlation:
+ * - @opentelemetry/instrumentation-pino automatically injects trace_id/span_id
+ * - pino-opentelemetry-transport forwards context to OTel logs pipeline
+ *
  * @param configService The config service instance
  * @returns The logger configuration object
  */
@@ -17,40 +27,18 @@ export const createLoggerOptions = (configService: ConfigService) => {
     const logToFile = configService.get<boolean>("LOG_TO_FILE");
     const logFilePath = configService.get<string>("LOG_FILE_PATH");
 
-    let transportConfig;
+    // Check if OTel is disabled
+    const otelDisabled =
+        configService.get<string>("OTEL_SDK_DISABLED")?.toLowerCase() ===
+        "true";
+    const logLevel = configService.get("LOG_LEVEL", "info");
 
-    if (logToFile) {
-        // Configure both console and file logging
-        transportConfig = {
-            targets: [
-                // Console pretty logging
-                {
-                    target: "pino-pretty",
-                    level: configService.get("LOG_LEVEL", "info"),
-                    options: {
-                        colorize: true,
-                        singleLine: false,
-                        translateTime: "yyyy-mm-dd HH:MM:ss",
-                        ignore: "pid,hostname,req,res,responseTime,context",
-                        messageFormat: "{if context}[{context}] {end}{msg}",
-                    },
-                },
-                // File logging - ensure order is maintained with sync: true
-                {
-                    target: "pino/file",
-                    level: configService.get("LOG_LEVEL", "info"),
-                    options: {
-                        destination: logFilePath,
-                        mkdir: true,
-                        sync: true, // Use synchronous writes to ensure message order
-                    },
-                },
-            ],
-        };
-    } else {
-        // Console logging only
-        transportConfig = {
+    // Build transport targets array
+    const targets: any[] = [
+        // Console pretty logging (always enabled)
+        {
             target: "pino-pretty",
+            level: logLevel,
             options: {
                 colorize: true,
                 singleLine: false,
@@ -58,14 +46,42 @@ export const createLoggerOptions = (configService: ConfigService) => {
                 ignore: "pid,hostname,req,res,responseTime,context",
                 messageFormat: "{if context}[{context}] {end}{msg}",
             },
-        };
+        },
+    ];
+
+    // Optional: File logging
+    if (logToFile && logFilePath) {
+        targets.push({
+            target: "pino/file",
+            level: logLevel,
+            options: {
+                destination: logFilePath,
+                mkdir: true,
+                sync: true, // Use synchronous writes to ensure message order
+            },
+        });
+    }
+
+    // Optional: OpenTelemetry transport (sends logs to OTel Collector → Loki)
+    // This is how pino logs get trace correlation and appear in Grafana/Loki
+    if (!otelDisabled) {
+        targets.push({
+            target: "pino-opentelemetry-transport",
+            level: logLevel,
+            options: {
+                // Resource attributes are already set in tracing.ts
+                // The transport automatically picks up the active span context
+            },
+        });
     }
 
     return {
         pinoHttp: {
-            level: configService.get("LOG_LEVEL", "info"),
+            level: logLevel,
             autoLogging: enableHttpLogger,
-            transport: transportConfig,
+            transport: {
+                targets,
+            },
             formatters: {
                 log: (object) => {
                     object.hostname = undefined;

@@ -4,6 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import { plainToInstance } from "class-transformer";
 import { validateOrReject } from "class-validator";
 import { base64url } from "jose";
+import { Span, TraceService } from "nestjs-otel";
 import { v4 } from "uuid";
 import { EncryptionService } from "../../crypto/encryption/encryption.service";
 import { CertService } from "../../crypto/key/cert/cert.service";
@@ -33,7 +34,49 @@ export class Oid4vpService {
         private readonly sessionLogger: SessionLoggerService,
         private readonly webhookService: WebhookService,
         private readonly cryptoImplementationService: CryptoImplementationService,
+        private readonly traceService: TraceService,
     ) {}
+
+    /**
+     * Gets the authorization request for a session.
+     * Returns the cached requestObject if available (for request_uri_method="get"),
+     * otherwise generates a new one.
+     *
+     * This ensures the wallet receives the exact same JWT that was stored during
+     * session creation, which is essential for transaction_data hash validation.
+     */
+    @Span("oid4vp.getAuthorizationRequest")
+    async getAuthorizationRequest(
+        sessionId: string,
+        origin: string,
+        noRedirect = false,
+    ): Promise<string> {
+        const session = await this.sessionService.get(sessionId);
+
+        // Add session context to span for trace correlation
+        const span = this.traceService.getSpan();
+        span?.setAttributes({
+            "session.id": session.id,
+            "session.tenantId": session.tenantId,
+            "session.requestId": session.requestId ?? "",
+            "oid4vp.cached": !!session.requestObject,
+        });
+
+        // Return cached requestObject if available (pre-generated during session creation)
+        // This ensures transaction_data hash validation works correctly
+        if (session.requestObject) {
+            // Handle noRedirect flag even for cached requests
+            if (noRedirect) {
+                await this.sessionService.add(session.id, {
+                    redirectUri: null,
+                });
+            }
+            return session.requestObject;
+        }
+
+        // No cached request - generate new one (for request_uri_method="post" flows)
+        return this.createAuthorizationRequest(sessionId, origin, noRedirect);
+    }
 
     /**
      * Creates an authorization request for the OID4VP flow.
@@ -44,12 +87,21 @@ export class Oid4vpService {
      * @param noRedirect
      * @returns
      */
+    @Span("oid4vp.createAuthorizationRequest")
     async createAuthorizationRequest(
         sessionId: string,
         origin: string,
         noRedirect = false,
     ): Promise<string> {
         const session = await this.sessionService.get(sessionId);
+
+        // Add session context to span for trace correlation
+        const span = this.traceService.getSpan();
+        span?.setAttributes({
+            "session.id": session.id,
+            "session.tenantId": session.tenantId,
+            "session.requestId": session.requestId ?? "",
+        });
 
         // if noRedirect is true, we want to keep the redirectUri undefined in the session, as it will be used by the client to decide whether to redirect or not after receiving the response. If it's defined, the client will always redirect, even if it was instructed not to.
         if (noRedirect) {
@@ -346,8 +398,18 @@ export class Oid4vpService {
      * @param body
      * @param tenantId
      */
+    @Span("oid4vp.getResponse")
     async getResponse(body: AuthorizationResponse, sessionId: string) {
         const session = await this.sessionService.get(sessionId);
+
+        // Add session context to span for trace correlation
+        const span = this.traceService.getSpan();
+        span?.setAttributes({
+            "session.id": session.id,
+            "session.tenantId": session.tenantId,
+            "session.requestId": session.requestId ?? "",
+        });
+
         const decrypted = await this.encryptionService.decryptJwe<AuthResponse>(
             body.response,
             session.tenantId,

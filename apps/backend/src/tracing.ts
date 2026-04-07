@@ -38,6 +38,10 @@ const otelSDK = new NodeSDK({
         getNodeAutoInstrumentations({
             // fs instrumentation is very noisy and adds little value
             "@opentelemetry/instrumentation-fs": { enabled: false },
+            // Enable HTTP metrics (server request duration, etc.)
+            "@opentelemetry/instrumentation-http": {
+                enabled: true,
+            },
         }),
     ],
 });

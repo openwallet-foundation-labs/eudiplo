@@ -2,6 +2,7 @@ import {
     Body,
     Controller,
     Get,
+    Header,
     HttpCode,
     HttpStatus,
     Param,
@@ -18,6 +19,7 @@ import { Oid4vpService } from "./oid4vp.service";
 
 /**
  * Controller for handling OID4VP (OpenID for Verifiable Presentations) requests.
+ * Per OID4VP spec section 5.10.1, Request URI responses must use Content-Type: application/oauth-authz-req+jwt
  */
 @ApiTags("OID4VP")
 @Controller("presentations/:sessionId/oid4vp")
@@ -32,34 +34,40 @@ export class Oid4vpController {
 
     /**
      * Returns the authorization request for a given requestId and session.
+     * Returns the cached request JWT if available, otherwise generates a new one.
+     * Per OID4VP spec section 5.10.1: Response MUST use Content-Type: application/oauth-authz-req+jwt
      * @param session
      * @param req
      * @returns
      */
     @Get("request")
+    @Header("Content-Type", "application/oauth-authz-req+jwt")
     @SessionLogger("sessionId", "OID4VP")
     getRequestWithSession(
         @Param("sessionId") sessionId: string,
         @Req() req: Request,
     ) {
         const origin = req.get("origin") as string;
-        return this.oid4vpService.createAuthorizationRequest(sessionId, origin);
+        return this.oid4vpService.getAuthorizationRequest(sessionId, origin);
     }
 
     /**
      * Returns the authorization request for a given requestId and session, but does not redirect in the end.
+     * Returns the cached request JWT if available, otherwise generates a new one.
+     * Per OID4VP spec section 5.10.1: Response MUST use Content-Type: application/oauth-authz-req+jwt
      * @param sessionId
      * @param req
      * @returns
      */
     @Get("request/no-redirect")
+    @Header("Content-Type", "application/oauth-authz-req+jwt")
     @SessionLogger("sessionId", "OID4VP")
     getRequestNoRedirectWithSession(
         @Param("sessionId") sessionId: string,
         @Req() req: Request,
     ) {
         const origin = req.get("origin") as string;
-        return this.oid4vpService.createAuthorizationRequest(
+        return this.oid4vpService.getAuthorizationRequest(
             sessionId,
             origin,
             true,
@@ -68,18 +76,21 @@ export class Oid4vpController {
 
     /**
      * Returns the authorization request for a given requestId and session.
+     * Returns the cached request JWT if available, otherwise generates a new one.
+     * Per OID4VP spec section 5.10.1: Response MUST use Content-Type: application/oauth-authz-req+jwt
      * @param sessionId
      * @param req
      * @returns
      */
     @Post("request")
+    @Header("Content-Type", "application/oauth-authz-req+jwt")
     @SessionLogger("sessionId", "OID4VP")
     getPostRequestWithSession(
         @Param("sessionId") sessionId: string,
         @Req() req: Request,
     ) {
         const origin = req.get("origin") as string;
-        return this.oid4vpService.createAuthorizationRequest(sessionId, origin);
+        return this.oid4vpService.getAuthorizationRequest(sessionId, origin);
     }
 
     /**

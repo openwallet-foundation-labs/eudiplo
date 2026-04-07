@@ -1,6 +1,5 @@
 // OTel SDK MUST be imported first — before any module that loads `http`, `express`, etc.
 // Auto-instrumentations patch Node built-ins at import time.
-import otelSDK from "./tracing";
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { RequestMethod, ValidationPipe } from "@nestjs/common";
@@ -17,6 +16,7 @@ import { cleanupOpenApiDoc } from "nestjs-zod";
 import { AllExceptionsFilter } from "./all-exceptions.filter";
 import { AppModule } from "./app.module";
 import { ValidationErrorFilter } from "./shared/common/filters/validation-error.filter";
+import otelSDK from "./tracing";
 
 /**
  * Protocol routes excluded from the `/api` global prefix.

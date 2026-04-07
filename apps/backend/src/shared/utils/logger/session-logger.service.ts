@@ -8,6 +8,14 @@ import { SessionLogContext } from "./session-logger-context";
 /**
  * Service for logging session-related events and errors.
  * Uses PinoLogger for structured logging.
+ *
+ * **Audit vs Debug Logging Strategy:**
+ * - **Audit events** (persisted to DB): flow_start, flow_complete, flow_error,
+ *   credential_issuance, credential_verification - these create a permanent audit
+ *   trail visible in the client UI and useful for compliance/proof.
+ * - **Debug events** (pino → OTel → Loki only): authorization_request, token_exchange,
+ *   notification, generic session logs - available in Loki for debugging but not
+ *   persisted to DB to reduce write overhead.
  */
 @Injectable()
 export class SessionLoggerService {
@@ -47,7 +55,7 @@ export class SessionLoggerService {
     }
 
     /**
-     * Log session flow start
+     * Log session flow start (audit event - persisted to DB)
      */
     logFlowStart(context: SessionLogContext, additionalData?: any) {
         if (!this.shouldLog()) return;
@@ -73,7 +81,7 @@ export class SessionLoggerService {
     }
 
     /**
-     * Log session flow completion
+     * Log session flow completion (audit event - persisted to DB)
      */
     logFlowComplete(context: SessionLogContext, additionalData?: any) {
         if (!this.shouldLog()) return;
@@ -93,7 +101,7 @@ export class SessionLoggerService {
     }
 
     /**
-     * Log session flow error
+     * Log session flow error (audit event - persisted to DB)
      */
     logFlowError(
         context: SessionLogContext,
@@ -126,7 +134,7 @@ export class SessionLoggerService {
     }
 
     /**
-     * Log credential issuance step
+     * Log credential issuance step (audit event - persisted to DB)
      */
     logCredentialIssuance(
         context: SessionLogContext,
@@ -155,7 +163,7 @@ export class SessionLoggerService {
     }
 
     /**
-     * Log credential presentation verification
+     * Log credential presentation verification (audit event - persisted to DB)
      */
     logCredentialVerification(
         context: SessionLogContext,
@@ -184,7 +192,7 @@ export class SessionLoggerService {
     }
 
     /**
-     * Log authorization request
+     * Log authorization request (debug only - not persisted to DB)
      */
     logAuthorizationRequest(context: SessionLogContext, additionalData?: any) {
         if (!this.shouldLog()) return;
@@ -198,17 +206,11 @@ export class SessionLoggerService {
             },
             `[${context.flowType}] Authorization request created for session ${context.sessionId}`,
         );
-        this.persistLog(
-            context,
-            "info",
-            `[${context.flowType}] Authorization request created for session ${context.sessionId}`,
-            "authorization",
-            additionalData,
-        );
+        // Debug event: logged to pino (→ OTel → Loki) only, not persisted to DB
     }
 
     /**
-     * Log token exchange
+     * Log token exchange (debug only - not persisted to DB)
      */
     logTokenExchange(context: SessionLogContext, additionalData?: any) {
         if (!this.shouldLog()) return;
@@ -222,17 +224,11 @@ export class SessionLoggerService {
             },
             `[${context.flowType}] Token exchange for session ${context.sessionId}`,
         );
-        this.persistLog(
-            context,
-            "info",
-            `[${context.flowType}] Token exchange for session ${context.sessionId}`,
-            "token_exchange",
-            additionalData,
-        );
+        // Debug event: logged to pino (→ OTel → Loki) only, not persisted to DB
     }
 
     /**
-     * Log notification events
+     * Log notification events (debug only - not persisted to DB)
      */
     logNotification(
         context: SessionLogContext,
@@ -251,17 +247,12 @@ export class SessionLoggerService {
             },
             `[${context.flowType}] Notification ${notificationEvent} for session ${context.sessionId}`,
         );
-        this.persistLog(
-            context,
-            "info",
-            `[${context.flowType}] Notification ${notificationEvent} for session ${context.sessionId}`,
-            "notification",
-            { notificationEvent, ...additionalData },
-        );
+        // Debug event: logged to pino (→ OTel → Loki) only, not persisted to DB
     }
 
     /**
-     * Generic session log method
+     * Generic session log method (debug only - not persisted to DB)
+     * Use specific audit methods (logFlowStart, logFlowComplete, etc.) for audit trail.
      */
     logSession(
         context: SessionLogContext,
@@ -277,17 +268,11 @@ export class SessionLoggerService {
             },
             `[${context.flowType}] ${message}`,
         );
-        this.persistLog(
-            context,
-            "info",
-            `[${context.flowType}] ${message}`,
-            context.stage,
-            additionalData,
-        );
+        // Debug event: logged to pino (→ OTel → Loki) only, not persisted to DB
     }
 
     /**
-     * Generic session error log method
+     * Generic session error log method (audit event - persisted to DB)
      */
     logSessionError(
         context: SessionLogContext,

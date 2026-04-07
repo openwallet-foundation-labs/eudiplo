@@ -4,6 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
 import { base64url, decodeJwt } from "jose";
+import { Span } from "nestjs-otel";
 import { Repository } from "typeorm";
 import { ServiceTypeIdentifier } from "../../issuer/trust-list/trustlist.service";
 import { Session } from "../../session/entities/session.entity";
@@ -200,6 +201,7 @@ export class PresentationsService {
      * @param requiredFields
      * @returns
      */
+    @Span("presentations.parseResponse")
     async parseResponse(
         res: AuthResponse,
         presentationConfig: PresentationConfig,
