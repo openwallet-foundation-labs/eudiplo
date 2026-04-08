@@ -18,7 +18,10 @@ export class SessionLogStoreService {
         private readonly logRepository: Repository<SessionLogEntry>,
         private readonly configService: ConfigService,
     ) {
-        this.mode = this.configService.getOrThrow<SessionStoreMode>("LOG_SESSION_STORE");
+        this.mode =
+            this.configService.getOrThrow<SessionStoreMode>(
+                "LOG_SESSION_STORE",
+            );
     }
 
     /**
