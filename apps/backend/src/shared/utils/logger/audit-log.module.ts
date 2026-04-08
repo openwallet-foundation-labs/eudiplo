@@ -2,7 +2,6 @@ import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { SessionLogEntry } from "../../../session/entities/session-log-entry.entity";
 import { AuditLogService } from "./audit-log.service";
-import { LoggerConfigService } from "./logger-config.service";
 import { SessionLogStoreService } from "./session-log-store.service";
 
 /**
@@ -17,7 +16,7 @@ import { SessionLogStoreService } from "./session-log-store.service";
  */
 @Module({
     imports: [TypeOrmModule.forFeature([SessionLogEntry])],
-    providers: [LoggerConfigService, SessionLogStoreService, AuditLogService],
-    exports: [AuditLogService, SessionLogStoreService, LoggerConfigService],
+    providers: [SessionLogStoreService, AuditLogService],
+    exports: [AuditLogService, SessionLogStoreService],
 })
 export class AuditLogModule {}

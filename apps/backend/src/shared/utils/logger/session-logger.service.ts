@@ -1,8 +1,11 @@
 import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { PinoLogger } from "nestjs-pino";
 import { SessionLogLevel } from "../../../session/entities/session-log-entry.entity";
-import { LoggerConfigService } from "./logger-config.service";
-import { SessionLogStoreService } from "./session-log-store.service";
+import {
+    SessionLogStoreService,
+    SessionStoreMode,
+} from "./session-log-store.service";
 
 /**
  * Context for audit logging operations.
@@ -32,12 +35,17 @@ export class SessionLoggerService {
 
     constructor(
         private readonly logger: PinoLogger,
-        private readonly loggerConfigService: LoggerConfigService,
+        private readonly configService: ConfigService,
         private readonly logStore: SessionLogStoreService,
     ) {
         this.logger.setContext("SessionLoggerService");
-        this.isEnabled = this.loggerConfigService.isSessionLoggerEnabled();
-        this.verbose = this.loggerConfigService.isVerboseMode();
+        this.isEnabled = this.configService.getOrThrow<boolean>(
+            "LOG_ENABLE_SESSION_LOGGER",
+        );
+        this.verbose =
+            this.configService.getOrThrow<SessionStoreMode>(
+                "LOG_SESSION_STORE",
+            ) === "verbose";
     }
 
     private persistLog(
