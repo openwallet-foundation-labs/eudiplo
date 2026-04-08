@@ -28,7 +28,7 @@ EUDIPLO supports two cleanup modes:
 Anonymize mode is useful for audit and compliance scenarios where you need to
 retain evidence that a session occurred without storing personal data. The
 original session status is preserved, so historical statistics remain accurate.
-For real-time monitoring, use the Prometheus metrics exposed by EUDIPLO.
+For real-time monitoring, see the [Monitoring Guide](../getting-started/monitor.md).
 
 ## Per-Tenant Configuration
 

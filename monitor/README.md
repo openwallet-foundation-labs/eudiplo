@@ -3,14 +3,20 @@
 This folder contains a complete observability setup for EUDIPLO using
 OpenTelemetry, Prometheus, Tempo, Loki, and Grafana.
 
+> **Note**: For comprehensive documentation, see the
+> [Monitoring Guide](../docs/getting-started/monitor.md).
+
 ## Architecture
 
-```
-Backend (OTLP) ──► OTel Collector ──┬──► Prometheus (metrics)
-                                    ├──► Tempo (traces)
-                                    └──► Loki (logs)
-                                              │
-                            Grafana ◄─────────┘
+```mermaid
+flowchart LR
+    Backend["Backend<br/>(OTLP)"] --> Collector["OTel Collector"]
+    Collector --> Prometheus["Prometheus<br/>(metrics)"]
+    Collector --> Tempo["Tempo<br/>(traces)"]
+    Collector --> Loki["Loki<br/>(logs)"]
+    Prometheus --> Grafana
+    Tempo --> Grafana
+    Loki --> Grafana
 ```
 
 All telemetry signals (metrics, traces, logs) are exported from the backend via
