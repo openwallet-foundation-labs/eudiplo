@@ -38,9 +38,7 @@ export class AddSessionErrorReason1750000000000 implements MigrationInterface {
             }),
         );
 
-        console.log(
-            "[Migration] Added errorReason column to session.",
-        );
+        console.log("[Migration] Added errorReason column to session.");
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
