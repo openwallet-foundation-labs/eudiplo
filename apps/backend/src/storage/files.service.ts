@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { extname } from "node:path";
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -143,9 +143,17 @@ export class FilesService {
      * Retrieves a readable stream of the file associated with the given key.
      * @param key The unique identifier of the file.
      * @returns A promise that resolves to a readable stream of the file.
+     * @throws NotFoundException if the file does not exist.
      */
-    getStream(key: string) {
-        return Promise.resolve(this.storage.getStream(key));
+    async getStream(key: string) {
+        try {
+            return await this.storage.getStream(key);
+        } catch (error: any) {
+            if (error?.code === "ENOENT" || error?.name === "NoSuchKey") {
+                throw new NotFoundException(`File not found: ${key}`);
+            }
+            throw error;
+        }
     }
 
     /**

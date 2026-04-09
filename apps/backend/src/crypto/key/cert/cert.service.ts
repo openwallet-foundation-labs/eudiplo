@@ -1,10 +1,7 @@
 import { createHash } from "node:crypto";
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { InjectRepository } from "@nestjs/typeorm";
 import * as x509 from "@peculiar/x509";
-import { Repository } from "typeorm";
-import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { KeyChainEntity, KeyUsageType } from "../entities/key-chain.entity";
 import { KeyChainService } from "../key-chain.service";
 import { CrlValidationService } from "./crl-validation.service";
@@ -78,8 +75,6 @@ export class CertService {
     constructor(
         private readonly keyChainService: KeyChainService,
         private readonly configService: ConfigService,
-        @InjectRepository(TenantEntity)
-        private readonly tenantRepository: Repository<TenantEntity>,
         private readonly crlValidationService?: CrlValidationService,
     ) {}
 

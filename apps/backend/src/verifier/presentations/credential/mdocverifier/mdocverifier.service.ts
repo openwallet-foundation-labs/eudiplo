@@ -10,6 +10,7 @@ import {
     Verifier,
 } from "@owf/mdoc";
 import * as x509 from "@peculiar/x509";
+import { Span } from "nestjs-otel";
 import { VerifierOptions } from "../../../../shared/trust/types";
 import { mdocContext } from "../../mdoc-context";
 import {
@@ -58,6 +59,7 @@ export class MdocverifierService {
      * @param options Verification options including trust list
      * @returns Verification result with claims
      */
+    @Span("mdoc.verify")
     async verify(
         vp: string,
         sessionData: MdocSessionData,

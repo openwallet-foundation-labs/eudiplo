@@ -3,8 +3,8 @@ import { ConfigService } from "@nestjs/config";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { InjectRepository } from "@nestjs/typeorm";
-import { InjectMetric } from "@willsoto/nestjs-prometheus/dist/injector";
-import { Gauge } from "prom-client";
+import type { UpDownCounter } from "@opentelemetry/api";
+import { MetricService } from "nestjs-otel";
 import {
     DeepPartial,
     FindOptionsWhere,
@@ -25,6 +25,7 @@ import {
 @Injectable()
 export class SessionService implements OnApplicationBootstrap {
     private readonly logger = new Logger(SessionService.name);
+    private readonly sessionsGauge: UpDownCounter;
 
     constructor(
         @InjectRepository(Session)
@@ -34,9 +35,12 @@ export class SessionService implements OnApplicationBootstrap {
         private readonly configService: ConfigService,
         private readonly schedulerRegistry: SchedulerRegistry,
         private readonly eventEmitter: EventEmitter2,
-        @InjectMetric("sessions")
-        private readonly sessionsCounter: Gauge<string>,
-    ) {}
+        metricService: MetricService,
+    ) {
+        this.sessionsGauge = metricService.getUpDownCounter("sessions", {
+            description: "Total number of sessions by status",
+        });
+    }
 
     /**
      * Register the tidy up cron job on application bootstrap.
@@ -70,14 +74,11 @@ export class SessionService implements OnApplicationBootstrap {
                     status: state,
                     requestId: IsNull(), // issuance sessions don't have requestId
                 });
-                this.sessionsCounter.set(
-                    {
-                        tenant_id: tenant.id,
-                        session_type: "issuance",
-                        status: state,
-                    },
-                    issuanceCounter,
-                );
+                this.sessionsGauge.add(issuanceCounter, {
+                    tenant_id: tenant.id,
+                    session_type: "issuance",
+                    status: state,
+                });
 
                 const verificationCounter =
                     await this.sessionRepository.countBy({
@@ -85,14 +86,11 @@ export class SessionService implements OnApplicationBootstrap {
                         status: state,
                         requestId: Not(IsNull()), // verification sessions have requestId
                     });
-                this.sessionsCounter.set(
-                    {
-                        tenant_id: tenant.id,
-                        session_type: "verification",
-                        status: state,
-                    },
-                    verificationCounter,
-                );
+                this.sessionsGauge.add(verificationCounter, {
+                    tenant_id: tenant.id,
+                    session_type: "verification",
+                    status: state,
+                });
             }
         }
 
@@ -108,7 +106,7 @@ export class SessionService implements OnApplicationBootstrap {
         const createdSession = await this.sessionRepository.save(session);
 
         // Count total sessions created
-        this.sessionsCounter.inc({
+        this.sessionsGauge.add(1, {
             tenant_id: createdSession.tenantId,
             session_type: createdSession.requestId
                 ? "verification"
@@ -140,14 +138,14 @@ export class SessionService implements OnApplicationBootstrap {
         this.eventEmitter.emit(SESSION_STATUS_CHANGED, event);
 
         // Count completed sessions (success or failure)
-        this.sessionsCounter.inc({
+        this.sessionsGauge.add(1, {
             tenant_id: session.tenantId,
             session_type: sessionType,
             status,
         });
 
         // Decrease active sessions count
-        this.sessionsCounter.dec({
+        this.sessionsGauge.add(-1, {
             tenant_id: session.tenantId,
             session_type: sessionType,
             status: "active",

@@ -20,8 +20,14 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { CredentialConfig, type IssuanceConfig, type OfferRequestDto } from '@eudiplo/sdk-core';
+import {
+  AttributeProviderEntity,
+  CredentialConfig,
+  type IssuanceConfig,
+  type OfferRequestDto,
+} from '@eudiplo/sdk-core';
 import { IssuanceConfigService } from '../issuance-config/issuance-config.service';
+import { AttributeProviderService } from '../attribute-provider/attribute-provider.service';
 import { FormlyJsonschema } from '@ngx-formly/core/json-schema';
 import { CredentialConfigService } from '../credential-config/credential-config.service';
 import { FormlyFieldConfig, FormlyFieldProps, FormlyModule } from '@ngx-formly/core';
@@ -101,6 +107,7 @@ export class IssuanceOfferComponent implements OnInit {
   credentialConfigs: CredentialConfig[] = [];
   issuanceConfig?: IssuanceConfig;
   availableAuthServers: string[] = [];
+  availableAttributeProviders: AttributeProviderEntity[] = [];
 
   // IAE status tracking for selected credential configs
   selectedConfigsIaeStatus = new Map<string, boolean>();
@@ -218,6 +225,7 @@ export class IssuanceOfferComponent implements OnInit {
     private readonly router: Router,
     private readonly formlyJsonschema: FormlyJsonschema,
     private readonly credentialConfigService: CredentialConfigService,
+    private readonly attributeProviderService: AttributeProviderService,
     private readonly dialog: MatDialog,
     private readonly cdr: ChangeDetectorRef
   ) {
@@ -282,6 +290,12 @@ export class IssuanceOfferComponent implements OnInit {
     this.credentialConfigService
       .loadConfigurations()
       .then((response) => (this.credentialConfigs = response));
+
+    // Load available attribute providers
+    this.attributeProviderService
+      .getAll()
+      .then((providers) => (this.availableAttributeProviders = providers))
+      .catch(() => (this.availableAttributeProviders = []));
 
     // Load issuance config to get available auth servers
     this.issuanceConfigService.getConfig().then((config) => {

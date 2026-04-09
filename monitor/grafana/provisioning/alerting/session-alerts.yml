@@ -17,7 +17,7 @@ groups:
               to: 0
             datasourceUid: prometheus
             model:
-              expr: rate(sessions_total{status="error"}[5m])
+              expr: sessions{status="error"}
               interval: ''
               refId: A
           - refId: B
@@ -27,7 +27,7 @@ groups:
               to: 0
             datasourceUid: prometheus
             model:
-              expr: rate(sessions_total{status=~"success|error"}[5m])
+              expr: sessions{status=~"completed|error"}
               interval: ''
               refId: B
           - refId: C

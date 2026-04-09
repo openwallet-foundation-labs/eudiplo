@@ -194,9 +194,8 @@ async function handleRequest(request: Request): Promise<Response> {
         }
 
         // ============================================================
-        // Claims Endpoints (Unified - handles both internal and external AS flows)
+        // Claims Endpoint (Unified - handles both internal and external AS flows)
         // ============================================================
-        case "/process":
         case "/claims": {
             const validation = validateClaimsWebhookRequest(body);
             if (!validation.success) {
@@ -236,23 +235,6 @@ async function handleRequest(request: Request): Promise<Response> {
             console.log("Received authenticated webhook:");
             console.log(JSON.stringify(body, null, 2));
             return Response.json({ status: "ok" }, { status: 200 });
-        }
-
-        // ============================================================
-        // Legacy Endpoints (kept for backward compatibility)
-        // ============================================================
-        case "/request": {
-            console.log("Received request webhook (legacy):");
-            console.log(JSON.stringify(body, null, 2));
-
-            // Return static claims for citizen credential
-            const response: ClaimsWebhookResponse = createClaimsResponse(
-                "citizen",
-                {
-                    town: "Köln",
-                },
-            );
-            return Response.json(response, { status: 200 });
         }
 
         default:

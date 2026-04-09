@@ -4,6 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import { plainToInstance } from "class-transformer";
 import { validateOrReject } from "class-validator";
 import { base64url } from "jose";
+import { Span, TraceService } from "nestjs-otel";
 import { v4 } from "uuid";
 import { EncryptionService } from "../../crypto/encryption/encryption.service";
 import { CertService } from "../../crypto/key/cert/cert.service";
@@ -13,8 +14,10 @@ import { KeyChainService } from "../../crypto/key/key-chain.service";
 import { OfferResponse } from "../../issuer/issuance/oid4vci/dto/offer-request.dto";
 import { SessionStatus } from "../../session/entities/session.entity";
 import { SessionService } from "../../session/session.service";
-import { SessionLoggerService } from "../../shared/utils/logger/session-logger.service";
-import { SessionLogContext } from "../../shared/utils/logger/session-logger-context";
+import {
+    AuditLogContext,
+    AuditLogService,
+} from "../../shared/utils/logger/audit-log.service";
 import { WebhookService } from "../../shared/utils/webhook/webhook.service";
 import { AuthResponse } from "../presentations/dto/auth-response.dto";
 import { PresentationsService } from "../presentations/presentations.service";
@@ -30,10 +33,52 @@ export class Oid4vpService {
         private readonly configService: ConfigService,
         private readonly presentationsService: PresentationsService,
         private readonly sessionService: SessionService,
-        private readonly sessionLogger: SessionLoggerService,
+        private readonly auditLogger: AuditLogService,
         private readonly webhookService: WebhookService,
         private readonly cryptoImplementationService: CryptoImplementationService,
+        private readonly traceService: TraceService,
     ) {}
+
+    /**
+     * Gets the authorization request for a session.
+     * Returns the cached requestObject if available (for request_uri_method="get"),
+     * otherwise generates a new one.
+     *
+     * This ensures the wallet receives the exact same JWT that was stored during
+     * session creation, which is essential for transaction_data hash validation.
+     */
+    @Span("oid4vp.getAuthorizationRequest")
+    async getAuthorizationRequest(
+        sessionId: string,
+        origin: string,
+        noRedirect = false,
+    ): Promise<string> {
+        const session = await this.sessionService.get(sessionId);
+
+        // Add session context to span for trace correlation
+        const span = this.traceService.getSpan();
+        span?.setAttributes({
+            "session.id": session.id,
+            "session.tenantId": session.tenantId,
+            "session.requestId": session.requestId ?? "",
+            "oid4vp.cached": !!session.requestObject,
+        });
+
+        // Return cached requestObject if available (pre-generated during session creation)
+        // This ensures transaction_data hash validation works correctly
+        if (session.requestObject) {
+            // Handle noRedirect flag even for cached requests
+            if (noRedirect) {
+                await this.sessionService.add(session.id, {
+                    redirectUri: null,
+                });
+            }
+            return session.requestObject;
+        }
+
+        // No cached request - generate new one (for request_uri_method="post" flows)
+        return this.createAuthorizationRequest(sessionId, origin, noRedirect);
+    }
 
     /**
      * Creates an authorization request for the OID4VP flow.
@@ -44,12 +89,21 @@ export class Oid4vpService {
      * @param noRedirect
      * @returns
      */
+    @Span("oid4vp.createAuthorizationRequest")
     async createAuthorizationRequest(
         sessionId: string,
         origin: string,
         noRedirect = false,
     ): Promise<string> {
         const session = await this.sessionService.get(sessionId);
+
+        // Add session context to span for trace correlation
+        const span = this.traceService.getSpan();
+        span?.setAttributes({
+            "session.id": session.id,
+            "session.tenantId": session.tenantId,
+            "session.requestId": session.requestId ?? "",
+        });
 
         // if noRedirect is true, we want to keep the redirectUri undefined in the session, as it will be used by the client to decide whether to redirect or not after receiving the response. If it's defined, the client will always redirect, even if it was instructed not to.
         if (noRedirect) {
@@ -58,15 +112,15 @@ export class Oid4vpService {
             });
         }
 
-        // Create session logging context
-        const logContext: SessionLogContext = {
+        // Create audit logging context
+        const logContext: AuditLogContext = {
             sessionId: session.id,
             tenantId: session.tenantId,
             flowType: "OID4VP",
             stage: "authorization_request",
         };
 
-        this.sessionLogger.logFlowStart(logContext, {
+        this.auditLogger.logFlowStart(logContext, {
             requestId: session.requestId,
             action: "create_authorization_request",
         });
@@ -114,15 +168,6 @@ export class Oid4vpService {
             const nonce = randomUUID();
             await this.sessionService.add(session.id, {
                 vp_nonce: nonce,
-            });
-
-            this.sessionLogger.logAuthorizationRequest(logContext, {
-                requestId: session.requestId,
-                nonce,
-                regCert,
-                dcqlQueryCount: Array.isArray(dcql_query)
-                    ? dcql_query.length
-                    : 1,
             });
 
             const lifeTime = 60 * 60;
@@ -211,17 +256,9 @@ export class Oid4vpService {
                 cert.keyId,
             );
 
-            this.sessionLogger.logSession(
-                logContext,
-                "Authorization request created successfully",
-                {
-                    certificateId: cert.id,
-                },
-            );
-
             return signedJwt;
         } catch (error) {
-            this.sessionLogger.logFlowError(logContext, error as Error, {
+            this.auditLogger.logFlowError(logContext, error as Error, {
                 requestId: session.requestId,
                 action: "create_authorization_request",
             });
@@ -346,8 +383,18 @@ export class Oid4vpService {
      * @param body
      * @param tenantId
      */
+    @Span("oid4vp.getResponse")
     async getResponse(body: AuthorizationResponse, sessionId: string) {
         const session = await this.sessionService.get(sessionId);
+
+        // Add session context to span for trace correlation
+        const span = this.traceService.getSpan();
+        span?.setAttributes({
+            "session.id": session.id,
+            "session.tenantId": session.tenantId,
+            "session.requestId": session.requestId ?? "",
+        });
+
         const decrypted = await this.encryptionService.decryptJwe<AuthResponse>(
             body.response,
             session.tenantId,
@@ -365,8 +412,8 @@ export class Oid4vpService {
 
         //for dc api the state is no longer included in the res, see: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-request
 
-        // Create session logging context
-        const logContext: SessionLogContext = {
+        // Create audit logging context
+        const logContext: AuditLogContext = {
             sessionId: session.id,
             tenantId: session.tenantId,
             flowType: "OID4VP",
@@ -380,7 +427,7 @@ export class Oid4vpService {
             );
         const webhook = session.parsedWebhook || presentationConfig.webhook;
 
-        this.sessionLogger.logFlowStart(logContext, {
+        this.auditLogger.logFlowStart(logContext, {
             action: "process_presentation_response",
             hasWebhook: !!webhook,
         });
@@ -393,7 +440,7 @@ export class Oid4vpService {
                 session,
             );
 
-            this.sessionLogger.logCredentialVerification(
+            this.auditLogger.logCredentialVerification(
                 logContext,
                 !!credentials && credentials.length > 0,
                 {
@@ -424,7 +471,6 @@ export class Oid4vpService {
                 const response = await this.webhookService
                     .sendWebhook({
                         webhook,
-                        logContext,
                         session,
                         credentials,
                         expectResponse: false,
@@ -438,7 +484,7 @@ export class Oid4vpService {
                         rawPresentationPayload: decrypted,
                     })
                     .catch((error) => {
-                        this.sessionLogger.logFlowError(
+                        this.auditLogger.logFlowError(
                             logContext,
                             error as Error,
                             {
@@ -452,7 +498,7 @@ export class Oid4vpService {
                 }
             }
 
-            this.sessionLogger.logFlowComplete(logContext, {
+            this.auditLogger.logFlowComplete(logContext, {
                 credentialCount: credentials?.length || 0,
                 webhookSent: !!webhook,
             });
@@ -475,7 +521,7 @@ export class Oid4vpService {
 
             return {};
         } catch (error: any) {
-            this.sessionLogger.logFlowError(logContext, error as Error, {
+            this.auditLogger.logFlowError(logContext, error as Error, {
                 action: "process_presentation_response",
             });
             throw new BadRequestException(error.message);

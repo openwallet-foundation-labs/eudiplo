@@ -1,14 +1,39 @@
 # Monitoring
 
-This guide shows how to set up Prometheus and Grafana monitoring for EUDIPLO in
-both local development and Docker container scenarios.
+This guide shows how to set up observability for EUDIPLO using OpenTelemetry,
+Prometheus, Tempo, Loki, and Grafana.
+
+## Architecture
+
+EUDIPLO exports all telemetry signals (metrics, traces, logs) via
+**OpenTelemetry Protocol (OTLP)** to an OpenTelemetry Collector, which routes
+them to the appropriate backends:
+
+```mermaid
+flowchart LR
+    Backend["Backend<br/>(OTLP)"] --> Collector["OTel Collector"]
+    Collector --> Prometheus["Prometheus<br/>(metrics)"]
+    Collector --> Tempo["Tempo<br/>(traces)"]
+    Collector --> Loki["Loki<br/>(logs)"]
+    Prometheus --> Grafana
+    Tempo --> Grafana
+    Loki --> Grafana
+```
+
+Grafana provides unified visualization with cross-signal correlation — jump from
+a trace to related logs, or from metrics to traces.
 
 ## Quick Start
 
-The monitoring stack includes:
+The monitoring stack in `monitor/` includes:
 
-- **Prometheus** on <http://localhost:9090> - Metrics collection
-- **Grafana** on <http://localhost:3001> - Dashboards and visualization
+| Service                     | URL                       | Purpose                  |
+| --------------------------- | ------------------------- | ------------------------ |
+| **OpenTelemetry Collector** | `localhost:4317` / `4318` | OTLP receiver            |
+| **Prometheus**              | <http://localhost:9090>   | Metrics storage          |
+| **Tempo**                   | <http://localhost:3200>   | Distributed tracing      |
+| **Loki**                    | <http://localhost:3100>   | Log aggregation          |
+| **Grafana**                 | <http://localhost:3001>   | Dashboards & exploration |
 
 ### Start Monitoring Stack
 
@@ -19,65 +44,51 @@ docker-compose up -d
 
 ## Local Development Setup
 
-When running EUDIPLO locally (outside Docker) and monitoring with Docker:
+When running EUDIPLO locally (outside Docker) with the monitoring stack:
 
-### 1. Start EUDIPLO Locally
-
-```bash
-# Install dependencies and start EUDIPLO
-npm install
-npm run start:dev
-```
-
-EUDIPLO will be available at <http://localhost:3000> with metrics at
-<http://localhost:3000/metrics>
-
-### 2. Configure Prometheus for Local EUDIPLO
-
-Update `monitor/prometheus/prometheus.yml`:
-
-```yaml
-global:
-    scrape_interval: 15s
-
-scrape_configs:
-    - job_name: 'eudiplo-local'
-      static_configs:
-          - targets: ['host.docker.internal:3000'] # For local EUDIPLO
-      metrics_path: '/metrics'
-      scrape_interval: 30s
-```
-
-### 3. Start Monitoring
+### 1. Start the Monitoring Stack
 
 ```bash
 cd monitor/
-docker-compose up -d prometheus grafana
+docker-compose up -d
 ```
+
+### 2. Start EUDIPLO Backend
+
+```bash
+# From project root
+pnpm --filter @eudiplo/backend dev
+```
+
+The backend exports telemetry to `http://localhost:4318` by default (the OTel
+Collector's HTTP endpoint).
+
+### 3. Verify Telemetry
+
+- **Metrics**: Open <http://localhost:9090/targets> — the `otel-collector`
+  target should be UP
+- **Traces**: Open <http://localhost:3001>, go to Explore → Tempo, and search
+  for recent traces
+- **Logs**: In Grafana, go to Explore → Loki and query `{service_name="eudiplo-backend"}`
 
 ## Docker Container Setup
 
-When running EUDIPLO as a Docker container:
+When running EUDIPLO as a Docker container alongside the monitoring stack:
 
-### 1. Update Prometheus Configuration
+### 1. Configure OTLP Endpoint
 
-Edit `monitor/prometheus/prometheus.yml`:
+Set the OTLP endpoint to the collector's container name:
 
-```yaml
-global:
-    scrape_interval: 15s
-
-scrape_configs:
-    - job_name: 'eudiplo-docker'
-      static_configs:
-          - targets: ['eudiplo:3000'] # For Docker container
-      metrics_path: '/metrics'
-      scrape_interval: 30s
+```bash
+OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
 ```
 
-### 2. Add EUDIPLO to Docker Compose
+### 2. Ensure Network Connectivity
 
-Add to `monitor/docker-compose.yml`:
+Add EUDIPLO to the same Docker network as the monitoring stack, or use
+`host.docker.internal` if running separately.
+
+Example in your application's `docker-compose.yml`:
 
 ```yaml
 services:
@@ -86,145 +97,134 @@ services:
         ports:
             - '3000:3000'
         environment:
-            - NODE_ENV=development
-            - PUBLIC_URL=http://localhost:3000
+            - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
         networks:
-            - monitoring
-
-    prometheus:
-        # ... existing config
+            - monitor_default # Join the monitor stack's network
 
 networks:
-    monitoring:
-        driver: bridge
+    monitor_default:
+        external: true
 ```
 
 ### 3. Start Full Stack
 
 ```bash
-cd monitor/
+# Start monitoring
+cd monitor/ && docker-compose up -d
+
+# Start EUDIPLO (from project root or deployment folder)
 docker-compose up -d
 ```
 
-## Key Metrics
+## Environment Variables
 
-EUDIPLO exposes these important metrics:
+| Variable                      | Description               | Default                 |
+| ----------------------------- | ------------------------- | ----------------------- |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | OTLP collector endpoint   | `http://localhost:4318` |
+| `OTEL_SERVICE_NAME`           | Service name in telemetry | `eudiplo-backend`       |
+| `OTEL_SDK_DISABLED`           | Disable OTel SDK entirely | `false`                 |
+
+Set `OTEL_SDK_DISABLED=true` for local development without a collector running.
+
+## Available Metrics
+
+### Auto-Instrumented (via OpenTelemetry)
+
+- `http_server_request_duration_seconds` — HTTP request duration histogram
+- `http_server_active_requests` — Currently active HTTP requests
+- Host metrics (CPU, memory, event loop) via `nestjs-otel`
 
 ### Business Metrics
 
-- `sessions` - Active, completed, and failed sessions
-
-> More values will be added as the project evolves.
+- `sessions` — Active sessions by status and tenant
+- `tenant_total` — Total number of tenants
 
 ## Access Dashboards
 
-1. **Prometheus**: <http://localhost:9090>
-    - View metrics and run queries
-    - Check targets status at `/targets`
+### Grafana
 
-2. **Grafana**: <http://localhost:3001>
-    - Username: `admin`
-    - Password: `admin`
-    - Import or create dashboards
+<http://localhost:3001>
+
+- **Username**: `admin`
+- **Password**: `admin`
+
+Pre-configured datasources:
+
+- **Prometheus** — for metrics
+- **Tempo** — for traces
+- **Loki** — for logs
+
+Cross-signal correlation is enabled:
+
+- **Traces → Logs**: Jump from a span to correlated log lines in Loki
+- **Logs → Traces**: Extract `trace_id` from Pino log fields and link to Tempo
+
+### Prometheus
+
+<http://localhost:9090>
+
+- View metrics and run PromQL queries
+- Check targets status at <http://localhost:9090/targets>
+
+## Alerting Rules
+
+Pre-configured alerts in `monitor/prometheus/rules/eudiplo.yml`:
+
+| Alert                | Condition                            |
+| -------------------- | ------------------------------------ |
+| **HighErrorRate**    | HTTP 5xx rate exceeds 5% of requests |
+| **ServiceDown**      | OTel Collector target is down        |
+| **HighResponseTime** | P95 response time exceeds 2 seconds  |
+
+### Add Custom Alerts
+
+1. Edit `monitor/prometheus/rules/eudiplo.yml`
+2. Restart Prometheus: `docker-compose restart prometheus`
 
 ## Configuration Files
 
-### Prometheus (`prometheus/prometheus.yml`)
+All configuration files are in the `monitor/` directory:
 
-```yaml
-global:
-    scrape_interval: 15s
-
-scrape_configs:
-    - job_name: 'eudiplo'
-      static_configs:
-          - targets: ['host.docker.internal:3000'] # Local
-          # - targets: ['eudiplo:3000']             # Docker
-      scrape_interval: 30s
-```
-
-### Grafana Data Source
-
-Grafana is pre-configured with Prometheus as data source at
-`http://prometheus:9090`.
+| File                                       | Purpose                    |
+| ------------------------------------------ | -------------------------- |
+| `otel-collector/otel-collector-config.yml` | Collector pipelines        |
+| `prometheus/prometheus.yml`                | Prometheus scrape config   |
+| `prometheus/rules/eudiplo.yml`             | Alerting rules             |
+| `tempo/tempo.yml`                          | Trace storage config       |
+| `loki/loki.yml`                            | Log aggregation config     |
+| `grafana/datasources/`                     | Grafana datasource configs |
+| `grafana/dashboards/`                      | Pre-built dashboards       |
 
 ## Troubleshooting
 
-### Common Issues
+### No Metrics in Prometheus
 
-**Prometheus can't reach EUDIPLO:**
+1. Check the collector is receiving data: `curl http://localhost:8889/metrics`
+2. Verify the backend's OTLP endpoint is correct
+3. Check collector logs: `docker-compose logs otel-collector`
 
-```bash
-# Check if metrics endpoint is accessible
-curl http://localhost:3000/metrics
+### No Traces in Tempo
 
-# For local development, verify host.docker.internal works
-docker run --rm appropriate/curl curl -I http://host.docker.internal:3000/metrics
-```
+1. Verify traces pipeline in collector config
+2. Check Tempo is healthy: `curl http://localhost:3200/ready`
+3. Ensure the backend is generating traces (make some API requests)
 
-**No data in Grafana:**
+### No Logs in Loki
 
-- Check Prometheus targets: <http://localhost:9090/targets>
-- Verify time range in Grafana dashboards
-- Ensure Prometheus data source is configured
+1. Check logs pipeline in collector config
+2. Verify Loki is receiving data: `curl http://localhost:3100/ready`
+3. Query with broader label selector: `{job=~".+"}`
 
-**Container issues:**
+### Disable Telemetry Locally
 
-```bash
-# Check logs
-docker-compose logs prometheus
-docker-compose logs grafana
-
-# Restart services
-docker-compose restart
-```
-
-## Production Considerations
-
-For production deployments:
-
-1. **Security**: Change default Grafana password
-2. **Retention**: Configure appropriate data retention
-3. **Backup**: Set up regular backups of Grafana dashboards
-4. **Alerting**: Configure alertmanager for notifications
-5. **Resources**: Monitor resource usage and scale accordingly
-
-### Securing the Metrics Endpoint
-
-The `/metrics` endpoint can expose sensitive metadata about your deployment
-(tenant IDs, session counts, etc.). In production, protect it with a Bearer token:
-
-**1. Set the metrics token in EUDIPLO:**
-
-```bash
-# In your .env or environment
-METRICS_TOKEN=your-secure-metrics-token
-```
-
-**2. Configure Prometheus to use the token:**
-
-```yaml
-# prometheus.yml
-scrape_configs:
-    - job_name: 'eudiplo'
-      bearer_token: 'your-secure-metrics-token'
-      static_configs:
-          - targets: ['eudiplo:3000']
-      metrics_path: '/metrics'
-```
-
-When `METRICS_TOKEN` is set, requests without a valid `Authorization: Bearer <token>`
-header will receive a 401 Unauthorized response.
-
-!!! tip "Development Mode"
-
-    If `METRICS_TOKEN` is not set, the endpoint remains unprotected for easier
-    local development. Always set it in production environments.
+Set `OTEL_SDK_DISABLED=true` in your environment to disable all OpenTelemetry
+instrumentation when running without a collector.
 
 ## Clean Up
 
 ```bash
 # Stop monitoring stack
+cd monitor/
 docker-compose down
 
 # Remove volumes (deletes all data)
