@@ -20,6 +20,7 @@ import {
 } from "../../shared/utils/logger/audit-log.service";
 import { WebhookService } from "../../shared/utils/webhook/webhook.service";
 import { AuthResponse } from "../presentations/dto/auth-response.dto";
+import { IncompletePresentationException } from "../presentations/exceptions/incomplete-presentation.exception";
 import { PresentationsService } from "../presentations/presentations.service";
 import { AuthorizationResponse } from "./dto/authorization-response.dto";
 import { PresentationRequestOptions } from "./dto/presentation-request-options.dto";
@@ -395,6 +396,62 @@ export class Oid4vpService {
             "session.requestId": session.requestId ?? "",
         });
 
+        // Handle wallet error responses per OID4VP spec section 6.2
+        // When wallet cannot fulfill the request, it sends an OAuth 2.0 error response
+        if (body.error) {
+            const errorMessage = body.error_description
+                ? `${body.error}: ${body.error_description}`
+                : body.error;
+
+            // Create audit logging context for error response
+            const logContext: AuditLogContext = {
+                sessionId: session.id,
+                tenantId: session.tenantId,
+                flowType: "OID4VP",
+                stage: "response_processing",
+            };
+
+            this.auditLogger.logFlowError(
+                logContext,
+                new Error(`Wallet error response: ${errorMessage}`),
+                {
+                    action: "wallet_error_response",
+                    errorCode: body.error,
+                    errorDescription: body.error_description,
+                },
+            );
+
+            // Update session with failed status
+            await this.sessionService.add(session.id, {
+                status: SessionStatus.Failed,
+                errorReason: `Wallet error: ${errorMessage}`,
+            });
+
+            // Return redirect_uri with error if configured
+            if (session.redirectUri) {
+                const processedRedirectUri = decodeURIComponent(
+                    session.redirectUri,
+                ).replaceAll("{sessionId}", session.id);
+
+                const separator = processedRedirectUri.includes("?")
+                    ? "&"
+                    : "?";
+                return {
+                    redirect_uri: `${processedRedirectUri}${separator}error=${encodeURIComponent(body.error)}${body.error_description ? `&error_description=${encodeURIComponent(body.error_description)}` : ""}`,
+                };
+            }
+
+            // Return empty response (session status indicates failure)
+            return {};
+        }
+
+        // Ensure response field is present for success path
+        if (!body.response) {
+            throw new BadRequestException(
+                "Missing response field in authorization response",
+            );
+        }
+
         const decrypted = await this.encryptionService.decryptJwe<AuthResponse>(
             body.response,
             session.tenantId,
@@ -524,7 +581,38 @@ export class Oid4vpService {
             this.auditLogger.logFlowError(logContext, error as Error, {
                 action: "process_presentation_response",
             });
-            throw new BadRequestException(error.message);
+
+            // Per OID4VP spec, the verifier MUST always return HTTP 200.
+            // Validation failures are documented in the session and communicated
+            // via redirect_uri (if configured) or session status.
+            const errorMessage =
+                error instanceof IncompletePresentationException
+                    ? error.message
+                    : `Presentation validation failed: ${error.message}`;
+
+            // Update session with failed status and error reason
+            await this.sessionService.add(session.id, {
+                status: SessionStatus.Failed,
+                errorReason: errorMessage,
+            });
+
+            // If redirect_uri is configured, return it with error parameter
+            if (session.redirectUri) {
+                const processedRedirectUri = decodeURIComponent(
+                    session.redirectUri,
+                ).replaceAll("{sessionId}", session.id);
+
+                // Append error query parameter to redirect URI
+                const separator = processedRedirectUri.includes("?")
+                    ? "&"
+                    : "?";
+                return {
+                    redirect_uri: `${processedRedirectUri}${separator}error=invalid_request&error_description=${encodeURIComponent(errorMessage)}`,
+                };
+            }
+
+            // Return empty response (session status indicates failure)
+            return {};
         }
     }
 }

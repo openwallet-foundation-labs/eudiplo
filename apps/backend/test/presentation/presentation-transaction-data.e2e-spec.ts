@@ -427,7 +427,7 @@ describe("Presentation - Transaction Data", () => {
         ];
 
         // Provide wrong hashes that don't match the actual transaction data
-        const { submitRes } = await submitPresentationWithTransactionData({
+        const { res, submitRes } = await submitPresentationWithTransactionData({
             requestId: "pid-no-hook",
             credentialId: "pid",
             privateKey: privateIssuerKey,
@@ -436,8 +436,18 @@ describe("Presentation - Transaction Data", () => {
             overrideTransactionDataHashes: ["INVALID_HASH_THAT_WONT_MATCH"],
         });
 
-        // The response should fail validation
-        expect(submitRes.response.status).toBe(400);
+        // Per OID4VP spec, the verifier MUST return 200 even on validation failure
+        expect(submitRes.response.status).toBe(200);
+
+        // Verify the session is marked as failed with error reason
+        const sessionRes = await request(app.getHttpServer())
+            .get(`/session/${res.body.session}`)
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .expect(200);
+
+        expect(sessionRes.body.status).toBe("failed");
+        expect(sessionRes.body.errorReason).toBeDefined();
     });
 
     test("should reject presentation when transaction data provided but no hashes in KB-JWT", async () => {
@@ -454,7 +464,7 @@ describe("Presentation - Transaction Data", () => {
         ];
 
         // Override with empty array to simulate missing hashes
-        const { submitRes } = await submitPresentationWithTransactionData({
+        const { res, submitRes } = await submitPresentationWithTransactionData({
             requestId: "pid-no-hook",
             credentialId: "pid",
             privateKey: privateIssuerKey,
@@ -463,8 +473,18 @@ describe("Presentation - Transaction Data", () => {
             overrideTransactionDataHashes: [], // Empty hashes when data was expected
         });
 
-        // Should fail because hash count doesn't match
-        expect(submitRes.response.status).toBe(400);
+        // Per OID4VP spec, the verifier MUST return 200 even on validation failure
+        expect(submitRes.response.status).toBe(200);
+
+        // Verify the session is marked as failed with error reason
+        const sessionRes = await request(app.getHttpServer())
+            .get(`/session/${res.body.session}`)
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .expect(200);
+
+        expect(sessionRes.body.status).toBe("failed");
+        expect(sessionRes.body.errorReason).toBeDefined();
     });
 
     test("should accept presentation without transaction data", async () => {
