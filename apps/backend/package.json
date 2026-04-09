@@ -75,9 +75,9 @@
         "@opentelemetry/sdk-node": "^0.214.0",
         "@opentelemetry/sdk-trace-base": "^2.6.1",
         "@opentelemetry/semantic-conventions": "^1.40.0",
-        "@owf/eudi-lote": "0.1.0-alpha-20260323122115",
-        "@owf/mdoc": "0.6.0-alpha-20260323111323",
-        "@owf/token-status-list": "0.1.0-alpha-20260317093905",
+        "@owf/eudi-lote": "0.1.0-alpha-20260407070950",
+        "@owf/mdoc": "0.6.0",
+        "@owf/token-status-list": "0.1.0-alpha-20260408100846",
         "@panva/hkdf": "^1.2.1",
         "@peculiar/asn1-schema": "^2.6.0",
         "@peculiar/asn1-x509": "^2.6.1",
@@ -111,10 +111,10 @@
         "uuid": "^13.0.0"
     },
     "devDependencies": {
-        "@biomejs/biome": "2.4.4",
+        "@biomejs/biome": "2.4.10",
         "@codecov/vite-plugin": "^1.9.1",
         "@compodoc/compodoc": "^1.2.1",
-        "@hey-api/openapi-ts": "^0.93.1",
+        "@hey-api/openapi-ts": "^0.95.0",
         "@nestjs/cli": "^11.0.16",
         "@nestjs/schematics": "^11.0.9",
         "@nestjs/testing": "^11.1.14",
@@ -140,7 +140,7 @@
         "tsx": "^4.21.0",
         "typescript": "^5.9.3",
         "unplugin-swc": "^1.5.9",
-        "vitest": "4.1.0"
+        "vitest": "4.1.4"
     },
     "packageManager": "pnpm@10.13.1"
 }

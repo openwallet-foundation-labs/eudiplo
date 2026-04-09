@@ -25,9 +25,8 @@ updates:
       all-minor-patch:
         update-types: ["minor", "patch"]
 
-      # All major updates bundled together
-      all-majors:
-        update-types: ["major"]
+      # Major updates are NOT grouped - each gets its own PR
+      # to allow individual review and handling of breaking changes
 
   # --- GitHub Actions versions in .github/workflows ---
   - package-ecosystem: github-actions

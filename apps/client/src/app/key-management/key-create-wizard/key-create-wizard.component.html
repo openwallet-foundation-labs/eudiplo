@@ -159,6 +159,23 @@
                         <span class="option-label">{{ option.label }}</span>
                         <span class="option-description">{{ option.description }}</span>
                         <span class="option-hint">{{ option.hint }}</span>
+                        @if (option.value === 'registrar') {
+                          <div class="registrar-status">
+                            @if (isCheckingRegistrar) {
+                              <mat-spinner diameter="16"></mat-spinner>
+                              <span>Checking registrar configuration...</span>
+                            } @else if (hasRegistrarConfig) {
+                              <mat-icon class="status-ok">check_circle</mat-icon>
+                              <span class="status-ok">Registrar credentials configured</span>
+                            } @else {
+                              <mat-icon class="status-warning">warning</mat-icon>
+                              <span class="status-warning">
+                                Registrar credentials not configured.
+                                <a [routerLink]="['/registrar']">Configure now</a>
+                              </span>
+                            }
+                          </div>
+                        }
                       </div>
                     </div>
                   </mat-radio-button>
@@ -176,10 +193,13 @@
               mat-flat-button
               type="button"
               color="primary"
-              [disabled]="!accessSourceForm.valid"
+              [disabled]="
+                !accessSourceForm.valid ||
+                (selectedAccessSource === 'registrar' && !hasRegistrarConfig)
+              "
               (click)="onAccessSourceNext()"
             >
-              {{ selectedAccessSource === 'registrar' ? 'Go to Registrar' : 'Configure Key' }}
+              {{ selectedAccessSource === 'registrar' ? 'Enroll Certificate' : 'Configure Key' }}
               <mat-icon iconPositionEnd>arrow_forward</mat-icon>
             </button>
           </div>
@@ -196,6 +216,11 @@
             @if (isInternalChain) {
               <p class="hint">
                 This will create a root CA and a rotating signing key managed as a single key chain.
+              </p>
+            } @else if (selectedUsage === 'access' && selectedAccessSource === 'registrar') {
+              <p class="hint">
+                This will create a key and enroll it with the registrar to obtain a trusted
+                certificate.
               </p>
             } @else if (selectedUsage === 'access') {
               <p class="hint">
@@ -320,6 +345,15 @@
                   </span>
                 </div>
               }
+              @if (selectedUsage === 'access' && selectedAccessSource === 'registrar') {
+                <div class="next-steps-hint">
+                  <mat-icon>info</mat-icon>
+                  <span>
+                    The key will be created and automatically enrolled with the registrar to obtain
+                    a trusted certificate.
+                  </span>
+                </div>
+              }
             </mat-card-content>
           </mat-card>
 
@@ -331,7 +365,11 @@
             @if (isSubmitting) {
               <button mat-flat-button type="button" color="primary" disabled>
                 <mat-icon class="spinning">sync</mat-icon>
-                Creating...
+                @if (selectedUsage === 'access' && selectedAccessSource === 'registrar') {
+                  <ng-container>Enrolling...</ng-container>
+                } @else {
+                  <ng-container>Creating...</ng-container>
+                }
               </button>
             } @else {
               <button
@@ -342,7 +380,11 @@
                 (click)="createKey()"
               >
                 <mat-icon>vpn_key</mat-icon>
-                Create Key Chain
+                @if (selectedUsage === 'access' && selectedAccessSource === 'registrar') {
+                  <ng-container>Create & Enroll</ng-container>
+                } @else {
+                  <ng-container>Create Key Chain</ng-container>
+                }
               </button>
             }
           </div>

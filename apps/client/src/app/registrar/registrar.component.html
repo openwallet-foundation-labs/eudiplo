@@ -108,6 +108,7 @@
                   matInput
                   formControlName="password"
                   [type]="showPassword ? 'text' : 'password'"
+                  [placeholder]="config?.hasPassword ? 'Leave empty to keep existing' : ''"
                 />
                 <button
                   mat-icon-button
@@ -117,6 +118,9 @@
                 >
                   <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
                 </button>
+                @if (config?.hasPassword) {
+                  <mat-hint>Password is set. Enter a new value to change it.</mat-hint>
+                }
               </mat-form-field>
             </div>
           </form>
@@ -147,59 +151,6 @@
           </button>
         </mat-card-actions>
       </mat-card>
-
-      <!-- Create Access Certificate Card -->
-      @if (hasConfig) {
-        <mat-card>
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon>badge</mat-icon>
-              Create Access Certificate
-            </mat-card-title>
-            <mat-card-subtitle>
-              Request an access certificate from the registrar for one of your key chains
-            </mat-card-subtitle>
-          </mat-card-header>
-
-          <mat-card-content>
-            <div
-              fxLayout="row"
-              fxLayoutAlign="start center"
-              fxLayoutGap="16px"
-              fxLayout.lt-md="column"
-            >
-              <mat-form-field appearance="outline" class="key-select" fxFlex>
-                <mat-label>Select Key Chain</mat-label>
-                <mat-select [(value)]="selectedKeyChainId">
-                  <mat-option value="">-- Select a key chain --</mat-option>
-                  @for (keyChain of keyChains; track keyChain.id) {
-                    <mat-option [value]="keyChain.id">
-                      {{ keyChain.description || keyChain.id }}</mat-option
-                    >
-                  }
-                </mat-select>
-                <mat-hint>The certificate will be stored in this key chain</mat-hint>
-              </mat-form-field>
-            </div>
-          </mat-card-content>
-          <mat-card-actions align="end">
-            <button
-              mat-raised-button
-              color="primary"
-              (click)="createAccessCertificate()"
-              [disabled]="!selectedKeyChainId || isCreatingCert"
-              matTooltip="Create an access certificate at the registrar and store it in EUDIPLO"
-            >
-              @if (isCreatingCert) {
-                <mat-spinner diameter="18" class="button-spinner"></mat-spinner>
-              } @else {
-                <mat-icon>add_circle</mat-icon>
-              }
-              Create Certificate
-            </button>
-          </mat-card-actions>
-        </mat-card>
-      }
 
       <!-- Info Card -->
       <mat-card class="info-card">

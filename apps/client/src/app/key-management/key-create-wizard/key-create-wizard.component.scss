@@ -149,6 +149,38 @@
       }
     }
   }
+
+  .registrar-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: 0.85rem;
+
+    mat-spinner {
+      display: inline-block;
+    }
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    .status-ok {
+      color: var(--mat-sys-tertiary, #28a745);
+    }
+
+    .status-warning {
+      color: var(--mat-sys-error);
+
+      a {
+        color: var(--mat-sys-primary);
+        text-decoration: underline;
+        cursor: pointer;
+      }
+    }
+  }
 }
 
 .step-actions {

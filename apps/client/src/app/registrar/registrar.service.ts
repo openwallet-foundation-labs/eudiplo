@@ -4,7 +4,8 @@ import { ApiService } from '../core';
 import { firstValueFrom } from 'rxjs';
 
 /**
- * Registrar configuration for connecting to an external registrar service.
+ * Registrar configuration response from the API.
+ * The password is never returned for security reasons; instead hasPassword indicates if one is set.
  */
 export interface RegistrarConfig {
   tenantId?: string;
@@ -13,7 +14,20 @@ export interface RegistrarConfig {
   clientId: string;
   clientSecret?: string;
   username: string;
-  password: string;
+  /** Indicates whether a password is configured (actual password is never returned) */
+  hasPassword: boolean;
+}
+
+/**
+ * Registrar configuration for create/update requests.
+ */
+export interface RegistrarConfigRequest {
+  registrarUrl: string;
+  oidcUrl: string;
+  clientId: string;
+  clientSecret?: string;
+  username: string;
+  password?: string;
 }
 
 /**
@@ -65,7 +79,7 @@ export class RegistrarService {
    * Create or replace the registrar configuration.
    * Credentials are validated before saving.
    */
-  async saveConfig(config: Omit<RegistrarConfig, 'tenantId'>): Promise<RegistrarConfig> {
+  async saveConfig(config: RegistrarConfigRequest): Promise<RegistrarConfig> {
     return firstValueFrom(
       this.http.post<RegistrarConfig>(`${this.getBaseUrl()}/api/registrar/config`, config)
     );
@@ -75,7 +89,7 @@ export class RegistrarService {
    * Update the registrar configuration.
    * Credentials are validated if auth-related fields are changed.
    */
-  async updateConfig(config: Partial<Omit<RegistrarConfig, 'tenantId'>>): Promise<RegistrarConfig> {
+  async updateConfig(config: Partial<RegistrarConfigRequest>): Promise<RegistrarConfig> {
     return firstValueFrom(
       this.http.patch<RegistrarConfig>(`${this.getBaseUrl()}/api/registrar/config`, config)
     );
