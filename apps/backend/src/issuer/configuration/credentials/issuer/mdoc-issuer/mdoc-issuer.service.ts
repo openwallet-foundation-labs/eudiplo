@@ -110,7 +110,7 @@ export class MdocIssuerService {
         // Sign the mDOC
         const issuerSigned = await issuer.sign({
             signingKey: CoseKey.fromJwk(privateKey as Jwk),
-            certificate: new Uint8Array(x509Cert.rawData),
+            certificates: [new Uint8Array(x509Cert.rawData)],
             algorithm: SignatureAlgorithm.ES256,
             digestAlgorithm: "SHA-256",
             deviceKeyInfo: { deviceKey: DeviceKey.fromJwk(deviceKey) },
