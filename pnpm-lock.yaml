@@ -16,8 +16,8 @@ importers:
         specifier: ^15.3.1
         version: 15.3.5(@types/json-schema@7.0.15)
       '@codedependant/semantic-release-docker':
-        specifier: ^5.1.1
-        version: 5.1.1
+        specifier: ^6.1.1
+        version: 6.1.1
       '@openapi-contrib/openapi-schema-to-json-schema':
         specifier: ^5.1.0
         version: 5.1.0
@@ -1798,8 +1798,9 @@ packages:
     peerDependencies:
       vite: 4.x || 5.x || 6.x
 
-  '@codedependant/semantic-release-docker@5.1.1':
-    resolution: {integrity: sha512-gACzBuAVRBRAJOvGqCXZoMGSpVlyqbAp/LoiJnBc/Fl4B+ZqJyI95uwRNJXSuMQXTUI/I49RTmdetWWU8f/a5w==}
+  '@codedependant/semantic-release-docker@6.1.1':
+    resolution: {integrity: sha512-i662xEun7NnaQQT2toHDDKyud9j3JF3kgLQBhMB+3A6e/60UsQVuaP7qpeYRe+0ipdYB23BWTgp4/m/7kYKHPQ==}
+    engines: {node: '>=20'}
 
   '@colors/colors@1.5.0':
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
@@ -6406,6 +6407,11 @@ packages:
 
   handlebars@4.7.8:
     resolution: {integrity: sha512-vafaFqs8MZkRrSX7sFVUdo3ap/eNiLnb4IakshzvP56X5Nr1iGKAIqdX6tMlm6HcNRIkr6AxO5jFEoJzzpT8aQ==}
+    engines: {node: '>=0.4.7'}
+    hasBin: true
+
+  handlebars@4.7.9:
+    resolution: {integrity: sha512-4E71E0rpOaQuJR2A3xDZ+GM1HyWYv1clR58tC8emQNeQe3RH7MAzSbat+V0wG78LQBo6m6bzSG/L4pBuCsgnUQ==}
     engines: {node: '>=0.4.7'}
     hasBin: true
 
@@ -12166,13 +12172,13 @@ snapshots:
       unplugin: 1.16.1
       vite: 7.3.2(@types/node@25.5.2)(jiti@2.6.1)(sass@1.97.3)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3)
 
-  '@codedependant/semantic-release-docker@5.1.1':
+  '@codedependant/semantic-release-docker@6.1.1':
     dependencies:
-      '@actions/core': 1.11.1
-      '@semantic-release/error': 3.0.0
+      '@actions/core': 3.0.0
+      '@semantic-release/error': 4.0.0
       debug: 4.4.3
-      execa: 4.1.0
-      handlebars: 4.7.8
+      execa: 9.6.1
+      handlebars: 4.7.9
       object-hash: 3.0.0
       semver: 7.7.4
     transitivePeerDependencies:
@@ -16044,7 +16050,7 @@ snapshots:
   conventional-changelog-writer@8.2.0:
     dependencies:
       conventional-commits-filter: 5.0.0
-      handlebars: 4.7.8
+      handlebars: 4.7.9
       meow: 13.2.0
       semver: 7.7.4
 
@@ -17141,6 +17147,15 @@ snapshots:
   graceful-fs@4.2.11: {}
 
   handlebars@4.7.8:
+    dependencies:
+      minimist: 1.2.8
+      neo-async: 2.6.2
+      source-map: 0.6.1
+      wordwrap: 1.0.0
+    optionalDependencies:
+      uglify-js: 3.19.3
+
+  handlebars@4.7.9:
     dependencies:
       minimist: 1.2.8
       neo-async: 2.6.2
