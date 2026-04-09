@@ -233,4 +233,11 @@ export class Session {
      */
     @Column("varchar", { nullable: true })
     externalSubject?: string;
+
+    /**
+     * Error reason if the session failed.
+     * Stores the error message when status is 'failed'.
+     */
+    @Column("text", { nullable: true })
+    errorReason?: string;
 }

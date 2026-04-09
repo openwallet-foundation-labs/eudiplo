@@ -20,9 +20,13 @@ import { AuthResponse } from "./dto/auth-response.dto";
 import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dto";
 import { PresentationConfigUpdateDto } from "./dto/presentation-config-update.dto";
 import {
+    ClaimsQuery,
+    CredentialQuery,
+    CredentialSetQuery,
     PresentationConfig,
     TrustedAuthorityType,
 } from "./entities/presentation-config.entity";
+import { IncompletePresentationException } from "./exceptions/incomplete-presentation.exception";
 
 type CredentialType = "dc+sd-jwt" | "mso_mdoc";
 
@@ -211,6 +215,13 @@ export class PresentationsService {
         const host = this.configService.getOrThrow<string>("PUBLIC_URL");
         const tenantHost = `${host}/${presentationConfig.tenantId}`;
 
+        // Validate credential completeness - ensure all required credentials are present
+        this.validateCredentialCompleteness(
+            attestationIds,
+            presentationConfig.dcql_query.credentials,
+            presentationConfig.dcql_query.credential_sets,
+        );
+
         // Get transaction_data from the request object JWT payload
         // This ensures we use the exact same encoded strings that were sent to the wallet
         let transactionDataStrings: string[] | undefined;
@@ -279,6 +290,13 @@ export class PresentationsService {
                 };
 
                 const type = this.getType(session.requestObject!, attId);
+
+                // Extract required claim keys from DCQL claims
+                const requiredClaimKeys = this.getRequiredClaimKeys(
+                    dcqlCredential.claims,
+                    type,
+                );
+
                 const values = await Promise.all(
                     credentials.map(async (cred) => {
                         if (type === "mso_mdoc") {
@@ -296,11 +314,19 @@ export class PresentationsService {
                                     },
                                     verifyOptions,
                                 );
+
+                            // Validate all required claims are present in mDOC
+                            this.validateMdocClaims(
+                                attId,
+                                dcqlCredential.claims,
+                                result.claims,
+                            );
+
                             return result.claims;
                         } else if (type === "dc+sd-jwt") {
                             const result =
                                 await this.sdjwtvcverifierService.verify(cred, {
-                                    requiredClaimKeys: [],
+                                    requiredClaimKeys,
                                     keyBindingNonce: session.vp_nonce!,
                                     ...verifyOptions,
                                 } as any);
@@ -334,5 +360,139 @@ export class PresentationsService {
         return payload.dcql_query.credentials.find(
             (credential) => credential.id === att,
         ).format;
+    }
+
+    /**
+     * Validates that the presentation response contains all required credentials.
+     * If credential_sets are defined, validates that at least one option set is fully satisfied.
+     * If no credential_sets are defined, all credentials in the query are required.
+     *
+     * @param receivedCredentialIds - Array of credential IDs received in the response
+     * @param requiredCredentials - Array of credential queries from DCQL
+     * @param credentialSets - Optional credential set queries from DCQL
+     * @throws IncompletePresentationException if validation fails
+     */
+    private validateCredentialCompleteness(
+        receivedCredentialIds: string[],
+        requiredCredentials: CredentialQuery[],
+        credentialSets?: CredentialSetQuery[],
+    ): void {
+        const allCredentialIds = requiredCredentials.map((c) => c.id);
+        const receivedSet = new Set(receivedCredentialIds);
+
+        if (credentialSets && credentialSets.length > 0) {
+            // Validate credential_sets - for each required set, at least one option must be satisfied
+            const unsatisfiedSets: number[] = [];
+
+            for (let i = 0; i < credentialSets.length; i++) {
+                const credentialSet = credentialSets[i];
+
+                // Default to required if not explicitly set to false
+                if (credentialSet.required === false) {
+                    continue;
+                }
+
+                // Check if at least one option set is fully satisfied
+                const isSatisfied = credentialSet.options.some((optionSet) =>
+                    optionSet.every((credId) => receivedSet.has(credId)),
+                );
+
+                if (!isSatisfied) {
+                    unsatisfiedSets.push(i);
+                }
+            }
+
+            if (unsatisfiedSets.length > 0) {
+                throw new IncompletePresentationException(
+                    `Credential sets not satisfied: ${unsatisfiedSets.map((i) => `set[${i}]`).join(", ")}`,
+                    { unsatisfiedCredentialSets: unsatisfiedSets },
+                );
+            }
+        } else {
+            // No credential_sets defined - all credentials in the query are required
+            const missingCredentials = allCredentialIds.filter(
+                (id) => !receivedSet.has(id),
+            );
+
+            if (missingCredentials.length > 0) {
+                throw new IncompletePresentationException(
+                    `Missing required credentials: ${missingCredentials.join(", ")}`,
+                    { missingCredentials },
+                );
+            }
+        }
+    }
+
+    /**
+     * Converts DCQL claim queries to required claim keys for verification.
+     *
+     * For SD-JWT-VC: paths are joined with dots (e.g., ["address", "locality"] -> "address.locality")
+     * For mDOC: the first path element is the namespace, so we return the claim name (second element)
+     *
+     * @param claims - Array of claim queries from DCQL
+     * @param credentialType - The type of credential ("dc+sd-jwt" or "mso_mdoc")
+     * @returns Array of required claim keys in the format expected by the verifier
+     */
+    private getRequiredClaimKeys(
+        claims: ClaimsQuery[] | undefined,
+        credentialType: CredentialType,
+    ): string[] {
+        if (!claims || claims.length === 0) {
+            return [];
+        }
+
+        return claims.map((claim) => {
+            if (credentialType === "mso_mdoc") {
+                // For mDOC, path is [namespace, claimName]
+                // We return just the claim name for internal tracking
+                // Actual validation happens in validateMdocClaims
+                return claim.path.length > 1
+                    ? claim.path.slice(1).join(".")
+                    : claim.path[0];
+            }
+            // For SD-JWT-VC, join path with dots
+            return claim.path.join(".");
+        });
+    }
+
+    /**
+     * Validates that all required claims from the DCQL query are present in the mDOC response.
+     *
+     * @param credentialId - The credential ID for error reporting
+     * @param requiredClaims - Array of claim queries from DCQL
+     * @param receivedClaims - Claims received in the mDOC response
+     * @throws IncompletePresentationException if any required claims are missing
+     */
+    private validateMdocClaims(
+        credentialId: string,
+        requiredClaims: ClaimsQuery[] | undefined,
+        receivedClaims: Record<string, unknown>,
+    ): void {
+        if (!requiredClaims || requiredClaims.length === 0) {
+            return;
+        }
+
+        const missingClaims: string[] = [];
+
+        for (const claim of requiredClaims) {
+            // For mDOC, path is [namespace, claimName] or just [claimName]
+            // The verifier already flattens claims from all namespaces
+            const claimName =
+                claim.path.length > 1 ? claim.path[1] : claim.path[0];
+
+            // Check if claim exists in received claims
+            if (!(claimName in receivedClaims)) {
+                // Format as namespace.claimName for better error message
+                const fullPath = claim.path.join(".");
+                missingClaims.push(fullPath);
+            }
+        }
+
+        if (missingClaims.length > 0) {
+            throw new IncompletePresentationException(
+                `Missing required claims for credential '${credentialId}': ${missingClaims.join(", ")}`,
+                { missingClaims: { [credentialId]: missingClaims } },
+            );
+        }
     }
 }

@@ -63,16 +63,23 @@ export async function prepareMdocPresentation(
     clientId: string,
     responseUri: string,
 ) {
-    const issuer = new Issuer("org.iso.18013.5.1", mdocContext);
+    // Use the EU PID docType and namespace to match the pid-de fixture
+    const docType = "eu.europa.ec.eudi.pid.1";
+    const namespace = "eu.europa.ec.eudi.pid.1";
+
+    const issuer = new Issuer(docType, mdocContext);
 
     const signed = new Date();
     const validFrom = new Date(signed);
     const validUntil = new Date(signed);
     validUntil.setFullYear(signed.getFullYear() + 30);
 
-    issuer.addIssuerNamespace("org.iso.18013.5.1.mDL", {
-        first_name: "First",
-        last_name: "Last",
+    // Add claims with the correct names expected by the DCQL query
+    issuer.addIssuerNamespace(namespace, {
+        given_name: "First",
+        family_name: "Last",
+        first_name: "First", // Keep for backward compatibility
+        last_name: "Last", // Keep for backward compatibility
     });
 
     //TODO: get key from eudiplo so it matches with the trust list
@@ -97,9 +104,11 @@ export async function prepareMdocPresentation(
         docRequests: [
             DocRequest.create({
                 itemsRequest: ItemsRequest.create({
-                    docType: "org.iso.18013.5.1",
+                    docType: docType,
                     namespaces: {
-                        "org.iso.18013.5.1.mDL": {
+                        [namespace]: {
+                            given_name: true,
+                            family_name: true,
                             first_name: true,
                             last_name: true,
                         },
@@ -199,6 +208,12 @@ export async function preparePresentation(
         claims: {
             vct: "http://localhost:3000/issuers/demo/credentials-metadata/vct/pid",
             status,
+            // Include claims that can be selectively disclosed
+            birthdate: "1990-01-01",
+            address: {
+                locality: "Berlin",
+                country: "DE",
+            },
         },
         privateKey,
         x5c,

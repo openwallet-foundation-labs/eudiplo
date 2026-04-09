@@ -15,3 +15,4 @@ export { FlattenKeyUsageType1746000000000 } from "./1746000000000-FlattenKeyUsag
 export { MigrateKeysToKeyChain1747000000000 } from "./1747000000000-MigrateKeysToKeyChain";
 export { ExtractAttributeProviderAndWebhookEndpoint1748000000000 } from "./1748000000000-ExtractAttributeProviderAndWebhookEndpoint";
 export { AddSessionLogEntry1749000000000 } from "./1749000000000-AddSessionLogEntry";
+export { AddSessionErrorReason1750000000000 } from "./1750000000000-AddSessionErrorReason";
