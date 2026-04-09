@@ -4216,10 +4216,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#registrarconfigentity" class="md-nav__link">
+  <a href="#registrarconfigresponsedto" class="md-nav__link">
     <span class="md-ellipsis">
       
-        RegistrarConfigEntity
+        RegistrarConfigResponseDto
       
     </span>
   </a>
@@ -6107,10 +6107,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#registrarconfigentity_1" class="md-nav__link">
+  <a href="#registrarconfigresponsedto_1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        RegistrarConfigEntity
+        RegistrarConfigResponseDto
       
     </span>
   </a>
@@ -8995,10 +8995,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#registrarconfigentity" class="md-nav__link">
+  <a href="#registrarconfigresponsedto" class="md-nav__link">
     <span class="md-ellipsis">
       
-        RegistrarConfigEntity
+        RegistrarConfigResponseDto
       
     </span>
   </a>
@@ -10886,10 +10886,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#registrarconfigentity_1" class="md-nav__link">
+  <a href="#registrarconfigresponsedto_1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        RegistrarConfigEntity
+        RegistrarConfigResponseDto
       
     </span>
   </a>
@@ -18966,10 +18966,8 @@ Creates a new version for audit and regenerates the JWT</p>
 <a id="__codelineno-130-4" name="__codelineno-130-4" href="#__codelineno-130-4"></a><span class="w">    </span><span class="nt">"clientId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"registrar-client"</span><span class="p">,</span>
 <a id="__codelineno-130-5" name="__codelineno-130-5" href="#__codelineno-130-5"></a><span class="w">    </span><span class="nt">"clientSecret"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
 <a id="__codelineno-130-6" name="__codelineno-130-6" href="#__codelineno-130-6"></a><span class="w">    </span><span class="nt">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin@example.com"</span><span class="p">,</span>
-<a id="__codelineno-130-7" name="__codelineno-130-7" href="#__codelineno-130-7"></a><span class="w">    </span><span class="nt">"password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-130-8" name="__codelineno-130-8" href="#__codelineno-130-8"></a><span class="w">    </span><span class="nt">"tenantId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-130-9" name="__codelineno-130-9" href="#__codelineno-130-9"></a><span class="w">    </span><span class="nt">"tenant"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
-<a id="__codelineno-130-10" name="__codelineno-130-10" href="#__codelineno-130-10"></a><span class="p">}</span>
+<a id="__codelineno-130-7" name="__codelineno-130-7" href="#__codelineno-130-7"></a><span class="w">    </span><span class="nt">"hasPassword"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-130-8" name="__codelineno-130-8" href="#__codelineno-130-8"></a><span class="p">}</span>
 </code></pre></div>
 <span class="small-note">⚠️</span>&nbsp;<em class="small-note warning">This example has been generated automatically from the schema and it is not accurate. Refer to the schema for more information.</em><p></p>
 <details class="hint">
@@ -19003,33 +19001,20 @@ Creates a new version for audit and regenerates the JWT</p>
 <a id="__codelineno-131-27" name="__codelineno-131-27" href="#__codelineno-131-27"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The username for OIDC login"</span><span class="p">,</span>
 <a id="__codelineno-131-28" name="__codelineno-131-28" href="#__codelineno-131-28"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin@example.com"</span>
 <a id="__codelineno-131-29" name="__codelineno-131-29" href="#__codelineno-131-29"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-131-30" name="__codelineno-131-30" href="#__codelineno-131-30"></a><span class="w">        </span><span class="nt">"password"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-131-31" name="__codelineno-131-31" href="#__codelineno-131-31"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-131-32" name="__codelineno-131-32" href="#__codelineno-131-32"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The password for OIDC login (stored in plaintext)"</span>
-<a id="__codelineno-131-33" name="__codelineno-131-33" href="#__codelineno-131-33"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-131-34" name="__codelineno-131-34" href="#__codelineno-131-34"></a><span class="w">        </span><span class="nt">"tenantId"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-131-35" name="__codelineno-131-35" href="#__codelineno-131-35"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-131-36" name="__codelineno-131-36" href="#__codelineno-131-36"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The tenant ID this configuration belongs to."</span>
-<a id="__codelineno-131-37" name="__codelineno-131-37" href="#__codelineno-131-37"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-131-38" name="__codelineno-131-38" href="#__codelineno-131-38"></a><span class="w">        </span><span class="nt">"tenant"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-131-39" name="__codelineno-131-39" href="#__codelineno-131-39"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The tenant that owns this configuration."</span><span class="p">,</span>
-<a id="__codelineno-131-40" name="__codelineno-131-40" href="#__codelineno-131-40"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-131-41" name="__codelineno-131-41" href="#__codelineno-131-41"></a><span class="w">                </span><span class="p">{</span>
-<a id="__codelineno-131-42" name="__codelineno-131-42" href="#__codelineno-131-42"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/TenantEntity"</span>
-<a id="__codelineno-131-43" name="__codelineno-131-43" href="#__codelineno-131-43"></a><span class="w">                </span><span class="p">}</span>
-<a id="__codelineno-131-44" name="__codelineno-131-44" href="#__codelineno-131-44"></a><span class="w">            </span><span class="p">]</span>
-<a id="__codelineno-131-45" name="__codelineno-131-45" href="#__codelineno-131-45"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-131-46" name="__codelineno-131-46" href="#__codelineno-131-46"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-131-47" name="__codelineno-131-47" href="#__codelineno-131-47"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-131-48" name="__codelineno-131-48" href="#__codelineno-131-48"></a><span class="w">        </span><span class="s2">"registrarUrl"</span><span class="p">,</span>
-<a id="__codelineno-131-49" name="__codelineno-131-49" href="#__codelineno-131-49"></a><span class="w">        </span><span class="s2">"oidcUrl"</span><span class="p">,</span>
-<a id="__codelineno-131-50" name="__codelineno-131-50" href="#__codelineno-131-50"></a><span class="w">        </span><span class="s2">"clientId"</span><span class="p">,</span>
-<a id="__codelineno-131-51" name="__codelineno-131-51" href="#__codelineno-131-51"></a><span class="w">        </span><span class="s2">"username"</span><span class="p">,</span>
-<a id="__codelineno-131-52" name="__codelineno-131-52" href="#__codelineno-131-52"></a><span class="w">        </span><span class="s2">"password"</span><span class="p">,</span>
-<a id="__codelineno-131-53" name="__codelineno-131-53" href="#__codelineno-131-53"></a><span class="w">        </span><span class="s2">"tenantId"</span><span class="p">,</span>
-<a id="__codelineno-131-54" name="__codelineno-131-54" href="#__codelineno-131-54"></a><span class="w">        </span><span class="s2">"tenant"</span>
-<a id="__codelineno-131-55" name="__codelineno-131-55" href="#__codelineno-131-55"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-131-56" name="__codelineno-131-56" href="#__codelineno-131-56"></a><span class="p">}</span>
+<a id="__codelineno-131-30" name="__codelineno-131-30" href="#__codelineno-131-30"></a><span class="w">        </span><span class="nt">"hasPassword"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-131-31" name="__codelineno-131-31" href="#__codelineno-131-31"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"boolean"</span><span class="p">,</span>
+<a id="__codelineno-131-32" name="__codelineno-131-32" href="#__codelineno-131-32"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Indicates whether a password is configured (actual password is never returned)"</span><span class="p">,</span>
+<a id="__codelineno-131-33" name="__codelineno-131-33" href="#__codelineno-131-33"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-131-34" name="__codelineno-131-34" href="#__codelineno-131-34"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-131-35" name="__codelineno-131-35" href="#__codelineno-131-35"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-131-36" name="__codelineno-131-36" href="#__codelineno-131-36"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-131-37" name="__codelineno-131-37" href="#__codelineno-131-37"></a><span class="w">        </span><span class="s2">"registrarUrl"</span><span class="p">,</span>
+<a id="__codelineno-131-38" name="__codelineno-131-38" href="#__codelineno-131-38"></a><span class="w">        </span><span class="s2">"oidcUrl"</span><span class="p">,</span>
+<a id="__codelineno-131-39" name="__codelineno-131-39" href="#__codelineno-131-39"></a><span class="w">        </span><span class="s2">"clientId"</span><span class="p">,</span>
+<a id="__codelineno-131-40" name="__codelineno-131-40" href="#__codelineno-131-40"></a><span class="w">        </span><span class="s2">"username"</span><span class="p">,</span>
+<a id="__codelineno-131-41" name="__codelineno-131-41" href="#__codelineno-131-41"></a><span class="w">        </span><span class="s2">"hasPassword"</span>
+<a id="__codelineno-131-42" name="__codelineno-131-42" href="#__codelineno-131-42"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-131-43" name="__codelineno-131-43" href="#__codelineno-131-43"></a><span class="p">}</span>
 </code></pre></div>
 </details>
 </div>
@@ -19144,10 +19129,8 @@ Creates a new version for audit and regenerates the JWT</p>
 <a id="__codelineno-134-4" name="__codelineno-134-4" href="#__codelineno-134-4"></a><span class="w">    </span><span class="nt">"clientId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"registrar-client"</span><span class="p">,</span>
 <a id="__codelineno-134-5" name="__codelineno-134-5" href="#__codelineno-134-5"></a><span class="w">    </span><span class="nt">"clientSecret"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
 <a id="__codelineno-134-6" name="__codelineno-134-6" href="#__codelineno-134-6"></a><span class="w">    </span><span class="nt">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin@example.com"</span><span class="p">,</span>
-<a id="__codelineno-134-7" name="__codelineno-134-7" href="#__codelineno-134-7"></a><span class="w">    </span><span class="nt">"password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-134-8" name="__codelineno-134-8" href="#__codelineno-134-8"></a><span class="w">    </span><span class="nt">"tenantId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-134-9" name="__codelineno-134-9" href="#__codelineno-134-9"></a><span class="w">    </span><span class="nt">"tenant"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
-<a id="__codelineno-134-10" name="__codelineno-134-10" href="#__codelineno-134-10"></a><span class="p">}</span>
+<a id="__codelineno-134-7" name="__codelineno-134-7" href="#__codelineno-134-7"></a><span class="w">    </span><span class="nt">"hasPassword"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-134-8" name="__codelineno-134-8" href="#__codelineno-134-8"></a><span class="p">}</span>
 </code></pre></div>
 <span class="small-note">⚠️</span>&nbsp;<em class="small-note warning">This example has been generated automatically from the schema and it is not accurate. Refer to the schema for more information.</em><p></p>
 <details class="hint">
@@ -19181,33 +19164,20 @@ Creates a new version for audit and regenerates the JWT</p>
 <a id="__codelineno-135-27" name="__codelineno-135-27" href="#__codelineno-135-27"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The username for OIDC login"</span><span class="p">,</span>
 <a id="__codelineno-135-28" name="__codelineno-135-28" href="#__codelineno-135-28"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin@example.com"</span>
 <a id="__codelineno-135-29" name="__codelineno-135-29" href="#__codelineno-135-29"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-135-30" name="__codelineno-135-30" href="#__codelineno-135-30"></a><span class="w">        </span><span class="nt">"password"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-135-31" name="__codelineno-135-31" href="#__codelineno-135-31"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-135-32" name="__codelineno-135-32" href="#__codelineno-135-32"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The password for OIDC login (stored in plaintext)"</span>
-<a id="__codelineno-135-33" name="__codelineno-135-33" href="#__codelineno-135-33"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-135-34" name="__codelineno-135-34" href="#__codelineno-135-34"></a><span class="w">        </span><span class="nt">"tenantId"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-135-35" name="__codelineno-135-35" href="#__codelineno-135-35"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-135-36" name="__codelineno-135-36" href="#__codelineno-135-36"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The tenant ID this configuration belongs to."</span>
-<a id="__codelineno-135-37" name="__codelineno-135-37" href="#__codelineno-135-37"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-135-38" name="__codelineno-135-38" href="#__codelineno-135-38"></a><span class="w">        </span><span class="nt">"tenant"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-135-39" name="__codelineno-135-39" href="#__codelineno-135-39"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The tenant that owns this configuration."</span><span class="p">,</span>
-<a id="__codelineno-135-40" name="__codelineno-135-40" href="#__codelineno-135-40"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-135-41" name="__codelineno-135-41" href="#__codelineno-135-41"></a><span class="w">                </span><span class="p">{</span>
-<a id="__codelineno-135-42" name="__codelineno-135-42" href="#__codelineno-135-42"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/TenantEntity"</span>
-<a id="__codelineno-135-43" name="__codelineno-135-43" href="#__codelineno-135-43"></a><span class="w">                </span><span class="p">}</span>
-<a id="__codelineno-135-44" name="__codelineno-135-44" href="#__codelineno-135-44"></a><span class="w">            </span><span class="p">]</span>
-<a id="__codelineno-135-45" name="__codelineno-135-45" href="#__codelineno-135-45"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-135-46" name="__codelineno-135-46" href="#__codelineno-135-46"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-135-47" name="__codelineno-135-47" href="#__codelineno-135-47"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-135-48" name="__codelineno-135-48" href="#__codelineno-135-48"></a><span class="w">        </span><span class="s2">"registrarUrl"</span><span class="p">,</span>
-<a id="__codelineno-135-49" name="__codelineno-135-49" href="#__codelineno-135-49"></a><span class="w">        </span><span class="s2">"oidcUrl"</span><span class="p">,</span>
-<a id="__codelineno-135-50" name="__codelineno-135-50" href="#__codelineno-135-50"></a><span class="w">        </span><span class="s2">"clientId"</span><span class="p">,</span>
-<a id="__codelineno-135-51" name="__codelineno-135-51" href="#__codelineno-135-51"></a><span class="w">        </span><span class="s2">"username"</span><span class="p">,</span>
-<a id="__codelineno-135-52" name="__codelineno-135-52" href="#__codelineno-135-52"></a><span class="w">        </span><span class="s2">"password"</span><span class="p">,</span>
-<a id="__codelineno-135-53" name="__codelineno-135-53" href="#__codelineno-135-53"></a><span class="w">        </span><span class="s2">"tenantId"</span><span class="p">,</span>
-<a id="__codelineno-135-54" name="__codelineno-135-54" href="#__codelineno-135-54"></a><span class="w">        </span><span class="s2">"tenant"</span>
-<a id="__codelineno-135-55" name="__codelineno-135-55" href="#__codelineno-135-55"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-135-56" name="__codelineno-135-56" href="#__codelineno-135-56"></a><span class="p">}</span>
+<a id="__codelineno-135-30" name="__codelineno-135-30" href="#__codelineno-135-30"></a><span class="w">        </span><span class="nt">"hasPassword"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-135-31" name="__codelineno-135-31" href="#__codelineno-135-31"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"boolean"</span><span class="p">,</span>
+<a id="__codelineno-135-32" name="__codelineno-135-32" href="#__codelineno-135-32"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Indicates whether a password is configured (actual password is never returned)"</span><span class="p">,</span>
+<a id="__codelineno-135-33" name="__codelineno-135-33" href="#__codelineno-135-33"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-135-34" name="__codelineno-135-34" href="#__codelineno-135-34"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-135-35" name="__codelineno-135-35" href="#__codelineno-135-35"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-135-36" name="__codelineno-135-36" href="#__codelineno-135-36"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-135-37" name="__codelineno-135-37" href="#__codelineno-135-37"></a><span class="w">        </span><span class="s2">"registrarUrl"</span><span class="p">,</span>
+<a id="__codelineno-135-38" name="__codelineno-135-38" href="#__codelineno-135-38"></a><span class="w">        </span><span class="s2">"oidcUrl"</span><span class="p">,</span>
+<a id="__codelineno-135-39" name="__codelineno-135-39" href="#__codelineno-135-39"></a><span class="w">        </span><span class="s2">"clientId"</span><span class="p">,</span>
+<a id="__codelineno-135-40" name="__codelineno-135-40" href="#__codelineno-135-40"></a><span class="w">        </span><span class="s2">"username"</span><span class="p">,</span>
+<a id="__codelineno-135-41" name="__codelineno-135-41" href="#__codelineno-135-41"></a><span class="w">        </span><span class="s2">"hasPassword"</span>
+<a id="__codelineno-135-42" name="__codelineno-135-42" href="#__codelineno-135-42"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-135-43" name="__codelineno-135-43" href="#__codelineno-135-43"></a><span class="p">}</span>
 </code></pre></div>
 </details>
 </div>
@@ -19315,10 +19285,8 @@ Creates a new version for audit and regenerates the JWT</p>
 <a id="__codelineno-138-4" name="__codelineno-138-4" href="#__codelineno-138-4"></a><span class="w">    </span><span class="nt">"clientId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"registrar-client"</span><span class="p">,</span>
 <a id="__codelineno-138-5" name="__codelineno-138-5" href="#__codelineno-138-5"></a><span class="w">    </span><span class="nt">"clientSecret"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
 <a id="__codelineno-138-6" name="__codelineno-138-6" href="#__codelineno-138-6"></a><span class="w">    </span><span class="nt">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin@example.com"</span><span class="p">,</span>
-<a id="__codelineno-138-7" name="__codelineno-138-7" href="#__codelineno-138-7"></a><span class="w">    </span><span class="nt">"password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-138-8" name="__codelineno-138-8" href="#__codelineno-138-8"></a><span class="w">    </span><span class="nt">"tenantId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-138-9" name="__codelineno-138-9" href="#__codelineno-138-9"></a><span class="w">    </span><span class="nt">"tenant"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
-<a id="__codelineno-138-10" name="__codelineno-138-10" href="#__codelineno-138-10"></a><span class="p">}</span>
+<a id="__codelineno-138-7" name="__codelineno-138-7" href="#__codelineno-138-7"></a><span class="w">    </span><span class="nt">"hasPassword"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-138-8" name="__codelineno-138-8" href="#__codelineno-138-8"></a><span class="p">}</span>
 </code></pre></div>
 <span class="small-note">⚠️</span>&nbsp;<em class="small-note warning">This example has been generated automatically from the schema and it is not accurate. Refer to the schema for more information.</em><p></p>
 <details class="hint">
@@ -19352,33 +19320,20 @@ Creates a new version for audit and regenerates the JWT</p>
 <a id="__codelineno-139-27" name="__codelineno-139-27" href="#__codelineno-139-27"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The username for OIDC login"</span><span class="p">,</span>
 <a id="__codelineno-139-28" name="__codelineno-139-28" href="#__codelineno-139-28"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin@example.com"</span>
 <a id="__codelineno-139-29" name="__codelineno-139-29" href="#__codelineno-139-29"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-139-30" name="__codelineno-139-30" href="#__codelineno-139-30"></a><span class="w">        </span><span class="nt">"password"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-139-31" name="__codelineno-139-31" href="#__codelineno-139-31"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-139-32" name="__codelineno-139-32" href="#__codelineno-139-32"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The password for OIDC login (stored in plaintext)"</span>
-<a id="__codelineno-139-33" name="__codelineno-139-33" href="#__codelineno-139-33"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-139-34" name="__codelineno-139-34" href="#__codelineno-139-34"></a><span class="w">        </span><span class="nt">"tenantId"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-139-35" name="__codelineno-139-35" href="#__codelineno-139-35"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-139-36" name="__codelineno-139-36" href="#__codelineno-139-36"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The tenant ID this configuration belongs to."</span>
-<a id="__codelineno-139-37" name="__codelineno-139-37" href="#__codelineno-139-37"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-139-38" name="__codelineno-139-38" href="#__codelineno-139-38"></a><span class="w">        </span><span class="nt">"tenant"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-139-39" name="__codelineno-139-39" href="#__codelineno-139-39"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The tenant that owns this configuration."</span><span class="p">,</span>
-<a id="__codelineno-139-40" name="__codelineno-139-40" href="#__codelineno-139-40"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-139-41" name="__codelineno-139-41" href="#__codelineno-139-41"></a><span class="w">                </span><span class="p">{</span>
-<a id="__codelineno-139-42" name="__codelineno-139-42" href="#__codelineno-139-42"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/TenantEntity"</span>
-<a id="__codelineno-139-43" name="__codelineno-139-43" href="#__codelineno-139-43"></a><span class="w">                </span><span class="p">}</span>
-<a id="__codelineno-139-44" name="__codelineno-139-44" href="#__codelineno-139-44"></a><span class="w">            </span><span class="p">]</span>
-<a id="__codelineno-139-45" name="__codelineno-139-45" href="#__codelineno-139-45"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-139-46" name="__codelineno-139-46" href="#__codelineno-139-46"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-139-47" name="__codelineno-139-47" href="#__codelineno-139-47"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-139-48" name="__codelineno-139-48" href="#__codelineno-139-48"></a><span class="w">        </span><span class="s2">"registrarUrl"</span><span class="p">,</span>
-<a id="__codelineno-139-49" name="__codelineno-139-49" href="#__codelineno-139-49"></a><span class="w">        </span><span class="s2">"oidcUrl"</span><span class="p">,</span>
-<a id="__codelineno-139-50" name="__codelineno-139-50" href="#__codelineno-139-50"></a><span class="w">        </span><span class="s2">"clientId"</span><span class="p">,</span>
-<a id="__codelineno-139-51" name="__codelineno-139-51" href="#__codelineno-139-51"></a><span class="w">        </span><span class="s2">"username"</span><span class="p">,</span>
-<a id="__codelineno-139-52" name="__codelineno-139-52" href="#__codelineno-139-52"></a><span class="w">        </span><span class="s2">"password"</span><span class="p">,</span>
-<a id="__codelineno-139-53" name="__codelineno-139-53" href="#__codelineno-139-53"></a><span class="w">        </span><span class="s2">"tenantId"</span><span class="p">,</span>
-<a id="__codelineno-139-54" name="__codelineno-139-54" href="#__codelineno-139-54"></a><span class="w">        </span><span class="s2">"tenant"</span>
-<a id="__codelineno-139-55" name="__codelineno-139-55" href="#__codelineno-139-55"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-139-56" name="__codelineno-139-56" href="#__codelineno-139-56"></a><span class="p">}</span>
+<a id="__codelineno-139-30" name="__codelineno-139-30" href="#__codelineno-139-30"></a><span class="w">        </span><span class="nt">"hasPassword"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-139-31" name="__codelineno-139-31" href="#__codelineno-139-31"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"boolean"</span><span class="p">,</span>
+<a id="__codelineno-139-32" name="__codelineno-139-32" href="#__codelineno-139-32"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Indicates whether a password is configured (actual password is never returned)"</span><span class="p">,</span>
+<a id="__codelineno-139-33" name="__codelineno-139-33" href="#__codelineno-139-33"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-139-34" name="__codelineno-139-34" href="#__codelineno-139-34"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-139-35" name="__codelineno-139-35" href="#__codelineno-139-35"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-139-36" name="__codelineno-139-36" href="#__codelineno-139-36"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-139-37" name="__codelineno-139-37" href="#__codelineno-139-37"></a><span class="w">        </span><span class="s2">"registrarUrl"</span><span class="p">,</span>
+<a id="__codelineno-139-38" name="__codelineno-139-38" href="#__codelineno-139-38"></a><span class="w">        </span><span class="s2">"oidcUrl"</span><span class="p">,</span>
+<a id="__codelineno-139-39" name="__codelineno-139-39" href="#__codelineno-139-39"></a><span class="w">        </span><span class="s2">"clientId"</span><span class="p">,</span>
+<a id="__codelineno-139-40" name="__codelineno-139-40" href="#__codelineno-139-40"></a><span class="w">        </span><span class="s2">"username"</span><span class="p">,</span>
+<a id="__codelineno-139-41" name="__codelineno-139-41" href="#__codelineno-139-41"></a><span class="w">        </span><span class="s2">"hasPassword"</span>
+<a id="__codelineno-139-42" name="__codelineno-139-42" href="#__codelineno-139-42"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-139-43" name="__codelineno-139-43" href="#__codelineno-139-43"></a><span class="p">}</span>
 </code></pre></div>
 </details>
 </div>
@@ -23684,7 +23639,7 @@ If not provided, the configured webhook from the configuration will be used.</td
     </tbody>
 </table>
 
-<h3 id="registrarconfigentity">RegistrarConfigEntity<a class="headerlink" href="#registrarconfigentity" title="Permanent link">¶</a></h3>
+<h3 id="registrarconfigresponsedto">RegistrarConfigResponseDto<a class="headerlink" href="#registrarconfigresponsedto" title="Permanent link">¶</a></h3>
 <table>
     <thead>
         <tr>
@@ -23705,29 +23660,19 @@ If not provided, the configured webhook from the configuration will be used.</td
             <td>The OIDC client secret (optional, for confidential clients)</td>
         </tr>
         <tr>
+            <td><code>hasPassword</code></td>
+            <td><span class="boolean-type">boolean</span></td>
+            <td>Indicates whether a password is configured (actual password is never returned)</td>
+        </tr>
+        <tr>
             <td><code>oidcUrl</code></td>
             <td><span class="string-type">string</span>(<span class="uri-format format">uri</span>)</td>
             <td>The OIDC issuer URL for authentication (e.g., Keycloak realm URL)</td>
         </tr>
         <tr>
-            <td><code>password</code></td>
-            <td><span class="string-type">string</span></td>
-            <td>The password for OIDC login (stored in plaintext)</td>
-        </tr>
-        <tr>
             <td><code>registrarUrl</code></td>
             <td><span class="string-type">string</span>(<span class="uri-format format">uri</span>)</td>
             <td>The base URL of the registrar API</td>
-        </tr>
-        <tr>
-            <td><code>tenant</code></td>
-            <td></td>
-            <td>The tenant that owns this configuration.</td>
-        </tr>
-        <tr>
-            <td><code>tenantId</code></td>
-            <td><span class="string-type">string</span></td>
-            <td>The tenant ID this configuration belongs to.</td>
         </tr>
         <tr>
             <td><code>username</code></td>
@@ -31168,7 +31113,7 @@ If not provided, the configured webhook from the configuration will be used.</td
     </tbody>
 </table>
 
-<h3 id="registrarconfigentity_1">RegistrarConfigEntity<a class="headerlink" href="#registrarconfigentity_1" title="Permanent link">¶</a></h3>
+<h3 id="registrarconfigresponsedto_1">RegistrarConfigResponseDto<a class="headerlink" href="#registrarconfigresponsedto_1" title="Permanent link">¶</a></h3>
 <table>
     <thead>
         <tr>
@@ -31189,29 +31134,19 @@ If not provided, the configured webhook from the configuration will be used.</td
             <td>The OIDC client secret (optional, for confidential clients)</td>
         </tr>
         <tr>
+            <td><code>hasPassword</code></td>
+            <td><span class="boolean-type">boolean</span></td>
+            <td>Indicates whether a password is configured (actual password is never returned)</td>
+        </tr>
+        <tr>
             <td><code>oidcUrl</code></td>
             <td><span class="string-type">string</span>(<span class="uri-format format">uri</span>)</td>
             <td>The OIDC issuer URL for authentication (e.g., Keycloak realm URL)</td>
         </tr>
         <tr>
-            <td><code>password</code></td>
-            <td><span class="string-type">string</span></td>
-            <td>The password for OIDC login (stored in plaintext)</td>
-        </tr>
-        <tr>
             <td><code>registrarUrl</code></td>
             <td><span class="string-type">string</span>(<span class="uri-format format">uri</span>)</td>
             <td>The base URL of the registrar API</td>
-        </tr>
-        <tr>
-            <td><code>tenant</code></td>
-            <td></td>
-            <td>The tenant that owns this configuration.</td>
-        </tr>
-        <tr>
-            <td><code>tenantId</code></td>
-            <td><span class="string-type">string</span></td>
-            <td>The tenant ID this configuration belongs to.</td>
         </tr>
         <tr>
             <td><code>username</code></td>

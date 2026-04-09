@@ -285,8 +285,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="131"
-                                    class="link-to-prism">src/issuer/configuration/credentials/issuer/mdoc-issuer/mdoc-issuer.service.ts:131</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="134"
+                                    class="link-to-prism">src/issuer/configuration/credentials/issuer/mdoc-issuer/mdoc-issuer.service.ts:134</a></div>
                         </td>
                     </tr>
 
@@ -549,9 +549,12 @@ export class MdocIssuerService {
             ),
         );
 
-        // Get certificate raw data (use leaf certificate for signing)
-        const certPem &#x3D; certificate.crt[0];
-        const x509Cert &#x3D; new X509Certificate(certPem);
+        // Convert all certificates in the chain to Uint8Array
+        // certificate.crt is an array: [leaf, intermediate..., root]
+        const certificateChain &#x3D; certificate.crt.map((certPem) &#x3D;&gt; {
+            const x509Cert &#x3D; new X509Certificate(certPem);
+            return new Uint8Array(x509Cert.rawData);
+        });
 
         // Set validity dates
         const signed &#x3D; new Date();
@@ -570,7 +573,7 @@ export class MdocIssuerService {
         // Sign the mDOC
         const issuerSigned &#x3D; await issuer.sign({
             signingKey: CoseKey.fromJwk(privateKey as Jwk),
-            certificate: new Uint8Array(x509Cert.rawData),
+            certificates: certificateChain,
             algorithm: SignatureAlgorithm.ES256,
             digestAlgorithm: &quot;SHA-256&quot;,
             deviceKeyInfo: { deviceKey: DeviceKey.fromJwk(deviceKey) },

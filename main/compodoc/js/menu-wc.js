@@ -1188,6 +1188,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/PublicKeyInfoDto.html" data-type="entity-link" >PublicKeyInfoDto</a>
                             </li>
                             <li class="link">
+                                <a href="classes/RegistrarConfigResponseDto.html" data-type="entity-link" >RegistrarConfigResponseDto</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/RegistrationCertificateRequest.html" data-type="entity-link" >RegistrationCertificateRequest</a>
                             </li>
                             <li class="link">

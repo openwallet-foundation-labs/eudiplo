@@ -260,8 +260,8 @@ and create access certificates for their keys.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="164"
-                                    class="link-to-prism">src/registrar/registrar.controller.ts:164</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="173"
+                                    class="link-to-prism">src/registrar/registrar.controller.ts:173</a></div>
                         </td>
                     </tr>
 
@@ -364,14 +364,14 @@ Requires a relying party to be already registered at the registrar.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post(&#x27;config&#x27;)<br />@ApiOperation({summary: &#x27;Create or replace registrar configuration&#x27;})<br />@ApiResponse({status: 201, description: &#x27;Configuration created successfully&#x27;, type: RegistrarConfigEntity})<br />@ApiResponse({status: 400, description: &#x27;Invalid credentials&#x27;})<br /></code>
+                    <code>@Post(&#x27;config&#x27;)<br />@ApiOperation({summary: &#x27;Create or replace registrar configuration&#x27;})<br />@ApiResponse({status: 201, description: &#x27;Configuration created successfully&#x27;, type: RegistrarConfigResponseDto})<br />@ApiResponse({status: 400, description: &#x27;Invalid credentials&#x27;})<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="71"
-                                    class="link-to-prism">src/registrar/registrar.controller.ts:71</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="72"
+                                    class="link-to-prism">src/registrar/registrar.controller.ts:72</a></div>
                         </td>
                     </tr>
 
@@ -435,7 +435,7 @@ Credentials are validated before saving.</p>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../entitys/RegistrarConfigEntity.html" target="_self" >Promise&lt;RegistrarConfigEntity&gt;</a></code>
+                            <b>Returns : </b>        <code><a href="../classes/RegistrarConfigResponseDto.html" target="_self" >Promise&lt;RegistrarConfigResponseDto&gt;</a></code>
 
                         </div>
                             <div class="io-description">
@@ -479,8 +479,8 @@ Credentials are validated before saving.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="118"
-                                    class="link-to-prism">src/registrar/registrar.controller.ts:118</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="127"
+                                    class="link-to-prism">src/registrar/registrar.controller.ts:127</a></div>
                         </td>
                     </tr>
 
@@ -562,7 +562,7 @@ Credentials are validated before saving.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get(&#x27;config&#x27;)<br />@ApiOperation({summary: &#x27;Get registrar configuration&#x27;})<br />@ApiResponse({status: 200, description: &#x27;The registrar configuration&#x27;, type: RegistrarConfigEntity})<br />@ApiResponse({status: 404, description: &#x27;No registrar configuration found&#x27;})<br /></code>
+                    <code>@Get(&#x27;config&#x27;)<br />@ApiOperation({summary: &#x27;Get registrar configuration&#x27;})<br />@ApiResponse({status: 200, description: &#x27;The registrar configuration&#x27;, type: RegistrarConfigResponseDto})<br />@ApiResponse({status: 404, description: &#x27;No registrar configuration found&#x27;})<br /></code>
                 </td>
             </tr>
 
@@ -607,7 +607,7 @@ Credentials are validated before saving.</p>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../entitys/RegistrarConfigEntity.html" target="_self" >Promise&lt;RegistrarConfigEntity | null&gt;</a></code>
+                            <b>Returns : </b>        <code><a href="../classes/RegistrarConfigResponseDto.html" target="_self" >Promise&lt;RegistrarConfigResponseDto | null&gt;</a></code>
 
                         </div>
                             <div class="io-description">
@@ -646,14 +646,14 @@ Credentials are validated before saving.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Patch(&#x27;config&#x27;)<br />@ApiOperation({summary: &#x27;Update registrar configuration&#x27;})<br />@ApiResponse({status: 200, description: &#x27;Configuration updated successfully&#x27;, type: RegistrarConfigEntity})<br />@ApiResponse({status: 400, description: &#x27;Invalid credentials&#x27;})<br />@ApiResponse({status: 404, description: &#x27;No registrar configuration found&#x27;})<br /></code>
+                    <code>@Patch(&#x27;config&#x27;)<br />@ApiOperation({summary: &#x27;Update registrar configuration&#x27;})<br />@ApiResponse({status: 200, description: &#x27;Configuration updated successfully&#x27;, type: RegistrarConfigResponseDto})<br />@ApiResponse({status: 400, description: &#x27;Invalid credentials&#x27;})<br />@ApiResponse({status: 404, description: &#x27;No registrar configuration found&#x27;})<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="100"
-                                    class="link-to-prism">src/registrar/registrar.controller.ts:100</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="105"
+                                    class="link-to-prism">src/registrar/registrar.controller.ts:105</a></div>
                         </td>
                     </tr>
 
@@ -717,7 +717,7 @@ Credentials are validated if auth-related fields are changed.</p>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../entitys/RegistrarConfigEntity.html" target="_self" >Promise&lt;RegistrarConfigEntity&gt;</a></code>
+                            <b>Returns : </b>        <code><a href="../classes/RegistrarConfigResponseDto.html" target="_self" >Promise&lt;RegistrarConfigResponseDto&gt;</a></code>
 
                         </div>
                             <div class="io-description">
@@ -748,8 +748,8 @@ import { Secured } from &quot;../auth/secure.decorator&quot;;
 import { Token, TokenPayload } from &quot;../auth/token.decorator&quot;;
 import { CreateAccessCertificateDto } from &quot;./dto/create-access-certificate.dto&quot;;
 import { CreateRegistrarConfigDto } from &quot;./dto/create-registrar-config.dto&quot;;
+import { RegistrarConfigResponseDto } from &quot;./dto/registrar-config-response.dto&quot;;
 import { UpdateRegistrarConfigDto } from &quot;./dto/update-registrar-config.dto&quot;;
-import { RegistrarConfigEntity } from &quot;./entities/registrar-config.entity&quot;;
 import { RegistrarService } from &quot;./registrar.service&quot;;
 
 /**
@@ -772,7 +772,7 @@ export class RegistrarController {
     @ApiResponse({
         status: 200,
         description: &quot;The registrar configuration&quot;,
-        type: RegistrarConfigEntity,
+        type: RegistrarConfigResponseDto,
     })
     @ApiResponse({
         status: 404,
@@ -780,8 +780,9 @@ export class RegistrarController {
     })
     async getConfig(
         @Token() token: TokenPayload,
-    ): Promise&lt;RegistrarConfigEntity | null&gt; {
-        return this.registrarService.getConfig(token.entity!.id);
+    ): Promise&lt;RegistrarConfigResponseDto | null&gt; {
+        const config &#x3D; await this.registrarService.getConfig(token.entity!.id);
+        return config ? RegistrarConfigResponseDto.fromEntity(config) : null;
     }
 
     /**
@@ -796,7 +797,7 @@ export class RegistrarController {
     @ApiResponse({
         status: 201,
         description: &quot;Configuration created successfully&quot;,
-        type: RegistrarConfigEntity,
+        type: RegistrarConfigResponseDto,
     })
     @ApiResponse({
         status: 400,
@@ -805,8 +806,12 @@ export class RegistrarController {
     async createConfig(
         @Token() token: TokenPayload,
         @Body() dto: CreateRegistrarConfigDto,
-    ): Promise&lt;RegistrarConfigEntity&gt; {
-        return this.registrarService.saveConfig(token.entity!.id, dto);
+    ): Promise&lt;RegistrarConfigResponseDto&gt; {
+        const config &#x3D; await this.registrarService.saveConfig(
+            token.entity!.id,
+            dto,
+        );
+        return RegistrarConfigResponseDto.fromEntity(config);
     }
 
     /**
@@ -821,7 +826,7 @@ export class RegistrarController {
     @ApiResponse({
         status: 200,
         description: &quot;Configuration updated successfully&quot;,
-        type: RegistrarConfigEntity,
+        type: RegistrarConfigResponseDto,
     })
     @ApiResponse({
         status: 400,
@@ -834,8 +839,12 @@ export class RegistrarController {
     async updateConfig(
         @Token() token: TokenPayload,
         @Body() dto: UpdateRegistrarConfigDto,
-    ): Promise&lt;RegistrarConfigEntity&gt; {
-        return this.registrarService.updateConfig(token.entity!.id, dto);
+    ): Promise&lt;RegistrarConfigResponseDto&gt; {
+        const config &#x3D; await this.registrarService.updateConfig(
+            token.entity!.id,
+            dto,
+        );
+        return RegistrarConfigResponseDto.fromEntity(config);
     }
 
     /**
