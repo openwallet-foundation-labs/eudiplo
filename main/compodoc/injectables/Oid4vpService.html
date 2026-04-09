@@ -212,7 +212,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="28" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:28</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:29</a></div>
                             </td>
                         </tr>
 
@@ -393,8 +393,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="93"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:93</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="94"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:94</a></div>
                         </td>
                     </tr>
 
@@ -498,8 +498,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="276"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:276</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="277"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:277</a></div>
                         </td>
                     </tr>
 
@@ -625,8 +625,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:51</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="52"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:52</a></div>
                         </td>
                     </tr>
 
@@ -740,8 +740,8 @@ session creation, which is essential for transaction_data hash validation.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="387"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:387</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="388"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:388</a></div>
                         </td>
                     </tr>
 
@@ -828,7 +828,7 @@ session creation, which is essential for transaction_data hash validation.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:31</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:32</a></div>
                         </td>
                     </tr>
 
@@ -863,6 +863,7 @@ import {
 } from &quot;../../shared/utils/logger/audit-log.service&quot;;
 import { WebhookService } from &quot;../../shared/utils/webhook/webhook.service&quot;;
 import { AuthResponse } from &quot;../presentations/dto/auth-response.dto&quot;;
+import { IncompletePresentationException } from &quot;../presentations/exceptions/incomplete-presentation.exception&quot;;
 import { PresentationsService } from &quot;../presentations/presentations.service&quot;;
 import { AuthorizationResponse } from &quot;./dto/authorization-response.dto&quot;;
 import { PresentationRequestOptions } from &quot;./dto/presentation-request-options.dto&quot;;
@@ -1238,6 +1239,62 @@ export class Oid4vpService {
             &quot;session.requestId&quot;: session.requestId ?? &quot;&quot;,
         });
 
+        // Handle wallet error responses per OID4VP spec section 6.2
+        // When wallet cannot fulfill the request, it sends an OAuth 2.0 error response
+        if (body.error) {
+            const errorMessage &#x3D; body.error_description
+                ? &#x60;${body.error}: ${body.error_description}&#x60;
+                : body.error;
+
+            // Create audit logging context for error response
+            const logContext: AuditLogContext &#x3D; {
+                sessionId: session.id,
+                tenantId: session.tenantId,
+                flowType: &quot;OID4VP&quot;,
+                stage: &quot;response_processing&quot;,
+            };
+
+            this.auditLogger.logFlowError(
+                logContext,
+                new Error(&#x60;Wallet error response: ${errorMessage}&#x60;),
+                {
+                    action: &quot;wallet_error_response&quot;,
+                    errorCode: body.error,
+                    errorDescription: body.error_description,
+                },
+            );
+
+            // Update session with failed status
+            await this.sessionService.add(session.id, {
+                status: SessionStatus.Failed,
+                errorReason: &#x60;Wallet error: ${errorMessage}&#x60;,
+            });
+
+            // Return redirect_uri with error if configured
+            if (session.redirectUri) {
+                const processedRedirectUri &#x3D; decodeURIComponent(
+                    session.redirectUri,
+                ).replaceAll(&quot;{sessionId}&quot;, session.id);
+
+                const separator &#x3D; processedRedirectUri.includes(&quot;?&quot;)
+                    ? &quot;&amp;&quot;
+                    : &quot;?&quot;;
+                return {
+                    redirect_uri: &#x60;${processedRedirectUri}${separator}error&#x3D;${encodeURIComponent(body.error)}${body.error_description ? &#x60;&amp;error_description&#x3D;${encodeURIComponent(body.error_description)}&#x60; : &quot;&quot;}&#x60;,
+                };
+            }
+
+            // Return empty response (session status indicates failure)
+            return {};
+        }
+
+        // Ensure response field is present for success path
+        if (!body.response) {
+            throw new BadRequestException(
+                &quot;Missing response field in authorization response&quot;,
+            );
+        }
+
         const decrypted &#x3D; await this.encryptionService.decryptJwe&lt;AuthResponse&gt;(
             body.response,
             session.tenantId,
@@ -1367,7 +1424,38 @@ export class Oid4vpService {
             this.auditLogger.logFlowError(logContext, error as Error, {
                 action: &quot;process_presentation_response&quot;,
             });
-            throw new BadRequestException(error.message);
+
+            // Per OID4VP spec, the verifier MUST always return HTTP 200.
+            // Validation failures are documented in the session and communicated
+            // via redirect_uri (if configured) or session status.
+            const errorMessage &#x3D;
+                error instanceof IncompletePresentationException
+                    ? error.message
+                    : &#x60;Presentation validation failed: ${error.message}&#x60;;
+
+            // Update session with failed status and error reason
+            await this.sessionService.add(session.id, {
+                status: SessionStatus.Failed,
+                errorReason: errorMessage,
+            });
+
+            // If redirect_uri is configured, return it with error parameter
+            if (session.redirectUri) {
+                const processedRedirectUri &#x3D; decodeURIComponent(
+                    session.redirectUri,
+                ).replaceAll(&quot;{sessionId}&quot;, session.id);
+
+                // Append error query parameter to redirect URI
+                const separator &#x3D; processedRedirectUri.includes(&quot;?&quot;)
+                    ? &quot;&amp;&quot;
+                    : &quot;?&quot;;
+                return {
+                    redirect_uri: &#x60;${processedRedirectUri}${separator}error&#x3D;invalid_request&amp;error_description&#x3D;${encodeURIComponent(errorMessage)}&#x60;,
+                };
+            }
+
+            // Return empty response (session status indicates failure)
+            return {};
         }
     }
 }

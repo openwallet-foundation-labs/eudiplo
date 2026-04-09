@@ -845,6 +845,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/AddPreferredAuthServerToIssuanceConfig1741500000000.html" data-type="entity-link" >AddPreferredAuthServerToIssuanceConfig1741500000000</a>
                             </li>
                             <li class="link">
+                                <a href="classes/AddSessionErrorReason1750000000000.html" data-type="entity-link" >AddSessionErrorReason1750000000000</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/AddSessionLogEntry1749000000000.html" data-type="entity-link" >AddSessionLogEntry1749000000000</a>
                             </li>
                             <li class="link">
@@ -1068,6 +1071,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="classes/ImportTenantDto.html" data-type="entity-link" >ImportTenantDto</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/IncompletePresentationException.html" data-type="entity-link" >IncompletePresentationException</a>
                             </li>
                             <li class="link">
                                 <a href="classes/InlineClaimsSource.html" data-type="entity-link" >InlineClaimsSource</a>

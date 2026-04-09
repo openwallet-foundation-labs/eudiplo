@@ -13779,9 +13779,10 @@ Users with <code>clients:manage</code> role can only rotate secrets for clients 
 <a id="__codelineno-44-38" name="__codelineno-44-38" href="#__codelineno-44-38"></a><span class="w">            </span><span class="p">}</span>
 <a id="__codelineno-44-39" name="__codelineno-44-39" href="#__codelineno-44-39"></a><span class="w">        </span><span class="p">],</span>
 <a id="__codelineno-44-40" name="__codelineno-44-40" href="#__codelineno-44-40"></a><span class="w">        </span><span class="nt">"externalIssuer"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-44-41" name="__codelineno-44-41" href="#__codelineno-44-41"></a><span class="w">        </span><span class="nt">"externalSubject"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
-<a id="__codelineno-44-42" name="__codelineno-44-42" href="#__codelineno-44-42"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-44-43" name="__codelineno-44-43" href="#__codelineno-44-43"></a><span class="p">]</span>
+<a id="__codelineno-44-41" name="__codelineno-44-41" href="#__codelineno-44-41"></a><span class="w">        </span><span class="nt">"externalSubject"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-44-42" name="__codelineno-44-42" href="#__codelineno-44-42"></a><span class="w">        </span><span class="nt">"errorReason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
+<a id="__codelineno-44-43" name="__codelineno-44-43" href="#__codelineno-44-43"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-44-44" name="__codelineno-44-44" href="#__codelineno-44-44"></a><span class="p">]</span>
 </code></pre></div>
 <span class="small-note">⚠️</span>&nbsp;<em class="small-note warning">This example has been generated automatically from the schema and it is not accurate. Refer to the schema for more information.</em><p></p>
 <details class="hint">
@@ -13882,8 +13883,9 @@ Users with <code>clients:manage</code> role can only rotate secrets for clients 
 <a id="__codelineno-46-37" name="__codelineno-46-37" href="#__codelineno-46-37"></a><span class="w">        </span><span class="p">}</span>
 <a id="__codelineno-46-38" name="__codelineno-46-38" href="#__codelineno-46-38"></a><span class="w">    </span><span class="p">],</span>
 <a id="__codelineno-46-39" name="__codelineno-46-39" href="#__codelineno-46-39"></a><span class="w">    </span><span class="nt">"externalIssuer"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-46-40" name="__codelineno-46-40" href="#__codelineno-46-40"></a><span class="w">    </span><span class="nt">"externalSubject"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
-<a id="__codelineno-46-41" name="__codelineno-46-41" href="#__codelineno-46-41"></a><span class="p">}</span>
+<a id="__codelineno-46-40" name="__codelineno-46-40" href="#__codelineno-46-40"></a><span class="w">    </span><span class="nt">"externalSubject"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-46-41" name="__codelineno-46-41" href="#__codelineno-46-41"></a><span class="w">    </span><span class="nt">"errorReason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
+<a id="__codelineno-46-42" name="__codelineno-46-42" href="#__codelineno-46-42"></a><span class="p">}</span>
 </code></pre></div>
 <span class="small-note">⚠️</span>&nbsp;<em class="small-note warning">This example has been generated automatically from the schema and it is not accurate. Refer to the schema for more information.</em><p></p>
 <details class="hint">
@@ -14035,19 +14037,23 @@ Users with <code>clients:manage</code> role can only rotate secrets for clients 
 <a id="__codelineno-47-145" name="__codelineno-47-145" href="#__codelineno-47-145"></a><span class="w">        </span><span class="nt">"externalSubject"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-47-146" name="__codelineno-47-146" href="#__codelineno-47-146"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
 <a id="__codelineno-47-147" name="__codelineno-47-147" href="#__codelineno-47-147"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The subject (sub) from the external authorization server token.\nUsed to identify the user at the external AS."</span>
-<a id="__codelineno-47-148" name="__codelineno-47-148" href="#__codelineno-47-148"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-47-149" name="__codelineno-47-149" href="#__codelineno-47-149"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-47-150" name="__codelineno-47-150" href="#__codelineno-47-150"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-47-151" name="__codelineno-47-151" href="#__codelineno-47-151"></a><span class="w">        </span><span class="s2">"status"</span><span class="p">,</span>
-<a id="__codelineno-47-152" name="__codelineno-47-152" href="#__codelineno-47-152"></a><span class="w">        </span><span class="s2">"id"</span><span class="p">,</span>
-<a id="__codelineno-47-153" name="__codelineno-47-153" href="#__codelineno-47-153"></a><span class="w">        </span><span class="s2">"createdAt"</span><span class="p">,</span>
-<a id="__codelineno-47-154" name="__codelineno-47-154" href="#__codelineno-47-154"></a><span class="w">        </span><span class="s2">"updatedAt"</span><span class="p">,</span>
-<a id="__codelineno-47-155" name="__codelineno-47-155" href="#__codelineno-47-155"></a><span class="w">        </span><span class="s2">"useDcApi"</span><span class="p">,</span>
-<a id="__codelineno-47-156" name="__codelineno-47-156" href="#__codelineno-47-156"></a><span class="w">        </span><span class="s2">"tenantId"</span><span class="p">,</span>
-<a id="__codelineno-47-157" name="__codelineno-47-157" href="#__codelineno-47-157"></a><span class="w">        </span><span class="s2">"tenant"</span><span class="p">,</span>
-<a id="__codelineno-47-158" name="__codelineno-47-158" href="#__codelineno-47-158"></a><span class="w">        </span><span class="s2">"notifications"</span>
-<a id="__codelineno-47-159" name="__codelineno-47-159" href="#__codelineno-47-159"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-47-160" name="__codelineno-47-160" href="#__codelineno-47-160"></a><span class="p">}</span>
+<a id="__codelineno-47-148" name="__codelineno-47-148" href="#__codelineno-47-148"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-47-149" name="__codelineno-47-149" href="#__codelineno-47-149"></a><span class="w">        </span><span class="nt">"errorReason"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-47-150" name="__codelineno-47-150" href="#__codelineno-47-150"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-47-151" name="__codelineno-47-151" href="#__codelineno-47-151"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Error reason if the session failed.\nStores the error message when status is 'failed'."</span>
+<a id="__codelineno-47-152" name="__codelineno-47-152" href="#__codelineno-47-152"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-47-153" name="__codelineno-47-153" href="#__codelineno-47-153"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-47-154" name="__codelineno-47-154" href="#__codelineno-47-154"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-47-155" name="__codelineno-47-155" href="#__codelineno-47-155"></a><span class="w">        </span><span class="s2">"status"</span><span class="p">,</span>
+<a id="__codelineno-47-156" name="__codelineno-47-156" href="#__codelineno-47-156"></a><span class="w">        </span><span class="s2">"id"</span><span class="p">,</span>
+<a id="__codelineno-47-157" name="__codelineno-47-157" href="#__codelineno-47-157"></a><span class="w">        </span><span class="s2">"createdAt"</span><span class="p">,</span>
+<a id="__codelineno-47-158" name="__codelineno-47-158" href="#__codelineno-47-158"></a><span class="w">        </span><span class="s2">"updatedAt"</span><span class="p">,</span>
+<a id="__codelineno-47-159" name="__codelineno-47-159" href="#__codelineno-47-159"></a><span class="w">        </span><span class="s2">"useDcApi"</span><span class="p">,</span>
+<a id="__codelineno-47-160" name="__codelineno-47-160" href="#__codelineno-47-160"></a><span class="w">        </span><span class="s2">"tenantId"</span><span class="p">,</span>
+<a id="__codelineno-47-161" name="__codelineno-47-161" href="#__codelineno-47-161"></a><span class="w">        </span><span class="s2">"tenant"</span><span class="p">,</span>
+<a id="__codelineno-47-162" name="__codelineno-47-162" href="#__codelineno-47-162"></a><span class="w">        </span><span class="s2">"notifications"</span>
+<a id="__codelineno-47-163" name="__codelineno-47-163" href="#__codelineno-47-163"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-47-164" name="__codelineno-47-164" href="#__codelineno-47-164"></a><span class="p">}</span>
 </code></pre></div>
 </details>
 </div>
@@ -20598,14 +20604,35 @@ This URL is where users will be redirected for authentication.</td>
     </thead>
     <tbody>
         <tr>
+            <td><code>error</code></td>
+            <td><span class="string-type">string</span></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><code>error_description</code></td>
+            <td><span class="string-type">string</span></td>
+            <td>Human-readable description of the error.</td>
+        </tr>
+        <tr>
+            <td><code>error_uri</code></td>
+            <td><span class="string-type">string</span></td>
+            <td>URI with additional information about the error.</td>
+        </tr>
+        <tr>
             <td><code>response</code></td>
             <td><span class="string-type">string</span></td>
-            <td>The response string containing the authorization details.</td>
+            <td>The response string containing the authorization details (JWE-encrypted VP token).
+Required for success responses, absent for error responses.</td>
         </tr>
         <tr>
             <td><code>sendResponse</code></td>
             <td><span class="boolean-type">boolean</span></td>
             <td>When set to true, the authorization response will be sent to the client.</td>
+        </tr>
+        <tr>
+            <td><code>state</code></td>
+            <td><span class="string-type">string</span></td>
+            <td>State value from the authorization request (for correlation).</td>
         </tr>
     </tbody>
 </table>
@@ -23921,6 +23948,12 @@ Encrypted at rest - may contain sensitive claim data.</td>
             <td>Array&lt;&gt;</td>
             <td>Verified credentials from the presentation process.
 Encrypted at rest - contains personal information.</td>
+        </tr>
+        <tr>
+            <td><code>errorReason</code></td>
+            <td><span class="string-type">string</span></td>
+            <td>Error reason if the session failed.
+Stores the error message when status is 'failed'.</td>
         </tr>
         <tr>
             <td><code>expiresAt</code></td>
@@ -27736,8 +27769,12 @@ Per OID4VP spec section 5.10.1: Response MUST use Content-Type: application/oaut
 <div class="tabbed-block">
 <p></p><div class="highlight"><pre><span></span><code><a id="__codelineno-224-1" name="__codelineno-224-1" href="#__codelineno-224-1"></a><span class="p">{</span>
 <a id="__codelineno-224-2" name="__codelineno-224-2" href="#__codelineno-224-2"></a><span class="w">    </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-224-3" name="__codelineno-224-3" href="#__codelineno-224-3"></a><span class="w">    </span><span class="nt">"sendResponse"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-224-4" name="__codelineno-224-4" href="#__codelineno-224-4"></a><span class="p">}</span>
+<a id="__codelineno-224-3" name="__codelineno-224-3" href="#__codelineno-224-3"></a><span class="w">    </span><span class="nt">"sendResponse"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-224-4" name="__codelineno-224-4" href="#__codelineno-224-4"></a><span class="w">    </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-224-5" name="__codelineno-224-5" href="#__codelineno-224-5"></a><span class="w">    </span><span class="nt">"error_description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-224-6" name="__codelineno-224-6" href="#__codelineno-224-6"></a><span class="w">    </span><span class="nt">"error_uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-224-7" name="__codelineno-224-7" href="#__codelineno-224-7"></a><span class="w">    </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
+<a id="__codelineno-224-8" name="__codelineno-224-8" href="#__codelineno-224-8"></a><span class="p">}</span>
 </code></pre></div>
 <span class="small-note">⚠️</span>&nbsp;<em class="small-note warning">This example has been generated automatically from the schema and it is not accurate. Refer to the schema for more information.</em><p></p>
 <details class="hint">
@@ -27747,17 +27784,29 @@ Per OID4VP spec section 5.10.1: Response MUST use Content-Type: application/oaut
 <a id="__codelineno-225-3" name="__codelineno-225-3" href="#__codelineno-225-3"></a><span class="w">    </span><span class="nt">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-225-4" name="__codelineno-225-4" href="#__codelineno-225-4"></a><span class="w">        </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-225-5" name="__codelineno-225-5" href="#__codelineno-225-5"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-225-6" name="__codelineno-225-6" href="#__codelineno-225-6"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The response string containing the authorization details."</span>
+<a id="__codelineno-225-6" name="__codelineno-225-6" href="#__codelineno-225-6"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The response string containing the authorization details (JWE-encrypted VP token).\nRequired for success responses, absent for error responses."</span>
 <a id="__codelineno-225-7" name="__codelineno-225-7" href="#__codelineno-225-7"></a><span class="w">        </span><span class="p">},</span>
 <a id="__codelineno-225-8" name="__codelineno-225-8" href="#__codelineno-225-8"></a><span class="w">        </span><span class="nt">"sendResponse"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-225-9" name="__codelineno-225-9" href="#__codelineno-225-9"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"boolean"</span><span class="p">,</span>
 <a id="__codelineno-225-10" name="__codelineno-225-10" href="#__codelineno-225-10"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"When set to true, the authorization response will be sent to the client."</span>
-<a id="__codelineno-225-11" name="__codelineno-225-11" href="#__codelineno-225-11"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-225-12" name="__codelineno-225-12" href="#__codelineno-225-12"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-225-13" name="__codelineno-225-13" href="#__codelineno-225-13"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-225-14" name="__codelineno-225-14" href="#__codelineno-225-14"></a><span class="w">        </span><span class="s2">"response"</span>
-<a id="__codelineno-225-15" name="__codelineno-225-15" href="#__codelineno-225-15"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-225-16" name="__codelineno-225-16" href="#__codelineno-225-16"></a><span class="p">}</span>
+<a id="__codelineno-225-11" name="__codelineno-225-11" href="#__codelineno-225-11"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-225-12" name="__codelineno-225-12" href="#__codelineno-225-12"></a><span class="w">        </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-225-13" name="__codelineno-225-13" href="#__codelineno-225-13"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
+<a id="__codelineno-225-14" name="__codelineno-225-14" href="#__codelineno-225-14"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-225-15" name="__codelineno-225-15" href="#__codelineno-225-15"></a><span class="w">        </span><span class="nt">"error_description"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-225-16" name="__codelineno-225-16" href="#__codelineno-225-16"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-225-17" name="__codelineno-225-17" href="#__codelineno-225-17"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Human-readable description of the error."</span>
+<a id="__codelineno-225-18" name="__codelineno-225-18" href="#__codelineno-225-18"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-225-19" name="__codelineno-225-19" href="#__codelineno-225-19"></a><span class="w">        </span><span class="nt">"error_uri"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-225-20" name="__codelineno-225-20" href="#__codelineno-225-20"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-225-21" name="__codelineno-225-21" href="#__codelineno-225-21"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"URI with additional information about the error."</span>
+<a id="__codelineno-225-22" name="__codelineno-225-22" href="#__codelineno-225-22"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-225-23" name="__codelineno-225-23" href="#__codelineno-225-23"></a><span class="w">        </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-225-24" name="__codelineno-225-24" href="#__codelineno-225-24"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-225-25" name="__codelineno-225-25" href="#__codelineno-225-25"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"State value from the authorization request (for correlation)."</span>
+<a id="__codelineno-225-26" name="__codelineno-225-26" href="#__codelineno-225-26"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-225-27" name="__codelineno-225-27" href="#__codelineno-225-27"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-225-28" name="__codelineno-225-28" href="#__codelineno-225-28"></a><span class="p">}</span>
 </code></pre></div>
 </details>
 </div>
@@ -28037,14 +28086,35 @@ This URL is where users will be redirected for authentication.</td>
     </thead>
     <tbody>
         <tr>
+            <td><code>error</code></td>
+            <td><span class="string-type">string</span></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><code>error_description</code></td>
+            <td><span class="string-type">string</span></td>
+            <td>Human-readable description of the error.</td>
+        </tr>
+        <tr>
+            <td><code>error_uri</code></td>
+            <td><span class="string-type">string</span></td>
+            <td>URI with additional information about the error.</td>
+        </tr>
+        <tr>
             <td><code>response</code></td>
             <td><span class="string-type">string</span></td>
-            <td>The response string containing the authorization details.</td>
+            <td>The response string containing the authorization details (JWE-encrypted VP token).
+Required for success responses, absent for error responses.</td>
         </tr>
         <tr>
             <td><code>sendResponse</code></td>
             <td><span class="boolean-type">boolean</span></td>
             <td>When set to true, the authorization response will be sent to the client.</td>
+        </tr>
+        <tr>
+            <td><code>state</code></td>
+            <td><span class="string-type">string</span></td>
+            <td>State value from the authorization request (for correlation).</td>
         </tr>
     </tbody>
 </table>
@@ -31360,6 +31430,12 @@ Encrypted at rest - may contain sensitive claim data.</td>
             <td>Array&lt;&gt;</td>
             <td>Verified credentials from the presentation process.
 Encrypted at rest - contains personal information.</td>
+        </tr>
+        <tr>
+            <td><code>errorReason</code></td>
+            <td><span class="string-type">string</span></td>
+            <td>Error reason if the session failed.
+Stores the error message when status is 'failed'.</td>
         </tr>
         <tr>
             <td><code>expiresAt</code></td>
