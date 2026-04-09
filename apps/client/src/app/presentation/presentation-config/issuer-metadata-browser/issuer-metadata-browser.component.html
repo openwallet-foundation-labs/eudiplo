@@ -1,0 +1,192 @@
+<h2 mat-dialog-title fxLayout="row" fxLayoutAlign="space-between center">
+  <span>Import from Issuer</span>
+  <button mat-icon-button (click)="close()" matTooltip="Close">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content fxLayout="column" fxLayoutGap="16px">
+  <!-- Step 1: Enter URL -->
+  <div fxLayout="column" fxLayoutGap="8px">
+    <mat-form-field appearance="outline" fxFlex>
+      <mat-label>Credential Issuer URL</mat-label>
+      <input
+        matInput
+        [formControl]="urlControl"
+        placeholder="https://issuer.example.com/tenant-id"
+        (keyup.enter)="fetchMetadata()"
+      />
+      <mat-hint>Enter the issuer URL (base URL or full .well-known URL)</mat-hint>
+      @if (urlControl.hasError('required')) {
+        <mat-error>URL is required</mat-error>
+      }
+      @if (urlControl.hasError('pattern')) {
+        <mat-error>Enter a valid URL</mat-error>
+      }
+    </mat-form-field>
+
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="fetchMetadata()"
+      [disabled]="loading || urlControl.invalid"
+    >
+      @if (loading) {
+        <mat-spinner diameter="20"></mat-spinner>
+      } @else {
+        <ng-container>
+          <mat-icon>search</mat-icon>
+          Fetch Credentials
+        </ng-container>
+      }
+    </button>
+  </div>
+
+  <!-- Error message -->
+  @if (error) {
+    <mat-card class="error-card">
+      <mat-card-content fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+        <mat-icon color="warn">error</mat-icon>
+        <span>{{ error }}</span>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Step 2: Display credentials and claims -->
+  @if (credentials.length > 0) {
+    <div fxLayout="column" fxLayoutGap="16px">
+      <!-- Issuer info -->
+      @if (metadata) {
+        <mat-card class="issuer-info-card">
+          <mat-card-content fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+            @if (metadata.display?.[0]?.logo?.uri; as logoUri) {
+              <img [src]="logoUri" alt="Issuer logo" class="issuer-logo" />
+            }
+            <div fxLayout="column">
+              <strong>{{ metadata.display?.[0]?.name || 'Issuer' }}</strong>
+              <small class="issuer-url">{{ metadata.credential_issuer }}</small>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <h3>Available Credentials</h3>
+
+      <mat-accordion multi>
+        @for (credential of credentials; track credential.id) {
+          <mat-expansion-panel [expanded]="isCredentialSelected(credential)">
+            <mat-expansion-panel-header>
+              <mat-panel-title fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                <mat-checkbox
+                  [checked]="isCredentialSelected(credential)"
+                  (change)="toggleCredential(credential, $event.checked)"
+                  (click)="$event.stopPropagation()"
+                ></mat-checkbox>
+                @if (credential.logo?.uri; as credLogoUri) {
+                  <img [src]="credLogoUri" alt="" class="credential-logo" />
+                }
+                <span>{{ credential.displayName }}</span>
+              </mat-panel-title>
+              <mat-panel-description>
+                <mat-chip>{{ credential.format }}</mat-chip>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <div fxLayout="column" fxLayoutGap="12px" class="credential-content">
+              @if (credential.description) {
+                <p class="description">{{ credential.description }}</p>
+              }
+
+              <div fxLayout="row" fxLayoutGap="16px" class="credential-meta">
+                @if (credential.vct) {
+                  <div>
+                    <span class="label">VCT:</span>
+                    <code>{{ credential.vct }}</code>
+                  </div>
+                }
+                @if (credential.doctype) {
+                  <div>
+                    <span class="label">Doctype:</span>
+                    <code>{{ credential.doctype }}</code>
+                  </div>
+                }
+              </div>
+
+              @if (credential.claims.length > 0) {
+                <div fxLayout="column" fxLayoutGap="8px">
+                  <div fxLayout="row" fxLayoutAlign="space-between center">
+                    <h4>Claims</h4>
+                    <div fxLayout="row" fxLayoutGap="8px">
+                      <button
+                        mat-button
+                        (click)="selectAllClaims(credential)"
+                        [disabled]="!isCredentialSelected(credential)"
+                      >
+                        Select All
+                      </button>
+                      <button
+                        mat-button
+                        (click)="deselectAllClaims(credential)"
+                        [disabled]="!isCredentialSelected(credential)"
+                      >
+                        Deselect All
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="claims-grid">
+                    @for (claim of credential.claims; track claim.path.join('.')) {
+                      <div
+                        class="claim-item"
+                        fxLayout="row"
+                        fxLayoutAlign="start center"
+                        fxLayoutGap="8px"
+                      >
+                        <mat-checkbox
+                          [checked]="isClaimSelected(credential, claim)"
+                          (change)="toggleClaim(credential, claim, $event.checked)"
+                          [disabled]="!isCredentialSelected(credential)"
+                        ></mat-checkbox>
+                        <div fxLayout="column">
+                          <span class="claim-name">{{ claim.displayName }}</span>
+                          <small class="claim-path">
+                            @if (claim.namespace) {
+                              {{ claim.namespace }}:
+                            }
+                            {{ claim.path.join('.') }}
+                            @if (claim.mandatory) {
+                              <mat-chip class="mandatory-chip">mandatory</mat-chip>
+                            }
+                          </small>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              } @else {
+                <p class="no-claims">No claims defined in metadata</p>
+              }
+            </div>
+          </mat-expansion-panel>
+        }
+      </mat-accordion>
+    </div>
+  }
+
+  <!-- Step 3: Preview generated DCQL -->
+  @if (hasSelections()) {
+    <mat-divider></mat-divider>
+    <div fxLayout="column" fxLayoutGap="8px">
+      <h3>Generated DCQL Query</h3>
+      <pre class="dcql-preview">{{ getGeneratedDcql() | json }}</pre>
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Cancel</button>
+  <button mat-flat-button color="primary" (click)="insert()" [disabled]="!hasSelections()">
+    <mat-icon>add</mat-icon>
+    Insert DCQL
+  </button>
+</mat-dialog-actions>

@@ -89,9 +89,12 @@ export class MdocIssuerService {
             ),
         );
 
-        // Get certificate raw data (use leaf certificate for signing)
-        const certPem = certificate.crt[0];
-        const x509Cert = new X509Certificate(certPem);
+        // Convert all certificates in the chain to Uint8Array
+        // certificate.crt is an array: [leaf, intermediate..., root]
+        const certificateChain = certificate.crt.map((certPem) => {
+            const x509Cert = new X509Certificate(certPem);
+            return new Uint8Array(x509Cert.rawData);
+        });
 
         // Set validity dates
         const signed = new Date();
@@ -110,7 +113,7 @@ export class MdocIssuerService {
         // Sign the mDOC
         const issuerSigned = await issuer.sign({
             signingKey: CoseKey.fromJwk(privateKey as Jwk),
-            certificate: new Uint8Array(x509Cert.rawData),
+            certificates: certificateChain,
             algorithm: SignatureAlgorithm.ES256,
             digestAlgorithm: "SHA-256",
             deviceKeyInfo: { deviceKey: DeviceKey.fromJwk(deviceKey) },

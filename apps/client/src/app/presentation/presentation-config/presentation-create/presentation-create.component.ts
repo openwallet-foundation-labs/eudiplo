@@ -18,6 +18,7 @@ import {
 import { PresentationManagementService } from '../presentation-management.service';
 import { MatDialog } from '@angular/material/dialog';
 import { JsonViewDialogComponent } from '../../../issuance/credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
+import { IssuerMetadataBrowserComponent } from '../issuer-metadata-browser/issuer-metadata-browser.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { configs } from './pre-config';
@@ -392,5 +393,28 @@ export class PresentationCreateComponent implements OnInit {
         panelClass: ['error-snackbar'],
       });
     }
+  }
+
+  /**
+   * Open the issuer metadata browser dialog to import DCQL from an issuer
+   */
+  importFromIssuer(): void {
+    const dialogRef = this.dialog.open(IssuerMetadataBrowserComponent, {
+      data: {},
+      disableClose: false,
+      minWidth: '60vw',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+    });
+
+    dialogRef.afterClosed().subscribe((dcqlQuery) => {
+      if (dcqlQuery) {
+        // Set the DCQL query in the form
+        this.form.get('dcql_query')?.setValue(JSON.stringify(dcqlQuery, null, 2));
+        this.snackBar.open('DCQL query imported from issuer', 'OK', {
+          duration: 3000,
+        });
+      }
+    });
   }
 }

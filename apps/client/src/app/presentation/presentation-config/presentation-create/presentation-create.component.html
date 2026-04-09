@@ -41,6 +41,16 @@
         </mat-menu>
       }
 
+      <!-- Import from Issuer Button -->
+      <button
+        mat-stroked-button
+        (click)="importFromIssuer()"
+        matTooltip="Import DCQL query from credential issuer metadata"
+      >
+        <mat-icon>cloud_download</mat-icon>
+        Import from Issuer
+      </button>
+
       <!-- Back Button -->
       <button matIconButton [routerLink]="['../']" matTooltip="Back to list">
         <mat-icon>arrow_back</mat-icon>

@@ -11,11 +11,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
-import { KeyChainResponseDto } from '@eudiplo/sdk-core';
-import { KeyManagementService } from '../key-management/key-management.service';
-import { RegistrarConfig, RegistrarService } from './registrar.service';
+import { RegistrarConfig, RegistrarConfigRequest, RegistrarService } from './registrar.service';
 
 interface RegistrarPreset {
   name: string;
@@ -50,13 +48,10 @@ interface RegistrarPreset {
 export class RegistrarComponent implements OnInit {
   configForm: FormGroup;
   config: RegistrarConfig | null = null;
-  keyChains: KeyChainResponseDto[] = [];
-  selectedKeyChainId = '';
   selectedPreset = '';
 
   isLoading = true;
   isSaving = false;
-  isCreatingCert = false;
   showPassword = false;
 
   readonly presets: RegistrarPreset[] = [
@@ -70,10 +65,8 @@ export class RegistrarComponent implements OnInit {
 
   constructor(
     private readonly registrarService: RegistrarService,
-    private readonly keyManagementService: KeyManagementService,
     private readonly snackBar: MatSnackBar,
-    private readonly fb: FormBuilder,
-    private readonly router: Router
+    private readonly fb: FormBuilder
   ) {
     this.configForm = this.fb.group({
       registrarUrl: ['', [Validators.required]],
@@ -92,23 +85,22 @@ export class RegistrarComponent implements OnInit {
   async loadData(): Promise<void> {
     this.isLoading = true;
     try {
-      const [config, keyChains] = await Promise.all([
-        this.registrarService.getConfig(),
-        this.keyManagementService.loadKeys(),
-      ]);
+      this.config = await this.registrarService.getConfig();
 
-      this.config = config;
-      this.keyChains = keyChains;
-
-      if (config) {
+      if (this.config) {
         this.configForm.patchValue({
-          registrarUrl: config.registrarUrl,
-          oidcUrl: config.oidcUrl,
-          clientId: config.clientId,
-          clientSecret: config.clientSecret || '',
-          username: config.username,
-          password: config.password,
+          registrarUrl: this.config.registrarUrl,
+          oidcUrl: this.config.oidcUrl,
+          clientId: this.config.clientId,
+          clientSecret: this.config.clientSecret || '',
+          username: this.config.username,
+          password: '', // Password is never returned; user must enter new one to change it
         });
+        // If config exists with a password, password field is optional (keep existing)
+        if (this.config.hasPassword) {
+          this.configForm.get('password')?.clearValidators();
+          this.configForm.get('password')?.updateValueAndValidity();
+        }
       }
     } catch (error) {
       console.error('Error loading registrar data:', error);
@@ -124,17 +116,37 @@ export class RegistrarComponent implements OnInit {
       return;
     }
 
+    const formValue = this.configForm.value;
+    const isUpdate = this.config !== null;
+
+    // Password is required for new config
+    if (!isUpdate && !formValue.password) {
+      this.snackBar.open('Password is required for new configuration', 'Close', { duration: 3000 });
+      return;
+    }
+
     this.isSaving = true;
     try {
-      const formValue = this.configForm.value;
-      this.config = await this.registrarService.saveConfig({
+      const configRequest: RegistrarConfigRequest = {
         registrarUrl: formValue.registrarUrl,
         oidcUrl: formValue.oidcUrl,
         clientId: formValue.clientId,
         clientSecret: formValue.clientSecret || undefined,
         username: formValue.username,
-        password: formValue.password,
-      });
+      };
+
+      // Only include password if user entered one (for updates) or always for new config
+      if (formValue.password) {
+        configRequest.password = formValue.password;
+      }
+
+      if (isUpdate) {
+        // Use PATCH for updates - only send fields that should be updated
+        this.config = await this.registrarService.updateConfig(configRequest);
+      } else {
+        // Use POST for new config
+        this.config = await this.registrarService.saveConfig(configRequest);
+      }
       this.snackBar.open('Configuration saved successfully', 'Close', { duration: 3000 });
     } catch (error: any) {
       console.error('Error saving config:', error);
@@ -161,29 +173,6 @@ export class RegistrarComponent implements OnInit {
       this.snackBar.open('Failed to delete configuration', 'Close', { duration: 3000 });
     } finally {
       this.isSaving = false;
-    }
-  }
-
-  async createAccessCertificate(): Promise<void> {
-    if (!this.selectedKeyChainId) {
-      this.snackBar.open('Please select a key chain', 'Close', { duration: 3000 });
-      return;
-    }
-
-    this.isCreatingCert = true;
-    try {
-      await this.registrarService.createAccessCertificate(this.selectedKeyChainId);
-      this.snackBar.open('Access certificate created successfully', 'Close', {
-        duration: 3000,
-      });
-      // Navigate to the key chain detail page
-      await this.router.navigate(['/keys', this.selectedKeyChainId]);
-    } catch (error: any) {
-      console.error('Error creating access certificate:', error);
-      const message = error.error?.message || 'Failed to create access certificate';
-      this.snackBar.open(message, 'Close', { duration: 5000 });
-    } finally {
-      this.isCreatingCert = false;
     }
   }
 
