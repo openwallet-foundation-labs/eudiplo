@@ -70,7 +70,7 @@
         "@panva/hkdf": "^1.2.1",
         "@peculiar/asn1-schema": "^2.6.0",
         "@peculiar/asn1-x509": "^2.6.1",
-        "@peculiar/x509": "^1.14.3",
+        "@peculiar/x509": "^2.0.0",
         "@sd-jwt/crypto-nodejs": "^0.19.0",
         "@sd-jwt/sd-jwt-vc": "^0.19.0",
         "@sd-jwt/types": "^0.19.0",
@@ -95,7 +95,7 @@
         "qrcode": "^1.5.4",
         "reflect-metadata": "^0.2.2",
         "rxjs": "^7.8.2",
-        "sqlite3": "^5.1.7",
+        "sqlite3": "^6.0.1",
         "typeorm": "^0.3.28",
         "uuid": "^13.0.0"
     },
@@ -127,7 +127,7 @@
         "ts-node": "^10.9.2",
         "tsconfig-paths": "^4.2.0",
         "tsx": "^4.21.0",
-        "typescript": "^5.9.3",
+        "typescript": "^6.0.2",
         "unplugin-swc": "^1.5.9",
         "vitest": "4.1.2"
     },
