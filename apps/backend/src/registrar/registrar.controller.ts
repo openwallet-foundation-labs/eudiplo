@@ -14,8 +14,8 @@ import { Secured } from "../auth/secure.decorator";
 import { Token, TokenPayload } from "../auth/token.decorator";
 import { CreateAccessCertificateDto } from "./dto/create-access-certificate.dto";
 import { CreateRegistrarConfigDto } from "./dto/create-registrar-config.dto";
+import { RegistrarConfigResponseDto } from "./dto/registrar-config-response.dto";
 import { UpdateRegistrarConfigDto } from "./dto/update-registrar-config.dto";
-import { RegistrarConfigEntity } from "./entities/registrar-config.entity";
 import { RegistrarService } from "./registrar.service";
 
 /**
@@ -38,7 +38,7 @@ export class RegistrarController {
     @ApiResponse({
         status: 200,
         description: "The registrar configuration",
-        type: RegistrarConfigEntity,
+        type: RegistrarConfigResponseDto,
     })
     @ApiResponse({
         status: 404,
@@ -46,8 +46,9 @@ export class RegistrarController {
     })
     async getConfig(
         @Token() token: TokenPayload,
-    ): Promise<RegistrarConfigEntity | null> {
-        return this.registrarService.getConfig(token.entity!.id);
+    ): Promise<RegistrarConfigResponseDto | null> {
+        const config = await this.registrarService.getConfig(token.entity!.id);
+        return config ? RegistrarConfigResponseDto.fromEntity(config) : null;
     }
 
     /**
@@ -62,7 +63,7 @@ export class RegistrarController {
     @ApiResponse({
         status: 201,
         description: "Configuration created successfully",
-        type: RegistrarConfigEntity,
+        type: RegistrarConfigResponseDto,
     })
     @ApiResponse({
         status: 400,
@@ -71,8 +72,12 @@ export class RegistrarController {
     async createConfig(
         @Token() token: TokenPayload,
         @Body() dto: CreateRegistrarConfigDto,
-    ): Promise<RegistrarConfigEntity> {
-        return this.registrarService.saveConfig(token.entity!.id, dto);
+    ): Promise<RegistrarConfigResponseDto> {
+        const config = await this.registrarService.saveConfig(
+            token.entity!.id,
+            dto,
+        );
+        return RegistrarConfigResponseDto.fromEntity(config);
     }
 
     /**
@@ -87,7 +92,7 @@ export class RegistrarController {
     @ApiResponse({
         status: 200,
         description: "Configuration updated successfully",
-        type: RegistrarConfigEntity,
+        type: RegistrarConfigResponseDto,
     })
     @ApiResponse({
         status: 400,
@@ -100,8 +105,12 @@ export class RegistrarController {
     async updateConfig(
         @Token() token: TokenPayload,
         @Body() dto: UpdateRegistrarConfigDto,
-    ): Promise<RegistrarConfigEntity> {
-        return this.registrarService.updateConfig(token.entity!.id, dto);
+    ): Promise<RegistrarConfigResponseDto> {
+        const config = await this.registrarService.updateConfig(
+            token.entity!.id,
+            dto,
+        );
+        return RegistrarConfigResponseDto.fromEntity(config);
     }
 
     /**
