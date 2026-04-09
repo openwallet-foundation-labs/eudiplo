@@ -226,46 +226,4 @@ export class ChainedAsController {
     ): Promise<ChainedAsTokenResponseDto> {
         return this.chainedAsService.handleToken(tenantId, body, dpopJwt);
     }
-
-    /**
-     * JWKS endpoint for token verification.
-     */
-    @Public()
-    @Get(".well-known/jwks.json")
-    @ApiOperation({
-        summary: "JSON Web Key Set",
-        description:
-            "Returns the public keys for verifying tokens issued by this Chained AS.",
-    })
-    @ApiParam({ name: "tenantId", description: "Tenant identifier" })
-    @ApiResponse({
-        status: 200,
-        description: "JWKS document",
-    })
-    async jwks(
-        @Param("tenantId") tenantId: string,
-    ): Promise<{ keys: Record<string, unknown>[] }> {
-        return this.chainedAsService.getJwks(tenantId);
-    }
-
-    /**
-     * OAuth Authorization Server metadata.
-     */
-    @Public()
-    @Get(".well-known/oauth-authorization-server")
-    @ApiOperation({
-        summary: "OAuth AS Metadata",
-        description:
-            "Returns the OAuth Authorization Server metadata for the Chained AS.",
-    })
-    @ApiParam({ name: "tenantId", description: "Tenant identifier" })
-    @ApiResponse({
-        status: 200,
-        description: "OAuth AS metadata",
-    })
-    getMetadata(
-        @Param("tenantId") tenantId: string,
-    ): Promise<Record<string, unknown>> {
-        return this.chainedAsService.getMetadata(tenantId);
-    }
 }

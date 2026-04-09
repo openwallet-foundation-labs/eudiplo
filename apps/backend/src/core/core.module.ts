@@ -1,7 +1,9 @@
 import { Module } from "@nestjs/common";
+import { APP_INTERCEPTOR } from "@nestjs/core";
+import { OpenTelemetryModule } from "nestjs-otel";
 import { AppController } from "./app/app.controller";
 import { HealthModule } from "./health/health.module";
-import { MetricsModule } from "./metrics/metrics.module";
+import { TraceIdInterceptor } from "./interceptors/trace-id.interceptor";
 
 /**
  * Core Module - Platform infrastructure and observability
@@ -9,11 +11,31 @@ import { MetricsModule } from "./metrics/metrics.module";
  * Responsibilities:
  * - Service information endpoint
  * - Health checks
- * - Metrics and monitoring
+ * - OpenTelemetry metrics and tracing (via nestjs-otel)
+ * - Trace ID propagation to HTTP response headers (X-Trace-Id)
+ *
+ * Tracing:
+ * - HTTP spans are automatically created by @opentelemetry/instrumentation-http
+ * - Use @Span() decorator from nestjs-otel for business logic spans
+ * - Use @Traceable() class decorator to trace all methods of a service
+ * - X-Trace-Id header is added to all responses for client-side debugging
  */
 @Module({
-    imports: [HealthModule, MetricsModule],
+    imports: [
+        HealthModule,
+        OpenTelemetryModule.forRoot({
+            metrics: {
+                hostMetrics: true,
+            },
+        }),
+    ],
     controllers: [AppController],
-    exports: [HealthModule, MetricsModule],
+    providers: [
+        {
+            provide: APP_INTERCEPTOR,
+            useClass: TraceIdInterceptor,
+        },
+    ],
+    exports: [HealthModule],
 })
 export class CoreModule {}

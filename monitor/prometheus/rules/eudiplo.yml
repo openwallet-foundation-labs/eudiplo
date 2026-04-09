@@ -1,42 +1,31 @@
 groups:
   - name: eudiplo.rules
     rules:
-      # High Error Rate Alert
+      # High HTTP Error Rate (5xx responses)
       - alert: HighErrorRate
-        expr: rate(application_errors_total[5m]) > 0.1
+        expr: sum(rate(http_server_request_duration_seconds_count{http_response_status_code=~"5.."}[5m])) > 0.1
         for: 2m
         labels:
           severity: warning
           service: eudiplo
         annotations:
-          summary: "High error rate detected"
-          description: "Error rate is {{ $value }} errors per second for tenant {{ $labels.tenant_id }}"
+          summary: "High HTTP error rate detected"
+          description: "5xx error rate is {{ $value }} requests per second"
 
-      # Credential Issuance Failure Rate
-      - alert: HighCredentialFailureRate
-        expr: rate(credential_issuance_failures_total[5m]) / rate(credential_issuance_total[5m]) > 0.05
-        for: 5m
-        labels:
-          severity: warning
-          service: eudiplo
-        annotations:
-          summary: "High credential issuance failure rate"
-          description: "Credential failure rate is {{ $value | humanizePercentage }} for tenant {{ $labels.tenant_id }}"
-
-      # Service Down Alert
+      # Service Down Alert (OTel Collector not reachable)
       - alert: ServiceDown
-        expr: up{job="eudiplo"} == 0
+        expr: up{job=~"otel-collector.*"} == 0
         for: 1m
         labels:
           severity: critical
           service: eudiplo
         annotations:
-          summary: "EUDIPLO service is down"
-          description: "EUDIPLO service has been down for more than 1 minute"
+          summary: "EUDIPLO telemetry pipeline is down"
+          description: "OTel Collector has been unreachable for more than 1 minute"
 
-      # High Response Time
+      # High Response Time (95th percentile)
       - alert: HighResponseTime
-        expr: http_request_duration_seconds{quantile="0.95"} > 2
+        expr: histogram_quantile(0.95, sum(rate(http_server_request_duration_seconds_bucket[5m])) by (le)) > 2
         for: 5m
         labels:
           severity: warning
@@ -45,7 +34,7 @@ groups:
           summary: "High response time detected"
           description: "95th percentile response time is {{ $value }}s"
 
-      # High Memory Usage (if node_exporter is available)
+      # High Memory Usage (if host metrics are available)
       - alert: HighMemoryUsage
         expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 80
         for: 5m
@@ -58,14 +47,6 @@ groups:
 
   - name: tenant.rules
     rules:
-      # Per-tenant credential issuance rate
-      - record: tenant:credential_issuance_rate
-        expr: rate(credential_issuance_total[5m])
-        
-      # Per-tenant error rate
-      - record: tenant:error_rate
-        expr: rate(application_errors_total[5m])
-        
       # Per-tenant active sessions
       - record: tenant:active_sessions
-        expr: active_sessions_total
+        expr: sessions{status="active"}

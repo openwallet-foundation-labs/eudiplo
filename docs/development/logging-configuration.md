@@ -124,17 +124,19 @@ LOG_ENABLE_HTTP_LOGGER=true
 
 **Note:** This controls the built-in HTTP logging from the Pino HTTP logger. Session-specific logging is controlled separately.
 
-### SessionLoggerService
+### Audit Logging (AuditLogService)
 
-To disable all session-related logging (useful during debugging when you want to focus on other components):
+To disable all audit logging (useful during debugging when you want to focus on other components):
 
 ```bash
-# Disable SessionLoggerService logs
+# Disable AuditLogService logs
 LOG_ENABLE_SESSION_LOGGER=false
 
-# Enable SessionLoggerService logs
+# Enable AuditLogService logs
 LOG_ENABLE_SESSION_LOGGER=true
 ```
+
+**Note:** `AuditLogService` persists compliance events (flow_start, flow_complete, flow_error, credential_issuance, credential_verification) to the database only. For observability, logs are sent to Loki via the OpenTelemetry transport.
 
 ## Development Scenarios
 
@@ -182,13 +184,13 @@ This will only show warnings, errors, and important session events without HTTP 
 
 ## Log Structure
 
-Session logs include structured data:
+Audit logs are persisted to the database with structured data. Debug/observability logs are exported to Loki via OpenTelemetry and include trace correlation:
 
 ```json
 {
     "level": "info",
     "time": "2025-07-20T10:30:45.123Z",
-    "context": "SessionLoggerService",
+    "context": "AuditLogService",
     "sessionId": "session_123",
     "tenantId": "tenant_456",
     "flowType": "OID4VCI",

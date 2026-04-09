@@ -4,6 +4,7 @@ import { digest } from "@sd-jwt/crypto-nodejs";
 import { SDJwtVcInstance, VerificationResult } from "@sd-jwt/sd-jwt-vc";
 import { KbVerifier } from "@sd-jwt/types";
 import { base64url, JWK } from "jose";
+import { Span } from "nestjs-otel";
 import { CryptoImplementationService } from "../../../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { VerifierOptions } from "../../../../shared/trust/types";
 import { MatchedTrustedEntity } from "../../../../shared/trust/x509-validation.service";
@@ -33,6 +34,7 @@ export class SdjwtvcverifierService {
      * @param options
      * @returns
      */
+    @Span("sdjwt.verify")
     async verify(
         cred: string,
         options: VerifierOptions,

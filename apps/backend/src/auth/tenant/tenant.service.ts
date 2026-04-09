@@ -7,10 +7,10 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
-import { InjectMetric } from "@willsoto/nestjs-prometheus";
+import type { UpDownCounter } from "@opentelemetry/api";
 import { plainToClass } from "class-transformer";
 import { validate } from "class-validator";
-import { Gauge } from "prom-client";
+import { MetricService } from "nestjs-otel";
 import { Repository } from "typeorm";
 import { EncryptionService } from "../../crypto/encryption/encryption.service";
 import { RegistrarService } from "../../registrar/registrar.service";
@@ -31,6 +31,7 @@ export interface Tenants {
 @Injectable()
 export class TenantService implements OnApplicationBootstrap {
     private readonly logger = new Logger(TenantService.name);
+    private readonly tenantTotal: UpDownCounter;
 
     constructor(
         @Inject(CLIENTS_PROVIDER) private readonly clients: ClientsProvider,
@@ -39,11 +40,14 @@ export class TenantService implements OnApplicationBootstrap {
         private readonly registrarService: RegistrarService,
         @InjectRepository(TenantEntity)
         private readonly tenantRepository: Repository<TenantEntity>,
-        @InjectMetric("tenant_total")
-        private readonly tenantTotal: Gauge<string>,
+        metricService: MetricService,
         private readonly filesService: FilesService,
         private readonly configImportOrchestrator: ConfigImportOrchestratorService,
     ) {
+        this.tenantTotal = metricService.getUpDownCounter("tenant_total", {
+            description: "Total number of tenants",
+        });
+
         // Register tenant setup - this runs first for each tenant before other imports
         this.configImportOrchestrator.registerTenantSetup(
             "tenants",
@@ -54,7 +58,7 @@ export class TenantService implements OnApplicationBootstrap {
     async onApplicationBootstrap() {
         // Initialize the tenant metrics
         const count = await this.tenantRepository.count();
-        this.tenantTotal.set({}, count);
+        this.tenantTotal.add(count);
     }
 
     /**

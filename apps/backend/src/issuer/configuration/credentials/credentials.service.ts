@@ -7,7 +7,6 @@ import Ajv from "ajv/dist/2020";
 import { Repository } from "typeorm";
 import { CryptoImplementationService } from "../../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { Session } from "../../../session/entities/session.entity";
-import { SessionLogContext } from "../../../shared/utils/logger/session-logger-context";
 import { WebhookConfig } from "../../../shared/utils/webhook/webhook.dto";
 import { WebhookService } from "../../../shared/utils/webhook/webhook.service";
 import { VCT } from "../../issuance/oid4vci/metadata/dto/vct.dto";
@@ -358,17 +357,9 @@ export class CredentialsService {
             return undefined;
         }
 
-        const logContext: SessionLogContext = {
-            sessionId: session.id,
-            tenantId: session.tenantId,
-            flowType: "OID4VCI",
-            stage: "fetching-claims-webhook",
-        };
-
         // Send webhook with unified payload
         const response = await this.webhookService.sendClaimsWebhook({
             webhook,
-            logContext,
             session: session.id,
             credentialConfigurationId,
             identity: options?.identity,
@@ -439,15 +430,8 @@ export class CredentialsService {
                 usedClaims = claimsSource.claims;
             } else if (claimsSource?.type === "webhook") {
                 // Use webhook config passed at offer time
-                const logContext: SessionLogContext = {
-                    sessionId: session.id,
-                    tenantId: session.tenantId,
-                    flowType: "OID4VCI",
-                    stage: "fetching-claims-webhook",
-                };
                 const webhookResponse = await this.webhookService.sendWebhook({
                     webhook: claimsSource.webhook,
-                    logContext,
                     session,
                     expectResponse: true,
                 });
@@ -462,19 +446,12 @@ export class CredentialsService {
                     tenantId: session.tenantId,
                 });
                 if (provider) {
-                    const logContext: SessionLogContext = {
-                        sessionId: session.id,
-                        tenantId: session.tenantId,
-                        flowType: "OID4VCI",
-                        stage: "fetching-claims-webhook",
-                    };
                     const webhookResponse =
                         await this.webhookService.sendWebhook({
                             webhook: {
                                 url: provider.url,
                                 auth: provider.auth,
                             },
-                            logContext,
                             session,
                             expectResponse: true,
                         });

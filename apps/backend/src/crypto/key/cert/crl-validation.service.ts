@@ -46,6 +46,19 @@ export class CrlValidationService {
     private readonly logger = new Logger(CrlValidationService.name);
     private readonly crlCache = new Map<string, CachedCrl>();
 
+    /**
+     * Short-lived cache for certificate validation results.
+     * Prevents repeated validation of the same certificate within a request.
+     * Key is the certificate fingerprint, value is the result and timestamp.
+     */
+    private readonly certValidationCache = new Map<
+        string,
+        { result: CrlValidationResult; timestamp: number }
+    >();
+
+    /** Cache TTL for certificate validation results (30 seconds) */
+    private readonly certValidationCacheTtlMs = 30 * 1000;
+
     /** Default cache TTL in milliseconds (1 hour) */
     private readonly defaultCacheTtlMs = 60 * 60 * 1000;
 
@@ -65,6 +78,18 @@ export class CrlValidationService {
     ): Promise<CrlValidationResult> {
         try {
             const cert = new x509.X509Certificate(certPem);
+
+            // Check certificate validation cache first (avoids repeated validation within short window)
+            const certFingerprint = await cert.getThumbprint("SHA-256");
+            const cacheKey = Buffer.from(certFingerprint).toString("hex");
+            const cached = this.certValidationCache.get(cacheKey);
+            if (
+                cached &&
+                Date.now() - cached.timestamp < this.certValidationCacheTtlMs
+            ) {
+                return { ...cached.result, fromCache: true };
+            }
+
             const crlUrls = this.extractCrlDistributionPoints(cert);
 
             if (crlUrls.length === 0) {
@@ -81,6 +106,11 @@ export class CrlValidationService {
             for (const url of crlUrls) {
                 try {
                     const result = await this.checkAgainstCrl(cert, url);
+                    // Cache the result
+                    this.certValidationCache.set(cacheKey, {
+                        result,
+                        timestamp: Date.now(),
+                    });
                     return result;
                 } catch (error: any) {
                     this.logger.warn(
@@ -91,10 +121,15 @@ export class CrlValidationService {
             }
 
             // All CRL URLs failed
-            return {
+            const failResult: CrlValidationResult = {
                 isValid: false,
                 error: `Failed to validate against any CRL: ${crlUrls.join(", ")}`,
             };
+            this.certValidationCache.set(cacheKey, {
+                result: failResult,
+                timestamp: Date.now(),
+            });
+            return failResult;
         } catch (error: any) {
             this.logger.error(
                 `CRL validation error: ${error.message}`,

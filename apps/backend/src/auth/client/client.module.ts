@@ -1,7 +1,6 @@
 import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { getRepositoryToken, TypeOrmModule } from "@nestjs/typeorm";
-import { makeGaugeProvider } from "@willsoto/nestjs-prometheus";
 import { Repository } from "typeorm";
 import { ConfigImportService } from "../../shared/utils/config-import/config-import.service";
 import { ConfigImportOrchestratorService } from "../../shared/utils/config-import/config-import-orchestrator.service";
@@ -43,10 +42,6 @@ import { ClientEntity } from "./entities/client.entity";
                       );
             },
         },
-        makeGaugeProvider({
-            name: "tenant_total",
-            help: "Total number of tenants",
-        }),
     ],
     exports: [CLIENTS_PROVIDER],
     controllers: [ClientController],

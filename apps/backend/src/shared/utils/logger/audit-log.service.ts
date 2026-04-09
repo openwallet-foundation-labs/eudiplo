@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { PinoLogger } from "nestjs-pino";
 import { SessionLogLevel } from "../../../session/entities/session-log-entry.entity";
 import {
     SessionLogStoreService,
@@ -20,25 +19,24 @@ export interface AuditLogContext {
 /**
  * Service for persisting audit events to the database.
  *
- * This service is focused on compliance/audit logging only.
- * For debug/observability logging, use the Pino logger directly
- * which exports to Loki via OpenTelemetry.
+ * This service is focused on compliance/audit logging only — it writes to PostgreSQL
+ * so that audit events are visible in the client UI and useful for compliance/proof.
  *
  * **Audit events** (persisted to DB): flow_start, flow_complete, flow_error,
- * credential_issuance, credential_verification - these create a permanent audit
- * trail visible in the client UI and useful for compliance/proof.
+ * credential_issuance, credential_verification.
+ *
+ * For debug/observability logging, use `PinoLogger` directly — logs are exported
+ * to Loki via the OpenTelemetry transport.
  */
 @Injectable()
-export class SessionLoggerService {
+export class AuditLogService {
     private readonly isEnabled: boolean;
     private readonly verbose: boolean;
 
     constructor(
-        private readonly logger: PinoLogger,
         private readonly configService: ConfigService,
         private readonly logStore: SessionLogStoreService,
     ) {
-        this.logger.setContext("SessionLoggerService");
         this.isEnabled = this.configService.getOrThrow<boolean>(
             "LOG_ENABLE_SESSION_LOGGER",
         );
@@ -71,16 +69,6 @@ export class SessionLoggerService {
         if (!this.shouldLog()) return;
 
         const message = `[${context.flowType}] Flow started for session ${context.sessionId} in tenant ${context.tenantId}`;
-
-        this.logger.info(
-            {
-                ...context,
-                event: "flow_start",
-                stage: "initialization",
-                ...additionalData,
-            },
-            message,
-        );
         this.persistLog(
             context,
             "info",
@@ -97,16 +85,6 @@ export class SessionLoggerService {
         if (!this.shouldLog()) return;
 
         const message = `[${context.flowType}] Flow completed for session ${context.sessionId}`;
-
-        this.logger.info(
-            {
-                ...context,
-                event: "flow_complete",
-                stage: "completion",
-                ...additionalData,
-            },
-            message,
-        );
         this.persistLog(context, "info", message, "completion", additionalData);
     }
 
@@ -117,20 +95,6 @@ export class SessionLoggerService {
         if (!this.shouldLog()) return;
 
         const message = `[${context.flowType}] Flow error for session ${context.sessionId}: ${error.message}`;
-
-        this.logger.error(
-            {
-                ...context,
-                event: "flow_error",
-                error: {
-                    name: error.name,
-                    message: error.message,
-                    stack: error.stack,
-                },
-                ...additionalData,
-            },
-            message,
-        );
         this.persistLog(context, "error", message, "error", {
             errorName: error.name,
             errorMessage: error.message,
@@ -150,17 +114,6 @@ export class SessionLoggerService {
         if (!this.shouldLog()) return;
 
         const message = `[${context.flowType}] Issuing credential of type ${credentialType} for session ${context.sessionId}`;
-
-        this.logger.info(
-            {
-                ...context,
-                event: "credential_issuance",
-                stage: "credential_creation",
-                credentialType,
-                ...additionalData,
-            },
-            message,
-        );
         this.persistLog(context, "info", message, "credential_creation", {
             credentialType,
             ...additionalData,
@@ -178,17 +131,6 @@ export class SessionLoggerService {
         if (!this.shouldLog()) return;
 
         const message = `[${context.flowType}] Credential verification ${verificationResult ? "succeeded" : "failed"} for session ${context.sessionId}`;
-
-        this.logger.info(
-            {
-                ...context,
-                event: "credential_verification",
-                stage: "verification",
-                verificationResult,
-                ...additionalData,
-            },
-            message,
-        );
         this.persistLog(context, "info", message, "verification", {
             verificationResult,
             ...additionalData,
@@ -207,19 +149,6 @@ export class SessionLoggerService {
         if (!this.shouldLog()) return;
 
         const fullMessage = `[${context.flowType}] ${message}: ${error.message}`;
-
-        this.logger.error(
-            {
-                ...context,
-                error: {
-                    name: error.name,
-                    message: error.message,
-                    stack: error.stack,
-                },
-                ...additionalData,
-            },
-            fullMessage,
-        );
         this.persistLog(context, "error", fullMessage, context.stage, {
             errorName: error.name,
             errorMessage: error.message,

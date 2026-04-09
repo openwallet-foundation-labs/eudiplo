@@ -7,7 +7,7 @@
 - **Webhook**: [apps/webhook](../apps/webhook) — Cloudflare Worker webhook simulator.
 - **Packages**: [packages/eudiplo-sdk-core](../packages/eudiplo-sdk-core) — Shared SDK core library.
 - **Deployment**: [deployment/](../deployment) — Docker Compose configs for minimal/full setups. See [deployment/README.md](../deployment/README.md).
-- **Monitoring**: [monitor/](../monitor) — Prometheus & Grafana stack for observability.
+- **Monitoring**: [monitor/](../monitor) — OpenTelemetry Collector, Prometheus, Tempo, Loki & Grafana for observability.
 
 ## Developer Workflows
 - **Install dependencies**: `pnpm install` (root)
@@ -43,7 +43,7 @@
 ## Rules for Backend Code
 - When creating a module, always generate `<feature>.module.ts`, `<feature>.controller.ts`, `<feature>.service.ts` and create subfolders: `dto/`, `entities/`, `exceptions/` as needed.
 - Always add Swagger annotations (`@ApiTags`, `@ApiOperation`, `@ApiResponse`, `@ApiBody`) on all controller endpoints.
-- Use the **Pino logger** (`nestjs-pino` / `PinoLogger`). For session-scoped logging, use `SessionLoggerService`.
+- Use the **Pino logger** (`nestjs-pino` / `PinoLogger`). For audit logging (compliance events persisted to DB), use `AuditLogService`.
 - Always wrap external calls in `try/catch` and throw domain-specific exceptions from the module's `exceptions/` folder.
 - Custom exceptions must extend NestJS `HttpException` — there is no custom base exception class.
 - When adding credential/protocol-related functions, follow existing abstractions in `packages/eudiplo-sdk-core`. Never duplicate protocol logic across modules.
@@ -95,14 +95,18 @@
 - When modifying deployment, update both Docker Compose and K8s manifests as applicable.
 
 ## Observability
-- Use existing Prometheus metrics via `@willsoto/nestjs-prometheus` and the `MetricsModule`.
-- New backend features should include metric counters and error counters where appropriate.
-- Do not introduce new metric libraries — use existing `makeGaugeProvider` / `@InjectMetric` patterns.
+- Telemetry (metrics, traces, logs) is handled via **OpenTelemetry** using `nestjs-otel` and the `@opentelemetry/sdk-node`.
+- The OTel SDK is bootstrapped in `apps/backend/src/tracing.ts` **before** NestJS starts. All signals are exported via OTLP to an OpenTelemetry Collector.
+- `OpenTelemetryModule` is registered globally in `CoreModule` — do not import it in feature modules.
+- For custom metrics, inject `MetricService` from `nestjs-otel` and use `getCounter()`, `getHistogram()`, or `getUpDownCounter()`. Never use `prom-client` directly.
+- HTTP metrics and traces are auto-instrumented — no manual instrumentation needed for request/response tracking.
+- Logs are auto-correlated with traces via `nestjs-pino` + the Pino OTel instrumentation (trace_id/span_id injected automatically).
+- The monitoring stack (OTel Collector → Prometheus / Tempo / Loki → Grafana) lives in [monitor/](../monitor).
 
 ## Integration & External Dependencies
 - **OID4VCI, OID4VP, SD-JWT VC**: Protocol support in backend.
 - **Cloudflare Workers**: Used in [apps/webhook](../apps/webhook).
-- **Prometheus/Grafana**: Monitoring via [monitor/](../monitor).
+- **OpenTelemetry / Prometheus / Tempo / Loki / Grafana**: Monitoring via [monitor/](../monitor).
 
 ## Examples
 - **Minimal local run**: `docker compose up -d` (from root)

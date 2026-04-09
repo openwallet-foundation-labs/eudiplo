@@ -4,6 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import { Openid4vciIssuer } from "@openid4vc/openid4vci";
 import * as x509 from "@peculiar/x509";
 import { decodeProtectedHeader, JWK } from "jose";
+import { Span } from "nestjs-otel";
 import { CryptoService } from "../../crypto/crypto.service";
 import { CryptoImplementationService } from "../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { StatusListVerifierService } from "./status-list-verifier.service";
@@ -61,6 +62,7 @@ export class WalletAttestationService {
      * @param walletProviderTrustLists URLs of trust lists containing trusted wallet providers
      * @throws UnauthorizedException if attestation is required but not provided, or if provided but invalid
      */
+    @Span("walletAttestation.verify")
     async verifyWalletAttestation(
         tenantId: string,
         clientAttestation: ClientAttestation | undefined,

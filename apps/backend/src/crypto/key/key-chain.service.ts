@@ -16,6 +16,7 @@ import {
     JWTPayload,
     SignJWT,
 } from "jose";
+import { Span } from "nestjs-otel";
 import { Repository } from "typeorm";
 import { v4 } from "uuid";
 import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
@@ -1032,6 +1033,7 @@ export class KeyChainService {
     /**
      * Sign a JWT with the active key of a key chain.
      */
+    @Span("keychain.signJWT")
     async signJWT(
         payload: JWTPayload,
         header: JWSHeaderParameters,

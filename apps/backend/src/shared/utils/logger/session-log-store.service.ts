@@ -1,11 +1,13 @@
 import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import {
     SessionLogEntry,
     SessionLogLevel,
 } from "../../../session/entities/session-log-entry.entity";
-import { LoggerConfigService, SessionStoreMode } from "./logger-config.service";
+
+export type SessionStoreMode = "off" | "errors" | "all" | "verbose";
 
 @Injectable()
 export class SessionLogStoreService {
@@ -14,9 +16,12 @@ export class SessionLogStoreService {
     constructor(
         @InjectRepository(SessionLogEntry)
         private readonly logRepository: Repository<SessionLogEntry>,
-        private readonly loggerConfigService: LoggerConfigService,
+        private readonly configService: ConfigService,
     ) {
-        this.mode = this.loggerConfigService.getSessionStoreMode();
+        this.mode =
+            this.configService.getOrThrow<SessionStoreMode>(
+                "LOG_SESSION_STORE",
+            );
     }
 
     /**

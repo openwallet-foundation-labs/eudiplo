@@ -1,3 +1,6 @@
+// OTel SDK MUST be imported first — before any module that loads `http`, `express`, etc.
+// Auto-instrumentations patch Node built-ins at import time.
+
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { RequestMethod, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
@@ -13,6 +16,7 @@ import { cleanupOpenApiDoc } from "nestjs-zod";
 import { AllExceptionsFilter } from "./all-exceptions.filter";
 import { AppModule } from "./app.module";
 import { ValidationErrorFilter } from "./shared/common/filters/validation-error.filter";
+import otelSDK from "./tracing";
 
 /**
  * Protocol routes excluded from the `/api` global prefix.
@@ -23,7 +27,6 @@ const PROTOCOL_ROUTE_EXCLUSIONS: { path: string; method: RequestMethod }[] = [
     // Infrastructure
     { path: "/", method: RequestMethod.GET },
     { path: "health", method: RequestMethod.ALL },
-    { path: "metrics", method: RequestMethod.ALL },
     // OAuth2 & Discovery
     { path: "oauth2/{*path}", method: RequestMethod.ALL },
     { path: ".well-known/{*path}", method: RequestMethod.ALL },
@@ -155,6 +158,10 @@ function loadTlsOptions(): TlsOptions | undefined {
  * Bootstrap function to initialize the NestJS application.
  */
 async function bootstrap() {
+    // Start OpenTelemetry SDK before NestJS initializes —
+    // instrumentations must be registered before any framework code runs.
+    await otelSDK.start();
+
     // Load TLS options if configured
     const tlsOptions = loadTlsOptions();
     const isTlsEnabled = tlsOptions !== undefined;

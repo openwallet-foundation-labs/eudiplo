@@ -1,6 +1,7 @@
 import {
     Controller,
     Get,
+    NotFoundException,
     Param,
     Post,
     StreamableFile,
@@ -37,7 +38,6 @@ export class StorageController {
     @Secured([Role.Issuances])
     @ApiConsumes("multipart/form-data")
     @ApiBody({
-        description: "List of cats",
         type: FileUploadDto,
     })
     @Post()
@@ -48,15 +48,24 @@ export class StorageController {
         return this.filesService.saveUserUpload(user.entity!.id, file, true);
     }
 
+    /**
+     * Get a file and stream it
+     */
     @Get(":key")
     download(@Param("key") key: string) {
-        return this.filesService.getStream(key).then(
-            (stream) =>
-                new StreamableFile(stream.stream, {
-                    disposition: "attachment",
-                    type: stream.contentType,
-                    length: stream.size,
-                }),
-        );
+        return this.filesService
+            .getStream(key)
+            .then(
+                (stream) =>
+                    new StreamableFile(stream.stream, {
+                        //TODO: check if it should be attachment or not
+                        disposition: "attachment",
+                        type: stream.contentType,
+                        length: stream.size,
+                    }),
+            )
+            .catch(() => {
+                throw new NotFoundException();
+            });
     }
 }
