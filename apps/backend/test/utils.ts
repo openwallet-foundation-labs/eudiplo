@@ -80,7 +80,9 @@ export async function prepareMdocPresentation(
 
     const issuerSigned = await issuer.sign({
         signingKey: CoseKey.fromJwk(key as Jwk),
-        certificate: new Uint8Array(new X509Certificate(issuerCert).rawData),
+        certificates: [
+            new Uint8Array(new X509Certificate(issuerCert).rawData),
+        ],
         algorithm: SignatureAlgorithm.ES256,
         digestAlgorithm: "SHA-256",
         deviceKeyInfo: { deviceKey: DeviceKey.fromJwk(DEVICE_JWK) },
