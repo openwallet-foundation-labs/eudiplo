@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -11,9 +11,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { KeyChainService } from '../key-chain.service';
+import { RegistrarConfig, RegistrarService } from '../../registrar/registrar.service';
 import { KeyChainCreateDto } from '@eudiplo/sdk-core';
 
 export type KeyUsageSelection = 'attestation' | 'statusList' | 'access' | 'trustList';
@@ -30,6 +32,7 @@ export type AccessSourceSelection = 'selfSigned' | 'registrar';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatProgressSpinnerModule,
     MatRadioModule,
     MatSelectModule,
     MatSnackBarModule,
@@ -42,7 +45,7 @@ export type AccessSourceSelection = 'selfSigned' | 'registrar';
   templateUrl: './key-create-wizard.component.html',
   styleUrl: './key-create-wizard.component.scss',
 })
-export class KeyCreateWizardComponent {
+export class KeyCreateWizardComponent implements OnInit {
   @ViewChild('stepper') stepper!: MatStepper;
 
   // Form groups for each step
@@ -52,6 +55,9 @@ export class KeyCreateWizardComponent {
   configForm: FormGroup;
 
   isSubmitting = false;
+  isCheckingRegistrar = false;
+  registrarConfig: RegistrarConfig | null = null;
+  registrarConfigChecked = false;
 
   // Usage options with descriptions
   usageOptions = [
@@ -126,6 +132,7 @@ export class KeyCreateWizardComponent {
   constructor(
     private readonly fb: FormBuilder,
     private readonly keyChainService: KeyChainService,
+    private readonly registrarService: RegistrarService,
     private readonly router: Router,
     private readonly snackBar: MatSnackBar
   ) {
@@ -155,6 +162,33 @@ export class KeyCreateWizardComponent {
     });
   }
 
+  ngOnInit(): void {
+    // Pre-check registrar config so we can show status quickly
+    this.checkRegistrarConfig();
+  }
+
+  /**
+   * Check if registrar credentials are configured.
+   */
+  async checkRegistrarConfig(): Promise<void> {
+    this.isCheckingRegistrar = true;
+    try {
+      this.registrarConfig = await this.registrarService.getConfig();
+    } catch {
+      this.registrarConfig = null;
+    } finally {
+      this.isCheckingRegistrar = false;
+      this.registrarConfigChecked = true;
+    }
+  }
+
+  /**
+   * Check if registrar is configured and ready to use.
+   */
+  get hasRegistrarConfig(): boolean {
+    return this.registrarConfig !== null;
+  }
+
   get selectedUsage(): KeyUsageSelection | null {
     return this.usageForm.get('usage')?.value || null;
   }
@@ -177,9 +211,9 @@ export class KeyCreateWizardComponent {
   }
 
   get showConfigStep(): boolean {
-    // Access certificates via registrar are not created here
+    // Access certificates via registrar are created in this wizard if registrar is configured
     if (this.selectedUsage === 'access' && this.selectedAccessSource === 'registrar') {
-      return false;
+      return this.hasRegistrarConfig;
     }
     return !!this.selectedUsage;
   }
@@ -211,17 +245,29 @@ export class KeyCreateWizardComponent {
 
   /**
    * Handle access source selection and advance to next step.
+   * For registrar enrollment, we stay in the wizard if credentials are configured.
    */
   onAccessSourceNext(): void {
     if (this.selectedAccessSource === 'registrar') {
-      this.router.navigate(['/registrar']);
-      return;
+      if (!this.hasRegistrarConfig) {
+        // Config not yet set - user can go to registrar page via UI link
+        // but we don't force navigation automatically
+        this.snackBar.open(
+          'Please configure registrar credentials first',
+          'Go to Registrar',
+          { duration: 5000 }
+        ).onAction().subscribe(() => {
+          this.router.navigate(['/registrar']);
+        });
+        return;
+      }
     }
     this.stepper.next();
   }
 
   /**
    * Create the key chain based on wizard selections.
+   * For registrar enrollment, creates the key then requests a certificate.
    */
   async createKey(): Promise<void> {
     if (this.isSubmitting) return;
@@ -230,6 +276,7 @@ export class KeyCreateWizardComponent {
     try {
       const usage = this.selectedUsage!;
       const description = this.configForm.value.description?.trim();
+      const isRegistrarEnrollment = usage === 'access' && this.selectedAccessSource === 'registrar';
 
       // Build the KeyChainCreateDto
       const createDto: KeyChainCreateDto = {
@@ -247,6 +294,28 @@ export class KeyCreateWizardComponent {
       };
 
       const result = await this.keyChainService.create(createDto);
+
+      // For registrar enrollment, request the certificate after creating the key
+      if (isRegistrarEnrollment) {
+        try {
+          await this.registrarService.createAccessCertificate(result.id);
+          this.snackBar.open(
+            'Access certificate enrolled via registrar successfully!',
+            'View Key',
+            { duration: 5000 }
+          );
+        } catch (error: any) {
+          console.error('Error enrolling certificate:', error);
+          const message = error.error?.message || 'Failed to enroll certificate from registrar';
+          this.snackBar.open(
+            `Key created, but enrollment failed: ${message}`,
+            'View Key',
+            { duration: 8000 }
+          );
+        }
+        this.router.navigate(['/keys', result.id]);
+        return;
+      }
 
       // Show success message with next steps
       this.showSuccessMessage(usage);
@@ -335,7 +404,8 @@ export class KeyCreateWizardComponent {
     }
 
     if (this.selectedUsage === 'access') {
-      summary.push({ label: 'Certificate', value: 'Self-Signed' });
+      const certSource = this.selectedAccessSource === 'registrar' ? 'Registrar Enrollment' : 'Self-Signed';
+      summary.push({ label: 'Certificate', value: certSource });
     }
 
     if (this.configForm.value.description) {
