@@ -183,6 +183,10 @@
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
+                                <a href="#getChainedAsJwks" >getChainedAsJwks</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#getChainedAsMetadata" >getChainedAsMetadata</a>
                             </li>
                             <li>
@@ -216,7 +220,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="18" class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.service.ts:18</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.service.ts:19</a></div>
                             </td>
                         </tr>
 
@@ -355,8 +359,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="79"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.service.ts:79</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="91"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.service.ts:91</a></div>
                         </td>
                     </tr>
 
@@ -408,6 +412,77 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="getChainedAsJwks"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>getChainedAsJwks</b></span>
+                        <a href="#getChainedAsJwks"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getChainedAsJwks(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="171"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.service.ts:171</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Returns the JSON Web Key Set (JWKS) for the Chained Authorization Server.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;literal type&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="getChainedAsMetadata"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -426,8 +501,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="118"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.service.ts:118</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="150"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.service.ts:150</a></div>
                         </td>
                     </tr>
 
@@ -499,8 +574,8 @@ This supports the RFC 8414 alternative discovery path format:
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="44"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.service.ts:44</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="45"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.service.ts:45</a></div>
                         </td>
                     </tr>
 
@@ -587,8 +662,8 @@ The metadata can be returned in two formats:</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="89"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.service.ts:89</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="111"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.service.ts:111</a></div>
                         </td>
                     </tr>
 
@@ -665,7 +740,7 @@ includes the <code>kid</code> so that JWT verification can match keys.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="28" class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.service.ts:28</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.service.ts:29</a></div>
                         </td>
                     </tr>
 
@@ -678,7 +753,7 @@ includes the <code>kid</code> so that JWT verification can match keys.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpStatus, Injectable } from &quot;@nestjs/common&quot;;
 import { CertService } from &quot;../../../../crypto/key/cert/cert.service&quot;;
 import { CryptoImplementationService } from &quot;../../../../crypto/key/crypto-implementation/crypto-implementation.service&quot;;
 import { KeyUsageType } from &quot;../../../../crypto/key/entities/key-chain.entity&quot;;
@@ -687,6 +762,7 @@ import { MediaType } from &quot;../../../../shared/utils/mediaType/media-type.en
 import { IssuanceService } from &quot;../../../configuration/issuance/issuance.service&quot;;
 import { AuthorizeService } from &quot;../authorize/authorize.service&quot;;
 import { ChainedAsService } from &quot;../chained-as/chained-as.service&quot;;
+import { WellKnownException } from &quot;../exceptions&quot;;
 import { Oid4vciService } from &quot;../oid4vci.service&quot;;
 import { CredentialIssuerMetadataDto } from &quot;./dto/credential-issuer-metadata.dto&quot;;
 import { EC_Public, JwksResponseDto } from &quot;./dto/jwks-response.dto&quot;;
@@ -722,34 +798,45 @@ export class WellKnownService {
      * @returns
      */
     async getIssuerMetadata(tenantId: string, contentType: MediaType) {
-        const metadata &#x3D; (await this.oid4vciService.issuerMetadata(tenantId))
-            .credentialIssuer as unknown as CredentialIssuerMetadataDto;
+        try {
+            const metadata &#x3D; (
+                await this.oid4vciService.issuerMetadata(tenantId)
+            ).credentialIssuer as unknown as CredentialIssuerMetadataDto;
 
-        if (contentType &#x3D;&#x3D;&#x3D; MediaType.APPLICATION_JWT) {
-            const cert &#x3D; await this.certService.find({
-                tenantId,
-                type: KeyUsageType.Access,
-            });
-            return this.keyChainService.signJWT(
-                {
-                    ...metadata,
-                    iss: metadata.credential_issuer,
-                    sub: metadata.credential_issuer,
-                    iat: Math.floor(Date.now() / 1000),
-                    // [Review]: should we add &#x60;exp&#x60; value here?
-                    //MM: the value makes sense when we cache the issuer metadata so it must not be signed on every request. Like when it is issued every hour, its lifetime is 1 hour and the jwt is in the cache.
-                },
-                {
-                    typ: &quot;openidvci-issuer-metadata+jwt&quot;,
-                    alg: this.cryptoImplementationService.getAlg(),
-                    x5c: this.certService.getCertChain(cert),
-                },
-                tenantId,
-                cert.keyId,
+            if (contentType &#x3D;&#x3D;&#x3D; MediaType.APPLICATION_JWT) {
+                const cert &#x3D; await this.certService.find({
+                    tenantId,
+                    type: KeyUsageType.Access,
+                });
+                return this.keyChainService.signJWT(
+                    {
+                        ...metadata,
+                        iss: metadata.credential_issuer,
+                        sub: metadata.credential_issuer,
+                        iat: Math.floor(Date.now() / 1000),
+                        // [Review]: should we add &#x60;exp&#x60; value here?
+                        //MM: the value makes sense when we cache the issuer metadata so it must not be signed on every request. Like when it is issued every hour, its lifetime is 1 hour and the jwt is in the cache.
+                    },
+                    {
+                        typ: &quot;openidvci-issuer-metadata+jwt&quot;,
+                        alg: this.cryptoImplementationService.getAlg(),
+                        x5c: this.certService.getCertChain(cert),
+                    },
+                    tenantId,
+                    cert.keyId,
+                );
+            }
+
+            return metadata;
+        } catch (error) {
+            if (error instanceof WellKnownException) {
+                throw error;
+            }
+            throw new WellKnownException(
+                &#x60;Failed to retrieve issuer metadata for tenant ${tenantId}: ${error instanceof Error ? error.message : &quot;Unknown error&quot;}&#x60;,
+                HttpStatus.INTERNAL_SERVER_ERROR,
             );
         }
-
-        return metadata;
     }
 
     /**
@@ -757,7 +844,17 @@ export class WellKnownService {
      * @returns
      */
     async getAuthzMetadata(tenantId: string) {
-        return this.authorizeService.authzMetadata(tenantId);
+        try {
+            return await this.authorizeService.authzMetadata(tenantId);
+        } catch (error) {
+            if (error instanceof WellKnownException) {
+                throw error;
+            }
+            throw new WellKnownException(
+                &#x60;Failed to retrieve authorization server metadata for tenant ${tenantId}: ${error instanceof Error ? error.message : &quot;Unknown error&quot;}&#x60;,
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
     }
 
     /**
@@ -767,25 +864,35 @@ export class WellKnownService {
      * @returns
      */
     async getJwks(tenantId: string): Promise&lt;JwksResponseDto&gt; {
-        const issuanceConfig &#x3D;
-            await this.issuanceService.getIssuanceConfiguration(tenantId);
+        try {
+            const issuanceConfig &#x3D;
+                await this.issuanceService.getIssuanceConfiguration(tenantId);
 
-        const signingKeyId &#x3D;
-            issuanceConfig.signingKeyId ||
-            (await this.keyChainService.getKid(tenantId));
+            const signingKeyId &#x3D;
+                issuanceConfig.signingKeyId ||
+                (await this.keyChainService.getKid(tenantId));
 
-        const publicKey &#x3D; await this.keyChainService.getPublicKey(
-            &quot;jwk&quot;,
-            tenantId,
-            signingKeyId,
-        );
+            const publicKey &#x3D; await this.keyChainService.getPublicKey(
+                &quot;jwk&quot;,
+                tenantId,
+                signingKeyId,
+            );
 
-        const keyWithKid &#x3D; {
-            ...publicKey,
-            kid: (publicKey as { kid?: string }).kid || signingKeyId,
-        };
+            const keyWithKid &#x3D; {
+                ...publicKey,
+                kid: (publicKey as { kid?: string }).kid || signingKeyId,
+            };
 
-        return { keys: [keyWithKid as EC_Public] };
+            return { keys: [keyWithKid as EC_Public] };
+        } catch (error) {
+            if (error instanceof WellKnownException) {
+                throw error;
+            }
+            throw new WellKnownException(
+                &#x60;Failed to retrieve JWKS for tenant ${tenantId}: ${error instanceof Error ? error.message : &quot;Unknown error&quot;}&#x60;,
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
     }
 
     /**
@@ -798,7 +905,38 @@ export class WellKnownService {
     async getChainedAsMetadata(
         tenantId: string,
     ): Promise&lt;Record&lt;string, unknown&gt;&gt; {
-        return this.chainedAsService.getMetadata(tenantId);
+        try {
+            return await this.chainedAsService.getMetadata(tenantId);
+        } catch (error) {
+            if (error instanceof WellKnownException) {
+                throw error;
+            }
+            throw new WellKnownException(
+                &#x60;Failed to retrieve Chained AS metadata for tenant ${tenantId}: ${error instanceof Error ? error.message : &quot;Unknown error&quot;}&#x60;,
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+    }
+
+    /**
+     * Returns the JSON Web Key Set (JWKS) for the Chained Authorization Server.
+     * @param tenantId
+     * @returns
+     */
+    async getChainedAsJwks(
+        tenantId: string,
+    ): Promise&lt;{ keys: Record&lt;string, unknown&gt;[] }&gt; {
+        try {
+            return await this.chainedAsService.getJwks(tenantId);
+        } catch (error) {
+            if (error instanceof WellKnownException) {
+                throw error;
+            }
+            throw new WellKnownException(
+                &#x60;Failed to retrieve Chained AS JWKS for tenant ${tenantId}: ${error instanceof Error ? error.message : &quot;Unknown error&quot;}&#x60;,
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
     }
 }
 </code></pre>

@@ -142,8 +142,13 @@
                 <h3>Description</h3>
             </p>
             <p class="comment">
-                <p>Service for logging session-related events and errors.
-Uses PinoLogger for structured logging.</p>
+                <p>Service for persisting audit events to the database.</p>
+<p>This service is focused on compliance/audit logging only.
+For debug/observability logging, use the Pino logger directly
+which exports to Loki via OpenTelemetry.</p>
+<p><strong>Audit events</strong> (persisted to DB): flow_start, flow_complete, flow_error,
+credential_issuance, credential_verification - these create a permanent audit
+trail visible in the client UI and useful for compliance/proof.</p>
 
             </p>
 
@@ -184,13 +189,13 @@ Uses PinoLogger for structured logging.</p>
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
-                                <a href="#logAuthorizationRequest" >logAuthorizationRequest</a>
-                            </li>
-                            <li>
                                 <a href="#logCredentialIssuance" >logCredentialIssuance</a>
                             </li>
                             <li>
                                 <a href="#logCredentialVerification" >logCredentialVerification</a>
+                            </li>
+                            <li>
+                                <a href="#logError" >logError</a>
                             </li>
                             <li>
                                 <a href="#logFlowComplete" >logFlowComplete</a>
@@ -200,18 +205,6 @@ Uses PinoLogger for structured logging.</p>
                             </li>
                             <li>
                                 <a href="#logFlowStart" >logFlowStart</a>
-                            </li>
-                            <li>
-                                <a href="#logNotification" >logNotification</a>
-                            </li>
-                            <li>
-                                <a href="#logSession" >logSession</a>
-                            </li>
-                            <li>
-                                <a href="#logSessionError" >logSessionError</a>
-                            </li>
-                            <li>
-                                <a href="#logTokenExchange" >logTokenExchange</a>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
@@ -239,19 +232,17 @@ Uses PinoLogger for structured logging.</p>
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(logger: PinoLogger, loggerConfigService: <a href="../injectables/LoggerConfigService.html" target="_self">LoggerConfigService</a>, logStore: <a href="../injectables/SessionLogStoreService.html" target="_self">SessionLogStoreService</a>)</code>
+<code>constructor(logger: PinoLogger, configService: ConfigService, logStore: <a href="../injectables/SessionLogStoreService.html" target="_self">SessionLogStoreService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:15</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="34" class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:34</a></div>
                             </td>
                         </tr>
 
                 <tr>
                     <td class="col-md-4">
-                            <div class="io-description"><p>Constructor for SessionLoggerService.</p>
-</div>
                             <div>
                                     <b>Parameters :</b>
                                     <table class="params">
@@ -260,7 +251,6 @@ Uses PinoLogger for structured logging.</p>
                                                 <td>Name</td>
                                                     <td>Type</td>
                                                 <td>Optional</td>
-                                                    <td>Description</td>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -275,26 +265,18 @@ Uses PinoLogger for structured logging.</p>
                                                             No
                                                     </td>
                                                     
-                                                        <td>
-                                                                <ul>
-<li>PinoLogger instance for logging.</li>
-</ul>
-
-                                                        </td>
                                                 </tr>
                                                 <tr>
-                                                        <td>loggerConfigService</td>
+                                                        <td>configService</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../injectables/LoggerConfigService.html" target="_self" >LoggerConfigService</a></code>
+                                                                    <code>ConfigService</code>
                                                         </td>
                                                   
                                                     <td>
                                                             No
                                                     </td>
                                                     
-                                                        <td>
-                                                        </td>
                                                 </tr>
                                                 <tr>
                                                         <td>logStore</td>
@@ -307,12 +289,6 @@ Uses PinoLogger for structured logging.</p>
                                                             No
                                                     </td>
                                                     
-                                                        <td>
-                                                                <ul>
-<li>SessionLogStoreService for persisting logs to DB.</li>
-</ul>
-
-                                                        </td>
                                                 </tr>
                                         </tbody>
                                     </table>
@@ -332,87 +308,6 @@ Uses PinoLogger for structured logging.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="logAuthorizationRequest"></a>
-                    <span class="name">
-                        <span ><b>logAuthorizationRequest</b></span>
-                        <a href="#logAuthorizationRequest"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>logAuthorizationRequest(context: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, additionalData?: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="189"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:189</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Log authorization request</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>context</td>
-                                            <td>
-                                                            <code><a href="../interfaces/SessionLogContext.html" target="_self" >SessionLogContext</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>additionalData</td>
-                                            <td>
-                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-                                            </td>
-
-                                            <td>
-                                                    Yes
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
                     <a name="logCredentialIssuance"></a>
                     <span class="name">
                         <span ><b>logCredentialIssuance</b></span>
@@ -422,22 +317,22 @@ Uses PinoLogger for structured logging.</p>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>logCredentialIssuance(context: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, credentialType: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, additionalData?: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+<code>logCredentialIssuance(context: <a href="../interfaces/AuditLogContext.html" target="_self">AuditLogContext</a>, credentialType: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, additionalData?: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="131"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:131</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="145"
+                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:145</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Log credential issuance step</p>
+                        <div class="io-description"><p>Log credential issuance step (audit event - persisted to DB)</p>
 </div>
 
                             <div class="io-description">
@@ -455,7 +350,7 @@ Uses PinoLogger for structured logging.</p>
                                         <tr>
                                                 <td>context</td>
                                             <td>
-                                                            <code><a href="../interfaces/SessionLogContext.html" target="_self" >SessionLogContext</a></code>
+                                                            <code><a href="../interfaces/AuditLogContext.html" target="_self" >AuditLogContext</a></code>
                                             </td>
 
                                             <td>
@@ -515,22 +410,22 @@ Uses PinoLogger for structured logging.</p>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>logCredentialVerification(context: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, verificationResult: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank">boolean</a>, additionalData?: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+<code>logCredentialVerification(context: <a href="../interfaces/AuditLogContext.html" target="_self">AuditLogContext</a>, verificationResult: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank">boolean</a>, additionalData?: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="160"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:160</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="173"
+                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:173</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Log credential presentation verification</p>
+                        <div class="io-description"><p>Log credential presentation verification (audit event - persisted to DB)</p>
 </div>
 
                             <div class="io-description">
@@ -548,7 +443,7 @@ Uses PinoLogger for structured logging.</p>
                                         <tr>
                                                 <td>context</td>
                                             <td>
-                                                            <code><a href="../interfaces/SessionLogContext.html" target="_self" >SessionLogContext</a></code>
+                                                            <code><a href="../interfaces/AuditLogContext.html" target="_self" >AuditLogContext</a></code>
                                             </td>
 
                                             <td>
@@ -599,31 +494,31 @@ Uses PinoLogger for structured logging.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="logFlowComplete"></a>
+                    <a name="logError"></a>
                     <span class="name">
-                        <span ><b>logFlowComplete</b></span>
-                        <a href="#logFlowComplete"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>logError</b></span>
+                        <a href="#logError"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>logFlowComplete(context: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, additionalData?: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+<code>logError(context: <a href="../interfaces/AuditLogContext.html" target="_self">AuditLogContext</a>, error: Error, message: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, additionalData?: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="78"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:78</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="201"
+                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:201</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Log session flow completion</p>
+                        <div class="io-description"><p>Log generic session error (audit event - persisted to DB)</p>
 </div>
 
                             <div class="io-description">
@@ -641,7 +536,112 @@ Uses PinoLogger for structured logging.</p>
                                         <tr>
                                                 <td>context</td>
                                             <td>
-                                                            <code><a href="../interfaces/SessionLogContext.html" target="_self" >SessionLogContext</a></code>
+                                                            <code><a href="../interfaces/AuditLogContext.html" target="_self" >AuditLogContext</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>error</td>
+                                            <td>
+                                                        <code>Error</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>message</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>additionalData</td>
+                                            <td>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="logFlowComplete"></a>
+                    <span class="name">
+                        <span ><b>logFlowComplete</b></span>
+                        <a href="#logFlowComplete"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>logFlowComplete(context: <a href="../interfaces/AuditLogContext.html" target="_self">AuditLogContext</a>, additionalData?: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="96"
+                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:96</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Log session flow completion (audit event - persisted to DB)</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>context</td>
+                                            <td>
+                                                            <code><a href="../interfaces/AuditLogContext.html" target="_self" >AuditLogContext</a></code>
                                             </td>
 
                                             <td>
@@ -689,22 +689,22 @@ Uses PinoLogger for structured logging.</p>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>logFlowError(context: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, error: Error, additionalData?: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+<code>logFlowError(context: <a href="../interfaces/AuditLogContext.html" target="_self">AuditLogContext</a>, error: Error, additionalData?: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="98"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:98</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="116"
+                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:116</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Log session flow error</p>
+                        <div class="io-description"><p>Log session flow error (audit event - persisted to DB)</p>
 </div>
 
                             <div class="io-description">
@@ -722,7 +722,7 @@ Uses PinoLogger for structured logging.</p>
                                         <tr>
                                                 <td>context</td>
                                             <td>
-                                                            <code><a href="../interfaces/SessionLogContext.html" target="_self" >SessionLogContext</a></code>
+                                                            <code><a href="../interfaces/AuditLogContext.html" target="_self" >AuditLogContext</a></code>
                                             </td>
 
                                             <td>
@@ -782,22 +782,22 @@ Uses PinoLogger for structured logging.</p>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>logFlowStart(context: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, additionalData?: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+<code>logFlowStart(context: <a href="../interfaces/AuditLogContext.html" target="_self">AuditLogContext</a>, additionalData?: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="52"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:52</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="70"
+                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:70</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Log session flow start</p>
+                        <div class="io-description"><p>Log session flow start (audit event - persisted to DB)</p>
 </div>
 
                             <div class="io-description">
@@ -815,379 +815,7 @@ Uses PinoLogger for structured logging.</p>
                                         <tr>
                                                 <td>context</td>
                                             <td>
-                                                            <code><a href="../interfaces/SessionLogContext.html" target="_self" >SessionLogContext</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>additionalData</td>
-                                            <td>
-                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-                                            </td>
-
-                                            <td>
-                                                    Yes
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="logNotification"></a>
-                    <span class="name">
-                        <span ><b>logNotification</b></span>
-                        <a href="#logNotification"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>logNotification(context: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, notificationEvent: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, additionalData?: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="237"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:237</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Log notification events</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>context</td>
-                                            <td>
-                                                            <code><a href="../interfaces/SessionLogContext.html" target="_self" >SessionLogContext</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>notificationEvent</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>additionalData</td>
-                                            <td>
-                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-                                            </td>
-
-                                            <td>
-                                                    Yes
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="logSession"></a>
-                    <span class="name">
-                        <span ><b>logSession</b></span>
-                        <a href="#logSession"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>logSession(context: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, message: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, additionalData?: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="266"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:266</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Generic session log method</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>context</td>
-                                            <td>
-                                                            <code><a href="../interfaces/SessionLogContext.html" target="_self" >SessionLogContext</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>message</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>additionalData</td>
-                                            <td>
-                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-                                            </td>
-
-                                            <td>
-                                                    Yes
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="logSessionError"></a>
-                    <span class="name">
-                        <span ><b>logSessionError</b></span>
-                        <a href="#logSessionError"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>logSessionError(context: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, error: Error, message: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, additionalData?: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="292"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:292</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Generic session error log method</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>context</td>
-                                            <td>
-                                                            <code><a href="../interfaces/SessionLogContext.html" target="_self" >SessionLogContext</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>error</td>
-                                            <td>
-                                                        <code>Error</code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>message</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>additionalData</td>
-                                            <td>
-                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-                                            </td>
-
-                                            <td>
-                                                    Yes
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="logTokenExchange"></a>
-                    <span class="name">
-                        <span ><b>logTokenExchange</b></span>
-                        <a href="#logTokenExchange"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>logTokenExchange(context: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, additionalData?: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="213"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:213</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Log token exchange</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>context</td>
-                                            <td>
-                                                            <code><a href="../interfaces/SessionLogContext.html" target="_self" >SessionLogContext</a></code>
+                                                            <code><a href="../interfaces/AuditLogContext.html" target="_self" >AuditLogContext</a></code>
                                             </td>
 
                                             <td>
@@ -1237,15 +865,15 @@ Uses PinoLogger for structured logging.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>persistLog(context: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, level: <a href="../miscellaneous/typealiases.html#SessionLogLevel" target="_self">SessionLogLevel</a>, message: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, stage?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, detail?: Record<string | unknown>)</code>
+                    <code>persistLog(context: <a href="../interfaces/AuditLogContext.html" target="_self">AuditLogContext</a>, level: <a href="../miscellaneous/typealiases.html#SessionLogLevel" target="_self">SessionLogLevel</a>, message: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, stage?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, detail?: Record<string | unknown>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="33"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:33</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="51"
+                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -1268,7 +896,7 @@ Uses PinoLogger for structured logging.</p>
                                         <tr>
                                                 <td>context</td>
                                             <td>
-                                                            <code><a href="../interfaces/SessionLogContext.html" target="_self" >SessionLogContext</a></code>
+                                                            <code><a href="../interfaces/AuditLogContext.html" target="_self" >AuditLogContext</a></code>
                                             </td>
 
                                             <td>
@@ -1361,8 +989,8 @@ Uses PinoLogger for structured logging.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="45"
-                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:45</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="63"
+                                    class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:63</a></div>
                         </td>
                     </tr>
 
@@ -1405,7 +1033,7 @@ Uses PinoLogger for structured logging.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:14</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:33</a></div>
                         </td>
                     </tr>
 
@@ -1433,7 +1061,7 @@ Uses PinoLogger for structured logging.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:15</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="34" class="link-to-prism">src/shared/utils/logger/session-logger.service.ts:34</a></div>
                         </td>
                     </tr>
 
@@ -1447,39 +1075,57 @@ Uses PinoLogger for structured logging.</p>
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
 import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { SessionLogLevel } from &quot;../../../session/entities/session-log-entry.entity&quot;;
-import { LoggerConfigService } from &quot;./logger-config.service&quot;;
-import { SessionLogStoreService } from &quot;./session-log-store.service&quot;;
-import { SessionLogContext } from &quot;./session-logger-context&quot;;
+import {
+    SessionLogStoreService,
+    SessionStoreMode,
+} from &quot;./session-log-store.service&quot;;
 
 /**
- * Service for logging session-related events and errors.
- * Uses PinoLogger for structured logging.
+ * Context for audit logging operations.
+ */
+export interface AuditLogContext {
+    sessionId: string;
+    tenantId?: string;
+    flowType: &quot;OID4VCI&quot; | &quot;OID4VP&quot;;
+    stage?: string;
+}
+
+/**
+ * Service for persisting audit events to the database.
+ *
+ * This service is focused on compliance/audit logging only.
+ * For debug/observability logging, use the Pino logger directly
+ * which exports to Loki via OpenTelemetry.
+ *
+ * **Audit events** (persisted to DB): flow_start, flow_complete, flow_error,
+ * credential_issuance, credential_verification - these create a permanent audit
+ * trail visible in the client UI and useful for compliance/proof.
  */
 @Injectable()
 export class SessionLoggerService {
     private readonly isEnabled: boolean;
     private readonly verbose: boolean;
 
-    /**
-     * Constructor for SessionLoggerService.
-     * @param logger - PinoLogger instance for logging.
-     * @param configService - ConfigService for accessing environment configuration.
-     * @param logStore - SessionLogStoreService for persisting logs to DB.
-     */
     constructor(
         private readonly logger: PinoLogger,
-        private readonly loggerConfigService: LoggerConfigService,
+        private readonly configService: ConfigService,
         private readonly logStore: SessionLogStoreService,
     ) {
         this.logger.setContext(&quot;SessionLoggerService&quot;);
-        this.isEnabled &#x3D; this.loggerConfigService.isSessionLoggerEnabled();
-        this.verbose &#x3D; this.loggerConfigService.isVerboseMode();
+        this.isEnabled &#x3D; this.configService.getOrThrow&lt;boolean&gt;(
+            &quot;LOG_ENABLE_SESSION_LOGGER&quot;,
+        );
+        this.verbose &#x3D;
+            this.configService.getOrThrow&lt;SessionStoreMode&gt;(
+                &quot;LOG_SESSION_STORE&quot;,
+            ) &#x3D;&#x3D;&#x3D; &quot;verbose&quot;;
     }
 
     private persistLog(
-        context: SessionLogContext,
+        context: AuditLogContext,
         level: SessionLogLevel,
         message: string,
         stage?: string,
@@ -1495,9 +1141,9 @@ export class SessionLoggerService {
     }
 
     /**
-     * Log session flow start
+     * Log session flow start (audit event - persisted to DB)
      */
-    logFlowStart(context: SessionLogContext, additionalData?: any) {
+    logFlowStart(context: AuditLogContext, additionalData?: any) {
         if (!this.shouldLog()) return;
 
         const message &#x3D; &#x60;[${context.flowType}] Flow started for session ${context.sessionId} in tenant ${context.tenantId}&#x60;;
@@ -1521,9 +1167,9 @@ export class SessionLoggerService {
     }
 
     /**
-     * Log session flow completion
+     * Log session flow completion (audit event - persisted to DB)
      */
-    logFlowComplete(context: SessionLogContext, additionalData?: any) {
+    logFlowComplete(context: AuditLogContext, additionalData?: any) {
         if (!this.shouldLog()) return;
 
         const message &#x3D; &#x60;[${context.flowType}] Flow completed for session ${context.sessionId}&#x60;;
@@ -1541,13 +1187,9 @@ export class SessionLoggerService {
     }
 
     /**
-     * Log session flow error
+     * Log session flow error (audit event - persisted to DB)
      */
-    logFlowError(
-        context: SessionLogContext,
-        error: Error,
-        additionalData?: any,
-    ) {
+    logFlowError(context: AuditLogContext, error: Error, additionalData?: any) {
         if (!this.shouldLog()) return;
 
         const message &#x3D; &#x60;[${context.flowType}] Flow error for session ${context.sessionId}: ${error.message}&#x60;;
@@ -1574,14 +1216,16 @@ export class SessionLoggerService {
     }
 
     /**
-     * Log credential issuance step
+     * Log credential issuance step (audit event - persisted to DB)
      */
     logCredentialIssuance(
-        context: SessionLogContext,
+        context: AuditLogContext,
         credentialType: string,
         additionalData?: any,
     ) {
         if (!this.shouldLog()) return;
+
+        const message &#x3D; &#x60;[${context.flowType}] Issuing credential of type ${credentialType} for session ${context.sessionId}&#x60;;
 
         this.logger.info(
             {
@@ -1591,26 +1235,25 @@ export class SessionLoggerService {
                 credentialType,
                 ...additionalData,
             },
-            &#x60;[${context.flowType}] Issuing credential of type ${credentialType} for session ${context.sessionId}&#x60;,
+            message,
         );
-        this.persistLog(
-            context,
-            &quot;info&quot;,
-            &#x60;[${context.flowType}] Issuing credential of type ${credentialType} for session ${context.sessionId}&#x60;,
-            &quot;credential_creation&quot;,
-            { credentialType, ...additionalData },
-        );
+        this.persistLog(context, &quot;info&quot;, message, &quot;credential_creation&quot;, {
+            credentialType,
+            ...additionalData,
+        });
     }
 
     /**
-     * Log credential presentation verification
+     * Log credential presentation verification (audit event - persisted to DB)
      */
     logCredentialVerification(
-        context: SessionLogContext,
+        context: AuditLogContext,
         verificationResult: boolean,
         additionalData?: any,
     ) {
         if (!this.shouldLog()) return;
+
+        const message &#x3D; &#x60;[${context.flowType}] Credential verification ${verificationResult ? &quot;succeeded&quot; : &quot;failed&quot;} for session ${context.sessionId}&#x60;;
 
         this.logger.info(
             {
@@ -1620,130 +1263,26 @@ export class SessionLoggerService {
                 verificationResult,
                 ...additionalData,
             },
-            &#x60;[${context.flowType}] Credential verification ${verificationResult ? &quot;succeeded&quot; : &quot;failed&quot;} for session ${context.sessionId}&#x60;,
+            message,
         );
-        this.persistLog(
-            context,
-            &quot;info&quot;,
-            &#x60;[${context.flowType}] Credential verification ${verificationResult ? &quot;succeeded&quot; : &quot;failed&quot;} for session ${context.sessionId}&#x60;,
-            &quot;verification&quot;,
-            { verificationResult, ...additionalData },
-        );
+        this.persistLog(context, &quot;info&quot;, message, &quot;verification&quot;, {
+            verificationResult,
+            ...additionalData,
+        });
     }
 
     /**
-     * Log authorization request
+     * Log generic session error (audit event - persisted to DB)
      */
-    logAuthorizationRequest(context: SessionLogContext, additionalData?: any) {
-        if (!this.shouldLog()) return;
-
-        this.logger.info(
-            {
-                ...context,
-                event: &quot;authorization_request&quot;,
-                stage: &quot;authorization&quot;,
-                ...additionalData,
-            },
-            &#x60;[${context.flowType}] Authorization request created for session ${context.sessionId}&#x60;,
-        );
-        this.persistLog(
-            context,
-            &quot;info&quot;,
-            &#x60;[${context.flowType}] Authorization request created for session ${context.sessionId}&#x60;,
-            &quot;authorization&quot;,
-            additionalData,
-        );
-    }
-
-    /**
-     * Log token exchange
-     */
-    logTokenExchange(context: SessionLogContext, additionalData?: any) {
-        if (!this.shouldLog()) return;
-
-        this.logger.info(
-            {
-                ...context,
-                event: &quot;token_exchange&quot;,
-                stage: &quot;token_exchange&quot;,
-                ...additionalData,
-            },
-            &#x60;[${context.flowType}] Token exchange for session ${context.sessionId}&#x60;,
-        );
-        this.persistLog(
-            context,
-            &quot;info&quot;,
-            &#x60;[${context.flowType}] Token exchange for session ${context.sessionId}&#x60;,
-            &quot;token_exchange&quot;,
-            additionalData,
-        );
-    }
-
-    /**
-     * Log notification events
-     */
-    logNotification(
-        context: SessionLogContext,
-        notificationEvent: string,
-        additionalData?: any,
-    ) {
-        if (!this.shouldLog()) return;
-
-        this.logger.info(
-            {
-                ...context,
-                event: &quot;notification&quot;,
-                stage: &quot;notification&quot;,
-                notificationEvent,
-                ...additionalData,
-            },
-            &#x60;[${context.flowType}] Notification ${notificationEvent} for session ${context.sessionId}&#x60;,
-        );
-        this.persistLog(
-            context,
-            &quot;info&quot;,
-            &#x60;[${context.flowType}] Notification ${notificationEvent} for session ${context.sessionId}&#x60;,
-            &quot;notification&quot;,
-            { notificationEvent, ...additionalData },
-        );
-    }
-
-    /**
-     * Generic session log method
-     */
-    logSession(
-        context: SessionLogContext,
-        message: string,
-        additionalData?: any,
-    ) {
-        if (!this.shouldLog()) return;
-
-        this.logger.info(
-            {
-                ...context,
-                ...additionalData,
-            },
-            &#x60;[${context.flowType}] ${message}&#x60;,
-        );
-        this.persistLog(
-            context,
-            &quot;info&quot;,
-            &#x60;[${context.flowType}] ${message}&#x60;,
-            context.stage,
-            additionalData,
-        );
-    }
-
-    /**
-     * Generic session error log method
-     */
-    logSessionError(
-        context: SessionLogContext,
+    logError(
+        context: AuditLogContext,
         error: Error,
         message: string,
         additionalData?: any,
     ) {
         if (!this.shouldLog()) return;
+
+        const fullMessage &#x3D; &#x60;[${context.flowType}] ${message}: ${error.message}&#x60;;
 
         this.logger.error(
             {
@@ -1755,20 +1294,14 @@ export class SessionLoggerService {
                 },
                 ...additionalData,
             },
-            &#x60;[${context.flowType}] ${message}: ${error.message}&#x60;,
+            fullMessage,
         );
-        this.persistLog(
-            context,
-            &quot;error&quot;,
-            &#x60;[${context.flowType}] ${message}: ${error.message}&#x60;,
-            context.stage,
-            {
-                errorName: error.name,
-                errorMessage: error.message,
-                ...(this.verbose &amp;&amp; { errorStack: error.stack }),
-                ...additionalData,
-            },
-        );
+        this.persistLog(context, &quot;error&quot;, fullMessage, context.stage, {
+            errorName: error.name,
+            errorMessage: error.message,
+            ...(this.verbose &amp;&amp; { errorStack: error.stack }),
+            ...additionalData,
+        });
     }
 }
 </code></pre>

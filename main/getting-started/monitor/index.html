@@ -1166,6 +1166,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#quick-start" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1206,10 +1217,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-start-eudiplo-locally" class="md-nav__link">
+  <a href="#1-start-the-monitoring-stack" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Start EUDIPLO Locally
+        1. Start the Monitoring Stack
       
     </span>
   </a>
@@ -1217,10 +1228,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-configure-prometheus-for-local-eudiplo" class="md-nav__link">
+  <a href="#2-start-eudiplo-backend" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Configure Prometheus for Local EUDIPLO
+        2. Start EUDIPLO Backend
       
     </span>
   </a>
@@ -1228,10 +1239,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-start-monitoring" class="md-nav__link">
+  <a href="#3-verify-telemetry" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Start Monitoring
+        3. Verify Telemetry
       
     </span>
   </a>
@@ -1256,10 +1267,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-update-prometheus-configuration" class="md-nav__link">
+  <a href="#1-configure-otlp-endpoint" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Update Prometheus Configuration
+        1. Configure OTLP Endpoint
       
     </span>
   </a>
@@ -1267,10 +1278,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-add-eudiplo-to-docker-compose" class="md-nav__link">
+  <a href="#2-ensure-network-connectivity" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Add EUDIPLO to Docker Compose
+        2. Ensure Network Connectivity
       
     </span>
   </a>
@@ -1294,16 +1305,38 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-metrics" class="md-nav__link">
+  <a href="#environment-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key Metrics
+        Environment Variables
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Key Metrics">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#available-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Available Metrics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Available Metrics">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#auto-instrumented-via-opentelemetry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Auto-Instrumented (via OpenTelemetry)
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#business-metrics" class="md-nav__link">
@@ -1330,6 +1363,62 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Access Dashboards">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#grafana" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Grafana
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prometheus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prometheus
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alerting-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alerting Rules
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Alerting Rules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#add-custom-alerts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add Custom Alerts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1340,34 +1429,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Configuration Files">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#prometheus-prometheusprometheusyml" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Prometheus (prometheus/prometheus.yml)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#grafana-data-source" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Grafana Data Source
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1384,38 +1445,43 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#common-issues" class="md-nav__link">
+  <a href="#no-metrics-in-prometheus" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Common Issues
+        No Metrics in Prometheus
       
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#production-considerations" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Production Considerations
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Production Considerations">
-      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#securing-the-metrics-endpoint" class="md-nav__link">
+  <a href="#no-traces-in-tempo" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Securing the Metrics Endpoint
+        No Traces in Tempo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#no-logs-in-loki" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No Logs in Loki
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disable-telemetry-locally" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disable Telemetry Locally
       
     </span>
   </a>
@@ -2775,6 +2841,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#quick-start" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2815,10 +2892,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-start-eudiplo-locally" class="md-nav__link">
+  <a href="#1-start-the-monitoring-stack" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Start EUDIPLO Locally
+        1. Start the Monitoring Stack
       
     </span>
   </a>
@@ -2826,10 +2903,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-configure-prometheus-for-local-eudiplo" class="md-nav__link">
+  <a href="#2-start-eudiplo-backend" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Configure Prometheus for Local EUDIPLO
+        2. Start EUDIPLO Backend
       
     </span>
   </a>
@@ -2837,10 +2914,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-start-monitoring" class="md-nav__link">
+  <a href="#3-verify-telemetry" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Start Monitoring
+        3. Verify Telemetry
       
     </span>
   </a>
@@ -2865,10 +2942,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-update-prometheus-configuration" class="md-nav__link">
+  <a href="#1-configure-otlp-endpoint" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Update Prometheus Configuration
+        1. Configure OTLP Endpoint
       
     </span>
   </a>
@@ -2876,10 +2953,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-add-eudiplo-to-docker-compose" class="md-nav__link">
+  <a href="#2-ensure-network-connectivity" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Add EUDIPLO to Docker Compose
+        2. Ensure Network Connectivity
       
     </span>
   </a>
@@ -2903,16 +2980,38 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-metrics" class="md-nav__link">
+  <a href="#environment-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key Metrics
+        Environment Variables
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Key Metrics">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#available-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Available Metrics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Available Metrics">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#auto-instrumented-via-opentelemetry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Auto-Instrumented (via OpenTelemetry)
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#business-metrics" class="md-nav__link">
@@ -2939,6 +3038,62 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Access Dashboards">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#grafana" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Grafana
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prometheus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prometheus
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#alerting-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alerting Rules
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Alerting Rules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#add-custom-alerts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add Custom Alerts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2949,34 +3104,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Configuration Files">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#prometheus-prometheusprometheusyml" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Prometheus (prometheus/prometheus.yml)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#grafana-data-source" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Grafana Data Source
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2993,38 +3120,43 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#common-issues" class="md-nav__link">
+  <a href="#no-metrics-in-prometheus" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Common Issues
+        No Metrics in Prometheus
       
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#production-considerations" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Production Considerations
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Production Considerations">
-      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#securing-the-metrics-endpoint" class="md-nav__link">
+  <a href="#no-traces-in-tempo" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Securing the Metrics Endpoint
+        No Traces in Tempo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#no-logs-in-loki" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No Logs in Loki
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#disable-telemetry-locally" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disable Telemetry Locally
       
     </span>
   </a>
@@ -3130,184 +3262,277 @@
 
 
 <h1 id="monitoring">Monitoring<a class="headerlink" href="#monitoring" title="Permanent link">¶</a></h1>
-<p>This guide shows how to set up Prometheus and Grafana monitoring for EUDIPLO in
-both local development and Docker container scenarios.</p>
+<p>This guide shows how to set up observability for EUDIPLO using OpenTelemetry,
+Prometheus, Tempo, Loki, and Grafana.</p>
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">¶</a></h2>
+<p>EUDIPLO exports all telemetry signals (metrics, traces, logs) via
+<strong>OpenTelemetry Protocol (OTLP)</strong> to an OpenTelemetry Collector, which routes
+them to the appropriate backends:</p>
+<pre class="mermaid"><code>flowchart LR
+    Backend["Backend&lt;br/&gt;(OTLP)"] --&gt; Collector["OTel Collector"]
+    Collector --&gt; Prometheus["Prometheus&lt;br/&gt;(metrics)"]
+    Collector --&gt; Tempo["Tempo&lt;br/&gt;(traces)"]
+    Collector --&gt; Loki["Loki&lt;br/&gt;(logs)"]
+    Prometheus --&gt; Grafana
+    Tempo --&gt; Grafana
+    Loki --&gt; Grafana</code></pre>
+<p>Grafana provides unified visualization with cross-signal correlation — jump from
+a trace to related logs, or from metrics to traces.</p>
 <h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">¶</a></h2>
-<p>The monitoring stack includes:</p>
-<ul>
-<li><strong>Prometheus</strong> on <a href="http://localhost:9090">http://localhost:9090</a> - Metrics collection</li>
-<li><strong>Grafana</strong> on <a href="http://localhost:3001">http://localhost:3001</a> - Dashboards and visualization</li>
-</ul>
+<p>The monitoring stack in <code>monitor/</code> includes:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>URL</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OpenTelemetry Collector</strong></td>
+<td><code>localhost:4317</code> / <code>4318</code></td>
+<td>OTLP receiver</td>
+</tr>
+<tr>
+<td><strong>Prometheus</strong></td>
+<td><a href="http://localhost:9090">http://localhost:9090</a></td>
+<td>Metrics storage</td>
+</tr>
+<tr>
+<td><strong>Tempo</strong></td>
+<td><a href="http://localhost:3200">http://localhost:3200</a></td>
+<td>Distributed tracing</td>
+</tr>
+<tr>
+<td><strong>Loki</strong></td>
+<td><a href="http://localhost:3100">http://localhost:3100</a></td>
+<td>Log aggregation</td>
+</tr>
+<tr>
+<td><strong>Grafana</strong></td>
+<td><a href="http://localhost:3001">http://localhost:3001</a></td>
+<td>Dashboards &amp; exploration</td>
+</tr>
+</tbody>
+</table>
 <h3 id="start-monitoring-stack">Start Monitoring Stack<a class="headerlink" href="#start-monitoring-stack" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd</span><span class="w"> </span>monitor/
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>docker-compose<span class="w"> </span>up<span class="w"> </span>-d
 </code></pre></div>
 <h2 id="local-development-setup">Local Development Setup<a class="headerlink" href="#local-development-setup" title="Permanent link">¶</a></h2>
-<p>When running EUDIPLO locally (outside Docker) and monitoring with Docker:</p>
-<h3 id="1-start-eudiplo-locally">1. Start EUDIPLO Locally<a class="headerlink" href="#1-start-eudiplo-locally" title="Permanent link">¶</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Install dependencies and start EUDIPLO</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>npm<span class="w"> </span>install
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>npm<span class="w"> </span>run<span class="w"> </span>start:dev
+<p>When running EUDIPLO locally (outside Docker) with the monitoring stack:</p>
+<h3 id="1-start-the-monitoring-stack">1. Start the Monitoring Stack<a class="headerlink" href="#1-start-the-monitoring-stack" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">cd</span><span class="w"> </span>monitor/
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>docker-compose<span class="w"> </span>up<span class="w"> </span>-d
 </code></pre></div>
-<p>EUDIPLO will be available at <a href="http://localhost:3000">http://localhost:3000</a> with metrics at
-<a href="http://localhost:3000/metrics">http://localhost:3000/metrics</a></p>
-<h3 id="2-configure-prometheus-for-local-eudiplo">2. Configure Prometheus for Local EUDIPLO<a class="headerlink" href="#2-configure-prometheus-for-local-eudiplo" title="Permanent link">¶</a></h3>
-<p>Update <code>monitor/prometheus/prometheus.yml</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">global</span><span class="p">:</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nt">scrape_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15s</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="nt">scrape_configs</span><span class="p">:</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">'eudiplo-local'</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">      </span><span class="nt">static_configs</span><span class="p">:</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">'host.docker.internal:3000'</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1"># For local EUDIPLO</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">      </span><span class="nt">metrics_path</span><span class="p">:</span><span class="w"> </span><span class="s">'/metrics'</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">      </span><span class="nt">scrape_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+<h3 id="2-start-eudiplo-backend">2. Start EUDIPLO Backend<a class="headerlink" href="#2-start-eudiplo-backend" title="Permanent link">¶</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># From project root</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>pnpm<span class="w"> </span>--filter<span class="w"> </span>@eudiplo/backend<span class="w"> </span>dev
 </code></pre></div>
-<h3 id="3-start-monitoring">3. Start Monitoring<a class="headerlink" href="#3-start-monitoring" title="Permanent link">¶</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">cd</span><span class="w"> </span>monitor/
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>prometheus<span class="w"> </span>grafana
-</code></pre></div>
+<p>The backend exports telemetry to <code>http://localhost:4318</code> by default (the OTel
+Collector's HTTP endpoint).</p>
+<h3 id="3-verify-telemetry">3. Verify Telemetry<a class="headerlink" href="#3-verify-telemetry" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>Metrics</strong>: Open <a href="http://localhost:9090/targets">http://localhost:9090/targets</a> — the <code>otel-collector</code>
+  target should be UP</li>
+<li><strong>Traces</strong>: Open <a href="http://localhost:3001">http://localhost:3001</a>, go to Explore → Tempo, and search
+  for recent traces</li>
+<li><strong>Logs</strong>: In Grafana, go to Explore → Loki and query <code>{service_name="eudiplo-backend"}</code></li>
+</ul>
 <h2 id="docker-container-setup">Docker Container Setup<a class="headerlink" href="#docker-container-setup" title="Permanent link">¶</a></h2>
-<p>When running EUDIPLO as a Docker container:</p>
-<h3 id="1-update-prometheus-configuration">1. Update Prometheus Configuration<a class="headerlink" href="#1-update-prometheus-configuration" title="Permanent link">¶</a></h3>
-<p>Edit <code>monitor/prometheus/prometheus.yml</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">global</span><span class="p">:</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nt">scrape_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15s</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="nt">scrape_configs</span><span class="p">:</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">'eudiplo-docker'</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">      </span><span class="nt">static_configs</span><span class="p">:</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">'eudiplo:3000'</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1"># For Docker container</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">      </span><span class="nt">metrics_path</span><span class="p">:</span><span class="w"> </span><span class="s">'/metrics'</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">      </span><span class="nt">scrape_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+<p>When running EUDIPLO as a Docker container alongside the monitoring stack:</p>
+<h3 id="1-configure-otlp-endpoint">1. Configure OTLP Endpoint<a class="headerlink" href="#1-configure-otlp-endpoint" title="Permanent link">¶</a></h3>
+<p>Set the OTLP endpoint to the collector's container name:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nv">OTEL_EXPORTER_OTLP_ENDPOINT</span><span class="o">=</span>http://otel-collector:4318
 </code></pre></div>
-<h3 id="2-add-eudiplo-to-docker-compose">2. Add EUDIPLO to Docker Compose<a class="headerlink" href="#2-add-eudiplo-to-docker-compose" title="Permanent link">¶</a></h3>
-<p>Add to <code>monitor/docker-compose.yml</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nt">services</span><span class="p">:</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nt">eudiplo</span><span class="p">:</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">        </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eudiplo/eudiplo:latest</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">        </span><span class="nt">ports</span><span class="p">:</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'3000:3000'</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">        </span><span class="nt">environment</span><span class="p">:</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NODE_ENV=development</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PUBLIC_URL=http://localhost:3000</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">        </span><span class="nt">networks</span><span class="p">:</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">monitoring</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="nt">prometheus</span><span class="p">:</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">        </span><span class="c1"># ... existing config</span>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>
-<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="nt">networks</span><span class="p">:</span>
-<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">    </span><span class="nt">monitoring</span><span class="p">:</span>
-<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">        </span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bridge</span>
+<h3 id="2-ensure-network-connectivity">2. Ensure Network Connectivity<a class="headerlink" href="#2-ensure-network-connectivity" title="Permanent link">¶</a></h3>
+<p>Add EUDIPLO to the same Docker network as the monitoring stack, or use
+<code>host.docker.internal</code> if running separately.</p>
+<p>Example in your application's <code>docker-compose.yml</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">services</span><span class="p">:</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nt">eudiplo</span><span class="p">:</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">        </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eudiplo/eudiplo:latest</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">        </span><span class="nt">ports</span><span class="p">:</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'3000:3000'</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">        </span><span class="nt">environment</span><span class="p">:</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">        </span><span class="nt">networks</span><span class="p">:</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">monitor_default</span><span class="w"> </span><span class="c1"># Join the monitor stack's network</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="nt">networks</span><span class="p">:</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="nt">monitor_default</span><span class="p">:</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">        </span><span class="nt">external</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
 <h3 id="3-start-full-stack">3. Start Full Stack<a class="headerlink" href="#3-start-full-stack" title="Permanent link">¶</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">cd</span><span class="w"> </span>monitor/
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>docker-compose<span class="w"> </span>up<span class="w"> </span>-d
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Start monitoring</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nb">cd</span><span class="w"> </span>monitor/<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>docker-compose<span class="w"> </span>up<span class="w"> </span>-d
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Start EUDIPLO (from project root or deployment folder)</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>docker-compose<span class="w"> </span>up<span class="w"> </span>-d
 </code></pre></div>
-<h2 id="key-metrics">Key Metrics<a class="headerlink" href="#key-metrics" title="Permanent link">¶</a></h2>
-<p>EUDIPLO exposes these important metrics:</p>
+<h2 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OTEL_EXPORTER_OTLP_ENDPOINT</code></td>
+<td>OTLP collector endpoint</td>
+<td><code>http://localhost:4318</code></td>
+</tr>
+<tr>
+<td><code>OTEL_SERVICE_NAME</code></td>
+<td>Service name in telemetry</td>
+<td><code>eudiplo-backend</code></td>
+</tr>
+<tr>
+<td><code>OTEL_SDK_DISABLED</code></td>
+<td>Disable OTel SDK entirely</td>
+<td><code>false</code></td>
+</tr>
+</tbody>
+</table>
+<p>Set <code>OTEL_SDK_DISABLED=true</code> for local development without a collector running.</p>
+<h2 id="available-metrics">Available Metrics<a class="headerlink" href="#available-metrics" title="Permanent link">¶</a></h2>
+<h3 id="auto-instrumented-via-opentelemetry">Auto-Instrumented (via OpenTelemetry)<a class="headerlink" href="#auto-instrumented-via-opentelemetry" title="Permanent link">¶</a></h3>
+<ul>
+<li><code>http_server_request_duration_seconds</code> — HTTP request duration histogram</li>
+<li><code>http_server_active_requests</code> — Currently active HTTP requests</li>
+<li>Host metrics (CPU, memory, event loop) via <code>nestjs-otel</code></li>
+</ul>
 <h3 id="business-metrics">Business Metrics<a class="headerlink" href="#business-metrics" title="Permanent link">¶</a></h3>
 <ul>
-<li><code>sessions</code> - Active, completed, and failed sessions</li>
+<li><code>sessions</code> — Active sessions by status and tenant</li>
+<li><code>tenant_total</code> — Total number of tenants</li>
 </ul>
-<blockquote>
-<p>More values will be added as the project evolves.</p>
-</blockquote>
 <h2 id="access-dashboards">Access Dashboards<a class="headerlink" href="#access-dashboards" title="Permanent link">¶</a></h2>
+<h3 id="grafana">Grafana<a class="headerlink" href="#grafana" title="Permanent link">¶</a></h3>
+<p><a href="http://localhost:3001">http://localhost:3001</a></p>
+<ul>
+<li><strong>Username</strong>: <code>admin</code></li>
+<li><strong>Password</strong>: <code>admin</code></li>
+</ul>
+<p>Pre-configured datasources:</p>
+<ul>
+<li><strong>Prometheus</strong> — for metrics</li>
+<li><strong>Tempo</strong> — for traces</li>
+<li><strong>Loki</strong> — for logs</li>
+</ul>
+<p>Cross-signal correlation is enabled:</p>
+<ul>
+<li><strong>Traces → Logs</strong>: Jump from a span to correlated log lines in Loki</li>
+<li><strong>Logs → Traces</strong>: Extract <code>trace_id</code> from Pino log fields and link to Tempo</li>
+</ul>
+<h3 id="prometheus">Prometheus<a class="headerlink" href="#prometheus" title="Permanent link">¶</a></h3>
+<p><a href="http://localhost:9090">http://localhost:9090</a></p>
+<ul>
+<li>View metrics and run PromQL queries</li>
+<li>Check targets status at <a href="http://localhost:9090/targets">http://localhost:9090/targets</a></li>
+</ul>
+<h2 id="alerting-rules">Alerting Rules<a class="headerlink" href="#alerting-rules" title="Permanent link">¶</a></h2>
+<p>Pre-configured alerts in <code>monitor/prometheus/rules/eudiplo.yml</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Alert</th>
+<th>Condition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>HighErrorRate</strong></td>
+<td>HTTP 5xx rate exceeds 5% of requests</td>
+</tr>
+<tr>
+<td><strong>ServiceDown</strong></td>
+<td>OTel Collector target is down</td>
+</tr>
+<tr>
+<td><strong>HighResponseTime</strong></td>
+<td>P95 response time exceeds 2 seconds</td>
+</tr>
+</tbody>
+</table>
+<h3 id="add-custom-alerts">Add Custom Alerts<a class="headerlink" href="#add-custom-alerts" title="Permanent link">¶</a></h3>
 <ol>
-<li>
-<p><strong>Prometheus</strong>: <a href="http://localhost:9090">http://localhost:9090</a></p>
-<ul>
-<li>View metrics and run queries</li>
-<li>Check targets status at <code>/targets</code></li>
-</ul>
-</li>
-<li>
-<p><strong>Grafana</strong>: <a href="http://localhost:3001">http://localhost:3001</a></p>
-<ul>
-<li>Username: <code>admin</code></li>
-<li>Password: <code>admin</code></li>
-<li>Import or create dashboards</li>
-</ul>
-</li>
+<li>Edit <code>monitor/prometheus/rules/eudiplo.yml</code></li>
+<li>Restart Prometheus: <code>docker-compose restart prometheus</code></li>
 </ol>
 <h2 id="configuration-files">Configuration Files<a class="headerlink" href="#configuration-files" title="Permanent link">¶</a></h2>
-<h3 id="prometheus-prometheusprometheusyml">Prometheus (<code>prometheus/prometheus.yml</code>)<a class="headerlink" href="#prometheus-prometheusprometheusyml" title="Permanent link">¶</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">global</span><span class="p">:</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="nt">scrape_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15s</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="nt">scrape_configs</span><span class="p">:</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">'eudiplo'</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">      </span><span class="nt">static_configs</span><span class="p">:</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">'host.docker.internal:3000'</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1"># Local</span>
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">          </span><span class="c1"># - targets: ['eudiplo:3000']             # Docker</span>
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">      </span><span class="nt">scrape_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
-</code></pre></div>
-<h3 id="grafana-data-source">Grafana Data Source<a class="headerlink" href="#grafana-data-source" title="Permanent link">¶</a></h3>
-<p>Grafana is pre-configured with Prometheus as data source at
-<code>http://prometheus:9090</code>.</p>
+<p>All configuration files are in the <code>monitor/</code> directory:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>otel-collector/otel-collector-config.yml</code></td>
+<td>Collector pipelines</td>
+</tr>
+<tr>
+<td><code>prometheus/prometheus.yml</code></td>
+<td>Prometheus scrape config</td>
+</tr>
+<tr>
+<td><code>prometheus/rules/eudiplo.yml</code></td>
+<td>Alerting rules</td>
+</tr>
+<tr>
+<td><code>tempo/tempo.yml</code></td>
+<td>Trace storage config</td>
+</tr>
+<tr>
+<td><code>loki/loki.yml</code></td>
+<td>Log aggregation config</td>
+</tr>
+<tr>
+<td><code>grafana/datasources/</code></td>
+<td>Grafana datasource configs</td>
+</tr>
+<tr>
+<td><code>grafana/dashboards/</code></td>
+<td>Pre-built dashboards</td>
+</tr>
+</tbody>
+</table>
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">¶</a></h2>
-<h3 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">¶</a></h3>
-<p><strong>Prometheus can't reach EUDIPLO:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Check if metrics endpoint is accessible</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>curl<span class="w"> </span>http://localhost:3000/metrics
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># For local development, verify host.docker.internal works</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>appropriate/curl<span class="w"> </span>curl<span class="w"> </span>-I<span class="w"> </span>http://host.docker.internal:3000/metrics
-</code></pre></div>
-<p><strong>No data in Grafana:</strong></p>
-<ul>
-<li>Check Prometheus targets: <a href="http://localhost:9090/targets">http://localhost:9090/targets</a></li>
-<li>Verify time range in Grafana dashboards</li>
-<li>Ensure Prometheus data source is configured</li>
-</ul>
-<p><strong>Container issues:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Check logs</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>docker-compose<span class="w"> </span>logs<span class="w"> </span>prometheus
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>docker-compose<span class="w"> </span>logs<span class="w"> </span>grafana
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="c1"># Restart services</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>docker-compose<span class="w"> </span>restart
-</code></pre></div>
-<h2 id="production-considerations">Production Considerations<a class="headerlink" href="#production-considerations" title="Permanent link">¶</a></h2>
-<p>For production deployments:</p>
+<h3 id="no-metrics-in-prometheus">No Metrics in Prometheus<a class="headerlink" href="#no-metrics-in-prometheus" title="Permanent link">¶</a></h3>
 <ol>
-<li><strong>Security</strong>: Change default Grafana password</li>
-<li><strong>Retention</strong>: Configure appropriate data retention</li>
-<li><strong>Backup</strong>: Set up regular backups of Grafana dashboards</li>
-<li><strong>Alerting</strong>: Configure alertmanager for notifications</li>
-<li><strong>Resources</strong>: Monitor resource usage and scale accordingly</li>
+<li>Check the collector is receiving data: <code>curl http://localhost:8889/metrics</code></li>
+<li>Verify the backend's OTLP endpoint is correct</li>
+<li>Check collector logs: <code>docker-compose logs otel-collector</code></li>
 </ol>
-<h3 id="securing-the-metrics-endpoint">Securing the Metrics Endpoint<a class="headerlink" href="#securing-the-metrics-endpoint" title="Permanent link">¶</a></h3>
-<p>The <code>/metrics</code> endpoint can expose sensitive metadata about your deployment
-(tenant IDs, session counts, etc.). In production, protect it with a Bearer token:</p>
-<p><strong>1. Set the metrics token in EUDIPLO:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># In your .env or environment</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nv">METRICS_TOKEN</span><span class="o">=</span>your-secure-metrics-token
-</code></pre></div>
-<p><strong>2. Configure Prometheus to use the token:</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># prometheus.yml</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="nt">scrape_configs</span><span class="p">:</span>
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">'eudiplo'</span>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">      </span><span class="nt">bearer_token</span><span class="p">:</span><span class="w"> </span><span class="s">'your-secure-metrics-token'</span>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">      </span><span class="nt">static_configs</span><span class="p">:</span>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">'eudiplo:3000'</span><span class="p p-Indicator">]</span>
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">      </span><span class="nt">metrics_path</span><span class="p">:</span><span class="w"> </span><span class="s">'/metrics'</span>
-</code></pre></div>
-<p>When <code>METRICS_TOKEN</code> is set, requests without a valid <code>Authorization: Bearer &lt;token&gt;</code>
-header will receive a 401 Unauthorized response.</p>
-<div class="admonition tip">
-<p class="admonition-title">Development Mode</p>
-<p>If <code>METRICS_TOKEN</code> is not set, the endpoint remains unprotected for easier
-local development. Always set it in production environments.</p>
-</div>
+<h3 id="no-traces-in-tempo">No Traces in Tempo<a class="headerlink" href="#no-traces-in-tempo" title="Permanent link">¶</a></h3>
+<ol>
+<li>Verify traces pipeline in collector config</li>
+<li>Check Tempo is healthy: <code>curl http://localhost:3200/ready</code></li>
+<li>Ensure the backend is generating traces (make some API requests)</li>
+</ol>
+<h3 id="no-logs-in-loki">No Logs in Loki<a class="headerlink" href="#no-logs-in-loki" title="Permanent link">¶</a></h3>
+<ol>
+<li>Check logs pipeline in collector config</li>
+<li>Verify Loki is receiving data: <code>curl http://localhost:3100/ready</code></li>
+<li>Query with broader label selector: <code>{job=~".+"}</code></li>
+</ol>
+<h3 id="disable-telemetry-locally">Disable Telemetry Locally<a class="headerlink" href="#disable-telemetry-locally" title="Permanent link">¶</a></h3>
+<p>Set <code>OTEL_SDK_DISABLED=true</code> in your environment to disable all OpenTelemetry
+instrumentation when running without a collector.</p>
 <h2 id="clean-up">Clean Up<a class="headerlink" href="#clean-up" title="Permanent link">¶</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Stop monitoring stack</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>docker-compose<span class="w"> </span>down
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># Remove volumes (deletes all data)</span>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>docker-compose<span class="w"> </span>down<span class="w"> </span>-v
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Stop monitoring stack</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nb">cd</span><span class="w"> </span>monitor/
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>docker-compose<span class="w"> </span>down
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="c1"># Remove volumes (deletes all data)</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>docker-compose<span class="w"> </span>down<span class="w"> </span>-v
 </code></pre></div>
 
 

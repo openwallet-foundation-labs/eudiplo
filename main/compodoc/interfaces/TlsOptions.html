@@ -365,6 +365,7 @@ import { cleanupOpenApiDoc } from &quot;nestjs-zod&quot;;
 import { AllExceptionsFilter } from &quot;./all-exceptions.filter&quot;;
 import { AppModule } from &quot;./app.module&quot;;
 import { ValidationErrorFilter } from &quot;./shared/common/filters/validation-error.filter&quot;;
+import otelSDK from &quot;./tracing&quot;;
 
 /**
  * Protocol routes excluded from the &#x60;/api&#x60; global prefix.
@@ -375,7 +376,6 @@ const PROTOCOL_ROUTE_EXCLUSIONS: { path: string; method: RequestMethod }[] &#x3D
     // Infrastructure
     { path: &quot;/&quot;, method: RequestMethod.GET },
     { path: &quot;health&quot;, method: RequestMethod.ALL },
-    { path: &quot;metrics&quot;, method: RequestMethod.ALL },
     // OAuth2 &amp; Discovery
     { path: &quot;oauth2/{*path}&quot;, method: RequestMethod.ALL },
     { path: &quot;.well-known/{*path}&quot;, method: RequestMethod.ALL },
@@ -507,6 +507,10 @@ function loadTlsOptions(): TlsOptions | undefined {
  * Bootstrap function to initialize the NestJS application.
  */
 async function bootstrap() {
+    // Start OpenTelemetry SDK before NestJS initializes —
+    // instrumentations must be registered before any framework code runs.
+    await otelSDK.start();
+
     // Load TLS options if configured
     const tlsOptions &#x3D; loadTlsOptions();
     const isTlsEnabled &#x3D; tlsOptions !&#x3D;&#x3D; undefined;

@@ -223,14 +223,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="52"
-                                    class="link-to-prism">src/storage/storage.controller.ts:52</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="55"
+                                    class="link-to-prism">src/storage/storage.controller.ts:55</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Get a file and stream it</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -297,7 +299,7 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@UseInterceptors(undefined)<br />@Secured([&#x27;undefined&#x27;])<br />@ApiConsumes(&#x27;multipart/form-data&#x27;)<br />@ApiBody({description: &#x27;List of cats&#x27;, type: FileUploadDto})<br />@Post()<br /></code>
+                    <code>@UseInterceptors(undefined)<br />@Secured([&#x27;undefined&#x27;])<br />@ApiConsumes(&#x27;multipart/form-data&#x27;)<br />@ApiBody({type: FileUploadDto})<br />@Post()<br /></code>
                 </td>
             </tr>
 
@@ -371,6 +373,7 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
     Controller,
     Get,
+    NotFoundException,
     Param,
     Post,
     StreamableFile,
@@ -407,7 +410,6 @@ export class StorageController {
     @Secured([Role.Issuances])
     @ApiConsumes(&quot;multipart/form-data&quot;)
     @ApiBody({
-        description: &quot;List of cats&quot;,
         type: FileUploadDto,
     })
     @Post()
@@ -418,16 +420,25 @@ export class StorageController {
         return this.filesService.saveUserUpload(user.entity!.id, file, true);
     }
 
+    /**
+     * Get a file and stream it
+     */
     @Get(&quot;:key&quot;)
     download(@Param(&quot;key&quot;) key: string) {
-        return this.filesService.getStream(key).then(
-            (stream) &#x3D;&gt;
-                new StreamableFile(stream.stream, {
-                    disposition: &quot;attachment&quot;,
-                    type: stream.contentType,
-                    length: stream.size,
-                }),
-        );
+        return this.filesService
+            .getStream(key)
+            .then(
+                (stream) &#x3D;&gt;
+                    new StreamableFile(stream.stream, {
+                        //TODO: check if it should be attachment or not
+                        disposition: &quot;attachment&quot;,
+                        type: stream.contentType,
+                        length: stream.size,
+                    }),
+            )
+            .catch(() &#x3D;&gt; {
+                throw new NotFoundException();
+            });
     }
 }
 </code></pre>

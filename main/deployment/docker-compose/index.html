@@ -4359,11 +4359,12 @@
 <a id="__codelineno-14-25" name="__codelineno-14-25" href="#__codelineno-14-25"></a><span class="nv">AUTH_CLIENT_ID</span><span class="o">=</span>your-client-id
 <a id="__codelineno-14-26" name="__codelineno-14-26" href="#__codelineno-14-26"></a><span class="nv">AUTH_CLIENT_SECRET</span><span class="o">=</span>your-client-secret
 <a id="__codelineno-14-27" name="__codelineno-14-27" href="#__codelineno-14-27"></a>
-<a id="__codelineno-14-28" name="__codelineno-14-28" href="#__codelineno-14-28"></a><span class="c1"># Metrics Protection (optional but recommended)</span>
-<a id="__codelineno-14-29" name="__codelineno-14-29" href="#__codelineno-14-29"></a><span class="nv">METRICS_TOKEN</span><span class="o">=</span>your-metrics-bearer-token
-<a id="__codelineno-14-30" name="__codelineno-14-30" href="#__codelineno-14-30"></a>
-<a id="__codelineno-14-31" name="__codelineno-14-31" href="#__codelineno-14-31"></a><span class="c1"># Logging</span>
-<a id="__codelineno-14-32" name="__codelineno-14-32" href="#__codelineno-14-32"></a><span class="nv">LOG_LEVEL</span><span class="o">=</span>info
+<a id="__codelineno-14-28" name="__codelineno-14-28" href="#__codelineno-14-28"></a><span class="c1"># Telemetry (optional - enable for OpenTelemetry monitoring)</span>
+<a id="__codelineno-14-29" name="__codelineno-14-29" href="#__codelineno-14-29"></a><span class="c1"># OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318</span>
+<a id="__codelineno-14-30" name="__codelineno-14-30" href="#__codelineno-14-30"></a><span class="c1"># OTEL_SDK_DISABLED=false</span>
+<a id="__codelineno-14-31" name="__codelineno-14-31" href="#__codelineno-14-31"></a>
+<a id="__codelineno-14-32" name="__codelineno-14-32" href="#__codelineno-14-32"></a><span class="c1"># Logging</span>
+<a id="__codelineno-14-33" name="__codelineno-14-33" href="#__codelineno-14-33"></a><span class="nv">LOG_LEVEL</span><span class="o">=</span>info
 </code></pre></div>
 <div class="admonition danger">
 <p class="admonition-title">Security Warning</p>
@@ -4599,9 +4600,14 @@
 <td>- (required)</td>
 </tr>
 <tr>
-<td><code>METRICS_TOKEN</code></td>
-<td>Bearer token for /metrics endpoint</td>
-<td>- (unprotected)</td>
+<td><code>OTEL_EXPORTER_OTLP_ENDPOINT</code></td>
+<td>OTLP collector endpoint</td>
+<td><code>http://localhost:4318</code></td>
+</tr>
+<tr>
+<td><code>OTEL_SDK_DISABLED</code></td>
+<td>Disable OpenTelemetry SDK</td>
+<td><code>false</code></td>
 </tr>
 <tr>
 <td><code>LOG_LEVEL</code></td>

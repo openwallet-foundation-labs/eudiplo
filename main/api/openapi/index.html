@@ -5004,6 +5004,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#get-well-knownjwksjsonissuerstenantidchained-as" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /.well-known/jwks.json/issuers/{tenantId}/chained-as
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -5059,28 +5070,6 @@
     <span class="md-ellipsis">
       
         POST /issuers/{tenantId}/chained-as/token
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#get-issuerstenantidchained-aswell-knownjwksjson" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        GET /issuers/{tenantId}/chained-as/.well-known/jwks.json
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#get-issuerstenantidchained-aswell-knownoauth-authorization-server" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        GET /issuers/{tenantId}/chained-as/.well-known/oauth-authorization-server
       
     </span>
   </a>
@@ -9783,6 +9772,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#get-well-knownjwksjsonissuerstenantidchained-as" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /.well-known/jwks.json/issuers/{tenantId}/chained-as
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -9838,28 +9838,6 @@
     <span class="md-ellipsis">
       
         POST /issuers/{tenantId}/chained-as/token
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#get-issuerstenantidchained-aswell-knownjwksjson" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        GET /issuers/{tenantId}/chained-as/.well-known/jwks.json
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#get-issuerstenantidchained-aswell-knownoauth-authorization-server" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        GET /issuers/{tenantId}/chained-as/.well-known/oauth-authorization-server
       
     </span>
   </a>
@@ -26853,6 +26831,40 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 </div>
 </div>
 </div>
+<hr class="operation-separator">
+
+<h3 id="get-well-knownjwksjsonissuerstenantidchained-as"><span class="http-get">GET</span> /.well-known/jwks.json/issuers/<span class="route-param">{tenantId}</span>/chained-as<a class="headerlink" href="#get-well-knownjwksjsonissuerstenantidchained-as" title="Permanent link">¶</a></h3>
+<p>Returns the JSON Web Key Set (JWKS) for the Chained Authorization Server.</p>
+<p><strong>Input parameters</strong></p>
+<table>
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>In</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Nullable</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="parameter-name"><code>tenantId</code></td>
+            <td>path</td>
+            <td>string</td>
+            <td></td>
+            <td>No</td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+<p class="responses-title"><strong>Responses</strong></p>
+
+<div class="tabbed-set tabbed-alternate" data-tabs="209:1"><input checked="checked" id="__tabbed_209_1" name="__tabbed_209" type="radio"><div class="tabbed-labels"><label for="__tabbed_209_1">200 OK</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block"></div>
+</div>
+</div>
 <h2 id="chained-as"><span class="api-tag">Chained AS</span><a class="headerlink" href="#chained-as" title="Permanent link">¶</a></h2>
 <hr class="operation-separator">
 
@@ -26935,7 +26947,7 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 </table>
 <p class="request-body-title"><strong>Request body</strong></p>
 
-<div class="tabbed-set tabbed-alternate" data-tabs="209:1"><input checked="checked" id="__tabbed_209_1" name="__tabbed_209" type="radio"><div class="tabbed-labels"><label for="__tabbed_209_1">application/x-www-form-urlencoded</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="210:1"><input checked="checked" id="__tabbed_210_1" name="__tabbed_210" type="radio"><div class="tabbed-labels"><label for="__tabbed_210_1">application/x-www-form-urlencoded</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p></p><div class="highlight"><pre><span></span><code><a id="__codelineno-200-1" name="__codelineno-200-1" href="#__codelineno-200-1"></a><span class="p">{</span>
@@ -27016,10 +27028,10 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 </div>
 <p class="responses-title"><strong>Responses</strong></p>
 
-<div class="tabbed-set tabbed-alternate" data-tabs="210:2"><input checked="checked" id="__tabbed_210_1" name="__tabbed_210" type="radio"><input id="__tabbed_210_2" name="__tabbed_210" type="radio"><div class="tabbed-labels"><label for="__tabbed_210_1">201 Created</label><label for="__tabbed_210_2">400 Bad Request</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="211:2"><input checked="checked" id="__tabbed_211_1" name="__tabbed_211" type="radio"><input id="__tabbed_211_2" name="__tabbed_211" type="radio"><div class="tabbed-labels"><label for="__tabbed_211_1">201 Created</label><label for="__tabbed_211_2">400 Bad Request</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="tabbed-set tabbed-alternate" data-tabs="211:1"><input checked="checked" id="__tabbed_211_1" name="__tabbed_211" type="radio"><div class="tabbed-labels"><label for="__tabbed_211_1">application/json</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="212:1"><input checked="checked" id="__tabbed_212_1" name="__tabbed_212" type="radio"><div class="tabbed-labels"><label for="__tabbed_212_1">application/json</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p></p><div class="highlight"><pre><span></span><code><a id="__codelineno-202-1" name="__codelineno-202-1" href="#__codelineno-202-1"></a><span class="p">{</span>
@@ -27056,7 +27068,7 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 </div>
 </div>
 <div class="tabbed-block">
-<div class="tabbed-set tabbed-alternate" data-tabs="212:1"><input checked="checked" id="__tabbed_212_1" name="__tabbed_212" type="radio"><div class="tabbed-labels"><label for="__tabbed_212_1">application/json</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="213:1"><input checked="checked" id="__tabbed_213_1" name="__tabbed_213" type="radio"><div class="tabbed-labels"><label for="__tabbed_213_1">application/json</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p></p><div class="highlight"><pre><span></span><code><a id="__codelineno-204-1" name="__codelineno-204-1" href="#__codelineno-204-1"></a><span class="p">{</span>
@@ -27141,12 +27153,12 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 </table>
 <p class="responses-title"><strong>Responses</strong></p>
 
-<div class="tabbed-set tabbed-alternate" data-tabs="213:3"><input checked="checked" id="__tabbed_213_1" name="__tabbed_213" type="radio"><input id="__tabbed_213_2" name="__tabbed_213" type="radio"><input id="__tabbed_213_3" name="__tabbed_213" type="radio"><div class="tabbed-labels"><label for="__tabbed_213_1">200 OK</label><label for="__tabbed_213_2">302 Found</label><label for="__tabbed_213_3">400 Bad Request</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="214:3"><input checked="checked" id="__tabbed_214_1" name="__tabbed_214" type="radio"><input id="__tabbed_214_2" name="__tabbed_214" type="radio"><input id="__tabbed_214_3" name="__tabbed_214" type="radio"><div class="tabbed-labels"><label for="__tabbed_214_1">200 OK</label><label for="__tabbed_214_2">302 Found</label><label for="__tabbed_214_3">400 Bad Request</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block"></div>
 <div class="tabbed-block"></div>
 <div class="tabbed-block">
-<div class="tabbed-set tabbed-alternate" data-tabs="214:1"><input checked="checked" id="__tabbed_214_1" name="__tabbed_214" type="radio"><div class="tabbed-labels"><label for="__tabbed_214_1">application/json</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="215:1"><input checked="checked" id="__tabbed_215_1" name="__tabbed_215" type="radio"><div class="tabbed-labels"><label for="__tabbed_215_1">application/json</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p></p><div class="highlight"><pre><span></span><code><a id="__codelineno-206-1" name="__codelineno-206-1" href="#__codelineno-206-1"></a><span class="p">{</span>
@@ -27247,12 +27259,12 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 </table>
 <p class="responses-title"><strong>Responses</strong></p>
 
-<div class="tabbed-set tabbed-alternate" data-tabs="215:3"><input checked="checked" id="__tabbed_215_1" name="__tabbed_215" type="radio"><input id="__tabbed_215_2" name="__tabbed_215" type="radio"><input id="__tabbed_215_3" name="__tabbed_215" type="radio"><div class="tabbed-labels"><label for="__tabbed_215_1">200 OK</label><label for="__tabbed_215_2">302 Found</label><label for="__tabbed_215_3">400 Bad Request</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="216:3"><input checked="checked" id="__tabbed_216_1" name="__tabbed_216" type="radio"><input id="__tabbed_216_2" name="__tabbed_216" type="radio"><input id="__tabbed_216_3" name="__tabbed_216" type="radio"><div class="tabbed-labels"><label for="__tabbed_216_1">200 OK</label><label for="__tabbed_216_2">302 Found</label><label for="__tabbed_216_3">400 Bad Request</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block"></div>
 <div class="tabbed-block"></div>
 <div class="tabbed-block">
-<div class="tabbed-set tabbed-alternate" data-tabs="216:1"><input checked="checked" id="__tabbed_216_1" name="__tabbed_216" type="radio"><div class="tabbed-labels"><label for="__tabbed_216_1">application/json</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="217:1"><input checked="checked" id="__tabbed_217_1" name="__tabbed_217" type="radio"><div class="tabbed-labels"><label for="__tabbed_217_1">application/json</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p></p><div class="highlight"><pre><span></span><code><a id="__codelineno-208-1" name="__codelineno-208-1" href="#__codelineno-208-1"></a><span class="p">{</span>
@@ -27337,7 +27349,7 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 </table>
 <p class="request-body-title"><strong>Request body</strong></p>
 
-<div class="tabbed-set tabbed-alternate" data-tabs="217:1"><input checked="checked" id="__tabbed_217_1" name="__tabbed_217" type="radio"><div class="tabbed-labels"><label for="__tabbed_217_1">application/json</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="218:1"><input checked="checked" id="__tabbed_218_1" name="__tabbed_218" type="radio"><div class="tabbed-labels"><label for="__tabbed_218_1">application/json</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p></p><div class="highlight"><pre><span></span><code><a id="__codelineno-210-1" name="__codelineno-210-1" href="#__codelineno-210-1"></a><span class="p">{</span>
@@ -27388,10 +27400,10 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 </div>
 <p class="responses-title"><strong>Responses</strong></p>
 
-<div class="tabbed-set tabbed-alternate" data-tabs="218:3"><input checked="checked" id="__tabbed_218_1" name="__tabbed_218" type="radio"><input id="__tabbed_218_2" name="__tabbed_218" type="radio"><input id="__tabbed_218_3" name="__tabbed_218" type="radio"><div class="tabbed-labels"><label for="__tabbed_218_1">200 OK</label><label for="__tabbed_218_2">400 Bad Request</label><label for="__tabbed_218_3">401 Unauthorized</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="219:3"><input checked="checked" id="__tabbed_219_1" name="__tabbed_219" type="radio"><input id="__tabbed_219_2" name="__tabbed_219" type="radio"><input id="__tabbed_219_3" name="__tabbed_219" type="radio"><div class="tabbed-labels"><label for="__tabbed_219_1">200 OK</label><label for="__tabbed_219_2">400 Bad Request</label><label for="__tabbed_219_3">401 Unauthorized</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="tabbed-set tabbed-alternate" data-tabs="219:1"><input checked="checked" id="__tabbed_219_1" name="__tabbed_219" type="radio"><div class="tabbed-labels"><label for="__tabbed_219_1">application/json</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="220:1"><input checked="checked" id="__tabbed_220_1" name="__tabbed_220" type="radio"><div class="tabbed-labels"><label for="__tabbed_220_1">application/json</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p></p><div class="highlight"><pre><span></span><code><a id="__codelineno-212-1" name="__codelineno-212-1" href="#__codelineno-212-1"></a><span class="p">{</span>
@@ -27459,7 +27471,7 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 </div>
 </div>
 <div class="tabbed-block">
-<div class="tabbed-set tabbed-alternate" data-tabs="220:1"><input checked="checked" id="__tabbed_220_1" name="__tabbed_220" type="radio"><div class="tabbed-labels"><label for="__tabbed_220_1">application/json</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="221:1"><input checked="checked" id="__tabbed_221_1" name="__tabbed_221" type="radio"><div class="tabbed-labels"><label for="__tabbed_221_1">application/json</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p></p><div class="highlight"><pre><span></span><code><a id="__codelineno-214-1" name="__codelineno-214-1" href="#__codelineno-214-1"></a><span class="p">{</span>
@@ -27494,7 +27506,7 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 </div>
 </div>
 <div class="tabbed-block">
-<div class="tabbed-set tabbed-alternate" data-tabs="221:1"><input checked="checked" id="__tabbed_221_1" name="__tabbed_221" type="radio"><div class="tabbed-labels"><label for="__tabbed_221_1">application/json</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="222:1"><input checked="checked" id="__tabbed_222_1" name="__tabbed_222" type="radio"><div class="tabbed-labels"><label for="__tabbed_222_1">application/json</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p></p><div class="highlight"><pre><span></span><code><a id="__codelineno-216-1" name="__codelineno-216-1" href="#__codelineno-216-1"></a><span class="p">{</span>
@@ -27530,87 +27542,13 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 </div>
 </div>
 </div>
-<hr class="operation-separator">
-
-<h3 id="get-issuerstenantidchained-aswell-knownjwksjson"><span class="http-get">GET</span> /issuers/<span class="route-param">{tenantId}</span>/chained-as/.well-known/jwks.json<a class="headerlink" href="#get-issuerstenantidchained-aswell-knownjwksjson" title="Permanent link">¶</a></h3>
-<p>JSON Web Key Set</p>
-<details class="note">
-<summary>Description</summary>
-<p>Returns the public keys for verifying tokens issued by this Chained AS.</p>
-</details>
-<p><strong>Input parameters</strong></p>
-<table>
-    <thead>
-        <tr>
-            <th>Parameter</th>
-            <th>In</th>
-            <th>Type</th>
-            <th>Default</th>
-            <th>Nullable</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td class="parameter-name"><code>tenantId</code></td>
-            <td>path</td>
-            <td>string</td>
-            <td></td>
-            <td>No</td>
-            <td>Tenant identifier</td>
-        </tr>
-    </tbody>
-</table>
-<p class="responses-title"><strong>Responses</strong></p>
-
-<div class="tabbed-set tabbed-alternate" data-tabs="222:1"><input checked="checked" id="__tabbed_222_1" name="__tabbed_222" type="radio"><div class="tabbed-labels"><label for="__tabbed_222_1">200 OK</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block"></div>
-</div>
-</div>
-<hr class="operation-separator">
-
-<h3 id="get-issuerstenantidchained-aswell-knownoauth-authorization-server"><span class="http-get">GET</span> /issuers/<span class="route-param">{tenantId}</span>/chained-as/.well-known/oauth-authorization-server<a class="headerlink" href="#get-issuerstenantidchained-aswell-knownoauth-authorization-server" title="Permanent link">¶</a></h3>
-<p>OAuth AS Metadata</p>
-<details class="note">
-<summary>Description</summary>
-<p>Returns the OAuth Authorization Server metadata for the Chained AS.</p>
-</details>
-<p><strong>Input parameters</strong></p>
-<table>
-    <thead>
-        <tr>
-            <th>Parameter</th>
-            <th>In</th>
-            <th>Type</th>
-            <th>Default</th>
-            <th>Nullable</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td class="parameter-name"><code>tenantId</code></td>
-            <td>path</td>
-            <td>string</td>
-            <td></td>
-            <td>No</td>
-            <td>Tenant identifier</td>
-        </tr>
-    </tbody>
-</table>
-<p class="responses-title"><strong>Responses</strong></p>
-
-<div class="tabbed-set tabbed-alternate" data-tabs="223:1"><input checked="checked" id="__tabbed_223_1" name="__tabbed_223" type="radio"><div class="tabbed-labels"><label for="__tabbed_223_1">200 OK</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block"></div>
-</div>
-</div>
 <h2 id="oid4vp"><span class="api-tag">OID4VP</span><a class="headerlink" href="#oid4vp" title="Permanent link">¶</a></h2>
 <hr class="operation-separator">
 
 <h3 id="get-presentationssessionidoid4vprequest"><span class="http-get">GET</span> /presentations/<span class="route-param">{sessionId}</span>/oid4vp/request<a class="headerlink" href="#get-presentationssessionidoid4vprequest" title="Permanent link">¶</a></h3>
-<p>Returns the authorization request for a given requestId and session.</p>
+<p>Returns the authorization request for a given requestId and session.
+Returns the cached request JWT if available, otherwise generates a new one.
+Per OID4VP spec section 5.10.1: Response MUST use Content-Type: application/oauth-authz-req+jwt</p>
 <p><strong>Input parameters</strong></p>
 <table>
     <thead>
@@ -27636,10 +27574,10 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 </table>
 <p class="responses-title"><strong>Responses</strong></p>
 
-<div class="tabbed-set tabbed-alternate" data-tabs="224:1"><input checked="checked" id="__tabbed_224_1" name="__tabbed_224" type="radio"><div class="tabbed-labels"><label for="__tabbed_224_1">200 OK</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="223:1"><input checked="checked" id="__tabbed_223_1" name="__tabbed_223" type="radio"><div class="tabbed-labels"><label for="__tabbed_223_1">200 OK</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="tabbed-set tabbed-alternate" data-tabs="225:1"><input checked="checked" id="__tabbed_225_1" name="__tabbed_225" type="radio"><div class="tabbed-labels"><label for="__tabbed_225_1">application/json</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="224:1"><input checked="checked" id="__tabbed_224_1" name="__tabbed_224" type="radio"><div class="tabbed-labels"><label for="__tabbed_224_1">application/json</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p></p><div class="highlight"><pre><span></span><code><a id="__codelineno-218-1" name="__codelineno-218-1" href="#__codelineno-218-1"></a><span class="s2">"string"</span>
@@ -27661,7 +27599,9 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 <hr class="operation-separator">
 
 <h3 id="post-presentationssessionidoid4vprequest"><span class="http-post">POST</span> /presentations/<span class="route-param">{sessionId}</span>/oid4vp/request<a class="headerlink" href="#post-presentationssessionidoid4vprequest" title="Permanent link">¶</a></h3>
-<p>Returns the authorization request for a given requestId and session.</p>
+<p>Returns the authorization request for a given requestId and session.
+Returns the cached request JWT if available, otherwise generates a new one.
+Per OID4VP spec section 5.10.1: Response MUST use Content-Type: application/oauth-authz-req+jwt</p>
 <p><strong>Input parameters</strong></p>
 <table>
     <thead>
@@ -27687,10 +27627,10 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 </table>
 <p class="responses-title"><strong>Responses</strong></p>
 
-<div class="tabbed-set tabbed-alternate" data-tabs="226:1"><input checked="checked" id="__tabbed_226_1" name="__tabbed_226" type="radio"><div class="tabbed-labels"><label for="__tabbed_226_1">201 Created</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="225:1"><input checked="checked" id="__tabbed_225_1" name="__tabbed_225" type="radio"><div class="tabbed-labels"><label for="__tabbed_225_1">201 Created</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="tabbed-set tabbed-alternate" data-tabs="227:1"><input checked="checked" id="__tabbed_227_1" name="__tabbed_227" type="radio"><div class="tabbed-labels"><label for="__tabbed_227_1">application/json</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="226:1"><input checked="checked" id="__tabbed_226_1" name="__tabbed_226" type="radio"><div class="tabbed-labels"><label for="__tabbed_226_1">application/json</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p></p><div class="highlight"><pre><span></span><code><a id="__codelineno-220-1" name="__codelineno-220-1" href="#__codelineno-220-1"></a><span class="s2">"string"</span>
@@ -27712,7 +27652,9 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 <hr class="operation-separator">
 
 <h3 id="get-presentationssessionidoid4vprequestno-redirect"><span class="http-get">GET</span> /presentations/<span class="route-param">{sessionId}</span>/oid4vp/request/no-redirect<a class="headerlink" href="#get-presentationssessionidoid4vprequestno-redirect" title="Permanent link">¶</a></h3>
-<p>Returns the authorization request for a given requestId and session, but does not redirect in the end.</p>
+<p>Returns the authorization request for a given requestId and session, but does not redirect in the end.
+Returns the cached request JWT if available, otherwise generates a new one.
+Per OID4VP spec section 5.10.1: Response MUST use Content-Type: application/oauth-authz-req+jwt</p>
 <p><strong>Input parameters</strong></p>
 <table>
     <thead>
@@ -27738,10 +27680,10 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 </table>
 <p class="responses-title"><strong>Responses</strong></p>
 
-<div class="tabbed-set tabbed-alternate" data-tabs="228:1"><input checked="checked" id="__tabbed_228_1" name="__tabbed_228" type="radio"><div class="tabbed-labels"><label for="__tabbed_228_1">200 OK</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="227:1"><input checked="checked" id="__tabbed_227_1" name="__tabbed_227" type="radio"><div class="tabbed-labels"><label for="__tabbed_227_1">200 OK</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="tabbed-set tabbed-alternate" data-tabs="229:1"><input checked="checked" id="__tabbed_229_1" name="__tabbed_229" type="radio"><div class="tabbed-labels"><label for="__tabbed_229_1">application/json</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="228:1"><input checked="checked" id="__tabbed_228_1" name="__tabbed_228" type="radio"><div class="tabbed-labels"><label for="__tabbed_228_1">application/json</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p></p><div class="highlight"><pre><span></span><code><a id="__codelineno-222-1" name="__codelineno-222-1" href="#__codelineno-222-1"></a><span class="s2">"string"</span>
@@ -27789,7 +27731,7 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 </table>
 <p class="request-body-title"><strong>Request body</strong></p>
 
-<div class="tabbed-set tabbed-alternate" data-tabs="230:1"><input checked="checked" id="__tabbed_230_1" name="__tabbed_230" type="radio"><div class="tabbed-labels"><label for="__tabbed_230_1">application/json</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="229:1"><input checked="checked" id="__tabbed_229_1" name="__tabbed_229" type="radio"><div class="tabbed-labels"><label for="__tabbed_229_1">application/json</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p></p><div class="highlight"><pre><span></span><code><a id="__codelineno-224-1" name="__codelineno-224-1" href="#__codelineno-224-1"></a><span class="p">{</span>
@@ -27823,10 +27765,10 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 </div>
 <p class="responses-title"><strong>Responses</strong></p>
 
-<div class="tabbed-set tabbed-alternate" data-tabs="231:1"><input checked="checked" id="__tabbed_231_1" name="__tabbed_231" type="radio"><div class="tabbed-labels"><label for="__tabbed_231_1">200 OK</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="230:1"><input checked="checked" id="__tabbed_230_1" name="__tabbed_230" type="radio"><div class="tabbed-labels"><label for="__tabbed_230_1">200 OK</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="tabbed-set tabbed-alternate" data-tabs="232:1"><input checked="checked" id="__tabbed_232_1" name="__tabbed_232" type="radio"><div class="tabbed-labels"><label for="__tabbed_232_1">application/json</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="231:1"><input checked="checked" id="__tabbed_231_1" name="__tabbed_231" type="radio"><div class="tabbed-labels"><label for="__tabbed_231_1">application/json</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <details class="hint">
@@ -27846,6 +27788,7 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 <hr class="operation-separator">
 
 <h3 id="get-storagekey"><span class="http-get">GET</span> /storage/<span class="route-param">{key}</span><a class="headerlink" href="#get-storagekey" title="Permanent link">¶</a></h3>
+<p>Get a file and stream it</p>
 <p><strong>Input parameters</strong></p>
 <table>
     <thead>
@@ -27871,7 +27814,7 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 </table>
 <p class="responses-title"><strong>Responses</strong></p>
 
-<div class="tabbed-set tabbed-alternate" data-tabs="233:1"><input checked="checked" id="__tabbed_233_1" name="__tabbed_233" type="radio"><div class="tabbed-labels"><label for="__tabbed_233_1">200 OK</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="232:1"><input checked="checked" id="__tabbed_232_1" name="__tabbed_232" type="radio"><div class="tabbed-labels"><label for="__tabbed_232_1">200 OK</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block"></div>
 </div>

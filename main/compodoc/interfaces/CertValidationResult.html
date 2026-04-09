@@ -485,10 +485,7 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash } from &quot;node:crypto&quot;;
 import { Injectable, Logger, NotFoundException } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
-import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import * as x509 from &quot;@peculiar/x509&quot;;
-import { Repository } from &quot;typeorm&quot;;
-import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
 import { KeyChainEntity, KeyUsageType } from &quot;../entities/key-chain.entity&quot;;
 import { KeyChainService } from &quot;../key-chain.service&quot;;
 import { CrlValidationService } from &quot;./crl-validation.service&quot;;
@@ -562,8 +559,6 @@ export class CertService {
     constructor(
         private readonly keyChainService: KeyChainService,
         private readonly configService: ConfigService,
-        @InjectRepository(TenantEntity)
-        private readonly tenantRepository: Repository&lt;TenantEntity&gt;,
         private readonly crlValidationService?: CrlValidationService,
     ) {}
 

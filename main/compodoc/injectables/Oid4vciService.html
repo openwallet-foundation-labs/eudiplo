@@ -182,6 +182,7 @@
                                 <a href="#completeDeferredTransaction" >completeDeferredTransaction</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#createOffer" >createOffer</a>
                             </li>
@@ -195,10 +196,12 @@
                                 <a href="#getAuthorizationServer" >getAuthorizationServer</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#getCredential" >getCredential</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#getDeferredCredential" >getDeferredCredential</a>
                             </li>
@@ -209,6 +212,7 @@
                                 <a href="#getResourceServer" >getResourceServer</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#handleNotification" >handleNotification</a>
                             </li>
@@ -266,7 +270,7 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(authzService: <a href="../injectables/AuthorizeService.html" target="_self">AuthorizeService</a>, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, credentialsService: <a href="../injectables/CredentialsService.html" target="_self">CredentialsService</a>, configService: ConfigService, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, sessionLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>, issuanceService: <a href="../injectables/IssuanceService.html" target="_self">IssuanceService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, httpService: HttpService, statusListConfigService: <a href="../injectables/StatusListConfigService.html" target="_self">StatusListConfigService</a>, chainedAsService: <a href="../injectables/ChainedAsService.html" target="_self">ChainedAsService</a>, deferredCredentialService: <a href="../injectables/DeferredCredentialService.html" target="_self">DeferredCredentialService</a>, nonceRepository: <a href="../entitys/NonceEntity.html" target="_self">Repository&lt;NonceEntity&gt;</a>, webhookEndpointRepo: <a href="../entitys/WebhookEndpointEntity.html" target="_self">Repository&lt;WebhookEndpointEntity&gt;</a>)</code>
+<code>constructor(authzService: <a href="../injectables/AuthorizeService.html" target="_self">AuthorizeService</a>, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, credentialsService: <a href="../injectables/CredentialsService.html" target="_self">CredentialsService</a>, configService: ConfigService, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, auditLogger: <a href="../injectables/AuditLogService.html" target="_self">AuditLogService</a>, issuanceService: <a href="../injectables/IssuanceService.html" target="_self">IssuanceService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, httpService: HttpService, statusListConfigService: <a href="../injectables/StatusListConfigService.html" target="_self">StatusListConfigService</a>, chainedAsService: <a href="../injectables/ChainedAsService.html" target="_self">ChainedAsService</a>, deferredCredentialService: <a href="../injectables/DeferredCredentialService.html" target="_self">DeferredCredentialService</a>, traceService: TraceService, nonceRepository: <a href="../entitys/NonceEntity.html" target="_self">Repository&lt;NonceEntity&gt;</a>, webhookEndpointRepo: <a href="../entitys/WebhookEndpointEntity.html" target="_self">Repository&lt;WebhookEndpointEntity&gt;</a>)</code>
                     </td>
                 </tr>
                         <tr>
@@ -349,10 +353,10 @@
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>sessionLogger</td>
+                                                        <td>auditLogger</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../injectables/SessionLoggerService.html" target="_self" >SessionLoggerService</a></code>
+                                                                        <code><a href="../injectables/AuditLogService.html" target="_self" >AuditLogService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -433,6 +437,18 @@
                                                     
                                                 </tr>
                                                 <tr>
+                                                        <td>traceService</td>
+                                                  
+                                                        <td>
+                                                                    <code>TraceService</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
                                                         <td>nonceRepository</td>
                                                   
                                                         <td>
@@ -492,8 +508,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1006"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:1006</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1026"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:1026</a></div>
                         </td>
                     </tr>
 
@@ -585,6 +601,7 @@
                 <td class="col-md-4">
                     <a name="createOffer"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
                         <span ><b>createOffer</b></span>
                         <a href="#createOffer"><span class="icon ion-ios-link"></span></a>
@@ -598,11 +615,18 @@
                 </td>
             </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Span(&#x27;oid4vci.createOffer&#x27;)<br /></code>
+                </td>
+            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="291"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:291</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="284"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:284</a></div>
                         </td>
                     </tr>
 
@@ -710,8 +734,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1025"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:1025</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1045"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:1045</a></div>
                         </td>
                     </tr>
 
@@ -820,8 +844,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="116"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:116</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="117"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:117</a></div>
                         </td>
                     </tr>
 
@@ -876,6 +900,7 @@ Uses Chained AS if configured, otherwise falls back to the default AS.</p>
                 <td class="col-md-4">
                     <a name="getCredential"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
                         <span ><b>getCredential</b></span>
                         <a href="#getCredential"><span class="icon ion-ios-link"></span></a>
@@ -889,11 +914,18 @@ Uses Chained AS if configured, otherwise falls back to the default AS.</p>
                 </td>
             </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Span(&#x27;oid4vci.getCredential&#x27;)<br /></code>
+                </td>
+            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="724"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:724</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="728"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:728</a></div>
                         </td>
                     </tr>
 
@@ -969,6 +1001,7 @@ Uses Chained AS if configured, otherwise falls back to the default AS.</p>
                 <td class="col-md-4">
                     <a name="getDeferredCredential"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
                         <span ><b>getDeferredCredential</b></span>
                         <a href="#getDeferredCredential"><span class="icon ion-ios-link"></span></a>
@@ -982,11 +1015,18 @@ Uses Chained AS if configured, otherwise falls back to the default AS.</p>
                 </td>
             </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Span(&#x27;oid4vci.getDeferredCredential&#x27;)<br /></code>
+                </td>
+            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="984"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:984</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="997"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:997</a></div>
                         </td>
                     </tr>
 
@@ -1093,8 +1133,8 @@ Called when wallet polls with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="134"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:134</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="135"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:135</a></div>
                         </td>
                     </tr>
 
@@ -1168,8 +1208,8 @@ Called when wallet polls with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="146"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:146</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="147"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:147</a></div>
                         </td>
                     </tr>
 
@@ -1229,6 +1269,7 @@ Called when wallet polls with transaction_id.</p>
                 <td class="col-md-4">
                     <a name="handleNotification"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
                         <span ><b>handleNotification</b></span>
                         <a href="#handleNotification"><span class="icon ion-ios-link"></span></a>
@@ -1242,11 +1283,18 @@ Called when wallet polls with transaction_id.</p>
                 </td>
             </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Span(&#x27;oid4vci.handleNotification&#x27;)<br /></code>
+                </td>
+            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="871"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:871</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="883"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:883</a></div>
                         </td>
                     </tr>
 
@@ -1334,15 +1382,15 @@ Called when wallet polls with transaction_id.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>issueCredentialsForProofs(proofs: string[], issuer: Openid4vciIssuer, session: <a href="../entitys/Session.html" target="_self">Session</a>, credentialConfigurationId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, claimsResult: <a href="../interfaces/ClaimsWebhookResult.html" target="_self">ClaimsWebhookResult | undefined</a>, logContext: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>)</code>
+                    <code>issueCredentialsForProofs(proofs: string[], issuer: Openid4vciIssuer, session: <a href="../entitys/Session.html" target="_self">Session</a>, credentialConfigurationId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, claimsResult: <a href="../interfaces/ClaimsWebhookResult.html" target="_self">ClaimsWebhookResult | undefined</a>, logContext: <a href="../interfaces/AuditLogContext.html" target="_self">AuditLogContext</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="636"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:636</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="639"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:639</a></div>
                         </td>
                     </tr>
 
@@ -1427,7 +1475,7 @@ Called when wallet polls with transaction_id.</p>
                                         <tr>
                                                 <td>logContext</td>
                                             <td>
-                                                            <code><a href="../interfaces/SessionLogContext.html" target="_self" >SessionLogContext</a></code>
+                                                            <code><a href="../interfaces/AuditLogContext.html" target="_self" >AuditLogContext</a></code>
                                             </td>
 
                                             <td>
@@ -1472,8 +1520,8 @@ Called when wallet polls with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="158"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:158</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="159"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:159</a></div>
                         </td>
                     </tr>
 
@@ -1556,8 +1604,8 @@ Called when wallet polls with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="682"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:682</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="685"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:685</a></div>
                         </td>
                     </tr>
 
@@ -1634,8 +1682,8 @@ Called when wallet polls with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="407"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:407</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="410"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:410</a></div>
                         </td>
                     </tr>
 
@@ -1675,8 +1723,8 @@ Called when wallet polls with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="393"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:393</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="396"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:396</a></div>
                         </td>
                     </tr>
 
@@ -1747,8 +1795,8 @@ Called when wallet polls with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="457"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:457</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="460"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:460</a></div>
                         </td>
                     </tr>
 
@@ -1849,15 +1897,15 @@ Handles Local AS, Chained AS, and External AS flows.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>validateAndConsumeNonces(proofs: string[], tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, logContext: <a href="../interfaces/SessionLogContext.html" target="_self">SessionLogContext</a>, credentialConfigurationId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>validateAndConsumeNonces(proofs: string[], tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, logContext: <a href="../interfaces/AuditLogContext.html" target="_self">AuditLogContext</a>, credentialConfigurationId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="579"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:579</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="582"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:582</a></div>
                         </td>
                     </tr>
 
@@ -1907,7 +1955,7 @@ Ensures all proofs contain valid, non-expired nonces and consumes them.</p>
                                         <tr>
                                                 <td>logContext</td>
                                             <td>
-                                                            <code><a href="../interfaces/SessionLogContext.html" target="_self" >SessionLogContext</a></code>
+                                                            <code><a href="../interfaces/AuditLogContext.html" target="_self" >AuditLogContext</a></code>
                                             </td>
 
                                             <td>
@@ -1965,8 +2013,8 @@ Ensures all proofs contain valid, non-expired nonces and consumes them.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="418"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:418</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="421"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:421</a></div>
                         </td>
                     </tr>
 
@@ -2122,6 +2170,7 @@ import {
 } from &quot;@openid4vc/openid4vci&quot;;
 import type { Request } from &quot;express&quot;;
 import { decodeJwt } from &quot;jose&quot;;
+import { Span, TraceService } from &quot;nestjs-otel&quot;;
 import { firstValueFrom } from &quot;rxjs&quot;;
 import { LessThan, Repository } from &quot;typeorm&quot;;
 import { v4 } from &quot;uuid&quot;;
@@ -2132,11 +2181,10 @@ import {
     SessionStatus,
 } from &quot;../../../session/entities/session.entity&quot;;
 import { SessionService } from &quot;../../../session/session.service&quot;;
-import { SessionLoggerService } from &quot;../../../shared/utils/logger/session-logger.service&quot;;
 import {
-    RESOLVED_SESSION_ID,
-    SessionLogContext,
-} from &quot;../../../shared/utils/logger/session-logger-context&quot;;
+    AuditLogContext,
+    AuditLogService,
+} from &quot;../../../shared/utils/logger/audit-log.service&quot;;
 import { WebhookService } from &quot;../../../shared/utils/webhook/webhook.service&quot;;
 import { CredentialsService } from &quot;../../configuration/credentials/credentials.service&quot;;
 import { AuthorizationIdentity } from &quot;../../configuration/credentials/dto/authorization-identity&quot;;
@@ -2189,13 +2237,14 @@ export class Oid4vciService {
         public readonly credentialsService: CredentialsService,
         private readonly configService: ConfigService,
         private readonly sessionService: SessionService,
-        private readonly sessionLogger: SessionLoggerService,
+        private readonly auditLogger: AuditLogService,
         private readonly issuanceService: IssuanceService,
         private readonly webhookService: WebhookService,
         private readonly httpService: HttpService,
         private readonly statusListConfigService: StatusListConfigService,
         private readonly chainedAsService: ChainedAsService,
         private readonly deferredCredentialService: DeferredCredentialService,
+        private readonly traceService: TraceService,
         @InjectRepository(NonceEntity)
         private readonly nonceRepository: Repository&lt;NonceEntity&gt;,
         @InjectRepository(WebhookEndpointEntity)
@@ -2296,18 +2345,9 @@ export class Oid4vciService {
             const chainedAsIssuer &#x3D; &#x60;${credential_issuer}/chained-as&#x60;;
             authServers.push(chainedAsIssuer);
             authorizationServers.push(
-                await firstValueFrom(
-                    this.httpService.get(
-                        &#x60;${chainedAsIssuer}/.well-known/oauth-authorization-server&#x60;,
-                    ),
-                ).then(
-                    (response) &#x3D;&gt; response.data,
-                    () &#x3D;&gt; {
-                        throw new BadRequestException(
-                            &quot;Failed to fetch Chained AS metadata&quot;,
-                        );
-                    },
-                ),
+                (await this.chainedAsService.getMetadata(
+                    tenantId,
+                )) as AuthorizationServerMetadata,
             );
         }
 
@@ -2381,6 +2421,7 @@ export class Oid4vciService {
      * @param tenantId The ID of the tenant.
      * @returns The created credential offer.
      */
+    @Span(&quot;oid4vci.createOffer&quot;)
     async createOffer(
         body: OfferRequestDto,
         user: TokenPayload,
@@ -2448,6 +2489,16 @@ export class Oid4vciService {
             tenantId: user.entity!.id,
             authorization_code,
             webhookEndpointId: body.webhookEndpointId,
+        });
+
+        // Add session context to span for trace correlation
+        const span &#x3D; this.traceService.getSpan();
+        span?.setAttributes({
+            &quot;session.id&quot;: session.id,
+            &quot;session.tenantId&quot;: session.tenantId,
+            &quot;oid4vci.flow&quot;: body.flow,
+            &quot;oid4vci.credentialConfigurationIds&quot;:
+                credentialConfigurationIds.join(&quot;,&quot;),
         });
 
         const issuer &#x3D; this.getIssuer(session.tenantId);
@@ -2672,7 +2723,7 @@ export class Oid4vciService {
     private async validateAndConsumeNonces(
         proofs: string[],
         tenantId: string,
-        logContext: SessionLogContext,
+        logContext: AuditLogContext,
         credentialConfigurationId: string,
     ): Promise&lt;void&gt; {
         // OID4VCI spec Section 8.3.1.2: When the Credential Issuer has a Nonce Endpoint,
@@ -2700,7 +2751,7 @@ export class Oid4vciService {
                     &quot;invalid_nonce&quot;,
                     &quot;The nonce in the key proof is invalid or has already been used&quot;,
                 );
-                this.sessionLogger.logFlowError(logContext, nonceError, {
+                this.auditLogger.logFlowError(logContext, nonceError, {
                     credentialConfigurationId,
                 });
                 throw nonceError;
@@ -2712,7 +2763,7 @@ export class Oid4vciService {
                     &quot;invalid_nonce&quot;,
                     &quot;The nonce in the key proof has expired&quot;,
                 );
-                this.sessionLogger.logFlowError(logContext, nonceError, {
+                this.auditLogger.logFlowError(logContext, nonceError, {
                     credentialConfigurationId,
                 });
                 throw nonceError;
@@ -2732,7 +2783,7 @@ export class Oid4vciService {
         session: Session,
         credentialConfigurationId: string,
         claimsResult: ClaimsWebhookResult | undefined,
-        logContext: SessionLogContext,
+        logContext: AuditLogContext,
     ): Promise&lt;{ credential: string }[]&gt; {
         const credentials: { credential: string }[] &#x3D; [];
 
@@ -2756,7 +2807,7 @@ export class Oid4vciService {
 
             credentials.push({ credential: cred });
 
-            this.sessionLogger.logCredentialIssuance(
+            this.auditLogger.logCredentialIssuance(
                 logContext,
                 credentialConfigurationId,
                 {
@@ -2814,6 +2865,7 @@ export class Oid4vciService {
      * @param tenantId The tenant identifier
      * @returns The credential response or deferred response
      */
+    @Span(&quot;oid4vci.getCredential&quot;)
     async getCredential(
         req: Request,
         tenantId: string,
@@ -2870,18 +2922,26 @@ export class Oid4vciService {
                 issuanceConfig,
             );
 
-        // Expose session ID for the interceptor (not available in route params for OID4VCI)
-        req[RESOLVED_SESSION_ID] &#x3D; session.id;
+        // Add session context to span for trace correlation
+        const span &#x3D; this.traceService.getSpan();
+        span?.setAttributes({
+            &quot;session.id&quot;: session.id,
+            &quot;session.tenantId&quot;: session.tenantId,
+            &quot;oid4vci.credentialConfigurationId&quot;: credentialConfigurationId,
+            &quot;oid4vci.proofCount&quot;: parsedCredentialRequest.proofs.jwt.length,
+            &quot;oid4vci.isExternalAs&quot;: isExternalAsToken,
+            &quot;oid4vci.isChainedAs&quot;: isChainedAsToken,
+        });
 
         // Create session logging context
-        const logContext: SessionLogContext &#x3D; {
+        const logContext: AuditLogContext &#x3D; {
             sessionId: session.id,
             tenantId,
             flowType: &quot;OID4VCI&quot;,
             stage: &quot;credential_request&quot;,
         };
 
-        this.sessionLogger.logFlowStart(logContext, {
+        this.auditLogger.logFlowStart(logContext, {
             credentialConfigurationId,
             proofCount: parsedCredentialRequest.proofs.jwt.length,
             isExternalAs: isExternalAsToken,
@@ -2904,7 +2964,6 @@ export class Oid4vciService {
                         interval: claimsResult.interval,
                         issuerMetadata,
                     },
-                    logContext,
                 );
             }
 
@@ -2937,7 +2996,7 @@ export class Oid4vciService {
                 status: SessionStatus.Fetched,
             });
 
-            this.sessionLogger.logFlowComplete(logContext, {
+            this.auditLogger.logFlowComplete(logContext, {
                 credentialsIssued: credentials.length,
                 notificationId,
             });
@@ -2949,7 +3008,7 @@ export class Oid4vciService {
                 notificationId,
             });
         } catch (error) {
-            this.sessionLogger.logFlowError(logContext, error as Error, {
+            this.auditLogger.logFlowError(logContext, error as Error, {
                 credentialConfigurationId,
             });
             this.mapToCredentialRequestException(error);
@@ -2961,6 +3020,7 @@ export class Oid4vciService {
      * @param req
      * @param body
      */
+    @Span(&quot;oid4vci.handleNotification&quot;)
     async handleNotification(
         req: Request,
         body: NotificationRequestDto,
@@ -3001,11 +3061,17 @@ export class Oid4vciService {
             throw new BadRequestException(&quot;Session not found&quot;);
         }
 
-        // Expose session ID for the interceptor (not available in route params for OID4VCI)
-        req[RESOLVED_SESSION_ID] &#x3D; session.id;
+        // Add session context to span for trace correlation
+        const span &#x3D; this.traceService.getSpan();
+        span?.setAttributes({
+            &quot;session.id&quot;: session.id,
+            &quot;session.tenantId&quot;: session.tenantId,
+            &quot;oid4vci.notificationId&quot;: body.notification_id,
+            &quot;oid4vci.event&quot;: body.event ?? &quot;&quot;,
+        });
 
         // Create session logging context
-        const logContext: SessionLogContext &#x3D; {
+        const logContext: AuditLogContext &#x3D; {
             sessionId: session.id,
             tenantId,
             flowType: &quot;OID4VCI&quot;,
@@ -3027,11 +3093,6 @@ export class Oid4vciService {
                 notifications: session.notifications,
             });
 
-            this.sessionLogger.logNotification(logContext, body.event || &quot;&quot;, {
-                notificationId: body.notification_id,
-                notificationIndex: index,
-            });
-
             //check for the webhook and send it.
             //TODO: in case multiple batches are included, check if each time the notification endpoint is triggered. Also when multiple credentials got offered in the request, try to bundle them maybe?
             if (session.webhookEndpointId) {
@@ -3043,7 +3104,6 @@ export class Oid4vciService {
                     await this.webhookService.sendWebhookNotification(
                         { url: endpoint.url, auth: endpoint.auth },
                         session,
-                        logContext,
                         session.notifications[index],
                     );
                 }
@@ -3054,7 +3114,7 @@ export class Oid4vciService {
                     : SessionStatus.Failed;
             await this.sessionService.setState(session, state);
         } catch (error) {
-            this.sessionLogger.logSessionError(
+            this.auditLogger.logError(
                 logContext,
                 error as Error,
                 &quot;Failed to handle notification&quot;,
@@ -3074,11 +3134,19 @@ export class Oid4vciService {
      * @param tenantId The tenant ID
      * @returns Credential response or issuance_pending error
      */
+    @Span(&quot;oid4vci.getDeferredCredential&quot;)
     async getDeferredCredential(
         req: Request,
         body: DeferredCredentialRequestDto,
         tenantId: string,
     ): Promise&lt;CredentialResponse&gt; {
+        // Add context to span for trace correlation
+        const span &#x3D; this.traceService.getSpan();
+        span?.setAttributes({
+            &quot;oid4vci.transactionId&quot;: body.transaction_id,
+            &quot;session.tenantId&quot;: tenantId,
+        });
+
         const issuer &#x3D; this.getIssuer(tenantId);
         const issuerMetadata &#x3D; await this.issuerMetadata(tenantId, issuer);
         return this.deferredCredentialService.getDeferredCredential(

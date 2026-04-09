@@ -171,6 +171,7 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#createAuthorizationRequest" >createAuthorizationRequest</a>
                             </li>
@@ -179,6 +180,12 @@
                                 <a href="#createRequest" >createRequest</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#getAuthorizationRequest" >getAuthorizationRequest</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#getResponse" >getResponse</a>
                             </li>
@@ -200,12 +207,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, keyChainService: <a href="../injectables/KeyChainService.html" target="_self">KeyChainService</a>, encryptionService: <a href="../injectables/EncryptionService.html" target="_self">EncryptionService</a>, configService: ConfigService, presentationsService: <a href="../injectables/PresentationsService.html" target="_self">PresentationsService</a>, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, sessionLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, cryptoImplementationService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>)</code>
+<code>constructor(certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, keyChainService: <a href="../injectables/KeyChainService.html" target="_self">KeyChainService</a>, encryptionService: <a href="../injectables/EncryptionService.html" target="_self">EncryptionService</a>, configService: ConfigService, presentationsService: <a href="../injectables/PresentationsService.html" target="_self">PresentationsService</a>, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, auditLogger: <a href="../injectables/AuditLogService.html" target="_self">AuditLogService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, cryptoImplementationService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, traceService: TraceService)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:25</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="28" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:28</a></div>
                             </td>
                         </tr>
 
@@ -295,10 +302,10 @@
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>sessionLogger</td>
+                                                        <td>auditLogger</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../injectables/SessionLoggerService.html" target="_self" >SessionLoggerService</a></code>
+                                                                        <code><a href="../injectables/AuditLogService.html" target="_self" >AuditLogService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -330,6 +337,18 @@
                                                     </td>
                                                     
                                                 </tr>
+                                                <tr>
+                                                        <td>traceService</td>
+                                                  
+                                                        <td>
+                                                                    <code>TraceService</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -350,6 +369,7 @@
                 <td class="col-md-4">
                     <a name="createAuthorizationRequest"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
                         <span ><b>createAuthorizationRequest</b></span>
                         <a href="#createAuthorizationRequest"><span class="icon ion-ios-link"></span></a>
@@ -363,11 +383,18 @@
                 </td>
             </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Span(&#x27;oid4vp.createAuthorizationRequest&#x27;)<br /></code>
+                </td>
+            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="47"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:47</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="93"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:93</a></div>
                         </td>
                     </tr>
 
@@ -471,8 +498,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="239"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:239</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="276"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:276</a></div>
                         </td>
                     </tr>
 
@@ -572,8 +599,124 @@ It initializes the session logging context and logs the start of the flow.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="getAuthorizationRequest"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>getAuthorizationRequest</b></span>
+                        <a href="#getAuthorizationRequest"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getAuthorizationRequest(sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, origin: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, noRedirect: unknown)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Span(&#x27;oid4vp.getAuthorizationRequest&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="51"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:51</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Gets the authorization request for a session.
+Returns the cached requestObject if available (for request_uri_method=&quot;get&quot;),
+otherwise generates a new one.</p>
+<p>This ensures the wallet receives the exact same JWT that was stored during
+session creation, which is essential for transaction_data hash validation.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Default value</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>sessionId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+                                            <td>
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                                <td>origin</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+                                            <td>
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                                <td>noRedirect</td>
+                                            <td>
+                                                        <code>unknown</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+                                            <td>
+                                                    <code>false</code>
+                                            </td>
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="getResponse"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
                         <span ><b>getResponse</b></span>
                         <a href="#getResponse"><span class="icon ion-ios-link"></span></a>
@@ -587,11 +730,18 @@ It initializes the session logging context and logs the start of the flow.</p>
                 </td>
             </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Span(&#x27;oid4vp.getResponse&#x27;)<br /></code>
+                </td>
+            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="349"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:349</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="387"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:387</a></div>
                         </td>
                     </tr>
 
@@ -678,7 +828,7 @@ It initializes the session logging context and logs the start of the flow.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="28" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:28</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:31</a></div>
                         </td>
                     </tr>
 
@@ -697,6 +847,7 @@ import { ConfigService } from &quot;@nestjs/config&quot;;
 import { plainToInstance } from &quot;class-transformer&quot;;
 import { validateOrReject } from &quot;class-validator&quot;;
 import { base64url } from &quot;jose&quot;;
+import { Span, TraceService } from &quot;nestjs-otel&quot;;
 import { v4 } from &quot;uuid&quot;;
 import { EncryptionService } from &quot;../../crypto/encryption/encryption.service&quot;;
 import { CertService } from &quot;../../crypto/key/cert/cert.service&quot;;
@@ -706,8 +857,10 @@ import { KeyChainService } from &quot;../../crypto/key/key-chain.service&quot;;
 import { OfferResponse } from &quot;../../issuer/issuance/oid4vci/dto/offer-request.dto&quot;;
 import { SessionStatus } from &quot;../../session/entities/session.entity&quot;;
 import { SessionService } from &quot;../../session/session.service&quot;;
-import { SessionLoggerService } from &quot;../../shared/utils/logger/session-logger.service&quot;;
-import { SessionLogContext } from &quot;../../shared/utils/logger/session-logger-context&quot;;
+import {
+    AuditLogContext,
+    AuditLogService,
+} from &quot;../../shared/utils/logger/audit-log.service&quot;;
 import { WebhookService } from &quot;../../shared/utils/webhook/webhook.service&quot;;
 import { AuthResponse } from &quot;../presentations/dto/auth-response.dto&quot;;
 import { PresentationsService } from &quot;../presentations/presentations.service&quot;;
@@ -723,10 +876,52 @@ export class Oid4vpService {
         private readonly configService: ConfigService,
         private readonly presentationsService: PresentationsService,
         private readonly sessionService: SessionService,
-        private readonly sessionLogger: SessionLoggerService,
+        private readonly auditLogger: AuditLogService,
         private readonly webhookService: WebhookService,
         private readonly cryptoImplementationService: CryptoImplementationService,
+        private readonly traceService: TraceService,
     ) {}
+
+    /**
+     * Gets the authorization request for a session.
+     * Returns the cached requestObject if available (for request_uri_method&#x3D;&quot;get&quot;),
+     * otherwise generates a new one.
+     *
+     * This ensures the wallet receives the exact same JWT that was stored during
+     * session creation, which is essential for transaction_data hash validation.
+     */
+    @Span(&quot;oid4vp.getAuthorizationRequest&quot;)
+    async getAuthorizationRequest(
+        sessionId: string,
+        origin: string,
+        noRedirect &#x3D; false,
+    ): Promise&lt;string&gt; {
+        const session &#x3D; await this.sessionService.get(sessionId);
+
+        // Add session context to span for trace correlation
+        const span &#x3D; this.traceService.getSpan();
+        span?.setAttributes({
+            &quot;session.id&quot;: session.id,
+            &quot;session.tenantId&quot;: session.tenantId,
+            &quot;session.requestId&quot;: session.requestId ?? &quot;&quot;,
+            &quot;oid4vp.cached&quot;: !!session.requestObject,
+        });
+
+        // Return cached requestObject if available (pre-generated during session creation)
+        // This ensures transaction_data hash validation works correctly
+        if (session.requestObject) {
+            // Handle noRedirect flag even for cached requests
+            if (noRedirect) {
+                await this.sessionService.add(session.id, {
+                    redirectUri: null,
+                });
+            }
+            return session.requestObject;
+        }
+
+        // No cached request - generate new one (for request_uri_method&#x3D;&quot;post&quot; flows)
+        return this.createAuthorizationRequest(sessionId, origin, noRedirect);
+    }
 
     /**
      * Creates an authorization request for the OID4VP flow.
@@ -737,12 +932,21 @@ export class Oid4vpService {
      * @param noRedirect
      * @returns
      */
+    @Span(&quot;oid4vp.createAuthorizationRequest&quot;)
     async createAuthorizationRequest(
         sessionId: string,
         origin: string,
         noRedirect &#x3D; false,
     ): Promise&lt;string&gt; {
         const session &#x3D; await this.sessionService.get(sessionId);
+
+        // Add session context to span for trace correlation
+        const span &#x3D; this.traceService.getSpan();
+        span?.setAttributes({
+            &quot;session.id&quot;: session.id,
+            &quot;session.tenantId&quot;: session.tenantId,
+            &quot;session.requestId&quot;: session.requestId ?? &quot;&quot;,
+        });
 
         // if noRedirect is true, we want to keep the redirectUri undefined in the session, as it will be used by the client to decide whether to redirect or not after receiving the response. If it&#x27;s defined, the client will always redirect, even if it was instructed not to.
         if (noRedirect) {
@@ -751,15 +955,15 @@ export class Oid4vpService {
             });
         }
 
-        // Create session logging context
-        const logContext: SessionLogContext &#x3D; {
+        // Create audit logging context
+        const logContext: AuditLogContext &#x3D; {
             sessionId: session.id,
             tenantId: session.tenantId,
             flowType: &quot;OID4VP&quot;,
             stage: &quot;authorization_request&quot;,
         };
 
-        this.sessionLogger.logFlowStart(logContext, {
+        this.auditLogger.logFlowStart(logContext, {
             requestId: session.requestId,
             action: &quot;create_authorization_request&quot;,
         });
@@ -807,15 +1011,6 @@ export class Oid4vpService {
             const nonce &#x3D; randomUUID();
             await this.sessionService.add(session.id, {
                 vp_nonce: nonce,
-            });
-
-            this.sessionLogger.logAuthorizationRequest(logContext, {
-                requestId: session.requestId,
-                nonce,
-                regCert,
-                dcqlQueryCount: Array.isArray(dcql_query)
-                    ? dcql_query.length
-                    : 1,
             });
 
             const lifeTime &#x3D; 60 * 60;
@@ -904,17 +1099,9 @@ export class Oid4vpService {
                 cert.keyId,
             );
 
-            this.sessionLogger.logSession(
-                logContext,
-                &quot;Authorization request created successfully&quot;,
-                {
-                    certificateId: cert.id,
-                },
-            );
-
             return signedJwt;
         } catch (error) {
-            this.sessionLogger.logFlowError(logContext, error as Error, {
+            this.auditLogger.logFlowError(logContext, error as Error, {
                 requestId: session.requestId,
                 action: &quot;create_authorization_request&quot;,
             });
@@ -1039,8 +1226,18 @@ export class Oid4vpService {
      * @param body
      * @param tenantId
      */
+    @Span(&quot;oid4vp.getResponse&quot;)
     async getResponse(body: AuthorizationResponse, sessionId: string) {
         const session &#x3D; await this.sessionService.get(sessionId);
+
+        // Add session context to span for trace correlation
+        const span &#x3D; this.traceService.getSpan();
+        span?.setAttributes({
+            &quot;session.id&quot;: session.id,
+            &quot;session.tenantId&quot;: session.tenantId,
+            &quot;session.requestId&quot;: session.requestId ?? &quot;&quot;,
+        });
+
         const decrypted &#x3D; await this.encryptionService.decryptJwe&lt;AuthResponse&gt;(
             body.response,
             session.tenantId,
@@ -1058,8 +1255,8 @@ export class Oid4vpService {
 
         //for dc api the state is no longer included in the res, see: https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-request
 
-        // Create session logging context
-        const logContext: SessionLogContext &#x3D; {
+        // Create audit logging context
+        const logContext: AuditLogContext &#x3D; {
             sessionId: session.id,
             tenantId: session.tenantId,
             flowType: &quot;OID4VP&quot;,
@@ -1073,7 +1270,7 @@ export class Oid4vpService {
             );
         const webhook &#x3D; session.parsedWebhook || presentationConfig.webhook;
 
-        this.sessionLogger.logFlowStart(logContext, {
+        this.auditLogger.logFlowStart(logContext, {
             action: &quot;process_presentation_response&quot;,
             hasWebhook: !!webhook,
         });
@@ -1086,7 +1283,7 @@ export class Oid4vpService {
                 session,
             );
 
-            this.sessionLogger.logCredentialVerification(
+            this.auditLogger.logCredentialVerification(
                 logContext,
                 !!credentials &amp;&amp; credentials.length &gt; 0,
                 {
@@ -1117,7 +1314,6 @@ export class Oid4vpService {
                 const response &#x3D; await this.webhookService
                     .sendWebhook({
                         webhook,
-                        logContext,
                         session,
                         credentials,
                         expectResponse: false,
@@ -1131,7 +1327,7 @@ export class Oid4vpService {
                         rawPresentationPayload: decrypted,
                     })
                     .catch((error) &#x3D;&gt; {
-                        this.sessionLogger.logFlowError(
+                        this.auditLogger.logFlowError(
                             logContext,
                             error as Error,
                             {
@@ -1145,7 +1341,7 @@ export class Oid4vpService {
                 }
             }
 
-            this.sessionLogger.logFlowComplete(logContext, {
+            this.auditLogger.logFlowComplete(logContext, {
                 credentialCount: credentials?.length || 0,
                 webhookSent: !!webhook,
             });
@@ -1168,7 +1364,7 @@ export class Oid4vpService {
 
             return {};
         } catch (error: any) {
-            this.sessionLogger.logFlowError(logContext, error as Error, {
+            this.auditLogger.logFlowError(logContext, error as Error, {
                 action: &quot;process_presentation_response&quot;,
             });
             throw new BadRequestException(error.message);

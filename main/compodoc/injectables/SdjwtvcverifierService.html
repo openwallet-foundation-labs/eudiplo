@@ -180,6 +180,7 @@
                                 <a href="#validateTransactionDataHashes" >validateTransactionDataHashes</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#verify" >verify</a>
                             </li>
@@ -216,7 +217,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:15</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:16</a></div>
                             </td>
                         </tr>
 
@@ -305,8 +306,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="94"
-                                    class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:94</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="96"
+                                    class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:96</a></div>
                         </td>
                     </tr>
 
@@ -390,6 +391,7 @@ specifies otherwise.</li>
                 <td class="col-md-4">
                     <a name="verify"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
                         <span ><b>verify</b></span>
                         <a href="#verify"><span class="icon ion-ios-link"></span></a>
@@ -403,11 +405,18 @@ specifies otherwise.</li>
                 </td>
             </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Span(&#x27;sdjwt.verify&#x27;)<br /></code>
+                </td>
+            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="36"
-                                    class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:36</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="38"
+                                    class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:38</a></div>
                         </td>
                     </tr>
 
@@ -495,8 +504,8 @@ See OID4VP spec Appendix B.3.3.1 for details.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="171"
-                                    class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:171</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="173"
+                                    class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:173</a></div>
                         </td>
                     </tr>
 
@@ -594,8 +603,8 @@ signature = &quot;&lt;b64url(signature)&gt;&quot;</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="243"
-                                    class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:243</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="245"
+                                    class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:245</a></div>
                         </td>
                     </tr>
 
@@ -732,7 +741,7 @@ service of the same entity that issued the credential.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="297" class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:297</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="299" class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:299</a></div>
                         </td>
                     </tr>
 
@@ -796,7 +805,7 @@ service of the same entity that issued the credential.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="15" class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:15</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:16</a></div>
                         </td>
                     </tr>
 
@@ -815,6 +824,7 @@ import { digest } from &quot;@sd-jwt/crypto-nodejs&quot;;
 import { SDJwtVcInstance, VerificationResult } from &quot;@sd-jwt/sd-jwt-vc&quot;;
 import { KbVerifier } from &quot;@sd-jwt/types&quot;;
 import { base64url, JWK } from &quot;jose&quot;;
+import { Span } from &quot;nestjs-otel&quot;;
 import { CryptoImplementationService } from &quot;../../../../crypto/key/crypto-implementation/crypto-implementation.service&quot;;
 import { VerifierOptions } from &quot;../../../../shared/trust/types&quot;;
 import { MatchedTrustedEntity } from &quot;../../../../shared/trust/x509-validation.service&quot;;
@@ -844,6 +854,7 @@ export class SdjwtvcverifierService {
      * @param options
      * @returns
      */
+    @Span(&quot;sdjwt.verify&quot;)
     async verify(
         cred: string,
         options: VerifierOptions,

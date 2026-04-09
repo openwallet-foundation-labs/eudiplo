@@ -262,10 +262,10 @@ import {
 } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
-import { InjectMetric } from &quot;@willsoto/nestjs-prometheus&quot;;
+import type { UpDownCounter } from &quot;@opentelemetry/api&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
 import { validate } from &quot;class-validator&quot;;
-import { Gauge } from &quot;prom-client&quot;;
+import { MetricService } from &quot;nestjs-otel&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { EncryptionService } from &quot;../../crypto/encryption/encryption.service&quot;;
 import { RegistrarService } from &quot;../../registrar/registrar.service&quot;;
@@ -286,6 +286,7 @@ export interface Tenants {
 @Injectable()
 export class TenantService implements OnApplicationBootstrap {
     private readonly logger &#x3D; new Logger(TenantService.name);
+    private readonly tenantTotal: UpDownCounter;
 
     constructor(
         @Inject(CLIENTS_PROVIDER) private readonly clients: ClientsProvider,
@@ -294,11 +295,14 @@ export class TenantService implements OnApplicationBootstrap {
         private readonly registrarService: RegistrarService,
         @InjectRepository(TenantEntity)
         private readonly tenantRepository: Repository&lt;TenantEntity&gt;,
-        @InjectMetric(&quot;tenant_total&quot;)
-        private readonly tenantTotal: Gauge&lt;string&gt;,
+        metricService: MetricService,
         private readonly filesService: FilesService,
         private readonly configImportOrchestrator: ConfigImportOrchestratorService,
     ) {
+        this.tenantTotal &#x3D; metricService.getUpDownCounter(&quot;tenant_total&quot;, {
+            description: &quot;Total number of tenants&quot;,
+        });
+
         // Register tenant setup - this runs first for each tenant before other imports
         this.configImportOrchestrator.registerTenantSetup(
             &quot;tenants&quot;,
@@ -309,7 +313,7 @@ export class TenantService implements OnApplicationBootstrap {
     async onApplicationBootstrap() {
         // Initialize the tenant metrics
         const count &#x3D; await this.tenantRepository.count();
-        this.tenantTotal.set({}, count);
+        this.tenantTotal.add(count);
     }
 
     /**

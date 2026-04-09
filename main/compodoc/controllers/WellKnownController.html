@@ -170,6 +170,11 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                <a href="#getChainedAsJwks" >getChainedAsJwks</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#getJwks" >getJwks</a>
                             </li>
                             <li>
@@ -224,8 +229,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="50"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.controller.ts:50</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="45"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.controller.ts:45</a></div>
                         </td>
                     </tr>
 
@@ -302,8 +307,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="61"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.controller.ts:61</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="56"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.controller.ts:56</a></div>
                         </td>
                     </tr>
 
@@ -357,6 +362,85 @@ for wallets that construct the discovery URL per RFC 8414.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="getChainedAsJwks"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>getChainedAsJwks</b></span>
+                        <a href="#getChainedAsJwks"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getChainedAsJwks(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Header(&#x27;Content-Type&#x27;, &#x27;application/jwk-set+json&#x27;)<br />@Get(&#x27;.well-known/jwks.json/issuers/:tenantId/chained-as&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="76"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.controller.ts:76</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Returns the JSON Web Key Set (JWKS) for the Chained Authorization Server.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;literal type&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="getJwks"></a>
                     <span class="name">
                             <span class="modifier"></span>
@@ -383,8 +467,8 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="71"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.controller.ts:71</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="66"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/well-known/well-known.controller.ts:66</a></div>
                         </td>
                     </tr>
 
@@ -564,12 +648,7 @@ export class WellKnownController {
         @ContentType() contentType: MediaType,
         @Param(&quot;tenantId&quot;) tenantId: string,
     ) {
-        return this.wellKnownService
-            .getIssuerMetadata(tenantId, contentType)
-            .catch((err) &#x3D;&gt; {
-                console.error(&quot;Error in issuerMetadata:&quot;, err);
-                throw err;
-            });
+        return this.wellKnownService.getIssuerMetadata(tenantId, contentType);
     }
 
     /**
@@ -600,6 +679,18 @@ export class WellKnownController {
     @Get(&quot;.well-known/jwks.json/issuers/:tenantId&quot;)
     getJwks(@Param(&quot;tenantId&quot;) tenantId: string): Promise&lt;JwksResponseDto&gt; {
         return this.wellKnownService.getJwks(tenantId);
+    }
+
+    /**
+     * Returns the JSON Web Key Set (JWKS) for the Chained Authorization Server.
+     * @returns
+     */
+    @Header(&quot;Content-Type&quot;, &quot;application/jwk-set+json&quot;)
+    @Get(&quot;.well-known/jwks.json/issuers/:tenantId/chained-as&quot;)
+    getChainedAsJwks(
+        @Param(&quot;tenantId&quot;) tenantId: string,
+    ): Promise&lt;{ keys: Record&lt;string, unknown&gt;[] }&gt; {
+        return this.wellKnownService.getChainedAsJwks(tenantId);
     }
 }
 </code></pre>
