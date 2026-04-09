@@ -111,11 +111,9 @@ export class MdocIssuerService {
         }
 
         // Sign the mDOC
-        // Note: The @owf/mdoc library currently only supports a single certificate
-        // Use the leaf certificate (first in chain) for signing
         const issuerSigned = await issuer.sign({
             signingKey: CoseKey.fromJwk(privateKey as Jwk),
-            certificate: certificateChain[0],
+            certificates: certificateChain,
             algorithm: SignatureAlgorithm.ES256,
             digestAlgorithm: "SHA-256",
             deviceKeyInfo: { deviceKey: DeviceKey.fromJwk(deviceKey) },
