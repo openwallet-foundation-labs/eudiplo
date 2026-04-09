@@ -252,13 +252,14 @@ export class KeyCreateWizardComponent implements OnInit {
       if (!this.hasRegistrarConfig) {
         // Config not yet set - user can go to registrar page via UI link
         // but we don't force navigation automatically
-        this.snackBar.open(
-          'Please configure registrar credentials first',
-          'Go to Registrar',
-          { duration: 5000 }
-        ).onAction().subscribe(() => {
-          this.router.navigate(['/registrar']);
-        });
+        this.snackBar
+          .open('Please configure registrar credentials first', 'Go to Registrar', {
+            duration: 5000,
+          })
+          .onAction()
+          .subscribe(() => {
+            this.router.navigate(['/registrar']);
+          });
         return;
       }
     }
@@ -307,11 +308,9 @@ export class KeyCreateWizardComponent implements OnInit {
         } catch (error: any) {
           console.error('Error enrolling certificate:', error);
           const message = error.error?.message || 'Failed to enroll certificate from registrar';
-          this.snackBar.open(
-            `Key created, but enrollment failed: ${message}`,
-            'View Key',
-            { duration: 8000 }
-          );
+          this.snackBar.open(`Key created, but enrollment failed: ${message}`, 'View Key', {
+            duration: 8000,
+          });
         }
         this.router.navigate(['/keys', result.id]);
         return;
@@ -404,7 +403,8 @@ export class KeyCreateWizardComponent implements OnInit {
     }
 
     if (this.selectedUsage === 'access') {
-      const certSource = this.selectedAccessSource === 'registrar' ? 'Registrar Enrollment' : 'Self-Signed';
+      const certSource =
+        this.selectedAccessSource === 'registrar' ? 'Registrar Enrollment' : 'Self-Signed';
       summary.push({ label: 'Certificate', value: certSource });
     }
 

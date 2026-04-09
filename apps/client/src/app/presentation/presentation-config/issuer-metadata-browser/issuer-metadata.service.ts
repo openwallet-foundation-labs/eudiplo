@@ -233,7 +233,10 @@ export class IssuerMetadataService {
       };
 
       // Add meta based on format
-      if (selection.credential.format === 'vc+sd-jwt' || selection.credential.format === 'dc+sd-jwt') {
+      if (
+        selection.credential.format === 'vc+sd-jwt' ||
+        selection.credential.format === 'dc+sd-jwt'
+      ) {
         if (selection.credential.vct) {
           cred.meta = { vct_values: [selection.credential.vct] };
         }

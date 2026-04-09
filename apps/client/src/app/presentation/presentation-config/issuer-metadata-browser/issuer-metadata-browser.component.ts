@@ -51,10 +51,7 @@ export interface IssuerMetadataBrowserDialogData {
   styleUrl: './issuer-metadata-browser.component.scss',
 })
 export class IssuerMetadataBrowserComponent implements OnInit {
-  urlControl = new FormControl('', [
-    Validators.required,
-    Validators.pattern(/^https?:\/\/.+/),
-  ]);
+  urlControl = new FormControl('', [Validators.required, Validators.pattern(/^https?:\/\/.+/)]);
 
   loading = false;
   error: string | null = null;
