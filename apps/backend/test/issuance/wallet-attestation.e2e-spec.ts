@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { INestApplication } from "@nestjs/common";
 import {
     clientAuthenticationAnonymous,
