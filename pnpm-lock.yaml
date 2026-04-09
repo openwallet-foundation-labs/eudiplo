@@ -136,8 +136,8 @@ importers:
         specifier: 0.5.0-alpha-20260317094507
         version: 0.5.0-alpha-20260317094507
       '@openid4vc/openid4vp':
-        specifier: 0.5.0-alpha-20260317094507
-        version: 0.5.0-alpha-20260317094507
+        specifier: 0.5.0-alpha-20260408113505
+        version: 0.5.0-alpha-20260408113505
       '@openid4vc/utils':
         specifier: 0.5.0-alpha-20260317094507
         version: 0.5.0-alpha-20260317094507
@@ -3090,14 +3090,20 @@ packages:
   '@openid4vc/oauth2@0.5.0-alpha-20260317094507':
     resolution: {integrity: sha512-14LPJohl42aG7ffj1dMolmJXOEdk0l6r8FyG4ar3znhmVYnw3nUmJSCKwydHoh/1GlQZf4F+zVuLgwqC3Kw+Hg==}
 
+  '@openid4vc/oauth2@0.5.0-alpha-20260408113505':
+    resolution: {integrity: sha512-YwBYSN7xyPdqfze82CgxHpYmlDW5Cfge4c/p4tFTm+YJVQulHPTWL8EwDbOr1MEYZ1tFL/a7zXMemwlIpdQlbQ==}
+
   '@openid4vc/openid4vci@0.5.0-alpha-20260317094507':
     resolution: {integrity: sha512-junURqWeTuGbjuSQNf0RwmLa5ZZH1XbbM+N0XCmCyZI14gsFkKWBgNzcahDJ6zMoDJ41a7xjyB7M9FFuY3XBbw==}
 
-  '@openid4vc/openid4vp@0.5.0-alpha-20260317094507':
-    resolution: {integrity: sha512-j0faAHTRl95aJqphMUyhQrj9rCjKn1SVBlR+e+d4+fD8PS6/0Ij5yXZmF5ggeC749RvSernEfHxLICpFUwEWGQ==}
+  '@openid4vc/openid4vp@0.5.0-alpha-20260408113505':
+    resolution: {integrity: sha512-e4x7ESk/0el/KS1wRlqTiQ0wvzGds/KzjLHvCenRZO3tnSpN1nuzHmIKRLtJaE+8gJYeSYx+YVBfxcBvLVKZHg==}
 
   '@openid4vc/utils@0.5.0-alpha-20260317094507':
     resolution: {integrity: sha512-U8ulc+i2qheLstWF/yQTpea0prtYiJS6fZnDyxaT6Ym26R6seeTkFRs/Phyr5NdsmvshKnlXEb6LS357j3HQgg==}
+
+  '@openid4vc/utils@0.5.0-alpha-20260408113505':
+    resolution: {integrity: sha512-+24Dxr+j8XHKGRjWjbCN4cR1kWOAYldQOZyT60dSH09ogfLEK2GIAwPcsb47aAwoDStvS/LLS/yqhzEhyfF3JA==}
 
   '@opentelemetry/api@1.9.0':
     resolution: {integrity: sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==}
@@ -13434,19 +13440,30 @@ snapshots:
       '@openid4vc/utils': 0.5.0-alpha-20260317094507
       zod: 4.3.6
 
+  '@openid4vc/oauth2@0.5.0-alpha-20260408113505':
+    dependencies:
+      '@openid4vc/utils': 0.5.0-alpha-20260408113505
+      zod: 4.3.6
+
   '@openid4vc/openid4vci@0.5.0-alpha-20260317094507':
     dependencies:
       '@openid4vc/oauth2': 0.5.0-alpha-20260317094507
       '@openid4vc/utils': 0.5.0-alpha-20260317094507
       zod: 4.3.6
 
-  '@openid4vc/openid4vp@0.5.0-alpha-20260317094507':
+  '@openid4vc/openid4vp@0.5.0-alpha-20260408113505':
     dependencies:
-      '@openid4vc/oauth2': 0.5.0-alpha-20260317094507
-      '@openid4vc/utils': 0.5.0-alpha-20260317094507
+      '@openid4vc/oauth2': 0.5.0-alpha-20260408113505
+      '@openid4vc/utils': 0.5.0-alpha-20260408113505
       zod: 4.3.6
 
   '@openid4vc/utils@0.5.0-alpha-20260317094507':
+    dependencies:
+      buffer: 6.0.3
+      zod: 4.3.6
+      zod-validation-error: 5.0.0(zod@4.3.6)
+
+  '@openid4vc/utils@0.5.0-alpha-20260408113505':
     dependencies:
       buffer: 6.0.3
       zod: 4.3.6
