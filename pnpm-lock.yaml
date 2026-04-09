@@ -148,8 +148,8 @@ importers:
         specifier: 0.6.0-alpha-20260323111323
         version: 0.6.0-alpha-20260323111323
       '@owf/token-status-list':
-        specifier: 0.1.0-alpha-20260317093905
-        version: 0.1.0-alpha-20260317093905
+        specifier: 0.1.0-alpha-20260408100846
+        version: 0.1.0-alpha-20260408100846
       '@panva/hkdf':
         specifier: ^1.2.1
         version: 1.2.1
@@ -3084,17 +3084,17 @@ packages:
   '@owf/eudi-lote@0.1.0-alpha-20260407070950':
     resolution: {integrity: sha512-pDtxBFWQb5hQjOcK9SS+l9ixzRGRzIvAKd+QaUWMizetpwbZSqWVr7rMreJs3vHrES3+kRNaEDa/b4OCfxDfWA==}
 
-  '@owf/identity-common@0.1.0-alpha-20260317093905':
-    resolution: {integrity: sha512-PSXsqcLEua7+YEyynbVr8MQ13hoXDL6oNRF3OjKtWbm6UZXU5jx9bvWq8cL9kGo124TMWd1UQLK1PrWxkKa8CA==}
-
   '@owf/identity-common@0.1.0-alpha-20260407070950':
     resolution: {integrity: sha512-QKinAtOg5GE/OB22z9mwI0aEsefWXHdYRxHwZkI+fG7JPTo9clD5IC6hQrybuZxJ7hxUI96hnc94ej0zYMD25A==}
+
+  '@owf/identity-common@0.1.0-alpha-20260408100846':
+    resolution: {integrity: sha512-G//XN885Ro729PXUpCZNfoGxLXHoM9jryebZmTx4oa6QZvYQXVPfn1O6V1RQO4q2UY9XXdswOz2UaIXPaA0AZw==}
 
   '@owf/mdoc@0.6.0-alpha-20260323111323':
     resolution: {integrity: sha512-CwmuQxwvRSLNFeL2Jyk9f3JWk6GuLzIgwn9cgGnran1EnpKWnBHn0gHw/ivZPJvgliSIVR59AtzZ5NnXFa0nkA==}
 
-  '@owf/token-status-list@0.1.0-alpha-20260317093905':
-    resolution: {integrity: sha512-GPXQmVEaK6zKj9bpaeTK7iKU6d2647rukXbJ2tWagomijyQih7h0x5GGs3JCDAGoU/dxey2cXRDiMVRbOhvR+w==}
+  '@owf/token-status-list@0.1.0-alpha-20260408100846':
+    resolution: {integrity: sha512-miSj5WV5gUvW/PDWtne5SufX9FaFaC151tf4gcCaQ19iG8H2kbbdQbRexDy7JljPpq89NAX6koPdbVJNzE4ICg==}
 
   '@oxc-project/types@0.113.0':
     resolution: {integrity: sha512-Tp3XmgxwNQ9pEN9vxgJBAqdRamHibi76iowQ38O2I4PMpcvNRQNVsU2n1x1nv9yh0XoTrGFzf7cZSGxmixxrhA==}
@@ -13340,9 +13340,9 @@ snapshots:
       '@owf/identity-common': 0.1.0-alpha-20260407070950
       zod: 4.3.6
 
-  '@owf/identity-common@0.1.0-alpha-20260317093905': {}
-
   '@owf/identity-common@0.1.0-alpha-20260407070950': {}
+
+  '@owf/identity-common@0.1.0-alpha-20260408100846': {}
 
   '@owf/mdoc@0.6.0-alpha-20260323111323':
     dependencies:
@@ -13350,9 +13350,9 @@ snapshots:
       zod: 4.3.6
       zod-validation-error: 5.0.0(zod@4.3.6)
 
-  '@owf/token-status-list@0.1.0-alpha-20260317093905':
+  '@owf/token-status-list@0.1.0-alpha-20260408100846':
     dependencies:
-      '@owf/identity-common': 0.1.0-alpha-20260317093905
+      '@owf/identity-common': 0.1.0-alpha-20260408100846
       cbor-x: 1.6.4
       pako: 2.1.0
 
