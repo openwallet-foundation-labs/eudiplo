@@ -76,7 +76,29 @@ export interface BuildCredentialConfigOptions {
 }
 
 /**
- * Credential metadata input - accepts display array
+ * Claim path element - string (object key), number (array index), or null (any element)
+ */
+export type ClaimPathElement = string | number | null;
+
+/**
+ * Claim display information in a specific locale for credential_metadata
+ */
+export interface ClaimDisplayInput {
+    name?: string;
+    locale?: string;
+}
+
+/**
+ * Single claim metadata entry for credential_metadata.claims
+ */
+export interface ClaimMetadataInput {
+    path: ClaimPathElement[];
+    mandatory?: boolean;
+    display?: ClaimDisplayInput[];
+}
+
+/**
+ * Credential metadata input - accepts display array and claims array
  * Using a more permissive type to allow entity Display[] to be passed
  */
 export interface CredentialMetadataInput {
@@ -89,6 +111,7 @@ export interface CredentialMetadataInput {
         background_image?: { uri?: string };
         text_color?: string;
     }>;
+    claims?: ClaimMetadataInput[];
 }
 
 /**

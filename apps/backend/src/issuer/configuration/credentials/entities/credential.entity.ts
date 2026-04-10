@@ -22,6 +22,7 @@ import { SchemaResponse } from "../../../issuance/oid4vci/metadata/dto/schema-re
 import { VCT } from "../../../issuance/oid4vci/metadata/dto/vct.dto";
 import { AttributeProviderEntity } from "../../attribute-provider/entities/attribute-provider.entity";
 import { WebhookEndpointEntity } from "../../webhook-endpoint/entities/webhook-endpoint.entity";
+import { ClaimMetadata } from "../dto/claim-metadata.dto";
 import {
     IaeAction,
     IaeActionBase,
@@ -109,6 +110,24 @@ export class IssuerMetadataCredentialConfig {
     @IsOptional()
     @IsObject()
     claimsByNamespace?: Record<string, Record<string, any>>;
+
+    /**
+     * Claims metadata for wallet rendering.
+     * Follows the OID4VCI credential_metadata.claims specification.
+     * Each claim includes a path (JSONPath-like array), optional mandatory flag,
+     * and display information with multi-language support.
+     *
+     * Example:
+     * [
+     *   { "path": ["given_name"], "mandatory": false, "display": [{ "name": "Given Name", "locale": "en-US" }] },
+     *   { "path": ["address", "street_address"], "display": [{ "name": "Street Address", "locale": "en-US" }] }
+     * ]
+     */
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => ClaimMetadata)
+    claimsMetadata?: ClaimMetadata[];
 }
 
 @ApiExtraModels(

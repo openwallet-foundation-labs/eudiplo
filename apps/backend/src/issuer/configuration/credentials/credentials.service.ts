@@ -139,6 +139,18 @@ export class CredentialsService {
             );
         }
 
+        // Build credential_metadata with display and claims
+        const credentialMetadata = entity.config.display
+            ? {
+                  display: entity.config.display,
+                  ...(entity.config.claimsMetadata && {
+                      claims: entity.config.claimsMetadata,
+                  }),
+              }
+            : entity.config.claimsMetadata
+              ? { claims: entity.config.claimsMetadata }
+              : undefined;
+
         const config = buildMsoMdocConfig(
             doctype,
             {
@@ -153,9 +165,7 @@ export class CredentialsService {
                     },
                 },
             },
-            entity.config.display
-                ? { display: entity.config.display }
-                : undefined,
+            credentialMetadata,
             entity.config.scope,
         );
 
@@ -191,6 +201,18 @@ export class CredentialsService {
             );
         }
 
+        // Build credential_metadata with display and claims
+        const credentialMetadata = entity.config.display
+            ? {
+                  display: entity.config.display,
+                  ...(entity.config.claimsMetadata && {
+                      claims: entity.config.claimsMetadata,
+                  }),
+              }
+            : entity.config.claimsMetadata
+              ? { claims: entity.config.claimsMetadata }
+              : undefined;
+
         const config = buildSdJwtDcConfig(
             vct,
             {
@@ -202,9 +224,7 @@ export class CredentialsService {
                     },
                 },
             },
-            entity.config.display
-                ? { display: entity.config.display }
-                : undefined,
+            credentialMetadata,
             entity.config.scope,
         );
 
