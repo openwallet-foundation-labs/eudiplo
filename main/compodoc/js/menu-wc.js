@@ -938,6 +938,12 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/ChainedAsTokenResponseDto.html" data-type="entity-link" >ChainedAsTokenResponseDto</a>
                             </li>
                             <li class="link">
+                                <a href="classes/ClaimDisplayInfo.html" data-type="entity-link" >ClaimDisplayInfo</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/ClaimMetadata.html" data-type="entity-link" >ClaimMetadata</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/ClaimsQuery.html" data-type="entity-link" >ClaimsQuery</a>
                             </li>
                             <li class="link">
@@ -1443,6 +1449,12 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="interfaces/ChainValidationResult.html" data-type="entity-link" >ChainValidationResult</a>
+                            </li>
+                            <li class="link">
+                                <a href="interfaces/ClaimDisplayInput.html" data-type="entity-link" >ClaimDisplayInput</a>
+                            </li>
+                            <li class="link">
+                                <a href="interfaces/ClaimMetadataInput.html" data-type="entity-link" >ClaimMetadataInput</a>
                             </li>
                             <li class="link">
                                 <a href="interfaces/ClaimsWebhookResult.html" data-type="entity-link" >ClaimsWebhookResult</a>

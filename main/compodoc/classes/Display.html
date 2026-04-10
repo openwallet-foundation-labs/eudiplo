@@ -246,7 +246,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:53</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:54</a></div>
                         </td>
                     </tr>
 
@@ -285,7 +285,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="60" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:60</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="61" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:61</a></div>
                         </td>
                     </tr>
 
@@ -321,7 +321,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:48</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:49</a></div>
                         </td>
                     </tr>
 
@@ -357,7 +357,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:50</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="51" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -396,7 +396,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="64" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:64</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:65</a></div>
                         </td>
                     </tr>
 
@@ -432,7 +432,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="46" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:46</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:47</a></div>
                         </td>
                     </tr>
 
@@ -470,7 +470,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:56</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="57" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:57</a></div>
                         </td>
                     </tr>
 
@@ -513,6 +513,7 @@ import { SchemaResponse } from &quot;../../../issuance/oid4vci/metadata/dto/sche
 import { VCT } from &quot;../../../issuance/oid4vci/metadata/dto/vct.dto&quot;;
 import { AttributeProviderEntity } from &quot;../../attribute-provider/entities/attribute-provider.entity&quot;;
 import { WebhookEndpointEntity } from &quot;../../webhook-endpoint/entities/webhook-endpoint.entity&quot;;
+import { ClaimMetadata } from &quot;../dto/claim-metadata.dto&quot;;
 import {
     IaeAction,
     IaeActionBase,
@@ -600,6 +601,24 @@ export class IssuerMetadataCredentialConfig {
     @IsOptional()
     @IsObject()
     claimsByNamespace?: Record&lt;string, Record&lt;string, any&gt;&gt;;
+
+    /**
+     * Claims metadata for wallet rendering.
+     * Follows the OID4VCI credential_metadata.claims specification.
+     * Each claim includes a path (JSONPath-like array), optional mandatory flag,
+     * and display information with multi-language support.
+     *
+     * Example:
+     * [
+     *   { &quot;path&quot;: [&quot;given_name&quot;], &quot;mandatory&quot;: false, &quot;display&quot;: [{ &quot;name&quot;: &quot;Given Name&quot;, &quot;locale&quot;: &quot;en-US&quot; }] },
+     *   { &quot;path&quot;: [&quot;address&quot;, &quot;street_address&quot;], &quot;display&quot;: [{ &quot;name&quot;: &quot;Street Address&quot;, &quot;locale&quot;: &quot;en-US&quot; }] }
+     * ]
+     */
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() &#x3D;&gt; ClaimMetadata)
+    claimsMetadata?: ClaimMetadata[];
 }
 
 @ApiExtraModels(
