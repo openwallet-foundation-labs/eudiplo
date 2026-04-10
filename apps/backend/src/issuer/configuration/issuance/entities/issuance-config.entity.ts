@@ -132,7 +132,7 @@ export class IssuanceConfig {
     @Type(() => ChainedAsConfig)
     @IsOptional()
     @Column({ type: "json", nullable: true })
-    chainedAs?: ChainedAsConfig;
+    chainedAs?: ChainedAsConfig | null;
 
     @ValidateNested({ each: true })
     @Type(() => DisplayInfo)

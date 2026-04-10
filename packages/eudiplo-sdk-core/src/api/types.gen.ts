@@ -514,6 +514,10 @@ export type WebhookConfig = {
    */
   auth: WebHookAuthConfigNone | WebHookAuthConfigHeader;
   /**
+   * List of credential IDs to include raw tokens for (e.g., ['sca_credential'])
+   */
+  includeRawTokensFor?: Array<string>;
+  /**
    * The URL to which the webhook will send notifications.
    */
   url: string;
@@ -640,6 +644,11 @@ export type Session = {
    * Used to identify the user at the external AS.
    */
   externalSubject?: string;
+  /**
+   * Error reason if the session failed.
+   * Stores the error message when status is 'failed'.
+   */
+  errorReason?: string;
 };
 
 export type SessionLogEntryResponseDto = {
@@ -1018,6 +1027,32 @@ export type Display = {
   logo?: DisplayImage;
 };
 
+export type ClaimDisplayInfo = {
+  /**
+   * Human-readable name for the claim
+   */
+  name?: string;
+  /**
+   * Locale identifier (e.g., en-US, de-DE)
+   */
+  locale?: string;
+};
+
+export type ClaimMetadata = {
+  /**
+   * Path to the claim. For SD-JWT: JSONPath-like array. For mDOC: [namespace, claim_name]
+   */
+  path: Array<string>;
+  /**
+   * Whether this claim must be disclosed
+   */
+  mandatory?: boolean;
+  /**
+   * Display information for the claim in different locales
+   */
+  display?: Array<ClaimDisplayInfo>;
+};
+
 export type IssuerMetadataCredentialConfig = {
   format: "mso_mdoc" | "dc+sd-jwt";
   display: Array<Display>;
@@ -1046,6 +1081,19 @@ export type IssuerMetadataCredentialConfig = {
   claimsByNamespace?: {
     [key: string]: unknown;
   };
+  /**
+   * Claims metadata for wallet rendering.
+   * Follows the OID4VCI credential_metadata.claims specification.
+   * Each claim includes a path (JSONPath-like array), optional mandatory flag,
+   * and display information with multi-language support.
+   *
+   * Example:
+   * [
+   * { "path": ["given_name"], "mandatory": false, "display": [{ "name": "Given Name", "locale": "en-US" }] },
+   * { "path": ["address", "street_address"], "display": [{ "name": "Street Address", "locale": "en-US" }] }
+   * ]
+   */
+  claimsMetadata?: Array<ClaimMetadata>;
 };
 
 export type AttributeProviderEntity = {
@@ -1809,16 +1857,30 @@ export type JwksResponseDto = {
 
 export type AuthorizationResponse = {
   /**
-   * The response string containing the authorization details.
+   * The response string containing the authorization details (JWE-encrypted VP token).
+   * Required for success responses, absent for error responses.
    */
-  response: string;
+  response?: string;
   /**
    * When set to true, the authorization response will be sent to the client.
    */
   sendResponse?: boolean;
+  error?: string;
+  /**
+   * Human-readable description of the error.
+   */
+  error_description?: string;
+  /**
+   * URI with additional information about the error.
+   */
+  error_uri?: string;
+  /**
+   * State value from the authorization request (for correlation).
+   */
+  state?: string;
 };
 
-export type RegistrarConfigEntity = {
+export type RegistrarConfigResponseDto = {
   /**
    * The base URL of the registrar API
    */
@@ -1840,17 +1902,9 @@ export type RegistrarConfigEntity = {
    */
   username: string;
   /**
-   * The password for OIDC login (stored in plaintext)
+   * Indicates whether a password is configured (actual password is never returned)
    */
-  password: string;
-  /**
-   * The tenant ID this configuration belongs to.
-   */
-  tenantId: string;
-  /**
-   * The tenant that owns this configuration.
-   */
-  tenant: TenantEntity;
+  hasPassword: boolean;
 };
 
 export type CreateRegistrarConfigDto = {
@@ -3467,7 +3521,7 @@ export type RegistrarControllerGetConfigResponses = {
   /**
    * The registrar configuration
    */
-  200: RegistrarConfigEntity;
+  200: RegistrarConfigResponseDto;
 };
 
 export type RegistrarControllerGetConfigResponse =
@@ -3495,7 +3549,7 @@ export type RegistrarControllerUpdateConfigResponses = {
   /**
    * Configuration updated successfully
    */
-  200: RegistrarConfigEntity;
+  200: RegistrarConfigResponseDto;
 };
 
 export type RegistrarControllerUpdateConfigResponse =
@@ -3519,7 +3573,7 @@ export type RegistrarControllerCreateConfigResponses = {
   /**
    * Configuration created successfully
    */
-  201: RegistrarConfigEntity;
+  201: RegistrarConfigResponseDto;
 };
 
 export type RegistrarControllerCreateConfigResponse =
@@ -3886,9 +3940,6 @@ export type VerifierOfferControllerGetOfferResponse =
   VerifierOfferControllerGetOfferResponses[keyof VerifierOfferControllerGetOfferResponses];
 
 export type StorageControllerUploadData = {
-  /**
-   * List of cats
-   */
   body: FileUploadDto;
   path?: never;
   query?: never;

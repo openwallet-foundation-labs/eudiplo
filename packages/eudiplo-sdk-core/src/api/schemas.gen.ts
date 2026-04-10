@@ -915,6 +915,14 @@ export const WebhookConfigSchema = {
         },
       ],
     },
+    includeRawTokensFor: {
+      description:
+        "List of credential IDs to include raw tokens for (e.g., ['sca_credential'])",
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
     url: {
       type: "string",
       description: "The URL to which the webhook will send notifications.",
@@ -1089,6 +1097,11 @@ export const SessionSchema = {
       type: "string",
       description:
         "The subject (sub) from the external authorization server token.\nUsed to identify the user at the external AS.",
+    },
+    errorReason: {
+      type: "string",
+      description:
+        "Error reason if the session failed.\nStores the error message when status is 'failed'.",
     },
   },
   required: [
@@ -1370,6 +1383,7 @@ export const IssuanceConfigSchema = {
         "Key ID for signing access tokens. If unset, the default signing key is used.",
     },
     chainedAs: {
+      nullable: true,
       description:
         "Configuration for Chained Authorization Server mode.\nWhen enabled, EUDIPLO acts as an OAuth AS facade, delegating user authentication\nto an upstream OIDC provider while issuing its own tokens with issuer_state.",
       allOf: [
@@ -1450,6 +1464,7 @@ export const IssuanceDtoSchema = {
         "Key ID for signing access tokens. If unset, the default signing key is used.",
     },
     chainedAs: {
+      nullable: true,
       description:
         "Configuration for Chained Authorization Server mode.\nWhen enabled, EUDIPLO acts as an OAuth AS facade, delegating user authentication\nto an upstream OIDC provider while issuing its own tokens with issuer_state.",
       allOf: [
@@ -1812,6 +1827,50 @@ export const DisplaySchema = {
   required: ["name", "description", "locale"],
 } as const;
 
+export const ClaimDisplayInfoSchema = {
+  type: "object",
+  properties: {
+    name: {
+      type: "string",
+      description: "Human-readable name for the claim",
+      example: "Given Name",
+    },
+    locale: {
+      type: "string",
+      description: "Locale identifier (e.g., en-US, de-DE)",
+      example: "en-US",
+    },
+  },
+} as const;
+
+export const ClaimMetadataSchema = {
+  type: "object",
+  properties: {
+    path: {
+      description:
+        "Path to the claim. For SD-JWT: JSONPath-like array. For mDOC: [namespace, claim_name]",
+      example: ["given_name"],
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+    mandatory: {
+      type: "boolean",
+      description: "Whether this claim must be disclosed",
+      default: false,
+    },
+    display: {
+      description: "Display information for the claim in different locales",
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/ClaimDisplayInfo",
+      },
+    },
+  },
+  required: ["path"],
+} as const;
+
 export const IssuerMetadataCredentialConfigSchema = {
   type: "object",
   properties: {
@@ -1842,6 +1901,14 @@ export const IssuerMetadataCredentialConfigSchema = {
       type: "object",
       description:
         'Claims organized by namespace for mDOC credentials.\nAllows specifying claims across multiple namespaces.\nOnly applicable when format is "mso_mdoc".\nExample:\n{\n  "org.iso.18013.5.1": { "given_name": "John", "family_name": "Doe" },\n  "org.iso.18013.5.1.aamva": { "DHS_compliance": "F" }\n}',
+    },
+    claimsMetadata: {
+      description:
+        'Claims metadata for wallet rendering.\nFollows the OID4VCI credential_metadata.claims specification.\nEach claim includes a path (JSONPath-like array), optional mandatory flag,\nand display information with multi-language support.\n\nExample:\n[\n  { "path": ["given_name"], "mandatory": false, "display": [{ "name": "Given Name", "locale": "en-US" }] },\n  { "path": ["address", "street_address"], "display": [{ "name": "Street Address", "locale": "en-US" }] }\n]',
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/ClaimMetadata",
+      },
     },
   },
   required: ["format", "display"],
@@ -3231,18 +3298,34 @@ export const AuthorizationResponseSchema = {
   properties: {
     response: {
       type: "string",
-      description: "The response string containing the authorization details.",
+      description:
+        "The response string containing the authorization details (JWE-encrypted VP token).\nRequired for success responses, absent for error responses.",
     },
     sendResponse: {
       type: "boolean",
       description:
         "When set to true, the authorization response will be sent to the client.",
     },
+    error: {
+      type: "string",
+    },
+    error_description: {
+      type: "string",
+      description: "Human-readable description of the error.",
+    },
+    error_uri: {
+      type: "string",
+      description: "URI with additional information about the error.",
+    },
+    state: {
+      type: "string",
+      description:
+        "State value from the authorization request (for correlation).",
+    },
   },
-  required: ["response"],
 } as const;
 
-export const RegistrarConfigEntitySchema = {
+export const RegistrarConfigResponseDtoSchema = {
   type: "object",
   properties: {
     registrarUrl: {
@@ -3273,32 +3356,14 @@ export const RegistrarConfigEntitySchema = {
       description: "The username for OIDC login",
       example: "admin@example.com",
     },
-    password: {
-      type: "string",
-      description: "The password for OIDC login (stored in plaintext)",
-    },
-    tenantId: {
-      type: "string",
-      description: "The tenant ID this configuration belongs to.",
-    },
-    tenant: {
-      description: "The tenant that owns this configuration.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/TenantEntity",
-        },
-      ],
+    hasPassword: {
+      type: "boolean",
+      description:
+        "Indicates whether a password is configured (actual password is never returned)",
+      example: true,
     },
   },
-  required: [
-    "registrarUrl",
-    "oidcUrl",
-    "clientId",
-    "username",
-    "password",
-    "tenantId",
-    "tenant",
-  ],
+  required: ["registrarUrl", "oidcUrl", "clientId", "username", "hasPassword"],
 } as const;
 
 export const CreateRegistrarConfigDtoSchema = {

@@ -98,7 +98,9 @@ describe("Issuance - Claims Metadata", () => {
 
         // Check the test-claims-metadata credential config
         const credConfig =
-            res.body.credential_configurations_supported["test-claims-metadata"];
+            res.body.credential_configurations_supported[
+                "test-claims-metadata"
+            ];
         expect(credConfig).toBeDefined();
         expect(credConfig.format).toBe("dc+sd-jwt");
 
@@ -153,7 +155,8 @@ describe("Issuance - Claims Metadata", () => {
                 display: [
                     {
                         name: "Test mDOC Credential",
-                        description: "A test mDOC credential with claims metadata",
+                        description:
+                            "A test mDOC credential with claims metadata",
                         locale: "en-US",
                     },
                 ],
@@ -247,7 +250,9 @@ describe("Issuance - Claims Metadata", () => {
             .expect(200);
 
         const credConfig =
-            res.body.credential_configurations_supported["test-claims-metadata"];
+            res.body.credential_configurations_supported[
+                "test-claims-metadata"
+            ];
         expect(credConfig).toBeDefined();
         expect(credConfig.credential_metadata.claims).toHaveLength(1);
 
