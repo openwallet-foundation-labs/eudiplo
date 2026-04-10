@@ -64,7 +64,6 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-latest
-    needs: [lint]
     steps:
       - uses: actions/checkout@v6
 
@@ -90,7 +89,6 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-latest
-    needs: [lint]
     steps:
       - uses: actions/checkout@v6
 
@@ -116,7 +114,6 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-latest
-    needs: [lint]
     steps:
       - uses: actions/checkout@v6
 
@@ -145,7 +142,6 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-latest
-    needs: [lint]
     steps:
       - uses: actions/checkout@v6
 
@@ -171,7 +167,6 @@ jobs:
     permissions:
       contents: read
     runs-on: ubuntu-latest
-    needs: [lint]
     steps:
       - uses: actions/checkout@v6
 
@@ -270,7 +265,7 @@ jobs:
       contents: read
     name: E2E Tests
     runs-on: ubuntu-latest
-    needs: [build-backend, build-client, build-webhook]
+    needs: [lint]
     steps:
       - uses: actions/checkout@v6
 
@@ -328,6 +323,7 @@ jobs:
   # =============================================================================
   # Docker Backend: Build, Test & Push (multi-platform with native runners)
   # Uses native ARM runners instead of QEMU for ~4x faster arm64 builds.
+  # Skip arm64 on PRs to save time - only build amd64 for validation.
   # =============================================================================
   docker-backend:
     name: Build & Test Backend Docker (${{ matrix.arch }})
@@ -335,13 +331,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: linux/amd64
-            runner: ubuntu-latest
-            arch: amd64
-          - platform: linux/arm64
-            runner: ubuntu-24.04-arm
-            arch: arm64
+        # Dynamic matrix: include arm64 only on main branch push
+        include: "${{ fromJSON(github.event_name == 'push' && github.ref == 'refs/heads/main' && '[{\"platform\": \"linux/amd64\", \"runner\": \"ubuntu-latest\", \"arch\": \"amd64\"}, {\"platform\": \"linux/arm64\", \"runner\": \"ubuntu-24.04-arm\", \"arch\": \"arm64\"}]' || '[{\"platform\": \"linux/amd64\", \"runner\": \"ubuntu-latest\", \"arch\": \"amd64\"}]') }}"
     runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
@@ -466,18 +457,6 @@ jobs:
           cache-from: type=gha,scope=backend-${{ matrix.arch }}
           cache-to: type=gha,scope=backend-${{ matrix.arch }},mode=max
 
-      # --- Build to validate (arm64, PRs/workflow_dispatch only) ---
-      - name: Build to validate
-        if: ${{ matrix.arch == 'arm64' && !(github.ref == 'refs/heads/main' && github.event_name == 'push') }}
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          target: eudiplo
-          platforms: ${{ matrix.platform }}
-          build-args: VERSION=main
-          cache-from: type=gha,scope=backend-${{ matrix.arch }}
-          cache-to: type=gha,scope=backend-${{ matrix.arch }},mode=max
-
       - name: Export digest
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
@@ -539,20 +518,16 @@ jobs:
 
   # =============================================================================
   # Docker Client: Build & Push (multi-platform with native runners)
+  # Skip arm64 on PRs to save time - only build amd64 for validation.
   # =============================================================================
   docker-client:
     name: Build & Push Client Docker (${{ matrix.arch }})
-    needs: [build-client]
+    needs: [lint]
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: linux/amd64
-            runner: ubuntu-latest
-            arch: amd64
-          - platform: linux/arm64
-            runner: ubuntu-24.04-arm
-            arch: arm64
+        # Dynamic matrix: include arm64 only on main branch push
+        include: "${{ fromJSON(github.event_name == 'push' && github.ref == 'refs/heads/main' && '[{\"platform\": \"linux/amd64\", \"runner\": \"ubuntu-latest\", \"arch\": \"amd64\"}, {\"platform\": \"linux/arm64\", \"runner\": \"ubuntu-24.04-arm\", \"arch\": \"arm64\"}]' || '[{\"platform\": \"linux/amd64\", \"runner\": \"ubuntu-latest\", \"arch\": \"amd64\"}]') }}"
     runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
