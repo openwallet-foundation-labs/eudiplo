@@ -218,8 +218,8 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
     this.loading = true;
     const formValue = this.form.value;
 
-    // Build chainedAs config only if enabled
-    let chainedAsConfig = undefined;
+    // Build chainedAs config only if enabled, otherwise explicitly set to null to clear it
+    let chainedAsConfig: IssuanceDto['chainedAs'] | null = null;
     if (formValue.chainedAs?.enabled) {
       chainedAsConfig = {
         enabled: true,
@@ -237,7 +237,8 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
       };
     }
 
-    const issuanceDto: IssuanceDto = {
+    // Use Partial<IssuanceDto> with explicit null for chainedAs since backend accepts null to clear it
+    const issuanceDto = {
       batchSize: formValue.batchSize,
       display: formValue.display,
       dPopRequired: formValue.dPopRequired,
@@ -249,7 +250,7 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
           ? formValue.walletProviderTrustLists
           : undefined,
       chainedAs: chainedAsConfig,
-    };
+    } as IssuanceDto;
 
     this.issuanceConfigService
       .saveConfiguration(issuanceDto)
