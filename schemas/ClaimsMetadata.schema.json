@@ -1,0 +1,128 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClaimsMetadata.schema.json",
+    "title": "ClaimsMetadata",
+    "description": "Array of claim metadata for wallet rendering per OID4VCI specification",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "description": "Metadata for a single claim",
+        "properties": {
+            "path": {
+                "type": "array",
+                "description": "Path to the claim. For SD-JWT: JSONPath-like array (e.g., ['given_name']). For mDOC: [namespace, claim_name] (e.g., ['org.iso.18013.5.1', 'given_name'])",
+                "items": {
+                    "type": [
+                        "string",
+                        "integer"
+                    ]
+                },
+                "minItems": 1,
+                "examples": [
+                    [
+                        "given_name"
+                    ],
+                    [
+                        "address",
+                        "street_address"
+                    ],
+                    [
+                        "org.iso.18013.5.1",
+                        "given_name"
+                    ]
+                ]
+            },
+            "mandatory": {
+                "type": "boolean",
+                "description": "Whether this claim must always be disclosed",
+                "default": false
+            },
+            "display": {
+                "type": "array",
+                "description": "Display information for the claim in different locales",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "description": "Human-readable name for the claim",
+                            "examples": [
+                                "Given Name",
+                                "Vorname",
+                                "Prénom"
+                            ]
+                        },
+                        "locale": {
+                            "type": "string",
+                            "description": "Locale identifier (e.g., en-US, de-DE)",
+                            "pattern": "^[a-z]{2}(-[A-Z]{2})?$",
+                            "examples": [
+                                "en-US",
+                                "de-DE",
+                                "fr-FR"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "name"
+                    ]
+                }
+            }
+        },
+        "required": [
+            "path"
+        ]
+    },
+    "examples": [
+        [
+            {
+                "path": [
+                    "given_name"
+                ],
+                "mandatory": true,
+                "display": [
+                    {
+                        "name": "Given Name",
+                        "locale": "en-US"
+                    },
+                    {
+                        "name": "Vorname",
+                        "locale": "de-DE"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "family_name"
+                ],
+                "mandatory": true,
+                "display": [
+                    {
+                        "name": "Family Name",
+                        "locale": "en-US"
+                    },
+                    {
+                        "name": "Nachname",
+                        "locale": "de-DE"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "birthdate"
+                ],
+                "mandatory": false,
+                "display": [
+                    {
+                        "name": "Date of Birth",
+                        "locale": "en-US"
+                    },
+                    {
+                        "name": "Geburtsdatum",
+                        "locale": "de-DE"
+                    }
+                ]
+            }
+        ]
+    ]
+}

@@ -7,6 +7,7 @@ import registrationCertificateRequestObj from '../../../../../schemas/Registrati
 import DCQLObj from '../../../../../schemas/DCQL.schema.json';
 import presnetationConfigCreateSchemaObj from '../../../../../schemas/PresentationConfigCreateDto.schema.json';
 import transactionDataSchemaObj from '../../../../../schemas/TransactionData.schema.json';
+import claimsMetadataSchemaObj from '../../../../../schemas/ClaimsMetadata.schema.json';
 
 // Create an array schema for TransactionData (URI-based matching allows arrays as root)
 const transactionDataArraySchemaObj = {
@@ -58,3 +59,5 @@ export const registrationCertificateRequestSchema = new SchemaValidation(
 export const DCQLSchema = new SchemaValidation(DCQLObj);
 
 export const transactionDataArraySchema = new SchemaValidation(transactionDataArraySchemaObj);
+
+export const claimsMetadataSchema = new SchemaValidation(claimsMetadataSchemaObj);
