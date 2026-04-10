@@ -110,7 +110,8 @@ export class IssuanceService {
     }
 
     /**
-     * Store the config. If it already exist, overwrite it.
+     * Store the config. If it already exist, merge with existing values.
+     * Null/undefined values in the input are ignored, preserving existing configuration.
      * @param tenantId
      * @param value
      * @returns
@@ -119,8 +120,26 @@ export class IssuanceService {
         if (value.display) {
             value.display = await this.replaceUrl(value.display, tenantId);
         }
+
+        // Fetch existing configuration (if any)
+        let existingConfig: Partial<IssuanceConfig> = {};
+        try {
+            existingConfig = await this.getIssuanceConfiguration(tenantId);
+        } catch {
+            // No existing config, will create new
+        }
+
+        // Filter out null/undefined values from the incoming config
+        // to prevent accidental overwrites of existing configuration
+        const filteredValue = Object.fromEntries(
+            Object.entries(value).filter(
+                ([, v]) => v !== null && v !== undefined,
+            ),
+        );
+
         return this.issuanceConfigRepo.save({
-            ...value,
+            ...existingConfig,
+            ...filteredValue,
             tenantId,
         });
     }
