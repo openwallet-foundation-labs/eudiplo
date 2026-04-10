@@ -230,6 +230,49 @@ async function emitOperationSchemas(doc: AnyObj, isOAS31: boolean) {
   console.log(`✓ Wrote ${reqCount} request & ${resCount} response schema(s) → ${OUT_SCHEMAS}`);
 }
 
+/**
+ * Add manually-created schemas that don't come from OpenAPI components.
+ * These schemas are imported directly from the schemas/ directory.
+ */
+async function addManualSchemas() {
+  const manualSchemas = [
+    'ClaimsMetadata.schema.json',
+  ];
+
+  for (const filename of manualSchemas) {
+    try {
+      const schemaPath = join('schemas', filename);
+      const content = await readFile(schemaPath, 'utf8');
+      const schema = JSON.parse(content);
+      const name = filename.replace('.schema.json', '');
+      
+      // Add additionalProperties: false to object items if not already set
+      const finalSchema = strictObjectSchemas(schema);
+      
+      // Add defaultSnippets for better Monaco autocomplete
+      if (finalSchema.type === 'array' && finalSchema.items?.type === 'object') {
+        finalSchema.defaultSnippets = [{
+          label: `${name} Entry`,
+          description: `Add a ${name.toLowerCase()} entry`,
+          body: Object.fromEntries(
+            Object.keys(finalSchema.items.properties || {}).slice(0, 3).map(k => [k, `\${${k}}`])
+          )
+        }];
+      }
+      
+      schemas.push({
+        uri: finalSchema['$id'],
+        fileMatch: [`a://b/${sanitize(name)}*.schema.json`],
+        schema: finalSchema,
+      });
+      
+      console.log(`✓ Added manual schema: ${filename}`);
+    } catch (e) {
+      console.warn(`⚠ Could not add manual schema ${filename}:`, e);
+    }
+  }
+}
+
 async function main() {
 
   // 0) clear folder
@@ -245,9 +288,12 @@ async function main() {
   await emitComponentSchemas(bundled, isOAS31);
   // await emitOperationSchemas(bundled, isOAS31); // Disabled: only store object schemas
   
+  // 4) add manually-created schemas
+  await addManualSchemas();
+  
   writeFile('apps/client/src/app/utils/schemas.json', JSON.stringify(schemas, null, 2));
 
-  // 4) remove openapi file
+  // 5) remove openapi file
   rmSync(OUT_SPEC);
 
 }
