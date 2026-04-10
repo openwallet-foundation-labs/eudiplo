@@ -111,7 +111,8 @@ export class IssuanceService {
 
     /**
      * Store the config. If it already exist, merge with existing values.
-     * Null/undefined values in the input are ignored, preserving existing configuration.
+     * - Undefined values are ignored, preserving existing configuration.
+     * - Null values explicitly clear/unset the field.
      * @param tenantId
      * @param value
      * @returns
@@ -129,12 +130,10 @@ export class IssuanceService {
             // No existing config, will create new
         }
 
-        // Filter out null/undefined values from the incoming config
-        // to prevent accidental overwrites of existing configuration
+        // Filter out undefined values from the incoming config.
+        // Null values are kept to allow explicitly clearing a field.
         const filteredValue = Object.fromEntries(
-            Object.entries(value).filter(
-                ([, v]) => v !== null && v !== undefined,
-            ),
+            Object.entries(value).filter(([, v]) => v !== undefined),
         );
 
         return this.issuanceConfigRepo.save({

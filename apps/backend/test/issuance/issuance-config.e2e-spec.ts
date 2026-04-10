@@ -70,12 +70,18 @@ describe("Issuance - Configuration", () => {
         expect(updatedConfig.display).toEqual(initialConfig.display);
     });
 
-    test("null values in update should not overwrite existing config", async () => {
-        // Step 1: Set up a configuration with specific values
+    test("null values should explicitly clear existing config fields", async () => {
+        // Step 1: Set up a configuration with chainedAs
         const setupConfig: Partial<IssuanceDto> = {
             batchSize: 10,
-            dPopRequired: true,
-            walletAttestationRequired: true,
+            chainedAs: {
+                enabled: true,
+                upstream: {
+                    issuer: "https://auth.example.com/realms/test",
+                    clientId: "test-client",
+                    clientSecret: "test-secret",
+                },
+            },
         };
 
         await request(app.getHttpServer())
@@ -85,44 +91,41 @@ describe("Issuance - Configuration", () => {
             .send(setupConfig)
             .expect(201);
 
-        // Verify setup
+        // Verify chainedAs is set
         const setupRes = await request(app.getHttpServer())
             .get("/issuer/config")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .expect(200);
 
-        expect(setupRes.body.batchSize).toBe(10);
-        expect(setupRes.body.dPopRequired).toBe(true);
-        expect(setupRes.body.walletAttestationRequired).toBe(true);
+        expect(setupRes.body.chainedAs).toBeDefined();
+        expect(setupRes.body.chainedAs.enabled).toBe(true);
 
-        // Step 2: Send an update with some null values
-        const updateWithNulls = {
-            batchSize: 3,
-            dPopRequired: null,
-            walletAttestationRequired: null,
+        // Step 2: Send an update with chainedAs explicitly set to null
+        const updateWithNull = {
+            batchSize: 5,
+            chainedAs: null,
         };
 
         await request(app.getHttpServer())
             .post("/issuer/config")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
-            .send(updateWithNulls)
+            .send(updateWithNull)
             .expect(201);
 
-        // Step 3: Verify that null values did NOT overwrite existing config
+        // Step 3: Verify that chainedAs was cleared
         const finalRes = await request(app.getHttpServer())
             .get("/issuer/config")
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .expect(200);
 
-        // batchSize should be updated (it was not null)
-        expect(finalRes.body.batchSize).toBe(3);
+        // batchSize should be updated
+        expect(finalRes.body.batchSize).toBe(5);
 
-        // Fields that were set to null should retain their previous values
-        expect(finalRes.body.dPopRequired).toBe(true);
-        expect(finalRes.body.walletAttestationRequired).toBe(true);
+        // chainedAs should be cleared (null)
+        expect(finalRes.body.chainedAs).toBeNull();
     });
 
     test("chainedAs config should not be lost on partial update", async () => {
