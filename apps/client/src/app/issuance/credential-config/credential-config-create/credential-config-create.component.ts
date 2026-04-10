@@ -39,6 +39,7 @@ import {
   credentialConfigSchema,
   embeddedDisclosurePolicySchema,
   vctSchema,
+  claimsMetadataSchema,
 } from '../../../utils/schemas';
 import { EditorComponent, extractSchema } from '../../../utils/editor/editor.component';
 import { ImageFieldComponent } from '../../../utils/image-field/image-field.component';
@@ -111,6 +112,7 @@ export class CredentialConfigCreateComponent implements OnInit {
 
   vctSchema = vctSchema;
   embeddedDisclosurePolicySchema = embeddedDisclosurePolicySchema;
+  claimsMetadataSchema = claimsMetadataSchema;
 
   // VCT mode: 'string' for simple URI, 'object' for metadata object
   vctMode: 'string' | 'object' = 'string';
@@ -152,6 +154,7 @@ export class CredentialConfigCreateComponent implements OnInit {
       attributeProviderId: new FormControl(''),
       webhookEndpointId: new FormControl(''),
       iaeActions: new FormArray([]),
+      claimsMetadata: new FormControl(''),
     } as { [k in keyof Omit<CredentialConfigCreate, 'config'>]: any });
 
     // Set initial validator for vctString based on default mode
@@ -358,6 +361,7 @@ export class CredentialConfigCreateComponent implements OnInit {
       schema: this.stringifyField(config.schema),
       displayConfigs: config.config?.display || [],
       embeddedDisclosurePolicy: this.stringifyField(config.embeddedDisclosurePolicy),
+      claimsMetadata: this.stringifyField(config.config?.claimsMetadata),
     } as { [k in keyof Omit<CredentialConfigCreate, 'config'>]: any });
 
     // Handle IAE actions
@@ -634,6 +638,7 @@ export class CredentialConfigCreateComponent implements OnInit {
       format: formValue.format,
       display: formValue.displayConfigs,
       scope: formValue.scope || undefined,
+      claimsMetadata: this.parseJsonField(formValue.claimsMetadata, 'parse', true),
       // mDOC specific fields
       ...(isMdoc && {
         docType: formValue.docType || undefined,
@@ -705,6 +710,7 @@ export class CredentialConfigCreateComponent implements OnInit {
     delete formValue.docType;
     delete formValue.namespace;
     delete formValue.claimsByNamespace;
+    delete formValue.claimsMetadata;
     return formValue;
   }
 
