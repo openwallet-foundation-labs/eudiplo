@@ -228,6 +228,7 @@ export type {
   IssuanceDto,
   IssuerMetadataCredentialConfig,
   JwksResponseDto,
+  KeyAttestationsRequired,
   KeyChainControllerCreateData,
   KeyChainControllerCreateResponses,
   KeyChainControllerDeleteData,

@@ -1,6 +1,5 @@
 import {
     Body,
-    ConflictException,
     Controller,
     Header,
     HttpCode,
@@ -19,6 +18,7 @@ import type {
 import type { Request, Response } from "express";
 import { DeferredCredentialRequestDto } from "./dto/deferred-credential-request.dto";
 import { NotificationRequestDto } from "./dto/notification-request.dto";
+import { CredentialRequestException } from "./exceptions";
 import { Oid4vciService } from "./oid4vci.service";
 
 /**
@@ -65,9 +65,14 @@ export class Oid4vciController {
                 return credentialResult.credentialResponse;
             },
             (err) => {
-                //TODO: implement errors according to: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-request-errors
-                throw new ConflictException(
-                    `Credential issuance failed: ${err.message}`,
+                // Re-throw if already a spec-compliant CredentialRequestException
+                if (err instanceof CredentialRequestException) {
+                    throw err;
+                }
+                // Wrap other errors according to OID4VCI spec Section 8.3.1.2
+                throw new CredentialRequestException(
+                    "invalid_credential_request",
+                    err.message,
                 );
             },
         );

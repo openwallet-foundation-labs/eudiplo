@@ -148,6 +148,10 @@
     "externalSubject": {
       "type": "string",
       "description": "The subject (sub) from the external authorization server token.\nUsed to identify the user at the external AS."
+    },
+    "errorReason": {
+      "type": "string",
+      "description": "Error reason if the session failed.\nStores the error message when status is 'failed'."
     }
   },
   "required": [

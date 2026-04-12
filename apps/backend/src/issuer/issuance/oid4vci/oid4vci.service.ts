@@ -132,8 +132,11 @@ export class Oid4vciService {
      * @param tenantId The ID of the tenant.
      * @returns The OID4VCI issuer instance.
      */
-    getIssuer(tenantId: string) {
-        const callbacks = this.cryptoService.getCallbackContext(tenantId);
+    getIssuer(tenantId: string, sessionId?: string) {
+        const callbacks = this.cryptoService.getCallbackContext(
+            tenantId,
+            sessionId,
+        );
         return new Openid4vciIssuer({
             callbacks,
         });
@@ -144,8 +147,11 @@ export class Oid4vciService {
      * @param tenantId The ID of the tenant.
      * @returns The OID4VCI resource server instance.
      */
-    getResourceServer(tenantId: string) {
-        const callbacks = this.cryptoService.getCallbackContext(tenantId);
+    getResourceServer(tenantId: string, sessionId?: string) {
+        const callbacks = this.cryptoService.getCallbackContext(
+            tenantId,
+            sessionId,
+        );
         return new Oauth2ResourceServer({
             callbacks,
         });
@@ -360,7 +366,7 @@ export class Oid4vciService {
                 credentialConfigurationIds.join(","),
         });
 
-        const issuer = this.getIssuer(session.tenantId);
+        const issuer = this.getIssuer(session.tenantId, session.id);
         const issuerMetadata = await this.issuerMetadata(tenantId, issuer);
 
         return issuer

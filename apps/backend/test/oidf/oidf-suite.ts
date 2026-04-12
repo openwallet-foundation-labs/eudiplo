@@ -122,22 +122,65 @@ export class OIDFSuite {
         return response.data.result;
     }
 
-    async startTest(planId: string, testName: string): Promise<TestInstance> {
-        // Create a runner (testInstance) on the demo server using a specific test
-        const testInstance: TestInstance = await this.instance
-            .post("/api/runner", undefined, {
-                params: {
-                    test: testName,
-                    plan: planId,
-                },
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                },
-            })
-            .then((res) => res.data);
+    /**
+     * Returns all available test modules for a given plan.
+     */
+    getAllTestsModules(planId: string) {
+        return this.instance
+            .get(`/api/plan/${planId}`)
+            .then((res) => res.data.modules.map((module) => module.testModule));
+    }
 
-        return testInstance;
+    /**
+     * Returns the plan data including variant information.
+     */
+    async getPlan(planId: string): Promise<any> {
+        const response = await this.instance.get(`/api/plan/${planId}`);
+        return response.data;
+    }
+
+    /**
+     * Starts a test instance for a specific test module.
+     * Fetches the variant from the plan's module configuration.
+     */
+    async startTest(planId: string, testName: string): Promise<TestInstance> {
+        // Fetch the plan to get the variant for this specific test module
+        const plan = await this.getPlan(planId);
+        const module = plan.modules.find((m: any) => m.testModule === testName);
+
+        if (!module) {
+            throw new Error(
+                `Test module '${testName}' not found in plan. Available: ${plan.modules.map((m: any) => m.testModule).join(", ")}`,
+            );
+        }
+
+        // Get the variant from the module
+        const variant = module.variant || {};
+
+        try {
+            const response = await this.instance.post(
+                "/api/runner",
+                undefined,
+                {
+                    params: {
+                        test: testName,
+                        plan: planId,
+                        variant: JSON.stringify(variant),
+                    },
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                    },
+                },
+            );
+            return response.data;
+        } catch (error: any) {
+            console.error(
+                "Error starting test:",
+                error.response?.data || error.message,
+            );
+            throw error;
+        }
     }
 
     async getEndpoint(testInstance: TestInstance): Promise<string> {

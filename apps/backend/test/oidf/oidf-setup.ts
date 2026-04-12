@@ -27,10 +27,10 @@ import { afterAll, beforeAll } from "vitest";
 
 const TEST_DB_PATH = resolve(__dirname, "../../../tmp/service.db");
 
-const TAG = "22c67e745";
+const TAG = "7de90bc40";
 
 const FAPI_IMAGE = `ghcr.io/cre8/oidf-conformance-suite-publisher/server:${TAG}`;
-const HTTP_IMAGE = `ghcr.io/cre8/oidf-conformance-suite-publisher/httpd:${TAG}`;
+const HTTP_IMAGE = `ghcr.io/cre8/oidf-conformance-suite-publisher/nginx:${TAG}`;
 
 let network: StartedNetwork | undefined;
 let mongoDb: StartedTestContainer | undefined;

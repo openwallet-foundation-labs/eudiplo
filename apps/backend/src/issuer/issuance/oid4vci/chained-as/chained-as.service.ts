@@ -781,7 +781,6 @@ export class ChainedAsService {
             metadata.token_endpoint_auth_methods_supported = [
                 "attest_jwt_client_auth",
             ];
-            metadata.client_attestation_pop_nonce_required = true;
             metadata.client_attestation_signing_alg_values_supported = [
                 "ES256",
             ];

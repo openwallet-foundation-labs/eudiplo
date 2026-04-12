@@ -224,7 +224,7 @@ export class StatusListService {
         const preHeader: StatusListJWTHeaderParameters = {
             alg: "ES256",
             typ: "statuslist+jwt",
-            x5c: this.certService.getCertChain(cert),
+            x5c: this.certService.getLeafCertBase64(cert),
         };
         const { header, payload } = createHeaderAndPayload(
             list,

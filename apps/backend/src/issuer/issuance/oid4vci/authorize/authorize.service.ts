@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { ConflictException, Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
 import {
     type AuthorizationCodeGrantIdentifier,
     type AuthorizationServerMetadata,
@@ -13,12 +14,14 @@ import {
     preAuthorizedCodeGrantIdentifier,
 } from "@openid4vc/oauth2";
 import type { Request } from "express";
+import { Repository } from "typeorm";
 import { v4 } from "uuid";
 import { CryptoService } from "../../../../crypto/crypto.service";
 import { KeyChainService } from "../../../../crypto/key/key-chain.service";
 import { SessionService } from "../../../../session/session.service";
 import { WalletAttestationService } from "../../../../shared/trust/wallet-attestation.service";
 import { IssuanceService } from "../../../configuration/issuance/issuance.service";
+import { NonceEntity } from "../entities/nonces.entity";
 import { TokenErrorException } from "../exceptions";
 import { getHeadersFromRequest } from "../util";
 import { AuthorizeQueries } from "./dto/authorize-request.dto";
@@ -45,10 +48,18 @@ export class AuthorizeService {
         private readonly issuanceService: IssuanceService,
         private readonly walletAttestationService: WalletAttestationService,
         private readonly keyChainService: KeyChainService,
+        @InjectRepository(NonceEntity)
+        private readonly nonceRepository: Repository<NonceEntity>,
     ) {}
 
-    getAuthorizationServer(tenantId: string): Oauth2AuthorizationServer {
-        const callbacks = this.cryptoService.getCallbackContext(tenantId);
+    getAuthorizationServer(
+        tenantId: string,
+        sessionId?: string,
+    ): Oauth2AuthorizationServer {
+        const callbacks = this.cryptoService.getCallbackContext(
+            tenantId,
+            sessionId,
+        );
         return new Oauth2AuthorizationServer({
             callbacks,
         });
@@ -132,7 +143,7 @@ export class AuthorizeService {
             metadata.token_endpoint_auth_methods_supported = [
                 "attest_jwt_client_auth",
             ];
-            metadata.client_attestation_pop_nonce_required = true;
+            metadata.challenge_endpoint = `${authServer}/authorize/challenge`;
             metadata.client_attestation_signing_alg_values_supported = [
                 "ES256",
             ];
@@ -146,6 +157,23 @@ export class AuthorizeService {
         ).createAuthorizationServerMetadata(
             metadata as any,
         ) as AuthorizationServerMetadata;
+    }
+
+    /**
+     * Client Attestation Challenge Endpoint.
+     * Generates and stores a nonce for use in the Client Attestation PoP JWT.
+     * @see OAuth2-ATCA07-8
+     */
+    async challengeRequest(
+        tenantId: string,
+    ): Promise<{ attestation_challenge: string }> {
+        const nonce = v4();
+        await this.nonceRepository.save({
+            nonce,
+            tenantId,
+            expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+        });
+        return { attestation_challenge: nonce };
     }
 
     sendAuthorizationResponse(values: AuthorizeQueries, tenantId) {
@@ -245,7 +273,10 @@ export class AuthorizeService {
             parsedAccessTokenRequest.grant.grantType ===
             preAuthorizedCodeGrantIdentifier
         ) {
-            const { dpop } = await this.getAuthorizationServer(tenantId)
+            const { dpop } = await this.getAuthorizationServer(
+                tenantId,
+                session.id,
+            )
                 .verifyPreAuthorizedCodeAccessTokenRequest({
                     grant: parsedAccessTokenRequest.grant as ParsedAccessTokenPreAuthorizedCodeRequestGrant,
                     accessTokenRequest:
@@ -283,7 +314,10 @@ export class AuthorizeService {
             authorizationCodeGrantIdentifier
         ) {
             //TODO: handle response
-            const { dpop } = await this.getAuthorizationServer(tenantId)
+            const { dpop } = await this.getAuthorizationServer(
+                tenantId,
+                session.id,
+            )
                 .verifyAuthorizationCodeAccessTokenRequest({
                     grant: parsedAccessTokenRequest.grant as ParsedAccessTokenAuthorizationCodeRequestGrant,
                     accessTokenRequest:
@@ -324,7 +358,7 @@ export class AuthorizeService {
             signingKeyId,
         );
 
-        return this.getAuthorizationServer(tenantId)
+        return this.getAuthorizationServer(tenantId, session.id)
             .createAccessTokenResponse({
                 audience: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/issuers/${tenantId}`,
                 signer: {
@@ -338,6 +372,7 @@ export class AuthorizeService {
                 authorizationServer: authorizationServerMetadata.issuer,
                 clientId: req.body.client_id,
                 dpop: dpopValue,
+                refreshToken: true,
             })
             .catch((err) => {
                 this.logger.error("Error creating access token response:", err);

@@ -110,6 +110,12 @@ export class CredentialConfigCreateComponent implements OnInit {
   selectedLifetimePreset: number | null = 3600;
   customLifetime = false;
 
+  // Key attestation presets (HAIP-compliant values)
+  keyAttestationPresets = [
+    { label: 'ISO 18045 High', value: 'iso_18045_high' },
+    { label: 'ISO 18045 Moderate', value: 'iso_18045_moderate' },
+  ];
+
   vctSchema = vctSchema;
   embeddedDisclosurePolicySchema = embeddedDisclosurePolicySchema;
   claimsMetadataSchema = claimsMetadataSchema;
@@ -155,6 +161,10 @@ export class CredentialConfigCreateComponent implements OnInit {
       webhookEndpointId: new FormControl(''),
       iaeActions: new FormArray([]),
       claimsMetadata: new FormControl(''),
+      // Key attestation requirements (per-credential, HAIP compliance)
+      keyAttestationEnabled: new FormControl(false),
+      keyStorageTypes: new FormControl<string[]>([]),
+      userAuthenticationTypes: new FormControl<string[]>([]),
     } as { [k in keyof Omit<CredentialConfigCreate, 'config'>]: any });
 
     // Set initial validator for vctString based on default mode
@@ -362,6 +372,10 @@ export class CredentialConfigCreateComponent implements OnInit {
       displayConfigs: config.config?.display || [],
       embeddedDisclosurePolicy: this.stringifyField(config.embeddedDisclosurePolicy),
       claimsMetadata: this.stringifyField(config.config?.claimsMetadata),
+      // Key attestation requirements
+      keyAttestationEnabled: !!(config.config as any)?.keyAttestationsRequired,
+      keyStorageTypes: (config.config as any)?.keyAttestationsRequired?.key_storage || [],
+      userAuthenticationTypes: (config.config as any)?.keyAttestationsRequired?.user_authentication || [],
     } as { [k in keyof Omit<CredentialConfigCreate, 'config'>]: any });
 
     // Handle IAE actions
@@ -639,6 +653,13 @@ export class CredentialConfigCreateComponent implements OnInit {
       display: formValue.displayConfigs,
       scope: formValue.scope || undefined,
       claimsMetadata: this.parseJsonField(formValue.claimsMetadata, 'parse', true),
+      // Key attestation requirements (if enabled)
+      ...(formValue.keyAttestationEnabled && {
+        keyAttestationsRequired: {
+          key_storage: formValue.keyStorageTypes?.length ? formValue.keyStorageTypes : undefined,
+          user_authentication: formValue.userAuthenticationTypes?.length ? formValue.userAuthenticationTypes : undefined,
+        },
+      }),
       // mDOC specific fields
       ...(isMdoc && {
         docType: formValue.docType || undefined,
@@ -711,6 +732,9 @@ export class CredentialConfigCreateComponent implements OnInit {
     delete formValue.namespace;
     delete formValue.claimsByNamespace;
     delete formValue.claimsMetadata;
+    delete formValue.keyAttestationEnabled;
+    delete formValue.keyStorageTypes;
+    delete formValue.userAuthenticationTypes;
     return formValue;
   }
 

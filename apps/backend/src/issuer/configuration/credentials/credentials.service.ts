@@ -151,18 +151,25 @@ export class CredentialsService {
               ? { claims: entity.config.claimsMetadata }
               : undefined;
 
+        // Build proof_types_supported with optional key_attestations_required
+        const keyAttestationsRequired = entity.config.keyAttestationsRequired;
+        const jwtProofType = {
+            proof_signing_alg_values_supported:
+                this.cryptoImplementationService.getAlgs(
+                    CredentialFormat.SD_JWT,
+                ) as string[],
+            ...(keyAttestationsRequired && {
+                key_attestations_required: { ...keyAttestationsRequired },
+            }),
+        };
+
         const config = buildMsoMdocConfig(
             doctype,
             {
                 signingAlgorithms: algs,
                 bindingMethods: ["cose_key"],
                 proofTypesSupported: {
-                    jwt: {
-                        proof_signing_alg_values_supported:
-                            this.cryptoImplementationService.getAlgs(
-                                CredentialFormat.SD_JWT,
-                            ) as string[],
-                    },
+                    jwt: jwtProofType,
                 },
             },
             credentialMetadata,
@@ -213,15 +220,22 @@ export class CredentialsService {
               ? { claims: entity.config.claimsMetadata }
               : undefined;
 
+        // Build proof_types_supported with optional key_attestations_required
+        const keyAttestationsRequired = entity.config.keyAttestationsRequired;
+        const jwtProofType = {
+            proof_signing_alg_values_supported: algs,
+            ...(keyAttestationsRequired && {
+                key_attestations_required: { ...keyAttestationsRequired },
+            }),
+        };
+
         const config = buildSdJwtDcConfig(
             vct,
             {
                 signingAlgorithms: algs,
                 bindingMethods: ["jwk"],
                 proofTypesSupported: {
-                    jwt: {
-                        proof_signing_alg_values_supported: algs,
-                    },
+                    jwt: jwtProofType,
                 },
             },
             credentialMetadata,

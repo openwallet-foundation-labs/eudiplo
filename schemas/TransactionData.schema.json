@@ -18,5 +18,5 @@
     "type",
     "credential_ids"
   ],
-  "additionalProperties": true
+  "additionalProperties": false
 }

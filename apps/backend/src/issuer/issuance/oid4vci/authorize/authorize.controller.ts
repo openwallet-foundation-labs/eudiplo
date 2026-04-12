@@ -3,6 +3,9 @@ import {
     Body,
     Controller,
     Get,
+    Header,
+    HttpCode,
+    HttpStatus,
     Param,
     Post,
     Query,
@@ -79,11 +82,24 @@ export class AuthorizeController {
      * @returns
      */
     @Post("token")
+    @HttpCode(HttpStatus.OK)
     token(
         @Body() body: any,
         @Req() req: Request,
         @Param("tenantId") tenantId: string,
     ): Promise<any> {
         return this.authorizeService.validateTokenRequest(body, req, tenantId);
+    }
+
+    /**
+     * Client Attestation Challenge Endpoint.
+     * Returns a nonce for inclusion in the Client Attestation PoP JWT.
+     * @see OAuth2-ATCA07-8
+     */
+    @Post("challenge")
+    @HttpCode(HttpStatus.OK)
+    @Header("Cache-Control", "no-store")
+    challenge(@Param("tenantId") tenantId: string): Promise<{ nonce: string }> {
+        return this.authorizeService.challengeRequest(tenantId);
     }
 }

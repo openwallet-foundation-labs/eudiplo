@@ -2,6 +2,7 @@ import {
     ApiExtraModels,
     ApiHideProperty,
     ApiProperty,
+    ApiPropertyOptional,
     getSchemaPath,
 } from "@nestjs/swagger";
 import { Type } from "class-transformer";
@@ -21,6 +22,7 @@ import { KeyChainEntity } from "../../../../crypto/key/entities/key-chain.entity
 import { SchemaResponse } from "../../../issuance/oid4vci/metadata/dto/schema-response.dto";
 import { VCT } from "../../../issuance/oid4vci/metadata/dto/vct.dto";
 import { AttributeProviderEntity } from "../../attribute-provider/entities/attribute-provider.entity";
+import { KeyAttestationsRequired } from "../../issuance/dto/key-attestations-required.dto";
 import { WebhookEndpointEntity } from "../../webhook-endpoint/entities/webhook-endpoint.entity";
 import { ClaimMetadata } from "../dto/claim-metadata.dto";
 import {
@@ -128,6 +130,19 @@ export class IssuerMetadataCredentialConfig {
     @ValidateNested({ each: true })
     @Type(() => ClaimMetadata)
     claimsMetadata?: ClaimMetadata[];
+
+    /**
+     * Key attestation requirements for JWT proofs for this credential.
+     * When set, this is published in proof_types_supported.jwt.key_attestations_required
+     * for this specific credential configuration.
+     *
+     * @see https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#appendix-F
+     */
+    @ApiPropertyOptional({ type: () => KeyAttestationsRequired })
+    @ValidateNested()
+    @Type(() => KeyAttestationsRequired)
+    @IsOptional()
+    keyAttestationsRequired?: KeyAttestationsRequired;
 }
 
 @ApiExtraModels(

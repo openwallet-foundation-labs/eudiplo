@@ -17,6 +17,7 @@ import {
     type JWK,
     jwtVerify,
 } from "jose";
+import { PinoLogger } from "nestjs-pino";
 import { KeyChainService } from "./key/key-chain.service";
 
 /**
@@ -43,7 +44,9 @@ export class CryptoService {
     constructor(
         public readonly keyChainService: KeyChainService,
         private readonly configService: ConfigService,
+        private readonly logger: PinoLogger,
     ) {
+        this.logger.setContext("CryptoService");
         this.clockTolerance =
             this.configService.getOrThrow<number>("CRYPTO_TOLERANCE");
     }
@@ -51,9 +54,14 @@ export class CryptoService {
     /**
      * Get the callback context for the key service.
      * @param tenantId
+     * @param sessionId Optional session ID for log correlation
      * @returns
      */
-    getCallbackContext(tenantId: string): Omit<CallbackContext, "decryptJwe"> {
+    getCallbackContext(
+        tenantId: string,
+        sessionId?: string,
+    ): Omit<CallbackContext, "decryptJwe"> {
+        const logContext = { tenantId, ...(sessionId && { sessionId }) };
         return {
             hash: (data, alg) =>
                 createHash(alg.replace("-", "").toLowerCase())
@@ -91,7 +99,10 @@ export class CryptoService {
                         });
                         return { verified: true, signerJwk: signer.publicJwk };
                     } catch (e) {
-                        console.log(e);
+                        this.logger.warn(
+                            { ...logContext, err: e },
+                            "JWT verification failed (jwk)",
+                        );
                         return { verified: false };
                     }
                 } else if (signer.method === "x5c") {
@@ -113,7 +124,11 @@ export class CryptoService {
                         const signerJwk = await exportJWK(josePublicKey);
                         signerJwk.alg = signer.alg;
                         return { verified: true, signerJwk: signerJwk as Jwk };
-                    } catch {
+                    } catch (e) {
+                        this.logger.warn(
+                            { ...logContext, err: e },
+                            "JWT verification failed (x5c)",
+                        );
                         return { verified: false };
                     }
                 }
