@@ -251,7 +251,7 @@ describe("Issuance - Deferred Credential Flow", () => {
             extractable: true,
         });
         const holderPrivateKeyJwk = await exportJWK(holderKeyPair.privateKey);
-        const holderPublicKeyJwk = await exportJWK(holderKeyPair.publicKey);
+        const _holderPublicKeyJwk = await exportJWK(holderKeyPair.publicKey);
 
         // Create an offer just to get a valid access token
         const offerResponse = await request(app.getHttpServer())

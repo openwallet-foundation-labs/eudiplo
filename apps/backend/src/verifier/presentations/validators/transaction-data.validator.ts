@@ -1,8 +1,8 @@
 import {
+    registerDecorator,
+    ValidationOptions,
     ValidatorConstraint,
     ValidatorConstraintInterface,
-    ValidationOptions,
-    registerDecorator,
 } from "class-validator";
 
 @ValidatorConstraint({ name: "isTransactionDataValid", async: false })

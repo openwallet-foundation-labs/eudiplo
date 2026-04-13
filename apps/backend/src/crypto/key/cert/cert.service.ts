@@ -173,6 +173,24 @@ export class CertService {
     }
 
     /**
+     * Get only the leaf (signing) certificate as a base64-encoded DER certificate array.
+     * Used for x5c headers where only the signing certificate should be included (e.g., status lists).
+     */
+    getLeafCertBase64(cert: CertificateInfo): string[] {
+        const leafPem = cert.crt[0];
+        try {
+            const x509Cert = new x509.X509Certificate(leafPem);
+            return [Buffer.from(x509Cert.rawData).toString("base64")];
+        } catch {
+            const base64 = leafPem
+                .replace("-----BEGIN CERTIFICATE-----", "")
+                .replace("-----END CERTIFICATE-----", "")
+                .replace(/\s/g, "");
+            return [base64];
+        }
+    }
+
+    /**
      * Validate a certificate for expiry and revocation.
      */
     async validateCertificate(

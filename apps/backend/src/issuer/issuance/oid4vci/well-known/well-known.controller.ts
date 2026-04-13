@@ -1,5 +1,6 @@
-import { Controller, Get, Header, Param } from "@nestjs/common";
+import { Controller, Get, Header, Param, Res } from "@nestjs/common";
 import { ApiOperation, ApiProduces, ApiTags } from "@nestjs/swagger";
+import { Response } from "express";
 import { ContentType } from "../../../../shared/utils/mediaType/media-type.decorator";
 import { MediaType } from "../../../../shared/utils/mediaType/media-type.enum";
 import { JwksResponseDto } from "./dto/jwks-response.dto";
@@ -30,11 +31,22 @@ export class WellKnownController {
     //we can not set the accept in the apiheader via swagger.
     @ApiProduces(MediaType.APPLICATION_JSON, MediaType.APPLICATION_JWT)
     @Get(".well-known/openid-credential-issuer/issuers/:tenantId")
-    issuerMetadata(
+    async issuerMetadata(
+        @Res({ passthrough: true }) res: Response,
         @ContentType() contentType: MediaType,
         @Param("tenantId") tenantId: string,
     ) {
-        return this.wellKnownService.getIssuerMetadata(tenantId, contentType);
+        const result = await this.wellKnownService.getIssuerMetadata(
+            tenantId,
+            contentType,
+        );
+
+        // Set Content-Type header based on requested media type
+        if (contentType === MediaType.APPLICATION_JWT) {
+            res.setHeader("Content-Type", MediaType.APPLICATION_JWT);
+        }
+
+        return result;
     }
 
     /**

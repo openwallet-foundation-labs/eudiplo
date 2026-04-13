@@ -309,7 +309,7 @@ async function createWalletAttestationJwt(options: {
 /**
  * Creates a wallet attestation PoP JWT.
  */
-async function createWalletAttestationPopJwt(options: {
+async function _createWalletAttestationPopJwt(options: {
     holderPrivateKey: CryptoKey;
     holderPublicKey: Jwk;
     authorizationServer: string;
@@ -747,7 +747,7 @@ describe("Issuance - Wallet Attestation", () => {
             extractable: true,
         });
         const holderPrivateKeyJwk = await exportJWK(holderKeyPair.privateKey);
-        const holderPublicKeyJwk = await exportJWK(holderKeyPair.publicKey);
+        const _holderPublicKeyJwk = await exportJWK(holderKeyPair.publicKey);
 
         const client = new Openid4vciClient({
             callbacks: {

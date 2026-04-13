@@ -78,16 +78,25 @@ export class DeferredCredentialService {
     /**
      * Get the OID4VCI issuer instance for a specific tenant.
      */
-    private getIssuer(tenantId: string): Openid4vciIssuer {
-        const callbacks = this.cryptoService.getCallbackContext(tenantId);
+    private getIssuer(tenantId: string, sessionId?: string): Openid4vciIssuer {
+        const callbacks = this.cryptoService.getCallbackContext(
+            tenantId,
+            sessionId,
+        );
         return new Openid4vciIssuer({ callbacks });
     }
 
     /**
      * Get the OID4VCI resource server instance for a specific tenant.
      */
-    private getResourceServer(tenantId: string): Oauth2ResourceServer {
-        const callbacks = this.cryptoService.getCallbackContext(tenantId);
+    private getResourceServer(
+        tenantId: string,
+        sessionId?: string,
+    ): Oauth2ResourceServer {
+        const callbacks = this.cryptoService.getCallbackContext(
+            tenantId,
+            sessionId,
+        );
         return new Oauth2ResourceServer({ callbacks });
     }
 
@@ -120,7 +129,7 @@ export class DeferredCredentialService {
             "oid4vci.interval": interval,
         });
 
-        const issuer = this.getIssuer(tenantId);
+        const issuer = this.getIssuer(tenantId, session.id);
 
         // Verify the first proof to get the holder's public key
         const jwt = parsedCredentialRequest.proofs.jwt[0];

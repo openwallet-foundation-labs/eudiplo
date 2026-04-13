@@ -102,7 +102,7 @@ export class SdjwtvcIssuerService {
             disclosureFrame,
             {
                 header: {
-                    x5c: this.certService.getCertChain(certificate),
+                    x5c: this.certService.getLeafCertBase64(certificate),
                     alg: this.cryptoImplementationService.getAlg(),
                 },
             },

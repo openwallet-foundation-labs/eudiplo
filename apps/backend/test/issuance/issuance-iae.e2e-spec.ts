@@ -383,7 +383,7 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
 
     describe("Multi-step IAE Flow", () => {
         test("should complete multi-step flow (openid4vp -> redirect_to_web -> code)", async () => {
-            const codeVerifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
+            const _codeVerifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
             const codeChallenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
 
             // Step 1: Initial request supporting both interaction types

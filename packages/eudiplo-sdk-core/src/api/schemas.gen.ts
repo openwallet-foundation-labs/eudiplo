@@ -1789,6 +1789,30 @@ export const EmbeddedDisclosurePolicySchema = {
   required: ["policy"],
 } as const;
 
+export const KeyAttestationsRequiredSchema = {
+  type: "object",
+  properties: {
+    key_storage: {
+      description:
+        "List of required key storage types (e.g., iso_18045_high, iso_18045_moderate)",
+      example: ["iso_18045_high", "iso_18045_moderate"],
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+    user_authentication: {
+      description:
+        "List of required user authentication types (e.g., iso_18045_high, iso_18045_moderate)",
+      example: ["iso_18045_high", "iso_18045_moderate"],
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+  },
+} as const;
+
 export const DisplayImageSchema = {
   type: "object",
   properties: {
@@ -1874,6 +1898,15 @@ export const ClaimMetadataSchema = {
 export const IssuerMetadataCredentialConfigSchema = {
   type: "object",
   properties: {
+    keyAttestationsRequired: {
+      description:
+        "Key attestation requirements for JWT proofs for this credential.\nWhen set, this is published in proof_types_supported.jwt.key_attestations_required\nfor this specific credential configuration.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/KeyAttestationsRequired",
+        },
+      ],
+    },
     format: {
       type: "string",
       enum: ["mso_mdoc", "dc+sd-jwt"],

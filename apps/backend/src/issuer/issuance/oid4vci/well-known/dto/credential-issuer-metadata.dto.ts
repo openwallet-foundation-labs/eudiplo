@@ -44,4 +44,12 @@ export class CredentialIssuerMetadataDto {
      * Per RFC 9528 Section 9.2, enables verifiers to pre-fetch all status lists for offline validation.
      */
     status_list_aggregation_endpoint?: string;
+    /**
+     * Credential response encryption configuration.
+     */
+    credential_response_encryption?: {
+        alg_values_supported: string[];
+        enc_values_supported: string[];
+        encryption_required: boolean;
+    };
 }

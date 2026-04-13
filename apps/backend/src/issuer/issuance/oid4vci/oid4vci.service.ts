@@ -132,8 +132,11 @@ export class Oid4vciService {
      * @param tenantId The ID of the tenant.
      * @returns The OID4VCI issuer instance.
      */
-    getIssuer(tenantId: string) {
-        const callbacks = this.cryptoService.getCallbackContext(tenantId);
+    getIssuer(tenantId: string, sessionId?: string) {
+        const callbacks = this.cryptoService.getCallbackContext(
+            tenantId,
+            sessionId,
+        );
         return new Openid4vciIssuer({
             callbacks,
         });
@@ -144,8 +147,11 @@ export class Oid4vciService {
      * @param tenantId The ID of the tenant.
      * @returns The OID4VCI resource server instance.
      */
-    getResourceServer(tenantId: string) {
-        const callbacks = this.cryptoService.getCallbackContext(tenantId);
+    getResourceServer(tenantId: string, sessionId?: string) {
+        const callbacks = this.cryptoService.getCallbackContext(
+            tenantId,
+            sessionId,
+        );
         return new Oauth2ResourceServer({
             callbacks,
         });
@@ -258,6 +264,11 @@ export class Oid4vciService {
                 issuanceConfig.display !== null
                     ? issuanceConfig.display
                     : undefined,
+            credential_response_encryption: {
+                alg_values_supported: ["ECDH-ES"],
+                enc_values_supported: ["A128GCM", "A256GCM"],
+                encryption_required: false,
+            },
             batch_credential_issuance:
                 issuanceConfig?.batchSize && issuanceConfig?.batchSize > 1
                     ? {
@@ -360,7 +371,7 @@ export class Oid4vciService {
                 credentialConfigurationIds.join(","),
         });
 
-        const issuer = this.getIssuer(session.tenantId);
+        const issuer = this.getIssuer(session.tenantId, session.id);
         const issuerMetadata = await this.issuerMetadata(tenantId, issuer);
 
         return issuer
@@ -740,11 +751,55 @@ export class Oid4vciService {
         );
         issuerMetadata.knownCredentialConfigurations = known;
 
+        // Validate credential_configuration_id before parsing to return spec-compliant error code
+        const requestBody = req.body as Record<string, unknown>;
+        const requestedConfigId = requestBody.credential_configuration_id as
+            | string
+            | undefined;
+        if (requestedConfigId && !known[requestedConfigId]) {
+            throw new CredentialRequestException(
+                "unknown_credential_configuration",
+                `Credential configuration '${requestedConfigId}' is not supported`,
+            );
+        }
+
+        // Validate encryption parameters before parsing to return spec-compliant error code
+        const encryptionParams = requestBody.credential_response_encryption as
+            | Record<string, unknown>
+            | undefined;
+        if (encryptionParams) {
+            const supportedAlg =
+                issuerMetadata.credentialIssuer.credential_response_encryption
+                    ?.alg_values_supported ?? [];
+            const supportedEnc =
+                issuerMetadata.credentialIssuer.credential_response_encryption
+                    ?.enc_values_supported ?? [];
+
+            if (
+                typeof encryptionParams.alg !== "string" ||
+                !supportedAlg.includes(encryptionParams.alg)
+            ) {
+                throw new CredentialRequestException(
+                    "invalid_encryption_parameters",
+                    `Unsupported credential response encryption algorithm '${encryptionParams.alg ?? "undefined"}'. Supported: ${supportedAlg.join(", ")}`,
+                );
+            }
+            if (
+                typeof encryptionParams.enc !== "string" ||
+                !supportedEnc.includes(encryptionParams.enc)
+            ) {
+                throw new CredentialRequestException(
+                    "invalid_encryption_parameters",
+                    `Unsupported credential response encryption encoding '${encryptionParams.enc ?? "undefined"}'. Supported: ${supportedEnc.join(", ")}`,
+                );
+            }
+        }
+
         let parsedCredentialRequest: ParseCredentialRequestReturn;
         try {
             parsedCredentialRequest = issuer.parseCredentialRequest({
                 issuerMetadata,
-                credentialRequest: req.body as Record<string, unknown>,
+                credentialRequest: requestBody,
             });
         } catch (err) {
             throw new CredentialRequestException(
@@ -752,6 +807,14 @@ export class Oid4vciService {
                 err instanceof Error
                     ? err.message
                     : "The Credential Request is malformed or missing required parameters",
+            );
+        }
+
+        // Reject unknown credential identifiers (OID4VCI Section 8.3.1)
+        if (parsedCredentialRequest.credentialIdentifier) {
+            throw new CredentialRequestException(
+                "unknown_credential_identifier",
+                `Credential identifier '${parsedCredentialRequest.credentialIdentifier}' is unknown`,
             );
         }
 
@@ -865,6 +928,8 @@ export class Oid4vciService {
                 credentialRequest: parsedCredentialRequest,
                 cNonce: tokenPayload.nonce as string,
                 notificationId,
+                credentialResponseEncryption:
+                    parsedCredentialRequest.credentialResponseEncryption,
             });
         } catch (error) {
             this.auditLogger.logFlowError(logContext, error as Error, {

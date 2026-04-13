@@ -15,6 +15,13 @@
         }
       ]
     },
+    "includeRawTokensFor": {
+      "description": "List of credential IDs to include raw tokens for (e.g., ['sca_credential'])",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "url": {
       "type": "string",
       "description": "The URL to which the webhook will send notifications."

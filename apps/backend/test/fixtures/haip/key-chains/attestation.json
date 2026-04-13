@@ -11,6 +11,7 @@
         "alg": "ES256"
     },
     "rotationPolicy": {
+        "certValidityDays": 30,
         "enabled": true
     }
 }

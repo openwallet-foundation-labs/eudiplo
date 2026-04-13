@@ -233,11 +233,10 @@ async function emitOperationSchemas(doc: AnyObj, isOAS31: boolean) {
 /**
  * Add manually-created schemas that don't come from OpenAPI components.
  * These schemas are imported directly from the schemas/ directory.
+ * Currently empty - all schemas are auto-generated from the OpenAPI spec.
  */
 async function addManualSchemas() {
-  const manualSchemas = [
-    'ClaimsMetadata.schema.json',
-  ];
+  const manualSchemas: string[] = [];
 
   for (const filename of manualSchemas) {
     try {

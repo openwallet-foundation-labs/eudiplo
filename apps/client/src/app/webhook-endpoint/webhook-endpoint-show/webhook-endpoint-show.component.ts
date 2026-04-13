@@ -77,7 +77,9 @@ export class WebhookEndpointShowComponent implements OnInit {
 
   downloadConfig(): void {
     if (this.endpoint) {
-      const { tenantId, tenant, ...config } = this.endpoint as any;
+      const config = { ...(this.endpoint as any) };
+      delete config.tenantId;
+      delete config.tenant;
       const blob = new Blob([JSON.stringify(config, null, 2)], {
         type: 'application/json',
       });

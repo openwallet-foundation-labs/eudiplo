@@ -1,6 +1,6 @@
 {
     "id": "9687a941-3f89-476b-b383-aa5fea1baa8e",
-    "description": "Key chain for status list signing",
+    "description": "HAIP-compliant with CA-signed leaf",
     "usageType": "statusList",
     "key": {
         "crv": "P-256",
@@ -9,5 +9,9 @@
         "x": "HHkkbUgKSkkqXmL8utl-TLWIg8CYQS4WPJ8j_nO44Yw",
         "y": "1NJY0LT3mEuucLQCZJWNrA7fVW8ypR4Zf5cuu85NjSw",
         "alg": "ES256"
+    },
+    "rotationPolicy": {
+        "certValidityDays": 30,
+        "enabled": true
     }
 }

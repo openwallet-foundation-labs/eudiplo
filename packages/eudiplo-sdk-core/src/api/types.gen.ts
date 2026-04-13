@@ -1013,6 +1013,17 @@ export type EmbeddedDisclosurePolicy = {
   policy: string;
 };
 
+export type KeyAttestationsRequired = {
+  /**
+   * List of required key storage types (e.g., iso_18045_high, iso_18045_moderate)
+   */
+  key_storage?: Array<string>;
+  /**
+   * List of required user authentication types (e.g., iso_18045_high, iso_18045_moderate)
+   */
+  user_authentication?: Array<string>;
+};
+
 export type DisplayImage = {
   uri: string;
 };
@@ -1054,6 +1065,12 @@ export type ClaimMetadata = {
 };
 
 export type IssuerMetadataCredentialConfig = {
+  /**
+   * Key attestation requirements for JWT proofs for this credential.
+   * When set, this is published in proof_types_supported.jwt.key_attestations_required
+   * for this specific credential configuration.
+   */
+  keyAttestationsRequired?: KeyAttestationsRequired;
   format: "mso_mdoc" | "dc+sd-jwt";
   display: Array<Display>;
   scope?: string;

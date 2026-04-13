@@ -44,8 +44,11 @@ export class WalletAttestationService {
      * @param tenantId The ID of the tenant.
      * @returns The OID4VCI issuer instance.
      */
-    private getIssuer(tenantId: string): Openid4vciIssuer {
-        const callbacks = this.cryptoService.getCallbackContext(tenantId);
+    private getIssuer(tenantId: string, sessionId?: string): Openid4vciIssuer {
+        const callbacks = this.cryptoService.getCallbackContext(
+            tenantId,
+            sessionId,
+        );
         return new Openid4vciIssuer({
             callbacks,
         });

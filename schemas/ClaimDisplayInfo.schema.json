@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClaimDisplayInfo.schema.json",
+  "title": "ClaimDisplayInfo",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Human-readable name for the claim",
+      "example": "Given Name"
+    },
+    "locale": {
+      "type": "string",
+      "description": "Locale identifier (e.g., en-US, de-DE)",
+      "example": "en-US"
+    }
+  },
+  "additionalProperties": false
+}
