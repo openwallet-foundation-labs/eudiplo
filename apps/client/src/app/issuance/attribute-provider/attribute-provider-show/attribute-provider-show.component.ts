@@ -79,7 +79,9 @@ export class AttributeProviderShowComponent implements OnInit {
 
   downloadConfig(): void {
     if (this.provider) {
-      const { tenantId, tenant, ...config } = this.provider as any;
+      const config = { ...(this.provider as any) };
+      delete config.tenantId;
+      delete config.tenant;
       const blob = new Blob([JSON.stringify(config, null, 2)], {
         type: 'application/json',
       });

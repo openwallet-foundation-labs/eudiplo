@@ -290,7 +290,7 @@ describe("OIDF - oid4vci-1_0-issuer-haip-test-plan", () => {
         const encKidData = new TextEncoder().encode(
             JSON.stringify({ x: encPubJwk.x, y: encPubJwk.y }),
         );
-        const encKidHash = await globalThis.crypto.subtle.digest(
+        const _encKidHash = await globalThis.crypto.subtle.digest(
             "SHA-256",
             encKidData,
         );
