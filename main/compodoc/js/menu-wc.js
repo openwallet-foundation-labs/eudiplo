@@ -1124,6 +1124,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/JwksResponseDto.html" data-type="entity-link" >JwksResponseDto</a>
                             </li>
                             <li class="link">
+                                <a href="classes/KeyAttestationsRequired.html" data-type="entity-link" >KeyAttestationsRequired</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/KeyChainCreateDto.html" data-type="entity-link" >KeyChainCreateDto</a>
                             </li>
                             <li class="link">

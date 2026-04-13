@@ -246,7 +246,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:54</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:56</a></div>
                         </td>
                     </tr>
 
@@ -285,7 +285,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="61" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:61</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="63" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:63</a></div>
                         </td>
                     </tr>
 
@@ -321,7 +321,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:49</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="51" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:51</a></div>
                         </td>
                     </tr>
 
@@ -357,7 +357,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="51" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:51</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="53" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:53</a></div>
                         </td>
                     </tr>
 
@@ -396,7 +396,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="65" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:65</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="67" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:67</a></div>
                         </td>
                     </tr>
 
@@ -432,7 +432,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:47</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:49</a></div>
                         </td>
                     </tr>
 
@@ -470,7 +470,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="57" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:57</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="59" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:59</a></div>
                         </td>
                     </tr>
 
@@ -493,6 +493,7 @@
     ApiExtraModels,
     ApiHideProperty,
     ApiProperty,
+    ApiPropertyOptional,
     getSchemaPath,
 } from &quot;@nestjs/swagger&quot;;
 import { Type } from &quot;class-transformer&quot;;
@@ -512,6 +513,7 @@ import { KeyChainEntity } from &quot;../../../../crypto/key/entities/key-chain.e
 import { SchemaResponse } from &quot;../../../issuance/oid4vci/metadata/dto/schema-response.dto&quot;;
 import { VCT } from &quot;../../../issuance/oid4vci/metadata/dto/vct.dto&quot;;
 import { AttributeProviderEntity } from &quot;../../attribute-provider/entities/attribute-provider.entity&quot;;
+import { KeyAttestationsRequired } from &quot;../../issuance/dto/key-attestations-required.dto&quot;;
 import { WebhookEndpointEntity } from &quot;../../webhook-endpoint/entities/webhook-endpoint.entity&quot;;
 import { ClaimMetadata } from &quot;../dto/claim-metadata.dto&quot;;
 import {
@@ -619,6 +621,19 @@ export class IssuerMetadataCredentialConfig {
     @ValidateNested({ each: true })
     @Type(() &#x3D;&gt; ClaimMetadata)
     claimsMetadata?: ClaimMetadata[];
+
+    /**
+     * Key attestation requirements for JWT proofs for this credential.
+     * When set, this is published in proof_types_supported.jwt.key_attestations_required
+     * for this specific credential configuration.
+     *
+     * @see https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#appendix-F
+     */
+    @ApiPropertyOptional({ type: () &#x3D;&gt; KeyAttestationsRequired })
+    @ValidateNested()
+    @Type(() &#x3D;&gt; KeyAttestationsRequired)
+    @IsOptional()
+    keyAttestationsRequired?: KeyAttestationsRequired;
 }
 
 @ApiExtraModels(

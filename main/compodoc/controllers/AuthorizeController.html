@@ -175,10 +175,18 @@ This controller handles the authorization requests, token requests.</p>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                <a href="#challenge" >challenge</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#par" >par</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#token" >token</a>
                             </li>
@@ -229,8 +237,8 @@ This controller handles the authorization requests, token requests.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="37"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:37</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="40"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:40</a></div>
                         </td>
                     </tr>
 
@@ -306,8 +314,91 @@ This controller handles the authorization requests, token requests.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="challenge"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>challenge</b></span>
+                        <a href="#challenge"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>challenge(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Post(&#x27;challenge&#x27;)<br />@HttpCode(HttpStatus.OK)<br />@Header(&#x27;Cache-Control&#x27;, &#x27;no-store&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="109"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:109</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Client Attestation Challenge Endpoint.
+Returns a nonce for inclusion in the Client Attestation PoP JWT.
+See OAuth2-ATCA07-8</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;literal type&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="par"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
@@ -320,7 +411,7 @@ This controller handles the authorization requests, token requests.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>par(body: <a href="../classes/AuthorizeQueries.html" target="_self">AuthorizeQueries</a>)</code>
+                    <code>par(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: <a href="../classes/AuthorizeQueries.html" target="_self">AuthorizeQueries</a>, clientAttestationJwt?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientAttestationPopJwt?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -328,14 +419,14 @@ This controller handles the authorization requests, token requests.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@ApiBody({description: &#x27;Pushed Authorization Request&#x27;, type: AuthorizeQueries})<br />@ApiConsumes(&#x27;application/x-www-form-urlencoded&#x27;)<br />@Post(&#x27;par&#x27;)<br /></code>
+                    <code>@ApiBody({description: &#x27;Pushed Authorization Request&#x27;, type: AuthorizeQueries})<br />@ApiConsumes(&#x27;application/x-www-form-urlencoded&#x27;)<br />@Post(&#x27;par&#x27;)<br />@HttpCode(HttpStatus.CREATED)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="61"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:61</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="65"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:65</a></div>
                         </td>
                     </tr>
 
@@ -358,6 +449,18 @@ This controller handles the authorization requests, token requests.</p>
                                     </thead>
                                     <tbody>
                                         <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
                                                 <td>body</td>
                                             <td>
                                                             <code><a href="../classes/AuthorizeQueries.html" target="_self" >AuthorizeQueries</a></code>
@@ -365,6 +468,30 @@ This controller handles the authorization requests, token requests.</p>
 
                                             <td>
                                                     No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>clientAttestationJwt</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>clientAttestationPopJwt</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
                                             </td>
 
 
@@ -390,6 +517,7 @@ This controller handles the authorization requests, token requests.</p>
                     <a name="token"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>token</b></span>
                         <a href="#token"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -406,14 +534,14 @@ This controller handles the authorization requests, token requests.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post(&#x27;token&#x27;)<br /></code>
+                    <code>@Post(&#x27;token&#x27;)<br />@HttpCode(HttpStatus.OK)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="82"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:82</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="93"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:93</a></div>
                         </td>
                     </tr>
 
@@ -490,11 +618,14 @@ This endpoint is used to exchange the authorization code for an access token.</p
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &quot;node:crypto&quot;;
-import {
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
     Body,
     Controller,
     Get,
+    Header,
+    Headers,
+    HttpCode,
+    HttpStatus,
     Param,
     Post,
     Query,
@@ -550,17 +681,24 @@ export class AuthorizeController {
     })
     @ApiConsumes(&quot;application/x-www-form-urlencoded&quot;)
     @Post(&quot;par&quot;)
-    async par(@Body() body: AuthorizeQueries): Promise&lt;ParResponseDto&gt; {
-        const request_uri &#x3D; &#x60;urn:${randomUUID()}&#x60;;
-        // save both so we can retrieve the session also via the request_uri in the authorize step.
-        await this.sessionService.add(body.issuer_state!, {
-            request_uri,
-            auth_queries: body,
-        });
-        return {
-            expires_in: 500,
-            request_uri,
-        };
+    @HttpCode(HttpStatus.CREATED)
+    async par(
+        @Param(&quot;tenantId&quot;) tenantId: string,
+        @Body() body: AuthorizeQueries,
+        @Headers(&quot;oauth-client-attestation&quot;) clientAttestationJwt?: string,
+        @Headers(&quot;oauth-client-attestation-pop&quot;)
+        clientAttestationPopJwt?: string,
+    ): Promise&lt;ParResponseDto&gt; {
+        const clientAttestation &#x3D;
+            clientAttestationJwt &amp;&amp; clientAttestationPopJwt
+                ? { clientAttestationJwt, clientAttestationPopJwt }
+                : undefined;
+
+        return this.authorizeService.handlePar(
+            tenantId,
+            body,
+            clientAttestation,
+        );
     }
 
     /**
@@ -571,12 +709,27 @@ export class AuthorizeController {
      * @returns
      */
     @Post(&quot;token&quot;)
+    @HttpCode(HttpStatus.OK)
     token(
         @Body() body: any,
         @Req() req: Request,
         @Param(&quot;tenantId&quot;) tenantId: string,
     ): Promise&lt;any&gt; {
         return this.authorizeService.validateTokenRequest(body, req, tenantId);
+    }
+
+    /**
+     * Client Attestation Challenge Endpoint.
+     * Returns a nonce for inclusion in the Client Attestation PoP JWT.
+     * @see OAuth2-ATCA07-8
+     */
+    @Post(&quot;challenge&quot;)
+    @HttpCode(HttpStatus.OK)
+    @Header(&quot;Cache-Control&quot;, &quot;no-store&quot;)
+    challenge(
+        @Param(&quot;tenantId&quot;) tenantId: string,
+    ): Promise&lt;{ attestation_challenge: string }&gt; {
+        return this.authorizeService.challengeRequest(tenantId);
     }
 }
 </code></pre>

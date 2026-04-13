@@ -2472,7 +2472,7 @@ export class StatusListService {
         const preHeader: StatusListJWTHeaderParameters &#x3D; {
             alg: &quot;ES256&quot;,
             typ: &quot;statuslist+jwt&quot;,
-            x5c: this.certService.getCertChain(cert),
+            x5c: this.certService.getLeafCertBase64(cert),
         };
         const { header, payload } &#x3D; createHeaderAndPayload(
             list,

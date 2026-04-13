@@ -175,10 +175,18 @@
                                 <a href="#authzMetadata" >authzMetadata</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#challengeRequest" >challengeRequest</a>
+                            </li>
+                            <li>
                                 <a href="#getAuthorizationServer" >getAuthorizationServer</a>
                             </li>
                             <li>
                                 <a href="#getAuthzIssuer" >getAuthzIssuer</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#handlePar" >handlePar</a>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
@@ -213,12 +221,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, issuanceService: <a href="../injectables/IssuanceService.html" target="_self">IssuanceService</a>, walletAttestationService: <a href="../injectables/WalletAttestationService.html" target="_self">WalletAttestationService</a>, keyChainService: <a href="../injectables/KeyChainService.html" target="_self">KeyChainService</a>)</code>
+<code>constructor(configService: ConfigService, cryptoService: <a href="../injectables/CryptoService.html" target="_self">CryptoService</a>, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, issuanceService: <a href="../injectables/IssuanceService.html" target="_self">IssuanceService</a>, walletAttestationService: <a href="../injectables/WalletAttestationService.html" target="_self">WalletAttestationService</a>, keyChainService: <a href="../injectables/KeyChainService.html" target="_self">KeyChainService</a>, nonceRepository: <a href="../entitys/NonceEntity.html" target="_self">Repository&lt;NonceEntity&gt;</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="39" class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:39</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:42</a></div>
                             </td>
                         </tr>
 
@@ -307,6 +315,18 @@
                                                     </td>
                                                     
                                                 </tr>
+                                                <tr>
+                                                        <td>nonceRepository</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../entitys/NonceEntity.html" target="_self" >Repository&lt;NonceEntity&gt;</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -343,8 +363,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="99"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:99</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="110"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:110</a></div>
                         </td>
                     </tr>
 
@@ -394,6 +414,79 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="challengeRequest"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>challengeRequest</b></span>
+                        <a href="#challengeRequest"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>challengeRequest(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="167"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:167</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Client Attestation Challenge Endpoint.
+Generates and stores a nonce for use in the Client Attestation PoP JWT.
+See OAuth2-ATCA07-8</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;literal type&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="getAuthorizationServer"></a>
                     <span class="name">
                         <span ><b>getAuthorizationServer</b></span>
@@ -403,15 +496,15 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getAuthorizationServer(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>getAuthorizationServer(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, sessionId?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="50"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:50</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="55"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:55</a></div>
                         </td>
                     </tr>
 
@@ -439,6 +532,18 @@
 
                                             <td>
                                                     No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>sessionId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
                                             </td>
 
 
@@ -477,8 +582,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="95"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:95</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="106"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:106</a></div>
                         </td>
                     </tr>
 
@@ -528,6 +633,103 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="handlePar"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>handlePar</b></span>
+                        <a href="#handlePar"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>handlePar(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: <a href="../classes/AuthorizeQueries.html" target="_self">AuthorizeQueries</a>, clientAttestation?: literal type)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="184"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:184</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Handle a Pushed Authorization Request (PAR).
+Validates client attestation if provided/required, creates a session,
+and returns a request_uri for the authorize endpoint.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>body</td>
+                                            <td>
+                                                            <code><a href="../classes/AuthorizeQueries.html" target="_self" >AuthorizeQueries</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>clientAttestation</td>
+                                            <td>
+                                                        <code>literal type</code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;literal type&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="mapToTokenErrorCode"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
@@ -546,8 +748,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="66"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:66</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="77"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:77</a></div>
                         </td>
                     </tr>
 
@@ -627,8 +829,8 @@ According to OID4VCI Section 6.3:</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="151"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:151</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="220"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:220</a></div>
                         </td>
                     </tr>
 
@@ -708,8 +910,8 @@ According to OID4VCI Section 6.3:</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="357"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:357</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="433"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:433</a></div>
                         </td>
                     </tr>
 
@@ -779,8 +981,8 @@ According to OID4VCI Section 6.3:</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="186"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:186</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="255"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:255</a></div>
                         </td>
                     </tr>
 
@@ -886,7 +1088,7 @@ Returns errors according to OID4VCI Section 6.3 Token Error Response.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="39" class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:39</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:42</a></div>
                         </td>
                     </tr>
 
@@ -902,6 +1104,7 @@ Returns errors according to OID4VCI Section 6.3 Token Error Response.</p>
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &quot;node:crypto&quot;;
 import { ConflictException, Injectable, Logger } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
+import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import {
     type AuthorizationCodeGrantIdentifier,
     type AuthorizationServerMetadata,
@@ -914,12 +1117,14 @@ import {
     preAuthorizedCodeGrantIdentifier,
 } from &quot;@openid4vc/oauth2&quot;;
 import type { Request } from &quot;express&quot;;
+import { Repository } from &quot;typeorm&quot;;
 import { v4 } from &quot;uuid&quot;;
 import { CryptoService } from &quot;../../../../crypto/crypto.service&quot;;
 import { KeyChainService } from &quot;../../../../crypto/key/key-chain.service&quot;;
 import { SessionService } from &quot;../../../../session/session.service&quot;;
 import { WalletAttestationService } from &quot;../../../../shared/trust/wallet-attestation.service&quot;;
 import { IssuanceService } from &quot;../../../configuration/issuance/issuance.service&quot;;
+import { NonceEntity } from &quot;../entities/nonces.entity&quot;;
 import { TokenErrorException } from &quot;../exceptions&quot;;
 import { getHeadersFromRequest } from &quot;../util&quot;;
 import { AuthorizeQueries } from &quot;./dto/authorize-request.dto&quot;;
@@ -946,10 +1151,18 @@ export class AuthorizeService {
         private readonly issuanceService: IssuanceService,
         private readonly walletAttestationService: WalletAttestationService,
         private readonly keyChainService: KeyChainService,
+        @InjectRepository(NonceEntity)
+        private readonly nonceRepository: Repository&lt;NonceEntity&gt;,
     ) {}
 
-    getAuthorizationServer(tenantId: string): Oauth2AuthorizationServer {
-        const callbacks &#x3D; this.cryptoService.getCallbackContext(tenantId);
+    getAuthorizationServer(
+        tenantId: string,
+        sessionId?: string,
+    ): Oauth2AuthorizationServer {
+        const callbacks &#x3D; this.cryptoService.getCallbackContext(
+            tenantId,
+            sessionId,
+        );
         return new Oauth2AuthorizationServer({
             callbacks,
         });
@@ -1033,7 +1246,7 @@ export class AuthorizeService {
             metadata.token_endpoint_auth_methods_supported &#x3D; [
                 &quot;attest_jwt_client_auth&quot;,
             ];
-            metadata.client_attestation_pop_nonce_required &#x3D; true;
+            metadata.challenge_endpoint &#x3D; &#x60;${authServer}/authorize/challenge&#x60;;
             metadata.client_attestation_signing_alg_values_supported &#x3D; [
                 &quot;ES256&quot;,
             ];
@@ -1047,6 +1260,64 @@ export class AuthorizeService {
         ).createAuthorizationServerMetadata(
             metadata as any,
         ) as AuthorizationServerMetadata;
+    }
+
+    /**
+     * Client Attestation Challenge Endpoint.
+     * Generates and stores a nonce for use in the Client Attestation PoP JWT.
+     * @see OAuth2-ATCA07-8
+     */
+    async challengeRequest(
+        tenantId: string,
+    ): Promise&lt;{ attestation_challenge: string }&gt; {
+        const nonce &#x3D; v4();
+        await this.nonceRepository.save({
+            nonce,
+            tenantId,
+            expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+        });
+        return { attestation_challenge: nonce };
+    }
+
+    /**
+     * Handle a Pushed Authorization Request (PAR).
+     * Validates client attestation if provided/required, creates a session,
+     * and returns a request_uri for the authorize endpoint.
+     */
+    async handlePar(
+        tenantId: string,
+        body: AuthorizeQueries,
+        clientAttestation?: {
+            clientAttestationJwt: string;
+            clientAttestationPopJwt: string;
+        },
+    ): Promise&lt;{ expires_in: number; request_uri: string }&gt; {
+        const issuanceConfig &#x3D;
+            await this.issuanceService.getIssuanceConfiguration(tenantId);
+        const authorizationServerMetadata &#x3D; await this.authzMetadata(tenantId);
+
+        try {
+            await this.walletAttestationService.verifyWalletAttestation(
+                tenantId,
+                clientAttestation,
+                authorizationServerMetadata.issuer,
+                issuanceConfig.walletAttestationRequired ?? false,
+                issuanceConfig.walletProviderTrustLists ?? [],
+            );
+        } catch {
+            throw new TokenErrorException(
+                &quot;invalid_client&quot;,
+                &quot;Client attestation validation failed&quot;,
+            );
+        }
+
+        const request_uri &#x3D; &#x60;urn:${randomUUID()}&#x60;;
+        await this.sessionService.add(body.issuer_state!, {
+            request_uri,
+            auth_queries: body,
+        });
+
+        return { expires_in: 500, request_uri };
     }
 
     sendAuthorizationResponse(values: AuthorizeQueries, tenantId) {
@@ -1146,7 +1417,10 @@ export class AuthorizeService {
             parsedAccessTokenRequest.grant.grantType &#x3D;&#x3D;&#x3D;
             preAuthorizedCodeGrantIdentifier
         ) {
-            const { dpop } &#x3D; await this.getAuthorizationServer(tenantId)
+            const { dpop } &#x3D; await this.getAuthorizationServer(
+                tenantId,
+                session.id,
+            )
                 .verifyPreAuthorizedCodeAccessTokenRequest({
                     grant: parsedAccessTokenRequest.grant as ParsedAccessTokenPreAuthorizedCodeRequestGrant,
                     accessTokenRequest:
@@ -1184,7 +1458,10 @@ export class AuthorizeService {
             authorizationCodeGrantIdentifier
         ) {
             //TODO: handle response
-            const { dpop } &#x3D; await this.getAuthorizationServer(tenantId)
+            const { dpop } &#x3D; await this.getAuthorizationServer(
+                tenantId,
+                session.id,
+            )
                 .verifyAuthorizationCodeAccessTokenRequest({
                     grant: parsedAccessTokenRequest.grant as ParsedAccessTokenAuthorizationCodeRequestGrant,
                     accessTokenRequest:
@@ -1225,7 +1502,7 @@ export class AuthorizeService {
             signingKeyId,
         );
 
-        return this.getAuthorizationServer(tenantId)
+        return this.getAuthorizationServer(tenantId, session.id)
             .createAccessTokenResponse({
                 audience: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/issuers/${tenantId}&#x60;,
                 signer: {
@@ -1239,6 +1516,7 @@ export class AuthorizeService {
                 authorizationServer: authorizationServerMetadata.issuer,
                 clientId: req.body.client_id,
                 dpop: dpopValue,
+                refreshToken: true,
             })
             .catch((err) &#x3D;&gt; {
                 this.logger.error(&quot;Error creating access token response:&quot;, err);
