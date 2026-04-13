@@ -294,9 +294,6 @@ describe("OIDF - oid4vci-1_0-issuer-haip-test-plan", () => {
             "SHA-256",
             encKidData,
         );
-        const encKid = Buffer.from(encKidHash)
-            .toString("base64url")
-            .substring(0, 43);
 
         // Generate CA-signed certificate for client attester
         const attesterJwk = await generateCaSignedJwk({
