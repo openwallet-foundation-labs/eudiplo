@@ -286,7 +286,6 @@ describe("OIDF - oid4vci-1_0-issuer-haip-test-plan", () => {
             crv: "P-256",
             extractable: true,
         });
-        const encJwk = await exportJWK(encKeyPair.privateKey);
         const encPubJwk = await exportJWK(encKeyPair.publicKey);
         const encKidData = new TextEncoder().encode(
             JSON.stringify({ x: encPubJwk.x, y: encPubJwk.y }),
