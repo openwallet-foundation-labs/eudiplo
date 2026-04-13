@@ -375,7 +375,8 @@ export class CredentialConfigCreateComponent implements OnInit {
       // Key attestation requirements
       keyAttestationEnabled: !!(config.config as any)?.keyAttestationsRequired,
       keyStorageTypes: (config.config as any)?.keyAttestationsRequired?.key_storage || [],
-      userAuthenticationTypes: (config.config as any)?.keyAttestationsRequired?.user_authentication || [],
+      userAuthenticationTypes:
+        (config.config as any)?.keyAttestationsRequired?.user_authentication || [],
     } as { [k in keyof Omit<CredentialConfigCreate, 'config'>]: any });
 
     // Handle IAE actions
@@ -657,7 +658,9 @@ export class CredentialConfigCreateComponent implements OnInit {
       ...(formValue.keyAttestationEnabled && {
         keyAttestationsRequired: {
           key_storage: formValue.keyStorageTypes?.length ? formValue.keyStorageTypes : undefined,
-          user_authentication: formValue.userAuthenticationTypes?.length ? formValue.userAuthenticationTypes : undefined,
+          user_authentication: formValue.userAuthenticationTypes?.length
+            ? formValue.userAuthenticationTypes
+            : undefined,
         },
       }),
       // mDOC specific fields

@@ -176,6 +176,47 @@ export class AuthorizeService {
         return { attestation_challenge: nonce };
     }
 
+    /**
+     * Handle a Pushed Authorization Request (PAR).
+     * Validates client attestation if provided/required, creates a session,
+     * and returns a request_uri for the authorize endpoint.
+     */
+    async handlePar(
+        tenantId: string,
+        body: AuthorizeQueries,
+        clientAttestation?: {
+            clientAttestationJwt: string;
+            clientAttestationPopJwt: string;
+        },
+    ): Promise<{ expires_in: number; request_uri: string }> {
+        const issuanceConfig =
+            await this.issuanceService.getIssuanceConfiguration(tenantId);
+        const authorizationServerMetadata = await this.authzMetadata(tenantId);
+
+        try {
+            await this.walletAttestationService.verifyWalletAttestation(
+                tenantId,
+                clientAttestation,
+                authorizationServerMetadata.issuer,
+                issuanceConfig.walletAttestationRequired ?? false,
+                issuanceConfig.walletProviderTrustLists ?? [],
+            );
+        } catch {
+            throw new TokenErrorException(
+                "invalid_client",
+                "Client attestation validation failed",
+            );
+        }
+
+        const request_uri = `urn:${randomUUID()}`;
+        await this.sessionService.add(body.issuer_state!, {
+            request_uri,
+            auth_queries: body,
+        });
+
+        return { expires_in: 500, request_uri };
+    }
+
     sendAuthorizationResponse(values: AuthorizeQueries, tenantId) {
         if (values.request_uri) {
             return this.sessionService

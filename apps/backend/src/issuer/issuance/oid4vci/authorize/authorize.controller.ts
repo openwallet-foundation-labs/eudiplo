@@ -1,9 +1,9 @@
-import { randomUUID } from "node:crypto";
 import {
     Body,
     Controller,
     Get,
     Header,
+    Headers,
     HttpCode,
     HttpStatus,
     Param,
@@ -61,17 +61,24 @@ export class AuthorizeController {
     })
     @ApiConsumes("application/x-www-form-urlencoded")
     @Post("par")
-    async par(@Body() body: AuthorizeQueries): Promise<ParResponseDto> {
-        const request_uri = `urn:${randomUUID()}`;
-        // save both so we can retrieve the session also via the request_uri in the authorize step.
-        await this.sessionService.add(body.issuer_state!, {
-            request_uri,
-            auth_queries: body,
-        });
-        return {
-            expires_in: 500,
-            request_uri,
-        };
+    @HttpCode(HttpStatus.CREATED)
+    async par(
+        @Param("tenantId") tenantId: string,
+        @Body() body: AuthorizeQueries,
+        @Headers("oauth-client-attestation") clientAttestationJwt?: string,
+        @Headers("oauth-client-attestation-pop")
+        clientAttestationPopJwt?: string,
+    ): Promise<ParResponseDto> {
+        const clientAttestation =
+            clientAttestationJwt && clientAttestationPopJwt
+                ? { clientAttestationJwt, clientAttestationPopJwt }
+                : undefined;
+
+        return this.authorizeService.handlePar(
+            tenantId,
+            body,
+            clientAttestation,
+        );
     }
 
     /**
@@ -99,7 +106,9 @@ export class AuthorizeController {
     @Post("challenge")
     @HttpCode(HttpStatus.OK)
     @Header("Cache-Control", "no-store")
-    challenge(@Param("tenantId") tenantId: string): Promise<{ nonce: string }> {
+    challenge(
+        @Param("tenantId") tenantId: string,
+    ): Promise<{ attestation_challenge: string }> {
         return this.authorizeService.challengeRequest(tenantId);
     }
 }
