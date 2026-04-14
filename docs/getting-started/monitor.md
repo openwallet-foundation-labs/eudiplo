@@ -118,11 +118,14 @@ docker-compose up -d
 
 ## Environment Variables
 
-| Variable                      | Description               | Default                 |
-| ----------------------------- | ------------------------- | ----------------------- |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | OTLP collector endpoint   | `http://localhost:4318` |
-| `OTEL_SERVICE_NAME`           | Service name in telemetry | `eudiplo-backend`       |
-| `OTEL_SDK_DISABLED`           | Disable OTel SDK entirely | `false`                 |
+| Variable                       | Description                               | Default                 |
+| ------------------------------ | ----------------------------------------- | ----------------------- |
+| `OTEL_EXPORTER_OTLP_ENDPOINT`  | OTLP collector endpoint                   | `http://localhost:4318` |
+| `OTEL_SERVICE_NAME`            | Service name in telemetry                 | `eudiplo-backend`       |
+| `OTEL_SDK_DISABLED`            | Disable OTel SDK entirely                 | `false`                 |
+| `GRAFANA_URL`                  | Grafana base URL for dashboard deep links | _(not set)_             |
+| `GRAFANA_DATASOURCE_TEMPO_UID` | UID of the Tempo datasource in Grafana    | `tempo`                 |
+| `GRAFANA_DATASOURCE_LOKI_UID`  | UID of the Loki datasource in Grafana     | `loki`                  |
 
 Set `OTEL_SDK_DISABLED=true` for local development without a collector running.
 
@@ -219,6 +222,63 @@ All configuration files are in the `monitor/` directory:
 
 Set `OTEL_SDK_DISABLED=true` in your environment to disable all OpenTelemetry
 instrumentation when running without a collector.
+
+## Grafana Deep Links from the Dashboard
+
+The EUDIPLO client UI can link directly to Grafana for viewing logs and traces
+related to specific sessions. This improves the debugging experience by
+providing one-click navigation from the dashboard to Grafana Explore.
+
+### Setup
+
+Set the `GRAFANA_URL` environment variable on the backend to the base URL of
+your Grafana instance:
+
+```bash
+# Local development (default monitor stack)
+GRAFANA_URL=http://localhost:3001
+
+# Production example
+GRAFANA_URL=https://grafana.example.com
+```
+
+If your Grafana datasource UIDs differ from the defaults (`tempo` for Tempo,
+`loki` for Loki), also set:
+
+```bash
+GRAFANA_DATASOURCE_TEMPO_UID=my-tempo-uid
+GRAFANA_DATASOURCE_LOKI_UID=my-loki-uid
+```
+
+### Where Deep Links Appear
+
+When `GRAFANA_URL` is configured, the following links are available:
+
+| Location                     | Link                   | Opens                                          |
+| ---------------------------- | ---------------------- | ---------------------------------------------- |
+| **Dashboard** (main page)    | _Open Grafana_         | Grafana home                                   |
+| **Dashboard** (Resources)    | _Grafana Dashboard_    | Grafana home                                   |
+| **Session Details** (header) | _Logs_                 | Grafana Explore → Loki filtered by session ID  |
+| **Session Details** (header) | _Traces_               | Grafana Explore → Tempo filtered by session ID |
+| **Session Logs** tab         | _View in Grafana_      | Grafana Explore → Loki filtered by session ID  |
+| **Session Log entry**        | Trace icon (per entry) | Grafana Explore → Tempo for that trace ID      |
+
+### Graceful Degradation
+
+When `GRAFANA_URL` is **not set**, all Grafana-related links are hidden
+automatically. No configuration is required to disable the feature — it is
+opt-in by default.
+
+### Datasource UID Discovery
+
+To find your Grafana datasource UIDs:
+
+1. Open Grafana → **Connections → Data sources**
+2. Click on Tempo or Loki
+3. The UID is in the URL: `http://grafana:3000/connections/datasources/edit/<uid>`
+
+The default provisioned UIDs for the included monitor stack are `tempo` and
+`loki` (set in `monitor/grafana/provisioning/datasources/`).
 
 ## Clean Up
 

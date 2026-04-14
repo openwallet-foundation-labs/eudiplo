@@ -1,10 +1,11 @@
 import { createHash } from "node:crypto";
-import { BadRequestException, Injectable, Logger } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { digest } from "@sd-jwt/crypto-nodejs";
 import { SDJwtVcInstance, VerificationResult } from "@sd-jwt/sd-jwt-vc";
 import { KbVerifier } from "@sd-jwt/types";
 import { base64url, JWK } from "jose";
 import { Span } from "nestjs-otel";
+import { PinoLogger } from "nestjs-pino";
 import { CryptoImplementationService } from "../../../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { VerifierOptions } from "../../../../shared/trust/types";
 import { MatchedTrustedEntity } from "../../../../shared/trust/x509-validation.service";
@@ -13,13 +14,14 @@ import { CredentialChainValidationService } from "../credential-chain-validation
 
 @Injectable()
 export class SdjwtvcverifierService {
-    private readonly logger = new Logger(SdjwtvcverifierService.name);
-
     constructor(
         private readonly resolverService: ResolverService,
         private readonly cryptoService: CryptoImplementationService,
         private readonly chainValidation: CredentialChainValidationService,
-    ) {}
+        private readonly logger: PinoLogger,
+    ) {
+        this.logger.setContext(SdjwtvcverifierService.name);
+    }
 
     /**
      * Verifies an SD-JWT-VC credential.
