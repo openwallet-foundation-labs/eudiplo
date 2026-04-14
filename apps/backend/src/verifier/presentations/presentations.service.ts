@@ -1,10 +1,15 @@
 import { readFileSync } from "node:fs";
-import { ConflictException, Injectable } from "@nestjs/common";
+import {
+    BadRequestException,
+    ConflictException,
+    Injectable,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
 import { base64url, decodeJwt } from "jose";
-import { Span } from "nestjs-otel";
+import { Span, TraceService } from "nestjs-otel";
+import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
 import { ServiceTypeIdentifier } from "../../issuer/trust-list/trustlist.service";
 import { Session } from "../../session/entities/session.entity";
@@ -49,7 +54,10 @@ export class PresentationsService {
         private readonly sdjwtvcverifierService: SdjwtvcverifierService,
         private readonly mdocverifierService: MdocverifierService,
         private readonly configService: ConfigService,
+        private readonly logger: PinoLogger,
+        private readonly traceService: TraceService,
     ) {
+        this.logger.setContext(PresentationsService.name);
         // Register presentation config import in REFERENCES phase
         // This runs after CORE (keys, certs) and CONFIGURATION phases
         this.configImportOrchestrator.register(
@@ -211,6 +219,21 @@ export class PresentationsService {
         presentationConfig: PresentationConfig,
         session: Session,
     ) {
+        // Add session context to logs (Loki) and span attributes (Tempo)
+        // assign() requires nestjs-pino request scope; the @Span decorator may
+        // run the method in a separate AsyncLocalStorage context, so guard it.
+        try {
+            this.logger.assign({ sessionId: session.id });
+        } catch {
+            // Outside HTTP request scope — sessionId won't appear in logs,
+            // but span attributes below still carry it for Tempo.
+        }
+        this.traceService.getSpan()?.setAttributes({
+            "session.id": session.id,
+            "session.tenantId": session.tenantId,
+            "session.requestId": session.requestId ?? "",
+        });
+
         const attestationIds = Object.keys(res.vp_token);
         const host = this.configService.getOrThrow<string>("PUBLIC_URL");
         const tenantHost = `${host}/${presentationConfig.tenantId}`;
@@ -314,6 +337,12 @@ export class PresentationsService {
                                     },
                                     verifyOptions,
                                 );
+
+                            if (!result.verified) {
+                                throw new BadRequestException(
+                                    `mDOC verification failed for credential "${attId}"`,
+                                );
+                            }
 
                             // Validate all required claims are present in mDOC
                             this.validateMdocClaims(
@@ -480,6 +509,7 @@ export class PresentationsService {
             const claimName =
                 claim.path.length > 1 ? claim.path[1] : claim.path[0];
 
+            console.log(receivedClaims);
             // Check if claim exists in received claims
             if (!(claimName in receivedClaims)) {
                 // Format as namespace.claimName for better error message

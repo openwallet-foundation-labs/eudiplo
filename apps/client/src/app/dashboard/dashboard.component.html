@@ -317,6 +317,11 @@
         <a mat-button color="primary" routerLink="/session-management">
           <mat-icon>visibility</mat-icon> View All Sessions
         </a>
+        @if (grafanaEnabled) {
+          <button mat-button (click)="openGrafana()">
+            <mat-icon>monitoring</mat-icon> Open Grafana
+          </button>
+        }
       </mat-card-actions>
     </mat-card>
   }
@@ -430,6 +435,11 @@
         <a mat-stroked-button href="https://discord.gg/58ys8XfXDu" target="_blank" rel="noopener">
           <mat-icon>forum</mat-icon> Discord Community
         </a>
+        @if (grafanaEnabled) {
+          <button mat-stroked-button (click)="openGrafana()">
+            <mat-icon>monitoring</mat-icon> Grafana Dashboard
+          </button>
+        }
       </div>
     </mat-card-content>
   </mat-card>

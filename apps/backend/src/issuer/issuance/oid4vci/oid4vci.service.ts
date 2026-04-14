@@ -40,10 +40,8 @@ import {
     SessionStatus,
 } from "../../../session/entities/session.entity";
 import { SessionService } from "../../../session/session.service";
-import {
-    AuditLogContext,
-    AuditLogService,
-} from "../../../shared/utils/logger/audit-log.service";
+import { AuditLogContext } from "../../../shared/utils/logger/audit-log.service";
+import { SessionLoggerService } from "../../../shared/utils/logger/session-logger.service";
 import { WebhookService } from "../../../shared/utils/webhook/webhook.service";
 import { CredentialsService } from "../../configuration/credentials/credentials.service";
 import { AuthorizationIdentity } from "../../configuration/credentials/dto/authorization-identity";
@@ -96,7 +94,7 @@ export class Oid4vciService {
         public readonly credentialsService: CredentialsService,
         private readonly configService: ConfigService,
         private readonly sessionService: SessionService,
-        private readonly auditLogger: AuditLogService,
+        private readonly auditLogger: SessionLoggerService,
         private readonly issuanceService: IssuanceService,
         private readonly webhookService: WebhookService,
         private readonly httpService: HttpService,

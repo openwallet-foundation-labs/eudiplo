@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import {
     base64,
     DeviceRequest,
@@ -11,6 +11,7 @@ import {
 } from "@owf/mdoc";
 import * as x509 from "@peculiar/x509";
 import { Span } from "nestjs-otel";
+import { PinoLogger } from "nestjs-pino";
 import { VerifierOptions } from "../../../../shared/trust/types";
 import { mdocContext } from "../../mdoc-context";
 import {
@@ -46,11 +47,12 @@ interface MdocErrorDetails {
 
 @Injectable()
 export class MdocverifierService {
-    private readonly logger = new Logger(MdocverifierService.name);
-
     constructor(
         private readonly chainValidation: CredentialChainValidationService,
-    ) {}
+        private readonly logger: PinoLogger,
+    ) {
+        this.logger.setContext(MdocverifierService.name);
+    }
 
     /**
      * Verifies an mDOC credential.

@@ -3,20 +3,19 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { SessionLogEntry } from "../../../session/entities/session-log-entry.entity";
 import { AuditLogService } from "./audit-log.service";
 import { SessionLogStoreService } from "./session-log-store.service";
+import { SessionLoggerService } from "./session-logger.service";
 
 /**
- * Module for audit logging to the database.
+ * Module for audit logging.
  *
- * This module provides services for persisting audit events (flow_start, flow_complete,
- * flow_error, credential_issuance, credential_verification) to PostgreSQL for compliance
- * and audit trail purposes.
- *
- * For observability/debug logging, use `PinoLogger` directly — logs are exported to Loki
- * via the OpenTelemetry transport.
+ * Provides two services:
+ * - `AuditLogService`: persists audit events to the database only.
+ * - `SessionLoggerService`: persists to the database AND logs via PinoLogger
+ *   (exported to Loki via OpenTelemetry) for full observability.
  */
 @Module({
     imports: [TypeOrmModule.forFeature([SessionLogEntry])],
-    providers: [SessionLogStoreService, AuditLogService],
-    exports: [AuditLogService, SessionLogStoreService],
+    providers: [SessionLogStoreService, AuditLogService, SessionLoggerService],
+    exports: [AuditLogService, SessionLoggerService, SessionLogStoreService],
 })
 export class AuditLogModule {}

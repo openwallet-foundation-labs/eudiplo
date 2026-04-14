@@ -4,6 +4,24 @@
     <div fxLayout="row" fxLayoutAlign="space-between center">
       <h2>Session Details: {{ session.id }}</h2>
       <div fxLayout="row" fxLayoutGap="8px">
+        @if (grafanaEnabled) {
+          <button
+            mat-button
+            (click)="openGrafanaLogs()"
+            matTooltip="View related logs in Grafana Loki"
+          >
+            <mat-icon>description</mat-icon>
+            Logs
+          </button>
+          <button
+            mat-button
+            (click)="openGrafanaTraces()"
+            matTooltip="View related traces in Grafana Tempo"
+          >
+            <mat-icon>timeline</mat-icon>
+            Traces
+          </button>
+        }
         @if (canRecreateOffer()) {
           <button
             mat-button
@@ -398,6 +416,23 @@
       @if (sessionLogs.length > 0) {
         <mat-tab label="Logs ({{ sessionLogs.length }})">
           <div class="tab-content">
+            @if (grafanaEnabled) {
+              <div
+                class="grafana-links"
+                fxLayout="row"
+                fxLayoutGap="8px"
+                fxLayoutAlign="end center"
+              >
+                <button
+                  mat-stroked-button
+                  (click)="openGrafanaLogs()"
+                  matTooltip="View full logs in Grafana Loki"
+                >
+                  <mat-icon>open_in_new</mat-icon>
+                  View in Grafana
+                </button>
+              </div>
+            }
             <div class="log-entries">
               @for (log of sessionLogs; track log.id) {
                 <div class="log-entry" [class]="getLogLevelClass(log.level)">
@@ -409,6 +444,16 @@
                       <span class="log-stage">{{ log.stage }}</span>
                     }
                     <span class="log-timestamp">{{ formatDate(log.timestamp) }}</span>
+                    @if (grafanaEnabled && getTraceIdFromDetail(log.detail)) {
+                      <button
+                        mat-icon-button
+                        (click)="openGrafanaTrace(getTraceIdFromDetail(log.detail)!)"
+                        matTooltip="View trace in Grafana Tempo"
+                        class="trace-link-btn"
+                      >
+                        <mat-icon>timeline</mat-icon>
+                      </button>
+                    }
                   </div>
                   <div class="log-message">{{ log.message }}</div>
                   @if (log.detail) {

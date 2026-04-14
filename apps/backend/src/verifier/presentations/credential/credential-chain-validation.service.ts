@@ -1,5 +1,6 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import * as x509 from "@peculiar/x509";
+import { PinoLogger } from "nestjs-pino";
 import { StatusListVerifierService } from "../../../shared/trust/status-list-verifier.service";
 import {
     BuiltTrustStore,
@@ -61,13 +62,14 @@ export interface CertificateChainInfo {
  */
 @Injectable()
 export class CredentialChainValidationService {
-    private readonly logger = new Logger(CredentialChainValidationService.name);
-
     constructor(
         private readonly trustStore: TrustStoreService,
         private readonly x509v: X509ValidationService,
         private readonly statusListVerifier: StatusListVerifierService,
-    ) {}
+        private readonly logger: PinoLogger,
+    ) {
+        this.logger.setContext(CredentialChainValidationService.name);
+    }
 
     /**
      * Validate a certificate chain against the trust store.

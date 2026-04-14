@@ -13,6 +13,7 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import * as QRCode from 'qrcode';
 import { Session, isDcApiAvailable, type DigitalCredentialResponse } from '@eudiplo/sdk-core';
 import { SessionManagementService, type SessionLogEntry } from '../session-management.service';
+import { GrafanaLinkService } from '../../services/grafana-link.service';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { decodeJwt } from 'jose';
@@ -37,6 +38,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
   session: Session | null = null;
   loading = false;
   sessionLogs: SessionLogEntry[] = [];
+  grafanaEnabled = false;
 
   // QR Code functionality
   qrCodeDataUrl: string | null = null;
@@ -73,7 +75,8 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private snackBar: MatSnackBar,
     private router: Router,
-    private httpClient: HttpClient
+    private httpClient: HttpClient,
+    public grafanaLinkService: GrafanaLinkService
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -81,6 +84,9 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
     await this.loadSession(sessionId);
     this.loadSessionLogs(sessionId);
     await this.startPolling(sessionId);
+    this.grafanaLinkService.getConfig().then(() => {
+      this.grafanaEnabled = this.grafanaLinkService.isEnabled();
+    });
   }
 
   ngOnDestroy(): void {
@@ -403,5 +409,29 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
       default:
         return 'log-info';
     }
+  }
+
+  openGrafanaLogs(): void {
+    if (!this.session) return;
+    const from = this.session.createdAt ? new Date(this.session.createdAt) : undefined;
+    const url = this.grafanaLinkService.buildSessionLogsUrl(this.session.id, from);
+    if (url) window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
+  openGrafanaTraces(): void {
+    if (!this.session) return;
+    const url = this.grafanaLinkService.buildSessionTracesUrl(this.session.id);
+    if (url) window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
+  openGrafanaTrace(traceId: string): void {
+    const url = this.grafanaLinkService.buildTraceUrl(traceId);
+    if (url) window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
+  getTraceIdFromDetail(detail: Record<string, unknown> | undefined): string | null {
+    if (!detail) return null;
+    const traceId = detail['traceId'] ?? detail['trace_id'];
+    return typeof traceId === 'string' ? traceId : null;
   }
 }

@@ -16,6 +16,7 @@ import { Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { EnvironmentService } from '../services/environment.service';
 import { JwtService } from '../services/jwt.service';
+import { GrafanaLinkService } from '../services/grafana-link.service';
 import { appControllerGetVersion } from '@eudiplo/sdk-core';
 import { ApiService } from '../core';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -49,11 +50,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private tokenCheckInterval?: NodeJS.Timeout;
   backendVersion: string | null = null;
   clientVersion: string | null = null;
+  grafanaEnabled = false;
 
   constructor(
     public apiService: ApiService,
     public environmentService: EnvironmentService,
     public dashboardService: DashboardService,
+    public grafanaLinkService: GrafanaLinkService,
     public jwtService: JwtService,
     private readonly router: Router,
     private readonly snackBar: MatSnackBar
@@ -74,6 +77,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // Fetch dashboard stats
     this.dashboardService.getCounters();
+
+    // Load Grafana config
+    this.grafanaLinkService.getConfig().then(() => {
+      this.grafanaEnabled = this.grafanaLinkService.isEnabled();
+    });
   }
 
   ngOnDestroy(): void {
@@ -179,6 +187,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         duration: 3000,
         panelClass: ['error-snackbar'],
       });
+    }
+  }
+
+  openGrafana(): void {
+    const url = this.grafanaLinkService.getBaseUrl();
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
     }
   }
 }
