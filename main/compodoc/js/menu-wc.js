@@ -59,18 +59,21 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="modules/AuditLogModule.html" data-type="entity-link" >AuditLogModule</a>
                                 <li class="chapter inner">
                                     <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
-                                        'data-bs-target="#injectables-links-module-AuditLogModule-10c357bc95035e38ab1ae57b05aeac614c3ea8b879c415f1727365bd74d11880ad4fc87ae5a6359e25ec811a8219055850a2e873d9b35557cccfa89ff17422d0"' : 'data-bs-target="#xs-injectables-links-module-AuditLogModule-10c357bc95035e38ab1ae57b05aeac614c3ea8b879c415f1727365bd74d11880ad4fc87ae5a6359e25ec811a8219055850a2e873d9b35557cccfa89ff17422d0"' }>
+                                        'data-bs-target="#injectables-links-module-AuditLogModule-89f632c05c92d47376dd6129df95040bd0fa99db9f455889f825947452abe73ffb66a842fa6fd239c1afdd3ad4d53a2cad4c851310007671d706fde2d6c06e68"' : 'data-bs-target="#xs-injectables-links-module-AuditLogModule-89f632c05c92d47376dd6129df95040bd0fa99db9f455889f825947452abe73ffb66a842fa6fd239c1afdd3ad4d53a2cad4c851310007671d706fde2d6c06e68"' }>
                                         <span class="icon ion-md-arrow-round-down"></span>
                                         <span>Injectables</span>
                                         <span class="icon ion-ios-arrow-down"></span>
                                     </div>
-                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-AuditLogModule-10c357bc95035e38ab1ae57b05aeac614c3ea8b879c415f1727365bd74d11880ad4fc87ae5a6359e25ec811a8219055850a2e873d9b35557cccfa89ff17422d0"' :
-                                        'id="xs-injectables-links-module-AuditLogModule-10c357bc95035e38ab1ae57b05aeac614c3ea8b879c415f1727365bd74d11880ad4fc87ae5a6359e25ec811a8219055850a2e873d9b35557cccfa89ff17422d0"' }>
+                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-AuditLogModule-89f632c05c92d47376dd6129df95040bd0fa99db9f455889f825947452abe73ffb66a842fa6fd239c1afdd3ad4d53a2cad4c851310007671d706fde2d6c06e68"' :
+                                        'id="xs-injectables-links-module-AuditLogModule-89f632c05c92d47376dd6129df95040bd0fa99db9f455889f825947452abe73ffb66a842fa6fd239c1afdd3ad4d53a2cad4c851310007671d706fde2d6c06e68"' }>
                                         <li class="link">
                                             <a href="injectables/AuditLogService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >AuditLogService</a>
                                         </li>
                                         <li class="link">
                                             <a href="injectables/SessionLogStoreService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >SessionLogStoreService</a>
+                                        </li>
+                                        <li class="link">
+                                            <a href="injectables/SessionLoggerService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >SessionLoggerService</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1064,6 +1067,12 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/FlattenKeyUsageType1746000000000.html" data-type="entity-link" >FlattenKeyUsageType1746000000000</a>
                             </li>
                             <li class="link">
+                                <a href="classes/FrontendConfigResponseDto.html" data-type="entity-link" >FrontendConfigResponseDto</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/GrafanaConfigDto.html" data-type="entity-link" >GrafanaConfigDto</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/IaeActionBase.html" data-type="entity-link" >IaeActionBase</a>
                             </li>
                             <li class="link">
@@ -1378,9 +1387,6 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 </li>
                                 <li class="link">
                                     <a href="injectables/KeyRotationService.html" data-type="entity-link" >KeyRotationService</a>
-                                </li>
-                                <li class="link">
-                                    <a href="injectables/SessionLoggerService.html" data-type="entity-link" >SessionLoggerService</a>
                                 </li>
                                 <li class="link">
                                     <a href="injectables/VaultEncryptionKeyProvider.html" data-type="entity-link" >VaultEncryptionKeyProvider</a>

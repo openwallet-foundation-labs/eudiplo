@@ -207,12 +207,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, keyChainService: <a href="../injectables/KeyChainService.html" target="_self">KeyChainService</a>, encryptionService: <a href="../injectables/EncryptionService.html" target="_self">EncryptionService</a>, configService: ConfigService, presentationsService: <a href="../injectables/PresentationsService.html" target="_self">PresentationsService</a>, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, auditLogger: <a href="../injectables/AuditLogService.html" target="_self">AuditLogService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, cryptoImplementationService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, traceService: TraceService)</code>
+<code>constructor(certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, keyChainService: <a href="../injectables/KeyChainService.html" target="_self">KeyChainService</a>, encryptionService: <a href="../injectables/EncryptionService.html" target="_self">EncryptionService</a>, configService: ConfigService, presentationsService: <a href="../injectables/PresentationsService.html" target="_self">PresentationsService</a>, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, auditLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, cryptoImplementationService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, traceService: TraceService)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:29</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="27" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:27</a></div>
                             </td>
                         </tr>
 
@@ -305,7 +305,7 @@
                                                         <td>auditLogger</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../injectables/AuditLogService.html" target="_self" >AuditLogService</a></code>
+                                                                        <code><a href="../injectables/SessionLoggerService.html" target="_self" >SessionLoggerService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -393,8 +393,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="94"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:94</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="92"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:92</a></div>
                         </td>
                     </tr>
 
@@ -498,8 +498,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="277"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:277</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="275"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:275</a></div>
                         </td>
                     </tr>
 
@@ -625,8 +625,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="52"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:52</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="50"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:50</a></div>
                         </td>
                     </tr>
 
@@ -740,8 +740,8 @@ session creation, which is essential for transaction_data hash validation.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="388"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:388</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="386"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:386</a></div>
                         </td>
                     </tr>
 
@@ -828,7 +828,7 @@ session creation, which is essential for transaction_data hash validation.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:32</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:30</a></div>
                         </td>
                     </tr>
 
@@ -857,10 +857,8 @@ import { KeyChainService } from &quot;../../crypto/key/key-chain.service&quot;;
 import { OfferResponse } from &quot;../../issuer/issuance/oid4vci/dto/offer-request.dto&quot;;
 import { SessionStatus } from &quot;../../session/entities/session.entity&quot;;
 import { SessionService } from &quot;../../session/session.service&quot;;
-import {
-    AuditLogContext,
-    AuditLogService,
-} from &quot;../../shared/utils/logger/audit-log.service&quot;;
+import { AuditLogContext } from &quot;../../shared/utils/logger/audit-log.service&quot;;
+import { SessionLoggerService } from &quot;../../shared/utils/logger/session-logger.service&quot;;
 import { WebhookService } from &quot;../../shared/utils/webhook/webhook.service&quot;;
 import { AuthResponse } from &quot;../presentations/dto/auth-response.dto&quot;;
 import { IncompletePresentationException } from &quot;../presentations/exceptions/incomplete-presentation.exception&quot;;
@@ -877,7 +875,7 @@ export class Oid4vpService {
         private readonly configService: ConfigService,
         private readonly presentationsService: PresentationsService,
         private readonly sessionService: SessionService,
-        private readonly auditLogger: AuditLogService,
+        private readonly auditLogger: SessionLoggerService,
         private readonly webhookService: WebhookService,
         private readonly cryptoImplementationService: CryptoImplementationService,
         private readonly traceService: TraceService,

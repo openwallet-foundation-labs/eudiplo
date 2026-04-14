@@ -1494,6 +1494,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#grafana-deep-links-from-the-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Grafana Deep Links from the Dashboard
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Grafana Deep Links from the Dashboard">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#where-deep-links-appear" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where Deep Links Appear
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graceful-degradation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Graceful Degradation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#datasource-uid-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Datasource UID Discovery
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#clean-up" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3169,6 +3230,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#grafana-deep-links-from-the-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Grafana Deep Links from the Dashboard
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Grafana Deep Links from the Dashboard">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#where-deep-links-appear" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where Deep Links Appear
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graceful-degradation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Graceful Degradation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#datasource-uid-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Datasource UID Discovery
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#clean-up" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3396,6 +3518,21 @@ Collector's HTTP endpoint).</p>
 <td>Disable OTel SDK entirely</td>
 <td><code>false</code></td>
 </tr>
+<tr>
+<td><code>GRAFANA_URL</code></td>
+<td>Grafana base URL for dashboard deep links</td>
+<td><em>(not set)</em></td>
+</tr>
+<tr>
+<td><code>GRAFANA_DATASOURCE_TEMPO_UID</code></td>
+<td>UID of the Tempo datasource in Grafana</td>
+<td><code>tempo</code></td>
+</tr>
+<tr>
+<td><code>GRAFANA_DATASOURCE_LOKI_UID</code></td>
+<td>UID of the Loki datasource in Grafana</td>
+<td><code>loki</code></td>
+</tr>
 </tbody>
 </table>
 <p>Set <code>OTEL_SDK_DISABLED=true</code> for local development without a collector running.</p>
@@ -3526,13 +3663,87 @@ Collector's HTTP endpoint).</p>
 <h3 id="disable-telemetry-locally">Disable Telemetry Locally<a class="headerlink" href="#disable-telemetry-locally" title="Permanent link">¶</a></h3>
 <p>Set <code>OTEL_SDK_DISABLED=true</code> in your environment to disable all OpenTelemetry
 instrumentation when running without a collector.</p>
+<h2 id="grafana-deep-links-from-the-dashboard">Grafana Deep Links from the Dashboard<a class="headerlink" href="#grafana-deep-links-from-the-dashboard" title="Permanent link">¶</a></h2>
+<p>The EUDIPLO client UI can link directly to Grafana for viewing logs and traces
+related to specific sessions. This improves the debugging experience by
+providing one-click navigation from the dashboard to Grafana Explore.</p>
+<h3 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">¶</a></h3>
+<p>Set the <code>GRAFANA_URL</code> environment variable on the backend to the base URL of
+your Grafana instance:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Local development (default monitor stack)</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nv">GRAFANA_URL</span><span class="o">=</span>http://localhost:3001
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Production example</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="nv">GRAFANA_URL</span><span class="o">=</span>https://grafana.example.com
+</code></pre></div>
+<p>If your Grafana datasource UIDs differ from the defaults (<code>tempo</code> for Tempo,
+<code>loki</code> for Loki), also set:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nv">GRAFANA_DATASOURCE_TEMPO_UID</span><span class="o">=</span>my-tempo-uid
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nv">GRAFANA_DATASOURCE_LOKI_UID</span><span class="o">=</span>my-loki-uid
+</code></pre></div>
+<h3 id="where-deep-links-appear">Where Deep Links Appear<a class="headerlink" href="#where-deep-links-appear" title="Permanent link">¶</a></h3>
+<p>When <code>GRAFANA_URL</code> is configured, the following links are available:</p>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>Link</th>
+<th>Opens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dashboard</strong> (main page)</td>
+<td><em>Open Grafana</em></td>
+<td>Grafana home</td>
+</tr>
+<tr>
+<td><strong>Dashboard</strong> (Resources)</td>
+<td><em>Grafana Dashboard</em></td>
+<td>Grafana home</td>
+</tr>
+<tr>
+<td><strong>Session Details</strong> (header)</td>
+<td><em>Logs</em></td>
+<td>Grafana Explore → Loki filtered by session ID</td>
+</tr>
+<tr>
+<td><strong>Session Details</strong> (header)</td>
+<td><em>Traces</em></td>
+<td>Grafana Explore → Tempo filtered by session ID</td>
+</tr>
+<tr>
+<td><strong>Session Logs</strong> tab</td>
+<td><em>View in Grafana</em></td>
+<td>Grafana Explore → Loki filtered by session ID</td>
+</tr>
+<tr>
+<td><strong>Session Log entry</strong></td>
+<td>Trace icon (per entry)</td>
+<td>Grafana Explore → Tempo for that trace ID</td>
+</tr>
+</tbody>
+</table>
+<h3 id="graceful-degradation">Graceful Degradation<a class="headerlink" href="#graceful-degradation" title="Permanent link">¶</a></h3>
+<p>When <code>GRAFANA_URL</code> is <strong>not set</strong>, all Grafana-related links are hidden
+automatically. No configuration is required to disable the feature — it is
+opt-in by default.</p>
+<h3 id="datasource-uid-discovery">Datasource UID Discovery<a class="headerlink" href="#datasource-uid-discovery" title="Permanent link">¶</a></h3>
+<p>To find your Grafana datasource UIDs:</p>
+<ol>
+<li>Open Grafana → <strong>Connections → Data sources</strong></li>
+<li>Click on Tempo or Loki</li>
+<li>The UID is in the URL: <code>http://grafana:3000/connections/datasources/edit/&lt;uid&gt;</code></li>
+</ol>
+<p>The default provisioned UIDs for the included monitor stack are <code>tempo</code> and
+<code>loki</code> (set in <code>monitor/grafana/provisioning/datasources/</code>).</p>
 <h2 id="clean-up">Clean Up<a class="headerlink" href="#clean-up" title="Permanent link">¶</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Stop monitoring stack</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nb">cd</span><span class="w"> </span>monitor/
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>docker-compose<span class="w"> </span>down
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="c1"># Remove volumes (deletes all data)</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>docker-compose<span class="w"> </span>down<span class="w"> </span>-v
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Stop monitoring stack</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nb">cd</span><span class="w"> </span>monitor/
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>docker-compose<span class="w"> </span>down
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="c1"># Remove volumes (deletes all data)</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>docker-compose<span class="w"> </span>down<span class="w"> </span>-v
 </code></pre></div>
 
 

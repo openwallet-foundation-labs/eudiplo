@@ -571,6 +571,22 @@
         .default(&quot;../../tmp&quot;)
         .description(&quot;Root working folder for temp files&quot;)
         .meta({ group: &quot;general&quot;, order: 10 }),
+    GRAFANA_URL: Joi.string()
+        .uri({ scheme: [&quot;http&quot;, &quot;https&quot;] })
+        .optional()
+        .allow(&quot;&quot;)
+        .description(
+            &quot;Base URL of the Grafana instance for deep linking from the dashboard UI&quot;,
+        )
+        .meta({ group: &quot;observability&quot;, order: 10 }),
+    GRAFANA_DATASOURCE_TEMPO_UID: Joi.string()
+        .default(&quot;tempo&quot;)
+        .description(&quot;UID of the Tempo data source in Grafana&quot;)
+        .meta({ group: &quot;observability&quot;, order: 20 }),
+    GRAFANA_DATASOURCE_LOKI_UID: Joi.string()
+        .default(&quot;loki&quot;)
+        .description(&quot;UID of the Loki data source in Grafana&quot;)
+        .meta({ group: &quot;observability&quot;, order: 30 }),
 }).unknown(true)</code>
                     </td>
                 </tr>

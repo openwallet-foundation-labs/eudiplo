@@ -377,7 +377,7 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, Logger } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
 import {
     base64,
     DeviceRequest,
@@ -390,6 +390,7 @@ import {
 } from &quot;@owf/mdoc&quot;;
 import * as x509 from &quot;@peculiar/x509&quot;;
 import { Span } from &quot;nestjs-otel&quot;;
+import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { VerifierOptions } from &quot;../../../../shared/trust/types&quot;;
 import { mdocContext } from &quot;../../mdoc-context&quot;;
 import {
@@ -425,11 +426,12 @@ interface MdocErrorDetails {
 
 @Injectable()
 export class MdocverifierService {
-    private readonly logger &#x3D; new Logger(MdocverifierService.name);
-
     constructor(
         private readonly chainValidation: CredentialChainValidationService,
-    ) {}
+        private readonly logger: PinoLogger,
+    ) {
+        this.logger.setContext(MdocverifierService.name);
+    }
 
     /**
      * Verifies an mDOC credential.
