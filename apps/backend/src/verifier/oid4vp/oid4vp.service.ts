@@ -14,10 +14,8 @@ import { KeyChainService } from "../../crypto/key/key-chain.service";
 import { OfferResponse } from "../../issuer/issuance/oid4vci/dto/offer-request.dto";
 import { SessionStatus } from "../../session/entities/session.entity";
 import { SessionService } from "../../session/session.service";
-import {
-    AuditLogContext,
-    AuditLogService,
-} from "../../shared/utils/logger/audit-log.service";
+import { AuditLogContext } from "../../shared/utils/logger/audit-log.service";
+import { SessionLoggerService } from "../../shared/utils/logger/session-logger.service";
 import { WebhookService } from "../../shared/utils/webhook/webhook.service";
 import { AuthResponse } from "../presentations/dto/auth-response.dto";
 import { IncompletePresentationException } from "../presentations/exceptions/incomplete-presentation.exception";
@@ -34,7 +32,7 @@ export class Oid4vpService {
         private readonly configService: ConfigService,
         private readonly presentationsService: PresentationsService,
         private readonly sessionService: SessionService,
-        private readonly auditLogger: AuditLogService,
+        private readonly auditLogger: SessionLoggerService,
         private readonly webhookService: WebhookService,
         private readonly cryptoImplementationService: CryptoImplementationService,
         private readonly traceService: TraceService,
