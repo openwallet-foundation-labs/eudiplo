@@ -138,7 +138,7 @@
         "ts-node": "^10.9.2",
         "tsconfig-paths": "^4.2.0",
         "tsx": "^4.21.0",
-        "typescript": "^5.9.3",
+        "typescript": "^6.0.2",
         "unplugin-swc": "^1.5.9",
         "vitest": "4.1.4"
     },
