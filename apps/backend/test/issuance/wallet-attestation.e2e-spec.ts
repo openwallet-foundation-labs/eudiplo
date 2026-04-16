@@ -146,27 +146,30 @@ async function createMockTrustListJwt(
     }
 
     const lotePayload = {
-        ListAndSchemeInformation: {
-            LoTEVersionIdentifier: 1,
-            LoTESequenceNumber: 1,
-            LoTEType: "http://uri.etsi.org/19602/LoTEType/EUEAAProvidersList",
-            StatusDeterminationApproach:
-                "http://uri.etsi.org/19602/EUEAAProvidersList/StatusDetn/EU",
-            SchemeTerritory: "EU",
-            NextUpdate: new Date(
-                Date.now() + 365 * 24 * 60 * 60 * 1000,
-            ).toISOString(),
-            ListIssueDateTime: new Date().toISOString(),
-            SchemeOperatorName: [{ lang: "en", value: "Test Operator" }],
-        },
-        TrustedEntitiesList: [
-            {
-                TrustedEntityInformation: {
-                    TEName: [{ lang: "en", value: "Test Wallet Provider" }],
-                },
-                TrustedEntityServices: services,
+        LoTE: {
+            ListAndSchemeInformation: {
+                LoTEVersionIdentifier: 1,
+                LoTESequenceNumber: 1,
+                LoTEType:
+                    "http://uri.etsi.org/19602/LoTEType/EUEAAProvidersList",
+                StatusDeterminationApproach:
+                    "http://uri.etsi.org/19602/EUEAAProvidersList/StatusDetn/EU",
+                SchemeTerritory: "EU",
+                NextUpdate: new Date(
+                    Date.now() + 365 * 24 * 60 * 60 * 1000,
+                ).toISOString(),
+                ListIssueDateTime: new Date().toISOString(),
+                SchemeOperatorName: [{ lang: "en", value: "Test Operator" }],
             },
-        ],
+            TrustedEntitiesList: [
+                {
+                    TrustedEntityInformation: {
+                        TEName: [{ lang: "en", value: "Test Wallet Provider" }],
+                    },
+                    TrustedEntityServices: services,
+                },
+            ],
+        },
     };
 
     const jwt = await new SignJWT(lotePayload)
