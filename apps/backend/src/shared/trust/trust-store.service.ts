@@ -39,13 +39,13 @@ export class TrustStoreService {
             this.logger.debug(`Fetching trust list from: ${ref.url}`);
             const jwt = await this.trustListJwt.fetchJwt(ref.url);
             await this.trustListJwt.verifyTrustListJwt(ref, jwt); // hook
-            const decoded = decodeJwt<LoTE>(jwt);
+            const decoded = decodeJwt<{ LoTE: LoTE }>(jwt);
 
             this.logger.debug(
-                `Decoded LoTE from ${ref.url}: TrustedEntitiesList has ${decoded.TrustedEntitiesList?.length ?? 0} raw entries`,
+                `Decoded LoTE from ${ref.url}: TrustedEntitiesList has ${decoded.LoTE.TrustedEntitiesList?.length ?? 0} raw entries`,
             );
 
-            let parsed = this.loteParser.parse(decoded);
+            let parsed = this.loteParser.parse(decoded.LoTE);
             this.logger.debug(
                 `Parsed ${parsed.entities.length} entities from ${ref.url}`,
             );

@@ -1,9 +1,11 @@
+import "reflect-metadata";
 import { INestApplication } from "@nestjs/common";
 import {
     Openid4vpAuthorizationRequest,
     Openid4vpClient,
 } from "@openid4vc/openid4vp";
-import { CryptoKey } from "jose";
+import * as x509Lib from "@peculiar/x509";
+import { CryptoKey, generateKeyPair } from "jose";
 import request from "supertest";
 import { App } from "supertest/types";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
@@ -163,5 +165,99 @@ describe("Presentation - mDOC Credential", () => {
         const claims = credentialSet.values[0];
         expect(claims.first_name).toBe("First");
         expect(claims.last_name).toBe("Last");
+    });
+
+    test("should reject mDOC credential signed by untrusted issuer (not in trust list)", async () => {
+        // Generate a new key pair that is NOT in the trust list
+        const untrustedKeyPair = await generateKeyPair("ES256", {
+            extractable: true,
+        });
+
+        // Generate a self-signed certificate for the untrusted key
+        x509Lib.cryptoProvider.set(globalThis.crypto);
+        const untrustedCert =
+            await x509Lib.X509CertificateGenerator.createSelfSigned({
+                serialNumber: "01",
+                name: "CN=Untrusted mDOC Issuer",
+                notBefore: new Date(),
+                notAfter: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+                signingAlgorithm: { name: "ECDSA", hash: "SHA-256" },
+                keys: {
+                    privateKey: untrustedKeyPair.privateKey,
+                    publicKey: untrustedKeyPair.publicKey,
+                },
+            });
+
+        // Convert certificate to PEM for mDOC
+        const untrustedCertPem = untrustedCert.toString("pem");
+
+        // Create a presentation request
+        const requestBody: PresentationRequest = {
+            response_type: ResponseType.URI,
+            requestId: "pid-de",
+        };
+
+        const res = await createPresentationRequest(
+            app,
+            authToken,
+            requestBody,
+        );
+
+        const sessionId = res.body.session;
+
+        const authRequest = client.parseOpenid4vpAuthorizationRequest({
+            authorizationRequest: res.body.uri,
+        });
+
+        const resolved = await client.resolveOpenId4vpAuthorizationRequest({
+            authorizationRequestPayload: authRequest.params,
+            responseMode: { type: "direct_post" },
+        });
+
+        // Create mDOC credential signed with the UNTRUSTED key
+        const vp_token = await prepareMdocPresentation(
+            resolved.authorizationRequestPayload.nonce,
+            untrustedKeyPair.privateKey,
+            untrustedCertPem,
+            resolved.authorizationRequestPayload.client_id!,
+            resolved.authorizationRequestPayload.response_uri as string,
+        );
+
+        const jwt = await encryptVpToken(vp_token, "pid-mso-mdoc", resolved);
+
+        const authorizationResponse =
+            await client.createOpenid4vpAuthorizationResponse({
+                authorizationRequestPayload: authRequest.params,
+                authorizationResponsePayload: {
+                    response: jwt,
+                },
+                ...callbacks,
+            });
+
+        // Submit the presentation - should fail
+        const submitRes = await client.submitOpenid4vpAuthorizationResponse({
+            authorizationResponsePayload:
+                authorizationResponse.authorizationResponsePayload,
+            authorizationRequestPayload:
+                resolved.authorizationRequestPayload as Openid4vpAuthorizationRequest,
+        });
+
+        // The submission should succeed (200 per OID4VP spec) but session should fail
+        expect(submitRes.response.status).toBe(200);
+
+        // Verify the session is marked as failed with trust-related error
+        const sessionRes = await request(app.getHttpServer())
+            .get(`/session/${sessionId}`)
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .expect(200);
+
+        expect(sessionRes.body.status).toBe("failed");
+        // Error should mention trust chain, signature validation, or untrusted issuer
+        // The system may fail at signature verification (when x5c doesn't chain to trust anchor)
+        // or at trust list matching - both indicate credential rejection from untrusted source
+        expect(sessionRes.body.errorReason).toMatch(
+            /trust|chain|no_trusted_entity_match|invalid|failed/i,
+        );
     });
 });
