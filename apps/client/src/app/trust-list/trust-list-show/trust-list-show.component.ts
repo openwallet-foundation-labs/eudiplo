@@ -128,15 +128,15 @@ export class TrustListShowComponent implements OnInit {
   }
 
   getTrustedEntitiesCount(): number {
-    const data = this.trustList?.data as { TrustedEntitiesList?: unknown[] } | undefined;
-    return data?.TrustedEntitiesList?.length ?? 0;
+    const data = this.trustList?.data as { LoTE?: { TrustedEntitiesList?: unknown[] } } | undefined;
+    return data?.LoTE?.TrustedEntitiesList?.length ?? 0;
   }
 
   private buildPublicUrl(): void {
     if (this.trustList) {
       const baseUrl = this.apiService.getBaseUrl() || '';
       const tenantId = this.trustList.tenantId;
-      this.publicUrl = `${baseUrl}/${tenantId}/trust-list/${this.trustList.id}`;
+      this.publicUrl = `${baseUrl}/issuers/${tenantId}/trust-list/${this.trustList.id}`;
     }
   }
 

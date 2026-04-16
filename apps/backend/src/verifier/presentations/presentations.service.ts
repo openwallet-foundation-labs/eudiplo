@@ -236,7 +236,7 @@ export class PresentationsService {
 
         const attestationIds = Object.keys(res.vp_token);
         const host = this.configService.getOrThrow<string>("PUBLIC_URL");
-        const tenantHost = `${host}/${presentationConfig.tenantId}`;
+        const tenantHost = `${host}/issuers/${presentationConfig.tenantId}`;
 
         // Validate credential completeness - ensure all required credentials are present
         this.validateCredentialCompleteness(
