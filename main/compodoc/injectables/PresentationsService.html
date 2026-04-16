@@ -1781,7 +1781,7 @@ export class PresentationsService {
 
         const attestationIds &#x3D; Object.keys(res.vp_token);
         const host &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
-        const tenantHost &#x3D; &#x60;${host}/${presentationConfig.tenantId}&#x60;;
+        const tenantHost &#x3D; &#x60;${host}/issuers/${presentationConfig.tenantId}&#x60;;
 
         // Validate credential completeness - ensure all required credentials are present
         this.validateCredentialCompleteness(
