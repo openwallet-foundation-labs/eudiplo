@@ -8,7 +8,19 @@ To interact with an EUDI Wallet, two types of certificates are required:
 You can still use EUDIPLO without these certificates, but it can result in
 warnings when making requests to the EUDI Wallet.
 
-## Per-Tenant Configuration
+---
+
+## Prerequisites
+
+!!! warning "Role Required"
+
+    To see the **Registrar** menu in the client, your tenant must have the
+    `registrar:manage` role assigned. When creating a tenant, make sure to
+    select this role (or select "All roles" for a full setup).
+
+---
+
+## Step 1: Configure Registrar Credentials
 
 Each tenant can configure their own registrar connection with OIDC credentials.
 This allows different tenants to connect to different registrar instances or
@@ -26,8 +38,12 @@ use different credentials for the same registrar.
     - **Password**: Your registrar account password
 3. Click **Save Configuration**
 
-The credentials will be validated before saving. If authentication fails, you'll
-receive an error message.
+!!! info "Credential Validation"
+
+    When you save the configuration, EUDIPLO validates your credentials by
+    attempting to authenticate with the registrar's OIDC endpoint. If
+    authentication fails, you'll receive an error message and the
+    configuration will not be saved.
 
 ### Via Configuration File
 
@@ -44,18 +60,34 @@ tenant's configuration folder:
 }
 ```
 
-## Access Certificate
+!!! note "File Import Behavior"
 
-Once the registrar is configured, you can create access certificates for your key chains:
+    When importing from a configuration file during startup, credentials are
+    **not** validated (the registrar might not be reachable during initial setup).
+    Make sure your credentials are correct before relying on the configuration.
 
-### Via the Web UI
+---
 
-1. Navigate to **Registrar** in the sidebar
-2. In the "Create Access Certificate" section, select a key chain from the dropdown
-3. Click **Create Certificate**
+## Step 2: Create an Access Certificate
 
-The certificate will be automatically stored in the key chain and you'll be redirected
-to the key chain detail page.
+Once the registrar is configured, you can create access certificates via the
+Key Creation Wizard.
+
+### Via the Key Creation Wizard
+
+1. Navigate to **Keys** in the sidebar
+2. Click **+ Create Key** to open the wizard
+3. Select **Access Certificate** as the key usage
+4. Select **Registrar Enrollment** as the access source
+5. Enter a name for the key chain
+6. Click **Create**
+
+The wizard will:
+
+- Create a new key chain
+- Generate a signing key
+- Request an access certificate from the registrar
+- Store the certificate in the key chain
 
 ### Via the API
 
@@ -72,8 +104,12 @@ The response includes:
 - `keyChainId`: The local EUDIPLO key chain ID
 - `crt`: The certificate content
 
+---
+
 ## Registration Certificate
 
 !!! note "Coming Soon"
 
-    Registration Certificate creation through EUDIPLO is not yet implemented. Currently, registration certificates must be managed directly through the registrar's interface.
+    Registration Certificate creation through EUDIPLO is not yet implemented.
+    Currently, registration certificates must be managed directly through the
+    registrar's interface.
