@@ -75,7 +75,7 @@
         "@opentelemetry/sdk-node": "^0.214.0",
         "@opentelemetry/sdk-trace-base": "^2.6.1",
         "@opentelemetry/semantic-conventions": "^1.40.0",
-        "@owf/eudi-lote": "0.1.0-alpha-20260407070950",
+        "@owf/eudi-lote": "0.1.0-alpha-20260413140001",
         "@owf/mdoc": "0.6.0",
         "@owf/token-status-list": "0.1.0-alpha-20260413140001",
         "@panva/hkdf": "^1.2.1",

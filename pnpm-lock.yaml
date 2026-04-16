@@ -175,8 +175,8 @@ importers:
         specifier: ^1.40.0
         version: 1.40.0
       '@owf/eudi-lote':
-        specifier: 0.1.0-alpha-20260407070950
-        version: 0.1.0-alpha-20260407070950
+        specifier: 0.1.0-alpha-20260413140001
+        version: 0.1.0-alpha-20260413140001
       '@owf/mdoc':
         specifier: 0.6.0
         version: 0.6.0
@@ -3660,14 +3660,11 @@ packages:
     peerDependencies:
       '@opentelemetry/api': ^1.1.0
 
-  '@owf/crypto@0.1.0-alpha-20260407070950':
-    resolution: {integrity: sha512-3VsPFnSt6iteKZPeoFHhVtbMBugkgb9nBVAe+pRWzXDikZ+fEjuirB7dypZB1EQUsaWpzDQTL2B17SRLQSJJrw==}
+  '@owf/crypto@0.1.0-alpha-20260413140001':
+    resolution: {integrity: sha512-XtKoOGMyZrlk0tEQOgxV9gPZBCOTr2vUXpQhqtT1SgxHfsu8bIKtSoFqHSRTrYAEUVDHGSqiRHDKdWLvjKCB1w==}
 
-  '@owf/eudi-lote@0.1.0-alpha-20260407070950':
-    resolution: {integrity: sha512-pDtxBFWQb5hQjOcK9SS+l9ixzRGRzIvAKd+QaUWMizetpwbZSqWVr7rMreJs3vHrES3+kRNaEDa/b4OCfxDfWA==}
-
-  '@owf/identity-common@0.1.0-alpha-20260407070950':
-    resolution: {integrity: sha512-QKinAtOg5GE/OB22z9mwI0aEsefWXHdYRxHwZkI+fG7JPTo9clD5IC6hQrybuZxJ7hxUI96hnc94ej0zYMD25A==}
+  '@owf/eudi-lote@0.1.0-alpha-20260413140001':
+    resolution: {integrity: sha512-2DUAruXcFqRklfMIVKgU05WzNpmI7XcICEm++jovxyftAeRMUuVhdMwt3JPwm0vPh5kQiltF+uL74G/CCu7H1A==}
 
   '@owf/identity-common@0.1.0-alpha-20260413140001':
     resolution: {integrity: sha512-9r2GjEfVBz5x7YTv4b7QR0KFmSdD/Urz8pKEvO+g31sYqma2P6+1MWIOw1JzXOuqXL0jWHZWRPAymoeZekJtkw==}
@@ -14836,18 +14833,16 @@ snapshots:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/core': 2.6.1(@opentelemetry/api@1.9.1)
 
-  '@owf/crypto@0.1.0-alpha-20260407070950':
+  '@owf/crypto@0.1.0-alpha-20260413140001':
     dependencies:
       '@noble/hashes': 2.2.0
-      '@owf/identity-common': 0.1.0-alpha-20260407070950
+      '@owf/identity-common': 0.1.0-alpha-20260413140001
 
-  '@owf/eudi-lote@0.1.0-alpha-20260407070950':
+  '@owf/eudi-lote@0.1.0-alpha-20260413140001':
     dependencies:
-      '@owf/crypto': 0.1.0-alpha-20260407070950
-      '@owf/identity-common': 0.1.0-alpha-20260407070950
+      '@owf/crypto': 0.1.0-alpha-20260413140001
+      '@owf/identity-common': 0.1.0-alpha-20260413140001
       zod: 4.3.6
-
-  '@owf/identity-common@0.1.0-alpha-20260407070950': {}
 
   '@owf/identity-common@0.1.0-alpha-20260413140001': {}
 
