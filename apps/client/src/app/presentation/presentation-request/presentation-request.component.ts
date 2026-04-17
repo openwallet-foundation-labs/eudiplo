@@ -80,9 +80,7 @@ export class PresentationRequestComponent implements OnInit {
       this.configs = await this.presentationManagementService.loadConfigurations();
 
       // Check for pre-fill data from navigation state (recreate offer flow)
-      const prefillData = history.state?.presentationRequest as
-        | { requestId: string }
-        | undefined;
+      const prefillData = history.state?.presentationRequest as { requestId: string } | undefined;
       if (prefillData?.requestId) {
         this.form.patchValue({ requestId: prefillData.requestId });
       } else if (this.route.snapshot.params['id']) {
