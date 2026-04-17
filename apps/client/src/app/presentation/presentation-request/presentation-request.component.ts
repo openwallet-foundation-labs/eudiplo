@@ -78,7 +78,14 @@ export class PresentationRequestComponent implements OnInit {
     this.loading = true;
     try {
       this.configs = await this.presentationManagementService.loadConfigurations();
-      if (this.route.snapshot.params['id']) {
+
+      // Check for pre-fill data from navigation state (recreate offer flow)
+      const prefillData = history.state?.presentationRequest as
+        | { requestId: string }
+        | undefined;
+      if (prefillData?.requestId) {
+        this.form.patchValue({ requestId: prefillData.requestId });
+      } else if (this.route.snapshot.params['id']) {
         this.form.patchValue({ requestId: this.route.snapshot.params['id'] });
         //since we do not have any other values for now, we can submit the form
         this.onSubmit();
