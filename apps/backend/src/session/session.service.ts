@@ -183,6 +183,14 @@ export class SessionService implements OnApplicationBootstrap {
     }
 
     /**
+     * Find a session by its walletNonce (used in wallet-facing URLs).
+     * Returns null if no session matches.
+     */
+    findByWalletNonce(nonce: string) {
+        return this.sessionRepository.findOneBy({ walletNonce: nonce });
+    }
+
+    /**
      * Get a session by a specific condition.
      * @param where
      * @returns
