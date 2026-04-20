@@ -379,6 +379,47 @@ describe("Interactive Authorization Endpoint (IAE)", () => {
                 "/authorize/interactive",
             );
         });
+
+        test("should include status_list_aggregation_endpoint in metadata when aggregation is enabled", async () => {
+            const response = await request(app.getHttpServer())
+                .get(
+                    `/.well-known/oauth-authorization-server/issuers/${tenantId}`,
+                )
+                .expect(200);
+
+            expect(
+                response.body.status_list_aggregation_endpoint,
+            ).toBeDefined();
+            expect(response.body.status_list_aggregation_endpoint).toContain(
+                "/status-management/status-list-aggregation",
+            );
+        });
+
+        test("should not include status_list_aggregation_endpoint when aggregation is disabled", async () => {
+            // Disable aggregation for this tenant
+            await request(app.getHttpServer())
+                .put("/status-list-config")
+                .set("Authorization", `Bearer ${authToken}`)
+                .send({ enableAggregation: false })
+                .expect(200);
+
+            const response = await request(app.getHttpServer())
+                .get(
+                    `/.well-known/oauth-authorization-server/issuers/${tenantId}`,
+                )
+                .expect(200);
+
+            expect(
+                response.body.status_list_aggregation_endpoint,
+            ).toBeUndefined();
+
+            // Re-enable aggregation to not affect other tests
+            await request(app.getHttpServer())
+                .put("/status-list-config")
+                .set("Authorization", `Bearer ${authToken}`)
+                .send({ enableAggregation: true })
+                .expect(200);
+        });
     });
 
     describe("Multi-step IAE Flow", () => {
