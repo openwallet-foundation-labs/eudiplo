@@ -833,6 +833,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                         </div>
                         <ul class="links collapse " ${ isNormalMode ? 'id="classes-links"' : 'id="xs-classes-links"' }>
                             <li class="link">
+                                <a href="classes/AddDirectPostSecurityFields1751000000000.html" data-type="entity-link" >AddDirectPostSecurityFields1751000000000</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/AddExternalKeyId1742000000000.html" data-type="entity-link" >AddExternalKeyId1742000000000</a>
                             </li>
                             <li class="link">

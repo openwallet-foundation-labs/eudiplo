@@ -189,6 +189,11 @@
                                     <span class="modifier">Async</span>
                                 <a href="#getResponse" >getResponse</a>
                             </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#resolveSessionByNonce" >resolveSessionByNonce</a>
+                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -393,8 +398,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="92"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:92</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="106"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:106</a></div>
                         </td>
                     </tr>
 
@@ -498,8 +503,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="275"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:275</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="294"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:294</a></div>
                         </td>
                     </tr>
 
@@ -611,7 +616,7 @@ It initializes the session logging context and logs the start of the flow.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getAuthorizationRequest(sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, origin: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, noRedirect: unknown)</code>
+                    <code>getAuthorizationRequest(nonce: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, origin: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, noRedirect: unknown)</code>
                 </td>
             </tr>
 
@@ -625,8 +630,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="50"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:50</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="64"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:64</a></div>
                         </td>
                     </tr>
 
@@ -654,7 +659,7 @@ session creation, which is essential for transaction_data hash validation.</p>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>sessionId</td>
+                                                <td>nonce</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -726,7 +731,7 @@ session creation, which is essential for transaction_data hash validation.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getResponse(body: <a href="../classes/AuthorizationResponse.html" target="_self">AuthorizationResponse</a>, sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>getResponse(body: <a href="../classes/AuthorizationResponse.html" target="_self">AuthorizationResponse</a>, nonce: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -740,15 +745,113 @@ session creation, which is essential for transaction_data hash validation.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="386"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:386</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="413"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:413</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Processes the response from the wallet.</p>
+                        <div class="io-description"><p>Processes the response from the wallet.
+Per OID4VP spec Section 13.3, the nonce parameter is the walletNonce
+from the URL path (not the session ID).</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>body</td>
+                                            <td>
+                                                            <code><a href="../classes/AuthorizationResponse.html" target="_self" >AuthorizationResponse</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>nonce</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>walletNonce from the URL path (or session ID for legacy sessions)</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="resolveSessionByNonce"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>resolveSessionByNonce</b></span>
+                        <a href="#resolveSessionByNonce"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>resolveSessionByNonce(nonce: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="47"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:47</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Resolves a session from a wallet-facing nonce.
+Per OID4VP spec Section 13.3, wallet-facing URLs use a separate walletNonce
+instead of the session ID. Falls back to session ID lookup for backward
+compatibility with sessions created before the walletNonce migration.</p>
 </div>
 
                             <div class="io-description">
@@ -764,19 +867,7 @@ session creation, which is essential for transaction_data hash validation.</p>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>body</td>
-                                            <td>
-                                                            <code><a href="../classes/AuthorizationResponse.html" target="_self" >AuthorizationResponse</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>sessionId</td>
+                                                <td>nonce</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -882,6 +973,20 @@ export class Oid4vpService {
     ) {}
 
     /**
+     * Resolves a session from a wallet-facing nonce.
+     * Per OID4VP spec Section 13.3, wallet-facing URLs use a separate walletNonce
+     * instead of the session ID. Falls back to session ID lookup for backward
+     * compatibility with sessions created before the walletNonce migration.
+     */
+    private async resolveSessionByNonce(nonce: string) {
+        const session &#x3D; await this.sessionService.findByWalletNonce(nonce);
+        if (session) {
+            return session;
+        }
+        return this.sessionService.get(nonce);
+    }
+
+    /**
      * Gets the authorization request for a session.
      * Returns the cached requestObject if available (for request_uri_method&#x3D;&quot;get&quot;),
      * otherwise generates a new one.
@@ -891,11 +996,11 @@ export class Oid4vpService {
      */
     @Span(&quot;oid4vp.getAuthorizationRequest&quot;)
     async getAuthorizationRequest(
-        sessionId: string,
+        nonce: string,
         origin: string,
         noRedirect &#x3D; false,
     ): Promise&lt;string&gt; {
-        const session &#x3D; await this.sessionService.get(sessionId);
+        const session &#x3D; await this.resolveSessionByNonce(nonce);
 
         // Add session context to span for trace correlation
         const span &#x3D; this.traceService.getSpan();
@@ -919,7 +1024,7 @@ export class Oid4vpService {
         }
 
         // No cached request - generate new one (for request_uri_method&#x3D;&quot;post&quot; flows)
-        return this.createAuthorizationRequest(sessionId, origin, noRedirect);
+        return this.createAuthorizationRequest(session.id, origin, noRedirect);
     }
 
     /**
@@ -1030,11 +1135,16 @@ export class Oid4vpService {
                 )?.map((td) &#x3D;&gt; base64url.encode(JSON.stringify(td))) ||
                 undefined;
 
+            // Per OID4VP spec Section 13.3: use walletNonce in wallet-facing URLs
+            // to separate the wallet-facing identifier (request-id) from the
+            // frontend-facing session ID (transaction-id).
+            const walletFacingId &#x3D; session.walletNonce ?? session.id;
+
             const request &#x3D; {
                 payload: {
                     response_type: &quot;vp_token&quot;,
                     client_id: &quot;x509_hash:&quot; + certHash,
-                    response_uri: &#x60;${host}/presentations/${session.id}/oid4vp&#x60;,
+                    response_uri: &#x60;${host}/presentations/${walletFacingId}/oid4vp&#x60;,
                     response_mode: session.useDcApi
                         ? &quot;dc_api.jwt&quot;
                         : &quot;direct_post.jwt&quot;,
@@ -1065,7 +1175,7 @@ export class Oid4vpService {
                             &quot;A256GCM&quot;,
                         ],
                     },
-                    state: session.useDcApi ? undefined : session.id,
+                    state: session.useDcApi ? undefined : walletFacingId,
                     transaction_data,
                     //TODO: check if this value is correct accroding to https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-aud-of-a-request-object
                     aud: &quot;https://self-issued.me/v2&quot;,
@@ -1130,6 +1240,11 @@ export class Oid4vpService {
         const fresh &#x3D; values.session &#x3D;&#x3D;&#x3D; undefined;
         values.session &#x3D; values.session || v4();
 
+        // Per OID4VP spec Section 13.3: generate a separate walletNonce for
+        // wallet-facing URLs so the QR code / request_uri does not reveal the
+        // session ID (transaction-id) used by the frontend for polling.
+        const walletNonce &#x3D; randomUUID();
+
         const request_uri_method: &quot;get&quot; | &quot;post&quot; &#x3D; &quot;get&quot;;
 
         const cert &#x3D; await this.certService.find({
@@ -1141,7 +1256,7 @@ export class Oid4vpService {
 
         const params &#x3D; {
             client_id: &quot;x509_hash:&quot; + certHash,
-            request_uri: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/presentations/${values.session}/oid4vp/request&#x60;,
+            request_uri: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/presentations/${walletNonce}/oid4vp/request&#x60;,
             request_uri_method,
         };
         const queryString &#x3D; Object.entries(params)
@@ -1154,7 +1269,7 @@ export class Oid4vpService {
         // Create cross-device params with /no-redirect appended to request_uri
         const crossDeviceParams &#x3D; {
             ...params,
-            request_uri: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/presentations/${values.session}/oid4vp/request/no-redirect&#x60;,
+            request_uri: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/presentations/${walletNonce}/oid4vp/request/no-redirect&#x60;,
         };
         const crossDeviceQueryString &#x3D; Object.entries(crossDeviceParams)
             .map(
@@ -1172,7 +1287,7 @@ export class Oid4vpService {
             const clientId &#x3D; &quot;x509_hash:&quot; + certHash;
             const responseUri &#x3D; useDcApi
                 ? undefined
-                : &#x60;${host}/presentations/${values.session}/oid4vp&#x60;;
+                : &#x60;${host}/presentations/${walletNonce}/oid4vp&#x60;;
 
             // Use transaction_data from options if provided, otherwise fall back to config
             const transaction_data &#x3D;
@@ -1180,6 +1295,7 @@ export class Oid4vpService {
 
             const session &#x3D; await this.sessionService.create({
                 id: values.session,
+                walletNonce,
                 parsedWebhook: values.webhook,
                 redirectUri:
                     values.redirectUri ??
@@ -1206,7 +1322,7 @@ export class Oid4vpService {
             }
         } else {
             await this.sessionService.add(values.session, {
-                //claimsWebhook: values.webhook ?? presentationConfig.webhook,
+                walletNonce,
                 requestUrl: &#x60;openid4vp://?${queryString}&#x60;,
                 expiresAt,
                 useDcApi,
@@ -1222,12 +1338,14 @@ export class Oid4vpService {
 
     /**
      * Processes the response from the wallet.
+     * Per OID4VP spec Section 13.3, the nonce parameter is the walletNonce
+     * from the URL path (not the session ID).
      * @param body
-     * @param tenantId
+     * @param nonce - walletNonce from the URL path (or session ID for legacy sessions)
      */
     @Span(&quot;oid4vp.getResponse&quot;)
-    async getResponse(body: AuthorizationResponse, sessionId: string) {
-        const session &#x3D; await this.sessionService.get(sessionId);
+    async getResponse(body: AuthorizationResponse, nonce: string) {
+        const session &#x3D; await this.resolveSessionByNonce(nonce);
 
         // Add session context to span for trace correlation
         const span &#x3D; this.traceService.getSpan();
@@ -1236,6 +1354,9 @@ export class Oid4vpService {
             &quot;session.tenantId&quot;: session.tenantId,
             &quot;session.requestId&quot;: session.requestId ?? &quot;&quot;,
         });
+
+        // The expected state value is the walletNonce (or session.id for legacy sessions)
+        const expectedState &#x3D; session.walletNonce ?? session.id;
 
         // Handle wallet error responses per OID4VP spec section 6.2
         // When wallet cannot fulfill the request, it sends an OAuth 2.0 error response
@@ -1347,22 +1468,24 @@ export class Oid4vpService {
                 },
             );
 
+            // Validate state matches the expected walletNonce / session ID
             // For DC API, state is not included in the response (per OID4VP spec).
-            // Use sessionId from URL path as fallback.
-            const effectiveSessionId &#x3D; res.state ?? sessionId;
-
-            // Validate state matches sessionId when provided (prevents session hijacking)
-            if (res.state &amp;&amp; res.state !&#x3D;&#x3D; sessionId) {
+            if (res.state &amp;&amp; res.state !&#x3D;&#x3D; expectedState) {
                 throw new BadRequestException(
-                    &quot;State mismatch: response state does not match session ID&quot;,
+                    &quot;State mismatch: response state does not match expected value&quot;,
                 );
             }
 
-            //tell the auth server the result of the session.
-            await this.sessionService.add(effectiveSessionId, {
+            // Per OID4VP spec Section 13.3: generate a response_code after successful
+            // VP Token processing. This is included in redirect_uri so only the
+            // legitimate frontend (which receives the redirect) can confirm completion.
+            const responseCode &#x3D; randomUUID();
+
+            await this.sessionService.add(session.id, {
                 //TODO: not clear why it has to be any
                 credentials: credentials as any,
                 status: SessionStatus.Completed,
+                responseCode,
             });
             // if there a a webhook passed in the session, use it
             if (webhook) {
@@ -1408,8 +1531,13 @@ export class Oid4vpService {
                 const processedRedirectUri &#x3D; decodeURIComponent(
                     session.redirectUri,
                 ).replaceAll(&quot;{sessionId}&quot;, session.id);
+                // Per OID4VP spec Section 13.3: include response_code in redirect_uri
+                // so the frontend can use it to confirm the session completed legitimately.
+                const separator &#x3D; processedRedirectUri.includes(&quot;?&quot;)
+                    ? &quot;&amp;&quot;
+                    : &quot;?&quot;;
                 return {
-                    redirect_uri: processedRedirectUri,
+                    redirect_uri: &#x60;${processedRedirectUri}${separator}response_code&#x3D;${responseCode}&#x60;,
                 };
             }
 

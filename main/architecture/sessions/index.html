@@ -1658,7 +1658,18 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Session Cleanup">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oid4vp-security-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OID4VP Security Fields
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OID4VP Security Fields">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2585,7 +2596,18 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Session Cleanup">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oid4vp-security-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OID4VP Security Fields
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OID4VP Security Fields">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2706,6 +2728,36 @@ cleanup behavior can be configured both globally (via environment variables) and
 per-tenant (via the Session Config API or the client UI).</p>
 <p>Other elements like persisted status mapping (the binding between a session ID
 and a status list reference) are not deleted with this process.</p>
+<h2 id="oid4vp-security-fields">OID4VP Security Fields<a class="headerlink" href="#oid4vp-security-fields" title="Permanent link">¶</a></h2>
+<p>For OID4VP presentation sessions, EUDIPLO stores additional fields that
+implement the security model defined in
+<a href="https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#section-13.3">OID4VP §13.3</a>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>walletNonce</code></td>
+<td><code>string \| null</code></td>
+<td>Wallet-facing identifier used as <code>state</code> in the authorization request. Separates the wallet's view of the session from the internal <code>session.id</code>, preventing cross-reference attacks.</td>
+</tr>
+<tr>
+<td><code>responseCode</code></td>
+<td><code>string \| null</code></td>
+<td>One-time code generated when the wallet submits its response. Appended to the <code>redirect_uri</code> for same-device flows to prevent session fixation on redirect.</td>
+</tr>
+</tbody>
+</table>
+<p>These fields are populated automatically when a presentation request is created
+and are <strong>not exposed</strong> through the session management API. They exist solely for
+the OID4VP protocol flow.</p>
+<p>For details on how these fields are used in practice, see
+<a href="../../getting-started/presentation/#direct-post-security-model-oid4vp-133">Credential Presentation — Direct Post Security Model</a>.</p>
 <h3 id="cleanup-modes">Cleanup Modes<a class="headerlink" href="#cleanup-modes" title="Permanent link">¶</a></h3>
 <p>EUDIPLO supports two cleanup modes:</p>
 <ul>
