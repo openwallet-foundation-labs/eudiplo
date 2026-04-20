@@ -48,16 +48,23 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
    * Check if this session can be recreated as a new offer
    */
   canRecreateOffer(): boolean {
-    return !!(this.session?.credentialPayload && this.isIssuanceSession());
+    if (this.isIssuanceSession()) {
+      return !!this.session?.credentialPayload;
+    }
+    return !!this.session?.requestId;
   }
 
   /**
-   * Navigate to issuance offer page with the stored payload to recreate the offer
+   * Navigate to the appropriate offer page to recreate the offer
    */
   recreateOffer(): void {
-    if (this.session?.credentialPayload) {
+    if (this.isIssuanceSession() && this.session?.credentialPayload) {
       this.router.navigate(['/offer/issuance'], {
         state: { offerRequest: this.session.credentialPayload },
+      });
+    } else if (!this.isIssuanceSession() && this.session?.requestId) {
+      this.router.navigate(['/offer/presentation'], {
+        state: { presentationRequest: { requestId: this.session.requestId } },
       });
     }
   }

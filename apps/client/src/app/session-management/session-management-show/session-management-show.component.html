@@ -26,10 +26,14 @@
           <button
             mat-button
             (click)="recreateOffer()"
-            matTooltip="Create a new offer with the same parameters"
+            [matTooltip]="
+              isIssuanceSession()
+                ? 'Create a new offer with the same parameters'
+                : 'Create a new request with the same parameters'
+            "
           >
             <mat-icon>replay</mat-icon>
-            Recreate Offer
+            {{ isIssuanceSession() ? 'Recreate Offer' : 'Recreate Request' }}
           </button>
         }
         <button matIconButton (click)="goBack()" matTooltip="Go back">

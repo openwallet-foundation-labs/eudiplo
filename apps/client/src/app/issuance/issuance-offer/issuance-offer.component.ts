@@ -252,11 +252,26 @@ export class IssuanceOfferComponent implements OnInit {
     this.form = new FormGroup({});
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    // Load required data first
+    const [configs, , issuanceConfig] = await Promise.all([
+      this.credentialConfigService.loadConfigurations(),
+      this.attributeProviderService
+        .getAll()
+        .then((providers) => (this.availableAttributeProviders = providers))
+        .catch(() => (this.availableAttributeProviders = [])),
+      this.issuanceConfigService.getConfig(),
+    ]);
+
+    this.credentialConfigs = configs;
+    this.issuanceConfig = issuanceConfig;
+    this.availableAuthServers = issuanceConfig?.authServers || [];
+
     // Check for pre-fill data from navigation state (recreate offer flow)
+    // Must be done BEFORE setting up subscriptions to avoid interference
     const prefillData = history.state?.offerRequest as OfferRequestDto | undefined;
     if (prefillData) {
-      this.prefillFromOffer(prefillData);
+      await this.prefillFromOffer(prefillData);
     }
 
     // Listen for credential config selection changes
@@ -287,28 +302,12 @@ export class IssuanceOfferComponent implements OnInit {
       });
     });
 
-    this.credentialConfigService
-      .loadConfigurations()
-      .then((response) => (this.credentialConfigs = response));
-
-    // Load available attribute providers
-    this.attributeProviderService
-      .getAll()
-      .then((providers) => (this.availableAttributeProviders = providers))
-      .catch(() => (this.availableAttributeProviders = []));
-
-    // Load issuance config to get available auth servers
-    this.issuanceConfigService.getConfig().then((config) => {
-      this.issuanceConfig = config;
-      this.availableAuthServers = config?.authServers || [];
-
-      // Pre-select preferred AS if set and we're already on auth-code-external flow
-      if (this.isAuthCodeExternalFlow && this.availableAuthServers.length > 0) {
-        this.configStepForm.patchValue({
-          authorization_server: this.getDefaultAuthServer(),
-        });
-      }
-    });
+    // Pre-select preferred AS if set and we're already on auth-code-external flow (and not prefilling)
+    if (!prefillData && this.isAuthCodeExternalFlow && this.availableAuthServers.length > 0) {
+      this.configStepForm.patchValue({
+        authorization_server: this.getDefaultAuthServer(),
+      });
+    }
   }
 
   async setClaimFormFields(credentialConfigIds: string[]) {
@@ -573,43 +572,114 @@ export class IssuanceOfferComponent implements OnInit {
   }
 
   /**
-   * Pre-fill the form from an existing offer request (recreate offer flow)
+   * Pre-fill the form from an existing offer request (recreate offer flow).
+   * This method is called before valueChanges subscriptions are set up,
+   * so we need to manually trigger form field setup.
    */
   private async prefillFromOffer(offer: OfferRequestDto): Promise<void> {
-    // Wait for credential configs to load
-    await this.credentialConfigService.loadConfigurations().then((configs) => {
-      this.credentialConfigs = configs;
-    });
+    // Configs are already loaded in ngOnInit before this is called
 
-    // Set form values across all steps
+    // Determine the correct flow type for the form
+    // The stored offer only has 'authorization_code' or 'pre_authorized_code',
+    // but the form distinguishes between 'authorization_code_external' and 'authorization_code_iae'
+    let formFlow: string = offer.flow || 'pre_authorized_code';
+    if (offer.flow === 'authorization_code') {
+      // Check if any selected credential configs have IAE configured
+      const hasIae = offer.credentialConfigurationIds?.some((id) => {
+        const config = this.credentialConfigs.find((c) => c.id === id);
+        return (config?.iaeActions?.length || 0) > 0;
+      });
+
+      // If configs have IAE and no external AS was specified, it was an IAE flow
+      // If an external AS was specified, it was an external AS flow
+      if (hasIae && !offer.authorization_server) {
+        formFlow = 'authorization_code_iae';
+      } else {
+        formFlow = 'authorization_code_external';
+      }
+    }
+
+    // Set flow (triggers no subscription since we haven't set them up yet)
     this.flowStepForm.patchValue({
-      flow: offer.flow || 'pre_authorized_code',
+      flow: formFlow,
     });
 
+    // Set credential configuration IDs
     this.credentialStepForm.patchValue({
       credentialConfigurationIds: offer.credentialConfigurationIds || [],
     });
 
+    // Manually set up claim form fields (normally done by valueChanges subscription)
+    await this.setClaimFormFields(offer.credentialConfigurationIds || []);
+
+    // Determine AS type for external AS flow
+    let asType = 'external';
+    if (formFlow === 'authorization_code_external') {
+      // If no authorization_server was specified but chained AS is enabled, it was chained
+      if (!offer.authorization_server && this.isChainedAsEnabled) {
+        asType = 'chained';
+      }
+    }
+
+    // Set config step values
     this.configStepForm.patchValue({
       tx_code: offer.tx_code || '',
-      authorization_server: offer.authorization_server || '',
+      tx_code_description: offer.tx_code_description || '',
+      authorization_server: offer.authorization_server || this.getDefaultAuthServer(),
+      as_type: asType,
     });
 
-    // Pre-fill claims after the form fields are generated (only for pre-auth flow)
-    if (offer.credentialClaims && offer.flow === 'pre_authorized_code') {
-      // Wait for form fields to be set up
-      setTimeout(() => {
-        for (const [credId, claimData] of Object.entries(offer.credentialClaims || {})) {
-          const element = this.elements.find((e) => e.id === credId);
-          if (element && claimData.type === 'inline') {
+    // Pre-fill claims for pre-auth flow
+    if (offer.credentialClaims && formFlow === 'pre_authorized_code') {
+      for (const [credId, claimData] of Object.entries(offer.credentialClaims)) {
+        const element = this.elements.find((e) => e.id === credId);
+        if (element && claimData && typeof claimData === 'object') {
+          if ('type' in claimData && claimData.type === 'inline' && 'claims' in claimData) {
             element.claimSource = 'form';
             this.configStepForm.get('claims')?.patchValue({ [credId]: claimData.claims });
-          } else if (element && claimData.type === 'attributeProvider') {
+          } else if ('type' in claimData && claimData.type === 'attributeProvider') {
             element.claimSource = 'attributeProvider';
           }
         }
-        this.cdr.detectChanges();
-      }, 100);
+      }
+    }
+
+    // Pre-fill attribute provider for auth code flows
+    if (
+      offer.credentialClaims &&
+      (formFlow === 'authorization_code_external' || formFlow === 'authorization_code_iae')
+    ) {
+      for (const [credId, claimData] of Object.entries(offer.credentialClaims)) {
+        if (
+          claimData &&
+          typeof claimData === 'object' &&
+          'type' in claimData &&
+          claimData.type === 'attributeProvider' &&
+          'attributeProviderId' in claimData
+        ) {
+          const webhookForm = this.externalAsWebhooks.get(credId);
+          if (webhookForm) {
+            webhookForm.patchValue({
+              attributeProviderId: claimData.attributeProviderId,
+            });
+          }
+        }
+      }
+    }
+
+    this.cdr.detectChanges();
+
+    // Jump stepper to the last step — by the time prefillFromOffer runs
+    // (after awaiting data loads), the view is already initialized
+    if (this.stepper) {
+      this.stepper.steps.forEach((step, index) => {
+        if (index < this.stepper.steps.length - 1) {
+          step.completed = true;
+          step.interacted = true;
+        }
+      });
+      this.stepper.selectedIndex = this.stepper.steps.length - 1;
+      this.cdr.detectChanges();
     }
 
     this.snackBar.open('Form pre-filled from previous offer', 'Close', { duration: 2000 });
