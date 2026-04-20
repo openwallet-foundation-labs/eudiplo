@@ -92,7 +92,39 @@ To manage presentation configurations, have a look at the [API Documentation](..
 
 ## Flow Diagrams
 
-### Standard Presentation Flow
+### Standard Presentation Flow (Same-Device)
+
+In a same-device flow, the user's browser and wallet are on the same device.
+EUDIPLO implements the security model from
+[OID4VP §13.3](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#section-13.3)
+to protect against session fixation and identifier correlation.
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Wallet
+    participant Verifier
+    participant EUDIPLO
+
+    Verifier->>EUDIPLO: Create presentation request
+    EUDIPLO-->>Verifier: Return presentation URI (with walletNonce)
+    Verifier->>User: Redirect to wallet (same device)
+    User->>Wallet: Open wallet link
+    Wallet->>EUDIPLO: Fetch request (state = walletNonce)
+    EUDIPLO->>Wallet: Send presentation request (nonce for VP binding)
+    Wallet->>User: Request consent for data sharing
+    User->>Wallet: Approve presentation
+    Wallet->>EUDIPLO: Submit VP Token via direct_post.jwt
+    EUDIPLO-->>Wallet: Redirect URI with one-time response_code
+    Wallet->>Verifier: Redirect user (redirect_uri?response_code=…)
+    Verifier->>EUDIPLO: Retrieve session result using response_code
+```
+
+### Standard Presentation Flow (Cross-Device)
+
+In a cross-device flow, the user scans a QR code — the browser and wallet are
+on different devices. No redirect occurs; the verifier polls for session
+completion.
 
 ```mermaid
 sequenceDiagram
@@ -103,13 +135,13 @@ sequenceDiagram
 
     Verifier->>EUDIPLO: Create presentation request
     EUDIPLO-->>Verifier: Return presentation URI
-    Verifier->>User: Display QR code or link
-    User->>Wallet: Scan QR or click link
-    Wallet->>EUDIPLO: Initiate OID4VP flow
+    Verifier->>User: Display QR code
+    User->>Wallet: Scan QR code
+    Wallet->>EUDIPLO: Fetch request (state = walletNonce)
     EUDIPLO->>Wallet: Send presentation request
     Wallet->>User: Request consent for data sharing
     User->>Wallet: Approve presentation
-    Wallet->>EUDIPLO: Submit verifiable presentation
+    Wallet->>EUDIPLO: Submit VP Token via direct_post.jwt
     EUDIPLO->>Verifier: Send verified claims (webhook)
 ```
 
@@ -144,6 +176,38 @@ For multi-step flows and configuration details, see [Interactive Authorization E
 ---
 
 ## Security Considerations
+
+### Direct Post Security Model (OID4VP §13.3)
+
+EUDIPLO implements the `direct_post.jwt` response mode with the full security
+model defined in
+[OID4VP Section 13.3](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#section-13.3).
+This model separates identifiers across different actors to prevent session
+fixation and cross-reference attacks.
+
+**Key security properties:**
+
+| Identifier      | Purpose                                                                                                  |
+| --------------- | -------------------------------------------------------------------------------------------------------- |
+| `session.id`    | Internal (backend / verifier) session identifier — never exposed to the wallet                           |
+| `walletNonce`   | Wallet-facing identifier used as `state` in the authorization request — cannot be linked to `session.id` |
+| `nonce`         | Binds the VP Token to this specific request — prevents replay attacks                                    |
+| `response_code` | One-time code appended to `redirect_uri` during same-device redirect — prevents session fixation         |
+
+**Same-device redirect flow:**
+
+When a `redirect_uri` is configured, EUDIPLO generates a one-time
+`response_code` and appends it to the redirect URI after the wallet submits its
+response. The verifier's frontend receives this code via the redirect and uses
+it to retrieve the session result. This ensures the browser that initiated the
+flow is the same one that receives the result — an attacker who observes the
+`walletNonce` in the QR code cannot hijack the redirect.
+
+!!! warning "Same-device flows with redirect"
+For same-device flows that use a `redirect_uri`, the `response_code` is
+the **only safe way** to retrieve the session result. The verifier must
+extract it from the redirect URL and use it to look up the completed
+session.
 
 ### Data Minimization
 
