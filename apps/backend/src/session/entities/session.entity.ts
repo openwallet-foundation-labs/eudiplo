@@ -194,6 +194,22 @@ export class Session {
     clientId?: string;
 
     /**
+     * Cryptographic random nonce used in wallet-facing URLs (response_uri, request_uri, state).
+     * Per OID4VP spec Section 13.3, this separates the wallet-facing identifier (request-id)
+     * from the frontend-facing session ID (transaction-id) to prevent session fixation.
+     */
+    @Column("varchar", { nullable: true })
+    walletNonce?: string;
+
+    /**
+     * Cryptographic random code generated after successful VP Token processing.
+     * Per OID4VP spec Section 13.3, included in redirect_uri so only the legitimate
+     * frontend (which receives the redirect) can confirm the session completed.
+     */
+    @Column("varchar", { nullable: true })
+    responseCode?: string;
+
+    /**
      * Response URI used in the OID4VP authorization request.
      */
     @Column("varchar", { nullable: true })

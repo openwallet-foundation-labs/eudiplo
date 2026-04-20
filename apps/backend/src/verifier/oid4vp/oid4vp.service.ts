@@ -39,6 +39,20 @@ export class Oid4vpService {
     ) {}
 
     /**
+     * Resolves a session from a wallet-facing nonce.
+     * Per OID4VP spec Section 13.3, wallet-facing URLs use a separate walletNonce
+     * instead of the session ID. Falls back to session ID lookup for backward
+     * compatibility with sessions created before the walletNonce migration.
+     */
+    private async resolveSessionByNonce(nonce: string) {
+        const session = await this.sessionService.findByWalletNonce(nonce);
+        if (session) {
+            return session;
+        }
+        return this.sessionService.get(nonce);
+    }
+
+    /**
      * Gets the authorization request for a session.
      * Returns the cached requestObject if available (for request_uri_method="get"),
      * otherwise generates a new one.
@@ -48,11 +62,11 @@ export class Oid4vpService {
      */
     @Span("oid4vp.getAuthorizationRequest")
     async getAuthorizationRequest(
-        sessionId: string,
+        nonce: string,
         origin: string,
         noRedirect = false,
     ): Promise<string> {
-        const session = await this.sessionService.get(sessionId);
+        const session = await this.resolveSessionByNonce(nonce);
 
         // Add session context to span for trace correlation
         const span = this.traceService.getSpan();
@@ -76,7 +90,7 @@ export class Oid4vpService {
         }
 
         // No cached request - generate new one (for request_uri_method="post" flows)
-        return this.createAuthorizationRequest(sessionId, origin, noRedirect);
+        return this.createAuthorizationRequest(session.id, origin, noRedirect);
     }
 
     /**
@@ -187,11 +201,16 @@ export class Oid4vpService {
                 )?.map((td) => base64url.encode(JSON.stringify(td))) ||
                 undefined;
 
+            // Per OID4VP spec Section 13.3: use walletNonce in wallet-facing URLs
+            // to separate the wallet-facing identifier (request-id) from the
+            // frontend-facing session ID (transaction-id).
+            const walletFacingId = session.walletNonce ?? session.id;
+
             const request = {
                 payload: {
                     response_type: "vp_token",
                     client_id: "x509_hash:" + certHash,
-                    response_uri: `${host}/presentations/${session.id}/oid4vp`,
+                    response_uri: `${host}/presentations/${walletFacingId}/oid4vp`,
                     response_mode: session.useDcApi
                         ? "dc_api.jwt"
                         : "direct_post.jwt",
@@ -222,7 +241,7 @@ export class Oid4vpService {
                             "A256GCM",
                         ],
                     },
-                    state: session.useDcApi ? undefined : session.id,
+                    state: session.useDcApi ? undefined : walletFacingId,
                     transaction_data,
                     //TODO: check if this value is correct accroding to https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-aud-of-a-request-object
                     aud: "https://self-issued.me/v2",
@@ -287,6 +306,11 @@ export class Oid4vpService {
         const fresh = values.session === undefined;
         values.session = values.session || v4();
 
+        // Per OID4VP spec Section 13.3: generate a separate walletNonce for
+        // wallet-facing URLs so the QR code / request_uri does not reveal the
+        // session ID (transaction-id) used by the frontend for polling.
+        const walletNonce = randomUUID();
+
         const request_uri_method: "get" | "post" = "get";
 
         const cert = await this.certService.find({
@@ -298,7 +322,7 @@ export class Oid4vpService {
 
         const params = {
             client_id: "x509_hash:" + certHash,
-            request_uri: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/presentations/${values.session}/oid4vp/request`,
+            request_uri: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/presentations/${walletNonce}/oid4vp/request`,
             request_uri_method,
         };
         const queryString = Object.entries(params)
@@ -311,7 +335,7 @@ export class Oid4vpService {
         // Create cross-device params with /no-redirect appended to request_uri
         const crossDeviceParams = {
             ...params,
-            request_uri: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/presentations/${values.session}/oid4vp/request/no-redirect`,
+            request_uri: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/presentations/${walletNonce}/oid4vp/request/no-redirect`,
         };
         const crossDeviceQueryString = Object.entries(crossDeviceParams)
             .map(
@@ -329,7 +353,7 @@ export class Oid4vpService {
             const clientId = "x509_hash:" + certHash;
             const responseUri = useDcApi
                 ? undefined
-                : `${host}/presentations/${values.session}/oid4vp`;
+                : `${host}/presentations/${walletNonce}/oid4vp`;
 
             // Use transaction_data from options if provided, otherwise fall back to config
             const transaction_data =
@@ -337,6 +361,7 @@ export class Oid4vpService {
 
             const session = await this.sessionService.create({
                 id: values.session,
+                walletNonce,
                 parsedWebhook: values.webhook,
                 redirectUri:
                     values.redirectUri ??
@@ -363,7 +388,7 @@ export class Oid4vpService {
             }
         } else {
             await this.sessionService.add(values.session, {
-                //claimsWebhook: values.webhook ?? presentationConfig.webhook,
+                walletNonce,
                 requestUrl: `openid4vp://?${queryString}`,
                 expiresAt,
                 useDcApi,
@@ -379,12 +404,14 @@ export class Oid4vpService {
 
     /**
      * Processes the response from the wallet.
+     * Per OID4VP spec Section 13.3, the nonce parameter is the walletNonce
+     * from the URL path (not the session ID).
      * @param body
-     * @param tenantId
+     * @param nonce - walletNonce from the URL path (or session ID for legacy sessions)
      */
     @Span("oid4vp.getResponse")
-    async getResponse(body: AuthorizationResponse, sessionId: string) {
-        const session = await this.sessionService.get(sessionId);
+    async getResponse(body: AuthorizationResponse, nonce: string) {
+        const session = await this.resolveSessionByNonce(nonce);
 
         // Add session context to span for trace correlation
         const span = this.traceService.getSpan();
@@ -393,6 +420,9 @@ export class Oid4vpService {
             "session.tenantId": session.tenantId,
             "session.requestId": session.requestId ?? "",
         });
+
+        // The expected state value is the walletNonce (or session.id for legacy sessions)
+        const expectedState = session.walletNonce ?? session.id;
 
         // Handle wallet error responses per OID4VP spec section 6.2
         // When wallet cannot fulfill the request, it sends an OAuth 2.0 error response
@@ -504,22 +534,24 @@ export class Oid4vpService {
                 },
             );
 
+            // Validate state matches the expected walletNonce / session ID
             // For DC API, state is not included in the response (per OID4VP spec).
-            // Use sessionId from URL path as fallback.
-            const effectiveSessionId = res.state ?? sessionId;
-
-            // Validate state matches sessionId when provided (prevents session hijacking)
-            if (res.state && res.state !== sessionId) {
+            if (res.state && res.state !== expectedState) {
                 throw new BadRequestException(
-                    "State mismatch: response state does not match session ID",
+                    "State mismatch: response state does not match expected value",
                 );
             }
 
-            //tell the auth server the result of the session.
-            await this.sessionService.add(effectiveSessionId, {
+            // Per OID4VP spec Section 13.3: generate a response_code after successful
+            // VP Token processing. This is included in redirect_uri so only the
+            // legitimate frontend (which receives the redirect) can confirm completion.
+            const responseCode = randomUUID();
+
+            await this.sessionService.add(session.id, {
                 //TODO: not clear why it has to be any
                 credentials: credentials as any,
                 status: SessionStatus.Completed,
+                responseCode,
             });
             // if there a a webhook passed in the session, use it
             if (webhook) {
@@ -565,8 +597,13 @@ export class Oid4vpService {
                 const processedRedirectUri = decodeURIComponent(
                     session.redirectUri,
                 ).replaceAll("{sessionId}", session.id);
+                // Per OID4VP spec Section 13.3: include response_code in redirect_uri
+                // so the frontend can use it to confirm the session completed legitimately.
+                const separator = processedRedirectUri.includes("?")
+                    ? "&"
+                    : "?";
                 return {
-                    redirect_uri: processedRedirectUri,
+                    redirect_uri: `${processedRedirectUri}${separator}response_code=${responseCode}`,
                 };
             }
 

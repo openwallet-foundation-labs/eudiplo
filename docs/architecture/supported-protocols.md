@@ -33,6 +33,21 @@ EUDIPLO implements the following OID4VCI features:
 | DPoP (Demonstrating Proof-of-Possession) | ✅     | Enhanced security with proof-of-possession tokens                |
 | Wallet Attestation                       | ✅     | Verify wallet provider trustworthiness                           |
 
+### OID4VP Features
+
+EUDIPLO implements the following OID4VP features:
+
+| Feature                                          | Status | Description                                                                               |
+| ------------------------------------------------ | ------ | ----------------------------------------------------------------------------------------- |
+| `direct_post.jwt` Response Mode                  | ✅     | Wallet posts the VP Token directly to the verifier, encrypted as a JWE                    |
+| DCQL (Digital Credentials Query Language)        | ✅     | Structured credential queries with selective disclosure                                   |
+| Session Identifier Separation (§13.3)            | ✅     | Wallet-facing identifier (`walletNonce`) is distinct from the internal session ID         |
+| Response Code for Same-Device Redirect (§13.3)   | ✅     | One-time `response_code` appended to `redirect_uri` prevents session fixation on redirect |
+| JWE-Encrypted Authorization Responses            | ✅     | VP Tokens are encrypted to the verifier's key                                             |
+| `x509_san_dns` / `x509_san_uri` Client ID Scheme | ✅     | Verifier identification via X.509 certificates                                            |
+| Wallet Attestation Verification                  | ✅     | Validate wallet provider trustworthiness before accepting presentations                   |
+| Digital Credentials API (DC API)                 | ✅     | Browser-native credential exchange without QR codes or redirects                          |
+
 These standards are evolving in coordination with EU-level pilot projects and
 working groups. EUDIPLO tracks these developments closely to provide early,
 stable support as specifications mature.

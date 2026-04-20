@@ -16,6 +16,24 @@ per-tenant (via the Session Config API or the client UI).
 Other elements like persisted status mapping (the binding between a session ID
 and a status list reference) are not deleted with this process.
 
+## OID4VP Security Fields
+
+For OID4VP presentation sessions, EUDIPLO stores additional fields that
+implement the security model defined in
+[OID4VP §13.3](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#section-13.3):
+
+| Field          | Type             | Description                                                                                                                                                                           |
+| -------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `walletNonce`  | `string \| null` | Wallet-facing identifier used as `state` in the authorization request. Separates the wallet's view of the session from the internal `session.id`, preventing cross-reference attacks. |
+| `responseCode` | `string \| null` | One-time code generated when the wallet submits its response. Appended to the `redirect_uri` for same-device flows to prevent session fixation on redirect.                           |
+
+These fields are populated automatically when a presentation request is created
+and are **not exposed** through the session management API. They exist solely for
+the OID4VP protocol flow.
+
+For details on how these fields are used in practice, see
+[Credential Presentation — Direct Post Security Model](../getting-started/presentation/index.md#direct-post-security-model-oid4vp-133).
+
 ### Cleanup Modes
 
 EUDIPLO supports two cleanup modes:

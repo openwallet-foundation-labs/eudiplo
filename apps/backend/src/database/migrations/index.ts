@@ -16,3 +16,4 @@ export { MigrateKeysToKeyChain1747000000000 } from "./1747000000000-MigrateKeysT
 export { ExtractAttributeProviderAndWebhookEndpoint1748000000000 } from "./1748000000000-ExtractAttributeProviderAndWebhookEndpoint";
 export { AddSessionLogEntry1749000000000 } from "./1749000000000-AddSessionLogEntry";
 export { AddSessionErrorReason1750000000000 } from "./1750000000000-AddSessionErrorReason";
+export { AddDirectPostSecurityFields1751000000000 } from "./1751000000000-AddDirectPostSecurityFields";
