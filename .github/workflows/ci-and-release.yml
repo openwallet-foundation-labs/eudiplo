@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
           run_install: false
@@ -43,7 +43,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Run linter for code
         run: pnpm run lint
@@ -67,7 +67,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
           run_install: false
@@ -79,7 +79,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build SDK Core
         run: pnpm --filter @eudiplo/sdk-core build
@@ -92,7 +92,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
           run_install: false
@@ -104,7 +104,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build backend
         run: pnpm --filter @eudiplo/backend build
@@ -117,7 +117,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
           run_install: false
@@ -129,7 +129,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build sdk core
         run: pnpm --filter @eudiplo/sdk-core build
@@ -145,7 +145,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
           run_install: false
@@ -157,7 +157,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build webhook
         run: pnpm --filter test-rp build
@@ -170,7 +170,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
           run_install: false
@@ -182,7 +182,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -221,7 +221,7 @@ jobs:
         with:
           fetch-depth: 0 # Fetch full history for mike versioning
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
           run_install: false
@@ -233,7 +233,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -272,7 +272,7 @@ jobs:
       - name: Add entry to /etc/hosts
         run: echo "127.0.0.1       host.testcontainers.internal" | sudo tee -a /etc/hosts
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
           run_install: false
@@ -284,7 +284,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: setup test webhooks
         run: |
@@ -332,7 +332,7 @@ jobs:
       fail-fast: false
       matrix:
         # Dynamic matrix: include arm64 only on main branch push
-        include: "${{ fromJSON(github.event_name == 'push' && github.ref == 'refs/heads/main' && '[{\"platform\": \"linux/amd64\", \"runner\": \"ubuntu-latest\", \"arch\": \"amd64\"}, {\"platform\": \"linux/arm64\", \"runner\": \"ubuntu-24.04-arm\", \"arch\": \"arm64\"}]' || '[{\"platform\": \"linux/amd64\", \"runner\": \"ubuntu-latest\", \"arch\": \"amd64\"}]') }}"
+        include: '${{ fromJSON(github.event_name == ''push'' && github.ref == ''refs/heads/main'' && ''[{"platform": "linux/amd64", "runner": "ubuntu-latest", "arch": "amd64"}, {"platform": "linux/arm64", "runner": "ubuntu-24.04-arm", "arch": "arm64"}]'' || ''[{"platform": "linux/amd64", "runner": "ubuntu-latest", "arch": "amd64"}]'') }}'
     runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
@@ -527,7 +527,7 @@ jobs:
       fail-fast: false
       matrix:
         # Dynamic matrix: include arm64 only on main branch push
-        include: "${{ fromJSON(github.event_name == 'push' && github.ref == 'refs/heads/main' && '[{\"platform\": \"linux/amd64\", \"runner\": \"ubuntu-latest\", \"arch\": \"amd64\"}, {\"platform\": \"linux/arm64\", \"runner\": \"ubuntu-24.04-arm\", \"arch\": \"arm64\"}]' || '[{\"platform\": \"linux/amd64\", \"runner\": \"ubuntu-latest\", \"arch\": \"amd64\"}]') }}"
+        include: '${{ fromJSON(github.event_name == ''push'' && github.ref == ''refs/heads/main'' && ''[{"platform": "linux/amd64", "runner": "ubuntu-latest", "arch": "amd64"}, {"platform": "linux/arm64", "runner": "ubuntu-24.04-arm", "arch": "arm64"}]'' || ''[{"platform": "linux/amd64", "runner": "ubuntu-latest", "arch": "amd64"}]'') }}'
     runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
@@ -650,7 +650,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
           run_install: false
@@ -663,7 +663,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build SDK
         run: pnpm --filter @eudiplo/sdk-core build
@@ -705,7 +705,7 @@ jobs:
         with:
           fetch-depth: 0 # Fetch full history for mike versioning
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
           run_install: false
@@ -718,7 +718,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build SDK
         run: pnpm --filter @eudiplo/sdk-core build

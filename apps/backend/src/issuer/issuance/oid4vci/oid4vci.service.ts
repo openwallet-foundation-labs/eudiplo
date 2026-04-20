@@ -48,7 +48,6 @@ import { AuthorizationIdentity } from "../../configuration/credentials/dto/autho
 import { ClaimsWebhookResult } from "../../configuration/credentials/dto/claims-webhook-result";
 import { IssuanceService } from "../../configuration/issuance/issuance.service";
 import { WebhookEndpointEntity } from "../../configuration/webhook-endpoint/entities/webhook-endpoint.entity";
-import { StatusListConfigService } from "../../lifecycle/status/status-list-config.service";
 import { AuthorizeService } from "./authorize/authorize.service";
 import { ChainedAsService } from "./chained-as/chained-as.service";
 import { DeferredCredentialService } from "./deferred-credential.service";
@@ -98,7 +97,6 @@ export class Oid4vciService {
         private readonly issuanceService: IssuanceService,
         private readonly webhookService: WebhookService,
         private readonly httpService: HttpService,
-        private readonly statusListConfigService: StatusListConfigService,
         private readonly chainedAsService: ChainedAsService,
         private readonly deferredCredentialService: DeferredCredentialService,
         private readonly traceService: TraceService,
@@ -240,13 +238,6 @@ export class Oid4vciService {
             }
         }
 
-        // Check if status list aggregation is enabled for this tenant
-        const statusListConfig =
-            await this.statusListConfigService.getEffectiveConfig(tenantId);
-        const statusListAggregationEndpoint = statusListConfig.enableAggregation
-            ? `${credential_issuer}/status-management/status-list-aggregation`
-            : undefined;
-
         const credentialIssuer = issuer.createCredentialIssuerMetadata({
             credential_issuer,
             credential_configurations_supported:
@@ -273,7 +264,6 @@ export class Oid4vciService {
                           batch_size: issuanceConfig?.batchSize,
                       }
                     : undefined,
-            status_list_aggregation_endpoint: statusListAggregationEndpoint,
         });
         return {
             credentialIssuer,

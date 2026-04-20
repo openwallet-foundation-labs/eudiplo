@@ -21,6 +21,7 @@ import { KeyChainService } from "../../../../crypto/key/key-chain.service";
 import { SessionService } from "../../../../session/session.service";
 import { WalletAttestationService } from "../../../../shared/trust/wallet-attestation.service";
 import { IssuanceService } from "../../../configuration/issuance/issuance.service";
+import { StatusListConfigService } from "../../../lifecycle/status/status-list-config.service";
 import { NonceEntity } from "../entities/nonces.entity";
 import { TokenErrorException } from "../exceptions";
 import { getHeadersFromRequest } from "../util";
@@ -50,6 +51,7 @@ export class AuthorizeService {
         private readonly keyChainService: KeyChainService,
         @InjectRepository(NonceEntity)
         private readonly nonceRepository: Repository<NonceEntity>,
+        private readonly statusListConfigService: StatusListConfigService,
     ) {}
 
     getAuthorizationServer(
@@ -120,7 +122,15 @@ export class AuthorizeService {
 
         const publicUrl = this.configService.getOrThrow<string>("PUBLIC_URL");
         const authServer = this.getAuthzIssuer(tenantId);
-        const metadata: Record<string, unknown> = {
+
+        // Check if status list aggregation is enabled for this tenant
+        const statusListConfig =
+            await this.statusListConfigService.getEffectiveConfig(tenantId);
+        const statusListAggregationEndpoint = statusListConfig.enableAggregation
+            ? `${authServer}/status-management/status-list-aggregation`
+            : undefined;
+
+        const metadata: AuthorizationServerMetadata = {
             issuer: authServer,
             token_endpoint: `${authServer}/authorize/token`,
             authorization_endpoint: `${authServer}/authorize`,
@@ -137,6 +147,7 @@ export class AuthorizeService {
             code_challenge_methods_supported: [PkceCodeChallengeMethod.S256],
             authorization_details_types_supported: ["openid_credential"],
             token_endpoint_auth_methods_supported: ["none"],
+            status_list_aggregation_endpoint: statusListAggregationEndpoint,
         };
 
         if (walletAttestationRequired) {
