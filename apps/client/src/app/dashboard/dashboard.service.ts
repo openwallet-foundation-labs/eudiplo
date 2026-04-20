@@ -120,7 +120,9 @@ export class DashboardService {
               });
               break;
             case 'keyChains':
-              this.totalKeyChains = result.value.data.length;
+              this.totalKeyChains = result.value.data.filter(
+                (kc: { usageType: string }) => kc.usageType !== 'encrypt'
+              ).length;
               break;
             case 'issuance':
               this.hasIssuanceConfig = !!result.value.data;
