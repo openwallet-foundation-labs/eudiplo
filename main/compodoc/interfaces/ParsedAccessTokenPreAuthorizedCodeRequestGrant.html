@@ -321,6 +321,7 @@ import { KeyChainService } from &quot;../../../../crypto/key/key-chain.service&q
 import { SessionService } from &quot;../../../../session/session.service&quot;;
 import { WalletAttestationService } from &quot;../../../../shared/trust/wallet-attestation.service&quot;;
 import { IssuanceService } from &quot;../../../configuration/issuance/issuance.service&quot;;
+import { StatusListConfigService } from &quot;../../../lifecycle/status/status-list-config.service&quot;;
 import { NonceEntity } from &quot;../entities/nonces.entity&quot;;
 import { TokenErrorException } from &quot;../exceptions&quot;;
 import { getHeadersFromRequest } from &quot;../util&quot;;
@@ -350,6 +351,7 @@ export class AuthorizeService {
         private readonly keyChainService: KeyChainService,
         @InjectRepository(NonceEntity)
         private readonly nonceRepository: Repository&lt;NonceEntity&gt;,
+        private readonly statusListConfigService: StatusListConfigService,
     ) {}
 
     getAuthorizationServer(
@@ -420,7 +422,15 @@ export class AuthorizeService {
 
         const publicUrl &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
         const authServer &#x3D; this.getAuthzIssuer(tenantId);
-        const metadata: Record&lt;string, unknown&gt; &#x3D; {
+
+        // Check if status list aggregation is enabled for this tenant
+        const statusListConfig &#x3D;
+            await this.statusListConfigService.getEffectiveConfig(tenantId);
+        const statusListAggregationEndpoint &#x3D; statusListConfig.enableAggregation
+            ? &#x60;${authServer}/status-management/status-list-aggregation&#x60;
+            : undefined;
+
+        const metadata: AuthorizationServerMetadata &#x3D; {
             issuer: authServer,
             token_endpoint: &#x60;${authServer}/authorize/token&#x60;,
             authorization_endpoint: &#x60;${authServer}/authorize&#x60;,
@@ -437,6 +447,7 @@ export class AuthorizeService {
             code_challenge_methods_supported: [PkceCodeChallengeMethod.S256],
             authorization_details_types_supported: [&quot;openid_credential&quot;],
             token_endpoint_auth_methods_supported: [&quot;none&quot;],
+            status_list_aggregation_endpoint: statusListAggregationEndpoint,
         };
 
         if (walletAttestationRequired) {
