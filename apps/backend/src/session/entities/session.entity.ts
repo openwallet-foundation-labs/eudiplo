@@ -121,7 +121,12 @@ export class Session {
      * Expiration timestamp for the refresh token.
      * Used to validate refresh_token grant requests.
      */
-    @Column("datetime", { nullable: true })
+    @Column(
+        process.env.DATABASE_TYPE === "postgres"
+            ? "timestamp with time zone"
+            : "datetime",
+        { nullable: true },
+    )
     refresh_token_expires_at?: Date;
     /**
      * Request URI from the authorization request.

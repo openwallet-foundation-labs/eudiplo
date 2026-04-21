@@ -14,6 +14,9 @@ export class AddRefreshTokenToSession1752000000000
     name = "AddRefreshTokenToSession1752000000000";
 
     public async up(queryRunner: QueryRunner): Promise<void> {
+        const isPostgres =
+            queryRunner.connection.options.type === "postgres";
+
         // Add columns to session table
         const sessionTable = await queryRunner.getTable("session");
         if (!sessionTable) {
@@ -46,7 +49,9 @@ export class AddRefreshTokenToSession1752000000000
                     "session",
                     new TableColumn({
                         name: "refresh_token_expires_at",
-                        type: "datetime",
+                        type: isPostgres
+                            ? "timestamp with time zone"
+                            : "datetime",
                         isNullable: true,
                     }),
                 );
