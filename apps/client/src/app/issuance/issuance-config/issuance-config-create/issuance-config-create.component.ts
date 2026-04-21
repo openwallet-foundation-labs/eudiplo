@@ -159,8 +159,14 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
           const logo = this.asRecord(displayEntry['logo']);
           displayArray.push(
             this.fb.group({
-              name: [typeof displayEntry['name'] === 'string' ? displayEntry['name'] : '', Validators.required],
-              locale: [typeof displayEntry['locale'] === 'string' ? displayEntry['locale'] : '', Validators.required],
+              name: [
+                typeof displayEntry['name'] === 'string' ? displayEntry['name'] : '',
+                Validators.required,
+              ],
+              locale: [
+                typeof displayEntry['locale'] === 'string' ? displayEntry['locale'] : '',
+                Validators.required,
+              ],
               logo: this.fb.group({
                 uri: [typeof logo['uri'] === 'string' ? logo['uri'] : '', Validators.required],
               }),
