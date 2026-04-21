@@ -851,6 +851,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/AddPreferredAuthServerToIssuanceConfig1741500000000.html" data-type="entity-link" >AddPreferredAuthServerToIssuanceConfig1741500000000</a>
                             </li>
                             <li class="link">
+                                <a href="classes/AddRefreshTokenToSession1752000000000.html" data-type="entity-link" >AddRefreshTokenToSession1752000000000</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/AddSessionErrorReason1750000000000.html" data-type="entity-link" >AddSessionErrorReason1750000000000</a>
                             </li>
                             <li class="link">
@@ -1563,6 +1566,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="interfaces/ParsedAccessTokenPreAuthorizedCodeRequestGrant.html" data-type="entity-link" >ParsedAccessTokenPreAuthorizedCodeRequestGrant</a>
+                            </li>
+                            <li class="link">
+                                <a href="interfaces/ParsedAccessTokenRefreshTokenRequestGrant.html" data-type="entity-link" >ParsedAccessTokenRefreshTokenRequestGrant</a>
                             </li>
                             <li class="link">
                                 <a href="interfaces/ParsedInteractiveAuthorizationRequest.html" data-type="entity-link" >ParsedInteractiveAuthorizationRequest</a>
