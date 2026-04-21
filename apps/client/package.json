@@ -18,12 +18,12 @@
   },
   "dependencies": {
     "@angular/animations": "^21.2.0",
-    "@angular/cdk": "21.2.6",
+    "@angular/cdk": "21.2.7",
     "@angular/common": "^21.2.0",
     "@angular/compiler": "^21.2.0",
     "@angular/core": "^21.2.0",
     "@angular/forms": "^21.2.0",
-    "@angular/material": "21.2.6",
+    "@angular/material": "21.2.7",
     "@angular/platform-browser": "^21.2.0",
     "@angular/platform-browser-dynamic": "^21.2.0",
     "@angular/router": "^21.2.0",
@@ -64,10 +64,10 @@
     "karma-coverage": "~2.2.1",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.2.0",
-    "playwright-ng-schematics": "21.0.9",
+    "playwright-ng-schematics": "21.0.10",
     "prettier": "^3.8.1",
     "typescript": "~5.9.3",
-    "typescript-eslint": "8.58.2"
+    "typescript-eslint": "8.59.0"
   },
   "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad"
 }
