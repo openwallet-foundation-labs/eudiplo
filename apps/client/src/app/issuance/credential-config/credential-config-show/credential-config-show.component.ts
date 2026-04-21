@@ -139,7 +139,7 @@ export class CredentialConfigShowComponent implements OnInit {
     }
   }
 
-  formatLifetime(seconds?: number): string {
+  formatLifetime(seconds?: number | null): string {
     if (!seconds) return 'Not set';
 
     const days = Math.floor(seconds / (24 * 3600));

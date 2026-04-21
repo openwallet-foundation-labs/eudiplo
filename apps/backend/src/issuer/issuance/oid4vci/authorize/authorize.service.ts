@@ -12,6 +12,8 @@ import {
     PkceCodeChallengeMethod,
     PreAuthorizedCodeGrantIdentifier,
     preAuthorizedCodeGrantIdentifier,
+    type RefreshTokenGrantIdentifier,
+    refreshTokenGrantIdentifier,
 } from "@openid4vc/oauth2";
 import type { Request } from "express";
 import { Repository } from "typeorm";
@@ -36,6 +38,11 @@ interface ParsedAccessTokenPreAuthorizedCodeRequestGrant {
     grantType: PreAuthorizedCodeGrantIdentifier;
     preAuthorizedCode: string;
     txCode?: string;
+}
+
+interface ParsedAccessTokenRefreshTokenRequestGrant {
+    grantType: RefreshTokenGrantIdentifier;
+    refreshToken: string;
 }
 
 @Injectable()
@@ -291,20 +298,40 @@ export class AuthorizeService {
             );
         }
 
-        const authorization_code =
-            parsedAccessTokenRequest.accessTokenRequest[
-                "pre-authorized_code"
-            ] ?? parsedAccessTokenRequest.accessTokenRequest["code"];
-        const session = await this.sessionService
-            .getBy({
-                authorization_code,
-            })
-            .catch(() => {
-                throw new TokenErrorException(
-                    "invalid_grant",
-                    "The provided authorization code is invalid or expired",
-                );
-            });
+        // Determine how to look up the session based on grant type
+        let session;
+        if (
+            parsedAccessTokenRequest.grant.grantType ===
+            refreshTokenGrantIdentifier
+        ) {
+            // For refresh_token grant, look up by refresh_token
+            session = await this.sessionService
+                .getBy({
+                    refresh_token: parsedAccessTokenRequest.grant.refreshToken,
+                })
+                .catch(() => {
+                    throw new TokenErrorException(
+                        "invalid_grant",
+                        "The provided refresh_token is invalid or expired",
+                    );
+                });
+        } else {
+            // For other grants (authorization_code, pre-authorized_code), look up by code
+            const authorization_code =
+                parsedAccessTokenRequest.accessTokenRequest[
+                    "pre-authorized_code"
+                ] ?? parsedAccessTokenRequest.accessTokenRequest["code"];
+            session = await this.sessionService
+                .getBy({
+                    authorization_code,
+                })
+                .catch(() => {
+                    throw new TokenErrorException(
+                        "invalid_grant",
+                        "The provided authorization code is invalid or expired",
+                    );
+                });
+        }
         const issuanceConfig =
             await this.issuanceService.getIssuanceConfiguration(tenantId);
 
@@ -399,6 +426,37 @@ export class AuthorizeService {
             dpopValue = dpop;
         }
 
+        if (
+            parsedAccessTokenRequest.grant.grantType ===
+            refreshTokenGrantIdentifier
+        ) {
+            // For refresh_token grant, verify the token with the stored refresh_token
+            await this.getAuthorizationServer(tenantId, session.id)
+                .verifyRefreshTokenAccessTokenRequest({
+                    grant: parsedAccessTokenRequest.grant as ParsedAccessTokenRefreshTokenRequestGrant,
+                    accessTokenRequest:
+                        parsedAccessTokenRequest.accessTokenRequest,
+                    expectedRefreshToken: session.refresh_token!,
+                    request: {
+                        method: req.method as HttpMethod,
+                        url,
+                        headers: getHeadersFromRequest(req),
+                    },
+                    authorizationServerMetadata,
+                    refreshTokenExpiresAt: session.refresh_token_expires_at,
+                })
+                .catch((err) => {
+                    // Map verification errors to OAuth 2.0 error codes
+                    const errorCode = this.mapToTokenErrorCode(err.error);
+                    throw new TokenErrorException(
+                        errorCode,
+                        err.error_description,
+                    );
+                });
+            // Note: dpopValue remains undefined for refresh_token grant
+            // as DPoP is typically not required for refresh token requests
+        }
+
         // Use pinned key from issuance config, or fall back to first available key
         const signingKeyId =
             issuanceConfig.signingKeyId ||
@@ -410,7 +468,13 @@ export class AuthorizeService {
             signingKeyId,
         );
 
-        return this.getAuthorizationServer(tenantId, session.id)
+        // Determine access token lifetime (use credential lifetime if available, otherwise 5 min default)
+        const accessTokenExpiresInSeconds = 300;
+
+        const tokenResponse = await this.getAuthorizationServer(
+            tenantId,
+            session.id,
+        )
             .createAccessTokenResponse({
                 audience: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/issuers/${tenantId}`,
                 signer: {
@@ -420,11 +484,11 @@ export class AuthorizeService {
                     kid: signingKeyId,
                 },
                 subject: session.id,
-                expiresInSeconds: 300,
+                expiresInSeconds: accessTokenExpiresInSeconds,
                 authorizationServer: authorizationServerMetadata.issuer,
                 clientId: req.body.client_id,
                 dpop: dpopValue,
-                refreshToken: true,
+                refreshToken: issuanceConfig.refreshTokenEnabled ? true : false,
             })
             .catch((err) => {
                 this.logger.error("Error creating access token response:", err);
@@ -434,6 +498,27 @@ export class AuthorizeService {
                     "Failed to create access token response",
                 );
             });
+
+        // Store the refresh_token in the session if it was generated
+        if (tokenResponse.refresh_token) {
+            // Calculate refresh token expiration based on configured lifetime
+            let refreshTokenExpiresAt: Date | undefined;
+            if (issuanceConfig.refreshTokenExpiresInSeconds) {
+                const now = new Date();
+                refreshTokenExpiresAt = new Date(
+                    now.getTime() +
+                        (issuanceConfig.refreshTokenExpiresInSeconds || 0) *
+                            1000,
+                );
+            }
+
+            await this.sessionService.add(session.id, {
+                refresh_token: tokenResponse.refresh_token,
+                refresh_token_expires_at: refreshTokenExpiresAt,
+            });
+        }
+
+        return tokenResponse;
     }
 
     /**

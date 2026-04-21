@@ -17,3 +17,4 @@ export { ExtractAttributeProviderAndWebhookEndpoint1748000000000 } from "./17480
 export { AddSessionLogEntry1749000000000 } from "./1749000000000-AddSessionLogEntry";
 export { AddSessionErrorReason1750000000000 } from "./1750000000000-AddSessionErrorReason";
 export { AddDirectPostSecurityFields1751000000000 } from "./1751000000000-AddDirectPostSecurityFields";
+export { AddRefreshTokenToSession1752000000000 } from "./1752000000000-AddRefreshTokenToSession";

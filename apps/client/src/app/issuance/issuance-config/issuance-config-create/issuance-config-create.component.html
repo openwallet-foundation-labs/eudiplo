@@ -44,6 +44,39 @@
             >
           </div>
         </mat-slide-toggle>
+
+        <mat-slide-toggle formControlName="refreshTokenEnabled">
+          <div fxLayout="column">
+            <span><strong>Issue Refresh Tokens</strong></span>
+            <span class="toggle-description"
+              >Allow wallets to exchange a refresh token for a new access token without restarting
+              the issuance authorization flow.</span
+            >
+          </div>
+        </mat-slide-toggle>
+
+        @if (refreshTokenEnabled) {
+          <mat-form-field>
+            <mat-label>Refresh Token Lifetime (seconds)</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="refreshTokenExpiresInSeconds"
+              placeholder="2592000"
+              min="1"
+            />
+            <mat-icon matSuffix>timelapse</mat-icon>
+            <mat-hint>
+              How long issued refresh tokens remain valid. Default: 2592000 seconds (30 days).
+            </mat-hint>
+            @if (
+              form.get('refreshTokenExpiresInSeconds')?.invalid &&
+              form.get('refreshTokenExpiresInSeconds')?.touched
+            ) {
+              <mat-error>Refresh token lifetime must be at least 1 second</mat-error>
+            }
+          </mat-form-field>
+        }
       </mat-card-content>
     </mat-card>
 

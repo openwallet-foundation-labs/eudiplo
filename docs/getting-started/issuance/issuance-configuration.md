@@ -22,9 +22,53 @@ Issuance configurations define the parameters and settings for the issuance of c
 - `notifyWebhook` (object, optional): Webhook to send the result of the notification response. See [Webhooks](../../architecture/webhooks.md#notification-webhook).
 - `batchSize` (number, optional): Value to determine the amount of credentials that are issued in a batch. Default is 1.
 - `dPopRequired` (boolean, optional): Indicates whether DPoP is required for the issuance process. Default value is true.
+- `refreshTokenEnabled` (boolean, optional): Controls whether the token endpoint returns a refresh token in OID4VCI token responses. Default is `true`.
+- `refreshTokenExpiresInSeconds` (number, optional): Lifetime of issued refresh tokens in seconds. Default is `2592000` (30 days).
 - `walletAttestationRequired` (boolean, optional): Indicates whether wallet attestation is required for the token endpoint. Default value is false. See [Wallet Attestation](#wallet-attestation) below.
 - `walletProviderTrustLists` (array of strings, optional): URLs of trust lists containing trusted wallet providers. Required when `walletAttestationRequired` is true.
 - `display` (array of objects, required): The display information from the [OID4VCI spec](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-issuer-metadata:~:text=2%20or%20greater.-,display,-%3A%20OPTIONAL.%20A%20non). To host images or logos, you can use the [storage](../../architecture/storage.md) system provided by EUDIPLO.
+
+---
+
+## Refresh Tokens
+
+EUDIPLO can issue refresh tokens from the OID4VCI token endpoint so wallets can obtain a new access token without re-running the authorization flow.
+
+### Configuration
+
+Use these issuance configuration fields:
+
+```json
+{
+    "refreshTokenEnabled": true,
+    "refreshTokenExpiresInSeconds": 2592000
+}
+```
+
+### Field Reference
+
+| Field                          | Type    | Required | Description                                                             |
+| ------------------------------ | ------- | -------- | ----------------------------------------------------------------------- |
+| `refreshTokenEnabled`          | boolean | No       | Enables refresh token issuance on the token endpoint. Default: `true`.  |
+| `refreshTokenExpiresInSeconds` | number  | No       | Refresh token validity period in seconds. Default: `2592000` (30 days). |
+
+### Behavior
+
+When `refreshTokenEnabled` is `true`:
+
+1. The token endpoint includes a `refresh_token` in the token response.
+2. EUDIPLO stores the refresh token and its expiration time in the issuance session.
+3. A wallet can later call the token endpoint with `grant_type=refresh_token` and the previously issued `refresh_token`.
+4. EUDIPLO validates both the token value and the configured expiration before issuing a new access token.
+
+When `refreshTokenEnabled` is `false`, no refresh token is returned.
+
+### Web Client
+
+The web client exposes both settings in the Issuance Configuration editor under Basic Information:
+
+- `Issue Refresh Tokens`
+- `Refresh Token Lifetime (seconds)`
 
 ---
 
