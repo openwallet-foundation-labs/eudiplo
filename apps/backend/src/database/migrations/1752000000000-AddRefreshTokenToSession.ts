@@ -14,8 +14,7 @@ export class AddRefreshTokenToSession1752000000000
     name = "AddRefreshTokenToSession1752000000000";
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        const isPostgres =
-            queryRunner.connection.options.type === "postgres";
+        const isPostgres = queryRunner.connection.options.type === "postgres";
 
         // Add columns to session table
         const sessionTable = await queryRunner.getTable("session");
