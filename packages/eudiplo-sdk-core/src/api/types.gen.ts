@@ -834,6 +834,16 @@ export type IssuanceConfig = {
    */
   dPopRequired?: boolean;
   /**
+   * Whether refresh tokens should be issued for OID4VCI token responses.
+   * Default value is true.
+   */
+  refreshTokenEnabled?: boolean;
+  /**
+   * Refresh token lifetime in seconds.
+   * Default value is 2592000 (30 days).
+   */
+  refreshTokenExpiresInSeconds?: number;
+  /**
    * Indicates whether wallet attestation is required for the token endpoint.
    * When enabled, wallets must provide OAuth-Client-Attestation headers.
    * Default value is false.
@@ -887,6 +897,16 @@ export type IssuanceDto = {
    * Indicates whether DPoP is required for the issuance process. Default value is true.
    */
   dPopRequired?: boolean;
+  /**
+   * Whether refresh tokens should be issued for OID4VCI token responses.
+   * Default value is true.
+   */
+  refreshTokenEnabled?: boolean;
+  /**
+   * Refresh token lifetime in seconds.
+   * Default value is 2592000 (30 days).
+   */
+  refreshTokenExpiresInSeconds?: number;
   /**
    * Indicates whether wallet attestation is required for the token endpoint.
    * When enabled, wallets must provide OAuth-Client-Attestation headers.

@@ -60,6 +60,10 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
   public loading = false;
   private chainedAsEnabledSub?: Subscription;
 
+  private asRecord(value: unknown): Record<string, unknown> {
+    return value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
+  }
+
   constructor(
     private readonly issuanceConfigService: IssuanceConfigService,
     private readonly router: Router,
@@ -74,6 +78,8 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
       preferredAuthServer: new FormControl(''),
       batchSize: new FormControl(1, [Validators.min(1)]),
       dPopRequired: new FormControl(false),
+      refreshTokenEnabled: new FormControl(true),
+      refreshTokenExpiresInSeconds: new FormControl(2592000, [Validators.min(1)]),
       walletAttestationRequired: new FormControl(false),
       walletProviderTrustLists: this.fb.array([]),
       chainedAs: this.fb.group({
@@ -149,12 +155,14 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
       displayArray.clear();
       if (config.display && Array.isArray(config.display)) {
         for (const entry of config.display) {
+          const displayEntry = this.asRecord(entry);
+          const logo = this.asRecord(displayEntry['logo']);
           displayArray.push(
             this.fb.group({
-              name: [entry.name || '', Validators.required],
-              locale: [entry.locale || '', Validators.required],
+              name: [typeof displayEntry['name'] === 'string' ? displayEntry['name'] : '', Validators.required],
+              locale: [typeof displayEntry['locale'] === 'string' ? displayEntry['locale'] : '', Validators.required],
               logo: this.fb.group({
-                uri: [entry.logo?.uri || '', Validators.required],
+                uri: [typeof logo['uri'] === 'string' ? logo['uri'] : '', Validators.required],
               }),
             })
           );
@@ -183,6 +191,8 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
       this.form.patchValue({
         batchSize: config.batchSize,
         dPopRequired: config.dPopRequired,
+        refreshTokenEnabled: config.refreshTokenEnabled ?? true,
+        refreshTokenExpiresInSeconds: config.refreshTokenExpiresInSeconds ?? 2592000,
         walletAttestationRequired: config.walletAttestationRequired ?? false,
         preferredAuthServer: config.preferredAuthServer ?? '',
       });
@@ -242,6 +252,10 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
       batchSize: formValue.batchSize,
       display: formValue.display,
       dPopRequired: formValue.dPopRequired,
+      refreshTokenEnabled: formValue.refreshTokenEnabled,
+      refreshTokenExpiresInSeconds: formValue.refreshTokenEnabled
+        ? formValue.refreshTokenExpiresInSeconds || 2592000
+        : undefined,
       authServers: formValue.authServers?.length > 0 ? formValue.authServers : undefined,
       preferredAuthServer: formValue.preferredAuthServer || undefined,
       walletAttestationRequired: formValue.walletAttestationRequired,
@@ -319,6 +333,10 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
 
   get chainedAsEnabled(): boolean {
     return this.chainedAs.get('enabled')?.value ?? false;
+  }
+
+  get refreshTokenEnabled(): boolean {
+    return this.form.get('refreshTokenEnabled')?.value ?? true;
   }
 
   /**
