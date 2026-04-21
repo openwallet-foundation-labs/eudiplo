@@ -140,6 +140,36 @@ export class IssuanceConfig {
     display!: DisplayInfo[];
 
     /**
+     * Whether to issue refresh tokens for access token requests.
+     * Default: true
+     */
+    @ApiPropertyOptional({
+        description:
+            "Whether refresh tokens should be issued for OID4VCI token responses.",
+        default: true,
+    })
+    @IsBoolean()
+    @IsOptional()
+    @Column("boolean", { default: true })
+    refreshTokenEnabled?: boolean;
+
+    /**
+     * Lifetime of issued refresh tokens in seconds.
+     * Default: 2592000 (30 days)
+     * Set to null for non-expiring refresh tokens (not recommended for security).
+     */
+    @ApiPropertyOptional({
+        description:
+            "Refresh token lifetime in seconds. Defaults to 2592000 (30 days).",
+        default: 2592000,
+        nullable: true,
+    })
+    @IsNumber()
+    @IsOptional()
+    @Column("int", { default: 2592000, nullable: true })
+    refreshTokenExpiresInSeconds?: number;
+
+    /**
      * The timestamp when the VP request was created.
      */
     @CreateDateColumn()

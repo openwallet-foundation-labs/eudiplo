@@ -44,6 +44,24 @@
             <span matListItemLine>{{ config.batchSize || 1 }} credential(s) per request</span>
           </mat-list-item>
           <mat-list-item>
+            <mat-icon matListItemIcon [class]="config.refreshTokenEnabled ? '' : 'icon-disabled'">
+              {{ config.refreshTokenEnabled ? 'refresh' : 'sync_disabled' }}
+            </mat-icon>
+            <span matListItemTitle>Refresh Tokens</span>
+            <span matListItemLine>
+              {{ config.refreshTokenEnabled ? 'Enabled' : 'Disabled' }}
+            </span>
+          </mat-list-item>
+          @if (config.refreshTokenEnabled) {
+            <mat-list-item>
+              <mat-icon matListItemIcon>timelapse</mat-icon>
+              <span matListItemTitle>Refresh Token Lifetime</span>
+              <span matListItemLine>
+                {{ config.refreshTokenExpiresInSeconds || 2592000 }} seconds
+              </span>
+            </mat-list-item>
+          }
+          <mat-list-item>
             <mat-icon matListItemIcon>dns</mat-icon>
             <span matListItemTitle>Authorization Servers</span>
             <span matListItemLine>
@@ -176,8 +194,8 @@
             <div class="locale-chips">
               <strong>Available locales:</strong>
               <mat-chip-set>
-                @for (display of config.display; track display.locale) {
-                  <mat-chip>{{ display.locale }} - {{ display.name }}</mat-chip>
+                @for (display of config.display; track display['locale']) {
+                  <mat-chip>{{ display['locale'] }} - {{ display['name'] }}</mat-chip>
                 }
               </mat-chip-set>
             </div>

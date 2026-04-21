@@ -113,6 +113,17 @@ export class Session {
     @Column("varchar", { nullable: true })
     authorization_code?: string;
     /**
+     * Refresh token for the session - used to obtain a new access token.
+     */
+    @Column("varchar", { nullable: true })
+    refresh_token?: string;
+    /**
+     * Expiration timestamp for the refresh token.
+     * Used to validate refresh_token grant requests.
+     */
+    @Column({ nullable: true })
+    refresh_token_expires_at?: Date;
+    /**
      * Request URI from the authorization request.
      */
     @Column("varchar", { nullable: true })
