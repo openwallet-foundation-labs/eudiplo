@@ -189,6 +189,73 @@ export class PresentationsService {
     }
 
     /**
+     * Resolve OID4VCI credential issuer metadata server-side.
+     * This is used by the web client to avoid browser CORS restrictions.
+     */
+    async resolveCredentialIssuerMetadata(issuerUrl: string) {
+        const metadataUrl = this.buildCredentialIssuerMetadataUrl(issuerUrl);
+
+        const response = await fetch(metadataUrl, {
+            method: "GET",
+            headers: {
+                accept: "application/json",
+            },
+        }).catch((error) => {
+            throw new BadRequestException(
+                `Failed to fetch issuer metadata from ${metadataUrl}: ${error instanceof Error ? error.message : "unknown error"}`,
+            );
+        });
+
+        if (!response.ok) {
+            throw new BadRequestException(
+                `Failed to fetch issuer metadata from ${metadataUrl}: HTTP ${response.status}`,
+            );
+        }
+
+        const metadata = await response.json().catch(() => {
+            throw new BadRequestException(
+                `Issuer metadata response from ${metadataUrl} is not valid JSON`,
+            );
+        });
+
+        if (!metadata || typeof metadata !== "object") {
+            throw new BadRequestException(
+                `Issuer metadata response from ${metadataUrl} is invalid`,
+            );
+        }
+
+        return metadata;
+    }
+
+    /**
+     * Build OID4VCI metadata endpoint URL.
+     * Accepts either a base issuer URL or a full .well-known metadata URL.
+     */
+    private buildCredentialIssuerMetadataUrl(inputUrl: string): string {
+        const trimmed = inputUrl.trim();
+        let parsedUrl: URL;
+
+        try {
+            parsedUrl = new URL(trimmed);
+        } catch {
+            throw new BadRequestException("issuerUrl must be a valid URL");
+        }
+
+        if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") {
+            throw new BadRequestException(
+                "issuerUrl must use http or https protocol",
+            );
+        }
+
+        if (trimmed.includes(".well-known/openid-credential-issuer")) {
+            return trimmed;
+        }
+
+        const normalizedPath = parsedUrl.pathname.replace(/\/$/, "");
+        return `${parsedUrl.origin}/.well-known/openid-credential-issuer${normalizedPath}`;
+    }
+
+    /**
      * Stores the new registration certificate.
      * @param registrationCertId - The ID of the registration certificate to store.
      * @param id - The ID of the presentation configuration to update.
