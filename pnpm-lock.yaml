@@ -175,8 +175,8 @@ importers:
         specifier: ^1.40.0
         version: 1.40.0
       '@owf/eudi-lote':
-        specifier: 0.1.0-alpha-20260413140001
-        version: 0.1.0-alpha-20260413140001
+        specifier: 0.1.0-alpha-20260422101556
+        version: 0.1.0-alpha-20260422101556
       '@owf/mdoc':
         specifier: 0.6.0
         version: 0.6.0
@@ -3655,17 +3655,17 @@ packages:
     peerDependencies:
       '@opentelemetry/api': ^1.1.0
 
-  '@owf/crypto@0.1.0-alpha-20260413140001':
-    resolution: {integrity: sha512-XtKoOGMyZrlk0tEQOgxV9gPZBCOTr2vUXpQhqtT1SgxHfsu8bIKtSoFqHSRTrYAEUVDHGSqiRHDKdWLvjKCB1w==}
+  '@owf/crypto@0.1.0-alpha-20260422101556':
+    resolution: {integrity: sha512-rgZ2U+bvcv6W33d6sPx2LfQZk8+pds28iwGCfRxu/Zqsp6olNYuvmd1oNm0oN4Am9TV1cVxi/sjOnUNUfcTmvA==}
 
-  '@owf/eudi-lote@0.1.0-alpha-20260413140001':
-    resolution: {integrity: sha512-2DUAruXcFqRklfMIVKgU05WzNpmI7XcICEm++jovxyftAeRMUuVhdMwt3JPwm0vPh5kQiltF+uL74G/CCu7H1A==}
-
-  '@owf/identity-common@0.1.0-alpha-20260413140001':
-    resolution: {integrity: sha512-9r2GjEfVBz5x7YTv4b7QR0KFmSdD/Urz8pKEvO+g31sYqma2P6+1MWIOw1JzXOuqXL0jWHZWRPAymoeZekJtkw==}
+  '@owf/eudi-lote@0.1.0-alpha-20260422101556':
+    resolution: {integrity: sha512-Srh97sfLe1agV8ZHREk2NPRdNoU1q/fmofXBaIfusfKbelIrrUo94IYLzcU9SRsW4yu/jstV50J978auWiA5Fw==}
 
   '@owf/identity-common@0.1.0-alpha-20260421112634':
     resolution: {integrity: sha512-jw6bZF8Mgti8KRS+fsZK4to6eloyqdW5fridCs6oP41v4inHXsxxnENpSlW3iOdBbOWlILDE+Xk/idzujEpm0Q==}
+
+  '@owf/identity-common@0.1.0-alpha-20260422101556':
+    resolution: {integrity: sha512-0CJhMHXWf+Dn0MpZCeachjFjMjBI2uCJl56Po3dnGiJDis5wVkfWPeCdPJZ2h4fBWwXV0+Owa8nJRxXeruRwrA==}
 
   '@owf/mdoc@0.6.0':
     resolution: {integrity: sha512-vJL62hzjcSweBjDD9eRUH1RIMSzZUtHKjVFMMo50oHPLO9ZVZbQABFe9IFoa5AgXkwfv27HjnFv/eRbkOrlsUA==}
@@ -14842,20 +14842,20 @@ snapshots:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/core': 2.7.0(@opentelemetry/api@1.9.1)
 
-  '@owf/crypto@0.1.0-alpha-20260413140001':
+  '@owf/crypto@0.1.0-alpha-20260422101556':
     dependencies:
       '@noble/hashes': 2.2.0
-      '@owf/identity-common': 0.1.0-alpha-20260413140001
+      '@owf/identity-common': 0.1.0-alpha-20260422101556
 
-  '@owf/eudi-lote@0.1.0-alpha-20260413140001':
+  '@owf/eudi-lote@0.1.0-alpha-20260422101556':
     dependencies:
-      '@owf/crypto': 0.1.0-alpha-20260413140001
-      '@owf/identity-common': 0.1.0-alpha-20260413140001
+      '@owf/crypto': 0.1.0-alpha-20260422101556
+      '@owf/identity-common': 0.1.0-alpha-20260422101556
       zod: 4.3.6
 
-  '@owf/identity-common@0.1.0-alpha-20260413140001': {}
-
   '@owf/identity-common@0.1.0-alpha-20260421112634': {}
+
+  '@owf/identity-common@0.1.0-alpha-20260422101556': {}
 
   '@owf/mdoc@0.6.0':
     dependencies:
