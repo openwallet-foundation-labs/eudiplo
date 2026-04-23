@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/FrontendConfigResponseDto.schema.json",
+  "title": "FrontendConfigResponseDto",
+  "type": "object",
+  "properties": {
+    "grafana": {
+      "description": "Grafana observability configuration",
+      "allOf": [
+        {
+          "$ref": "./GrafanaConfigDto.schema.json"
+        }
+      ]
+    }
+  },
+  "required": [
+    "grafana"
+  ],
+  "additionalProperties": false
+}

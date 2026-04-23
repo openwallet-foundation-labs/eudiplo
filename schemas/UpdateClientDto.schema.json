@@ -33,8 +33,8 @@
       "description": "The description of the client."
     },
     "roles": {
-      "type": "array",
       "description": "The roles assigned to the client.",
+      "type": "array",
       "items": {
         "type": "string",
         "enum": [

@@ -7,11 +7,24 @@
     "statusListConfig": {
       "nullable": true,
       "description": "Status list configuration for this tenant. Only affects newly created status lists.",
+      "type": "object",
       "allOf": [
         {
           "$ref": "./StatusListConfig.schema.json"
         }
       ]
+    },
+    "id": {
+      "type": "string",
+      "description": "The unique identifier for the tenant."
+    },
+    "name": {
+      "type": "string",
+      "description": "The name of the tenant."
+    },
+    "description": {
+      "type": "string",
+      "description": "The description of the tenant."
     },
     "sessionConfig": {
       "description": "Session storage configuration. Controls TTL and cleanup behavior.",
@@ -35,18 +48,6 @@
           "registrar:manage"
         ]
       }
-    },
-    "id": {
-      "type": "string",
-      "description": "The unique identifier for the tenant."
-    },
-    "name": {
-      "type": "string",
-      "description": "The name of the tenant."
-    },
-    "description": {
-      "type": "string",
-      "description": "The description of the tenant."
     }
   },
   "required": [

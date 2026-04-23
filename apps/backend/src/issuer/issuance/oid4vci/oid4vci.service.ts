@@ -253,6 +253,14 @@ export class Oid4vciService {
                 issuanceConfig.display !== null
                     ? issuanceConfig.display
                     : undefined,
+            credential_response_encryption:
+                issuanceConfig?.credentialResponseEncryption
+                    ? {
+                          alg_values_supported: ["ECDH-ES"],
+                          enc_values_supported: ["A128GCM", "A256GCM"],
+                          encryption_required: false,
+                      }
+                    : undefined,
             batch_credential_issuance:
                 issuanceConfig?.batchSize && issuanceConfig?.batchSize > 1
                     ? {

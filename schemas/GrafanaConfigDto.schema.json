@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/GrafanaConfigDto.schema.json",
+  "title": "GrafanaConfigDto",
+  "type": "object",
+  "properties": {
+    "url": {
+      "type": "string",
+      "description": "Base URL of the Grafana instance",
+      "example": "http://localhost:3001"
+    },
+    "tempoUid": {
+      "type": "string",
+      "description": "UID of the Tempo data source in Grafana",
+      "example": "tempo"
+    },
+    "lokiUid": {
+      "type": "string",
+      "description": "UID of the Loki data source in Grafana",
+      "example": "loki"
+    }
+  },
+  "required": [
+    "tempoUid",
+    "lokiUid"
+  ],
+  "additionalProperties": false
+}

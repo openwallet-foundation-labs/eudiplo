@@ -77,6 +77,18 @@
             }
           </mat-form-field>
         }
+
+        <mat-slide-toggle formControlName="credentialResponseEncryption">
+          <div fxLayout="column">
+            <span><strong>Advertise Credential Response Encryption</strong></span>
+            <span class="toggle-description"
+              >Advertise `credential_response_encryption` (ECDH-ES, A128GCM/A256GCM) in the
+              credential issuer metadata so wallets MAY request encrypted credential responses. Some
+              wallets reject metadata advertising encryption they do not support — leave disabled
+              unless you need it.</span
+            >
+          </div>
+        </mat-slide-toggle>
       </mat-card-content>
     </mat-card>
 

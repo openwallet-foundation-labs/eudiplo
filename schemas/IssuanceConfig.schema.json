@@ -11,11 +11,28 @@
     "chainedAs": {
       "nullable": true,
       "description": "Configuration for Chained Authorization Server mode.\nWhen enabled, EUDIPLO acts as an OAuth AS facade, delegating user authentication\nto an upstream OIDC provider while issuing its own tokens with issuer_state.",
+      "type": "object",
       "allOf": [
         {
           "$ref": "./ChainedAsConfig.schema.json"
         }
       ]
+    },
+    "refreshTokenEnabled": {
+      "type": "boolean",
+      "description": "Whether refresh tokens should be issued for OID4VCI token responses.",
+      "default": true
+    },
+    "credentialResponseEncryption": {
+      "type": "boolean",
+      "description": "Whether `credential_response_encryption` should be advertised in the credential issuer metadata.",
+      "default": false
+    },
+    "refreshTokenExpiresInSeconds": {
+      "type": "number",
+      "description": "Refresh token lifetime in seconds. Defaults to 2592000 (30 days).",
+      "default": 2592000,
+      "nullable": true
     },
     "tenant": {
       "description": "The tenant that owns this object.",

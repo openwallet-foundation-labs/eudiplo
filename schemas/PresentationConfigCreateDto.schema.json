@@ -34,6 +34,7 @@
     "registrationCert": {
       "nullable": true,
       "description": "The registration certificate request containing the necessary details.",
+      "type": "object",
       "allOf": [
         {
           "$ref": "./RegistrationCertificateRequest.schema.json"
@@ -43,6 +44,7 @@
     "webhook": {
       "nullable": true,
       "description": "Optional webhook URL to receive the response.",
+      "type": "object",
       "allOf": [
         {
           "$ref": "./WebhookConfig.schema.json"

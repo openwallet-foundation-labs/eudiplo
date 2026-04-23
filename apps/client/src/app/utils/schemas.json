@@ -1,5 +1,56 @@
 [
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/GrafanaConfigDto.schema.json",
+    "fileMatch": ["a://b/GrafanaConfigDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/GrafanaConfigDto.schema.json",
+      "title": "GrafanaConfigDto",
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "Base URL of the Grafana instance",
+          "example": "http://localhost:3001"
+        },
+        "tempoUid": {
+          "type": "string",
+          "description": "UID of the Tempo data source in Grafana",
+          "example": "tempo"
+        },
+        "lokiUid": {
+          "type": "string",
+          "description": "UID of the Loki data source in Grafana",
+          "example": "loki"
+        }
+      },
+      "required": ["tempoUid", "lokiUid"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/FrontendConfigResponseDto.schema.json",
+    "fileMatch": ["a://b/FrontendConfigResponseDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/FrontendConfigResponseDto.schema.json",
+      "title": "FrontendConfigResponseDto",
+      "type": "object",
+      "properties": {
+        "grafana": {
+          "description": "Grafana observability configuration",
+          "allOf": [
+            {
+              "$ref": "./GrafanaConfigDto.schema.json"
+            }
+          ]
+        }
+      },
+      "required": ["grafana"],
+      "additionalProperties": false
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/RoleDto.schema.json",
     "fileMatch": ["a://b/RoleDto*.schema.json"],
     "schema": {
@@ -177,6 +228,7 @@
         "sessionConfig": {
           "nullable": true,
           "description": "Session storage configuration for this tenant. Controls TTL and cleanup behavior.",
+          "type": "object",
           "allOf": [
             {
               "$ref": "./SessionStorageConfig.schema.json"
@@ -186,6 +238,7 @@
         "statusListConfig": {
           "nullable": true,
           "description": "Status list configuration for this tenant. Only affects newly created status lists.",
+          "type": "object",
           "allOf": [
             {
               "$ref": "./StatusListConfig.schema.json"
@@ -304,11 +357,24 @@
         "statusListConfig": {
           "nullable": true,
           "description": "Status list configuration for this tenant. Only affects newly created status lists.",
+          "type": "object",
           "allOf": [
             {
               "$ref": "./StatusListConfig.schema.json"
             }
           ]
+        },
+        "id": {
+          "type": "string",
+          "description": "The unique identifier for the tenant."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the tenant."
+        },
+        "description": {
+          "type": "string",
+          "description": "The description of the tenant."
         },
         "sessionConfig": {
           "description": "Session storage configuration. Controls TTL and cleanup behavior.",
@@ -332,18 +398,6 @@
               "registrar:manage"
             ]
           }
-        },
-        "id": {
-          "type": "string",
-          "description": "The unique identifier for the tenant."
-        },
-        "name": {
-          "type": "string",
-          "description": "The name of the tenant."
-        },
-        "description": {
-          "type": "string",
-          "description": "The description of the tenant."
         }
       },
       "required": ["id", "name"],
@@ -362,17 +416,10 @@
         "statusListConfig": {
           "nullable": true,
           "description": "Status list configuration for this tenant. Only affects newly created status lists.",
+          "type": "object",
           "allOf": [
             {
               "$ref": "./StatusListConfig.schema.json"
-            }
-          ]
-        },
-        "sessionConfig": {
-          "description": "Session storage configuration. Controls TTL and cleanup behavior.",
-          "allOf": [
-            {
-              "$ref": "./SessionStorageConfig.schema.json"
             }
           ]
         },
@@ -383,6 +430,14 @@
         "description": {
           "type": "string",
           "description": "The description of the tenant."
+        },
+        "sessionConfig": {
+          "description": "Session storage configuration. Controls TTL and cleanup behavior.",
+          "allOf": [
+            {
+              "$ref": "./SessionStorageConfig.schema.json"
+            }
+          ]
         },
         "roles": {
           "type": "array",
@@ -452,8 +507,8 @@
           "description": "The description of the client."
         },
         "roles": {
-          "type": "array",
           "description": "The roles assigned to the client.",
+          "type": "array",
           "items": {
             "type": "string",
             "enum": [
@@ -512,8 +567,8 @@
           "description": "The description of the client."
         },
         "roles": {
-          "type": "array",
           "description": "The roles assigned to the client.",
+          "type": "array",
           "items": {
             "type": "string",
             "enum": [
@@ -829,6 +884,10 @@
         },
         "state": {
           "type": "string"
+        },
+        "authorization_details": {
+          "type": "object",
+          "description": "RFC 9396 authorization details. When passed via\napplication/x-www-form-urlencoded (PAR) the value is a JSON string; when\npassed inside a signed request object it can already be an array."
         }
       },
       "additionalProperties": false
@@ -1138,6 +1197,15 @@
         "authorization_code": {
           "type": "string"
         },
+        "refresh_token": {
+          "type": "string",
+          "description": "Refresh token for the session - used to obtain a new access token."
+        },
+        "refresh_token_expires_at": {
+          "format": "date-time",
+          "type": "string",
+          "description": "Expiration timestamp for the refresh token.\nUsed to validate refresh_token grant requests."
+        },
         "request_uri": {
           "type": "string",
           "description": "Request URI from the authorization request."
@@ -1202,6 +1270,14 @@
         "clientId": {
           "type": "string",
           "description": "Client ID used in the OID4VP authorization request."
+        },
+        "walletNonce": {
+          "type": "string",
+          "description": "Cryptographic random nonce used in wallet-facing URLs (response_uri, request_uri, state).\nPer OID4VP spec Section 13.3, this separates the wallet-facing identifier (request-id)\nfrom the frontend-facing session ID (transaction-id) to prevent session fixation."
+        },
+        "responseCode": {
+          "type": "string",
+          "description": "Cryptographic random code generated after successful VP Token processing.\nPer OID4VP spec Section 13.3, included in redirect_uri so only the legitimate\nfrontend (which receives the redirect) can confirm the session completed."
         },
         "responseUri": {
           "type": "string",
@@ -1610,11 +1686,28 @@
         "chainedAs": {
           "nullable": true,
           "description": "Configuration for Chained Authorization Server mode.\nWhen enabled, EUDIPLO acts as an OAuth AS facade, delegating user authentication\nto an upstream OIDC provider while issuing its own tokens with issuer_state.",
+          "type": "object",
           "allOf": [
             {
               "$ref": "./ChainedAsConfig.schema.json"
             }
           ]
+        },
+        "refreshTokenEnabled": {
+          "type": "boolean",
+          "description": "Whether refresh tokens should be issued for OID4VCI token responses.",
+          "default": true
+        },
+        "credentialResponseEncryption": {
+          "type": "boolean",
+          "description": "Whether `credential_response_encryption` should be advertised in the credential issuer metadata.",
+          "default": false
+        },
+        "refreshTokenExpiresInSeconds": {
+          "type": "number",
+          "description": "Refresh token lifetime in seconds. Defaults to 2592000 (30 days).",
+          "default": 2592000,
+          "nullable": true
         },
         "tenant": {
           "description": "The tenant that owns this object.",
@@ -1691,11 +1784,28 @@
         "chainedAs": {
           "nullable": true,
           "description": "Configuration for Chained Authorization Server mode.\nWhen enabled, EUDIPLO acts as an OAuth AS facade, delegating user authentication\nto an upstream OIDC provider while issuing its own tokens with issuer_state.",
+          "type": "object",
           "allOf": [
             {
               "$ref": "./ChainedAsConfig.schema.json"
             }
           ]
+        },
+        "refreshTokenEnabled": {
+          "type": "boolean",
+          "description": "Whether refresh tokens should be issued for OID4VCI token responses.",
+          "default": true
+        },
+        "credentialResponseEncryption": {
+          "type": "boolean",
+          "description": "Whether `credential_response_encryption` should be advertised in the credential issuer metadata.",
+          "default": false
+        },
+        "refreshTokenExpiresInSeconds": {
+          "type": "number",
+          "description": "Refresh token lifetime in seconds. Defaults to 2592000 (30 days).",
+          "default": 2592000,
+          "nullable": true
         },
         "authServers": {
           "description": "Authentication server URL for the issuance process.",
@@ -2535,6 +2645,7 @@
       "type": "object",
       "properties": {
         "vct": {
+          "type": "object",
           "description": "VCT as a URI string (e.g., urn:eudi:pid:de:1) or as an object for EUDIPLO-hosted VCT",
           "nullable": true,
           "oneOf": [
@@ -2580,6 +2691,7 @@
               "$ref": "./RootOfTrustPolicy.schema.json"
             }
           ],
+          "type": "object",
           "allOf": [
             {
               "$ref": "./EmbeddedDisclosurePolicy.schema.json"
@@ -2646,6 +2758,7 @@
         },
         "schema": {
           "nullable": true,
+          "type": "object",
           "allOf": [
             {
               "$ref": "./SchemaResponse.schema.json"
@@ -2667,6 +2780,7 @@
       "type": "object",
       "properties": {
         "vct": {
+          "type": "object",
           "description": "VCT as a URI string (e.g., urn:eudi:pid:de:1) or as an object for EUDIPLO-hosted VCT",
           "nullable": true,
           "oneOf": [
@@ -2712,6 +2826,7 @@
               "$ref": "./RootOfTrustPolicy.schema.json"
             }
           ],
+          "type": "object",
           "allOf": [
             {
               "$ref": "./EmbeddedDisclosurePolicy.schema.json"
@@ -2761,6 +2876,7 @@
         },
         "schema": {
           "nullable": true,
+          "type": "object",
           "allOf": [
             {
               "$ref": "./SchemaResponse.schema.json"
@@ -2782,6 +2898,7 @@
       "type": "object",
       "properties": {
         "vct": {
+          "type": "object",
           "description": "VCT as a URI string (e.g., urn:eudi:pid:de:1) or as an object for EUDIPLO-hosted VCT",
           "nullable": true,
           "oneOf": [
@@ -2827,6 +2944,7 @@
               "$ref": "./RootOfTrustPolicy.schema.json"
             }
           ],
+          "type": "object",
           "allOf": [
             {
               "$ref": "./EmbeddedDisclosurePolicy.schema.json"
@@ -2876,6 +2994,7 @@
         },
         "schema": {
           "nullable": true,
+          "type": "object",
           "allOf": [
             {
               "$ref": "./SchemaResponse.schema.json"
@@ -3149,6 +3268,7 @@
         "registrationCert": {
           "nullable": true,
           "description": "The registration certificate request containing the necessary details.",
+          "type": "object",
           "allOf": [
             {
               "$ref": "./RegistrationCertificateRequest.schema.json"
@@ -3158,6 +3278,7 @@
         "webhook": {
           "nullable": true,
           "description": "Optional webhook URL to receive the response.",
+          "type": "object",
           "allOf": [
             {
               "$ref": "./WebhookConfig.schema.json"
@@ -3195,6 +3316,26 @@
         }
       },
       "required": ["id", "tenant", "dcql_query", "createdAt", "updatedAt"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ResolveIssuerMetadataDto.schema.json",
+    "fileMatch": ["a://b/ResolveIssuerMetadataDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ResolveIssuerMetadataDto.schema.json",
+      "title": "ResolveIssuerMetadataDto",
+      "type": "object",
+      "properties": {
+        "issuerUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Issuer URL or full OpenID4VCI metadata URL to resolve server-side.",
+          "example": "https://issuer.example.com/issuers/tenant-a"
+        }
+      },
+      "required": ["issuerUrl"],
       "additionalProperties": false
     }
   },
@@ -3237,6 +3378,7 @@
         "registrationCert": {
           "nullable": true,
           "description": "The registration certificate request containing the necessary details.",
+          "type": "object",
           "allOf": [
             {
               "$ref": "./RegistrationCertificateRequest.schema.json"
@@ -3246,6 +3388,7 @@
         "webhook": {
           "nullable": true,
           "description": "Optional webhook URL to receive the response.",
+          "type": "object",
           "allOf": [
             {
               "$ref": "./WebhookConfig.schema.json"
@@ -3315,6 +3458,7 @@
         "registrationCert": {
           "nullable": true,
           "description": "The registration certificate request containing the necessary details.",
+          "type": "object",
           "allOf": [
             {
               "$ref": "./RegistrationCertificateRequest.schema.json"
@@ -3324,6 +3468,7 @@
         "webhook": {
           "nullable": true,
           "description": "Optional webhook URL to receive the response.",
+          "type": "object",
           "allOf": [
             {
               "$ref": "./WebhookConfig.schema.json"
@@ -3389,6 +3534,18 @@
         }
       },
       "required": ["notification_id", "event"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/Object.schema.json",
+    "fileMatch": ["a://b/Object*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/Object.schema.json",
+      "title": "Object",
+      "type": "object",
+      "properties": {},
       "additionalProperties": false
     }
   },
@@ -3532,64 +3689,6 @@
         }
       },
       "required": ["error"],
-      "additionalProperties": false
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsParRequestDto.schema.json",
-    "fileMatch": ["a://b/ChainedAsParRequestDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ChainedAsParRequestDto.schema.json",
-      "title": "ChainedAsParRequestDto",
-      "type": "object",
-      "properties": {
-        "response_type": {
-          "type": "string",
-          "description": "OAuth response type (must be 'code')",
-          "example": "code"
-        },
-        "client_id": {
-          "type": "string",
-          "description": "Client identifier (wallet identifier)",
-          "example": "https://wallet.example.com"
-        },
-        "redirect_uri": {
-          "type": "string",
-          "description": "URI to redirect the wallet after authorization",
-          "example": "https://wallet.example.com/callback"
-        },
-        "code_challenge": {
-          "type": "string",
-          "description": "PKCE code challenge"
-        },
-        "code_challenge_method": {
-          "type": "string",
-          "description": "PKCE code challenge method (e.g., S256)",
-          "example": "S256"
-        },
-        "state": {
-          "type": "string",
-          "description": "State parameter (returned in redirect)"
-        },
-        "scope": {
-          "type": "string",
-          "description": "Scope requested",
-          "example": "openid credential"
-        },
-        "issuer_state": {
-          "type": "string",
-          "description": "Issuer state from credential offer"
-        },
-        "authorization_details": {
-          "description": "Authorization details (JSON array)",
-          "type": "array",
-          "items": {
-            "type": "object"
-          }
-        }
-      },
-      "required": ["response_type", "client_id", "redirect_uri"],
       "additionalProperties": false
     }
   },
@@ -4153,6 +4252,13 @@
       "title": "TrustListCreateDto",
       "type": "object",
       "properties": {
+        "description": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object",
+          "description": "The full trust list JSON (generated LoTE structure)"
+        },
         "entities": {
           "type": "array",
           "items": {
@@ -4176,15 +4282,8 @@
         "id": {
           "type": "string"
         },
-        "description": {
-          "type": "string"
-        },
         "keyChainId": {
           "type": "string"
-        },
-        "data": {
-          "type": "object",
-          "description": "The full trust list JSON (generated LoTE structure)"
         }
       },
       "required": ["entities"],
