@@ -26,6 +26,7 @@ import {
     ChainedAsTokenRequestDto,
     ChainedAsTokenResponseDto,
 } from "./dto/chained-as.dto";
+import { ChainedAsDpopJtiEntity } from "./entities/chained-as-dpop-jti.entity";
 import {
     ChainedAsSessionEntity,
     ChainedAsSessionStatus,
@@ -91,9 +92,6 @@ export class ChainedAsService {
     /** DPoP proof freshness window in seconds. */
     private readonly DPOP_MAX_AGE_SECONDS = 300;
 
-    /** In-memory replay cache for DPoP jti values. */
-    private readonly dpopJtiCache = new Map<string, number>();
-
     /** Cache for upstream OIDC discovery documents */
     private readonly discoveryCache = new Map<
         string,
@@ -119,6 +117,8 @@ export class ChainedAsService {
         private readonly traceService: TraceService,
         @InjectRepository(ChainedAsSessionEntity)
         private readonly sessionRepository: Repository<ChainedAsSessionEntity>,
+        @InjectRepository(ChainedAsDpopJtiEntity)
+        private readonly dpopJtiRepository: Repository<ChainedAsDpopJtiEntity>,
     ) {}
 
     /**
@@ -139,11 +139,11 @@ export class ChainedAsService {
     /**
      * Validate DPoP proof shape and return the JWK thumbprint for cnf.jkt binding.
      */
-    private validateDpopForTokenRequest(
+    private async validateDpopForTokenRequest(
         tenantId: string,
         dpopJwt: string,
         session: ChainedAsSessionEntity,
-    ): string {
+    ): Promise<string> {
         const proofJkt = extractDpopJkt(dpopJwt);
         if (!proofJkt) {
             throw new BadRequestException("Invalid DPoP proof");
@@ -179,20 +179,18 @@ export class ChainedAsService {
             throw new BadRequestException("Invalid DPoP jti claim");
         }
 
-        // Opportunistic in-memory replay protection.
-        for (const [key, expiresAt] of this.dpopJtiCache.entries()) {
-            if (expiresAt <= Date.now()) {
-                this.dpopJtiCache.delete(key);
-            }
-        }
-        const replayKey = `${tenantId}:${jti}`;
-        if (this.dpopJtiCache.has(replayKey)) {
+        // DB-backed replay protection (works across horizontally-scaled instances).
+        const existing = await this.dpopJtiRepository.findOne({
+            where: { tenantId, jti },
+        });
+        if (existing) {
             throw new UnauthorizedException("DPoP proof replay detected");
         }
-        this.dpopJtiCache.set(
-            replayKey,
-            Date.now() + this.DPOP_MAX_AGE_SECONDS * 1000,
-        );
+        await this.dpopJtiRepository.save({
+            tenantId,
+            jti,
+            expiresAt: new Date(Date.now() + this.DPOP_MAX_AGE_SECONDS * 1000),
+        });
 
         return proofJkt;
     }
@@ -757,7 +755,7 @@ export class ChainedAsService {
         if (dpopJwt) {
             // Validate DPoP proof and bind token cnf.jkt to proof key.
             tokenType = "DPoP";
-            dpopJkt = this.validateDpopForTokenRequest(
+            dpopJkt = await this.validateDpopForTokenRequest(
                 tenantId,
                 dpopJwt,
                 session,
@@ -815,13 +813,15 @@ export class ChainedAsService {
     }
 
     /**
-     * Clean up expired sessions.
+     * Clean up expired sessions and expired DPoP JTI replay-protection records.
      */
     async cleanupExpiredSessions(): Promise<number> {
-        const result = await this.sessionRepository.delete({
-            expiresAt: LessThan(new Date()),
-        });
-        return result.affected || 0;
+        const now = new Date();
+        const [sessionResult] = await Promise.all([
+            this.sessionRepository.delete({ expiresAt: LessThan(now) }),
+            this.dpopJtiRepository.delete({ expiresAt: LessThan(now) }),
+        ]);
+        return sessionResult.affected || 0;
     }
 
     /**

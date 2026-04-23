@@ -15,6 +15,7 @@ import { AuthorizeService } from "./oid4vci/authorize/authorize.service";
 import { InteractiveAuthorizationController } from "./oid4vci/authorize/interactive-authorization.controller";
 import { InteractiveAuthorizationService } from "./oid4vci/authorize/interactive-authorization.service";
 import { ChainedAsService } from "./oid4vci/chained-as/chained-as.service";
+import { ChainedAsDpopJtiEntity } from "./oid4vci/chained-as/entities/chained-as-dpop-jti.entity";
 import { ChainedAsSessionEntity } from "./oid4vci/chained-as/entities/chained-as-session.entity";
 import { DeferredController } from "./oid4vci/deferred.controller";
 import { DeferredCredentialService } from "./oid4vci/deferred-credential.service";
@@ -50,6 +51,7 @@ import { WellKnownService } from "./oid4vci/well-known/well-known.service";
             DeferredTransactionEntity,
             InteractiveAuthSessionEntity,
             ChainedAsSessionEntity,
+            ChainedAsDpopJtiEntity,
             WebhookEndpointEntity,
         ]),
     ],
