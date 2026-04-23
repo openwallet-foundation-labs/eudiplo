@@ -176,6 +176,16 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
+                                <a href="#resolveIssuerMetadata" >resolveIssuerMetadata</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#storePresentationConfig" >storePresentationConfig</a>
                             </li>
                             <li>
@@ -230,8 +240,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="29"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:29</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="30"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:30</a></div>
                         </td>
                     </tr>
 
@@ -309,8 +319,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="95"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:95</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="122"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:122</a></div>
                         </td>
                     </tr>
 
@@ -400,8 +410,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="60"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:60</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="87"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:87</a></div>
                         </td>
                     </tr>
 
@@ -465,6 +475,91 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="resolveIssuerMetadata"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Async</span>
+                        <span ><b>resolveIssuerMetadata</b></span>
+                        <a href="#resolveIssuerMetadata"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>resolveIssuerMetadata(body: <a href="../classes/ResolveIssuerMetadataDto.html" target="_self">ResolveIssuerMetadataDto</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Secured([&#x27;undefined&#x27;, &#x27;undefined&#x27;])<br />@Post(&#x27;issuer-metadata/resolve&#x27;)<br />@ApiOperation({summary: &#x27;Resolve external issuer metadata&#x27;, description: &#x27;Fetches OpenID4VCI credential issuer metadata from an external issuer URL on the server side.&#x27;})<br />@ApiBody({type: ResolveIssuerMetadataDto})<br />@ApiResponse({status: 200, description: &#x27;Resolved credential issuer metadata&#x27;})<br />@ApiResponse({status: 400, description: &#x27;Invalid issuer URL or metadata could not be resolved&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="56"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:56</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Resolve external OID4VCI issuer metadata server-side.
+This avoids browser CORS limitations when browsing issuer metadata.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>body</td>
+                                            <td>
+                                                            <code><a href="../classes/ResolveIssuerMetadataDto.html" target="_self" >ResolveIssuerMetadataDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="storePresentationConfig"></a>
                     <span class="name">
                             <span class="modifier"></span>
@@ -491,8 +586,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="42"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:42</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="69"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:69</a></div>
                         </td>
                     </tr>
 
@@ -582,8 +677,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="76"
-                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:76</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="103"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:103</a></div>
                         </td>
                     </tr>
 
@@ -668,12 +763,13 @@
     Patch,
     Post,
 } from &quot;@nestjs/common&quot;;
-import { ApiTags } from &quot;@nestjs/swagger&quot;;
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from &quot;@nestjs/swagger&quot;;
 import { Role } from &quot;../../auth/roles/role.enum&quot;;
 import { Secured } from &quot;../../auth/secure.decorator&quot;;
 import { Token, TokenPayload } from &quot;../../auth/token.decorator&quot;;
 import { PresentationConfigCreateDto } from &quot;./dto/presentation-config-create.dto&quot;;
 import { PresentationConfigUpdateDto } from &quot;./dto/presentation-config-update.dto&quot;;
+import { ResolveIssuerMetadataDto } from &quot;./dto/resolve-issuer-metadata.dto&quot;;
 import { PresentationsService } from &quot;./presentations.service&quot;;
 
 @ApiTags(&quot;Verifier&quot;)
@@ -690,6 +786,32 @@ export class PresentationManagementController {
     configuration(@Token() user: TokenPayload) {
         return this.presentationsService.getPresentationConfigs(
             user.entity!.id,
+        );
+    }
+
+    /**
+     * Resolve external OID4VCI issuer metadata server-side.
+     * This avoids browser CORS limitations when browsing issuer metadata.
+     */
+    @Secured([Role.Presentations, Role.PresentationRequest])
+    @Post(&quot;issuer-metadata/resolve&quot;)
+    @ApiOperation({
+        summary: &quot;Resolve external issuer metadata&quot;,
+        description:
+            &quot;Fetches OpenID4VCI credential issuer metadata from an external issuer URL on the server side.&quot;,
+    })
+    @ApiBody({ type: ResolveIssuerMetadataDto })
+    @ApiResponse({
+        status: 200,
+        description: &quot;Resolved credential issuer metadata&quot;,
+    })
+    @ApiResponse({
+        status: 400,
+        description: &quot;Invalid issuer URL or metadata could not be resolved&quot;,
+    })
+    async resolveIssuerMetadata(@Body() body: ResolveIssuerMetadataDto) {
+        return this.presentationsService.resolveCredentialIssuerMetadata(
+            body.issuerUrl,
         );
     }
 

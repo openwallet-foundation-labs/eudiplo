@@ -1232,6 +1232,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/RenameSigningToAttestation1745000000000.html" data-type="entity-link" >RenameSigningToAttestation1745000000000</a>
                             </li>
                             <li class="link">
+                                <a href="classes/ResolveIssuerMetadataDto.html" data-type="entity-link" >ResolveIssuerMetadataDto</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/RoleDto.html" data-type="entity-link" >RoleDto</a>
                             </li>
                             <li class="link">
