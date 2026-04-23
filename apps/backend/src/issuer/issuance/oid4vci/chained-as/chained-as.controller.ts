@@ -24,7 +24,6 @@ import { ChainedAsService, extractDpopJkt } from "./chained-as.service";
 import {
     ChainedAsAuthorizeQueryDto,
     ChainedAsErrorResponseDto,
-    ChainedAsParRequestDto,
     ChainedAsParResponseDto,
     ChainedAsTokenRequestDto,
     ChainedAsTokenResponseDto,
@@ -90,12 +89,13 @@ export class ChainedAsController {
     })
     async par(
         @Param("tenantId") tenantId: string,
-        @Body() body: ChainedAsParRequestDto,
+        @Body() body: any,
         @Headers("dpop") dpopJwt?: string,
         @Headers("oauth-client-attestation") clientAttestationJwt?: string,
         @Headers("oauth-client-attestation-pop")
         clientAttestationPopJwt?: string,
     ): Promise<ChainedAsParResponseDto> {
+        console.log(body);
         // DPoP JWK thumbprint extraction will be handled in service layer when DPoP is fully implemented
         const dpopJkt = dpopJwt ? extractDpopJkt(dpopJwt) : undefined;
 
@@ -144,6 +144,7 @@ export class ChainedAsController {
             query.client_id,
             query.request_uri,
         );
+        console.log(redirectUrl);
         res.redirect(redirectUrl);
     }
 

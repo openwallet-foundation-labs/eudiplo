@@ -37,4 +37,11 @@ export class AuthorizeQueries {
     @IsOptional()
     @IsString()
     state?: string;
+    /**
+     * RFC 9396 authorization details. When passed via
+     * application/x-www-form-urlencoded (PAR) the value is a JSON string; when
+     * passed inside a signed request object it can already be an array.
+     */
+    @IsOptional()
+    authorization_details?: string | any[];
 }

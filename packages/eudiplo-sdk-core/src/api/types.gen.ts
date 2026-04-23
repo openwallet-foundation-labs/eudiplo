@@ -4,6 +4,28 @@ export type ClientOptions = {
   baseUrl: string;
 };
 
+export type GrafanaConfigDto = {
+  /**
+   * Base URL of the Grafana instance
+   */
+  url?: string;
+  /**
+   * UID of the Tempo data source in Grafana
+   */
+  tempoUid: string;
+  /**
+   * UID of the Loki data source in Grafana
+   */
+  lokiUid: string;
+};
+
+export type FrontendConfigResponseDto = {
+  /**
+   * Grafana observability configuration
+   */
+  grafana: GrafanaConfigDto;
+};
+
 export type RoleDto = {
   /**
    * OAuth2 roles
@@ -156,6 +178,18 @@ export type CreateTenantDto = {
    */
   statusListConfig?: StatusListConfig;
   /**
+   * The unique identifier for the tenant.
+   */
+  id: string;
+  /**
+   * The name of the tenant.
+   */
+  name: string;
+  /**
+   * The description of the tenant.
+   */
+  description?: string;
+  /**
    * Session storage configuration. Controls TTL and cleanup behavior.
    */
   sessionConfig?: SessionStorageConfig;
@@ -168,18 +202,6 @@ export type CreateTenantDto = {
     | "tenants:manage"
     | "registrar:manage"
   >;
-  /**
-   * The unique identifier for the tenant.
-   */
-  id: string;
-  /**
-   * The name of the tenant.
-   */
-  name: string;
-  /**
-   * The description of the tenant.
-   */
-  description?: string;
 };
 
 export type UpdateTenantDto = {
@@ -188,10 +210,6 @@ export type UpdateTenantDto = {
    */
   statusListConfig?: StatusListConfig;
   /**
-   * Session storage configuration. Controls TTL and cleanup behavior.
-   */
-  sessionConfig?: SessionStorageConfig;
-  /**
    * The name of the tenant.
    */
   name?: string;
@@ -199,6 +217,10 @@ export type UpdateTenantDto = {
    * The description of the tenant.
    */
   description?: string;
+  /**
+   * Session storage configuration. Controls TTL and cleanup behavior.
+   */
+  sessionConfig?: SessionStorageConfig;
   roles?: Array<
     | "presentation:manage"
     | "presentation:request"
@@ -419,6 +441,14 @@ export type AuthorizeQueries = {
   request_uri?: string;
   auth_session?: string;
   state?: string;
+  /**
+   * RFC 9396 authorization details. When passed via
+   * application/x-www-form-urlencoded (PAR) the value is a JSON string; when
+   * passed inside a signed request object it can already be an array.
+   */
+  authorization_details?: {
+    [key: string]: unknown;
+  };
 };
 
 export type OfferRequestDto = {
@@ -563,6 +593,15 @@ export type Session = {
   tenant: TenantEntity;
   authorization_code?: string;
   /**
+   * Refresh token for the session - used to obtain a new access token.
+   */
+  refresh_token?: string;
+  /**
+   * Expiration timestamp for the refresh token.
+   * Used to validate refresh_token grant requests.
+   */
+  refresh_token_expires_at?: string;
+  /**
    * Request URI from the authorization request.
    */
   request_uri?: string;
@@ -621,6 +660,18 @@ export type Session = {
    * Client ID used in the OID4VP authorization request.
    */
   clientId?: string;
+  /**
+   * Cryptographic random nonce used in wallet-facing URLs (response_uri, request_uri, state).
+   * Per OID4VP spec Section 13.3, this separates the wallet-facing identifier (request-id)
+   * from the frontend-facing session ID (transaction-id) to prevent session fixation.
+   */
+  walletNonce?: string;
+  /**
+   * Cryptographic random code generated after successful VP Token processing.
+   * Per OID4VP spec Section 13.3, included in redirect_uri so only the legitimate
+   * frontend (which receives the redirect) can confirm the session completed.
+   */
+  responseCode?: string;
   /**
    * Response URI used in the OID4VP authorization request.
    */
@@ -817,6 +868,18 @@ export type IssuanceConfig = {
    */
   chainedAs?: ChainedAsConfig;
   /**
+   * Whether refresh tokens should be issued for OID4VCI token responses.
+   */
+  refreshTokenEnabled?: boolean;
+  /**
+   * Whether `credential_response_encryption` should be advertised in the credential issuer metadata.
+   */
+  credentialResponseEncryption?: boolean;
+  /**
+   * Refresh token lifetime in seconds. Defaults to 2592000 (30 days).
+   */
+  refreshTokenExpiresInSeconds?: number;
+  /**
    * The tenant that owns this object.
    */
   tenant: TenantEntity;
@@ -833,16 +896,6 @@ export type IssuanceConfig = {
    * Indicates whether DPoP is required for the issuance process. Default value is true.
    */
   dPopRequired?: boolean;
-  /**
-   * Whether refresh tokens should be issued for OID4VCI token responses.
-   * Default value is true.
-   */
-  refreshTokenEnabled?: boolean;
-  /**
-   * Refresh token lifetime in seconds.
-   * Default value is 2592000 (30 days).
-   */
-  refreshTokenExpiresInSeconds?: number;
   /**
    * Indicates whether wallet attestation is required for the token endpoint.
    * When enabled, wallets must provide OAuth-Client-Attestation headers.
@@ -885,6 +938,18 @@ export type IssuanceDto = {
    */
   chainedAs?: ChainedAsConfig;
   /**
+   * Whether refresh tokens should be issued for OID4VCI token responses.
+   */
+  refreshTokenEnabled?: boolean;
+  /**
+   * Whether `credential_response_encryption` should be advertised in the credential issuer metadata.
+   */
+  credentialResponseEncryption?: boolean;
+  /**
+   * Refresh token lifetime in seconds. Defaults to 2592000 (30 days).
+   */
+  refreshTokenExpiresInSeconds?: number;
+  /**
    * Authentication server URL for the issuance process.
    */
   authServers?: Array<string>;
@@ -897,16 +962,6 @@ export type IssuanceDto = {
    * Indicates whether DPoP is required for the issuance process. Default value is true.
    */
   dPopRequired?: boolean;
-  /**
-   * Whether refresh tokens should be issued for OID4VCI token responses.
-   * Default value is true.
-   */
-  refreshTokenEnabled?: boolean;
-  /**
-   * Refresh token lifetime in seconds.
-   * Default value is 2592000 (30 days).
-   */
-  refreshTokenExpiresInSeconds?: number;
   /**
    * Indicates whether wallet attestation is required for the token endpoint.
    * When enabled, wallets must provide OAuth-Client-Attestation headers.
@@ -1501,6 +1556,13 @@ export type PresentationConfig = {
   accessKeyChainId?: string;
 };
 
+export type ResolveIssuerMetadataDto = {
+  /**
+   * Issuer URL or full OpenID4VCI metadata URL to resolve server-side.
+   */
+  issuerUrl: string;
+};
+
 export type PresentationConfigCreateDto = {
   /**
    * Unique identifier for the VP request.
@@ -1609,6 +1671,10 @@ export type NotificationRequestDto = {
   };
 };
 
+export type Object = {
+  [key: string]: unknown;
+};
+
 export type ParResponseDto = {
   /**
    * The request URI for the Pushed Authorization Request.
@@ -1705,47 +1771,6 @@ export type InteractiveAuthorizationErrorResponseDto = {
    * Human-readable error description
    */
   error_description?: string;
-};
-
-export type ChainedAsParRequestDto = {
-  /**
-   * OAuth response type (must be 'code')
-   */
-  response_type: string;
-  /**
-   * Client identifier (wallet identifier)
-   */
-  client_id: string;
-  /**
-   * URI to redirect the wallet after authorization
-   */
-  redirect_uri: string;
-  /**
-   * PKCE code challenge
-   */
-  code_challenge?: string;
-  /**
-   * PKCE code challenge method (e.g., S256)
-   */
-  code_challenge_method?: string;
-  /**
-   * State parameter (returned in redirect)
-   */
-  state?: string;
-  /**
-   * Scope requested
-   */
-  scope?: string;
-  /**
-   * Issuer state from credential offer
-   */
-  issuer_state?: string;
-  /**
-   * Authorization details (JSON array)
-   */
-  authorization_details?: Array<{
-    [key: string]: unknown;
-  }>;
 };
 
 export type ChainedAsParResponseDto = {
@@ -2031,6 +2056,13 @@ export type ExternalTrustListEntity = {
 };
 
 export type TrustListCreateDto = {
+  description?: string;
+  /**
+   * The full trust list JSON (generated LoTE structure)
+   */
+  data?: {
+    [key: string]: unknown;
+  };
   entities: Array<
     | ({
         type: "internal";
@@ -2040,14 +2072,7 @@ export type TrustListCreateDto = {
       } & ExternalTrustListEntity)
   >;
   id?: string;
-  description?: string;
   keyChainId?: string;
-  /**
-   * The full trust list JSON (generated LoTE structure)
-   */
-  data?: {
-    [key: string]: unknown;
-  };
 };
 
 export type TrustList = {
@@ -2532,6 +2557,23 @@ export type AppControllerGetVersionResponses = {
    */
   200: unknown;
 };
+
+export type AppControllerGetFrontendConfigData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/frontend-config";
+};
+
+export type AppControllerGetFrontendConfigResponses = {
+  /**
+   * Frontend configuration
+   */
+  200: FrontendConfigResponseDto;
+};
+
+export type AppControllerGetFrontendConfigResponse =
+  AppControllerGetFrontendConfigResponses[keyof AppControllerGetFrontendConfigResponses];
 
 export type TenantControllerGetTenantsData = {
   body?: never;
@@ -3342,6 +3384,27 @@ export type PresentationManagementControllerStorePresentationConfigResponses = {
 export type PresentationManagementControllerStorePresentationConfigResponse =
   PresentationManagementControllerStorePresentationConfigResponses[keyof PresentationManagementControllerStorePresentationConfigResponses];
 
+export type PresentationManagementControllerResolveIssuerMetadataData = {
+  body: ResolveIssuerMetadataDto;
+  path?: never;
+  query?: never;
+  url: "/api/verifier/config/issuer-metadata/resolve";
+};
+
+export type PresentationManagementControllerResolveIssuerMetadataErrors = {
+  /**
+   * Invalid issuer URL or metadata could not be resolved
+   */
+  400: unknown;
+};
+
+export type PresentationManagementControllerResolveIssuerMetadataResponses = {
+  /**
+   * Resolved credential issuer metadata
+   */
+  200: unknown;
+};
+
 export type PresentationManagementControllerDeleteConfigurationData = {
   body?: never;
   path: {
@@ -3956,7 +4019,6 @@ export type KeyChainControllerRotateResponses = {
    * Key chain rotated successfully
    */
   200: unknown;
-  201: unknown;
 };
 
 export type VerifierOfferControllerGetOfferData = {

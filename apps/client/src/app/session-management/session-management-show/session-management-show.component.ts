@@ -75,7 +75,6 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
   readonly MAX_POLLING_DURATION_MS = 300000; // Stop polling after 5 minutes
   pollingStartTime: number | null = null;
   offerUri: string | null = null;
-  metadata?: any;
 
   constructor(
     private sessionManagementService: SessionManagementService,
@@ -105,8 +104,6 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
     try {
       this.session = await this.sessionManagementService.getSession(sessionId);
       this.generateQRCode(this.session.offerUrl || this.session.requestUrl!);
-
-      this.getIssuerMetadata();
     } catch (error) {
       console.error('Error loading session:', error);
       this.snackBar.open('Failed to load session', 'Close', {
@@ -129,14 +126,6 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
       console.error('Error decoding JWT:', error);
       return `Error decoding JWT: ${error instanceof Error ? error.message : 'Unknown error'}`;
     }
-  }
-
-  getIssuerMetadata(): void {
-    if (!this.session?.offer) return;
-    const url = new URL((this.session.offer as any).credential_issuer);
-    firstValueFrom(
-      this.httpClient.get(`${url.origin}/.well-known/openid-credential-issuer${url.pathname}`)
-    ).then((res) => (this.metadata = res));
   }
 
   getStatusDisplayText(status: any): string {

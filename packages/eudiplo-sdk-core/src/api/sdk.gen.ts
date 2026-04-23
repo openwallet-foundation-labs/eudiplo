@@ -8,6 +8,8 @@ import {
 } from "./client";
 import { client } from "./client.gen";
 import type {
+  AppControllerGetFrontendConfigData,
+  AppControllerGetFrontendConfigResponses,
   AppControllerGetVersionData,
   AppControllerGetVersionResponses,
   AttributeProviderControllerCreateData,
@@ -96,6 +98,9 @@ import type {
   PresentationManagementControllerDeleteConfigurationResponses,
   PresentationManagementControllerGetConfigurationData,
   PresentationManagementControllerGetConfigurationResponses,
+  PresentationManagementControllerResolveIssuerMetadataData,
+  PresentationManagementControllerResolveIssuerMetadataErrors,
+  PresentationManagementControllerResolveIssuerMetadataResponses,
   PresentationManagementControllerStorePresentationConfigData,
   PresentationManagementControllerStorePresentationConfigResponses,
   PresentationManagementControllerUpdateConfigurationData,
@@ -224,6 +229,24 @@ export const appControllerGetVersion = <ThrowOnError extends boolean = true>(
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/version",
+    ...options,
+  });
+
+/**
+ * Get frontend runtime configuration
+ */
+export const appControllerGetFrontendConfig = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<AppControllerGetFrontendConfigData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AppControllerGetFrontendConfigResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/frontend-config",
     ...options,
   });
 
@@ -1185,6 +1208,33 @@ export const presentationManagementControllerStorePresentationConfig = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/verifier/config",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Resolve external issuer metadata
+ *
+ * Fetches OpenID4VCI credential issuer metadata from an external issuer URL on the server side.
+ */
+export const presentationManagementControllerResolveIssuerMetadata = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    PresentationManagementControllerResolveIssuerMetadataData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    PresentationManagementControllerResolveIssuerMetadataResponses,
+    PresentationManagementControllerResolveIssuerMetadataErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/verifier/config/issuer-metadata/resolve",
     ...options,
     headers: {
       "Content-Type": "application/json",

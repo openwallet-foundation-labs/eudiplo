@@ -53,6 +53,15 @@
     "authorization_code": {
       "type": "string"
     },
+    "refresh_token": {
+      "type": "string",
+      "description": "Refresh token for the session - used to obtain a new access token."
+    },
+    "refresh_token_expires_at": {
+      "format": "date-time",
+      "type": "string",
+      "description": "Expiration timestamp for the refresh token.\nUsed to validate refresh_token grant requests."
+    },
     "request_uri": {
       "type": "string",
       "description": "Request URI from the authorization request."
@@ -117,6 +126,14 @@
     "clientId": {
       "type": "string",
       "description": "Client ID used in the OID4VP authorization request."
+    },
+    "walletNonce": {
+      "type": "string",
+      "description": "Cryptographic random nonce used in wallet-facing URLs (response_uri, request_uri, state).\nPer OID4VP spec Section 13.3, this separates the wallet-facing identifier (request-id)\nfrom the frontend-facing session ID (transaction-id) to prevent session fixation."
+    },
+    "responseCode": {
+      "type": "string",
+      "description": "Cryptographic random code generated after successful VP Token processing.\nPer OID4VP spec Section 13.3, included in redirect_uri so only the legitimate\nfrontend (which receives the redirect) can confirm the session completed."
     },
     "responseUri": {
       "type": "string",

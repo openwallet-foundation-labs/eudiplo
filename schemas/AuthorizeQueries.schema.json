@@ -39,6 +39,10 @@
     },
     "state": {
       "type": "string"
+    },
+    "authorization_details": {
+      "type": "object",
+      "description": "RFC 9396 authorization details. When passed via\napplication/x-www-form-urlencoded (PAR) the value is a JSON string; when\npassed inside a signed request object it can already be an array."
     }
   },
   "additionalProperties": false

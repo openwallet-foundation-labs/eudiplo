@@ -78,14 +78,19 @@ export class AuthorizeService {
      * Map error codes from the OAuth library to OAuth 2.0 Token Error codes.
      * According to OID4VCI Section 6.3:
      * - invalid_request: Transaction code provided but not expected, or expected but not provided
-     * - invalid_grant: Wrong transaction code, wrong pre-authorized code, or expired code
+     * - invalid_tx_code: Wrong transaction code in the Pre-Authorized Code Flow
+     * - invalid_grant: Wrong pre-authorized code, or expired code
      * - invalid_client: Anonymous access with pre-authorized code but not supported
      * @param errorCode The error code from the OAuth library
      * @returns The appropriate OAuth 2.0 token error code
      */
     private mapToTokenErrorCode(
         errorCode: string | undefined,
-    ): "invalid_request" | "invalid_client" | "invalid_grant" {
+    ):
+        | "invalid_request"
+        | "invalid_client"
+        | "invalid_grant"
+        | "invalid_tx_code" {
         if (!errorCode) {
             return "invalid_request";
         }
@@ -93,18 +98,22 @@ export class AuthorizeService {
         if (
             errorCode === "invalid_grant" ||
             errorCode === "invalid_client" ||
-            errorCode === "invalid_request"
+            errorCode === "invalid_request" ||
+            errorCode === "invalid_tx_code"
         ) {
             return errorCode;
         }
-        // Map specific error scenarios
-        // Wrong or expired pre-authorized code = invalid_grant
-        // Wrong tx_code = invalid_grant
+        // Wrong tx_code has its own dedicated error code in OID4VCI 1.1 §6.3.
         if (
-            errorCode.includes("pre-authorized") ||
-            errorCode.includes("pre_authorized") ||
             errorCode.includes("tx_code") ||
             errorCode.includes("transaction")
+        ) {
+            return "invalid_tx_code";
+        }
+        // Wrong or expired pre-authorized code = invalid_grant
+        if (
+            errorCode.includes("pre-authorized") ||
+            errorCode.includes("pre_authorized")
         ) {
             return "invalid_grant";
         }
@@ -114,6 +123,81 @@ export class AuthorizeService {
 
     getAuthzIssuer(tenantId: string) {
         return `${this.configService.getOrThrow<string>("PUBLIC_URL")}/issuers/${tenantId}`;
+    }
+
+    /**
+     * Build the RFC 9396 `authorization_details` array that must be bound to the
+     * issued access token, per OID4VCI Section 6 / 7. The list of authorized
+     * `credential_configuration_id` values is derived from the session:
+     *
+     *  - If the Wallet sent `authorization_details` in the Authorization /
+     *    PAR request (Authorization Code Flow), those values are used.
+     *  - Otherwise (Pre-Authorized Code Flow or issuer-initiated offer), the
+     *    `credential_configuration_ids` from the Credential Offer are used.
+     *
+     * Returns `undefined` when no credential bindings can be derived, in which
+     * case no `authorization_details` will be placed on the token.
+     */
+    private buildAuthorizationDetailsForToken(session: {
+        auth_queries?: AuthorizeQueries;
+        credentialPayload?: any;
+    }): Record<string, unknown>[] | undefined {
+        // 1. From authorization_details in the (pushed) authorization request.
+        const raw = session.auth_queries?.authorization_details;
+        let requested: Record<string, unknown>[] | undefined;
+        if (typeof raw === "string") {
+            try {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) {
+                    requested = parsed as Record<string, unknown>[];
+                }
+            } catch {
+                // ignore malformed JSON, fall through to offer-based defaulting
+            }
+        } else if (Array.isArray(raw)) {
+            requested = raw;
+        }
+
+        if (requested && requested.length > 0) {
+            return requested
+                .filter(
+                    (ad) =>
+                        (ad.type as string | undefined) === "openid_credential",
+                )
+                .map((ad) => ({
+                    type: "openid_credential",
+                    credential_configuration_id: ad.credential_configuration_id,
+                    // Per OID4VCI Final Section 6.2, credential_identifiers MUST be
+                    // included when authorization_details are returned in the token
+                    // response so the Wallet can reference them in the credential request.
+                    credential_identifiers: [
+                        ad.credential_configuration_id as string,
+                    ],
+                }))
+                .filter(
+                    (ad) =>
+                        typeof ad.credential_configuration_id === "string" &&
+                        (ad.credential_configuration_id as string).length > 0,
+                );
+        }
+
+        // 2. Fallback: credential_configuration_ids from the Credential Offer.
+        const offerIds: unknown =
+            session.credentialPayload?.credentialConfigurationIds;
+        if (Array.isArray(offerIds) && offerIds.length > 0) {
+            return offerIds
+                .filter((id): id is string => typeof id === "string")
+                .map((id) => ({
+                    type: "openid_credential",
+                    credential_configuration_id: id,
+                    // Per OID4VCI Final Section 6.2, credential_identifiers MUST be
+                    // included when authorization_details are returned in the token
+                    // response so the Wallet can reference them in the credential request.
+                    credential_identifiers: [id],
+                }));
+        }
+
+        return undefined;
     }
 
     async authzMetadata(
@@ -471,6 +555,13 @@ export class AuthorizeService {
         // Determine access token lifetime (use credential lifetime if available, otherwise 5 min default)
         const accessTokenExpiresInSeconds = 300;
 
+        // Bind the issued access token to the Credential(s) the Wallet is
+        // authorized to request, per OID4VCI Section 6. Both the JWT payload
+        // (for resource-server enforcement) and the token response body (for
+        // the Wallet) receive the same authorization_details.
+        const authorizationDetails =
+            this.buildAuthorizationDetailsForToken(session);
+
         const tokenResponse = await this.getAuthorizationServer(
             tenantId,
             session.id,
@@ -489,6 +580,12 @@ export class AuthorizeService {
                 clientId: req.body.client_id,
                 dpop: dpopValue,
                 refreshToken: issuanceConfig.refreshTokenEnabled ? true : false,
+                additionalAccessTokenPayload: authorizationDetails
+                    ? { authorization_details: authorizationDetails }
+                    : undefined,
+                additionalAccessTokenResponsePayload: authorizationDetails
+                    ? { authorization_details: authorizationDetails }
+                    : undefined,
             })
             .catch((err) => {
                 this.logger.error("Error creating access token response:", err);

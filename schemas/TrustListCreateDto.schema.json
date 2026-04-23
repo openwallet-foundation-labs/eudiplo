@@ -4,6 +4,13 @@
   "title": "TrustListCreateDto",
   "type": "object",
   "properties": {
+    "description": {
+      "type": "string"
+    },
+    "data": {
+      "type": "object",
+      "description": "The full trust list JSON (generated LoTE structure)"
+    },
     "entities": {
       "type": "array",
       "items": {
@@ -27,15 +34,8 @@
     "id": {
       "type": "string"
     },
-    "description": {
-      "type": "string"
-    },
     "keyChainId": {
       "type": "string"
-    },
-    "data": {
-      "type": "object",
-      "description": "The full trust list JSON (generated LoTE structure)"
     }
   },
   "required": [

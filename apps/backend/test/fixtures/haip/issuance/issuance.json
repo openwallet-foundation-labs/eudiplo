@@ -2,6 +2,7 @@
     "authServers": [],
     "batchSize": 10,
     "dPopRequired": true,
+    "credentialResponseEncryption": true,
     "walletAttestationRequired": true,
     "display": [
         {

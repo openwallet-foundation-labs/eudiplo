@@ -10,8 +10,9 @@ import { HttpException, HttpStatus } from "@nestjs/common";
  *   - The Authorization Server does not expect a Transaction Code in the Pre-Authorized Code Flow but the Client provides one.
  *   - The Authorization Server expects a Transaction Code in the Pre-Authorized Code Flow but the Client does not provide one.
  * - `invalid_grant`:
- *   - The Authorization Server expects a Transaction Code in the Pre-Authorized Code Flow but the Client provides the wrong Transaction Code.
  *   - The End-User provides the wrong Pre-Authorized Code or the Pre-Authorized Code has expired.
+ * - `invalid_tx_code`:
+ *   - The Authorization Server expects a Transaction Code in the Pre-Authorized Code Flow but the Client provides the wrong Transaction Code.
  * - `invalid_client`:
  *   - The Client tried to send a Token Request with a Pre-Authorized Code without a Client ID but the Authorization Server does not support anonymous access.
  */
@@ -21,7 +22,10 @@ export type TokenErrorCode =
     | "invalid_grant"
     | "unauthorized_client"
     | "unsupported_grant_type"
-    | "invalid_scope";
+    | "invalid_scope"
+    // OID4VCI Section 6.3: returned when the Client provides the wrong
+    // Transaction Code in the Pre-Authorized Code Flow.
+    | "invalid_tx_code";
 
 /**
  * Exception for OAuth 2.0 Token Error responses.

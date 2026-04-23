@@ -101,6 +101,40 @@ export class DeferredCredentialService {
     }
 
     /**
+     * Enforce that the presented access token is authorized for the deferred
+     * credential's `credential_configuration_id`, per OID4VCI Section 6.
+     * If the access token does not carry `authorization_details` (e.g.
+     * scope-only external AS integrations), the check is skipped.
+     */
+    private enforceAuthorizationDetailsForDeferred(
+        tokenPayload: Record<string, unknown>,
+        requestedCredentialConfigurationId: string,
+    ): void {
+        const raw = tokenPayload.authorization_details;
+        if (!Array.isArray(raw) || raw.length === 0) {
+            return;
+        }
+
+        const authorized = raw
+            .filter(
+                (ad): ad is Record<string, unknown> =>
+                    typeof ad === "object" &&
+                    ad !== null &&
+                    (ad as Record<string, unknown>).type ===
+                        "openid_credential",
+            )
+            .map((ad) => ad.credential_configuration_id as string | undefined)
+            .filter((id): id is string => typeof id === "string");
+
+        if (!authorized.includes(requestedCredentialConfigurationId)) {
+            throw new CredentialRequestException(
+                "invalid_credential_request",
+                `Access token is not authorized for credential_configuration_id '${requestedCredentialConfigurationId}'`,
+            );
+        }
+    }
+
+    /**
      * Create a deferred credential transaction.
      * Called when the webhook indicates that credential issuance should be deferred.
      *
@@ -217,7 +251,7 @@ export class DeferredCredentialService {
         }
 
         // Verify the access token
-        await resourceServer.verifyResourceRequest({
+        const { tokenPayload } = await resourceServer.verifyResourceRequest({
             authorizationServers: issuerMetadata.authorizationServers,
             request: {
                 url: `${this.configService.getOrThrow<string>("PUBLIC_URL")}${req.url}`,
@@ -241,6 +275,15 @@ export class DeferredCredentialService {
                 "The transaction_id is invalid or has expired",
             );
         }
+
+        // Enforce that the access token is authorized for this deferred
+        // credential's configuration, per OID4VCI Section 6. When the token
+        // carries `authorization_details`, the deferred credential's
+        // configuration MUST be one of the authorized ones.
+        this.enforceAuthorizationDetailsForDeferred(
+            tokenPayload as Record<string, unknown>,
+            deferredTransaction.credentialConfigurationId,
+        );
 
         // Add session context to span for trace correlation
         const span = this.traceService.getSpan();
