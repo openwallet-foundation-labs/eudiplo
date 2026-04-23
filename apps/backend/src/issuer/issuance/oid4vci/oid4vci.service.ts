@@ -849,14 +849,6 @@ export class Oid4vciService {
             );
         }
 
-        // Reject unknown credential identifiers (OID4VCI Section 8.3.1)
-        if (parsedCredentialRequest.credentialIdentifier) {
-            throw new CredentialRequestException(
-                "unknown_credential_identifier",
-                `Credential identifier '${parsedCredentialRequest.credentialIdentifier}' is unknown`,
-            );
-        }
-
         if (parsedCredentialRequest?.proofs?.jwt === undefined) {
             throw new CredentialRequestException(
                 "invalid_proof",
@@ -872,9 +864,40 @@ export class Oid4vciService {
             issuanceConfig,
         );
 
-        // Resolve session and claims based on token source
-        const credentialConfigurationId =
-            parsedCredentialRequest.credentialConfigurationId as string;
+        // Resolve credentialConfigurationId from either:
+        //  - credential_identifier (OID4VCI Final Section 8.2): look it up in the
+        //    token's authorization_details[].credential_identifiers to find the
+        //    matching credential_configuration_id.
+        //  - credential_configuration_id (direct)
+        let credentialConfigurationId: string;
+        if (parsedCredentialRequest.credentialIdentifier) {
+            const credentialIdentifier =
+                parsedCredentialRequest.credentialIdentifier as string;
+            const authDetails =
+                (tokenPayload.authorization_details as
+                    | Array<Record<string, unknown>>
+                    | undefined) ?? [];
+            const matching = authDetails.find(
+                (ad) =>
+                    Array.isArray(ad.credential_identifiers) &&
+                    (ad.credential_identifiers as string[]).includes(
+                        credentialIdentifier,
+                    ),
+            );
+            if (
+                !matching ||
+                typeof matching.credential_configuration_id !== "string"
+            ) {
+                throw new CredentialRequestException(
+                    "unknown_credential_identifier",
+                    `Credential identifier '${credentialIdentifier}' is unknown`,
+                );
+            }
+            credentialConfigurationId = matching.credential_configuration_id;
+        } else {
+            credentialConfigurationId =
+                parsedCredentialRequest.credentialConfigurationId as string;
+        }
 
         // Enforce that the access token is actually authorized to request
         // this credential_configuration_id. Per OID4VCI Section 6, the

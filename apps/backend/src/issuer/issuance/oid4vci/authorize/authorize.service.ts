@@ -167,6 +167,12 @@ export class AuthorizeService {
                 .map((ad) => ({
                     type: "openid_credential",
                     credential_configuration_id: ad.credential_configuration_id,
+                    // Per OID4VCI Final Section 6.2, credential_identifiers MUST be
+                    // included when authorization_details are returned in the token
+                    // response so the Wallet can reference them in the credential request.
+                    credential_identifiers: [
+                        ad.credential_configuration_id as string,
+                    ],
                 }))
                 .filter(
                     (ad) =>
@@ -184,6 +190,10 @@ export class AuthorizeService {
                 .map((id) => ({
                     type: "openid_credential",
                     credential_configuration_id: id,
+                    // Per OID4VCI Final Section 6.2, credential_identifiers MUST be
+                    // included when authorization_details are returned in the token
+                    // response so the Wallet can reference them in the credential request.
+                    credential_identifiers: [id],
                 }));
         }
 
