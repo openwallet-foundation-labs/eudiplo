@@ -525,6 +525,7 @@ export class ChainedAsService {
                 callbackUrl,
             );
         } catch (err) {
+            console.log(err);
             this.logger.error("Failed to exchange code at upstream", err);
             session.status = ChainedAsSessionStatus.EXPIRED;
             await this.sessionRepository.save(session);
@@ -606,6 +607,15 @@ export class ChainedAsService {
         if (session.upstreamIdTokenClaims) {
             payload.upstream_sub = session.upstreamIdTokenClaims.sub;
             payload.upstream_iss = session.upstreamIdTokenClaims.iss;
+        }
+        // Bind the access token to the Credential(s) the Wallet is
+        // authorized to request, per OID4VCI Section 6. The resource server
+        // enforces this when handling the Credential Request.
+        if (
+            Array.isArray(session.authorizationDetails) &&
+            session.authorizationDetails.length > 0
+        ) {
+            payload.authorization_details = session.authorizationDetails;
         }
         return payload;
     }

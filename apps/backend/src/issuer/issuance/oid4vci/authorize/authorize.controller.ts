@@ -62,6 +62,7 @@ export class AuthorizeController {
     @ApiConsumes("application/x-www-form-urlencoded")
     @Post("par")
     @HttpCode(HttpStatus.CREATED)
+    @Header("Cache-Control", "no-store")
     async par(
         @Param("tenantId") tenantId: string,
         @Body() body: AuthorizeQueries,
@@ -90,6 +91,7 @@ export class AuthorizeController {
      */
     @Post("token")
     @HttpCode(HttpStatus.OK)
+    @Header("Cache-Control", "no-store")
     token(
         @Body() body: any,
         @Req() req: Request,

@@ -257,27 +257,6 @@
             </mat-card>
           </div>
         </mat-tab>
-
-        <mat-tab label="Issuer Metadata">
-          <div class="tab-content">
-            <mat-card>
-              <mat-card-header>
-                <mat-card-title>Issuer Metadata</mat-card-title>
-                <div class="spacer"></div>
-                <button
-                  matIconButton
-                  (click)="copyToClipboard(formatJson(metadata))"
-                  matTooltip="Copy issuer metadata"
-                >
-                  <mat-icon>content_copy</mat-icon>
-                </button>
-              </mat-card-header>
-              <mat-card-content>
-                <pre class="json-display">{{ formatJson(metadata) }}</pre>
-              </mat-card-content>
-            </mat-card>
-          </div>
-        </mat-tab>
       }
 
       @if (session.requestObject) {

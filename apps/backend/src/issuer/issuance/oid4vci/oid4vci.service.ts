@@ -253,11 +253,6 @@ export class Oid4vciService {
                 issuanceConfig.display !== null
                     ? issuanceConfig.display
                     : undefined,
-            credential_response_encryption: {
-                alg_values_supported: ["ECDH-ES"],
-                enc_values_supported: ["A128GCM", "A256GCM"],
-                encryption_required: false,
-            },
             batch_credential_issuance:
                 issuanceConfig?.batchSize && issuanceConfig?.batchSize > 1
                     ? {
@@ -450,6 +445,54 @@ export class Oid4vciService {
         });
 
         return tokenPayload as OAuth2TokenPayload;
+    }
+
+    /**
+     * Enforce that the requested `credential_configuration_id` is covered by
+     * the `authorization_details` bound to the presented access token, per
+     * OID4VCI Section 6. If the token does not carry `authorization_details`
+     * (e.g. scope-only external AS integrations), the check is skipped.
+     *
+     * @throws CredentialRequestException with `invalid_credential_request`
+     *   when the requested credential is not authorized by the token.
+     */
+    private enforceAuthorizationDetails(
+        tokenPayload: OAuth2TokenPayload,
+        requestedCredentialConfigurationId: string,
+    ): void {
+        const raw = tokenPayload.authorization_details;
+        if (!Array.isArray(raw) || raw.length === 0) {
+            // No authorization_details bound to the token - nothing to enforce
+            // here (scope-based authorization or legacy tokens).
+            return;
+        }
+
+        const authorized = raw
+            .filter(
+                (ad): ad is Record<string, unknown> =>
+                    typeof ad === "object" &&
+                    ad !== null &&
+                    (ad as Record<string, unknown>).type ===
+                        "openid_credential",
+            )
+            .map((ad) => ad.credential_configuration_id as string | undefined)
+            .filter((id): id is string => typeof id === "string");
+
+        if (authorized.length === 0) {
+            // Token carries authorization_details but none of type
+            // `openid_credential` - treat as unauthorized for any credential.
+            throw new CredentialRequestException(
+                "invalid_credential_request",
+                "Access token is not authorized for any credential configuration",
+            );
+        }
+
+        if (!authorized.includes(requestedCredentialConfigurationId)) {
+            throw new CredentialRequestException(
+                "invalid_credential_request",
+                `Access token is not authorized for credential_configuration_id '${requestedCredentialConfigurationId}'`,
+            );
+        }
     }
 
     /**
@@ -824,6 +867,17 @@ export class Oid4vciService {
         // Resolve session and claims based on token source
         const credentialConfigurationId =
             parsedCredentialRequest.credentialConfigurationId as string;
+
+        // Enforce that the access token is actually authorized to request
+        // this credential_configuration_id. Per OID4VCI Section 6, the
+        // `authorization_details` on the token define the authorized
+        // Credential Configurations. If the claim is present, the requested
+        // configuration MUST be one of them.
+        this.enforceAuthorizationDetails(
+            tokenPayload,
+            credentialConfigurationId,
+        );
+
         const { session, claimsResult, isExternalAsToken, isChainedAsToken } =
             await this.resolveSessionAndClaims(
                 tokenPayload,
