@@ -516,6 +516,40 @@ export class DeferredCredentialService {
     }
 
     /**
+     * Enforce that the presented access token is authorized for the deferred
+     * credential&#x27;s &#x60;credential_configuration_id&#x60;, per OID4VCI Section 6.
+     * If the access token does not carry &#x60;authorization_details&#x60; (e.g.
+     * scope-only external AS integrations), the check is skipped.
+     */
+    private enforceAuthorizationDetailsForDeferred(
+        tokenPayload: Record&lt;string, unknown&gt;,
+        requestedCredentialConfigurationId: string,
+    ): void {
+        const raw &#x3D; tokenPayload.authorization_details;
+        if (!Array.isArray(raw) || raw.length &#x3D;&#x3D;&#x3D; 0) {
+            return;
+        }
+
+        const authorized &#x3D; raw
+            .filter(
+                (ad): ad is Record&lt;string, unknown&gt; &#x3D;&gt;
+                    typeof ad &#x3D;&#x3D;&#x3D; &quot;object&quot; &amp;&amp;
+                    ad !&#x3D;&#x3D; null &amp;&amp;
+                    (ad as Record&lt;string, unknown&gt;).type &#x3D;&#x3D;&#x3D;
+                        &quot;openid_credential&quot;,
+            )
+            .map((ad) &#x3D;&gt; ad.credential_configuration_id as string | undefined)
+            .filter((id): id is string &#x3D;&gt; typeof id &#x3D;&#x3D;&#x3D; &quot;string&quot;);
+
+        if (!authorized.includes(requestedCredentialConfigurationId)) {
+            throw new CredentialRequestException(
+                &quot;invalid_credential_request&quot;,
+                &#x60;Access token is not authorized for credential_configuration_id &#x27;${requestedCredentialConfigurationId}&#x27;&#x60;,
+            );
+        }
+    }
+
+    /**
      * Create a deferred credential transaction.
      * Called when the webhook indicates that credential issuance should be deferred.
      *
@@ -632,7 +666,7 @@ export class DeferredCredentialService {
         }
 
         // Verify the access token
-        await resourceServer.verifyResourceRequest({
+        const { tokenPayload } &#x3D; await resourceServer.verifyResourceRequest({
             authorizationServers: issuerMetadata.authorizationServers,
             request: {
                 url: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}${req.url}&#x60;,
@@ -656,6 +690,15 @@ export class DeferredCredentialService {
                 &quot;The transaction_id is invalid or has expired&quot;,
             );
         }
+
+        // Enforce that the access token is authorized for this deferred
+        // credential&#x27;s configuration, per OID4VCI Section 6. When the token
+        // carries &#x60;authorization_details&#x60;, the deferred credential&#x27;s
+        // configuration MUST be one of the authorized ones.
+        this.enforceAuthorizationDetailsForDeferred(
+            tokenPayload as Record&lt;string, unknown&gt;,
+            deferredTransaction.credentialConfigurationId,
+        );
 
         // Add session context to span for trace correlation
         const span &#x3D; this.traceService.getSpan();

@@ -2116,8 +2116,11 @@ Used with importConfigsForTenant where tenantId is passed separately.</p>
 </ul>
 </li>
 <li><code>invalid_grant</code>:<ul>
-<li>The Authorization Server expects a Transaction Code in the Pre-Authorized Code Flow but the Client provides the wrong Transaction Code.</li>
 <li>The End-User provides the wrong Pre-Authorized Code or the Pre-Authorized Code has expired.</li>
+</ul>
+</li>
+<li><code>invalid_tx_code</code>:<ul>
+<li>The Authorization Server expects a Transaction Code in the Pre-Authorized Code Flow but the Client provides the wrong Transaction Code.</li>
 </ul>
 </li>
 <li><code>invalid_client</code>:<ul>
@@ -2130,7 +2133,7 @@ Used with importConfigsForTenant where tenantId is passed separately.</p>
             </tr>
             <tr>
                 <td class="col-md-4">
-                    <code>    <code>&quot;invalid_request&quot; | &quot;invalid_client&quot; | &quot;invalid_grant&quot; | &quot;unauthorized_client&quot; | &quot;unsupported_grant_type&quot; | &quot;invalid_scope&quot;</code>
+                    <code>    <code>&quot;invalid_request&quot; | &quot;invalid_client&quot; | &quot;invalid_grant&quot; | &quot;unauthorized_client&quot; | &quot;unsupported_grant_type&quot; | &quot;invalid_scope&quot; | &quot;invalid_tx_code&quot;</code>
 </code>
                 </td>
             </tr>

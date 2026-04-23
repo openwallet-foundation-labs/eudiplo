@@ -192,7 +192,7 @@ exceeds the scope granted by the resource owner.</li>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="50" class="link-to-prism">src/issuer/issuance/oid4vci/exceptions/token-error.exception.ts:50</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/issuer/issuance/oid4vci/exceptions/token-error.exception.ts:54</a></div>
                             </td>
                         </tr>
 
@@ -265,8 +265,9 @@ exceeds the scope granted by the resource owner.</li>
  *   - The Authorization Server does not expect a Transaction Code in the Pre-Authorized Code Flow but the Client provides one.
  *   - The Authorization Server expects a Transaction Code in the Pre-Authorized Code Flow but the Client does not provide one.
  * - &#x60;invalid_grant&#x60;:
- *   - The Authorization Server expects a Transaction Code in the Pre-Authorized Code Flow but the Client provides the wrong Transaction Code.
  *   - The End-User provides the wrong Pre-Authorized Code or the Pre-Authorized Code has expired.
+ * - &#x60;invalid_tx_code&#x60;:
+ *   - The Authorization Server expects a Transaction Code in the Pre-Authorized Code Flow but the Client provides the wrong Transaction Code.
  * - &#x60;invalid_client&#x60;:
  *   - The Client tried to send a Token Request with a Pre-Authorized Code without a Client ID but the Authorization Server does not support anonymous access.
  */
@@ -276,7 +277,10 @@ export type TokenErrorCode &#x3D;
     | &quot;invalid_grant&quot;
     | &quot;unauthorized_client&quot;
     | &quot;unsupported_grant_type&quot;
-    | &quot;invalid_scope&quot;;
+    | &quot;invalid_scope&quot;
+    // OID4VCI Section 6.3: returned when the Client provides the wrong
+    // Transaction Code in the Pre-Authorized Code Flow.
+    | &quot;invalid_tx_code&quot;;
 
 /**
  * Exception for OAuth 2.0 Token Error responses.

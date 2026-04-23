@@ -385,8 +385,8 @@ Validates the request_uri and redirects to the upstream OIDC provider.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="171"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.controller.ts:171</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="172"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.controller.ts:172</a></div>
                         </td>
                     </tr>
 
@@ -521,7 +521,7 @@ Receives the authorization code from upstream and redirects the wallet.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>par(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: <a href="../classes/ChainedAsParRequestDto.html" target="_self">ChainedAsParRequestDto</a>, dpopJwt?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientAttestationJwt?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientAttestationPopJwt?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>par(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, body: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, dpopJwt?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientAttestationJwt?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientAttestationPopJwt?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
@@ -535,8 +535,8 @@ Receives the authorization code from upstream and redirects the wallet.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="91"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.controller.ts:91</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="90"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.controller.ts:90</a></div>
                         </td>
                     </tr>
 
@@ -574,7 +574,7 @@ Wallets submit authorization parameters here before redirecting to authorize.</p
                                         <tr>
                                                 <td>body</td>
                                             <td>
-                                                            <code><a href="../classes/ChainedAsParRequestDto.html" target="_self" >ChainedAsParRequestDto</a></code>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
                                             </td>
 
                                             <td>
@@ -671,8 +671,8 @@ Wallets submit authorization parameters here before redirecting to authorize.</p
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="222"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.controller.ts:222</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="223"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.controller.ts:223</a></div>
                         </td>
                     </tr>
 
@@ -775,7 +775,6 @@ import { ChainedAsService, extractDpopJkt } from &quot;./chained-as.service&quot
 import {
     ChainedAsAuthorizeQueryDto,
     ChainedAsErrorResponseDto,
-    ChainedAsParRequestDto,
     ChainedAsParResponseDto,
     ChainedAsTokenRequestDto,
     ChainedAsTokenResponseDto,
@@ -841,12 +840,13 @@ export class ChainedAsController {
     })
     async par(
         @Param(&quot;tenantId&quot;) tenantId: string,
-        @Body() body: ChainedAsParRequestDto,
+        @Body() body: any,
         @Headers(&quot;dpop&quot;) dpopJwt?: string,
         @Headers(&quot;oauth-client-attestation&quot;) clientAttestationJwt?: string,
         @Headers(&quot;oauth-client-attestation-pop&quot;)
         clientAttestationPopJwt?: string,
     ): Promise&lt;ChainedAsParResponseDto&gt; {
+        console.log(body);
         // DPoP JWK thumbprint extraction will be handled in service layer when DPoP is fully implemented
         const dpopJkt &#x3D; dpopJwt ? extractDpopJkt(dpopJwt) : undefined;
 
@@ -895,6 +895,7 @@ export class ChainedAsController {
             query.client_id,
             query.request_uri,
         );
+        console.log(redirectUrl);
         res.redirect(redirectUrl);
     }
 

@@ -182,10 +182,12 @@ This controller handles the authorization requests, token requests.</p>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#par" >par</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#token" >token</a>
@@ -341,8 +343,8 @@ This controller handles the authorization requests, token requests.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="109"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:109</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="111"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:111</a></div>
                         </td>
                     </tr>
 
@@ -402,6 +404,7 @@ See OAuth2-ATCA07-8</p>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
                         <span ><b>par</b></span>
                         <a href="#par"><span class="icon ion-ios-link"></span></a>
@@ -419,14 +422,14 @@ See OAuth2-ATCA07-8</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@ApiBody({description: &#x27;Pushed Authorization Request&#x27;, type: AuthorizeQueries})<br />@ApiConsumes(&#x27;application/x-www-form-urlencoded&#x27;)<br />@Post(&#x27;par&#x27;)<br />@HttpCode(HttpStatus.CREATED)<br /></code>
+                    <code>@ApiBody({description: &#x27;Pushed Authorization Request&#x27;, type: AuthorizeQueries})<br />@ApiConsumes(&#x27;application/x-www-form-urlencoded&#x27;)<br />@Post(&#x27;par&#x27;)<br />@HttpCode(HttpStatus.CREATED)<br />@Header(&#x27;Cache-Control&#x27;, &#x27;no-store&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="65"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:65</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="66"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:66</a></div>
                         </td>
                     </tr>
 
@@ -518,6 +521,7 @@ See OAuth2-ATCA07-8</p>
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>token</b></span>
                         <a href="#token"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -534,14 +538,14 @@ See OAuth2-ATCA07-8</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post(&#x27;token&#x27;)<br />@HttpCode(HttpStatus.OK)<br /></code>
+                    <code>@Post(&#x27;token&#x27;)<br />@HttpCode(HttpStatus.OK)<br />@Header(&#x27;Cache-Control&#x27;, &#x27;no-store&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="93"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:93</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="95"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.controller.ts:95</a></div>
                         </td>
                     </tr>
 
@@ -682,6 +686,7 @@ export class AuthorizeController {
     @ApiConsumes(&quot;application/x-www-form-urlencoded&quot;)
     @Post(&quot;par&quot;)
     @HttpCode(HttpStatus.CREATED)
+    @Header(&quot;Cache-Control&quot;, &quot;no-store&quot;)
     async par(
         @Param(&quot;tenantId&quot;) tenantId: string,
         @Body() body: AuthorizeQueries,
@@ -710,6 +715,7 @@ export class AuthorizeController {
      */
     @Post(&quot;token&quot;)
     @HttpCode(HttpStatus.OK)
+    @Header(&quot;Cache-Control&quot;, &quot;no-store&quot;)
     token(
         @Body() body: any,
         @Req() req: Request,

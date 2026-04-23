@@ -175,6 +175,10 @@
                                 <a href="#authzMetadata" >authzMetadata</a>
                             </li>
                             <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#buildAuthorizationDetailsForToken" >buildAuthorizationDetailsForToken</a>
+                            </li>
+                            <li>
                                     <span class="modifier">Async</span>
                                 <a href="#challengeRequest" >challengeRequest</a>
                             </li>
@@ -375,8 +379,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="119"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:119</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="203"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:203</a></div>
                         </td>
                     </tr>
 
@@ -426,6 +430,87 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="buildAuthorizationDetailsForToken"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>buildAuthorizationDetailsForToken</b></span>
+                        <a href="#buildAuthorizationDetailsForToken"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>buildAuthorizationDetailsForToken(session: literal type)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="141"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:141</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Build the RFC 9396 <code>authorization_details</code> array that must be bound to the
+issued access token, per OID4VCI Section 6 / 7. The list of authorized
+<code>credential_configuration_id</code> values is derived from the session:</p>
+<ul>
+<li>If the Wallet sent <code>authorization_details</code> in the Authorization /
+PAR request (Authorization Code Flow), those values are used.</li>
+<li>Otherwise (Pre-Authorized Code Flow or issuer-initiated offer), the
+<code>credential_configuration_ids</code> from the Credential Offer are used.</li>
+</ul>
+<p>Returns <code>undefined</code> when no credential bindings can be derived, in which
+case no <code>authorization_details</code> will be placed on the token.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>session</td>
+                                            <td>
+                                                        <code>literal type</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>[] | undefined</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="challengeRequest"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -444,8 +529,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="185"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:185</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="269"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:269</a></div>
                         </td>
                     </tr>
 
@@ -594,8 +679,8 @@ See OAuth2-ATCA07-8</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="115"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:115</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="124"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:124</a></div>
                         </td>
                     </tr>
 
@@ -663,8 +748,8 @@ See OAuth2-ATCA07-8</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="202"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:202</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="286"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:286</a></div>
                         </td>
                     </tr>
 
@@ -760,8 +845,8 @@ and returns a request_uri for the authorize endpoint.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="86"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:86</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="87"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:87</a></div>
                         </td>
                     </tr>
 
@@ -772,7 +857,8 @@ and returns a request_uri for the authorize endpoint.</p>
 According to OID4VCI Section 6.3:</p>
 <ul>
 <li>invalid_request: Transaction code provided but not expected, or expected but not provided</li>
-<li>invalid_grant: Wrong transaction code, wrong pre-authorized code, or expired code</li>
+<li>invalid_tx_code: Wrong transaction code in the Pre-Authorized Code Flow</li>
+<li>invalid_grant: Wrong pre-authorized code, or expired code</li>
 <li>invalid_client: Anonymous access with pre-authorized code but not supported</li>
 </ul>
 </div>
@@ -810,7 +896,7 @@ According to OID4VCI Section 6.3:</p>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>&quot;invalid_request&quot; | &quot;invalid_client&quot; | &quot;invalid_grant&quot;</code>
+                            <b>Returns : </b>    <code>&quot;invalid_request&quot; | &quot;invalid_client&quot; | &quot;invalid_grant&quot; | &quot;invalid_tx_code&quot;</code>
 
                         </div>
                             <div class="io-description">
@@ -841,8 +927,8 @@ According to OID4VCI Section 6.3:</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="238"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:238</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="322"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:322</a></div>
                         </td>
                     </tr>
 
@@ -922,8 +1008,8 @@ According to OID4VCI Section 6.3:</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="529"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:529</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="626"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:626</a></div>
                         </td>
                     </tr>
 
@@ -993,8 +1079,8 @@ According to OID4VCI Section 6.3:</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="273"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:273</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="357"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:357</a></div>
                         </td>
                     </tr>
 
@@ -1193,14 +1279,19 @@ export class AuthorizeService {
      * Map error codes from the OAuth library to OAuth 2.0 Token Error codes.
      * According to OID4VCI Section 6.3:
      * - invalid_request: Transaction code provided but not expected, or expected but not provided
-     * - invalid_grant: Wrong transaction code, wrong pre-authorized code, or expired code
+     * - invalid_tx_code: Wrong transaction code in the Pre-Authorized Code Flow
+     * - invalid_grant: Wrong pre-authorized code, or expired code
      * - invalid_client: Anonymous access with pre-authorized code but not supported
      * @param errorCode The error code from the OAuth library
      * @returns The appropriate OAuth 2.0 token error code
      */
     private mapToTokenErrorCode(
         errorCode: string | undefined,
-    ): &quot;invalid_request&quot; | &quot;invalid_client&quot; | &quot;invalid_grant&quot; {
+    ):
+        | &quot;invalid_request&quot;
+        | &quot;invalid_client&quot;
+        | &quot;invalid_grant&quot;
+        | &quot;invalid_tx_code&quot; {
         if (!errorCode) {
             return &quot;invalid_request&quot;;
         }
@@ -1208,18 +1299,22 @@ export class AuthorizeService {
         if (
             errorCode &#x3D;&#x3D;&#x3D; &quot;invalid_grant&quot; ||
             errorCode &#x3D;&#x3D;&#x3D; &quot;invalid_client&quot; ||
-            errorCode &#x3D;&#x3D;&#x3D; &quot;invalid_request&quot;
+            errorCode &#x3D;&#x3D;&#x3D; &quot;invalid_request&quot; ||
+            errorCode &#x3D;&#x3D;&#x3D; &quot;invalid_tx_code&quot;
         ) {
             return errorCode;
         }
-        // Map specific error scenarios
-        // Wrong or expired pre-authorized code &#x3D; invalid_grant
-        // Wrong tx_code &#x3D; invalid_grant
+        // Wrong tx_code has its own dedicated error code in OID4VCI 1.1 §6.3.
         if (
-            errorCode.includes(&quot;pre-authorized&quot;) ||
-            errorCode.includes(&quot;pre_authorized&quot;) ||
             errorCode.includes(&quot;tx_code&quot;) ||
             errorCode.includes(&quot;transaction&quot;)
+        ) {
+            return &quot;invalid_tx_code&quot;;
+        }
+        // Wrong or expired pre-authorized code &#x3D; invalid_grant
+        if (
+            errorCode.includes(&quot;pre-authorized&quot;) ||
+            errorCode.includes(&quot;pre_authorized&quot;)
         ) {
             return &quot;invalid_grant&quot;;
         }
@@ -1229,6 +1324,81 @@ export class AuthorizeService {
 
     getAuthzIssuer(tenantId: string) {
         return &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}/issuers/${tenantId}&#x60;;
+    }
+
+    /**
+     * Build the RFC 9396 &#x60;authorization_details&#x60; array that must be bound to the
+     * issued access token, per OID4VCI Section 6 / 7. The list of authorized
+     * &#x60;credential_configuration_id&#x60; values is derived from the session:
+     *
+     *  - If the Wallet sent &#x60;authorization_details&#x60; in the Authorization /
+     *    PAR request (Authorization Code Flow), those values are used.
+     *  - Otherwise (Pre-Authorized Code Flow or issuer-initiated offer), the
+     *    &#x60;credential_configuration_ids&#x60; from the Credential Offer are used.
+     *
+     * Returns &#x60;undefined&#x60; when no credential bindings can be derived, in which
+     * case no &#x60;authorization_details&#x60; will be placed on the token.
+     */
+    private buildAuthorizationDetailsForToken(session: {
+        auth_queries?: AuthorizeQueries;
+        credentialPayload?: any;
+    }): Record&lt;string, unknown&gt;[] | undefined {
+        // 1. From authorization_details in the (pushed) authorization request.
+        const raw &#x3D; session.auth_queries?.authorization_details;
+        let requested: Record&lt;string, unknown&gt;[] | undefined;
+        if (typeof raw &#x3D;&#x3D;&#x3D; &quot;string&quot;) {
+            try {
+                const parsed &#x3D; JSON.parse(raw);
+                if (Array.isArray(parsed)) {
+                    requested &#x3D; parsed as Record&lt;string, unknown&gt;[];
+                }
+            } catch {
+                // ignore malformed JSON, fall through to offer-based defaulting
+            }
+        } else if (Array.isArray(raw)) {
+            requested &#x3D; raw;
+        }
+
+        if (requested &amp;&amp; requested.length &gt; 0) {
+            return requested
+                .filter(
+                    (ad) &#x3D;&gt;
+                        (ad.type as string | undefined) &#x3D;&#x3D;&#x3D; &quot;openid_credential&quot;,
+                )
+                .map((ad) &#x3D;&gt; ({
+                    type: &quot;openid_credential&quot;,
+                    credential_configuration_id: ad.credential_configuration_id,
+                    // Per OID4VCI Final Section 6.2, credential_identifiers MUST be
+                    // included when authorization_details are returned in the token
+                    // response so the Wallet can reference them in the credential request.
+                    credential_identifiers: [
+                        ad.credential_configuration_id as string,
+                    ],
+                }))
+                .filter(
+                    (ad) &#x3D;&gt;
+                        typeof ad.credential_configuration_id &#x3D;&#x3D;&#x3D; &quot;string&quot; &amp;&amp;
+                        (ad.credential_configuration_id as string).length &gt; 0,
+                );
+        }
+
+        // 2. Fallback: credential_configuration_ids from the Credential Offer.
+        const offerIds: unknown &#x3D;
+            session.credentialPayload?.credentialConfigurationIds;
+        if (Array.isArray(offerIds) &amp;&amp; offerIds.length &gt; 0) {
+            return offerIds
+                .filter((id): id is string &#x3D;&gt; typeof id &#x3D;&#x3D;&#x3D; &quot;string&quot;)
+                .map((id) &#x3D;&gt; ({
+                    type: &quot;openid_credential&quot;,
+                    credential_configuration_id: id,
+                    // Per OID4VCI Final Section 6.2, credential_identifiers MUST be
+                    // included when authorization_details are returned in the token
+                    // response so the Wallet can reference them in the credential request.
+                    credential_identifiers: [id],
+                }));
+        }
+
+        return undefined;
     }
 
     async authzMetadata(
@@ -1586,6 +1756,13 @@ export class AuthorizeService {
         // Determine access token lifetime (use credential lifetime if available, otherwise 5 min default)
         const accessTokenExpiresInSeconds &#x3D; 300;
 
+        // Bind the issued access token to the Credential(s) the Wallet is
+        // authorized to request, per OID4VCI Section 6. Both the JWT payload
+        // (for resource-server enforcement) and the token response body (for
+        // the Wallet) receive the same authorization_details.
+        const authorizationDetails &#x3D;
+            this.buildAuthorizationDetailsForToken(session);
+
         const tokenResponse &#x3D; await this.getAuthorizationServer(
             tenantId,
             session.id,
@@ -1604,6 +1781,12 @@ export class AuthorizeService {
                 clientId: req.body.client_id,
                 dpop: dpopValue,
                 refreshToken: issuanceConfig.refreshTokenEnabled ? true : false,
+                additionalAccessTokenPayload: authorizationDetails
+                    ? { authorization_details: authorizationDetails }
+                    : undefined,
+                additionalAccessTokenResponsePayload: authorizationDetails
+                    ? { authorization_details: authorizationDetails }
+                    : undefined,
             })
             .catch((err) &#x3D;&gt; {
                 this.logger.error(&quot;Error creating access token response:&quot;, err);

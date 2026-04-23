@@ -550,8 +550,8 @@ the upstream OIDC provider (e.g., Keycloak).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="585"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:585</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="586"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:586</a></div>
                         </td>
                     </tr>
 
@@ -669,8 +669,8 @@ the upstream OIDC provider (e.g., Keycloak).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="798"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:798</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="808"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:808</a></div>
                         </td>
                     </tr>
 
@@ -972,8 +972,8 @@ the upstream OIDC provider (e.g., Keycloak).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="729"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:729</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="739"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:739</a></div>
                         </td>
                     </tr>
 
@@ -1043,8 +1043,8 @@ the upstream OIDC provider (e.g., Keycloak).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="759"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:759</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="769"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:769</a></div>
                         </td>
                     </tr>
 
@@ -1186,8 +1186,8 @@ Results are cached for 5 minutes.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="812"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:812</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="822"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:822</a></div>
                         </td>
                     </tr>
 
@@ -1468,8 +1468,8 @@ Creates a session and returns a request_uri for the authorize endpoint.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="617"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:617</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="627"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:627</a></div>
                         </td>
                     </tr>
 
@@ -1792,8 +1792,8 @@ Exchanges the code for tokens and redirects back to the wallet.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="563"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:563</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="564"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:564</a></div>
                         </td>
                     </tr>
 
@@ -2584,6 +2584,7 @@ export class ChainedAsService {
                 callbackUrl,
             );
         } catch (err) {
+            console.log(err);
             this.logger.error(&quot;Failed to exchange code at upstream&quot;, err);
             session.status &#x3D; ChainedAsSessionStatus.EXPIRED;
             await this.sessionRepository.save(session);
@@ -2665,6 +2666,15 @@ export class ChainedAsService {
         if (session.upstreamIdTokenClaims) {
             payload.upstream_sub &#x3D; session.upstreamIdTokenClaims.sub;
             payload.upstream_iss &#x3D; session.upstreamIdTokenClaims.iss;
+        }
+        // Bind the access token to the Credential(s) the Wallet is
+        // authorized to request, per OID4VCI Section 6. The resource server
+        // enforces this when handling the Credential Request.
+        if (
+            Array.isArray(session.authorizationDetails) &amp;&amp;
+            session.authorizationDetails.length &gt; 0
+        ) {
+            payload.authorization_details &#x3D; session.authorizationDetails;
         }
         return payload;
     }

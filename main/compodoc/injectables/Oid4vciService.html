@@ -187,6 +187,10 @@
                                 <a href="#createOffer" >createOffer</a>
                             </li>
                             <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#enforceAuthorizationDetails" >enforceAuthorizationDetails</a>
+                            </li>
+                            <li>
                                     <span class="modifier">Async</span>
                                 <a href="#failDeferredTransaction" >failDeferredTransaction</a>
                             </li>
@@ -496,8 +500,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1079"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:1079</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1164"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:1164</a></div>
                         </td>
                     </tr>
 
@@ -613,8 +617,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="283"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:283</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="286"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:286</a></div>
                         </td>
                     </tr>
 
@@ -704,6 +708,93 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="enforceAuthorizationDetails"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>enforceAuthorizationDetails</b></span>
+                        <a href="#enforceAuthorizationDetails"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>enforceAuthorizationDetails(tokenPayload: <a href="../miscellaneous/typealiases.html#OAuth2TokenPayload" target="_self">OAuth2TokenPayload</a>, requestedCredentialConfigurationId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="467"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:467</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Enforce that the requested <code>credential_configuration_id</code> is covered by
+the <code>authorization_details</code> bound to the presented access token, per
+OID4VCI Section 6. If the token does not carry <code>authorization_details</code>
+(e.g. scope-only external AS integrations), the check is skipped.</p>
+<p>  when the requested credential is not authorized by the token.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tokenPayload</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#OAuth2TokenPayload" target="_self" >OAuth2TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>requestedCredentialConfigurationId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >void</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="failDeferredTransaction"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -722,8 +813,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1098"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:1098</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1183"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:1183</a></div>
                         </td>
                     </tr>
 
@@ -912,8 +1003,8 @@ Uses Chained AS if configured, otherwise falls back to the default AS.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="727"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:727</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="778"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:778</a></div>
                         </td>
                     </tr>
 
@@ -1013,8 +1104,8 @@ Uses Chained AS if configured, otherwise falls back to the default AS.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1050"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:1050</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1135"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:1135</a></div>
                         </td>
                     </tr>
 
@@ -1309,8 +1400,8 @@ Called when wallet polls with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="936"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:936</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1021"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:1021</a></div>
                         </td>
                     </tr>
 
@@ -1405,8 +1496,8 @@ Called when wallet polls with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="638"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:638</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="689"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:689</a></div>
                         </td>
                     </tr>
 
@@ -1620,8 +1711,8 @@ Called when wallet polls with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="684"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:684</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="735"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:735</a></div>
                         </td>
                     </tr>
 
@@ -1698,8 +1789,8 @@ Called when wallet polls with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="409"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:409</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="412"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:412</a></div>
                         </td>
                     </tr>
 
@@ -1739,8 +1830,8 @@ Called when wallet polls with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="395"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:395</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="398"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:398</a></div>
                         </td>
                     </tr>
 
@@ -1811,8 +1902,8 @@ Called when wallet polls with transaction_id.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="459"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:459</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="510"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:510</a></div>
                         </td>
                     </tr>
 
@@ -1920,8 +2011,8 @@ Handles Local AS, Chained AS, and External AS flows.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="581"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:581</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="632"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:632</a></div>
                         </td>
                     </tr>
 
@@ -2029,8 +2120,8 @@ Ensures all proofs contain valid, non-expired nonces and consumes them.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="420"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:420</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="423"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.service.ts:423</a></div>
                         </td>
                     </tr>
 
@@ -2410,11 +2501,14 @@ export class Oid4vciService {
                 issuanceConfig.display !&#x3D;&#x3D; null
                     ? issuanceConfig.display
                     : undefined,
-            credential_response_encryption: {
-                alg_values_supported: [&quot;ECDH-ES&quot;],
-                enc_values_supported: [&quot;A128GCM&quot;, &quot;A256GCM&quot;],
-                encryption_required: false,
-            },
+            credential_response_encryption:
+                issuanceConfig?.credentialResponseEncryption
+                    ? {
+                          alg_values_supported: [&quot;ECDH-ES&quot;],
+                          enc_values_supported: [&quot;A128GCM&quot;, &quot;A256GCM&quot;],
+                          encryption_required: false,
+                      }
+                    : undefined,
             batch_credential_issuance:
                 issuanceConfig?.batchSize &amp;&amp; issuanceConfig?.batchSize &gt; 1
                     ? {
@@ -2607,6 +2701,54 @@ export class Oid4vciService {
         });
 
         return tokenPayload as OAuth2TokenPayload;
+    }
+
+    /**
+     * Enforce that the requested &#x60;credential_configuration_id&#x60; is covered by
+     * the &#x60;authorization_details&#x60; bound to the presented access token, per
+     * OID4VCI Section 6. If the token does not carry &#x60;authorization_details&#x60;
+     * (e.g. scope-only external AS integrations), the check is skipped.
+     *
+     * @throws CredentialRequestException with &#x60;invalid_credential_request&#x60;
+     *   when the requested credential is not authorized by the token.
+     */
+    private enforceAuthorizationDetails(
+        tokenPayload: OAuth2TokenPayload,
+        requestedCredentialConfigurationId: string,
+    ): void {
+        const raw &#x3D; tokenPayload.authorization_details;
+        if (!Array.isArray(raw) || raw.length &#x3D;&#x3D;&#x3D; 0) {
+            // No authorization_details bound to the token - nothing to enforce
+            // here (scope-based authorization or legacy tokens).
+            return;
+        }
+
+        const authorized &#x3D; raw
+            .filter(
+                (ad): ad is Record&lt;string, unknown&gt; &#x3D;&gt;
+                    typeof ad &#x3D;&#x3D;&#x3D; &quot;object&quot; &amp;&amp;
+                    ad !&#x3D;&#x3D; null &amp;&amp;
+                    (ad as Record&lt;string, unknown&gt;).type &#x3D;&#x3D;&#x3D;
+                        &quot;openid_credential&quot;,
+            )
+            .map((ad) &#x3D;&gt; ad.credential_configuration_id as string | undefined)
+            .filter((id): id is string &#x3D;&gt; typeof id &#x3D;&#x3D;&#x3D; &quot;string&quot;);
+
+        if (authorized.length &#x3D;&#x3D;&#x3D; 0) {
+            // Token carries authorization_details but none of type
+            // &#x60;openid_credential&#x60; - treat as unauthorized for any credential.
+            throw new CredentialRequestException(
+                &quot;invalid_credential_request&quot;,
+                &quot;Access token is not authorized for any credential configuration&quot;,
+            );
+        }
+
+        if (!authorized.includes(requestedCredentialConfigurationId)) {
+            throw new CredentialRequestException(
+                &quot;invalid_credential_request&quot;,
+                &#x60;Access token is not authorized for credential_configuration_id &#x27;${requestedCredentialConfigurationId}&#x27;&#x60;,
+            );
+        }
     }
 
     /**
@@ -2955,14 +3097,6 @@ export class Oid4vciService {
             );
         }
 
-        // Reject unknown credential identifiers (OID4VCI Section 8.3.1)
-        if (parsedCredentialRequest.credentialIdentifier) {
-            throw new CredentialRequestException(
-                &quot;unknown_credential_identifier&quot;,
-                &#x60;Credential identifier &#x27;${parsedCredentialRequest.credentialIdentifier}&#x27; is unknown&#x60;,
-            );
-        }
-
         if (parsedCredentialRequest?.proofs?.jwt &#x3D;&#x3D;&#x3D; undefined) {
             throw new CredentialRequestException(
                 &quot;invalid_proof&quot;,
@@ -2978,9 +3112,51 @@ export class Oid4vciService {
             issuanceConfig,
         );
 
-        // Resolve session and claims based on token source
-        const credentialConfigurationId &#x3D;
-            parsedCredentialRequest.credentialConfigurationId as string;
+        // Resolve credentialConfigurationId from either:
+        //  - credential_identifier (OID4VCI Final Section 8.2): look it up in the
+        //    token&#x27;s authorization_details[].credential_identifiers to find the
+        //    matching credential_configuration_id.
+        //  - credential_configuration_id (direct)
+        let credentialConfigurationId: string;
+        if (parsedCredentialRequest.credentialIdentifier) {
+            const credentialIdentifier &#x3D;
+                parsedCredentialRequest.credentialIdentifier as string;
+            const authDetails &#x3D;
+                (tokenPayload.authorization_details as
+                    | Array&lt;Record&lt;string, unknown&gt;&gt;
+                    | undefined) ?? [];
+            const matching &#x3D; authDetails.find(
+                (ad) &#x3D;&gt;
+                    Array.isArray(ad.credential_identifiers) &amp;&amp;
+                    (ad.credential_identifiers as string[]).includes(
+                        credentialIdentifier,
+                    ),
+            );
+            if (
+                !matching ||
+                typeof matching.credential_configuration_id !&#x3D;&#x3D; &quot;string&quot;
+            ) {
+                throw new CredentialRequestException(
+                    &quot;unknown_credential_identifier&quot;,
+                    &#x60;Credential identifier &#x27;${credentialIdentifier}&#x27; is unknown&#x60;,
+                );
+            }
+            credentialConfigurationId &#x3D; matching.credential_configuration_id;
+        } else {
+            credentialConfigurationId &#x3D;
+                parsedCredentialRequest.credentialConfigurationId as string;
+        }
+
+        // Enforce that the access token is actually authorized to request
+        // this credential_configuration_id. Per OID4VCI Section 6, the
+        // &#x60;authorization_details&#x60; on the token define the authorized
+        // Credential Configurations. If the claim is present, the requested
+        // configuration MUST be one of them.
+        this.enforceAuthorizationDetails(
+            tokenPayload,
+            credentialConfigurationId,
+        );
+
         const { session, claimsResult, isExternalAsToken, isChainedAsToken } &#x3D;
             await this.resolveSessionAndClaims(
                 tokenPayload,
