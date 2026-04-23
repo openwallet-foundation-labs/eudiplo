@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { ApiService } from '../../../core';
 
 /**
  * OID4VCI Credential Issuer Metadata structure
@@ -100,24 +101,27 @@ export interface NormalizedCredential {
 
 @Injectable()
 export class IssuerMetadataService {
-  constructor(private readonly http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly apiService: ApiService
+  ) {}
 
   /**
    * Fetch credential issuer metadata from a given URL.
    * Handles both full URLs and base URLs (appending .well-known path).
    */
   async fetchMetadata(issuerUrl: string): Promise<CredentialIssuerMetadata> {
-    let metadataUrl = issuerUrl.trim();
-
-    // If URL doesn't contain .well-known, construct the metadata URL
-    if (!metadataUrl.includes('.well-known/openid-credential-issuer')) {
-      // Remove trailing slash
-      metadataUrl = metadataUrl.replace(/\/$/, '');
-      const url = new URL(metadataUrl);
-      metadataUrl = `${url.origin}/.well-known/openid-credential-issuer${url.pathname}`;
+    const baseUrl = this.apiService.getBaseUrl();
+    if (!baseUrl) {
+      throw new Error('API base URL is not configured. Please log in again.');
     }
 
-    return firstValueFrom(this.http.get<CredentialIssuerMetadata>(metadataUrl));
+    const endpoint = `${baseUrl}/api/verifier/config/issuer-metadata/resolve`;
+    return firstValueFrom(
+      this.http.post<CredentialIssuerMetadata>(endpoint, {
+        issuerUrl,
+      })
+    );
   }
 
   /**

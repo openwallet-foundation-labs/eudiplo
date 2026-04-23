@@ -90,8 +90,8 @@ export class IssuerMetadataBrowserComponent implements OnInit {
       console.error('Failed to fetch issuer metadata:', err);
       if (err.status === 0) {
         this.error =
-          'Failed to fetch metadata. This may be due to CORS restrictions. ' +
-          'Try using the issuer URL directly or check the console for details.';
+          'Failed to fetch metadata through the EUDIPLO proxy. ' +
+          'Check network connectivity and issuer URL, then try again.';
       } else if (err.status === 404) {
         this.error = 'Credential issuer metadata not found at the specified URL.';
       } else {
