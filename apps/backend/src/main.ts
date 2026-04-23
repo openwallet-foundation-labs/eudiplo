@@ -38,7 +38,6 @@ const PROTOCOL_ROUTE_EXCLUSIONS: { path: string; method: RequestMethod }[] = [
         path: "issuers/:tenantId/credentials-metadata/{*path}",
         method: RequestMethod.ALL,
     },
-    { path: "issuers/:tenantId/chained-as/{*path}", method: RequestMethod.ALL },
     // OID4VP Protocol
     { path: "presentations/:sessionId/oid4vp", method: RequestMethod.ALL },
     {

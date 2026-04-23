@@ -6,7 +6,6 @@ import { KeyChainService } from "../../../../crypto/key/key-chain.service";
 import { MediaType } from "../../../../shared/utils/mediaType/media-type.enum";
 import { IssuanceService } from "../../../configuration/issuance/issuance.service";
 import { AuthorizeService } from "../authorize/authorize.service";
-import { ChainedAsService } from "../chained-as/chained-as.service";
 import { WellKnownException } from "../exceptions";
 import { Oid4vciService } from "../oid4vci.service";
 import { CredentialIssuerMetadataDto } from "./dto/credential-issuer-metadata.dto";
@@ -29,7 +28,6 @@ export class WellKnownService {
         public readonly keyChainService: KeyChainService,
         private readonly authorizeService: AuthorizeService,
         private readonly cryptoImplementationService: CryptoImplementationService,
-        private readonly chainedAsService: ChainedAsService,
         private readonly issuanceService: IssuanceService,
     ) {}
 
@@ -135,50 +133,6 @@ export class WellKnownService {
             }
             throw new WellKnownException(
                 `Failed to retrieve JWKS for tenant ${tenantId}: ${error instanceof Error ? error.message : "Unknown error"}`,
-                HttpStatus.INTERNAL_SERVER_ERROR,
-            );
-        }
-    }
-
-    /**
-     * Returns the OAuth 2.0 Authorization Server metadata for the Chained AS.
-     * This supports the RFC 8414 alternative discovery path format:
-     * `/.well-known/oauth-authorization-server/:tenantId/chained-as`
-     * @param tenantId
-     * @returns
-     */
-    async getChainedAsMetadata(
-        tenantId: string,
-    ): Promise<Record<string, unknown>> {
-        try {
-            return await this.chainedAsService.getMetadata(tenantId);
-        } catch (error) {
-            if (error instanceof WellKnownException) {
-                throw error;
-            }
-            throw new WellKnownException(
-                `Failed to retrieve Chained AS metadata for tenant ${tenantId}: ${error instanceof Error ? error.message : "Unknown error"}`,
-                HttpStatus.INTERNAL_SERVER_ERROR,
-            );
-        }
-    }
-
-    /**
-     * Returns the JSON Web Key Set (JWKS) for the Chained Authorization Server.
-     * @param tenantId
-     * @returns
-     */
-    async getChainedAsJwks(
-        tenantId: string,
-    ): Promise<{ keys: Record<string, unknown>[] }> {
-        try {
-            return await this.chainedAsService.getJwks(tenantId);
-        } catch (error) {
-            if (error instanceof WellKnownException) {
-                throw error;
-            }
-            throw new WellKnownException(
-                `Failed to retrieve Chained AS JWKS for tenant ${tenantId}: ${error instanceof Error ? error.message : "Unknown error"}`,
                 HttpStatus.INTERNAL_SERVER_ERROR,
             );
         }

@@ -14,7 +14,6 @@ import { AuthorizeController } from "./oid4vci/authorize/authorize.controller";
 import { AuthorizeService } from "./oid4vci/authorize/authorize.service";
 import { InteractiveAuthorizationController } from "./oid4vci/authorize/interactive-authorization.controller";
 import { InteractiveAuthorizationService } from "./oid4vci/authorize/interactive-authorization.service";
-import { ChainedAsController } from "./oid4vci/chained-as/chained-as.controller";
 import { ChainedAsService } from "./oid4vci/chained-as/chained-as.service";
 import { ChainedAsSessionEntity } from "./oid4vci/chained-as/entities/chained-as-session.entity";
 import { DeferredController } from "./oid4vci/deferred.controller";
@@ -58,7 +57,6 @@ import { WellKnownService } from "./oid4vci/well-known/well-known.service";
         Oid4vciController,
         AuthorizeController,
         InteractiveAuthorizationController,
-        ChainedAsController,
         CredentialOfferController,
         DeferredController,
         Oid4vciMetadataController,

@@ -37,4 +37,6 @@ export class AuthorizeQueries {
     @IsOptional()
     @IsString()
     state?: string;
+    @IsOptional()
+    authorization_details?: string;
 }

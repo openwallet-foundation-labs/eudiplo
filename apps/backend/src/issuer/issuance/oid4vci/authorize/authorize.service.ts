@@ -49,6 +49,42 @@ interface ParsedAccessTokenRefreshTokenRequestGrant {
 export class AuthorizeService {
     private readonly logger = new Logger(AuthorizeService.name);
 
+    /**
+     * Parse OAuth authorization_details payload from form-encoded request/session values.
+     */
+    private parseAuthorizationDetails(
+        authorizationDetails?: unknown,
+    ): Record<string, unknown>[] | undefined {
+        if (!authorizationDetails) {
+            return undefined;
+        }
+
+        if (Array.isArray(authorizationDetails)) {
+            return authorizationDetails.filter(
+                (entry): entry is Record<string, unknown> =>
+                    typeof entry === "object" && entry !== null,
+            );
+        }
+
+        if (typeof authorizationDetails !== "string") {
+            return undefined;
+        }
+
+        try {
+            const parsed = JSON.parse(authorizationDetails);
+            if (!Array.isArray(parsed)) {
+                return undefined;
+            }
+
+            return parsed.filter(
+                (entry): entry is Record<string, unknown> =>
+                    typeof entry === "object" && entry !== null,
+            );
+        } catch {
+            return undefined;
+        }
+    }
+
     constructor(
         private readonly configService: ConfigService,
         private readonly cryptoService: CryptoService,
@@ -226,10 +262,29 @@ export class AuthorizeService {
             );
         }
 
+        const normalizedAuthQueries: AuthorizeQueries = {
+            ...body,
+            authorization_details: body.authorization_details,
+        };
+
+        // issuer_state is optional in wallet-initiated flows.
+        // Ensure we always have a stable session id to persist PAR context.
+        const sessionId = body.issuer_state ?? v4();
+
+        try {
+            await this.sessionService.get(sessionId);
+        } catch {
+            await this.sessionService.create({
+                id: sessionId,
+                tenantId,
+                notifications: [],
+            });
+        }
+
         const request_uri = `urn:${randomUUID()}`;
-        await this.sessionService.add(body.issuer_state!, {
+        await this.sessionService.add(sessionId, {
             request_uri,
-            auth_queries: body,
+            auth_queries: normalizedAuthQueries,
         });
 
         return { expires_in: 500, request_uri };
@@ -516,6 +571,24 @@ export class AuthorizeService {
                 refresh_token: tokenResponse.refresh_token,
                 refresh_token_expires_at: refreshTokenExpiresAt,
             });
+        }
+
+        // Keep token response aligned with OID4VCI authorization_details usage.
+        // If the OAuth library does not include it, propagate from request/session context.
+        const responseAuthorizationDetails = this.parseAuthorizationDetails(
+            parsedAccessTokenRequest.accessTokenRequest.authorization_details ??
+                session.auth_queries?.authorization_details,
+        );
+        if (
+            responseAuthorizationDetails?.length &&
+            !Array.isArray(
+                (tokenResponse as { authorization_details?: unknown })
+                    .authorization_details,
+            )
+        ) {
+            (
+                tokenResponse as { authorization_details?: unknown }
+            ).authorization_details = responseAuthorizationDetails;
         }
 
         return tokenResponse;

@@ -77,6 +77,7 @@ type OAuth2TokenPayload = {
     jti: string;
     client_id?: string;
     scope?: string;
+    authorization_details?: unknown;
     nbf?: number;
     nonce?: string;
     cnf?: { jwk?: Jwk };
@@ -108,18 +109,9 @@ export class Oid4vciService {
 
     /**
      * Get the authorization server URL for credential offers.
-     * Uses Chained AS if configured, otherwise falls back to the default AS.
+     * Uses the unified authorization server URL.
      */
     private async getAuthorizationServer(tenantId: string): Promise<string> {
-        const issuanceConfig =
-            await this.issuanceService.getIssuanceConfiguration(tenantId);
-
-        if (issuanceConfig.chainedAs?.enabled) {
-            const publicUrl =
-                this.configService.getOrThrow<string>("PUBLIC_URL");
-            return `${publicUrl}/issuers/${tenantId}/chained-as`;
-        }
-
         return this.authzService.getAuthzIssuer(tenantId);
     }
 
@@ -201,17 +193,6 @@ export class Oid4vciService {
             );
         }
 
-        // Add Chained AS if enabled
-        if (issuanceConfig.chainedAs?.enabled) {
-            const chainedAsIssuer = `${credential_issuer}/chained-as`;
-            authServers.push(chainedAsIssuer);
-            authorizationServers.push(
-                (await this.chainedAsService.getMetadata(
-                    tenantId,
-                )) as AuthorizationServerMetadata,
-            );
-        }
-
         authServers.push(this.authzService.getAuthzIssuer(tenantId));
         authorizationServers.push(
             await this.authzService.authzMetadata(tenantId),
@@ -220,10 +201,11 @@ export class Oid4vciService {
         // Reorder so the preferred authorization server is first
         if (issuanceConfig.preferredAuthServer) {
             let preferred: string;
-            if (issuanceConfig.preferredAuthServer === "built-in") {
+            if (
+                issuanceConfig.preferredAuthServer === "built-in" ||
+                issuanceConfig.preferredAuthServer === "chained-as"
+            ) {
                 preferred = this.authzService.getAuthzIssuer(tenantId);
-            } else if (issuanceConfig.preferredAuthServer === "chained-as") {
-                preferred = `${credential_issuer}/chained-as`;
             } else {
                 preferred = issuanceConfig.preferredAuthServer;
             }
@@ -470,11 +452,10 @@ export class Oid4vciService {
         isChainedAsToken: boolean;
     }> {
         const localIssuer = this.authzService.getAuthzIssuer(tenantId);
-        const publicUrl = this.configService.getOrThrow<string>("PUBLIC_URL");
-        const chainedAsIssuer = `${publicUrl}/issuers/${tenantId}/chained-as`;
+        const issuerState = tokenPayload.issuer_state as string | undefined;
 
         const isLocalAsToken = tokenPayload.iss === localIssuer;
-        const isChainedAsToken = tokenPayload.iss === chainedAsIssuer;
+        const isChainedAsToken = typeof issuerState === "string";
         const isExternalAsToken = !isLocalAsToken && !isChainedAsToken;
 
         let session: Session;
@@ -482,7 +463,6 @@ export class Oid4vciService {
 
         if (isChainedAsToken) {
             // Chained AS flow - EUDIPLO-issued token with issuer_state for session correlation
-            const issuerState = tokenPayload.issuer_state as string | undefined;
             if (!issuerState) {
                 throw new CredentialRequestException(
                     "credential_request_denied",
@@ -572,6 +552,124 @@ export class Oid4vciService {
         }
 
         return { session, claimsResult, isExternalAsToken, isChainedAsToken };
+    }
+
+    /**
+     * Parse authorization_details and return authorized credential configuration IDs.
+     */
+    private extractAuthorizedConfigIdsFromAuthorizationDetails(
+        authorizationDetails: unknown,
+    ): string[] {
+        let parsed: unknown = authorizationDetails;
+
+        if (typeof authorizationDetails === "string") {
+            try {
+                parsed = JSON.parse(authorizationDetails);
+            } catch {
+                return [];
+            }
+        }
+
+        if (!Array.isArray(parsed)) {
+            return [];
+        }
+
+        return parsed
+            .filter(
+                (entry): entry is Record<string, unknown> =>
+                    typeof entry === "object" && entry !== null,
+            )
+            .filter((entry) => entry.type === "openid_credential")
+            .map((entry) => entry.credential_configuration_id)
+            .filter((id): id is string => typeof id === "string");
+    }
+
+    /**
+     * Resolve authorized credential configuration IDs from OAuth scope values.
+     */
+    private getAuthorizedConfigIdsFromScope(
+        scope: string | undefined,
+        issuerMetadata: IssuerMetadataResult,
+    ): string[] {
+        if (!scope) {
+            return [];
+        }
+
+        const requestedScopes = new Set(
+            scope
+                .split(" ")
+                .map((s) => s.trim())
+                .filter(Boolean),
+        );
+
+        const supported =
+            issuerMetadata.credentialIssuer.credential_configurations_supported;
+        const matches: string[] = [];
+
+        for (const [configId, config] of Object.entries(supported)) {
+            if (
+                typeof config.scope === "string" &&
+                requestedScopes.has(config.scope)
+            ) {
+                matches.push(configId);
+            }
+        }
+
+        return matches;
+    }
+
+    /**
+     * Enforce that the access token/session authorizes the requested credential_configuration_id.
+     */
+    private assertCredentialAuthorizedByToken(
+        credentialConfigurationId: string,
+        tokenPayload: OAuth2TokenPayload,
+        session: Session,
+        issuerMetadata: IssuerMetadataResult,
+        isExternalAsToken: boolean,
+    ): void {
+        const authorized = new Set<string>();
+
+        // OAuth 2.0 authorization context conveyed in token claims.
+        this.extractAuthorizedConfigIdsFromAuthorizationDetails(
+            tokenPayload.authorization_details,
+        ).forEach((id) => authorized.add(id));
+        this.getAuthorizedConfigIdsFromScope(
+            tokenPayload.scope,
+            issuerMetadata,
+        ).forEach((id) => authorized.add(id));
+
+        // Built-in AS stores original authorization request context in session.
+        this.extractAuthorizedConfigIdsFromAuthorizationDetails(
+            session.auth_queries?.authorization_details,
+        ).forEach((id) => authorized.add(id));
+        this.getAuthorizedConfigIdsFromScope(
+            session.auth_queries?.scope,
+            issuerMetadata,
+        ).forEach((id) => authorized.add(id));
+
+        // Issuer-initiated offer context can further constrain requested credentials.
+        for (const id of session.credentialPayload
+            ?.credentialConfigurationIds ?? []) {
+            authorized.add(id);
+        }
+
+        if (authorized.size === 0) {
+            const message = isExternalAsToken
+                ? "The access token does not contain authorization_details or scope for credential authorization"
+                : "No credential authorization context found for this token/session";
+            throw new CredentialRequestException(
+                "credential_request_denied",
+                message,
+            );
+        }
+
+        if (!authorized.has(credentialConfigurationId)) {
+            throw new CredentialRequestException(
+                "credential_request_denied",
+                `The access token is not authorized for credential_configuration_id '${credentialConfigurationId}'`,
+            );
+        }
     }
 
     /**
@@ -831,6 +929,14 @@ export class Oid4vciService {
                 credentialConfigurationId,
                 issuanceConfig,
             );
+
+        this.assertCredentialAuthorizedByToken(
+            credentialConfigurationId,
+            tokenPayload,
+            session,
+            issuerMetadata,
+            isExternalAsToken,
+        );
 
         // Add session context to span for trace correlation
         const span = this.traceService.getSpan();

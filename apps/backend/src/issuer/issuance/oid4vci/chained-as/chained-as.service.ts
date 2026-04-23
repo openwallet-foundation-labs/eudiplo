@@ -88,6 +88,12 @@ interface OidcDiscoveryDocument {
 export class ChainedAsService {
     private readonly logger = new Logger(ChainedAsService.name);
 
+    /** DPoP proof freshness window in seconds. */
+    private readonly DPOP_MAX_AGE_SECONDS = 300;
+
+    /** In-memory replay cache for DPoP jti values. */
+    private readonly dpopJtiCache = new Map<string, number>();
+
     /** Cache for upstream OIDC discovery documents */
     private readonly discoveryCache = new Map<
         string,
@@ -116,11 +122,79 @@ export class ChainedAsService {
     ) {}
 
     /**
-     * Get the base URL for this tenant's Chained AS.
+     * Get the OAuth authorization server issuer URL for this tenant.
      */
-    private getChainedAsBaseUrl(tenantId: string): string {
+    private getAuthorizationServerIssuer(tenantId: string): string {
         const publicUrl = this.configService.getOrThrow<string>("PUBLIC_URL");
-        return `${publicUrl}/issuers/${tenantId}/chained-as`;
+        return `${publicUrl}/issuers/${tenantId}`;
+    }
+
+    /**
+     * Get the unified authorize endpoint base URL.
+     */
+    private getAuthorizeBaseUrl(tenantId: string): string {
+        return `${this.getAuthorizationServerIssuer(tenantId)}/authorize`;
+    }
+
+    /**
+     * Validate DPoP proof shape and return the JWK thumbprint for cnf.jkt binding.
+     */
+    private validateDpopForTokenRequest(
+        tenantId: string,
+        dpopJwt: string,
+        session: ChainedAsSessionEntity,
+    ): string {
+        const proofJkt = extractDpopJkt(dpopJwt);
+        if (!proofJkt) {
+            throw new BadRequestException("Invalid DPoP proof");
+        }
+
+        if (session.dpopJkt && session.dpopJkt !== proofJkt) {
+            throw new UnauthorizedException("DPoP proof key mismatch");
+        }
+
+        const payload = decodeJwt(dpopJwt) as Record<string, unknown>;
+        if (payload.htm !== "POST") {
+            throw new BadRequestException("Invalid DPoP htm claim");
+        }
+
+        const expectedHtu = `${this.getAuthorizeBaseUrl(tenantId)}/token`;
+        if (payload.htu !== expectedHtu) {
+            throw new BadRequestException("Invalid DPoP htu claim");
+        }
+
+        const iat = payload.iat;
+        if (typeof iat !== "number") {
+            throw new BadRequestException("Invalid DPoP iat claim");
+        }
+        const now = Math.floor(Date.now() / 1000);
+        if (Math.abs(now - iat) > this.DPOP_MAX_AGE_SECONDS) {
+            throw new BadRequestException(
+                "DPoP proof is expired or not yet valid",
+            );
+        }
+
+        const jti = payload.jti;
+        if (typeof jti !== "string" || !jti) {
+            throw new BadRequestException("Invalid DPoP jti claim");
+        }
+
+        // Opportunistic in-memory replay protection.
+        for (const [key, expiresAt] of this.dpopJtiCache.entries()) {
+            if (expiresAt <= Date.now()) {
+                this.dpopJtiCache.delete(key);
+            }
+        }
+        const replayKey = `${tenantId}:${jti}`;
+        if (this.dpopJtiCache.has(replayKey)) {
+            throw new UnauthorizedException("DPoP proof replay detected");
+        }
+        this.dpopJtiCache.set(
+            replayKey,
+            Date.now() + this.DPOP_MAX_AGE_SECONDS * 1000,
+        );
+
+        return proofJkt;
     }
 
     /**
@@ -207,11 +281,11 @@ export class ChainedAsService {
         }
 
         // Verify wallet attestation if provided or required
-        const chainedAsUrl = this.getChainedAsBaseUrl(tenantId);
+        const authServerIssuer = this.getAuthorizationServerIssuer(tenantId);
         await this.walletAttestationService.verifyWalletAttestation(
             tenantId,
             clientAttestation,
-            chainedAsUrl,
+            authServerIssuer,
             issuanceConfig.walletAttestationRequired ?? false,
             issuanceConfig.walletProviderTrustLists ?? [],
         );
@@ -228,6 +302,14 @@ export class ChainedAsService {
         } else {
             // Generate a new issuer_state if not provided
             issuerState = v4();
+
+            // Wallet-initiated chained flow still needs an issuance session id
+            // so the issued token can be resolved at the credential endpoint.
+            await this.sessionService.create({
+                id: issuerState,
+                tenantId,
+                notifications: [],
+            });
         }
 
         // Create the session
@@ -350,7 +432,7 @@ export class ChainedAsService {
         await this.sessionRepository.save(session);
 
         // Build upstream authorization URL
-        const callbackUrl = `${this.getChainedAsBaseUrl(tenantId)}/callback`;
+        const callbackUrl = `${this.getAuthorizeBaseUrl(tenantId)}/callback`;
         const upstreamScopes = config.upstream.scopes || ["openid"];
 
         const authUrl = new URL(discovery.authorization_endpoint);
@@ -514,7 +596,7 @@ export class ChainedAsService {
         const discovery = await this.getUpstreamDiscovery(
             config.upstream.issuer,
         );
-        const callbackUrl = `${this.getChainedAsBaseUrl(tenantId)}/callback`;
+        const callbackUrl = `${this.getAuthorizeBaseUrl(tenantId)}/callback`;
 
         try {
             await this.exchangeUpstreamCode(
@@ -591,7 +673,7 @@ export class ChainedAsService {
     ): Record<string, unknown> {
         const now = Math.floor(Date.now() / 1000);
         const payload: Record<string, unknown> = {
-            iss: this.getChainedAsBaseUrl(tenantId),
+            iss: this.getAuthorizationServerIssuer(tenantId),
             sub: session.clientId,
             aud: `${this.configService.getOrThrow<string>("PUBLIC_URL")}/issuers/${tenantId}`,
             iat: now,
@@ -599,6 +681,11 @@ export class ChainedAsService {
             jti,
             issuer_state: session.issuerState,
             client_id: session.clientId,
+            ...(session.scope && { scope: session.scope }),
+            ...(Array.isArray(session.authorizationDetails) &&
+                session.authorizationDetails.length > 0 && {
+                    authorization_details: session.authorizationDetails,
+                }),
         };
         if (dpopJkt) {
             payload.cnf = { jkt: dpopJkt };
@@ -668,9 +755,13 @@ export class ChainedAsService {
         let dpopJkt: string | undefined;
 
         if (dpopJwt) {
-            // DPoP validation: extract JWK thumbprint from DPoP proof
+            // Validate DPoP proof and bind token cnf.jkt to proof key.
             tokenType = "DPoP";
-            dpopJkt = session.dpopJkt;
+            dpopJkt = this.validateDpopForTokenRequest(
+                tenantId,
+                dpopJwt,
+                session,
+            );
         } else if (config.requireDPoP) {
             throw new BadRequestException("DPoP proof is required");
         }
@@ -721,75 +812,6 @@ export class ChainedAsService {
                     authorization_details: session.authorizationDetails,
                 }),
         };
-    }
-
-    /**
-     * Get the JWKS for token verification.
-     */
-    async getJwks(
-        tenantId: string,
-    ): Promise<{ keys: Record<string, unknown>[] }> {
-        const config = await this.getChainedAsConfig(tenantId);
-
-        // Get the key ID to use - either from config or resolve from key service
-        const signingKeyId =
-            config.token?.signingKeyId ||
-            (await this.keyChainService.getKid(tenantId));
-
-        const publicKey = await this.keyChainService.getPublicKey(
-            "jwk",
-            tenantId,
-            signingKeyId,
-        );
-
-        // Ensure the key has a kid set for proper JWT verification matching
-        const keyWithKid = {
-            ...publicKey,
-            kid: (publicKey as { kid?: string }).kid || signingKeyId,
-        };
-
-        return {
-            keys: [keyWithKid as Record<string, unknown>],
-        };
-    }
-
-    /**
-     * Get authorization server metadata for the Chained AS.
-     */
-    async getMetadata(tenantId: string): Promise<Record<string, unknown>> {
-        const baseUrl = this.getChainedAsBaseUrl(tenantId);
-        const publicUrl = this.configService.getOrThrow<string>("PUBLIC_URL");
-
-        const issuanceConfig =
-            await this.issuanceService.getIssuanceConfiguration(tenantId);
-        const walletAttestationRequired =
-            issuanceConfig.walletAttestationRequired ?? false;
-
-        const metadata: Record<string, unknown> = {
-            issuer: baseUrl,
-            authorization_endpoint: `${baseUrl}/authorize`,
-            token_endpoint: `${baseUrl}/token`,
-            pushed_authorization_request_endpoint: `${baseUrl}/par`,
-            jwks_uri: `${publicUrl}/.well-known/jwks.json/issuers/${tenantId}/chained-as`,
-            response_types_supported: ["code"],
-            grant_types_supported: ["authorization_code"],
-            code_challenge_methods_supported: ["S256"],
-            dpop_signing_alg_values_supported: ["ES256", "ES384", "ES512"],
-        };
-
-        if (walletAttestationRequired) {
-            metadata.token_endpoint_auth_methods_supported = [
-                "attest_jwt_client_auth",
-            ];
-            metadata.client_attestation_signing_alg_values_supported = [
-                "ES256",
-            ];
-            metadata.client_attestation_pop_signing_alg_values_supported = [
-                "ES256",
-            ];
-        }
-
-        return metadata;
     }
 
     /**

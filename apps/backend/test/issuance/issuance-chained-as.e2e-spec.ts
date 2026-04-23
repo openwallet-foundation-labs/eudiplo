@@ -248,30 +248,26 @@ describe("Issuance - Chained AS Flow", () => {
         await configureChainedAs();
 
         const metadataResponse = await request(app.getHttpServer())
-            .get(
-                "/.well-known/oauth-authorization-server/issuers/haip/chained-as",
-            )
+            .get("/.well-known/oauth-authorization-server/issuers/haip")
             .trustLocalhost()
             .expect(200);
 
-        expect(metadataResponse.body.issuer).toContain(
-            "/issuers/haip/chained-as",
-        );
+        expect(metadataResponse.body.issuer).toContain("/issuers/haip");
         expect(metadataResponse.body.authorization_endpoint).toContain(
-            "/issuers/haip/chained-as/authorize",
+            "/issuers/haip/authorize",
         );
         expect(metadataResponse.body.token_endpoint).toContain(
-            "/issuers/haip/chained-as/token",
+            "/issuers/haip/authorize/token",
         );
         expect(
             metadataResponse.body.pushed_authorization_request_endpoint,
-        ).toContain("/issuers/haip/chained-as/par");
-        expect(metadataResponse.body.response_types_supported).toContain(
-            "code",
-        );
+        ).toContain("/issuers/haip/authorize/par");
         expect(metadataResponse.body.grant_types_supported).toContain(
             "authorization_code",
         );
+        expect(
+            metadataResponse.body.code_challenge_methods_supported,
+        ).toContain("S256");
     });
 
     test("PAR endpoint accepts authorization request and returns request_uri", async () => {
@@ -280,7 +276,7 @@ describe("Issuance - Chained AS Flow", () => {
 
         // Submit PAR request (without issuer_state - service generates one)
         const parResponse = await request(app.getHttpServer())
-            .post("/issuers/haip/chained-as/par")
+            .post("/issuers/haip/authorize/par")
             .trustLocalhost()
             .send({
                 response_type: "code",
@@ -305,7 +301,7 @@ describe("Issuance - Chained AS Flow", () => {
 
         // Submit PAR (without issuer_state)
         const parResponse = await request(app.getHttpServer())
-            .post("/issuers/haip/chained-as/par")
+            .post("/issuers/haip/authorize/par")
             .trustLocalhost()
             .send({
                 response_type: "code",
@@ -318,7 +314,7 @@ describe("Issuance - Chained AS Flow", () => {
 
         // Call authorize endpoint - should redirect to upstream
         const authorizeResponse = await request(app.getHttpServer())
-            .get("/issuers/haip/chained-as/authorize")
+            .get("/issuers/haip/authorize")
             .query({
                 client_id: "test-wallet",
                 request_uri: parResponse.body.request_uri,
@@ -349,7 +345,7 @@ describe("Issuance - Chained AS Flow", () => {
 
         // Submit PAR (without issuer_state)
         const parResponse = await request(app.getHttpServer())
-            .post("/issuers/haip/chained-as/par")
+            .post("/issuers/haip/authorize/par")
             .trustLocalhost()
             .send({
                 response_type: "code",
@@ -363,7 +359,7 @@ describe("Issuance - Chained AS Flow", () => {
 
         // Get authorize redirect to extract upstream state
         const authorizeResponse = await request(app.getHttpServer())
-            .get("/issuers/haip/chained-as/authorize")
+            .get("/issuers/haip/authorize")
             .query({
                 client_id: "test-wallet",
                 request_uri: parResponse.body.request_uri,
@@ -377,7 +373,7 @@ describe("Issuance - Chained AS Flow", () => {
 
         // Simulate upstream callback
         const callbackResponse = await request(app.getHttpServer())
-            .get("/issuers/haip/chained-as/callback")
+            .get("/issuers/haip/authorize/callback")
             .query({
                 code: "upstream-auth-code",
                 state: upstreamState,
@@ -406,7 +402,7 @@ describe("Issuance - Chained AS Flow", () => {
 
         // Full flow to get a code (without issuer_state)
         const parResponse = await request(app.getHttpServer())
-            .post("/issuers/haip/chained-as/par")
+            .post("/issuers/haip/authorize/par")
             .trustLocalhost()
             .send({
                 response_type: "code",
@@ -419,7 +415,7 @@ describe("Issuance - Chained AS Flow", () => {
             .expect(201);
 
         const authorizeResponse = await request(app.getHttpServer())
-            .get("/issuers/haip/chained-as/authorize")
+            .get("/issuers/haip/authorize")
             .query({
                 client_id: "test-wallet",
                 request_uri: parResponse.body.request_uri,
@@ -432,7 +428,7 @@ describe("Issuance - Chained AS Flow", () => {
         const upstreamState = upstreamUrl.searchParams.get("state")!;
 
         const callbackResponse = await request(app.getHttpServer())
-            .get("/issuers/haip/chained-as/callback")
+            .get("/issuers/haip/authorize/callback")
             .query({
                 code: "upstream-auth-code",
                 state: upstreamState,
@@ -446,7 +442,7 @@ describe("Issuance - Chained AS Flow", () => {
 
         // Exchange code for token
         const tokenResponse = await request(app.getHttpServer())
-            .post("/issuers/haip/chained-as/token")
+            .post("/issuers/haip/authorize/token")
             .trustLocalhost()
             .send({
                 grant_type: "authorization_code",
@@ -471,7 +467,7 @@ describe("Issuance - Chained AS Flow", () => {
 
         // Get a valid code through the flow (without issuer_state)
         const parResponse = await request(app.getHttpServer())
-            .post("/issuers/haip/chained-as/par")
+            .post("/issuers/haip/authorize/par")
             .trustLocalhost()
             .send({
                 response_type: "code",
@@ -483,7 +479,7 @@ describe("Issuance - Chained AS Flow", () => {
             .expect(201);
 
         const authorizeResponse = await request(app.getHttpServer())
-            .get("/issuers/haip/chained-as/authorize")
+            .get("/issuers/haip/authorize")
             .query({
                 client_id: "test-wallet",
                 request_uri: parResponse.body.request_uri,
@@ -496,7 +492,7 @@ describe("Issuance - Chained AS Flow", () => {
         const upstreamState = upstreamUrl.searchParams.get("state")!;
 
         const callbackResponse = await request(app.getHttpServer())
-            .get("/issuers/haip/chained-as/callback")
+            .get("/issuers/haip/authorize/callback")
             .query({
                 code: "upstream-auth-code",
                 state: upstreamState,
@@ -510,7 +506,7 @@ describe("Issuance - Chained AS Flow", () => {
 
         // Try to exchange with wrong code verifier
         const tokenResponse = await request(app.getHttpServer())
-            .post("/issuers/haip/chained-as/token")
+            .post("/issuers/haip/authorize/token")
             .trustLocalhost()
             .send({
                 grant_type: "authorization_code",
@@ -529,7 +525,7 @@ describe("Issuance - Chained AS Flow", () => {
 
         // Submit PAR (without issuer_state)
         const parResponse = await request(app.getHttpServer())
-            .post("/issuers/haip/chained-as/par")
+            .post("/issuers/haip/authorize/par")
             .trustLocalhost()
             .send({
                 response_type: "code",
@@ -543,7 +539,7 @@ describe("Issuance - Chained AS Flow", () => {
 
         // Get authorize redirect to extract upstream state
         const authorizeResponse = await request(app.getHttpServer())
-            .get("/issuers/haip/chained-as/authorize")
+            .get("/issuers/haip/authorize")
             .query({
                 client_id: "test-wallet",
                 request_uri: parResponse.body.request_uri,
@@ -557,7 +553,7 @@ describe("Issuance - Chained AS Flow", () => {
 
         // Simulate upstream error callback
         const callbackResponse = await request(app.getHttpServer())
-            .get("/issuers/haip/chained-as/callback")
+            .get("/issuers/haip/authorize/callback")
             .query({
                 error: "access_denied",
                 error_description: "User denied access",
