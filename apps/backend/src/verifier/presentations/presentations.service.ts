@@ -1,4 +1,6 @@
+import { lookup } from "node:dns/promises";
 import { readFileSync } from "node:fs";
+import { isIP } from "node:net";
 import {
     BadRequestException,
     ConflictException,
@@ -40,6 +42,10 @@ type CredentialType = "dc+sd-jwt" | "mso_mdoc";
  */
 @Injectable()
 export class PresentationsService {
+    private readonly METADATA_FETCH_TIMEOUT_MS = 5000;
+
+    private readonly METADATA_FETCH_MAX_REDIRECTS = 3;
+
     /**
      * Constructor for the PresentationsService.
      * @param httpService - Instance of HttpService for making HTTP requests.
@@ -194,29 +200,7 @@ export class PresentationsService {
      */
     async resolveCredentialIssuerMetadata(issuerUrl: string) {
         const metadataUrl = this.buildCredentialIssuerMetadataUrl(issuerUrl);
-
-        const response = await fetch(metadataUrl, {
-            method: "GET",
-            headers: {
-                accept: "application/json",
-            },
-        }).catch((error) => {
-            throw new BadRequestException(
-                `Failed to fetch issuer metadata from ${metadataUrl}: ${error instanceof Error ? error.message : "unknown error"}`,
-            );
-        });
-
-        if (!response.ok) {
-            throw new BadRequestException(
-                `Failed to fetch issuer metadata from ${metadataUrl}: HTTP ${response.status}`,
-            );
-        }
-
-        const metadata = await response.json().catch(() => {
-            throw new BadRequestException(
-                `Issuer metadata response from ${metadataUrl} is not valid JSON`,
-            );
-        });
+        const metadata = await this.fetchCredentialIssuerMetadata(metadataUrl);
 
         if (!metadata || typeof metadata !== "object") {
             throw new BadRequestException(
@@ -227,9 +211,159 @@ export class PresentationsService {
         return metadata;
     }
 
+    private async fetchCredentialIssuerMetadata(metadataUrl: string) {
+        let currentUrl = metadataUrl;
+
+        for (
+            let redirectCount = 0;
+            redirectCount <= this.METADATA_FETCH_MAX_REDIRECTS;
+            redirectCount++
+        ) {
+            await this.assertSafeMetadataUrl(currentUrl);
+
+            const response = await fetch(currentUrl, {
+                method: "GET",
+                headers: {
+                    accept: "application/json",
+                },
+                redirect: "manual",
+                signal: AbortSignal.timeout(this.METADATA_FETCH_TIMEOUT_MS),
+            }).catch((error) => {
+                throw new BadRequestException(
+                    `Failed to fetch issuer metadata from ${currentUrl}: ${error instanceof Error ? error.message : "unknown error"}`,
+                );
+            });
+
+            if (response.status >= 300 && response.status < 400) {
+                const location = response.headers.get("location");
+                if (!location) {
+                    throw new BadRequestException(
+                        `Issuer metadata response from ${currentUrl} returned a redirect without a location header`,
+                    );
+                }
+
+                currentUrl = new URL(location, currentUrl).toString();
+                continue;
+            }
+
+            if (!response.ok) {
+                throw new BadRequestException(
+                    `Failed to fetch issuer metadata from ${currentUrl}: HTTP ${response.status}`,
+                );
+            }
+
+            return response.json().catch(() => {
+                throw new BadRequestException(
+                    `Issuer metadata response from ${currentUrl} is not valid JSON`,
+                );
+            });
+        }
+
+        throw new BadRequestException(
+            `Issuer metadata fetch exceeded ${this.METADATA_FETCH_MAX_REDIRECTS} redirects`,
+        );
+    }
+
+    private async assertSafeMetadataUrl(inputUrl: string): Promise<void> {
+        const parsedUrl = new URL(inputUrl);
+
+        if (parsedUrl.username || parsedUrl.password) {
+            throw new BadRequestException(
+                "issuerUrl must not include userinfo credentials",
+            );
+        }
+
+        // In non-production environments, allow local/private hosts for testing
+        const isProduction =
+            this.configService.get<string>("NODE_ENV") === "production";
+        if (!isProduction) {
+            return;
+        }
+
+        const hostname = parsedUrl.hostname.toLowerCase();
+        if (
+            hostname === "localhost" ||
+            hostname.endsWith(".localhost") ||
+            hostname.endsWith(".local")
+        ) {
+            throw new BadRequestException(
+                "issuerUrl must resolve to a public host",
+            );
+        }
+
+        const resolvedAddresses = isIP(hostname)
+            ? [hostname]
+            : (
+                  await lookup(hostname, { all: true, verbatim: true }).catch(
+                      () => {
+                          throw new BadRequestException(
+                              "issuerUrl host could not be resolved",
+                          );
+                      },
+                  )
+              ).map((entry) => entry.address);
+
+        if (resolvedAddresses.length === 0) {
+            throw new BadRequestException(
+                "issuerUrl host could not be resolved",
+            );
+        }
+
+        if (
+            resolvedAddresses.some((address) =>
+                this.isPrivateIpAddress(address),
+            )
+        ) {
+            throw new BadRequestException(
+                "issuerUrl must resolve to a public host",
+            );
+        }
+    }
+
+    private isPrivateIpAddress(address: string): boolean {
+        const normalizedAddress =
+            address.startsWith("::ffff:") && isIP(address.slice(7)) === 4
+                ? address.slice(7)
+                : address;
+
+        const family = isIP(normalizedAddress);
+        if (family === 4) {
+            const octets = normalizedAddress.split(".").map(Number);
+            const [first, second] = octets;
+
+            return (
+                first === 0 ||
+                first === 10 ||
+                first === 127 ||
+                (first === 100 && second >= 64 && second <= 127) ||
+                (first === 169 && second === 254) ||
+                (first === 172 && second >= 16 && second <= 31) ||
+                (first === 192 && second === 168) ||
+                (first === 198 && (second === 18 || second === 19))
+            );
+        }
+
+        if (family === 6) {
+            const normalized = normalizedAddress.toLowerCase();
+            return (
+                normalized === "::" ||
+                normalized === "::1" ||
+                normalized.startsWith("fc") ||
+                normalized.startsWith("fd") ||
+                normalized.startsWith("fe8") ||
+                normalized.startsWith("fe9") ||
+                normalized.startsWith("fea") ||
+                normalized.startsWith("feb")
+            );
+        }
+
+        return true;
+    }
+
     /**
      * Build OID4VCI metadata endpoint URL.
-     * Accepts either a base issuer URL or a full .well-known metadata URL.
+     * Accepts an issuer base URL and canonicalizes it to the exact
+     * OID4VCI credential issuer metadata endpoint.
      */
     private buildCredentialIssuerMetadataUrl(inputUrl: string): string {
         const trimmed = inputUrl.trim();
@@ -247,12 +381,19 @@ export class PresentationsService {
             );
         }
 
-        if (trimmed.includes(".well-known/openid-credential-issuer")) {
-            return trimmed;
+        if (parsedUrl.search || parsedUrl.hash) {
+            throw new BadRequestException(
+                "issuerUrl must not include query parameters or fragments",
+            );
         }
 
+        const wellKnownPrefix = "/.well-known/openid-credential-issuer";
         const normalizedPath = parsedUrl.pathname.replace(/\/$/, "");
-        return `${parsedUrl.origin}/.well-known/openid-credential-issuer${normalizedPath}`;
+        const issuerPath = normalizedPath.startsWith(wellKnownPrefix)
+            ? normalizedPath.slice(wellKnownPrefix.length) || ""
+            : normalizedPath;
+
+        return `${parsedUrl.origin}${wellKnownPrefix}${issuerPath}`;
     }
 
     /**
