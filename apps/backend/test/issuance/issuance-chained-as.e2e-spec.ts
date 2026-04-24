@@ -210,7 +210,9 @@ describe("Issuance - Chained AS Flow", () => {
         await app.close();
     });
 
-    async function configureChainedAs(): Promise<void> {
+    async function configureChainedAs(
+        refreshTokenEnabled = false,
+    ): Promise<void> {
         // First get the current issuance config
         const currentConfigResponse = await request(app.getHttpServer())
             .get("/issuer/config")
@@ -227,6 +229,7 @@ describe("Issuance - Chained AS Flow", () => {
             .set("Authorization", `Bearer ${authToken}`)
             .send({
                 ...currentConfig,
+                refreshTokenEnabled,
                 chainedAs: {
                     enabled: true,
                     upstream: {
@@ -243,6 +246,89 @@ describe("Issuance - Chained AS Flow", () => {
             })
             .expect(201);
     }
+
+    test("token endpoint supports refresh_token grant in Chained AS flow", async () => {
+        setupUpstreamOidcMocks();
+        mockUpstreamTokenResponse({ sub: "refresh-token-user" });
+        await configureChainedAs(true);
+
+        // Complete the Chained AS authorization_code flow to get initial tokens
+        const parResponse = await request(app.getHttpServer())
+            .post("/issuers/haip/chained-as/par")
+            .trustLocalhost()
+            .send({
+                response_type: "code",
+                client_id: "test-wallet",
+                redirect_uri: "http://wallet.example.com/callback",
+                code_challenge: "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
+                code_challenge_method: "S256",
+            })
+            .expect(201);
+
+        const authorizeResponse = await request(app.getHttpServer())
+            .get("/issuers/haip/chained-as/authorize")
+            .query({
+                client_id: "test-wallet",
+                request_uri: parResponse.body.request_uri,
+            })
+            .trustLocalhost()
+            .redirects(0)
+            .expect(302);
+
+        const upstreamUrl = new URL(authorizeResponse.headers.location);
+        const upstreamState = upstreamUrl.searchParams.get("state")!;
+
+        const callbackResponse = await request(app.getHttpServer())
+            .get("/issuers/haip/chained-as/callback")
+            .query({
+                code: "upstream-auth-code",
+                state: upstreamState,
+            })
+            .trustLocalhost()
+            .redirects(0)
+            .expect(302);
+
+        const walletRedirectUrl = new URL(callbackResponse.headers.location);
+        const authorizationCode = walletRedirectUrl.searchParams.get("code")!;
+
+        const initialTokenResponse = await request(app.getHttpServer())
+            .post("/issuers/haip/chained-as/token")
+            .trustLocalhost()
+            .send({
+                grant_type: "authorization_code",
+                code: authorizationCode,
+                redirect_uri: "http://wallet.example.com/callback",
+                code_verifier: "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
+            })
+            .expect(200);
+
+        expect(initialTokenResponse.body.refresh_token).toBeDefined();
+        expect(typeof initialTokenResponse.body.refresh_token).toBe("string");
+
+        const refreshToken = initialTokenResponse.body.refresh_token;
+
+        // Exchange refresh token for a new access token
+        const refreshedTokenResponse = await request(app.getHttpServer())
+            .post("/issuers/haip/chained-as/token")
+            .trustLocalhost()
+            .send({
+                grant_type: "refresh_token",
+                refresh_token: refreshToken,
+            })
+            .expect(200);
+
+        expect(refreshedTokenResponse.body.access_token).toBeDefined();
+        expect(refreshedTokenResponse.body.token_type).toBe("Bearer");
+        expect(refreshedTokenResponse.body.refresh_token).toBeDefined();
+        expect(refreshedTokenResponse.body.refresh_token).not.toBe(
+            refreshToken,
+        );
+
+        const refreshedTokenPayload = decodeJwt(
+            refreshedTokenResponse.body.access_token,
+        );
+        expect(refreshedTokenPayload.issuer_state).toBeDefined();
+    });
 
     test("chained AS metadata endpoint returns correct configuration", async () => {
         await configureChainedAs();
