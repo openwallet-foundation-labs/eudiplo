@@ -7,6 +7,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
@@ -25,6 +26,7 @@ import { IssuanceConfigService } from '../issuance-config.service';
     MatChipsModule,
     MatDividerModule,
     MatListModule,
+    MatTabsModule,
     FlexLayoutModule,
     RouterModule,
     ClipboardModule,

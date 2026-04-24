@@ -16,192 +16,278 @@
       </div>
     </div>
 
-    <!-- Basic Information Card -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>settings</mat-icon>
-          Configuration Details
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <mat-list class="config-list">
-          <mat-list-item>
-            <mat-icon matListItemIcon>schedule</mat-icon>
-            <span matListItemTitle>Created At</span>
-            <span matListItemLine>{{ formatDate(config.createdAt) }}</span>
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon matListItemIcon>
-              {{ config.dPopRequired ? 'verified_user' : 'no_encryption' }}
-            </mat-icon>
-            <span matListItemTitle>DPoP</span>
-            <span matListItemLine>{{ config.dPopRequired ? 'Required' : 'Not required' }}</span>
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon matListItemIcon>layers</mat-icon>
-            <span matListItemTitle>Batch Size</span>
-            <span matListItemLine>{{ config.batchSize || 1 }} credential(s) per request</span>
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon matListItemIcon [class]="config.refreshTokenEnabled ? '' : 'icon-disabled'">
-              {{ config.refreshTokenEnabled ? 'refresh' : 'sync_disabled' }}
-            </mat-icon>
-            <span matListItemTitle>Refresh Tokens</span>
-            <span matListItemLine>
-              {{ config.refreshTokenEnabled ? 'Enabled' : 'Disabled' }}
-            </span>
-          </mat-list-item>
-          @if (config.refreshTokenEnabled) {
-            <mat-list-item>
-              <mat-icon matListItemIcon>timelapse</mat-icon>
-              <span matListItemTitle>Refresh Token Lifetime</span>
-              <span matListItemLine>
-                {{ config.refreshTokenExpiresInSeconds || 2592000 }} seconds
-              </span>
-            </mat-list-item>
-          }
-          <mat-list-item>
-            <mat-icon matListItemIcon>dns</mat-icon>
-            <span matListItemTitle>Authorization Servers</span>
-            <span matListItemLine>
-              @if (config.authServers && config.authServers.length > 0) {
-                {{ config.authServers.join(', ') }}
-              } @else {
-                Using built-in authorization server
-              }
-            </span>
-          </mat-list-item>
-          <mat-list-item>
-            <mat-icon
-              matListItemIcon
-              [class]="config.walletAttestationRequired ? '' : 'icon-disabled'"
-            >
-              {{ config.walletAttestationRequired ? 'verified_user' : 'no_encryption' }}
-            </mat-icon>
-            <span matListItemTitle>Wallet Attestation</span>
-            <span matListItemLine>{{
-              config.walletAttestationRequired ? 'Required' : 'Not required'
-            }}</span>
-          </mat-list-item>
-          @if (config.walletAttestationRequired) {
-            <mat-list-item>
-              <mat-icon matListItemIcon>security</mat-icon>
-              <span matListItemTitle>Wallet Provider Trust Lists</span>
-              <span matListItemLine>
-                @if (
-                  config.walletProviderTrustLists && config.walletProviderTrustLists.length > 0
-                ) {
-                  {{ config.walletProviderTrustLists.length }} trust list(s) configured
-                } @else {
-                  <span class="warning-text">No trust lists configured - all wallets rejected</span>
-                }
-              </span>
-            </mat-list-item>
-          }
-          <mat-list-item>
-            <mat-icon
-              matListItemIcon
-              [class]="config.chainedAs?.enabled ? 'icon-chained-as' : 'icon-disabled'"
-            >
-              {{ config.chainedAs?.enabled ? 'account_tree' : 'link_off' }}
-            </mat-icon>
-            <span matListItemTitle>Chained Authorization Server</span>
-            <span matListItemLine>{{ config.chainedAs?.enabled ? 'Enabled' : 'Disabled' }}</span>
-          </mat-list-item>
-        </mat-list>
-      </mat-card-content>
-    </mat-card>
+    <mat-tab-group animationDuration="200ms">
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">info</mat-icon>
+          Metadata
+        </ng-template>
 
-    <!-- Chained AS Details Card -->
-    @if (config.chainedAs?.enabled) {
-      <mat-card class="chained-as-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>account_tree</mat-icon>
-            Chained Authorization Server Details
-          </mat-card-title>
-          <mat-card-subtitle>Upstream OIDC provider configuration</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <mat-list class="config-list">
-            <mat-list-item>
-              <mat-icon matListItemIcon>cloud</mat-icon>
-              <span matListItemTitle>Upstream Issuer</span>
-              <span matListItemLine>{{
-                config.chainedAs?.upstream?.issuer || 'Not configured'
-              }}</span>
-            </mat-list-item>
-            <mat-list-item>
-              <mat-icon matListItemIcon>fingerprint</mat-icon>
-              <span matListItemTitle>Client ID</span>
-              <span matListItemLine>{{
-                config.chainedAs?.upstream?.clientId || 'Not configured'
-              }}</span>
-            </mat-list-item>
-            <mat-list-item>
-              <mat-icon matListItemIcon>schedule</mat-icon>
-              <span matListItemTitle>Token Lifetime</span>
-              <span matListItemLine
-                >{{ config.chainedAs?.token?.lifetimeSeconds || 3600 }} seconds</span
-              >
-            </mat-list-item>
-            <mat-list-item>
-              <mat-icon
-                matListItemIcon
-                [class]="config.chainedAs?.requireDPoP ? '' : 'icon-disabled'"
-              >
-                {{ config.chainedAs?.requireDPoP ? 'verified_user' : 'no_encryption' }}
-              </mat-icon>
-              <span matListItemTitle>DPoP Requirement</span>
-              <span matListItemLine>{{
-                config.chainedAs?.requireDPoP ? 'Required' : 'Not required'
-              }}</span>
-            </mat-list-item>
-            @if ((config.chainedAs?.upstream?.scopes?.length ?? 0) > 0) {
-              <mat-list-item>
-                <mat-icon matListItemIcon>list</mat-icon>
-                <span matListItemTitle>Requested Scopes</span>
-                <span matListItemLine>{{ config.chainedAs!.upstream!.scopes!.join(', ') }}</span>
-              </mat-list-item>
-            }
-          </mat-list>
-        </mat-card-content>
-      </mat-card>
-    }
+        <div fxLayout="column" fxLayoutGap="24px" class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>settings</mat-icon>
+                Configuration Details
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-list class="config-list">
+                <mat-list-item>
+                  <mat-icon matListItemIcon>schedule</mat-icon>
+                  <span matListItemTitle>Created At</span>
+                  <span matListItemLine>{{ formatDate(config.createdAt) }}</span>
+                </mat-list-item>
+                <mat-list-item>
+                  <mat-icon matListItemIcon>layers</mat-icon>
+                  <span matListItemTitle>Batch Size</span>
+                  <span matListItemLine>{{ config.batchSize || 1 }} credential(s) per request</span>
+                </mat-list-item>
+              </mat-list>
+            </mat-card-content>
+          </mat-card>
 
-    <!-- Issuer Preview Card -->
-    @if (primaryDisplay) {
-      <mat-card class="preview-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>preview</mat-icon>
-            Issuer Preview
-          </mat-card-title>
-          <mat-card-subtitle>How the issuer appears to wallets</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="issuer-preview">
-            @if (primaryDisplay.logo?.uri) {
-              <img [src]="primaryDisplay.logo.uri" alt="Issuer Logo" class="preview-logo" />
-            }
-            <div class="preview-content">
-              <div class="preview-name">{{ primaryDisplay.name }}</div>
-              <div class="preview-locale">{{ primaryDisplay.locale }}</div>
-            </div>
-          </div>
-          @if (config.display && config.display.length > 1) {
-            <div class="locale-chips">
-              <strong>Available locales:</strong>
-              <mat-chip-set>
-                @for (display of config.display; track display['locale']) {
-                  <mat-chip>{{ display['locale'] }} - {{ display['name'] }}</mat-chip>
+          @if (primaryDisplay) {
+            <mat-card class="preview-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>preview</mat-icon>
+                  Issuer Preview
+                </mat-card-title>
+                <mat-card-subtitle>How the issuer appears to wallets</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="issuer-preview">
+                  @if (primaryDisplay.logo?.uri) {
+                    <img [src]="primaryDisplay.logo.uri" alt="Issuer Logo" class="preview-logo" />
+                  }
+                  <div class="preview-content">
+                    <div class="preview-name">{{ primaryDisplay.name }}</div>
+                    <div class="preview-locale">{{ primaryDisplay.locale }}</div>
+                  </div>
+                </div>
+                @if (config.display && config.display.length > 1) {
+                  <div class="locale-chips">
+                    <strong>Available locales:</strong>
+                    <mat-chip-set>
+                      @for (display of config.display; track display['locale']) {
+                        <mat-chip>{{ display['locale'] }} - {{ display['name'] }}</mat-chip>
+                      }
+                    </mat-chip-set>
+                  </div>
                 }
-              </mat-chip-set>
-            </div>
+              </mat-card-content>
+            </mat-card>
           }
-        </mat-card-content>
-      </mat-card>
-    }
+        </div>
+      </mat-tab>
+
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">settings_applications</mat-icon>
+          Business Logic
+        </ng-template>
+
+        <div fxLayout="column" fxLayoutGap="24px" class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>sync_alt</mat-icon>
+                Issuance Behavior
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-list class="config-list">
+                <mat-list-item>
+                  <mat-icon
+                    matListItemIcon
+                    [class]="config.refreshTokenEnabled ? '' : 'icon-disabled'"
+                  >
+                    {{ config.refreshTokenEnabled ? 'refresh' : 'sync_disabled' }}
+                  </mat-icon>
+                  <span matListItemTitle>Refresh Tokens</span>
+                  <span matListItemLine>
+                    {{ config.refreshTokenEnabled ? 'Enabled' : 'Disabled' }}
+                  </span>
+                </mat-list-item>
+                @if (config.refreshTokenEnabled) {
+                  <mat-list-item>
+                    <mat-icon matListItemIcon>timelapse</mat-icon>
+                    <span matListItemTitle>Refresh Token Lifetime</span>
+                    <span matListItemLine>
+                      {{ config.refreshTokenExpiresInSeconds || 2592000 }} seconds
+                    </span>
+                  </mat-list-item>
+                }
+                <mat-list-item>
+                  <mat-icon matListItemIcon>dns</mat-icon>
+                  <span matListItemTitle>Authorization Servers</span>
+                  <span matListItemLine>
+                    @if (config.authServers && config.authServers.length > 0) {
+                      {{ config.authServers.join(', ') }}
+                    } @else {
+                      Using built-in authorization server
+                    }
+                  </span>
+                </mat-list-item>
+              </mat-list>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">security</mat-icon>
+          Security
+        </ng-template>
+
+        <div fxLayout="column" fxLayoutGap="24px" class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>verified_user</mat-icon>
+                Security Policies
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-list class="config-list">
+                <mat-list-item>
+                  <mat-icon matListItemIcon>
+                    {{ config.dPopRequired ? 'verified_user' : 'no_encryption' }}
+                  </mat-icon>
+                  <span matListItemTitle>DPoP</span>
+                  <span matListItemLine>{{
+                    config.dPopRequired ? 'Required' : 'Not required'
+                  }}</span>
+                </mat-list-item>
+                <mat-list-item>
+                  <mat-icon
+                    matListItemIcon
+                    [class]="config.walletAttestationRequired ? '' : 'icon-disabled'"
+                  >
+                    {{ config.walletAttestationRequired ? 'verified_user' : 'no_encryption' }}
+                  </mat-icon>
+                  <span matListItemTitle>Wallet Attestation</span>
+                  <span matListItemLine>{{
+                    config.walletAttestationRequired ? 'Required' : 'Not required'
+                  }}</span>
+                </mat-list-item>
+                @if (config.walletAttestationRequired) {
+                  <mat-list-item>
+                    <mat-icon matListItemIcon>security</mat-icon>
+                    <span matListItemTitle>Wallet Provider Trust Lists</span>
+                    <span matListItemLine>
+                      @if (
+                        config.walletProviderTrustLists &&
+                        config.walletProviderTrustLists.length > 0
+                      ) {
+                        {{ config.walletProviderTrustLists.length }} trust list(s) configured
+                      } @else {
+                        <span class="warning-text"
+                          >No trust lists configured - all wallets rejected</span
+                        >
+                      }
+                    </span>
+                  </mat-list-item>
+                }
+              </mat-list>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">account_tree</mat-icon>
+          Advanced Federation
+        </ng-template>
+
+        <div fxLayout="column" fxLayoutGap="24px" class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>account_tree</mat-icon>
+                Chained Authorization Server
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-list class="config-list">
+                <mat-list-item>
+                  <mat-icon
+                    matListItemIcon
+                    [class]="config.chainedAs?.enabled ? 'icon-chained-as' : 'icon-disabled'"
+                  >
+                    {{ config.chainedAs?.enabled ? 'account_tree' : 'link_off' }}
+                  </mat-icon>
+                  <span matListItemTitle>Status</span>
+                  <span matListItemLine>{{
+                    config.chainedAs?.enabled ? 'Enabled' : 'Disabled'
+                  }}</span>
+                </mat-list-item>
+              </mat-list>
+            </mat-card-content>
+          </mat-card>
+
+          @if (config.chainedAs?.enabled) {
+            <mat-card class="chained-as-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>account_tree</mat-icon>
+                  Chained Authorization Server Details
+                </mat-card-title>
+                <mat-card-subtitle>Upstream OIDC provider configuration</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <mat-list class="config-list">
+                  <mat-list-item>
+                    <mat-icon matListItemIcon>cloud</mat-icon>
+                    <span matListItemTitle>Upstream Issuer</span>
+                    <span matListItemLine>{{
+                      config.chainedAs?.upstream?.issuer || 'Not configured'
+                    }}</span>
+                  </mat-list-item>
+                  <mat-list-item>
+                    <mat-icon matListItemIcon>fingerprint</mat-icon>
+                    <span matListItemTitle>Client ID</span>
+                    <span matListItemLine>{{
+                      config.chainedAs?.upstream?.clientId || 'Not configured'
+                    }}</span>
+                  </mat-list-item>
+                  <mat-list-item>
+                    <mat-icon matListItemIcon>schedule</mat-icon>
+                    <span matListItemTitle>Token Lifetime</span>
+                    <span matListItemLine
+                      >{{ config.chainedAs?.token?.lifetimeSeconds || 3600 }} seconds</span
+                    >
+                  </mat-list-item>
+                  <mat-list-item>
+                    <mat-icon
+                      matListItemIcon
+                      [class]="config.chainedAs?.requireDPoP ? '' : 'icon-disabled'"
+                    >
+                      {{ config.chainedAs?.requireDPoP ? 'verified_user' : 'no_encryption' }}
+                    </mat-icon>
+                    <span matListItemTitle>DPoP Requirement</span>
+                    <span matListItemLine>{{
+                      config.chainedAs?.requireDPoP ? 'Required' : 'Not required'
+                    }}</span>
+                  </mat-list-item>
+                  @if ((config.chainedAs?.upstream?.scopes?.length ?? 0) > 0) {
+                    <mat-list-item>
+                      <mat-icon matListItemIcon>list</mat-icon>
+                      <span matListItemTitle>Requested Scopes</span>
+                      <span matListItemLine>{{
+                        config.chainedAs!.upstream!.scopes!.join(', ')
+                      }}</span>
+                    </mat-list-item>
+                  }
+                </mat-list>
+              </mat-card-content>
+            </mat-card>
+          }
+        </div>
+      </mat-tab>
+    </mat-tab-group>
   </div>
 }
