@@ -669,8 +669,8 @@ the upstream OIDC provider (e.g., Keycloak).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="862"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:862</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="864"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:864</a></div>
                         </td>
                     </tr>
 
@@ -972,8 +972,8 @@ the upstream OIDC provider (e.g., Keycloak).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="793"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:793</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="795"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:795</a></div>
                         </td>
                     </tr>
 
@@ -1043,8 +1043,8 @@ the upstream OIDC provider (e.g., Keycloak).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="823"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:823</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="825"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:825</a></div>
                         </td>
                     </tr>
 
@@ -1186,8 +1186,8 @@ Results are cached for 5 minutes.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="876"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:876</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="878"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:878</a></div>
                         </td>
                     </tr>
 
@@ -2758,7 +2758,9 @@ export class ChainedAsService {
             throw new UnauthorizedException(&quot;Authorization code expired&quot;);
         }
 
-        this.verifyPkce(session, request.code_verifier);
+        if (request.grant_type &#x3D;&#x3D;&#x3D; &quot;authorization_code&quot;) {
+            this.verifyPkce(session, request.code_verifier);
+        }
 
         if (
             request.redirect_uri &amp;&amp;

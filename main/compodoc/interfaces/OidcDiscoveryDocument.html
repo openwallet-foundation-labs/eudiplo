@@ -1219,7 +1219,9 @@ export class ChainedAsService {
             throw new UnauthorizedException(&quot;Authorization code expired&quot;);
         }
 
-        this.verifyPkce(session, request.code_verifier);
+        if (request.grant_type &#x3D;&#x3D;&#x3D; &quot;authorization_code&quot;) {
+            this.verifyPkce(session, request.code_verifier);
+        }
 
         if (
             request.redirect_uri &amp;&amp;
