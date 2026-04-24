@@ -5,6 +5,7 @@ import { plainToInstance } from "class-transformer";
 import { validateOrReject } from "class-validator";
 import { base64url } from "jose";
 import { Span, TraceService } from "nestjs-otel";
+import { InjectPinoLogger, PinoLogger } from "nestjs-pino";
 import { v4 } from "uuid";
 import { EncryptionService } from "../../crypto/encryption/encryption.service";
 import { CertService } from "../../crypto/key/cert/cert.service";
@@ -26,6 +27,8 @@ import { PresentationRequestOptions } from "./dto/presentation-request-options.d
 @Injectable()
 export class Oid4vpService {
     constructor(
+        @InjectPinoLogger(Oid4vpService.name)
+        private readonly logger: PinoLogger,
         private readonly certService: CertService,
         public readonly keyChainService: KeyChainService,
         private readonly encryptionService: EncryptionService,
@@ -487,6 +490,10 @@ export class Oid4vpService {
 
         // Validate decrypted response against AuthResponse class
         const res = plainToInstance(AuthResponse, decrypted);
+        this.logger.trace(
+            { decryptedResponse: decrypted },
+            "[TRACE] Decrypted OID4VP authorization response",
+        );
         try {
             await validateOrReject(res);
         } catch (errors) {
