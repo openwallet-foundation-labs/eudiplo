@@ -122,17 +122,26 @@ export class ChainedAsAuthorizeQueryDto {
  */
 export class ChainedAsTokenRequestDto {
     @ApiProperty({
-        description: "Grant type (must be 'authorization_code')",
+        description: "Grant type ('authorization_code' or 'refresh_token')",
         example: "authorization_code",
     })
     @IsString()
     grant_type!: string;
 
-    @ApiProperty({
-        description: "Authorization code received in the callback",
+    @ApiPropertyOptional({
+        description:
+            "Authorization code received in the callback (authorization_code grant)",
     })
     @IsString()
-    code!: string;
+    @IsOptional()
+    code?: string;
+
+    @ApiPropertyOptional({
+        description: "Refresh token (refresh_token grant)",
+    })
+    @IsString()
+    @IsOptional()
+    refresh_token?: string;
 
     @ApiPropertyOptional({
         description: "Client identifier",
@@ -196,6 +205,11 @@ export class ChainedAsTokenResponseDto {
         description: "C_NONCE lifetime in seconds",
     })
     c_nonce_expires_in?: number;
+
+    @ApiPropertyOptional({
+        description: "Refresh token (issued when refresh tokens are enabled)",
+    })
+    refresh_token?: string;
 }
 
 /**

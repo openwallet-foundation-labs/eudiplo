@@ -629,22 +629,56 @@ export class ChainedAsService {
         request: ChainedAsTokenRequestDto,
         dpopJwt?: string,
     ): Promise<ChainedAsTokenResponseDto> {
-        if (request.grant_type !== "authorization_code") {
+        if (
+            request.grant_type !== "authorization_code" &&
+            request.grant_type !== "refresh_token"
+        ) {
             throw new BadRequestException(
-                'Invalid grant_type, must be "authorization_code"',
+                'Invalid grant_type, must be "authorization_code" or "refresh_token"',
             );
         }
 
-        const session = await this.sessionRepository.findOne({
-            where: {
-                tenantId,
-                authorizationCode: request.code,
-                status: ChainedAsSessionStatus.AUTHORIZED,
-            },
-        });
+        let session: ChainedAsSessionEntity | null;
 
-        if (!session) {
-            throw new UnauthorizedException("Invalid authorization code");
+        if (request.grant_type === "refresh_token") {
+            if (!request.refresh_token) {
+                throw new BadRequestException(
+                    "refresh_token is required for refresh_token grant",
+                );
+            }
+            session = await this.sessionRepository.findOne({
+                where: {
+                    tenantId,
+                    refreshToken: request.refresh_token,
+                },
+            });
+            if (!session) {
+                throw new UnauthorizedException(
+                    "Invalid or expired refresh_token",
+                );
+            }
+            if (
+                session.refreshTokenExpiresAt &&
+                session.refreshTokenExpiresAt < new Date()
+            ) {
+                throw new UnauthorizedException("refresh_token has expired");
+            }
+        } else {
+            if (!request.code) {
+                throw new BadRequestException(
+                    "code is required for authorization_code grant",
+                );
+            }
+            session = await this.sessionRepository.findOne({
+                where: {
+                    tenantId,
+                    authorizationCode: request.code,
+                    status: ChainedAsSessionStatus.AUTHORIZED,
+                },
+            });
+            if (!session) {
+                throw new UnauthorizedException("Invalid authorization code");
+            }
         }
 
         // Add session context to span for trace correlation
@@ -656,6 +690,7 @@ export class ChainedAsService {
         });
 
         if (
+            request.grant_type === "authorization_code" &&
             session.authorizationCodeExpiresAt &&
             session.authorizationCodeExpiresAt < new Date()
         ) {
@@ -718,6 +753,24 @@ export class ChainedAsService {
 
         session.status = ChainedAsSessionStatus.TOKEN_ISSUED;
         session.accessTokenJti = jti;
+
+        const issuanceConfig =
+            await this.issuanceService.getIssuanceConfiguration(tenantId);
+
+        let refreshToken: string | undefined;
+        if (issuanceConfig.refreshTokenEnabled) {
+            refreshToken = randomBytes(32).toString("base64url");
+            let refreshTokenExpiresAt: Date | undefined;
+            if (issuanceConfig.refreshTokenExpiresInSeconds) {
+                refreshTokenExpiresAt = new Date(
+                    Date.now() +
+                        issuanceConfig.refreshTokenExpiresInSeconds * 1000,
+                );
+            }
+            session.refreshToken = refreshToken;
+            session.refreshTokenExpiresAt = refreshTokenExpiresAt;
+        }
+
         await this.sessionRepository.save(session);
 
         return {
@@ -730,6 +783,7 @@ export class ChainedAsService {
                 session.authorizationDetails.length > 0 && {
                     authorization_details: session.authorizationDetails,
                 }),
+            ...(refreshToken && { refresh_token: refreshToken }),
         };
     }
 
@@ -783,6 +837,7 @@ export class ChainedAsService {
             jwks_uri: `${publicUrl}/.well-known/jwks.json/issuers/${tenantId}/chained-as`,
             response_types_supported: ["code"],
             grant_types_supported: ["authorization_code"],
+            grant_types_supported: ["authorization_code", "refresh_token"],
             code_challenge_methods_supported: ["S256"],
             dpop_signing_alg_values_supported: ["ES256", "ES384", "ES512"],
         };
