@@ -567,6 +567,24 @@ export class PresentationsService {
                                     keyBindingNonce: session.vp_nonce!,
                                     ...verifyOptions,
                                 } as any);
+                            this.logger.debug(
+                                {
+                                    credentialId: attId,
+                                    requiredClaimKeys,
+                                    disclosedClaimKeys: Object.keys(
+                                        result.payload ?? {},
+                                    ),
+                                },
+                                "SD-JWT-VC disclosed claims after verification",
+                            );
+                            this.logger.trace(
+                                {
+                                    credentialId: attId,
+                                    requiredClaimKeys,
+                                    disclosedClaims: result.payload,
+                                },
+                                "[TRACE] SD-JWT-VC full disclosed claims payload",
+                            );
                             return {
                                 ...result.payload,
                                 cnf: undefined,
@@ -717,7 +735,18 @@ export class PresentationsService {
             const claimName =
                 claim.path.length > 1 ? claim.path[1] : claim.path[0];
 
-            console.log(receivedClaims);
+            this.logger.debug(
+                {
+                    credentialId,
+                    claimName,
+                    receivedClaimKeys: Object.keys(receivedClaims),
+                },
+                "Validating mDOC claim presence",
+            );
+            this.logger.trace(
+                { credentialId, claimName, receivedClaims },
+                "[TRACE] mDOC full received claims payload",
+            );
             // Check if claim exists in received claims
             if (!(claimName in receivedClaims)) {
                 // Format as namespace.claimName for better error message

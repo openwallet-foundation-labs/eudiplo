@@ -153,6 +153,18 @@ export class ChainedAsSessionEntity {
     accessTokenJti?: string;
 
     /**
+     * Refresh token issued to the wallet (if refresh tokens are enabled).
+     */
+    @Column("varchar", { nullable: true })
+    refreshToken?: string;
+
+    /**
+     * Expiration time for the refresh token.
+     */
+    @Column({ nullable: true })
+    refreshTokenExpiresAt?: Date;
+
+    /**
      * Timestamp when the session was created.
      */
     @CreateDateColumn()
