@@ -836,7 +836,6 @@ export class ChainedAsService {
             pushed_authorization_request_endpoint: `${baseUrl}/par`,
             jwks_uri: `${publicUrl}/.well-known/jwks.json/issuers/${tenantId}/chained-as`,
             response_types_supported: ["code"],
-            grant_types_supported: ["authorization_code"],
             grant_types_supported: ["authorization_code", "refresh_token"],
             code_challenge_methods_supported: ["S256"],
             dpop_signing_alg_values_supported: ["ES256", "ES384", "ES512"],
