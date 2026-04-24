@@ -15,6 +15,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
@@ -59,6 +60,7 @@ import { ImageFieldComponent } from '../../../utils/image-field/image-field.comp
     MatDialogModule,
     MatDividerModule,
     MatMenuModule,
+    MatTabsModule,
     MatTooltipModule,
     FlexLayoutModule,
     MatSlideToggleModule,
@@ -653,7 +655,6 @@ export class CredentialConfigCreateComponent implements OnInit {
       format: formValue.format,
       display: formValue.displayConfigs,
       scope: formValue.scope || undefined,
-      claimsMetadata: this.parseJsonField(formValue.claimsMetadata, 'parse', true),
       // Key attestation requirements (if enabled)
       ...(formValue.keyAttestationEnabled && {
         keyAttestationsRequired: {

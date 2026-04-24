@@ -18,6 +18,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
@@ -41,6 +42,7 @@ import { MatCardModule } from '@angular/material/card';
     MatSelectModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatTabsModule,
     MatCheckboxModule,
     MatChipsModule,
     MatExpansionModule,
