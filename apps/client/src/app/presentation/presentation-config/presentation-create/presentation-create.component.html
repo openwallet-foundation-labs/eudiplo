@@ -63,184 +63,235 @@
     fxLayout="column"
     fxLayoutGap="24px"
   >
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>settings</mat-icon>
-          Basic Information
-        </mat-card-title>
-      </mat-card-header>
+    <mat-tab-group animationDuration="200ms">
+      <!-- TAB 1: Basic -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">settings</mat-icon>
+          Basic
+        </ng-template>
+        <div fxLayout="column" fxLayoutGap="24px" class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>settings</mat-icon>
+                Basic Information
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content fxLayout="column" fxLayoutGap="16px">
+              <!-- ID Field -->
+              <mat-form-field>
+                <mat-label>ID</mat-label>
+                <input matInput formControlName="id" placeholder="Enter unique identifier" />
+                @if (form.controls['id'].hasError('required')) {
+                  <mat-error> ID is required </mat-error>
+                }
+              </mat-form-field>
 
-      <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <!-- ID Field -->
-        <mat-form-field>
-          <mat-label>ID</mat-label>
-          <input matInput formControlName="id" placeholder="Enter unique identifier" />
-          @if (form.controls['id'].hasError('required')) {
-            <mat-error> ID is required </mat-error>
-          }
-        </mat-form-field>
+              <!-- Description Field -->
+              <mat-form-field>
+                <mat-label>Description</mat-label>
+                <input matInput formControlName="description" placeholder="Enter description" />
+                @if (form.controls['description'].hasError('required')) {
+                  <mat-error> Description is required </mat-error>
+                }
+              </mat-form-field>
 
-        <!-- Description Field -->
-        <mat-form-field>
-          <mat-label>Description</mat-label>
-          <input matInput formControlName="description" placeholder="Enter description" />
-          @if (form.controls['description'].hasError('required')) {
-            <mat-error> Description is required </mat-error>
-          }
-        </mat-form-field>
+              <mat-form-field>
+                <mat-label>Lifetime of the request</mat-label>
+                <input matInput formControlName="lifeTime" type="number" />
+                @if (form.controls['lifeTime'].hasError('required')) {
+                  <mat-error> Lifetime is required </mat-error>
+                }
+                @if (form.controls['lifeTime'].hasError('min')) {
+                  <mat-error> Lifetime must be at least 1 </mat-error>
+                }
+                <mat-hint> Lifetime is in seconds </mat-hint>
+              </mat-form-field>
 
-        <!-- DCQL Query Field -->
-        <h4>DCQL Query</h4>
-        <app-editor
-          formControlName="dcql_query"
-          [schema]="DCQLSchema"
-          [errors]="form.get('dcql_query')?.errors"
-        ></app-editor>
+              <mat-form-field>
+                <mat-label>Redirect URI (optional)</mat-label>
+                <input
+                  matInput
+                  formControlName="redirectUri"
+                  placeholder="https://example.com/callback?session={sessionId}"
+                />
+                <mat-hint>
+                  User will be redirected here after completing the presentation. Use
+                  <code>{{ '{' }}sessionId{{ '}' }}</code> as placeholder for the session ID.
+                </mat-hint>
+              </mat-form-field>
 
-        <mat-form-field>
-          <mat-label>Lifetime of the request</mat-label>
-          <input matInput formControlName="lifeTime" type="number" />
-          @if (form.controls['lifeTime'].hasError('required')) {
-            <mat-error> Lifetime is required </mat-error>
-          }
-          @if (form.controls['lifeTime'].hasError('min')) {
-            <mat-error> Lifetime must be at least 1 </mat-error>
-          }
-          <mat-hint> Lifetime is in seconds </mat-hint>
-        </mat-form-field>
-
-        <mat-form-field>
-          <mat-label>Redirect URI (optional)</mat-label>
-          <input
-            matInput
-            formControlName="redirectUri"
-            placeholder="https://example.com/callback?session={sessionId}"
-          />
-          <mat-hint>
-            User will be redirected here after completing the presentation. Use
-            <code>{{ '{' }}sessionId{{ '}' }}</code> as placeholder for the session ID.
-          </mat-hint>
-        </mat-form-field>
-
-        <mat-form-field>
-          <mat-label>Access Key Chain (optional)</mat-label>
-          <mat-select formControlName="accessKeyChainId">
-            <mat-select-trigger>
-              @if (form.controls['accessKeyChainId'].value; as keyChainId) {
-                {{ keyChainId }}
-              } @else {
-                <em>Use default access key chain</em>
-              }
-            </mat-select-trigger>
-            <mat-option [value]="null">
-              <em>Use default access key chain</em>
-            </mat-option>
-            @for (keyChain of keyChains; track keyChain.id) {
-              <mat-option [value]="keyChain.id">
-                <div fxLayout="column">
-                  <span
-                    ><strong>{{ keyChain.id }}</strong></span
-                  >
-                  <span class="option-description">{{
-                    keyChain.description || keyChain.usageType
-                  }}</span>
-                </div>
-              </mat-option>
-            }
-          </mat-select>
-          <mat-icon matSuffix>key</mat-icon>
-          <mat-hint>Select the access key chain for signing the presentation request</mat-hint>
-        </mat-form-field>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>security</mat-icon>
-          Registrar
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <!-- Registration Certificate Field -->
-        <h4>Registrar Certificate (optional)</h4>
-        <app-editor
-          formControlName="registrationCert"
-          [schema]="registrationCertificateRequestSchema"
-          [errors]="form.controls['registrationCert'].errors"
-        ></app-editor>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Transaction Data Card -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>receipt_long</mat-icon>
-          Transaction Data
-        </mat-card-title>
-        <mat-card-subtitle>
-          Optional transaction data to include in the OID4VP request
-        </mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <app-editor
-          formControlName="transaction_data"
-          [schema]="transactionDataArraySchema"
-          [errors]="form.controls['transaction_data']?.errors"
-        ></app-editor>
-        <mat-hint>
-          Transaction data is an array of objects with at least <code>type</code> and
-          <code>credential_ids</code> properties. Example:
-          <code
-            >[{{ '{' }}"type": "payment", "credential_ids": ["pid"], "amount": 100{{ '}' }}]</code
-          >
-        </mat-hint>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Attachment Configuration Card -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>attach_file</mat-icon>
-          Attachments
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <button mat-button (click)="addAttachment()" type="button">Add Attachment</button>
-        <div formArrayName="attached">
-          @for (attachmentCtrl of getFormArray('attached').controls; let i = $index; track $index) {
-            <app-credential-ids
-              [formGroup]="asFormGroup(attachmentCtrl)"
-              (removeAttachment)="removeAttachment(i)"
-            ></app-credential-ids>
-          }
+              <mat-form-field>
+                <mat-label>Access Key Chain (optional)</mat-label>
+                <mat-select formControlName="accessKeyChainId">
+                  <mat-select-trigger>
+                    @if (form.controls['accessKeyChainId'].value; as keyChainId) {
+                      {{ keyChainId }}
+                    } @else {
+                      <em>Use default access key chain</em>
+                    }
+                  </mat-select-trigger>
+                  <mat-option [value]="null">
+                    <em>Use default access key chain</em>
+                  </mat-option>
+                  @for (keyChain of keyChains; track keyChain.id) {
+                    <mat-option [value]="keyChain.id">
+                      <div fxLayout="column">
+                        <span
+                          ><strong>{{ keyChain.id }}</strong></span
+                        >
+                        <span class="option-description">{{
+                          keyChain.description || keyChain.usageType
+                        }}</span>
+                      </div>
+                    </mat-option>
+                  }
+                </mat-select>
+                <mat-icon matSuffix>key</mat-icon>
+                <mat-hint
+                  >Select the access key chain for signing the presentation request</mat-hint
+                >
+              </mat-form-field>
+            </mat-card-content>
+          </mat-card>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </mat-tab>
 
-    <!-- Webhook Configuration Card -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>webhook</mat-icon>
-          Webhook Configuration
-        </mat-card-title>
-      </mat-card-header>
+      <!-- TAB 2: Query -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">search</mat-icon>
+          Query
+        </ng-template>
+        <div fxLayout="column" fxLayoutGap="24px" class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>search</mat-icon>
+                DCQL Query
+              </mat-card-title>
+              <mat-card-subtitle>Credential query for the presentation request</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content fxLayout="column" fxLayoutGap="16px">
+              <app-editor
+                formControlName="dcql_query"
+                [schema]="DCQLSchema"
+                [errors]="form.get('dcql_query')?.errors"
+              ></app-editor>
+            </mat-card-content>
+          </mat-card>
 
-      <mat-card-content fxLayout="column" fxLayoutGap="16px" formGroupName="webhook">
-        <app-webhook-config-edit [group]="getFormGroup('webhook')"></app-webhook-config-edit>
-      </mat-card-content>
-    </mat-card>
+          <!-- Transaction Data Card -->
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>receipt_long</mat-icon>
+                Transaction Data
+              </mat-card-title>
+              <mat-card-subtitle>
+                Optional transaction data to include in the OID4VP request
+              </mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content fxLayout="column" fxLayoutGap="16px">
+              <app-editor
+                formControlName="transaction_data"
+                [schema]="transactionDataArraySchema"
+                [errors]="form.controls['transaction_data']?.errors"
+              ></app-editor>
+              <mat-hint>
+                Transaction data is an array of objects with at least <code>type</code> and
+                <code>credential_ids</code> properties. Example:
+                <code
+                  >[{{ '{' }}"type": "payment", "credential_ids": ["pid"], "amount": 100{{
+                    '}'
+                  }}]</code
+                >
+              </mat-hint>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- TAB 3: Security -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">security</mat-icon>
+          Security
+        </ng-template>
+        <div fxLayout="column" fxLayoutGap="24px" class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>security</mat-icon>
+                Registrar
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content fxLayout="column" fxLayoutGap="16px">
+              <h4>Registrar Certificate (optional)</h4>
+              <app-editor
+                formControlName="registrationCert"
+                [schema]="registrationCertificateRequestSchema"
+                [errors]="form.controls['registrationCert'].errors"
+              ></app-editor>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- TAB 4: Integration -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">hub</mat-icon>
+          Integration
+        </ng-template>
+        <div fxLayout="column" fxLayoutGap="24px" class="tab-content">
+          <!-- Attachment Configuration Card -->
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>attach_file</mat-icon>
+                Attachments
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content fxLayout="column" fxLayoutGap="16px">
+              <button mat-button (click)="addAttachment()" type="button">Add Attachment</button>
+              <div formArrayName="attached">
+                @for (
+                  attachmentCtrl of getFormArray('attached').controls;
+                  let i = $index;
+                  track $index
+                ) {
+                  <app-credential-ids
+                    [formGroup]="asFormGroup(attachmentCtrl)"
+                    (removeAttachment)="removeAttachment(i)"
+                  ></app-credential-ids>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Webhook Configuration Card -->
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>webhook</mat-icon>
+                Webhook Configuration
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content fxLayout="column" fxLayoutGap="16px" formGroupName="webhook">
+              <app-webhook-config-edit [group]="getFormGroup('webhook')"></app-webhook-config-edit>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
 
     <!-- Action Buttons -->
     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center">
       <button mat-button type="button" [routerLink]="['../']">Cancel</button>
       <button mat-flat-button type="submit" [disabled]="form.invalid">
         <mat-icon>{{ create ? 'add' : 'save' }}</mat-icon>
-
         {{ create ? 'Create' : 'Save' }} Configuration
       </button>
     </div>

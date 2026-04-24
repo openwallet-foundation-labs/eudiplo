@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
@@ -30,6 +31,7 @@ import { StatusListManagementService } from '../../../status-list-management/sta
     MatDividerModule,
     MatListModule,
     MatProgressBarModule,
+    MatTabsModule,
     FlexLayoutModule,
     RouterModule,
     ClipboardModule,

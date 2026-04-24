@@ -16,410 +16,459 @@
 
   <!-- Main Form -->
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <!-- Basic Information Card -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>settings</mat-icon>
-          Basic Information
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <!-- Batch Size -->
-        <mat-form-field>
-          <mat-label>Batch Size</mat-label>
-          <input matInput type="number" formControlName="batchSize" placeholder="1" min="1" />
-          <mat-icon matSuffix>batch_prediction</mat-icon>
-          <mat-hint>Number of credentials issued in a single batch (default: 1)</mat-hint>
-          @if (form.get('batchSize')?.invalid && form.get('batchSize')?.touched) {
-            <mat-error>Batch size must be at least 1</mat-error>
-          }
-        </mat-form-field>
-        <mat-slide-toggle formControlName="dPopRequired">
-          <div fxLayout="column">
-            <span><strong>DPoP Required</strong></span>
-            <span class="toggle-description"
-              >Enable DPoP (Demonstrated Proof of Possession) for sender-constrained tokens. Disable
-              if your wallet doesn't support DPoP.</span
-            >
-          </div>
-        </mat-slide-toggle>
+    <mat-tab-group animationDuration="200ms">
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">info</mat-icon>
+          Metadata
+        </ng-template>
 
-        <mat-slide-toggle formControlName="refreshTokenEnabled">
-          <div fxLayout="column">
-            <span><strong>Issue Refresh Tokens</strong></span>
-            <span class="toggle-description"
-              >Allow wallets to exchange a refresh token for a new access token without restarting
-              the issuance authorization flow.</span
-            >
-          </div>
-        </mat-slide-toggle>
-
-        @if (refreshTokenEnabled) {
-          <mat-form-field>
-            <mat-label>Refresh Token Lifetime (seconds)</mat-label>
-            <input
-              matInput
-              type="number"
-              formControlName="refreshTokenExpiresInSeconds"
-              placeholder="2592000"
-              min="1"
-            />
-            <mat-icon matSuffix>timelapse</mat-icon>
-            <mat-hint>
-              How long issued refresh tokens remain valid. Default: 2592000 seconds (30 days).
-            </mat-hint>
-            @if (
-              form.get('refreshTokenExpiresInSeconds')?.invalid &&
-              form.get('refreshTokenExpiresInSeconds')?.touched
-            ) {
-              <mat-error>Refresh token lifetime must be at least 1 second</mat-error>
-            }
-          </mat-form-field>
-        }
-
-        <mat-slide-toggle formControlName="credentialResponseEncryption">
-          <div fxLayout="column">
-            <span><strong>Advertise Credential Response Encryption</strong></span>
-            <span class="toggle-description"
-              >Advertise `credential_response_encryption` (ECDH-ES, A128GCM/A256GCM) in the
-              credential issuer metadata so wallets MAY request encrypted credential responses. Some
-              wallets reject metadata advertising encryption they do not support — leave disabled
-              unless you need it.</span
-            >
-          </div>
-        </mat-slide-toggle>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Authorization Servers Card -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>dns</mat-icon>
-          Authorization Servers
-        </mat-card-title>
-        <mat-card-subtitle
-          >Configure external authorization server URLs. Leave empty to use the built-in
-          server.</mat-card-subtitle
-        >
-      </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <div formArrayName="authServers">
-          @for (server of authServers.controls; track $index; let i = $index) {
-            <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-              <mat-form-field fxFlex>
-                <mat-label>Authorization Server {{ i + 1 }}</mat-label>
-                <input
-                  matInput
-                  [formControlName]="i"
-                  placeholder="https://auth.example.com"
-                  type="url"
-                />
-                <mat-icon matSuffix>link</mat-icon>
-                @if (server.invalid && server.touched) {
-                  <mat-error>Please enter a valid URL</mat-error>
+        <div fxLayout="column" fxLayoutGap="24px" class="tab-content">
+          <!-- Basic Information Card -->
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>settings</mat-icon>
+                Basic Information
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content fxLayout="column" fxLayoutGap="16px">
+              <!-- Batch Size -->
+              <mat-form-field>
+                <mat-label>Batch Size</mat-label>
+                <input matInput type="number" formControlName="batchSize" placeholder="1" min="1" />
+                <mat-icon matSuffix>batch_prediction</mat-icon>
+                <mat-hint>Number of credentials issued in a single batch (default: 1)</mat-hint>
+                @if (form.get('batchSize')?.invalid && form.get('batchSize')?.touched) {
+                  <mat-error>Batch size must be at least 1</mat-error>
                 }
               </mat-form-field>
-              <button
-                matIconButton
-                type="button"
-                color="warn"
-                (click)="removeAuthServer(i)"
-                matTooltip="Remove this authorization server"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-          }
-        </div>
-        <div fxLayout="row" fxLayoutAlign="center center">
-          <button mat-raised-button type="button" (click)="addAuthServer()">
-            <mat-icon>add</mat-icon> Add Authorization Server
-          </button>
-        </div>
-
-        <!-- Preferred Authorization Server -->
-        <mat-form-field>
-          <mat-label>Preferred Authorization Server</mat-label>
-          <mat-select formControlName="preferredAuthServer">
-            <mat-option value="">None (use default order)</mat-option>
-            @for (option of availableAuthServerOptions; track option.value) {
-              <mat-option [value]="option.value">{{ option.label }}</mat-option>
-            }
-          </mat-select>
-          <mat-icon matSuffix>star</mat-icon>
-          <mat-hint
-            >The preferred AS is placed first in the issuer metadata. Wallets typically use the
-            first AS for wallet-initiated flows.</mat-hint
-          >
-        </mat-form-field>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Display Configurations Card -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>view_carousel</mat-icon>
-          Display Configurations
-        </mat-card-title>
-        <mat-card-subtitle>Configure how credentials are displayed to users</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <div formArrayName="display">
-          @for (display of displays.controls; track $index; let i = $index) {
-            <div [formGroupName]="i" class="mat-elevation-z2 display-entry">
-              <div fxLayout="row" fxLayoutAlign="space-between center" class="display-entry-header">
-                <h3>Display Entry {{ i + 1 }}</h3>
-                @if (displays.length > 1) {
-                  <button
-                    matIconButton
-                    type="button"
-                    color="warn"
-                    (click)="removeDisplay(i)"
-                    matTooltip="Remove this display configuration"
+              <mat-slide-toggle formControlName="dPopRequired">
+                <div fxLayout="column">
+                  <span><strong>DPoP Required</strong></span>
+                  <span class="toggle-description"
+                    >Enable DPoP (Demonstrated Proof of Possession) for sender-constrained tokens.
+                    Disable if your wallet doesn't support DPoP.</span
                   >
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                </div>
+              </mat-slide-toggle>
+
+              <mat-slide-toggle formControlName="refreshTokenEnabled">
+                <div fxLayout="column">
+                  <span><strong>Issue Refresh Tokens</strong></span>
+                  <span class="toggle-description"
+                    >Allow wallets to exchange a refresh token for a new access token without
+                    restarting the issuance authorization flow.</span
+                  >
+                </div>
+              </mat-slide-toggle>
+
+              @if (refreshTokenEnabled) {
+                <mat-form-field>
+                  <mat-label>Refresh Token Lifetime (seconds)</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    formControlName="refreshTokenExpiresInSeconds"
+                    placeholder="2592000"
+                    min="1"
+                  />
+                  <mat-icon matSuffix>timelapse</mat-icon>
+                  <mat-hint>
+                    How long issued refresh tokens remain valid. Default: 2592000 seconds (30 days).
+                  </mat-hint>
+                  @if (
+                    form.get('refreshTokenExpiresInSeconds')?.invalid &&
+                    form.get('refreshTokenExpiresInSeconds')?.touched
+                  ) {
+                    <mat-error>Refresh token lifetime must be at least 1 second</mat-error>
+                  }
+                </mat-form-field>
+              }
+
+              <mat-slide-toggle formControlName="credentialResponseEncryption">
+                <div fxLayout="column">
+                  <span><strong>Advertise Credential Response Encryption</strong></span>
+                  <span class="toggle-description"
+                    >Advertise `credential_response_encryption` (ECDH-ES, A128GCM/A256GCM) in the
+                    credential issuer metadata so wallets MAY request encrypted credential
+                    responses. Some wallets reject metadata advertising encryption they do not
+                    support — leave disabled unless you need it.</span
+                  >
+                </div>
+              </mat-slide-toggle>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Display Configurations Card -->
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>view_carousel</mat-icon>
+                Display Configurations
+              </mat-card-title>
+              <mat-card-subtitle
+                >Configure how credentials are displayed to users</mat-card-subtitle
+              >
+            </mat-card-header>
+            <mat-card-content fxLayout="column" fxLayoutGap="16px">
+              <div formArrayName="display">
+                @for (display of displays.controls; track $index; let i = $index) {
+                  <div [formGroupName]="i" class="mat-elevation-z2 display-entry">
+                    <div
+                      fxLayout="row"
+                      fxLayoutAlign="space-between center"
+                      class="display-entry-header"
+                    >
+                      <h3>Display Entry {{ i + 1 }}</h3>
+                      @if (displays.length > 1) {
+                        <button
+                          matIconButton
+                          type="button"
+                          color="warn"
+                          (click)="removeDisplay(i)"
+                          matTooltip="Remove this display configuration"
+                        >
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      }
+                    </div>
+                    <div fxLayout="column" fxLayoutGap="16px">
+                      <div fxLayout="row" fxLayoutGap="16px">
+                        <mat-form-field fxFlex>
+                          <mat-label>Name</mat-label>
+                          <input
+                            matInput
+                            formControlName="name"
+                            placeholder="Enter display name"
+                            required
+                          />
+                          <mat-icon matSuffix>badge</mat-icon>
+                        </mat-form-field>
+                        <mat-form-field fxFlex>
+                          <mat-label>Locale</mat-label>
+                          <mat-select formControlName="locale" required>
+                            <mat-option value="en-US">English (US)</mat-option>
+                            <mat-option value="en-GB">English (UK)</mat-option>
+                            <mat-option value="de-DE">German</mat-option>
+                            <mat-option value="fr-FR">French</mat-option>
+                            <mat-option value="es-ES">Spanish</mat-option>
+                            <mat-option value="it-IT">Italian</mat-option>
+                          </mat-select>
+                          <mat-icon matSuffix>language</mat-icon>
+                        </mat-form-field>
+                      </div>
+                      <app-image-field
+                        [field]="getControl(display.get('logo.uri'))"
+                        label="Logo URL"
+                      ></app-image-field>
+                    </div>
+                  </div>
                 }
               </div>
-              <div fxLayout="column" fxLayoutGap="16px">
-                <div fxLayout="row" fxLayoutGap="16px">
-                  <mat-form-field fxFlex>
-                    <mat-label>Name</mat-label>
-                    <input
-                      matInput
-                      formControlName="name"
-                      placeholder="Enter display name"
-                      required
-                    />
-                    <mat-icon matSuffix>badge</mat-icon>
-                  </mat-form-field>
-                  <mat-form-field fxFlex>
-                    <mat-label>Locale</mat-label>
-                    <mat-select formControlName="locale" required>
-                      <mat-option value="en-US">English (US)</mat-option>
-                      <mat-option value="en-GB">English (UK)</mat-option>
-                      <mat-option value="de-DE">German</mat-option>
-                      <mat-option value="fr-FR">French</mat-option>
-                      <mat-option value="es-ES">Spanish</mat-option>
-                      <mat-option value="it-IT">Italian</mat-option>
-                    </mat-select>
-                    <mat-icon matSuffix>language</mat-icon>
-                  </mat-form-field>
-                </div>
-                <app-image-field
-                  [field]="getControl(display.get('logo.uri'))"
-                  label="Logo URL"
-                ></app-image-field>
+              <div fxLayout="row" fxLayoutAlign="center center">
+                <button mat-raised-button type="button" (click)="addDisplay()">
+                  <mat-icon>add</mat-icon> Add Display
+                </button>
               </div>
-            </div>
-          }
+            </mat-card-content>
+          </mat-card>
         </div>
-        <div fxLayout="row" fxLayoutAlign="center center">
-          <button mat-raised-button type="button" (click)="addDisplay()">
-            <mat-icon>add</mat-icon> Add Display
-          </button>
+      </mat-tab>
+
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">settings_applications</mat-icon>
+          Business Logic
+        </ng-template>
+
+        <div fxLayout="column" fxLayoutGap="24px" class="tab-content">
+          <!-- Authorization Servers Card -->
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>dns</mat-icon>
+                Authorization Servers
+              </mat-card-title>
+              <mat-card-subtitle
+                >Configure external authorization server URLs. Leave empty to use the built-in
+                server.</mat-card-subtitle
+              >
+            </mat-card-header>
+            <mat-card-content fxLayout="column" fxLayoutGap="16px">
+              <div formArrayName="authServers">
+                @for (server of authServers.controls; track $index; let i = $index) {
+                  <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                    <mat-form-field fxFlex>
+                      <mat-label>Authorization Server {{ i + 1 }}</mat-label>
+                      <input
+                        matInput
+                        [formControlName]="i"
+                        placeholder="https://auth.example.com"
+                        type="url"
+                      />
+                      <mat-icon matSuffix>link</mat-icon>
+                      @if (server.invalid && server.touched) {
+                        <mat-error>Please enter a valid URL</mat-error>
+                      }
+                    </mat-form-field>
+                    <button
+                      matIconButton
+                      type="button"
+                      color="warn"
+                      (click)="removeAuthServer(i)"
+                      matTooltip="Remove this authorization server"
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                }
+              </div>
+              <div fxLayout="row" fxLayoutAlign="center center">
+                <button mat-raised-button type="button" (click)="addAuthServer()">
+                  <mat-icon>add</mat-icon> Add Authorization Server
+                </button>
+              </div>
+
+              <!-- Preferred Authorization Server -->
+              <mat-form-field>
+                <mat-label>Preferred Authorization Server</mat-label>
+                <mat-select formControlName="preferredAuthServer">
+                  <mat-option value="">None (use default order)</mat-option>
+                  @for (option of availableAuthServerOptions; track option.value) {
+                    <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                  }
+                </mat-select>
+                <mat-icon matSuffix>star</mat-icon>
+                <mat-hint
+                  >The preferred AS is placed first in the issuer metadata. Wallets typically use
+                  the first AS for wallet-initiated flows.</mat-hint
+                >
+              </mat-form-field>
+            </mat-card-content>
+          </mat-card>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </mat-tab>
 
-    <!-- Wallet Attestation Card -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>verified_user</mat-icon>
-          Wallet Attestation
-        </mat-card-title>
-        <mat-card-subtitle
-          >Configure wallet attestation requirements for client authentication</mat-card-subtitle
-        >
-      </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <mat-slide-toggle formControlName="walletAttestationRequired">
-          <div fxLayout="column">
-            <span><strong>Require Wallet Attestation</strong></span>
-            <span class="toggle-description"
-              >When enabled, wallets must provide OAuth-Client-Attestation headers at the token
-              endpoint</span
-            >
-          </div>
-        </mat-slide-toggle>
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">security</mat-icon>
+          Security
+        </ng-template>
 
-        @if (form.get('walletAttestationRequired')?.value) {
-          <div fxLayout="column" fxLayoutGap="16px" class="trust-lists-section">
-            <p class="section-hint">
-              <mat-icon>info</mat-icon>
-              Add trust list URLs containing trusted wallet providers. The wallet's X.509
-              certificate will be validated against these lists.
-            </p>
-            <div formArrayName="walletProviderTrustLists">
-              @for (trustList of walletProviderTrustLists.controls; track $index; let i = $index) {
-                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-                  <mat-form-field fxFlex>
-                    <mat-label>Trust List URL {{ i + 1 }}</mat-label>
-                    <input
-                      matInput
-                      [formControlName]="i"
-                      placeholder="https://trust-list.example.com/wallet-providers"
-                      type="url"
-                    />
-                    <mat-icon matSuffix>security</mat-icon>
-                    @if (trustList.invalid && trustList.touched) {
-                      <mat-error>Please enter a valid URL</mat-error>
-                    }
-                  </mat-form-field>
-                  <button
-                    matIconButton
-                    type="button"
-                    color="warn"
-                    (click)="removeWalletProviderTrustList(i)"
-                    matTooltip="Remove this trust list"
+        <div fxLayout="column" fxLayoutGap="24px" class="tab-content">
+          <!-- Wallet Attestation Card -->
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>verified_user</mat-icon>
+                Wallet Attestation
+              </mat-card-title>
+              <mat-card-subtitle
+                >Configure wallet attestation requirements for client
+                authentication</mat-card-subtitle
+              >
+            </mat-card-header>
+            <mat-card-content fxLayout="column" fxLayoutGap="16px">
+              <mat-slide-toggle formControlName="walletAttestationRequired">
+                <div fxLayout="column">
+                  <span><strong>Require Wallet Attestation</strong></span>
+                  <span class="toggle-description"
+                    >When enabled, wallets must provide OAuth-Client-Attestation headers at the
+                    token endpoint</span
                   >
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                </div>
+              </mat-slide-toggle>
+
+              @if (form.get('walletAttestationRequired')?.value) {
+                <div fxLayout="column" fxLayoutGap="16px" class="trust-lists-section">
+                  <p class="section-hint">
+                    <mat-icon>info</mat-icon>
+                    Add trust list URLs containing trusted wallet providers. The wallet's X.509
+                    certificate will be validated against these lists.
+                  </p>
+                  <div formArrayName="walletProviderTrustLists">
+                    @for (
+                      trustList of walletProviderTrustLists.controls;
+                      track $index;
+                      let i = $index
+                    ) {
+                      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                        <mat-form-field fxFlex>
+                          <mat-label>Trust List URL {{ i + 1 }}</mat-label>
+                          <input
+                            matInput
+                            [formControlName]="i"
+                            placeholder="https://trust-list.example.com/wallet-providers"
+                            type="url"
+                          />
+                          <mat-icon matSuffix>security</mat-icon>
+                          @if (trustList.invalid && trustList.touched) {
+                            <mat-error>Please enter a valid URL</mat-error>
+                          }
+                        </mat-form-field>
+                        <button
+                          matIconButton
+                          type="button"
+                          color="warn"
+                          (click)="removeWalletProviderTrustList(i)"
+                          matTooltip="Remove this trust list"
+                        >
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                  <div fxLayout="row" fxLayoutAlign="center center">
+                    <button mat-raised-button type="button" (click)="addWalletProviderTrustList()">
+                      <mat-icon>add</mat-icon> Add Trust List URL
+                    </button>
+                  </div>
+                  @if (walletProviderTrustLists.length === 0) {
+                    <p class="warning-hint">
+                      <mat-icon>warning</mat-icon>
+                      No trust lists configured. All wallet providers will be rejected when wallet
+                      attestation is required.
+                    </p>
+                  }
                 </div>
               }
-            </div>
-            <div fxLayout="row" fxLayoutAlign="center center">
-              <button mat-raised-button type="button" (click)="addWalletProviderTrustList()">
-                <mat-icon>add</mat-icon> Add Trust List URL
-              </button>
-            </div>
-            @if (walletProviderTrustLists.length === 0) {
-              <p class="warning-hint">
-                <mat-icon>warning</mat-icon>
-                No trust lists configured. All wallet providers will be rejected when wallet
-                attestation is required.
-              </p>
-            }
-          </div>
-        }
-      </mat-card-content>
-    </mat-card>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
 
-    <!-- Chained Authorization Server Card -->
-    <mat-card formGroupName="chainedAs">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>account_tree</mat-icon>
-          Chained Authorization Server
-        </mat-card-title>
-        <mat-card-subtitle
-          >Delegate user authentication to an upstream OIDC provider while issuing EUDIPLO
-          tokens</mat-card-subtitle
-        >
-      </mat-card-header>
-      <mat-card-content fxLayout="column" fxLayoutGap="16px">
-        <mat-slide-toggle formControlName="enabled">
-          <div fxLayout="column">
-            <span><strong>Enable Chained AS</strong></span>
-            <span class="toggle-description"
-              >When enabled, EUDIPLO acts as an OAuth AS facade, delegating authentication to an
-              upstream OIDC provider (e.g., Keycloak)</span
-            >
-          </div>
-        </mat-slide-toggle>
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">account_tree</mat-icon>
+          Advanced Federation
+        </ng-template>
 
-        @if (chainedAsEnabled) {
-          <!-- Upstream OIDC Provider Section -->
-          <div
-            formGroupName="upstream"
-            fxLayout="column"
-            fxLayoutGap="16px"
-            class="chained-as-section"
-          >
-            <h4>
-              <mat-icon>cloud</mat-icon>
-              Upstream OIDC Provider
-            </h4>
-            <mat-form-field>
-              <mat-label>Issuer URL</mat-label>
-              <input
-                matInput
-                formControlName="issuer"
-                placeholder="https://keycloak.example.com/realms/my-realm"
-                type="url"
-              />
-              <mat-icon matSuffix>link</mat-icon>
-              <mat-hint>The upstream OIDC provider URL (must support discovery)</mat-hint>
-            </mat-form-field>
-
-            <div fxLayout="row" fxLayoutGap="16px">
-              <mat-form-field fxFlex>
-                <mat-label>Client ID</mat-label>
-                <input matInput formControlName="clientId" placeholder="eudiplo-client" />
-                <mat-icon matSuffix>fingerprint</mat-icon>
-              </mat-form-field>
-              <mat-form-field fxFlex>
-                <mat-label>Client Secret</mat-label>
-                <input
-                  matInput
-                  formControlName="clientSecret"
-                  type="password"
-                  placeholder="••••••••"
-                />
-                <mat-icon matSuffix>lock</mat-icon>
-              </mat-form-field>
-            </div>
-
-            <p class="section-hint">
-              <mat-icon>info</mat-icon>
-              Configure your upstream OIDC provider with redirect URI:
-              <code>https://your-eudiplo-url/&#123;tenant&#125;/chained-as/callback</code>
-            </p>
-          </div>
-
-          <!-- Token Configuration Section -->
-          <div
-            formGroupName="token"
-            fxLayout="column"
-            fxLayoutGap="16px"
-            class="chained-as-section"
-          >
-            <h4>
-              <mat-icon>token</mat-icon>
-              Token Configuration
-            </h4>
-            <div fxLayout="row" fxLayoutGap="16px">
-              <mat-form-field fxFlex>
-                <mat-label>Token Lifetime (seconds)</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  formControlName="lifetimeSeconds"
-                  placeholder="3600"
-                  min="60"
-                />
-                <mat-icon matSuffix>schedule</mat-icon>
-                <mat-hint>Access token lifetime in seconds (default: 3600)</mat-hint>
-              </mat-form-field>
-              <mat-form-field fxFlex>
-                <mat-label>Signing Key ID (optional)</mat-label>
-                <input
-                  matInput
-                  formControlName="signingKeyId"
-                  placeholder="Leave empty for default"
-                />
-                <mat-icon matSuffix>key</mat-icon>
-                <mat-hint>Key ID for token signing (uses default if empty)</mat-hint>
-              </mat-form-field>
-            </div>
-          </div>
-
-          <!-- DPoP Requirement -->
-          <mat-slide-toggle formControlName="requireDPoP">
-            <div fxLayout="column">
-              <span><strong>Require DPoP</strong></span>
-              <span class="toggle-description"
-                >Require wallets to provide DPoP proof when requesting tokens</span
+        <div fxLayout="column" fxLayoutGap="24px" class="tab-content">
+          <!-- Chained Authorization Server Card -->
+          <mat-card formGroupName="chainedAs">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>account_tree</mat-icon>
+                Chained Authorization Server
+              </mat-card-title>
+              <mat-card-subtitle
+                >Delegate user authentication to an upstream OIDC provider while issuing EUDIPLO
+                tokens</mat-card-subtitle
               >
-            </div>
-          </mat-slide-toggle>
-        }
-      </mat-card-content>
-    </mat-card>
+            </mat-card-header>
+            <mat-card-content fxLayout="column" fxLayoutGap="16px">
+              <mat-slide-toggle formControlName="enabled">
+                <div fxLayout="column">
+                  <span><strong>Enable Chained AS</strong></span>
+                  <span class="toggle-description"
+                    >When enabled, EUDIPLO acts as an OAuth AS facade, delegating authentication to
+                    an upstream OIDC provider (e.g., Keycloak)</span
+                  >
+                </div>
+              </mat-slide-toggle>
+
+              @if (chainedAsEnabled) {
+                <!-- Upstream OIDC Provider Section -->
+                <div
+                  formGroupName="upstream"
+                  fxLayout="column"
+                  fxLayoutGap="16px"
+                  class="chained-as-section"
+                >
+                  <h4>
+                    <mat-icon>cloud</mat-icon>
+                    Upstream OIDC Provider
+                  </h4>
+                  <mat-form-field>
+                    <mat-label>Issuer URL</mat-label>
+                    <input
+                      matInput
+                      formControlName="issuer"
+                      placeholder="https://keycloak.example.com/realms/my-realm"
+                      type="url"
+                    />
+                    <mat-icon matSuffix>link</mat-icon>
+                    <mat-hint>The upstream OIDC provider URL (must support discovery)</mat-hint>
+                  </mat-form-field>
+
+                  <div fxLayout="row" fxLayoutGap="16px">
+                    <mat-form-field fxFlex>
+                      <mat-label>Client ID</mat-label>
+                      <input matInput formControlName="clientId" placeholder="eudiplo-client" />
+                      <mat-icon matSuffix>fingerprint</mat-icon>
+                    </mat-form-field>
+                    <mat-form-field fxFlex>
+                      <mat-label>Client Secret</mat-label>
+                      <input
+                        matInput
+                        formControlName="clientSecret"
+                        type="password"
+                        placeholder="••••••••"
+                      />
+                      <mat-icon matSuffix>lock</mat-icon>
+                    </mat-form-field>
+                  </div>
+
+                  <p class="section-hint">
+                    <mat-icon>info</mat-icon>
+                    Configure your upstream OIDC provider with redirect URI:
+                    <code>https://your-eudiplo-url/&#123;tenant&#125;/chained-as/callback</code>
+                  </p>
+                </div>
+
+                <!-- Token Configuration Section -->
+                <div
+                  formGroupName="token"
+                  fxLayout="column"
+                  fxLayoutGap="16px"
+                  class="chained-as-section"
+                >
+                  <h4>
+                    <mat-icon>token</mat-icon>
+                    Token Configuration
+                  </h4>
+                  <div fxLayout="row" fxLayoutGap="16px">
+                    <mat-form-field fxFlex>
+                      <mat-label>Token Lifetime (seconds)</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        formControlName="lifetimeSeconds"
+                        placeholder="3600"
+                        min="60"
+                      />
+                      <mat-icon matSuffix>schedule</mat-icon>
+                      <mat-hint>Access token lifetime in seconds (default: 3600)</mat-hint>
+                    </mat-form-field>
+                    <mat-form-field fxFlex>
+                      <mat-label>Signing Key ID (optional)</mat-label>
+                      <input
+                        matInput
+                        formControlName="signingKeyId"
+                        placeholder="Leave empty for default"
+                      />
+                      <mat-icon matSuffix>key</mat-icon>
+                      <mat-hint>Key ID for token signing (uses default if empty)</mat-hint>
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <!-- DPoP Requirement -->
+                <mat-slide-toggle formControlName="requireDPoP">
+                  <div fxLayout="column">
+                    <span><strong>Require DPoP</strong></span>
+                    <span class="toggle-description"
+                      >Require wallets to provide DPoP proof when requesting tokens</span
+                    >
+                  </div>
+                </mat-slide-toggle>
+              }
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
 
     <!-- Action Buttons -->
     <div fxLayout="row" fxLayoutGap="16px" fxLayoutAlign="end center">

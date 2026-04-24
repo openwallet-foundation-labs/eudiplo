@@ -20,6 +20,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { JsonViewDialogComponent } from '../../../issuance/credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
 import { IssuerMetadataBrowserComponent } from '../issuer-metadata-browser/issuer-metadata-browser.component';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatDividerModule } from '@angular/material/divider';
 import { configs } from './pre-config';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
@@ -49,6 +50,7 @@ import { CredentialIdsComponent } from '../../credential-ids/credential-ids.comp
     RouterModule,
     MatMenuModule,
     MatDividerModule,
+    MatTabsModule,
     MonacoEditorModule,
     EditorComponent,
     WebhookConfigEditComponent,

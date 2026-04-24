@@ -9,6 +9,15 @@ import presnetationConfigCreateSchemaObj from '../../../../../schemas/Presentati
 import transactionDataSchemaObj from '../../../../../schemas/TransactionData.schema.json';
 import claimsMetadataSchemaObj from '../../../../../schemas/ClaimMetadata.schema.json';
 
+// Create an array schema for ClaimMetadata (the field holds a list of claim description objects per OID4VCI spec Appendix B.2)
+const claimsMetadataArraySchemaObj = {
+  $schema: 'https://json-schema.org/draft/2020-12/schema',
+  $id: 'https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClaimMetadataArray.schema.json',
+  title: 'ClaimMetadataArray',
+  type: 'array',
+  items: claimsMetadataSchemaObj,
+};
+
 // Create an array schema for TransactionData (URI-based matching allows arrays as root)
 const transactionDataArraySchemaObj = {
   $schema: 'https://json-schema.org/draft/2020-12/schema',
@@ -60,4 +69,4 @@ export const DCQLSchema = new SchemaValidation(DCQLObj);
 
 export const transactionDataArraySchema = new SchemaValidation(transactionDataArraySchemaObj);
 
-export const claimsMetadataSchema = new SchemaValidation(claimsMetadataSchemaObj);
+export const claimsMetadataSchema = new SchemaValidation(claimsMetadataArraySchemaObj);
