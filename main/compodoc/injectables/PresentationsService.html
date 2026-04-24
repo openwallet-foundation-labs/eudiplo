@@ -925,8 +925,8 @@ OID4VCI credential issuer metadata endpoint.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="673"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:673</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="691"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:691</a></div>
                         </td>
                     </tr>
 
@@ -1022,8 +1022,8 @@ For mDOC: the first path element is the namespace, so we return the claim name (
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="595"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:595</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="613"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:613</a></div>
                         </td>
                     </tr>
 
@@ -1726,8 +1726,8 @@ This is used by the web client to avoid browser CORS restrictions.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="612"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:612</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="630"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:630</a></div>
                         </td>
                     </tr>
 
@@ -1842,8 +1842,8 @@ If no credential_sets are defined, all credentials in the query are required.</p
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="703"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:703</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="721"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:721</a></div>
                         </td>
                     </tr>
 
@@ -2581,6 +2581,24 @@ export class PresentationsService {
                                     keyBindingNonce: session.vp_nonce!,
                                     ...verifyOptions,
                                 } as any);
+                            this.logger.debug(
+                                {
+                                    credentialId: attId,
+                                    requiredClaimKeys,
+                                    disclosedClaimKeys: Object.keys(
+                                        result.payload ?? {},
+                                    ),
+                                },
+                                &quot;SD-JWT-VC disclosed claims after verification&quot;,
+                            );
+                            this.logger.trace(
+                                {
+                                    credentialId: attId,
+                                    requiredClaimKeys,
+                                    disclosedClaims: result.payload,
+                                },
+                                &quot;[TRACE] SD-JWT-VC full disclosed claims payload&quot;,
+                            );
                             return {
                                 ...result.payload,
                                 cnf: undefined,
@@ -2731,7 +2749,18 @@ export class PresentationsService {
             const claimName &#x3D;
                 claim.path.length &gt; 1 ? claim.path[1] : claim.path[0];
 
-            console.log(receivedClaims);
+            this.logger.debug(
+                {
+                    credentialId,
+                    claimName,
+                    receivedClaimKeys: Object.keys(receivedClaims),
+                },
+                &quot;Validating mDOC claim presence&quot;,
+            );
+            this.logger.trace(
+                { credentialId, claimName, receivedClaims },
+                &quot;[TRACE] mDOC full received claims payload&quot;,
+            );
             // Check if claim exists in received claims
             if (!(claimName in receivedClaims)) {
                 // Format as namespace.claimName for better error message

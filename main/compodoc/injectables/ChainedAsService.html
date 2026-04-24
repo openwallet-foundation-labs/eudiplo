@@ -669,8 +669,8 @@ the upstream OIDC provider (e.g., Keycloak).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="808"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:808</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="862"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:862</a></div>
                         </td>
                     </tr>
 
@@ -972,8 +972,8 @@ the upstream OIDC provider (e.g., Keycloak).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="739"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:739</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="793"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:793</a></div>
                         </td>
                     </tr>
 
@@ -1043,8 +1043,8 @@ the upstream OIDC provider (e.g., Keycloak).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="769"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:769</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="823"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:823</a></div>
                         </td>
                     </tr>
 
@@ -1186,8 +1186,8 @@ Results are cached for 5 minutes.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="822"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:822</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="876"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/chained-as.service.ts:876</a></div>
                         </td>
                     </tr>
 
@@ -2688,22 +2688,56 @@ export class ChainedAsService {
         request: ChainedAsTokenRequestDto,
         dpopJwt?: string,
     ): Promise&lt;ChainedAsTokenResponseDto&gt; {
-        if (request.grant_type !&#x3D;&#x3D; &quot;authorization_code&quot;) {
+        if (
+            request.grant_type !&#x3D;&#x3D; &quot;authorization_code&quot; &amp;&amp;
+            request.grant_type !&#x3D;&#x3D; &quot;refresh_token&quot;
+        ) {
             throw new BadRequestException(
-                &#x27;Invalid grant_type, must be &quot;authorization_code&quot;&#x27;,
+                &#x27;Invalid grant_type, must be &quot;authorization_code&quot; or &quot;refresh_token&quot;&#x27;,
             );
         }
 
-        const session &#x3D; await this.sessionRepository.findOne({
-            where: {
-                tenantId,
-                authorizationCode: request.code,
-                status: ChainedAsSessionStatus.AUTHORIZED,
-            },
-        });
+        let session: ChainedAsSessionEntity | null;
 
-        if (!session) {
-            throw new UnauthorizedException(&quot;Invalid authorization code&quot;);
+        if (request.grant_type &#x3D;&#x3D;&#x3D; &quot;refresh_token&quot;) {
+            if (!request.refresh_token) {
+                throw new BadRequestException(
+                    &quot;refresh_token is required for refresh_token grant&quot;,
+                );
+            }
+            session &#x3D; await this.sessionRepository.findOne({
+                where: {
+                    tenantId,
+                    refreshToken: request.refresh_token,
+                },
+            });
+            if (!session) {
+                throw new UnauthorizedException(
+                    &quot;Invalid or expired refresh_token&quot;,
+                );
+            }
+            if (
+                session.refreshTokenExpiresAt &amp;&amp;
+                session.refreshTokenExpiresAt &lt; new Date()
+            ) {
+                throw new UnauthorizedException(&quot;refresh_token has expired&quot;);
+            }
+        } else {
+            if (!request.code) {
+                throw new BadRequestException(
+                    &quot;code is required for authorization_code grant&quot;,
+                );
+            }
+            session &#x3D; await this.sessionRepository.findOne({
+                where: {
+                    tenantId,
+                    authorizationCode: request.code,
+                    status: ChainedAsSessionStatus.AUTHORIZED,
+                },
+            });
+            if (!session) {
+                throw new UnauthorizedException(&quot;Invalid authorization code&quot;);
+            }
         }
 
         // Add session context to span for trace correlation
@@ -2715,6 +2749,7 @@ export class ChainedAsService {
         });
 
         if (
+            request.grant_type &#x3D;&#x3D;&#x3D; &quot;authorization_code&quot; &amp;&amp;
             session.authorizationCodeExpiresAt &amp;&amp;
             session.authorizationCodeExpiresAt &lt; new Date()
         ) {
@@ -2777,6 +2812,24 @@ export class ChainedAsService {
 
         session.status &#x3D; ChainedAsSessionStatus.TOKEN_ISSUED;
         session.accessTokenJti &#x3D; jti;
+
+        const issuanceConfig &#x3D;
+            await this.issuanceService.getIssuanceConfiguration(tenantId);
+
+        let refreshToken: string | undefined;
+        if (issuanceConfig.refreshTokenEnabled) {
+            refreshToken &#x3D; randomBytes(32).toString(&quot;base64url&quot;);
+            let refreshTokenExpiresAt: Date | undefined;
+            if (issuanceConfig.refreshTokenExpiresInSeconds) {
+                refreshTokenExpiresAt &#x3D; new Date(
+                    Date.now() +
+                        issuanceConfig.refreshTokenExpiresInSeconds * 1000,
+                );
+            }
+            session.refreshToken &#x3D; refreshToken;
+            session.refreshTokenExpiresAt &#x3D; refreshTokenExpiresAt;
+        }
+
         await this.sessionRepository.save(session);
 
         return {
@@ -2789,6 +2842,7 @@ export class ChainedAsService {
                 session.authorizationDetails.length &gt; 0 &amp;&amp; {
                     authorization_details: session.authorizationDetails,
                 }),
+            ...(refreshToken &amp;&amp; { refresh_token: refreshToken }),
         };
     }
 
@@ -2841,7 +2895,7 @@ export class ChainedAsService {
             pushed_authorization_request_endpoint: &#x60;${baseUrl}/par&#x60;,
             jwks_uri: &#x60;${publicUrl}/.well-known/jwks.json/issuers/${tenantId}/chained-as&#x60;,
             response_types_supported: [&quot;code&quot;],
-            grant_types_supported: [&quot;authorization_code&quot;],
+            grant_types_supported: [&quot;authorization_code&quot;, &quot;refresh_token&quot;],
             code_challenge_methods_supported: [&quot;S256&quot;],
             dpop_signing_alg_values_supported: [&quot;ES256&quot;, &quot;ES384&quot;, &quot;ES512&quot;],
         };

@@ -21493,7 +21493,7 @@ passed inside a signed request object it can already be an array.</td>
         <tr>
             <td><code>code</code></td>
             <td><span class="string-type">string</span></td>
-            <td>Authorization code received in the callback</td>
+            <td>Authorization code received in the callback (authorization_code grant)</td>
         </tr>
         <tr>
             <td><code>code_verifier</code></td>
@@ -21503,12 +21503,17 @@ passed inside a signed request object it can already be an array.</td>
         <tr>
             <td><code>grant_type</code></td>
             <td><span class="string-type">string</span></td>
-            <td>Grant type (must be 'authorization_code')</td>
+            <td>Grant type ('authorization_code' or 'refresh_token')</td>
         </tr>
         <tr>
             <td><code>redirect_uri</code></td>
             <td><span class="string-type">string</span></td>
             <td>Redirect URI (must match the one used in PAR)</td>
+        </tr>
+        <tr>
+            <td><code>refresh_token</code></td>
+            <td><span class="string-type">string</span></td>
+            <td>Refresh token (refresh_token grant)</td>
         </tr>
     </tbody>
 </table>
@@ -21547,6 +21552,11 @@ passed inside a signed request object it can already be an array.</td>
             <td><code>expires_in</code></td>
             <td><span class="number-type">number</span></td>
             <td>Token lifetime in seconds</td>
+        </tr>
+        <tr>
+            <td><code>refresh_token</code></td>
+            <td><span class="string-type">string</span></td>
+            <td>Refresh token (issued when refresh tokens are enabled)</td>
         </tr>
         <tr>
             <td><code>scope</code></td>
@@ -28129,10 +28139,11 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 <p></p><div class="highlight"><pre><span></span><code><a id="__codelineno-210-1" name="__codelineno-210-1" href="#__codelineno-210-1"></a><span class="p">{</span>
 <a id="__codelineno-210-2" name="__codelineno-210-2" href="#__codelineno-210-2"></a><span class="w">    </span><span class="nt">"grant_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"authorization_code"</span><span class="p">,</span>
 <a id="__codelineno-210-3" name="__codelineno-210-3" href="#__codelineno-210-3"></a><span class="w">    </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-210-4" name="__codelineno-210-4" href="#__codelineno-210-4"></a><span class="w">    </span><span class="nt">"client_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-210-5" name="__codelineno-210-5" href="#__codelineno-210-5"></a><span class="w">    </span><span class="nt">"redirect_uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-210-6" name="__codelineno-210-6" href="#__codelineno-210-6"></a><span class="w">    </span><span class="nt">"code_verifier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
-<a id="__codelineno-210-7" name="__codelineno-210-7" href="#__codelineno-210-7"></a><span class="p">}</span>
+<a id="__codelineno-210-4" name="__codelineno-210-4" href="#__codelineno-210-4"></a><span class="w">    </span><span class="nt">"refresh_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-210-5" name="__codelineno-210-5" href="#__codelineno-210-5"></a><span class="w">    </span><span class="nt">"client_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-210-6" name="__codelineno-210-6" href="#__codelineno-210-6"></a><span class="w">    </span><span class="nt">"redirect_uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-210-7" name="__codelineno-210-7" href="#__codelineno-210-7"></a><span class="w">    </span><span class="nt">"code_verifier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
+<a id="__codelineno-210-8" name="__codelineno-210-8" href="#__codelineno-210-8"></a><span class="p">}</span>
 </code></pre></div>
 <span class="small-note">⚠️</span>&nbsp;<em class="small-note warning">This example has been generated automatically from the schema and it is not accurate. Refer to the schema for more information.</em><p></p>
 <details class="hint">
@@ -28142,31 +28153,34 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 <a id="__codelineno-211-3" name="__codelineno-211-3" href="#__codelineno-211-3"></a><span class="w">    </span><span class="nt">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-211-4" name="__codelineno-211-4" href="#__codelineno-211-4"></a><span class="w">        </span><span class="nt">"grant_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-211-5" name="__codelineno-211-5" href="#__codelineno-211-5"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-211-6" name="__codelineno-211-6" href="#__codelineno-211-6"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Grant type (must be 'authorization_code')"</span><span class="p">,</span>
+<a id="__codelineno-211-6" name="__codelineno-211-6" href="#__codelineno-211-6"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Grant type ('authorization_code' or 'refresh_token')"</span><span class="p">,</span>
 <a id="__codelineno-211-7" name="__codelineno-211-7" href="#__codelineno-211-7"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="s2">"authorization_code"</span>
 <a id="__codelineno-211-8" name="__codelineno-211-8" href="#__codelineno-211-8"></a><span class="w">        </span><span class="p">},</span>
 <a id="__codelineno-211-9" name="__codelineno-211-9" href="#__codelineno-211-9"></a><span class="w">        </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-211-10" name="__codelineno-211-10" href="#__codelineno-211-10"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-211-11" name="__codelineno-211-11" href="#__codelineno-211-11"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Authorization code received in the callback"</span>
+<a id="__codelineno-211-11" name="__codelineno-211-11" href="#__codelineno-211-11"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Authorization code received in the callback (authorization_code grant)"</span>
 <a id="__codelineno-211-12" name="__codelineno-211-12" href="#__codelineno-211-12"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-211-13" name="__codelineno-211-13" href="#__codelineno-211-13"></a><span class="w">        </span><span class="nt">"client_id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-211-13" name="__codelineno-211-13" href="#__codelineno-211-13"></a><span class="w">        </span><span class="nt">"refresh_token"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-211-14" name="__codelineno-211-14" href="#__codelineno-211-14"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-211-15" name="__codelineno-211-15" href="#__codelineno-211-15"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Client identifier"</span>
+<a id="__codelineno-211-15" name="__codelineno-211-15" href="#__codelineno-211-15"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Refresh token (refresh_token grant)"</span>
 <a id="__codelineno-211-16" name="__codelineno-211-16" href="#__codelineno-211-16"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-211-17" name="__codelineno-211-17" href="#__codelineno-211-17"></a><span class="w">        </span><span class="nt">"redirect_uri"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-211-17" name="__codelineno-211-17" href="#__codelineno-211-17"></a><span class="w">        </span><span class="nt">"client_id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-211-18" name="__codelineno-211-18" href="#__codelineno-211-18"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-211-19" name="__codelineno-211-19" href="#__codelineno-211-19"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Redirect URI (must match the one used in PAR)"</span>
+<a id="__codelineno-211-19" name="__codelineno-211-19" href="#__codelineno-211-19"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Client identifier"</span>
 <a id="__codelineno-211-20" name="__codelineno-211-20" href="#__codelineno-211-20"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-211-21" name="__codelineno-211-21" href="#__codelineno-211-21"></a><span class="w">        </span><span class="nt">"code_verifier"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-211-21" name="__codelineno-211-21" href="#__codelineno-211-21"></a><span class="w">        </span><span class="nt">"redirect_uri"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-211-22" name="__codelineno-211-22" href="#__codelineno-211-22"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-211-23" name="__codelineno-211-23" href="#__codelineno-211-23"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PKCE code verifier"</span>
-<a id="__codelineno-211-24" name="__codelineno-211-24" href="#__codelineno-211-24"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-211-25" name="__codelineno-211-25" href="#__codelineno-211-25"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-211-26" name="__codelineno-211-26" href="#__codelineno-211-26"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-211-27" name="__codelineno-211-27" href="#__codelineno-211-27"></a><span class="w">        </span><span class="s2">"grant_type"</span><span class="p">,</span>
-<a id="__codelineno-211-28" name="__codelineno-211-28" href="#__codelineno-211-28"></a><span class="w">        </span><span class="s2">"code"</span>
-<a id="__codelineno-211-29" name="__codelineno-211-29" href="#__codelineno-211-29"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-211-30" name="__codelineno-211-30" href="#__codelineno-211-30"></a><span class="p">}</span>
+<a id="__codelineno-211-23" name="__codelineno-211-23" href="#__codelineno-211-23"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Redirect URI (must match the one used in PAR)"</span>
+<a id="__codelineno-211-24" name="__codelineno-211-24" href="#__codelineno-211-24"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-211-25" name="__codelineno-211-25" href="#__codelineno-211-25"></a><span class="w">        </span><span class="nt">"code_verifier"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-211-26" name="__codelineno-211-26" href="#__codelineno-211-26"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-211-27" name="__codelineno-211-27" href="#__codelineno-211-27"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PKCE code verifier"</span>
+<a id="__codelineno-211-28" name="__codelineno-211-28" href="#__codelineno-211-28"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-211-29" name="__codelineno-211-29" href="#__codelineno-211-29"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-211-30" name="__codelineno-211-30" href="#__codelineno-211-30"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-211-31" name="__codelineno-211-31" href="#__codelineno-211-31"></a><span class="w">        </span><span class="s2">"grant_type"</span>
+<a id="__codelineno-211-32" name="__codelineno-211-32" href="#__codelineno-211-32"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-211-33" name="__codelineno-211-33" href="#__codelineno-211-33"></a><span class="p">}</span>
 </code></pre></div>
 </details>
 </div>
@@ -28189,8 +28203,9 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 <a id="__codelineno-212-7" name="__codelineno-212-7" href="#__codelineno-212-7"></a><span class="w">        </span><span class="p">{}</span>
 <a id="__codelineno-212-8" name="__codelineno-212-8" href="#__codelineno-212-8"></a><span class="w">    </span><span class="p">],</span>
 <a id="__codelineno-212-9" name="__codelineno-212-9" href="#__codelineno-212-9"></a><span class="w">    </span><span class="nt">"c_nonce"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
-<a id="__codelineno-212-10" name="__codelineno-212-10" href="#__codelineno-212-10"></a><span class="w">    </span><span class="nt">"c_nonce_expires_in"</span><span class="p">:</span><span class="w"> </span><span class="mf">10.12</span>
-<a id="__codelineno-212-11" name="__codelineno-212-11" href="#__codelineno-212-11"></a><span class="p">}</span>
+<a id="__codelineno-212-10" name="__codelineno-212-10" href="#__codelineno-212-10"></a><span class="w">    </span><span class="nt">"c_nonce_expires_in"</span><span class="p">:</span><span class="w"> </span><span class="mf">10.12</span><span class="p">,</span>
+<a id="__codelineno-212-11" name="__codelineno-212-11" href="#__codelineno-212-11"></a><span class="w">    </span><span class="nt">"refresh_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span>
+<a id="__codelineno-212-12" name="__codelineno-212-12" href="#__codelineno-212-12"></a><span class="p">}</span>
 </code></pre></div>
 <span class="small-note">⚠️</span>&nbsp;<em class="small-note warning">This example has been generated automatically from the schema and it is not accurate. Refer to the schema for more information.</em><p></p>
 <details class="hint">
@@ -28230,14 +28245,18 @@ for wallets that construct the discovery URL per RFC 8414.</p>
 <a id="__codelineno-213-33" name="__codelineno-213-33" href="#__codelineno-213-33"></a><span class="w">        </span><span class="nt">"c_nonce_expires_in"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-213-34" name="__codelineno-213-34" href="#__codelineno-213-34"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"number"</span><span class="p">,</span>
 <a id="__codelineno-213-35" name="__codelineno-213-35" href="#__codelineno-213-35"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"C_NONCE lifetime in seconds"</span>
-<a id="__codelineno-213-36" name="__codelineno-213-36" href="#__codelineno-213-36"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-213-37" name="__codelineno-213-37" href="#__codelineno-213-37"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-213-38" name="__codelineno-213-38" href="#__codelineno-213-38"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-213-39" name="__codelineno-213-39" href="#__codelineno-213-39"></a><span class="w">        </span><span class="s2">"access_token"</span><span class="p">,</span>
-<a id="__codelineno-213-40" name="__codelineno-213-40" href="#__codelineno-213-40"></a><span class="w">        </span><span class="s2">"token_type"</span><span class="p">,</span>
-<a id="__codelineno-213-41" name="__codelineno-213-41" href="#__codelineno-213-41"></a><span class="w">        </span><span class="s2">"expires_in"</span>
-<a id="__codelineno-213-42" name="__codelineno-213-42" href="#__codelineno-213-42"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-213-43" name="__codelineno-213-43" href="#__codelineno-213-43"></a><span class="p">}</span>
+<a id="__codelineno-213-36" name="__codelineno-213-36" href="#__codelineno-213-36"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-213-37" name="__codelineno-213-37" href="#__codelineno-213-37"></a><span class="w">        </span><span class="nt">"refresh_token"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-213-38" name="__codelineno-213-38" href="#__codelineno-213-38"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<a id="__codelineno-213-39" name="__codelineno-213-39" href="#__codelineno-213-39"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Refresh token (issued when refresh tokens are enabled)"</span>
+<a id="__codelineno-213-40" name="__codelineno-213-40" href="#__codelineno-213-40"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-213-41" name="__codelineno-213-41" href="#__codelineno-213-41"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-213-42" name="__codelineno-213-42" href="#__codelineno-213-42"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-213-43" name="__codelineno-213-43" href="#__codelineno-213-43"></a><span class="w">        </span><span class="s2">"access_token"</span><span class="p">,</span>
+<a id="__codelineno-213-44" name="__codelineno-213-44" href="#__codelineno-213-44"></a><span class="w">        </span><span class="s2">"token_type"</span><span class="p">,</span>
+<a id="__codelineno-213-45" name="__codelineno-213-45" href="#__codelineno-213-45"></a><span class="w">        </span><span class="s2">"expires_in"</span>
+<a id="__codelineno-213-46" name="__codelineno-213-46" href="#__codelineno-213-46"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-213-47" name="__codelineno-213-47" href="#__codelineno-213-47"></a><span class="p">}</span>
 </code></pre></div>
 </details>
 </div>
@@ -29103,7 +29122,7 @@ passed inside a signed request object it can already be an array.</td>
         <tr>
             <td><code>code</code></td>
             <td><span class="string-type">string</span></td>
-            <td>Authorization code received in the callback</td>
+            <td>Authorization code received in the callback (authorization_code grant)</td>
         </tr>
         <tr>
             <td><code>code_verifier</code></td>
@@ -29113,12 +29132,17 @@ passed inside a signed request object it can already be an array.</td>
         <tr>
             <td><code>grant_type</code></td>
             <td><span class="string-type">string</span></td>
-            <td>Grant type (must be 'authorization_code')</td>
+            <td>Grant type ('authorization_code' or 'refresh_token')</td>
         </tr>
         <tr>
             <td><code>redirect_uri</code></td>
             <td><span class="string-type">string</span></td>
             <td>Redirect URI (must match the one used in PAR)</td>
+        </tr>
+        <tr>
+            <td><code>refresh_token</code></td>
+            <td><span class="string-type">string</span></td>
+            <td>Refresh token (refresh_token grant)</td>
         </tr>
     </tbody>
 </table>
@@ -29157,6 +29181,11 @@ passed inside a signed request object it can already be an array.</td>
             <td><code>expires_in</code></td>
             <td><span class="number-type">number</span></td>
             <td>Token lifetime in seconds</td>
+        </tr>
+        <tr>
+            <td><code>refresh_token</code></td>
+            <td><span class="string-type">string</span></td>
+            <td>Refresh token (issued when refresh tokens are enabled)</td>
         </tr>
         <tr>
             <td><code>scope</code></td>

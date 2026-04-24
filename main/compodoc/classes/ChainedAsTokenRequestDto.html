@@ -175,6 +175,8 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
                                 <a href="#code" >code</a>
                             </li>
                             <li>
@@ -195,6 +197,13 @@
                                     <span class="modifier"></span>
                                     <span class="modifier">Optional</span>
                                 <a href="#redirect_uri" >redirect_uri</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#refresh_token" >refresh_token</a>
                             </li>
                         </ul>
                     </td>
@@ -247,7 +256,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="142" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/dto/chained-as.dto.ts:142</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="151" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/dto/chained-as.dto.ts:151</a></div>
                         </td>
                     </tr>
 
@@ -262,6 +271,8 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
                         <span ><b>code</b></span>
                         <a href="#code"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -278,13 +289,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty({description: &#x27;Authorization code received in the callback&#x27;})<br />@IsString()<br />
+                            @ApiPropertyOptional({description: &#x27;Authorization code received in the callback (authorization_code grant)&#x27;})<br />@IsString()<br />@IsOptional()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="135" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/dto/chained-as.dto.ts:135</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="137" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/dto/chained-as.dto.ts:137</a></div>
                         </td>
                     </tr>
 
@@ -323,7 +334,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="156" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/dto/chained-as.dto.ts:156</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="165" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/dto/chained-as.dto.ts:165</a></div>
                         </td>
                     </tr>
 
@@ -354,7 +365,7 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty({description: &#x27;Grant type (must be &#x27;authorization_code&#x27;)&#x27;, example: &#x27;authorization_code&#x27;})<br />@IsString()<br />
+                            @ApiProperty({description: &#x27;Grant type (&#x27;authorization_code&#x27; or &#x27;refresh_token&#x27;)&#x27;, example: &#x27;authorization_code&#x27;})<br />@IsString()<br />
                         </code>
                     </td>
                 </tr>
@@ -399,7 +410,46 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="149" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/dto/chained-as.dto.ts:149</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="158" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/dto/chained-as.dto.ts:158</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="refresh_token"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>refresh_token</b></span>
+                        <a href="#refresh_token"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @ApiPropertyOptional({description: &#x27;Refresh token (refresh_token grant)&#x27;})<br />@IsString()<br />@IsOptional()<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="144" class="link-to-prism">src/issuer/issuance/oid4vci/chained-as/dto/chained-as.dto.ts:144</a></div>
                         </td>
                     </tr>
 
@@ -542,17 +592,26 @@ export class ChainedAsAuthorizeQueryDto {
  */
 export class ChainedAsTokenRequestDto {
     @ApiProperty({
-        description: &quot;Grant type (must be &#x27;authorization_code&#x27;)&quot;,
+        description: &quot;Grant type (&#x27;authorization_code&#x27; or &#x27;refresh_token&#x27;)&quot;,
         example: &quot;authorization_code&quot;,
     })
     @IsString()
     grant_type!: string;
 
-    @ApiProperty({
-        description: &quot;Authorization code received in the callback&quot;,
+    @ApiPropertyOptional({
+        description:
+            &quot;Authorization code received in the callback (authorization_code grant)&quot;,
     })
     @IsString()
-    code!: string;
+    @IsOptional()
+    code?: string;
+
+    @ApiPropertyOptional({
+        description: &quot;Refresh token (refresh_token grant)&quot;,
+    })
+    @IsString()
+    @IsOptional()
+    refresh_token?: string;
 
     @ApiPropertyOptional({
         description: &quot;Client identifier&quot;,
@@ -616,6 +675,11 @@ export class ChainedAsTokenResponseDto {
         description: &quot;C_NONCE lifetime in seconds&quot;,
     })
     c_nonce_expires_in?: number;
+
+    @ApiPropertyOptional({
+        description: &quot;Refresh token (issued when refresh tokens are enabled)&quot;,
+    })
+    refresh_token?: string;
 }
 
 /**

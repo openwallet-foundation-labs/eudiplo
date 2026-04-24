@@ -854,6 +854,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/AddPreferredAuthServerToIssuanceConfig1741500000000.html" data-type="entity-link" >AddPreferredAuthServerToIssuanceConfig1741500000000</a>
                             </li>
                             <li class="link">
+                                <a href="classes/AddRefreshTokenToChainedAsSession1754000000000.html" data-type="entity-link" >AddRefreshTokenToChainedAsSession1754000000000</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/AddRefreshTokenToSession1752000000000.html" data-type="entity-link" >AddRefreshTokenToSession1752000000000</a>
                             </li>
                             <li class="link">
