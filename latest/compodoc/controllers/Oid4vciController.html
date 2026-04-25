@@ -168,12 +168,10 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#credential" >credential</a>
                             </li>
                             <li>
-                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#deferredCredential" >deferredCredential</a>
@@ -185,7 +183,6 @@
                                 <a href="#nonce" >nonce</a>
                             </li>
                             <li>
-                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#notifications" >notifications</a>
                             </li>
@@ -214,7 +211,6 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
                         <span ><b>credential</b></span>
                         <a href="#credential"><span class="icon ion-ios-link"></span></a>
@@ -232,14 +228,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post(&#x27;credential&#x27;)<br />@HttpCode(HttpStatus.OK)<br />@SessionLogger(&#x27;session&#x27;, &#x27;OID4VCI&#x27;)<br /></code>
+                    <code>@Post(&#x27;credential&#x27;)<br />@HttpCode(HttpStatus.OK)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="47"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:47</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="42"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:42</a></div>
                         </td>
                     </tr>
 
@@ -319,7 +315,6 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
                         <span ><b>deferredCredential</b></span>
                         <a href="#deferredCredential"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -336,14 +331,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post(&#x27;deferred_credential&#x27;)<br />@SessionLogger(&#x27;transaction_id&#x27;, &#x27;OID4VCI&#x27;)<br />@HttpCode(HttpStatus.OK)<br /></code>
+                    <code>@Post(&#x27;deferred_credential&#x27;)<br />@HttpCode(HttpStatus.OK)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="95"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:95</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="94"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:94</a></div>
                         </td>
                     </tr>
 
@@ -462,8 +457,8 @@ for credentials that were not immediately available.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="121"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:121</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="119"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:119</a></div>
                         </td>
                     </tr>
 
@@ -516,7 +511,6 @@ for credentials that were not immediately available.</p>
                     <a name="notifications"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
                         <span ><b>notifications</b></span>
                         <a href="#notifications"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -533,14 +527,14 @@ for credentials that were not immediately available.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post(&#x27;notification&#x27;)<br />@SessionLogger(&#x27;notification_id&#x27;, &#x27;OID4VCI&#x27;)<br /></code>
+                    <code>@Post(&#x27;notification&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="110"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:110</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="108"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/oid4vci.controller.ts:108</a></div>
                         </td>
                     </tr>
 
@@ -618,7 +612,6 @@ for credentials that were not immediately available.</p>
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
     Body,
-    ConflictException,
     Controller,
     Header,
     HttpCode,
@@ -627,7 +620,6 @@ for credentials that were not immediately available.</p>
     Post,
     Req,
     Res,
-    UseInterceptors,
 } from &quot;@nestjs/common&quot;;
 import { ApiParam, ApiTags } from &quot;@nestjs/swagger&quot;;
 import type {
@@ -636,10 +628,9 @@ import type {
     DeferredCredentialResponse,
 } from &quot;@openid4vc/openid4vci&quot;;
 import type { Request, Response } from &quot;express&quot;;
-import { SessionLogger } from &quot;../../../shared/utils/logger/session-logger.decorator&quot;;
-import { SessionLoggerInterceptor } from &quot;../../../shared/utils/logger/session-logger.interceptor&quot;;
 import { DeferredCredentialRequestDto } from &quot;./dto/deferred-credential-request.dto&quot;;
 import { NotificationRequestDto } from &quot;./dto/notification-request.dto&quot;;
+import { CredentialRequestException } from &quot;./exceptions&quot;;
 import { Oid4vciService } from &quot;./oid4vci.service&quot;;
 
 /**
@@ -648,7 +639,6 @@ import { Oid4vciService } from &quot;./oid4vci.service&quot;;
 @ApiTags(&quot;OID4VCI&quot;)
 @ApiParam({ name: &quot;tenantId&quot;, required: true })
 @Controller(&quot;issuers/:tenantId/vci&quot;)
-@UseInterceptors(SessionLoggerInterceptor)
 export class Oid4vciController {
     constructor(private readonly oid4vciService: Oid4vciService) {}
 
@@ -661,7 +651,6 @@ export class Oid4vciController {
      */
     @Post(&quot;credential&quot;)
     @HttpCode(HttpStatus.OK)
-    @SessionLogger(&quot;session&quot;, &quot;OID4VCI&quot;)
     async credential(
         @Req() req: Request,
         @Res({ passthrough: true }) res: Response,
@@ -688,9 +677,14 @@ export class Oid4vciController {
                 return credentialResult.credentialResponse;
             },
             (err) &#x3D;&gt; {
-                //TODO: implement errors according to: https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-request-errors
-                throw new ConflictException(
-                    &#x60;Credential issuance failed: ${err.message}&#x60;,
+                // Re-throw if already a spec-compliant CredentialRequestException
+                if (err instanceof CredentialRequestException) {
+                    throw err;
+                }
+                // Wrap other errors according to OID4VCI spec Section 8.3.1.2
+                throw new CredentialRequestException(
+                    &quot;invalid_credential_request&quot;,
+                    err.message,
                 );
             },
         );
@@ -708,7 +702,6 @@ export class Oid4vciController {
      * @returns The credential response if ready, or issuance_pending error
      */
     @Post(&quot;deferred_credential&quot;)
-    @SessionLogger(&quot;transaction_id&quot;, &quot;OID4VCI&quot;)
     @HttpCode(HttpStatus.OK)
     deferredCredential(
         @Req() req: Request,
@@ -724,7 +717,6 @@ export class Oid4vciController {
      * @returns
      */
     @Post(&quot;notification&quot;)
-    @SessionLogger(&quot;notification_id&quot;, &quot;OID4VCI&quot;)
     notifications(
         @Body() body: NotificationRequestDto,
         @Req() req: Request,

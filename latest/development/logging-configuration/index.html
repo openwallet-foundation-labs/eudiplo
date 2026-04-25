@@ -2521,10 +2521,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#sessionloggerservice" class="md-nav__link">
+  <a href="#audit-logging-auditlogservice" class="md-nav__link">
     <span class="md-ellipsis">
       
-        SessionLoggerService
+        Audit Logging (AuditLogService)
       
     </span>
   </a>
@@ -2796,10 +2796,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#sessionloggerservice" class="md-nav__link">
+  <a href="#audit-logging-auditlogservice" class="md-nav__link">
     <span class="md-ellipsis">
       
-        SessionLoggerService
+        Audit Logging (AuditLogService)
       
     </span>
   </a>
@@ -3101,14 +3101,15 @@ effect, since the session logger is the source of the persisted events.</p>
 <a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="nv">LOG_ENABLE_HTTP_LOGGER</span><span class="o">=</span><span class="nb">true</span>
 </code></pre></div>
 <p><strong>Note:</strong> This controls the built-in HTTP logging from the Pino HTTP logger. Session-specific logging is controlled separately.</p>
-<h3 id="sessionloggerservice">SessionLoggerService<a class="headerlink" href="#sessionloggerservice" title="Permanent link">¶</a></h3>
-<p>To disable all session-related logging (useful during debugging when you want to focus on other components):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Disable SessionLoggerService logs</span>
+<h3 id="audit-logging-auditlogservice">Audit Logging (AuditLogService)<a class="headerlink" href="#audit-logging-auditlogservice" title="Permanent link">¶</a></h3>
+<p>To disable all audit logging (useful during debugging when you want to focus on other components):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Disable AuditLogService logs</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nv">LOG_ENABLE_SESSION_LOGGER</span><span class="o">=</span><span class="nb">false</span>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Enable SessionLoggerService logs</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Enable AuditLogService logs</span>
 <a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="nv">LOG_ENABLE_SESSION_LOGGER</span><span class="o">=</span><span class="nb">true</span>
 </code></pre></div>
+<p><strong>Note:</strong> <code>AuditLogService</code> persists compliance events (flow_start, flow_complete, flow_error, credential_issuance, credential_verification) to the database only. For observability, logs are sent to Loki via the OpenTelemetry transport.</p>
 <h2 id="development-scenarios">Development Scenarios<a class="headerlink" href="#development-scenarios" title="Permanent link">¶</a></h2>
 <h3 id="debugging-authentication-issues">Debugging Authentication Issues<a class="headerlink" href="#debugging-authentication-issues" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nv">LOG_LEVEL</span><span class="o">=</span>debug
@@ -3137,11 +3138,11 @@ effect, since the session logger is the source of the persisted events.</p>
 </code></pre></div>
 <p>This will only show warnings, errors, and important session events without HTTP noise, and write all logs to a file for later analysis.</p>
 <h2 id="log-structure">Log Structure<a class="headerlink" href="#log-structure" title="Permanent link">¶</a></h2>
-<p>Session logs include structured data:</p>
+<p>Audit logs are persisted to the database with structured data. Debug/observability logs are exported to Loki via OpenTelemetry and include trace correlation:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p">{</span>
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="nt">"level"</span><span class="p">:</span><span class="w"> </span><span class="s2">"info"</span><span class="p">,</span>
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="nt">"time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-07-20T10:30:45.123Z"</span><span class="p">,</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="nt">"context"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SessionLoggerService"</span><span class="p">,</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="nt">"context"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AuditLogService"</span><span class="p">,</span>
 <a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="nt">"sessionId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"session_123"</span><span class="p">,</span>
 <a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="nt">"tenantId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tenant_456"</span><span class="p">,</span>
 <a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="nt">"flowType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"OID4VCI"</span><span class="p">,</span>

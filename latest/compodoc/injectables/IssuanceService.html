@@ -545,15 +545,19 @@ It provides methods to get, store, and delete issuance configurations.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="118"
-                                    class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:118</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="120"
+                                    class="link-to-prism">src/issuer/configuration/issuance/issuance.service.ts:120</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Store the config. If it already exist, overwrite it.</p>
+                        <div class="io-description"><p>Store the config. If it already exist, merge with existing values.</p>
+<ul>
+<li>Undefined values are ignored, preserving existing configuration.</li>
+<li>Null values explicitly clear/unset the field.</li>
+</ul>
 </div>
 
                             <div class="io-description">
@@ -763,7 +767,9 @@ export class IssuanceService {
     }
 
     /**
-     * Store the config. If it already exist, overwrite it.
+     * Store the config. If it already exist, merge with existing values.
+     * - Undefined values are ignored, preserving existing configuration.
+     * - Null values explicitly clear/unset the field.
      * @param tenantId
      * @param value
      * @returns
@@ -772,8 +778,24 @@ export class IssuanceService {
         if (value.display) {
             value.display &#x3D; await this.replaceUrl(value.display, tenantId);
         }
+
+        // Fetch existing configuration (if any)
+        let existingConfig: Partial&lt;IssuanceConfig&gt; &#x3D; {};
+        try {
+            existingConfig &#x3D; await this.getIssuanceConfiguration(tenantId);
+        } catch {
+            // No existing config, will create new
+        }
+
+        // Filter out undefined values from the incoming config.
+        // Null values are kept to allow explicitly clearing a field.
+        const filteredValue &#x3D; Object.fromEntries(
+            Object.entries(value).filter(([, v]) &#x3D;&gt; v !&#x3D;&#x3D; undefined),
+        );
+
         return this.issuanceConfigRepo.save({
-            ...value,
+            ...existingConfig,
+            ...filteredValue,
             tenantId,
         });
     }

@@ -209,12 +209,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(keyChainService: <a href="../injectables/KeyChainService.html" target="_self">KeyChainService</a>, configService: ConfigService)</code>
+<code>constructor(keyChainService: <a href="../injectables/KeyChainService.html" target="_self">KeyChainService</a>, configService: ConfigService, logger: PinoLogger)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/crypto/crypto.service.ts:36</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">src/crypto/crypto.service.ts:37</a></div>
                             </td>
                         </tr>
 
@@ -257,6 +257,18 @@
                                                     </td>
                                                     
                                                 </tr>
+                                                <tr>
+                                                        <td>logger</td>
+                                                  
+                                                        <td>
+                                                                    <code>PinoLogger</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -284,15 +296,15 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getCallbackContext(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+<code>getCallbackContext(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, sessionId?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="56"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:56</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="60"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:60</a></div>
                         </td>
                     </tr>
 
@@ -311,6 +323,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -325,6 +338,24 @@
                                             </td>
 
 
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>sessionId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                            <td>
+                                                    <p>Optional session ID for log correlation</p>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -360,8 +391,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="128"
-                                    class="link-to-prism">src/crypto/crypto.service.ts:128</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="143"
+                                    class="link-to-prism">src/crypto/crypto.service.ts:143</a></div>
                         </td>
                     </tr>
 
@@ -434,7 +465,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/crypto/crypto.service.ts:36</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="37" class="link-to-prism">src/crypto/crypto.service.ts:37</a></div>
                         </td>
                     </tr>
 
@@ -467,7 +498,7 @@ Configured via CRYPTO_TOLERANCE env var, defaults to 5s.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/crypto/crypto.service.ts:30</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/crypto/crypto.service.ts:31</a></div>
                         </td>
                     </tr>
 
@@ -501,7 +532,7 @@ Configured via CRYPTO_TOLERANCE env var, defaults to 5s.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">src/crypto/crypto.service.ts:44</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">src/crypto/crypto.service.ts:45</a></div>
                         </td>
                     </tr>
 
@@ -533,6 +564,7 @@ import {
     type JWK,
     jwtVerify,
 } from &quot;jose&quot;;
+import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { KeyChainService } from &quot;./key/key-chain.service&quot;;
 
 /**
@@ -559,7 +591,9 @@ export class CryptoService {
     constructor(
         public readonly keyChainService: KeyChainService,
         private readonly configService: ConfigService,
+        private readonly logger: PinoLogger,
     ) {
+        this.logger.setContext(&quot;CryptoService&quot;);
         this.clockTolerance &#x3D;
             this.configService.getOrThrow&lt;number&gt;(&quot;CRYPTO_TOLERANCE&quot;);
     }
@@ -567,9 +601,14 @@ export class CryptoService {
     /**
      * Get the callback context for the key service.
      * @param tenantId
+     * @param sessionId Optional session ID for log correlation
      * @returns
      */
-    getCallbackContext(tenantId: string): Omit&lt;CallbackContext, &quot;decryptJwe&quot;&gt; {
+    getCallbackContext(
+        tenantId: string,
+        sessionId?: string,
+    ): Omit&lt;CallbackContext, &quot;decryptJwe&quot;&gt; {
+        const logContext &#x3D; { tenantId, ...(sessionId &amp;&amp; { sessionId }) };
         return {
             hash: (data, alg) &#x3D;&gt;
                 createHash(alg.replace(&quot;-&quot;, &quot;&quot;).toLowerCase())
@@ -607,7 +646,10 @@ export class CryptoService {
                         });
                         return { verified: true, signerJwk: signer.publicJwk };
                     } catch (e) {
-                        console.log(e);
+                        this.logger.warn(
+                            { ...logContext, err: e },
+                            &quot;JWT verification failed (jwk)&quot;,
+                        );
                         return { verified: false };
                     }
                 } else if (signer.method &#x3D;&#x3D;&#x3D; &quot;x5c&quot;) {
@@ -629,7 +671,11 @@ export class CryptoService {
                         const signerJwk &#x3D; await exportJWK(josePublicKey);
                         signerJwk.alg &#x3D; signer.alg;
                         return { verified: true, signerJwk: signerJwk as Jwk };
-                    } catch {
+                    } catch (e) {
+                        this.logger.warn(
+                            { ...logContext, err: e },
+                            &quot;JWT verification failed (x5c)&quot;,
+                        );
                         return { verified: false };
                     }
                 }

@@ -426,10 +426,7 @@ Maps KeyChainEntity data to the old CertEntity interface.</p>
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash } from &quot;node:crypto&quot;;
 import { Injectable, Logger, NotFoundException } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
-import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import * as x509 from &quot;@peculiar/x509&quot;;
-import { Repository } from &quot;typeorm&quot;;
-import { TenantEntity } from &quot;../../../auth/tenant/entitites/tenant.entity&quot;;
 import { KeyChainEntity, KeyUsageType } from &quot;../entities/key-chain.entity&quot;;
 import { KeyChainService } from &quot;../key-chain.service&quot;;
 import { CrlValidationService } from &quot;./crl-validation.service&quot;;
@@ -446,6 +443,11 @@ export interface FindCertOptions {
      * Optional key chain ID to find a specific key chain.
      */
     keyId?: string;
+    /**
+     * Optional fallback usage type. If no key chain is found for the
+     * primary &#x60;type&#x60;, a second lookup using this type is attempted.
+     */
+    fallbackType?: KeyUsageType;
     /**
      * Skip certificate validation (expiry and CRL check).
      * Default: false
@@ -498,8 +500,6 @@ export class CertService {
     constructor(
         private readonly keyChainService: KeyChainService,
         private readonly configService: ConfigService,
-        @InjectRepository(TenantEntity)
-        private readonly tenantRepository: Repository&lt;TenantEntity&gt;,
         private readonly crlValidationService?: CrlValidationService,
     ) {}
 
@@ -508,7 +508,7 @@ export class CertService {
      * Returns the certificate from the matching key chain.
      */
     async find(options: FindCertOptions): Promise&lt;CertificateInfo&gt; {
-        const { tenantId, type, skipValidation } &#x3D; options;
+        const { tenantId, type, skipValidation, fallbackType } &#x3D; options;
         // Support both certId (deprecated) and keyId
         const keyId &#x3D; options.keyId || options.certId;
 
@@ -516,6 +516,7 @@ export class CertService {
             tenantId,
             type,
             keyId,
+            fallbackType,
         );
 
         // Parse the certificate PEM to extract chain
@@ -594,6 +595,24 @@ export class CertService {
                 return base64;
             }
         });
+    }
+
+    /**
+     * Get only the leaf (signing) certificate as a base64-encoded DER certificate array.
+     * Used for x5c headers where only the signing certificate should be included (e.g., status lists).
+     */
+    getLeafCertBase64(cert: CertificateInfo): string[] {
+        const leafPem &#x3D; cert.crt[0];
+        try {
+            const x509Cert &#x3D; new x509.X509Certificate(leafPem);
+            return [Buffer.from(x509Cert.rawData).toString(&quot;base64&quot;)];
+        } catch {
+            const base64 &#x3D; leafPem
+                .replace(&quot;-----BEGIN CERTIFICATE-----&quot;, &quot;&quot;)
+                .replace(&quot;-----END CERTIFICATE-----&quot;, &quot;&quot;)
+                .replace(/\s/g, &quot;&quot;);
+            return [base64];
+        }
     }
 
     /**

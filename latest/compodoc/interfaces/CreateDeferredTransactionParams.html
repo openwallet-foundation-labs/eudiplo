@@ -431,16 +431,12 @@ import {
 } from &quot;@openid4vc/openid4vci&quot;;
 import type { Request } from &quot;express&quot;;
 import { decodeJwt } from &quot;jose&quot;;
+import { Span, TraceService } from &quot;nestjs-otel&quot;;
 import { LessThan, Repository } from &quot;typeorm&quot;;
 import { v4 } from &quot;uuid&quot;;
 import { CryptoService } from &quot;../../../crypto/crypto.service&quot;;
 import { Session } from &quot;../../../session/entities/session.entity&quot;;
 import { SessionService } from &quot;../../../session/session.service&quot;;
-import { SessionLoggerService } from &quot;../../../shared/utils/logger/session-logger.service&quot;;
-import {
-    RESOLVED_SESSION_ID,
-    SessionLogContext,
-} from &quot;../../../shared/utils/logger/session-logger-context&quot;;
 import { CredentialsService } from &quot;../../configuration/credentials/credentials.service&quot;;
 import { IssuanceService } from &quot;../../configuration/issuance/issuance.service&quot;;
 import { DeferredCredentialRequestDto } from &quot;./dto/deferred-credential-request.dto&quot;;
@@ -485,9 +481,9 @@ export class DeferredCredentialService {
         private readonly cryptoService: CryptoService,
         private readonly configService: ConfigService,
         private readonly sessionService: SessionService,
-        private readonly sessionLogger: SessionLoggerService,
         private readonly issuanceService: IssuanceService,
         private readonly credentialsService: CredentialsService,
+        private readonly traceService: TraceService,
         @InjectRepository(NonceEntity)
         private readonly nonceRepository: Repository&lt;NonceEntity&gt;,
         @InjectRepository(DeferredTransactionEntity)
@@ -497,17 +493,60 @@ export class DeferredCredentialService {
     /**
      * Get the OID4VCI issuer instance for a specific tenant.
      */
-    private getIssuer(tenantId: string): Openid4vciIssuer {
-        const callbacks &#x3D; this.cryptoService.getCallbackContext(tenantId);
+    private getIssuer(tenantId: string, sessionId?: string): Openid4vciIssuer {
+        const callbacks &#x3D; this.cryptoService.getCallbackContext(
+            tenantId,
+            sessionId,
+        );
         return new Openid4vciIssuer({ callbacks });
     }
 
     /**
      * Get the OID4VCI resource server instance for a specific tenant.
      */
-    private getResourceServer(tenantId: string): Oauth2ResourceServer {
-        const callbacks &#x3D; this.cryptoService.getCallbackContext(tenantId);
+    private getResourceServer(
+        tenantId: string,
+        sessionId?: string,
+    ): Oauth2ResourceServer {
+        const callbacks &#x3D; this.cryptoService.getCallbackContext(
+            tenantId,
+            sessionId,
+        );
         return new Oauth2ResourceServer({ callbacks });
+    }
+
+    /**
+     * Enforce that the presented access token is authorized for the deferred
+     * credential&#x27;s &#x60;credential_configuration_id&#x60;, per OID4VCI Section 6.
+     * If the access token does not carry &#x60;authorization_details&#x60; (e.g.
+     * scope-only external AS integrations), the check is skipped.
+     */
+    private enforceAuthorizationDetailsForDeferred(
+        tokenPayload: Record&lt;string, unknown&gt;,
+        requestedCredentialConfigurationId: string,
+    ): void {
+        const raw &#x3D; tokenPayload.authorization_details;
+        if (!Array.isArray(raw) || raw.length &#x3D;&#x3D;&#x3D; 0) {
+            return;
+        }
+
+        const authorized &#x3D; raw
+            .filter(
+                (ad): ad is Record&lt;string, unknown&gt; &#x3D;&gt;
+                    typeof ad &#x3D;&#x3D;&#x3D; &quot;object&quot; &amp;&amp;
+                    ad !&#x3D;&#x3D; null &amp;&amp;
+                    (ad as Record&lt;string, unknown&gt;).type &#x3D;&#x3D;&#x3D;
+                        &quot;openid_credential&quot;,
+            )
+            .map((ad) &#x3D;&gt; ad.credential_configuration_id as string | undefined)
+            .filter((id): id is string &#x3D;&gt; typeof id &#x3D;&#x3D;&#x3D; &quot;string&quot;);
+
+        if (!authorized.includes(requestedCredentialConfigurationId)) {
+            throw new CredentialRequestException(
+                &quot;invalid_credential_request&quot;,
+                &#x60;Access token is not authorized for credential_configuration_id &#x27;${requestedCredentialConfigurationId}&#x27;&#x60;,
+            );
+        }
     }
 
     /**
@@ -515,12 +554,11 @@ export class DeferredCredentialService {
      * Called when the webhook indicates that credential issuance should be deferred.
      *
      * @param params The parameters for creating the deferred transaction
-     * @param logContext The logging context
      * @returns A deferred credential response with transaction_id and interval
      */
+    @Span(&quot;oid4vci.createDeferredTransaction&quot;)
     async createDeferredTransaction(
         params: CreateDeferredTransactionParams,
-        logContext: SessionLogContext,
     ): Promise&lt;DeferredCredentialResponse&gt; {
         const {
             parsedCredentialRequest,
@@ -530,7 +568,17 @@ export class DeferredCredentialService {
             issuerMetadata,
         } &#x3D; params;
 
-        const issuer &#x3D; this.getIssuer(tenantId);
+        // Add session context to span for trace correlation
+        const span &#x3D; this.traceService.getSpan();
+        span?.setAttributes({
+            &quot;session.id&quot;: session.id,
+            &quot;session.tenantId&quot;: tenantId,
+            &quot;oid4vci.credentialConfigurationId&quot;:
+                parsedCredentialRequest.credentialConfigurationId,
+            &quot;oid4vci.interval&quot;: interval,
+        });
+
+        const issuer &#x3D; this.getIssuer(tenantId, session.id);
 
         // Verify the first proof to get the holder&#x27;s public key
         const jwt &#x3D; parsedCredentialRequest.proofs.jwt[0];
@@ -579,18 +627,6 @@ export class DeferredCredentialService {
 
         await this.deferredTransactionRepository.save(deferredTransaction);
 
-        this.sessionLogger.logSession(
-            logContext,
-            &quot;Deferred credential issuance initiated&quot;,
-            {
-                transactionId,
-                credentialConfigurationId:
-                    parsedCredentialRequest.credentialConfigurationId,
-                interval,
-                expiresAt: expiresAt.toISOString(),
-            },
-        );
-
         return {
             transaction_id: transactionId,
             interval,
@@ -607,6 +643,7 @@ export class DeferredCredentialService {
      * @param issuerMetadata The issuer metadata
      * @returns Credential response or throws issuance_pending error
      */
+    @Span(&quot;oid4vci.getDeferredCredentialInternal&quot;)
     async getDeferredCredential(
         req: Request,
         body: DeferredCredentialRequestDto,
@@ -629,7 +666,7 @@ export class DeferredCredentialService {
         }
 
         // Verify the access token
-        await resourceServer.verifyResourceRequest({
+        const { tokenPayload } &#x3D; await resourceServer.verifyResourceRequest({
             authorizationServers: issuerMetadata.authorizationServers,
             request: {
                 url: &#x60;${this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)}${req.url}&#x60;,
@@ -654,6 +691,26 @@ export class DeferredCredentialService {
             );
         }
 
+        // Enforce that the access token is authorized for this deferred
+        // credential&#x27;s configuration, per OID4VCI Section 6. When the token
+        // carries &#x60;authorization_details&#x60;, the deferred credential&#x27;s
+        // configuration MUST be one of the authorized ones.
+        this.enforceAuthorizationDetailsForDeferred(
+            tokenPayload as Record&lt;string, unknown&gt;,
+            deferredTransaction.credentialConfigurationId,
+        );
+
+        // Add session context to span for trace correlation
+        const span &#x3D; this.traceService.getSpan();
+        span?.setAttributes({
+            &quot;session.id&quot;: deferredTransaction.sessionId,
+            &quot;session.tenantId&quot;: tenantId,
+            &quot;oid4vci.transactionId&quot;: deferredTransaction.transactionId,
+            &quot;oid4vci.status&quot;: deferredTransaction.status,
+            &quot;oid4vci.credentialConfigurationId&quot;:
+                deferredTransaction.credentialConfigurationId,
+        });
+
         // Check if transaction has expired
         if (new Date() &gt; deferredTransaction.expiresAt) {
             await this.deferredTransactionRepository.update(
@@ -666,28 +723,9 @@ export class DeferredCredentialService {
             );
         }
 
-        // Expose session ID for the interceptor (not available in route params for OID4VCI)
-        req[RESOLVED_SESSION_ID] &#x3D; deferredTransaction.sessionId;
-
-        // Create logging context
-        const logContext: SessionLogContext &#x3D; {
-            sessionId: deferredTransaction.sessionId,
-            tenantId,
-            flowType: &quot;OID4VCI&quot;,
-            stage: &quot;deferred_credential&quot;,
-        };
-
         // Check the status of the deferred transaction
         switch (deferredTransaction.status) {
             case DeferredTransactionStatus.Pending:
-                this.sessionLogger.logSession(
-                    logContext,
-                    &quot;Deferred credential still pending&quot;,
-                    {
-                        transactionId: body.transaction_id,
-                        interval: deferredTransaction.interval,
-                    },
-                );
                 throw new DeferredCredentialException(
                     &quot;issuance_pending&quot;,
                     &quot;The credential issuance is still pending&quot;,
@@ -725,16 +763,6 @@ export class DeferredCredentialService {
                 await this.deferredTransactionRepository.update(
                     { transactionId: body.transaction_id },
                     { status: DeferredTransactionStatus.Retrieved },
-                );
-
-                this.sessionLogger.logSession(
-                    logContext,
-                    &quot;Deferred credential retrieved&quot;,
-                    {
-                        transactionId: body.transaction_id,
-                        credentialConfigurationId:
-                            deferredTransaction.credentialConfigurationId,
-                    },
                 );
 
                 return {

@@ -167,30 +167,37 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#createClient" >createClient</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#deleteClient" >deleteClient</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#getClient" >getClient</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#getClients" >getClients</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#getClientSecret" class="deprecated-name">getClientSecret</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#rotateClientSecret" >rotateClientSecret</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#updateClient" >updateClient</a>
                             </li>
@@ -218,6 +225,7 @@
                     <a name="createClient"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>createClient</b></span>
                         <a href="#createClient"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -234,14 +242,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post()<br /></code>
+                    <code>@Secured([&#x27;undefined&#x27;])<br />@Post()<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="130"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:130</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="135"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:135</a></div>
                         </td>
                     </tr>
 
@@ -308,6 +316,7 @@
                     <a name="deleteClient"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>deleteClient</b></span>
                         <a href="#deleteClient"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -324,14 +333,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Delete(&#x27;:id&#x27;)<br /></code>
+                    <code>@Secured([&#x27;undefined&#x27;])<br />@Delete(&#x27;:id&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="153"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:153</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="159"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:159</a></div>
                         </td>
                     </tr>
 
@@ -398,6 +407,7 @@
                     <a name="getClient"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>getClient</b></span>
                         <a href="#getClient"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -414,14 +424,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get(&#x27;:id&#x27;)<br /></code>
+                    <code>@Secured([&#x27;undefined&#x27;])<br />@Get(&#x27;:id&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:51</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="52"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:52</a></div>
                         </td>
                     </tr>
 
@@ -488,6 +498,7 @@
                     <a name="getClients"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>getClients</b></span>
                         <a href="#getClients"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -504,7 +515,7 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get()<br /></code>
+                    <code>@Secured([&#x27;undefined&#x27;])<br />@Get()<br /></code>
                 </td>
             </tr>
 
@@ -566,6 +577,7 @@
                     <a name="getClientSecret"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span class="deprecated-name"><b>getClientSecret</b></span>
                         <a href="#getClientSecret"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -589,14 +601,14 @@ Use POST /client/:id/rotate-secret to generate a new secret.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get(&#x27;:id/secret&#x27;)<br /></code>
+                    <code>@Secured([&#x27;undefined&#x27;])<br />@Get(&#x27;:id/secret&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="63"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:63</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="65"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:65</a></div>
                         </td>
                     </tr>
 
@@ -663,6 +675,7 @@ Use POST /client/:id/rotate-secret to generate a new secret.</p>
                     <a name="rotateClientSecret"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
                         <span ><b>rotateClientSecret</b></span>
                         <a href="#rotateClientSecret"><span class="icon ion-ios-link"></span></a>
@@ -680,14 +693,14 @@ Use POST /client/:id/rotate-secret to generate a new secret.</p>
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post(&#x27;:id/rotate-secret&#x27;)<br /></code>
+                    <code>@Secured([&#x27;undefined&#x27;, &#x27;undefined&#x27;])<br />@Post(&#x27;:id/rotate-secret&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="85"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:85</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="88"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:88</a></div>
                         </td>
                     </tr>
 
@@ -758,6 +771,7 @@ Users with <code>clients:manage</code> role can only rotate secrets for clients 
                     <a name="updateClient"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
                         <span ><b>updateClient</b></span>
                         <a href="#updateClient"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -774,14 +788,14 @@ Users with <code>clients:manage</code> role can only rotate secrets for clients 
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Patch(&#x27;:id&#x27;)<br /></code>
+                    <code>@Secured([&#x27;undefined&#x27;])<br />@Patch(&#x27;:id&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="106"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:106</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="110"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:110</a></div>
                         </td>
                     </tr>
 
@@ -883,7 +897,6 @@ import { UpdateClientDto } from &quot;./dto/update-client.dto&quot;;
  * Controller to manage clients.
  */
 @ApiTags(&quot;Client&quot;)
-@Secured([Role.Clients, Role.Tenants])
 @Controller(&quot;client&quot;)
 export class ClientController {
     constructor(
@@ -895,6 +908,7 @@ export class ClientController {
      * @param user
      * @returns
      */
+    @Secured([Role.Clients])
     @Get()
     getClients(@Token() user: TokenPayload) {
         return this.clients.getClients(user.entity!.id);
@@ -906,6 +920,7 @@ export class ClientController {
      * @param user
      * @returns
      */
+    @Secured([Role.Clients])
     @Get(&quot;:id&quot;)
     getClient(@Param(&quot;id&quot;) id: string, @Token() user: TokenPayload) {
         return this.clients.getClient(user.entity!.id, id);
@@ -918,6 +933,7 @@ export class ClientController {
      * @param user
      * @returns
      */
+    @Secured([Role.Clients])
     @Get(&quot;:id/secret&quot;)
     getClientSecret(
         @Param(&quot;id&quot;) id: string,
@@ -940,6 +956,7 @@ export class ClientController {
      * @param user
      * @returns The new client secret (displayed only once)
      */
+    @Secured([Role.Clients, Role.Tenants])
     @Post(&quot;:id/rotate-secret&quot;)
     async rotateClientSecret(
         @Param(&quot;id&quot;) id: string,
@@ -961,6 +978,7 @@ export class ClientController {
      * @param user
      * @returns
      */
+    @Secured([Role.Clients])
     @Patch(&quot;:id&quot;)
     updateClient(
         @Param(&quot;id&quot;) id: string,
@@ -985,6 +1003,7 @@ export class ClientController {
      * @param user
      * @returns
      */
+    @Secured([Role.Clients])
     @Post()
     createClient(
         @Body() createClientDto: CreateClientDto,
@@ -1008,6 +1027,7 @@ export class ClientController {
      * @param user
      * @returns
      */
+    @Secured([Role.Clients])
     @Delete(&quot;:id&quot;)
     deleteClient(@Param(&quot;id&quot;) id: string, @Token() user: TokenPayload) {
         return this.clients.removeClient(user.entity!.id, id);

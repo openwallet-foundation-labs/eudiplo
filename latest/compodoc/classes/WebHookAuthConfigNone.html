@@ -218,7 +218,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="60" class="link-to-prism">src/shared/utils/webhook/webhook.dto.ts:60</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="62" class="link-to-prism">src/shared/utils/webhook/webhook.dto.ts:62</a></div>
                         </td>
                     </tr>
 
@@ -246,9 +246,11 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiExtraModels, ApiProperty, getSchemaPath } from &quot;@nestjs/swagger&quot;;
 import { Type } from &quot;class-transformer&quot;;
 import {
+    IsArray,
     IsEnum,
     IsIn,
     IsObject,
+    IsOptional,
     IsString,
     ValidateNested,
 } from &quot;class-validator&quot;;
@@ -349,6 +351,22 @@ export class WebhookConfig {
     })
     @IsObject()
     auth!: WebHookAuthConfigNone | WebHookAuthConfigHeader;
+
+    /**
+     * Optional array of credential configuration IDs.
+     * If provided, the webhook payload will include the raw cryptographic
+     * presentation (e.g., vp_token) for these specific credentials.
+     */
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    @ApiProperty({
+        required: false,
+        type: [String],
+        description:
+            &quot;List of credential IDs to include raw tokens for (e.g., [&#x27;sca_credential&#x27;])&quot;,
+    })
+    includeRawTokensFor?: string[];
 }
 </code></pre>
     </div>

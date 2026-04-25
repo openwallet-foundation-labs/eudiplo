@@ -145,22 +145,6 @@
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
-                <tr>
-                    <td class="col-md-4">
-                        <h6><b>Properties</b></h6>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <ul class="index-list">
-                            <li>
-                                    <span class="modifier">Private</span>
-                                    <span class="modifier">Readonly</span>
-                                <a href="#logger" >logger</a>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
 
                 <tr>
                     <td class="col-md-4">
@@ -200,6 +184,7 @@
                                 <a href="#validateIssuerCertificateChain" >validateIssuerCertificateChain</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#verify" >verify</a>
                             </li>
@@ -221,12 +206,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(chainValidation: <a href="../injectables/CredentialChainValidationService.html" target="_self">CredentialChainValidationService</a>)</code>
+<code>constructor(chainValidation: <a href="../injectables/CredentialChainValidationService.html" target="_self">CredentialChainValidationService</a>, logger: PinoLogger)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:48</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="49" class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:49</a></div>
                             </td>
                         </tr>
 
@@ -248,6 +233,18 @@
                                                   
                                                         <td>
                                                                         <code><a href="../injectables/CredentialChainValidationService.html" target="_self" >CredentialChainValidationService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>logger</td>
+                                                  
+                                                        <td>
+                                                                    <code>PinoLogger</code>
                                                         </td>
                                                   
                                                     <td>
@@ -291,8 +288,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="346"
-                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:346</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="350"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:350</a></div>
                         </td>
                     </tr>
 
@@ -376,8 +373,8 @@ This creates a request that matches what was received for verification.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="240"
-                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:240</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="244"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:244</a></div>
                         </td>
                     </tr>
 
@@ -460,8 +457,8 @@ This creates a request that matches what was received for verification.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="280"
-                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:280</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="284"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:284</a></div>
                         </td>
                     </tr>
 
@@ -544,8 +541,8 @@ This creates a request that matches what was received for verification.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="205"
-                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:205</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="209"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:209</a></div>
                         </td>
                     </tr>
 
@@ -640,8 +637,8 @@ This creates a request that matches what was received for verification.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="306"
-                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:306</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="310"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:310</a></div>
                         </td>
                     </tr>
 
@@ -712,8 +709,8 @@ This creates a request that matches what was received for verification.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="165"
-                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:165</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="169"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:169</a></div>
                         </td>
                     </tr>
 
@@ -781,6 +778,7 @@ the shared CredentialChainValidationService.</p>
                 <td class="col-md-4">
                     <a name="verify"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier">Async</span>
                         <span ><b>verify</b></span>
                         <a href="#verify"><span class="icon ion-ios-link"></span></a>
@@ -794,11 +792,18 @@ the shared CredentialChainValidationService.</p>
                 </td>
             </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Span(&#x27;mdoc.verify&#x27;)<br /></code>
+                </td>
+            </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="61"
-                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:61</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="65"
+                                    class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:65</a></div>
                         </td>
                     </tr>
 
@@ -885,51 +890,12 @@ the shared CredentialChainValidationService.</p>
         </tbody>
     </table>
 </section>
-            <section data-compodoc="block-properties">
-    
-    <h3 id="inputs">
-        Properties
-    </h3>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="logger"></a>
-                    <span class="name">
-                            <span class="modifier">Private</span>
-                            <span class="modifier">Readonly</span>
-                        <span ><b>logger</b></span>
-                        <a href="#logger"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>    <code>unknown</code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>new Logger(MdocverifierService.name)</code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/verifier/presentations/credential/mdocverifier/mdocverifier.service.ts:48</a></div>
-                        </td>
-                    </tr>
-
-
-        </tbody>
-    </table>
-</section>
 
     </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, Logger } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
 import {
     base64,
     DeviceRequest,
@@ -941,6 +907,8 @@ import {
     Verifier,
 } from &quot;@owf/mdoc&quot;;
 import * as x509 from &quot;@peculiar/x509&quot;;
+import { Span } from &quot;nestjs-otel&quot;;
+import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { VerifierOptions } from &quot;../../../../shared/trust/types&quot;;
 import { mdocContext } from &quot;../../mdoc-context&quot;;
 import {
@@ -976,11 +944,12 @@ interface MdocErrorDetails {
 
 @Injectable()
 export class MdocverifierService {
-    private readonly logger &#x3D; new Logger(MdocverifierService.name);
-
     constructor(
         private readonly chainValidation: CredentialChainValidationService,
-    ) {}
+        private readonly logger: PinoLogger,
+    ) {
+        this.logger.setContext(MdocverifierService.name);
+    }
 
     /**
      * Verifies an mDOC credential.
@@ -989,6 +958,7 @@ export class MdocverifierService {
      * @param options Verification options including trust list
      * @returns Verification result with claims
      */
+    @Span(&quot;mdoc.verify&quot;)
     async verify(
         vp: string,
         sessionData: MdocSessionData,

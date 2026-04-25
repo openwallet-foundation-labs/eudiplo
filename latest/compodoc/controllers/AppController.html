@@ -165,6 +165,14 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                <a href="#getFrontendConfig" >getFrontendConfig</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#getVersion" >getVersion</a>
                             </li>
                             <li>
@@ -188,6 +196,58 @@
     <h3 id="methods">
         Methods
     </h3>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getFrontendConfig"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>getFrontendConfig</b></span>
+                        <a href="#getFrontendConfig"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getFrontendConfig()</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Get(&#x27;frontend-config&#x27;)<br />@UseGuards(JwtAuthGuard)<br />@ApiSecurity(&#x27;oauth2&#x27;)<br />@ApiOperation({summary: &#x27;Get frontend runtime configuration&#x27;})<br />@ApiResponse({status: 200, description: &#x27;Frontend configuration&#x27;, type: FrontendConfigResponseDto})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="58"
+                                    class="link-to-prism">src/core/app/app.controller.ts:58</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Returns runtime configuration for the frontend client.</p>
+</div>
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/FrontendConfigResponseDto.html" target="_self" >FrontendConfigResponseDto</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -221,8 +281,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="36"
-                                    class="link-to-prism">src/core/app/app.controller.ts:36</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="40"
+                                    class="link-to-prism">src/core/app/app.controller.ts:40</a></div>
                         </td>
                     </tr>
 
@@ -269,8 +329,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="20"
-                                    class="link-to-prism">src/core/app/app.controller.ts:20</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="24"
+                                    class="link-to-prism">src/core/app/app.controller.ts:24</a></div>
                         </td>
                     </tr>
 
@@ -299,7 +359,9 @@ import {
     ApiSecurity,
     ApiTags,
 } from &quot;@nestjs/swagger&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
 import { JwtAuthGuard } from &quot;../../auth/auth.guard&quot;;
+import { FrontendConfigResponseDto } from &quot;./dto/frontend-config-response.dto&quot;;
 
 /**
  * Main application controller
@@ -307,6 +369,8 @@ import { JwtAuthGuard } from &quot;../../auth/auth.guard&quot;;
 @ApiTags(&quot;App&quot;)
 @Controller()
 export class AppController {
+    constructor(private readonly configService: ConfigService) {}
+
     /**
      * Main endpoint providing service info
      */
@@ -330,6 +394,35 @@ export class AppController {
     getVersion() {
         return {
             version: process.env.VERSION ?? &quot;main&quot;,
+        };
+    }
+
+    /**
+     * Returns runtime configuration for the frontend client.
+     */
+    @Get(&quot;frontend-config&quot;)
+    @UseGuards(JwtAuthGuard)
+    @ApiSecurity(&quot;oauth2&quot;)
+    @ApiOperation({ summary: &quot;Get frontend runtime configuration&quot; })
+    @ApiResponse({
+        status: 200,
+        description: &quot;Frontend configuration&quot;,
+        type: FrontendConfigResponseDto,
+    })
+    getFrontendConfig(): FrontendConfigResponseDto {
+        const grafanaUrl &#x3D; this.configService.get&lt;string&gt;(&quot;GRAFANA_URL&quot;);
+        return {
+            grafana: {
+                url: grafanaUrl || undefined,
+                tempoUid: this.configService.get&lt;string&gt;(
+                    &quot;GRAFANA_DATASOURCE_TEMPO_UID&quot;,
+                    &quot;tempo&quot;,
+                ),
+                lokiUid: this.configService.get&lt;string&gt;(
+                    &quot;GRAFANA_DATASOURCE_LOKI_UID&quot;,
+                    &quot;loki&quot;,
+                ),
+            },
         };
     }
 }

@@ -134,6 +134,12 @@
                             <a href="#BuiltTrustStore" title="src/shared/trust/trust-store.service.ts" ><b>BuiltTrustStore</b>&nbsp;&nbsp;&nbsp;(src/.../trust-store.service.ts)</a>
                         </li>
                         <li>
+                            <a href="#ClaimPathElement" title="src/issuer/configuration/credentials/dto/claim-metadata.dto.ts" ><b>ClaimPathElement</b>&nbsp;&nbsp;&nbsp;(src/.../claim-metadata.dto.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#ClaimPathElement" title="src/issuer/configuration/credentials/types/credential-config-types.ts" ><b>ClaimPathElement</b>&nbsp;&nbsp;&nbsp;(src/.../credential-config-types.ts)</a>
+                        </li>
+                        <li>
                             <a href="#ClaimsSource" title="src/issuer/issuance/oid4vci/dto/offer-request.dto.ts" ><b>ClaimsSource</b>&nbsp;&nbsp;&nbsp;(src/.../offer-request.dto.ts)</a>
                         </li>
                         <li>
@@ -311,7 +317,7 @@
                             <a href="#SessionLogLevel" title="src/session/entities/session-log-entry.entity.ts" ><b>SessionLogLevel</b>&nbsp;&nbsp;&nbsp;(src/.../session-log-entry.entity.ts)</a>
                         </li>
                         <li>
-                            <a href="#SessionStoreMode" title="src/shared/utils/logger/logger-config.service.ts" ><b>SessionStoreMode</b>&nbsp;&nbsp;&nbsp;(src/.../logger-config.service.ts)</a>
+                            <a href="#SessionStoreMode" title="src/shared/utils/logger/session-log-store.service.ts" ><b>SessionStoreMode</b>&nbsp;&nbsp;&nbsp;(src/.../session-log-store.service.ts)</a>
                         </li>
                         <li>
                             <a href="#Signer" title="src/crypto/key/crypto-implementation/crypto-implementation.ts" ><b>Signer</b>&nbsp;&nbsp;&nbsp;(src/.../crypto-implementation.ts)</a>
@@ -414,6 +420,137 @@
             <tr>
                 <td class="col-md-4">
                     <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/issuer/configuration/credentials/dto/claim-metadata.dto.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ClaimPathElement"></a>
+                    <span class="name "><b>ClaimPathElement</b><a href="#ClaimPathElement"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Represents a path element in a claim path.
+Can be a string (object key), number (array index), or null (any element).</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>string | number | null</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/issuer/configuration/credentials/types/credential-config-types.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ClaimPathElement"></a>
+                    <span class="name "><b>ClaimPathElement</b><a href="#ClaimPathElement"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Claim path element - string (object key), number (array index), or null (any element)</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>string | number | null</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="MsoMdocCredentialConfig"></a>
+                    <span class="name "><b>MsoMdocCredentialConfig</b><a href="#MsoMdocCredentialConfig"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Extract mso_mdoc specific configuration from the SDK union type</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>        <code><a href="../classes/CredentialConfig.html" target="_self" >Extract&lt;CredentialConfigurationSupportedWithFormats | literal type&gt;</a></code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="SdJwtDcCredentialConfig"></a>
+                    <span class="name "><b>SdJwtDcCredentialConfig</b><a href="#SdJwtDcCredentialConfig"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Extract dc+sd-jwt specific configuration from the SDK union type</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>        <code><a href="../classes/CredentialConfig.html" target="_self" >Extract&lt;CredentialConfigurationSupportedWithFormats | literal type&gt;</a></code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="SdJwtDcFormatIdentifier"></a>
+                    <span class="name "><b>SdJwtDcFormatIdentifier</b><a href="#SdJwtDcFormatIdentifier"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>unknown</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="TypedCredentialConfig"></a>
+                    <span class="name "><b>TypedCredentialConfig</b><a href="#TypedCredentialConfig"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Union of the credential configs we actively support</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>        <code><a href="../classes/CredentialConfig.html" target="_self" >SdJwtDcCredentialConfig | MsoMdocCredentialConfig</a></code>
 </code>
                 </td>
             </tr>
@@ -1621,90 +1758,6 @@ from the same entity.</p>
             </tr>
         </tbody>
     </table>
-</section>    <h3>src/issuer/configuration/credentials/types/credential-config-types.ts</h3>
-    <section data-compodoc="block-typealias">
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="MsoMdocCredentialConfig"></a>
-                    <span class="name "><b>MsoMdocCredentialConfig</b><a href="#MsoMdocCredentialConfig"><span class="icon ion-ios-link"></span></a></span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Extract mso_mdoc specific configuration from the SDK union type</p>
-</div>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <code>        <code><a href="../classes/CredentialConfig.html" target="_self" >Extract&lt;CredentialConfigurationSupportedWithFormats | literal type&gt;</a></code>
-</code>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="SdJwtDcCredentialConfig"></a>
-                    <span class="name "><b>SdJwtDcCredentialConfig</b><a href="#SdJwtDcCredentialConfig"><span class="icon ion-ios-link"></span></a></span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Extract dc+sd-jwt specific configuration from the SDK union type</p>
-</div>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <code>        <code><a href="../classes/CredentialConfig.html" target="_self" >Extract&lt;CredentialConfigurationSupportedWithFormats | literal type&gt;</a></code>
-</code>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="SdJwtDcFormatIdentifier"></a>
-                    <span class="name "><b>SdJwtDcFormatIdentifier</b><a href="#SdJwtDcFormatIdentifier"><span class="icon ion-ios-link"></span></a></span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <code>    <code>unknown</code>
-</code>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="TypedCredentialConfig"></a>
-                    <span class="name "><b>TypedCredentialConfig</b><a href="#TypedCredentialConfig"><span class="icon ion-ios-link"></span></a></span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Union of the credential configs we actively support</p>
-</div>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <code>        <code><a href="../classes/CredentialConfig.html" target="_self" >SdJwtDcCredentialConfig | MsoMdocCredentialConfig</a></code>
-</code>
-                </td>
-            </tr>
-        </tbody>
-    </table>
 </section>    <h3>src/session/entities/session.entity.ts</h3>
     <section data-compodoc="block-typealias">
     <table class="table table-sm table-bordered">
@@ -1952,7 +2005,7 @@ from the same entity.</p>
             </tr>
         </tbody>
     </table>
-</section>    <h3>src/shared/utils/logger/logger-config.service.ts</h3>
+</section>    <h3>src/shared/utils/logger/session-log-store.service.ts</h3>
     <section data-compodoc="block-typealias">
     <table class="table table-sm table-bordered">
         <tbody>
@@ -2063,8 +2116,11 @@ Used with importConfigsForTenant where tenantId is passed separately.</p>
 </ul>
 </li>
 <li><code>invalid_grant</code>:<ul>
-<li>The Authorization Server expects a Transaction Code in the Pre-Authorized Code Flow but the Client provides the wrong Transaction Code.</li>
 <li>The End-User provides the wrong Pre-Authorized Code or the Pre-Authorized Code has expired.</li>
+</ul>
+</li>
+<li><code>invalid_tx_code</code>:<ul>
+<li>The Authorization Server expects a Transaction Code in the Pre-Authorized Code Flow but the Client provides the wrong Transaction Code.</li>
 </ul>
 </li>
 <li><code>invalid_client</code>:<ul>
@@ -2077,7 +2133,7 @@ Used with importConfigsForTenant where tenantId is passed separately.</p>
             </tr>
             <tr>
                 <td class="col-md-4">
-                    <code>    <code>&quot;invalid_request&quot; | &quot;invalid_client&quot; | &quot;invalid_grant&quot; | &quot;unauthorized_client&quot; | &quot;unsupported_grant_type&quot; | &quot;invalid_scope&quot;</code>
+                    <code>    <code>&quot;invalid_request&quot; | &quot;invalid_client&quot; | &quot;invalid_grant&quot; | &quot;unauthorized_client&quot; | &quot;unsupported_grant_type&quot; | &quot;invalid_scope&quot; | &quot;invalid_tx_code&quot;</code>
 </code>
                 </td>
             </tr>

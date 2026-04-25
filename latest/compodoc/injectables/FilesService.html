@@ -162,6 +162,7 @@
                                 <a href="#deleteByTenant" >deleteByTenant</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#getStream" >getStream</a>
                             </li>
                             <li>
@@ -309,8 +310,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="156"
-                                    class="link-to-prism">src/storage/files.service.ts:156</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="164"
+                                    class="link-to-prism">src/storage/files.service.ts:164</a></div>
                         </td>
                     </tr>
 
@@ -386,8 +387,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="164"
-                                    class="link-to-prism">src/storage/files.service.ts:164</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="172"
+                                    class="link-to-prism">src/storage/files.service.ts:172</a></div>
                         </td>
                     </tr>
 
@@ -446,6 +447,7 @@
                 <td class="col-md-4">
                     <a name="getStream"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>getStream</b></span>
                         <a href="#getStream"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -453,15 +455,16 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>getStream(key: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getStream(key: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="147"
-                                    class="link-to-prism">src/storage/files.service.ts:147</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="148"
+                                    class="link-to-prism">src/storage/files.service.ts:148</a></div>
                         </td>
                     </tr>
 
@@ -504,7 +507,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>unknown</code>
 
                         </div>
                             <div class="io-description">
@@ -793,7 +796,7 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomUUID } from &quot;node:crypto&quot;;
 import { readFileSync } from &quot;node:fs&quot;;
 import { extname } from &quot;node:path&quot;;
-import { Inject, Injectable } from &quot;@nestjs/common&quot;;
+import { Inject, Injectable, NotFoundException } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { Repository } from &quot;typeorm&quot;;
@@ -935,9 +938,17 @@ export class FilesService {
      * Retrieves a readable stream of the file associated with the given key.
      * @param key The unique identifier of the file.
      * @returns A promise that resolves to a readable stream of the file.
+     * @throws NotFoundException if the file does not exist.
      */
-    getStream(key: string) {
-        return Promise.resolve(this.storage.getStream(key));
+    async getStream(key: string) {
+        try {
+            return await this.storage.getStream(key);
+        } catch (error: any) {
+            if (error?.code &#x3D;&#x3D;&#x3D; &quot;ENOENT&quot; || error?.name &#x3D;&#x3D;&#x3D; &quot;NoSuchKey&quot;) {
+                throw new NotFoundException(&#x60;File not found: ${key}&#x60;);
+            }
+            throw error;
+        }
     }
 
     /**

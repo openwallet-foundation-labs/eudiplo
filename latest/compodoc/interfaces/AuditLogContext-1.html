@@ -117,7 +117,7 @@
   <li class="breadcrumb-item">Interfaces</li>
   <li class="breadcrumb-item"
   >
-  LoggerConfiguration</li>
+  AuditLogContext</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -141,10 +141,17 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/shared/utils/logger/logger-config.service.ts</code>
+            <code>src/shared/utils/logger/session-logger.service.ts</code>
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Context for audit logging operations.</p>
+
+            </p>
 
 
         <section data-compodoc="block-index">
@@ -160,51 +167,29 @@
                         <td class="col-md-4">
                             <ul class="index-list">
                                 <li>
-                                        <a href="#enableDebugMode" 
+                                        <a href="#flowType" 
 >
-                                            enableDebugMode
+                                            flowType
                                         </a>
                                 </li>
                                 <li>
-                                        <a href="#enableHttpLogger" 
+                                        <a href="#sessionId" 
 >
-                                            enableHttpLogger
+                                            sessionId
                                         </a>
                                 </li>
                                 <li>
-                                        <a href="#enableSessionLogger" 
+                                            <span class="modifier">Optional</span>
+                                        <a href="#stage" 
 >
-                                            enableSessionLogger
+                                            stage
                                         </a>
                                 </li>
                                 <li>
-                                        <a href="#level" 
+                                            <span class="modifier">Optional</span>
+                                        <a href="#tenantId" 
 >
-                                            level
-                                        </a>
-                                </li>
-                                <li>
-                                        <a href="#logFilePath" 
->
-                                            logFilePath
-                                        </a>
-                                </li>
-                                <li>
-                                        <a href="#logFormat" 
->
-                                            logFormat
-                                        </a>
-                                </li>
-                                <li>
-                                        <a href="#logToFile" 
->
-                                            logToFile
-                                        </a>
-                                </li>
-                                <li>
-                                        <a href="#sessionStoreMode" 
->
-                                            sessionStoreMode
+                                            tenantId
                                         </a>
                                 </li>
                             </ul>
@@ -222,9 +207,9 @@
                         <tbody>
                                 <tr>
                                     <td class="col-md-4">
-                                        <a name="enableDebugMode"></a>
-                                        <span class="name "><b>enableDebugMode</b>
-                                            <a href="#enableDebugMode">
+                                        <a name="flowType"></a>
+                                        <span class="name "><b>flowType</b>
+                                            <a href="#flowType">
                                                 <span class="icon ion-ios-link"></span>
                                             </a>
                                         </span>
@@ -232,7 +217,7 @@
                                 </tr>
                                 <tr>
                                     <td class="col-md-4">
-                                        <code>enableDebugMode:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                                        <code>flowType:     <code>&quot;OID4VCI&quot; | &quot;OID4VP&quot;</code>
 </code>
                                     </td>
                                 </tr>
@@ -240,7 +225,7 @@
 
                                     <tr>
                                         <td class="col-md-4">
-                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                                            <i>Type : </i>    <code>&quot;OID4VCI&quot; | &quot;OID4VP&quot;</code>
 
                                         </td>
                                     </tr>
@@ -255,9 +240,9 @@
                         <tbody>
                                 <tr>
                                     <td class="col-md-4">
-                                        <a name="enableHttpLogger"></a>
-                                        <span class="name "><b>enableHttpLogger</b>
-                                            <a href="#enableHttpLogger">
+                                        <a name="sessionId"></a>
+                                        <span class="name "><b>sessionId</b>
+                                            <a href="#sessionId">
                                                 <span class="icon ion-ios-link"></span>
                                             </a>
                                         </span>
@@ -265,106 +250,7 @@
                                 </tr>
                                 <tr>
                                     <td class="col-md-4">
-                                        <code>enableHttpLogger:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-</code>
-                                    </td>
-                                </tr>
-
-
-                                    <tr>
-                                        <td class="col-md-4">
-                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                                        </td>
-                                    </tr>
-
-
-
-
-
-                        </tbody>
-                    </table>
-                    <table class="table table-sm table-bordered">
-                        <tbody>
-                                <tr>
-                                    <td class="col-md-4">
-                                        <a name="enableSessionLogger"></a>
-                                        <span class="name "><b>enableSessionLogger</b>
-                                            <a href="#enableSessionLogger">
-                                                <span class="icon ion-ios-link"></span>
-                                            </a>
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="col-md-4">
-                                        <code>enableSessionLogger:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-</code>
-                                    </td>
-                                </tr>
-
-
-                                    <tr>
-                                        <td class="col-md-4">
-                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
-
-                                        </td>
-                                    </tr>
-
-
-
-
-
-                        </tbody>
-                    </table>
-                    <table class="table table-sm table-bordered">
-                        <tbody>
-                                <tr>
-                                    <td class="col-md-4">
-                                        <a name="level"></a>
-                                        <span class="name "><b>level</b>
-                                            <a href="#level">
-                                                <span class="icon ion-ios-link"></span>
-                                            </a>
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="col-md-4">
-                                        <code>level:     <code>LogLevel</code>
-</code>
-                                    </td>
-                                </tr>
-
-
-                                    <tr>
-                                        <td class="col-md-4">
-                                            <i>Type : </i>    <code>LogLevel</code>
-
-                                        </td>
-                                    </tr>
-
-
-
-
-
-                        </tbody>
-                    </table>
-                    <table class="table table-sm table-bordered">
-                        <tbody>
-                                <tr>
-                                    <td class="col-md-4">
-                                        <a name="logFilePath"></a>
-                                        <span class="name "><b>logFilePath</b>
-                                            <a href="#logFilePath">
-                                                <span class="icon ion-ios-link"></span>
-                                            </a>
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="col-md-4">
-                                        <code>logFilePath:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                        <code>sessionId:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 </code>
                                     </td>
                                 </tr>
@@ -387,9 +273,9 @@
                         <tbody>
                                 <tr>
                                     <td class="col-md-4">
-                                        <a name="logFormat"></a>
-                                        <span class="name "><b>logFormat</b>
-                                            <a href="#logFormat">
+                                        <a name="stage"></a>
+                                        <span class="name "><b>stage</b>
+                                            <a href="#stage">
                                                 <span class="icon ion-ios-link"></span>
                                             </a>
                                         </span>
@@ -397,7 +283,7 @@
                                 </tr>
                                 <tr>
                                     <td class="col-md-4">
-                                        <code>logFormat:     <code>&quot;json&quot; | &quot;pretty&quot;</code>
+                                        <code>stage:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 </code>
                                     </td>
                                 </tr>
@@ -405,11 +291,16 @@
 
                                     <tr>
                                         <td class="col-md-4">
-                                            <i>Type : </i>    <code>&quot;json&quot; | &quot;pretty&quot;</code>
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 
                                         </td>
                                     </tr>
 
+                                    <tr>
+                                        <td class="col-md-4">
+                                            <i>Optional</i>
+                                        </td>
+                                    </tr>
 
 
 
@@ -420,9 +311,9 @@
                         <tbody>
                                 <tr>
                                     <td class="col-md-4">
-                                        <a name="logToFile"></a>
-                                        <span class="name "><b>logToFile</b>
-                                            <a href="#logToFile">
+                                        <a name="tenantId"></a>
+                                        <span class="name "><b>tenantId</b>
+                                            <a href="#tenantId">
                                                 <span class="icon ion-ios-link"></span>
                                             </a>
                                         </span>
@@ -430,7 +321,7 @@
                                 </tr>
                                 <tr>
                                     <td class="col-md-4">
-                                        <code>logToFile:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                                        <code>tenantId:         <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 </code>
                                     </td>
                                 </tr>
@@ -438,44 +329,16 @@
 
                                     <tr>
                                         <td class="col-md-4">
-                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/boolean" target="_blank" >boolean</a></code>
+                                            <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 
                                         </td>
                                     </tr>
-
-
-
-
-
-                        </tbody>
-                    </table>
-                    <table class="table table-sm table-bordered">
-                        <tbody>
-                                <tr>
-                                    <td class="col-md-4">
-                                        <a name="sessionStoreMode"></a>
-                                        <span class="name "><b>sessionStoreMode</b>
-                                            <a href="#sessionStoreMode">
-                                                <span class="icon ion-ios-link"></span>
-                                            </a>
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="col-md-4">
-                                        <code>sessionStoreMode:         <code><a href="../miscellaneous/typealiases.html#SessionStoreMode" target="_self" >SessionStoreMode</a></code>
-</code>
-                                    </td>
-                                </tr>
-
 
                                     <tr>
                                         <td class="col-md-4">
-                                            <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#SessionStoreMode" target="_self" >SessionStoreMode</a></code>
-
+                                            <i>Optional</i>
                                         </td>
                                     </tr>
-
 
 
 
@@ -487,133 +350,234 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, LogLevel } from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
+import { PinoLogger } from &quot;nestjs-pino&quot;;
+import { SessionLogLevel } from &quot;../../../session/entities/session-log-entry.entity&quot;;
+import {
+    SessionLogStoreService,
+    SessionStoreMode,
+} from &quot;./session-log-store.service&quot;;
 
-export type SessionStoreMode &#x3D; &quot;off&quot; | &quot;errors&quot; | &quot;all&quot; | &quot;verbose&quot;;
-
-export interface LoggerConfiguration {
-    level: LogLevel;
-    enableSessionLogger: boolean;
-    sessionStoreMode: SessionStoreMode;
-    enableHttpLogger: boolean;
-    enableDebugMode: boolean;
-    logFormat: &quot;json&quot; | &quot;pretty&quot;;
-    logToFile: boolean;
-    logFilePath: string;
+/**
+ * Context for audit logging operations.
+ */
+export interface AuditLogContext {
+    sessionId: string;
+    tenantId?: string;
+    flowType: &quot;OID4VCI&quot; | &quot;OID4VP&quot;;
+    stage?: string;
 }
 
 /**
- * Service for managing logger configuration
+ * Service for persisting audit events to the database.
+ *
+ * This service is focused on compliance/audit logging only.
+ * For debug/observability logging, use the Pino logger directly
+ * which exports to Loki via OpenTelemetry.
+ *
+ * **Audit events** (persisted to DB): flow_start, flow_complete, flow_error,
+ * credential_issuance, credential_verification - these create a permanent audit
+ * trail visible in the client UI and useful for compliance/proof.
  */
 @Injectable()
-export class LoggerConfigService {
-    private config!: LoggerConfiguration;
+export class SessionLoggerService {
+    private readonly isEnabled: boolean;
+    private readonly verbose: boolean;
 
-    constructor(private readonly configService: ConfigService) {
-        this.loadConfiguration();
+    constructor(
+        private readonly logger: PinoLogger,
+        private readonly configService: ConfigService,
+        private readonly logStore: SessionLogStoreService,
+    ) {
+        this.logger.setContext(&quot;SessionLoggerService&quot;);
+        this.isEnabled &#x3D; this.configService.getOrThrow&lt;boolean&gt;(
+            &quot;LOG_ENABLE_SESSION_LOGGER&quot;,
+        );
+        this.verbose &#x3D;
+            this.configService.getOrThrow&lt;SessionStoreMode&gt;(
+                &quot;LOG_SESSION_STORE&quot;,
+            ) &#x3D;&#x3D;&#x3D; &quot;verbose&quot;;
     }
 
-    private loadConfiguration(): void {
-        this.config &#x3D; {
-            level: this.parseLogLevel(
-                this.configService.get&lt;string&gt;(&quot;LOG_LEVEL&quot;, &quot;info&quot;),
-            ),
-            enableSessionLogger: this.configService.getOrThrow&lt;boolean&gt;(
-                &quot;LOG_ENABLE_SESSION_LOGGER&quot;,
-            ),
-            sessionStoreMode:
-                this.configService.getOrThrow&lt;SessionStoreMode&gt;(
-                    &quot;LOG_SESSION_STORE&quot;,
-                ),
-            enableHttpLogger: this.configService.getOrThrow&lt;boolean&gt;(
-                &quot;LOG_ENABLE_HTTP_LOGGER&quot;,
-            ),
-            enableDebugMode:
-                this.configService.getOrThrow&lt;boolean&gt;(&quot;LOG_DEBUG_MODE&quot;),
-            logFormat: this.configService.getOrThrow&lt;&quot;json&quot; | &quot;pretty&quot;&gt;(
-                &quot;LOG_FORMAT&quot;,
-            ),
-            logToFile: this.configService.getOrThrow&lt;boolean&gt;(&quot;LOG_TO_FILE&quot;),
-            logFilePath: this.configService.getOrThrow&lt;string&gt;(&quot;LOG_FILE_PATH&quot;),
-        };
+    private persistLog(
+        context: AuditLogContext,
+        level: SessionLogLevel,
+        message: string,
+        stage?: string,
+        detail?: Record&lt;string, unknown&gt;,
+    ): void {
+        this.logStore
+            .append(context.sessionId, level, message, stage, detail)
+            .catch(() &#x3D;&gt; {});
     }
 
-    private parseLogLevel(level: string): LogLevel {
-        const levels: Record&lt;string, LogLevel&gt; &#x3D; {
-            verbose: &quot;verbose&quot;,
-            debug: &quot;debug&quot;,
-            log: &quot;log&quot;,
-            warn: &quot;warn&quot;,
-            error: &quot;error&quot;,
-            fatal: &quot;fatal&quot;,
-        };
-        return levels[level.toLowerCase()] || &quot;log&quot;;
-    }
-
-    getConfiguration(): LoggerConfiguration {
-        return { ...this.config };
-    }
-
-    isSessionLoggerEnabled(): boolean {
-        return this.config.enableSessionLogger;
-    }
-
-    getSessionStoreMode(): SessionStoreMode {
-        return this.config.sessionStoreMode;
-    }
-
-    isSessionStoreEnabled(): boolean {
-        return this.config.sessionStoreMode !&#x3D;&#x3D; &quot;off&quot;;
-    }
-
-    isVerboseMode(): boolean {
-        return this.config.sessionStoreMode &#x3D;&#x3D;&#x3D; &quot;verbose&quot;;
-    }
-
-    isHttpLoggerEnabled(): boolean {
-        return this.config.enableHttpLogger;
-    }
-
-    isDebugModeEnabled(): boolean {
-        return this.config.enableDebugMode;
-    }
-
-    getLogLevel(): LogLevel {
-        return this.config.level;
-    }
-
-    getLogFormat(): &quot;json&quot; | &quot;pretty&quot; {
-        return this.config.logFormat;
+    private shouldLog(): boolean {
+        return this.isEnabled;
     }
 
     /**
-     * Check if logging to file is enabled
+     * Log session flow start (audit event - persisted to DB)
      */
-    isFileLoggingEnabled(): boolean {
-        return this.config.logToFile;
+    logFlowStart(context: AuditLogContext, additionalData?: any) {
+        if (!this.shouldLog()) return;
+
+        const message &#x3D; &#x60;[${context.flowType}] Flow started for session ${context.sessionId} in tenant ${context.tenantId}&#x60;;
+
+        this.logger.info(
+            {
+                ...context,
+                event: &quot;flow_start&quot;,
+                stage: &quot;initialization&quot;,
+                ...additionalData,
+            },
+            message,
+        );
+        this.persistLog(
+            context,
+            &quot;info&quot;,
+            message,
+            &quot;initialization&quot;,
+            additionalData,
+        );
     }
 
     /**
-     * Get the configured file path for logging
+     * Log session flow completion (audit event - persisted to DB)
      */
-    getLogFilePath(): string {
-        return this.config.logFilePath;
+    logFlowComplete(context: AuditLogContext, additionalData?: any) {
+        if (!this.shouldLog()) return;
+
+        const message &#x3D; &#x60;[${context.flowType}] Flow completed for session ${context.sessionId}&#x60;;
+
+        this.logger.info(
+            {
+                ...context,
+                event: &quot;flow_complete&quot;,
+                stage: &quot;completion&quot;,
+                ...additionalData,
+            },
+            message,
+        );
+        this.persistLog(context, &quot;info&quot;, message, &quot;completion&quot;, additionalData);
     }
 
     /**
-     * Hot reload configuration from environment
+     * Log session flow error (audit event - persisted to DB)
      */
-    reloadConfiguration(): void {
-        this.loadConfiguration();
+    logFlowError(context: AuditLogContext, error: Error, additionalData?: any) {
+        if (!this.shouldLog()) return;
+
+        const message &#x3D; &#x60;[${context.flowType}] Flow error for session ${context.sessionId}: ${error.message}&#x60;;
+
+        this.logger.error(
+            {
+                ...context,
+                event: &quot;flow_error&quot;,
+                error: {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack,
+                },
+                ...additionalData,
+            },
+            message,
+        );
+        this.persistLog(context, &quot;error&quot;, message, &quot;error&quot;, {
+            errorName: error.name,
+            errorMessage: error.message,
+            ...(this.verbose &amp;&amp; { errorStack: error.stack }),
+            ...additionalData,
+        });
     }
 
     /**
-     * Check if automatic HTTP request/response logging should be enabled
-     * This is used by the LoggerModule configuration
+     * Log credential issuance step (audit event - persisted to DB)
      */
-    shouldEnableAutoLogging(): boolean {
-        return this.isHttpLoggerEnabled();
+    logCredentialIssuance(
+        context: AuditLogContext,
+        credentialType: string,
+        additionalData?: any,
+    ) {
+        if (!this.shouldLog()) return;
+
+        const message &#x3D; &#x60;[${context.flowType}] Issuing credential of type ${credentialType} for session ${context.sessionId}&#x60;;
+
+        this.logger.info(
+            {
+                ...context,
+                event: &quot;credential_issuance&quot;,
+                stage: &quot;credential_creation&quot;,
+                credentialType,
+                ...additionalData,
+            },
+            message,
+        );
+        this.persistLog(context, &quot;info&quot;, message, &quot;credential_creation&quot;, {
+            credentialType,
+            ...additionalData,
+        });
+    }
+
+    /**
+     * Log credential presentation verification (audit event - persisted to DB)
+     */
+    logCredentialVerification(
+        context: AuditLogContext,
+        verificationResult: boolean,
+        additionalData?: any,
+    ) {
+        if (!this.shouldLog()) return;
+
+        const message &#x3D; &#x60;[${context.flowType}] Credential verification ${verificationResult ? &quot;succeeded&quot; : &quot;failed&quot;} for session ${context.sessionId}&#x60;;
+
+        this.logger.info(
+            {
+                ...context,
+                event: &quot;credential_verification&quot;,
+                stage: &quot;verification&quot;,
+                verificationResult,
+                ...additionalData,
+            },
+            message,
+        );
+        this.persistLog(context, &quot;info&quot;, message, &quot;verification&quot;, {
+            verificationResult,
+            ...additionalData,
+        });
+    }
+
+    /**
+     * Log generic session error (audit event - persisted to DB)
+     */
+    logError(
+        context: AuditLogContext,
+        error: Error,
+        message: string,
+        additionalData?: any,
+    ) {
+        if (!this.shouldLog()) return;
+
+        const fullMessage &#x3D; &#x60;[${context.flowType}] ${message}: ${error.message}&#x60;;
+
+        this.logger.error(
+            {
+                ...context,
+                error: {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack,
+                },
+                ...additionalData,
+            },
+            fullMessage,
+        );
+        this.persistLog(context, &quot;error&quot;, fullMessage, context.stage, {
+            errorName: error.name,
+            errorMessage: error.message,
+            ...(this.verbose &amp;&amp; { errorStack: error.stack }),
+            ...additionalData,
+        });
     }
 }
 </code></pre>
@@ -653,7 +617,7 @@ export class LoggerConfigService {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'interface';
-            var COMPODOC_CURRENT_PAGE_URL = 'LoggerConfiguration.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'AuditLogContext-1.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

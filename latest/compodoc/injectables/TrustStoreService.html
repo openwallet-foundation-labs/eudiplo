@@ -504,13 +504,13 @@ export class TrustStoreService {
             this.logger.debug(&#x60;Fetching trust list from: ${ref.url}&#x60;);
             const jwt &#x3D; await this.trustListJwt.fetchJwt(ref.url);
             await this.trustListJwt.verifyTrustListJwt(ref, jwt); // hook
-            const decoded &#x3D; decodeJwt&lt;LoTE&gt;(jwt);
+            const decoded &#x3D; decodeJwt&lt;{ LoTE: LoTE }&gt;(jwt);
 
             this.logger.debug(
-                &#x60;Decoded LoTE from ${ref.url}: TrustedEntitiesList has ${decoded.TrustedEntitiesList?.length ?? 0} raw entries&#x60;,
+                &#x60;Decoded LoTE from ${ref.url}: TrustedEntitiesList has ${decoded.LoTE.TrustedEntitiesList?.length ?? 0} raw entries&#x60;,
             );
 
-            let parsed &#x3D; this.loteParser.parse(decoded);
+            let parsed &#x3D; this.loteParser.parse(decoded.LoTE);
             this.logger.debug(
                 &#x60;Parsed ${parsed.entities.length} entities from ${ref.url}&#x60;,
             );

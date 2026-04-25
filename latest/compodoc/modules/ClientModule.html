@@ -161,7 +161,6 @@
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Module } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { getRepositoryToken, TypeOrmModule } from &quot;@nestjs/typeorm&quot;;
-import { makeGaugeProvider } from &quot;@willsoto/nestjs-prometheus&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { ConfigImportService } from &quot;../../shared/utils/config-import/config-import.service&quot;;
 import { ConfigImportOrchestratorService } from &quot;../../shared/utils/config-import/config-import-orchestrator.service&quot;;
@@ -203,10 +202,6 @@ import { ClientEntity } from &quot;./entities/client.entity&quot;;
                       );
             },
         },
-        makeGaugeProvider({
-            name: &quot;tenant_total&quot;,
-            help: &quot;Total number of tenants&quot;,
-        }),
     ],
     exports: [CLIENTS_PROVIDER],
     controllers: [ClientController],

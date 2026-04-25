@@ -198,12 +198,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(logRepository: Repository<SessionLogEntry>, loggerConfigService: <a href="../injectables/LoggerConfigService.html" target="_self">LoggerConfigService</a>)</code>
+<code>constructor(logRepository: Repository<SessionLogEntry>, configService: ConfigService)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/shared/utils/logger/session-log-store.service.ts:12</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">src/shared/utils/logger/session-log-store.service.ts:14</a></div>
                             </td>
                         </tr>
 
@@ -233,10 +233,10 @@
                                                     
                                                 </tr>
                                                 <tr>
-                                                        <td>loggerConfigService</td>
+                                                        <td>configService</td>
                                                   
                                                         <td>
-                                                                        <code><a href="../injectables/LoggerConfigService.html" target="_self" >LoggerConfigService</a></code>
+                                                                    <code>ConfigService</code>
                                                         </td>
                                                   
                                                     <td>
@@ -280,8 +280,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="25"
-                                    class="link-to-prism">src/shared/utils/logger/session-log-store.service.ts:25</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="30"
+                                    class="link-to-prism">src/shared/utils/logger/session-log-store.service.ts:30</a></div>
                         </td>
                     </tr>
 
@@ -397,8 +397,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="59"
-                                    class="link-to-prism">src/shared/utils/logger/session-log-store.service.ts:59</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="64"
+                                    class="link-to-prism">src/shared/utils/logger/session-log-store.service.ts:64</a></div>
                         </td>
                     </tr>
 
@@ -466,8 +466,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="49"
-                                    class="link-to-prism">src/shared/utils/logger/session-log-store.service.ts:49</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="54"
+                                    class="link-to-prism">src/shared/utils/logger/session-log-store.service.ts:54</a></div>
                         </td>
                     </tr>
 
@@ -542,7 +542,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/shared/utils/logger/session-log-store.service.ts:12</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">src/shared/utils/logger/session-log-store.service.ts:14</a></div>
                         </td>
                     </tr>
 
@@ -556,13 +556,15 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import {
     SessionLogEntry,
     SessionLogLevel,
 } from &quot;../../../session/entities/session-log-entry.entity&quot;;
-import { LoggerConfigService, SessionStoreMode } from &quot;./logger-config.service&quot;;
+
+export type SessionStoreMode &#x3D; &quot;off&quot; | &quot;errors&quot; | &quot;all&quot; | &quot;verbose&quot;;
 
 @Injectable()
 export class SessionLogStoreService {
@@ -571,9 +573,12 @@ export class SessionLogStoreService {
     constructor(
         @InjectRepository(SessionLogEntry)
         private readonly logRepository: Repository&lt;SessionLogEntry&gt;,
-        private readonly loggerConfigService: LoggerConfigService,
+        private readonly configService: ConfigService,
     ) {
-        this.mode &#x3D; this.loggerConfigService.getSessionStoreMode();
+        this.mode &#x3D;
+            this.configService.getOrThrow&lt;SessionStoreMode&gt;(
+                &quot;LOG_SESSION_STORE&quot;,
+            );
     }
 
     /**

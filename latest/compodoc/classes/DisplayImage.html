@@ -210,7 +210,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:42</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">src/issuer/configuration/credentials/entities/credential.entity.ts:45</a></div>
                         </td>
                     </tr>
 
@@ -233,6 +233,7 @@
     ApiExtraModels,
     ApiHideProperty,
     ApiProperty,
+    ApiPropertyOptional,
     getSchemaPath,
 } from &quot;@nestjs/swagger&quot;;
 import { Type } from &quot;class-transformer&quot;;
@@ -252,7 +253,9 @@ import { KeyChainEntity } from &quot;../../../../crypto/key/entities/key-chain.e
 import { SchemaResponse } from &quot;../../../issuance/oid4vci/metadata/dto/schema-response.dto&quot;;
 import { VCT } from &quot;../../../issuance/oid4vci/metadata/dto/vct.dto&quot;;
 import { AttributeProviderEntity } from &quot;../../attribute-provider/entities/attribute-provider.entity&quot;;
+import { KeyAttestationsRequired } from &quot;../../issuance/dto/key-attestations-required.dto&quot;;
 import { WebhookEndpointEntity } from &quot;../../webhook-endpoint/entities/webhook-endpoint.entity&quot;;
+import { ClaimMetadata } from &quot;../dto/claim-metadata.dto&quot;;
 import {
     IaeAction,
     IaeActionBase,
@@ -340,6 +343,37 @@ export class IssuerMetadataCredentialConfig {
     @IsOptional()
     @IsObject()
     claimsByNamespace?: Record&lt;string, Record&lt;string, any&gt;&gt;;
+
+    /**
+     * Claims metadata for wallet rendering.
+     * Follows the OID4VCI credential_metadata.claims specification.
+     * Each claim includes a path (JSONPath-like array), optional mandatory flag,
+     * and display information with multi-language support.
+     *
+     * Example:
+     * [
+     *   { &quot;path&quot;: [&quot;given_name&quot;], &quot;mandatory&quot;: false, &quot;display&quot;: [{ &quot;name&quot;: &quot;Given Name&quot;, &quot;locale&quot;: &quot;en-US&quot; }] },
+     *   { &quot;path&quot;: [&quot;address&quot;, &quot;street_address&quot;], &quot;display&quot;: [{ &quot;name&quot;: &quot;Street Address&quot;, &quot;locale&quot;: &quot;en-US&quot; }] }
+     * ]
+     */
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() &#x3D;&gt; ClaimMetadata)
+    claimsMetadata?: ClaimMetadata[];
+
+    /**
+     * Key attestation requirements for JWT proofs for this credential.
+     * When set, this is published in proof_types_supported.jwt.key_attestations_required
+     * for this specific credential configuration.
+     *
+     * @see https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#appendix-F
+     */
+    @ApiPropertyOptional({ type: () &#x3D;&gt; KeyAttestationsRequired })
+    @ValidateNested()
+    @Type(() &#x3D;&gt; KeyAttestationsRequired)
+    @IsOptional()
+    keyAttestationsRequired?: KeyAttestationsRequired;
 }
 
 @ApiExtraModels(

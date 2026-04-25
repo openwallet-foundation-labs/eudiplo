@@ -201,6 +201,10 @@ if the CA key exists. Otherwise, they become standalone self-signed keys.</p>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
+                                <a href="#getPlaceholder" >getPlaceholder</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
                                     <span class="modifier">Async</span>
                                 <a href="#tableExists" >tableExists</a>
                             </li>
@@ -286,8 +290,8 @@ if the CA key exists. Otherwise, they become standalone self-signed keys.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="248"
-                                    class="link-to-prism">src/database/migrations/1747000000000-MigrateKeysToKeyChain.ts:248</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="262"
+                                    class="link-to-prism">src/database/migrations/1747000000000-MigrateKeysToKeyChain.ts:262</a></div>
                         </td>
                     </tr>
 
@@ -324,6 +328,90 @@ if the CA key exists. Otherwise, they become standalone self-signed keys.</p>
                             </div>
                         <div class="io-description">
                             <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getPlaceholder"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>getPlaceholder</b></span>
+                        <a href="#getPlaceholder"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getPlaceholder(dbType: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, index: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="31"
+                                    class="link-to-prism">src/database/migrations/1747000000000-MigrateKeysToKeyChain.ts:31</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Returns parameterized placeholder for the given database type.
+PostgreSQL uses $1, $2, ... while SQLite uses ?, ?, ...</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>dbType</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>index</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank" >number</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 
                         </div>
                             <div class="io-description">
@@ -437,8 +525,8 @@ if the CA key exists. Otherwise, they become standalone self-signed keys.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="27"
-                                    class="link-to-prism">src/database/migrations/1747000000000-MigrateKeysToKeyChain.ts:27</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="35"
+                                    class="link-to-prism">src/database/migrations/1747000000000-MigrateKeysToKeyChain.ts:35</a></div>
                         </td>
                     </tr>
 
@@ -520,7 +608,17 @@ export class MigrateKeysToKeyChain1747000000000 implements MigrationInterface {
         return !!table;
     }
 
+    /**
+     * Returns parameterized placeholder for the given database type.
+     * PostgreSQL uses $1, $2, ... while SQLite uses ?, ?, ...
+     */
+    private getPlaceholder(dbType: string, index: number): string {
+        return dbType &#x3D;&#x3D;&#x3D; &quot;postgres&quot; ? &#x60;$${index}&#x60; : &quot;?&quot;;
+    }
+
     async up(queryRunner: QueryRunner): Promise&lt;void&gt; {
+        const dbType &#x3D; queryRunner.connection.options.type;
+
         // Check if key_entity table exists (might be a fresh install)
         const keyEntityExists &#x3D; await this.tableExists(
             queryRunner,
@@ -548,23 +646,23 @@ export class MigrateKeysToKeyChain1747000000000 implements MigrationInterface {
         // Fetch all keys that have a usageType (signing keys, not standalone CA keys)
         const keys &#x3D; await queryRunner.query(&#x60;
             SELECT 
-                k.id,
-                k.tenantId,
-                k.description,
-                k.usageType,
-                k.usage,
-                k.kmsProvider,
-                k.externalKeyId,
-                k.signingCaKeyId,
-                k.rotationEnabled,
-                k.rotationIntervalDays,
-                k.certValidityDays,
-                k.lastRotatedAt,
-                k.createdAt,
-                k.updatedAt,
-                k.key
-            FROM key_entity k
-            WHERE k.usageType IS NOT NULL
+                k.&quot;id&quot;,
+                k.&quot;tenantId&quot;,
+                k.&quot;description&quot;,
+                k.&quot;usageType&quot;,
+                k.&quot;usage&quot;,
+                k.&quot;kmsProvider&quot;,
+                k.&quot;externalKeyId&quot;,
+                k.&quot;signingCaKeyId&quot;,
+                k.&quot;rotationEnabled&quot;,
+                k.&quot;rotationIntervalDays&quot;,
+                k.&quot;certValidityDays&quot;,
+                k.&quot;lastRotatedAt&quot;,
+                k.&quot;createdAt&quot;,
+                k.&quot;updatedAt&quot;,
+                k.&quot;key&quot;
+            FROM &quot;key_entity&quot; k
+            WHERE k.&quot;usageType&quot; IS NOT NULL
         &#x60;);
 
         console.log(
@@ -575,10 +673,10 @@ export class MigrateKeysToKeyChain1747000000000 implements MigrationInterface {
             // Find the active certificate for this key
             const certs &#x3D; await queryRunner.query(
                 &#x60;
-                SELECT c.id, c.crt, c.description, c.signingCaKeyId
-                FROM cert_entity c
-                WHERE c.keyId &#x3D; ? AND c.tenantId &#x3D; ?
-                ORDER BY c.createdAt DESC
+                SELECT c.&quot;id&quot;, c.&quot;crt&quot;, c.&quot;description&quot;, c.&quot;signingCaKeyId&quot;
+                FROM &quot;cert_entity&quot; c
+                WHERE c.&quot;keyId&quot; &#x3D; ${this.getPlaceholder(dbType, 1)} AND c.&quot;tenantId&quot; &#x3D; ${this.getPlaceholder(dbType, 2)}
+                ORDER BY c.&quot;createdAt&quot; DESC
                 LIMIT 1
             &#x60;,
                 [key.id, key.tenantId],
@@ -611,9 +709,9 @@ export class MigrateKeysToKeyChain1747000000000 implements MigrationInterface {
                 // Fetch the CA key
                 const caKeys &#x3D; await queryRunner.query(
                     &#x60;
-                    SELECT k.key, k.id
-                    FROM key_entity k
-                    WHERE k.id &#x3D; ? AND k.tenantId &#x3D; ?
+                    SELECT k.&quot;key&quot;, k.&quot;id&quot;
+                    FROM &quot;key_entity&quot; k
+                    WHERE k.&quot;id&quot; &#x3D; ${this.getPlaceholder(dbType, 1)} AND k.&quot;tenantId&quot; &#x3D; ${this.getPlaceholder(dbType, 2)}
                 &#x60;,
                     [key.signingCaKeyId, key.tenantId],
                 );
@@ -624,10 +722,10 @@ export class MigrateKeysToKeyChain1747000000000 implements MigrationInterface {
                     // Fetch the CA certificate
                     const caCerts &#x3D; await queryRunner.query(
                         &#x60;
-                        SELECT c.crt
-                        FROM cert_entity c
-                        WHERE c.keyId &#x3D; ? AND c.tenantId &#x3D; ?
-                        ORDER BY c.createdAt DESC
+                        SELECT c.&quot;crt&quot;
+                        FROM &quot;cert_entity&quot; c
+                        WHERE c.&quot;keyId&quot; &#x3D; ${this.getPlaceholder(dbType, 1)} AND c.&quot;tenantId&quot; &#x3D; ${this.getPlaceholder(dbType, 2)}
+                        ORDER BY c.&quot;createdAt&quot; DESC
                         LIMIT 1
                     &#x60;,
                         [key.signingCaKeyId, key.tenantId],
@@ -648,7 +746,7 @@ export class MigrateKeysToKeyChain1747000000000 implements MigrationInterface {
 
             // Check if key_chain entry already exists
             const existingKeyChain &#x3D; await queryRunner.query(
-                &#x60;SELECT id FROM key_chain WHERE id &#x3D; ? AND tenantId &#x3D; ?&#x60;,
+                &#x60;SELECT &quot;id&quot; FROM &quot;key_chain&quot; WHERE &quot;id&quot; &#x3D; ${this.getPlaceholder(dbType, 1)} AND &quot;tenantId&quot; &#x3D; ${this.getPlaceholder(dbType, 2)}&#x60;,
                 [key.id, key.tenantId],
             );
 
@@ -660,30 +758,34 @@ export class MigrateKeysToKeyChain1747000000000 implements MigrationInterface {
             }
 
             // Insert into key_chain
+            const placeholders &#x3D; Array.from({ length: 20 }, (_, i) &#x3D;&gt;
+                this.getPlaceholder(dbType, i + 1),
+            ).join(&quot;, &quot;);
+
             await queryRunner.query(
                 &#x60;
-                INSERT INTO key_chain (
-                    id,
-                    tenantId,
-                    description,
-                    usageType,
-                    usage,
-                    kmsProvider,
-                    externalKeyId,
-                    rootKey,
-                    rootCertificate,
-                    activeKey,
-                    activeCertificate,
-                    rotationEnabled,
-                    rotationIntervalDays,
-                    certValidityDays,
-                    lastRotatedAt,
-                    previousKey,
-                    previousCertificate,
-                    previousKeyExpiry,
-                    createdAt,
-                    updatedAt
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO &quot;key_chain&quot; (
+                    &quot;id&quot;,
+                    &quot;tenantId&quot;,
+                    &quot;description&quot;,
+                    &quot;usageType&quot;,
+                    &quot;usage&quot;,
+                    &quot;kmsProvider&quot;,
+                    &quot;externalKeyId&quot;,
+                    &quot;rootKey&quot;,
+                    &quot;rootCertificate&quot;,
+                    &quot;activeKey&quot;,
+                    &quot;activeCertificate&quot;,
+                    &quot;rotationEnabled&quot;,
+                    &quot;rotationIntervalDays&quot;,
+                    &quot;certValidityDays&quot;,
+                    &quot;lastRotatedAt&quot;,
+                    &quot;previousKey&quot;,
+                    &quot;previousCertificate&quot;,
+                    &quot;previousKeyExpiry&quot;,
+                    &quot;createdAt&quot;,
+                    &quot;updatedAt&quot;
+                ) VALUES (${placeholders})
             &#x60;,
                 [
                     key.id,
@@ -719,22 +821,22 @@ export class MigrateKeysToKeyChain1747000000000 implements MigrationInterface {
 
         // Drop foreign key dependent tables first
         if (await this.tableExists(queryRunner, &quot;cert_usage_entity&quot;)) {
-            await queryRunner.query(&#x60;DROP TABLE cert_usage_entity&#x60;);
+            await queryRunner.query(&#x60;DROP TABLE &quot;cert_usage_entity&quot;&#x60;);
             console.log(&quot;[Migration] Dropped cert_usage_entity table.&quot;);
         }
 
         if (await this.tableExists(queryRunner, &quot;key_usage_entity&quot;)) {
-            await queryRunner.query(&#x60;DROP TABLE key_usage_entity&#x60;);
+            await queryRunner.query(&#x60;DROP TABLE &quot;key_usage_entity&quot;&#x60;);
             console.log(&quot;[Migration] Dropped key_usage_entity table.&quot;);
         }
 
         if (await this.tableExists(queryRunner, &quot;cert_entity&quot;)) {
-            await queryRunner.query(&#x60;DROP TABLE cert_entity&#x60;);
+            await queryRunner.query(&#x60;DROP TABLE &quot;cert_entity&quot;&#x60;);
             console.log(&quot;[Migration] Dropped cert_entity table.&quot;);
         }
 
         if (await this.tableExists(queryRunner, &quot;key_entity&quot;)) {
-            await queryRunner.query(&#x60;DROP TABLE key_entity&#x60;);
+            await queryRunner.query(&#x60;DROP TABLE &quot;key_entity&quot;&#x60;);
             console.log(&quot;[Migration] Dropped key_entity table.&quot;);
         }
 

@@ -94,7 +94,7 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content controller">
+               <div class="content class">
                    <div class="content-data">
 
 
@@ -105,9 +105,16 @@
 
 
 
+
+
+
+
+
+
+
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Controllers</li>
-  <li class="breadcrumb-item" >MetricsController</li>
+  <li class="breadcrumb-item">Classes</li>
+  <li class="breadcrumb-item" >KeyAttestationsRequired</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -131,37 +138,21 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/core/metrics/metrics.controller.ts</code>
+            <code>src/issuer/configuration/issuance/dto/key-attestations-required.dto.ts</code>
         </p>
-            <p class="comment">
-                <h3>Prefix</h3>
-            </p>
-            <p class="comment">
-                <code>metrics</code>
-            </p>
 
 
             <p class="comment">
                 <h3>Description</h3>
             </p>
             <p class="comment">
-                <p>Custom metrics controller that extends the default PrometheusController
-and adds Bearer token authentication via MetricsAuthGuard.</p>
-<p>Protection is optional - if METRICS_TOKEN env var is not set,
-the endpoint is accessible without authentication.</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-bash"># Without protection (dev mode)
-curl http://localhost:3000/metrics
+                <p>Represents the key attestations required for issuing credentials.
+This is published in the credential issuer metadata under
+proof_types_supported[proof_type].key_attestations_required</p>
+<p>See <a href="https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#appendix-F">https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#appendix-F</a></p>
 
-
-# With protection (when METRICS_TOKEN is set)
-curl -H &quot;Authorization: Bearer your-token&quot; http://localhost:3000/metrics</code></pre></div>
             </p>
 
-            <p class="comment">
-                <h3>Extends</h3>
-            </p>
-            <p class="comment">
-            </p>
 
 
 
@@ -169,10 +160,9 @@ curl -H &quot;Authorization: Bearer your-token&quot; http://localhost:3000/metri
     <h3 id="index">Index</h3>
     <table class="table table-sm table-bordered index-table">
         <tbody>
-
                 <tr>
                     <td class="col-md-4">
-                        <h6><b>Methods</b></h6>
+                        <h6><b>Properties</b></h6>
                     </td>
                 </tr>
                 <tr>
@@ -180,8 +170,19 @@ curl -H &quot;Authorization: Bearer your-token&quot; http://localhost:3000/metri
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
-                                    <span class="modifier">Async</span>
-                                <a href="#index" >index</a>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#key_storage" >key_storage</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#user_authentication" >user_authentication</a>
                             </li>
                         </ul>
                     </td>
@@ -191,137 +192,183 @@ curl -H &quot;Authorization: Bearer your-token&quot; http://localhost:3000/metri
 
 
 
+
         </tbody>
     </table>
 </section>
 
-            <section data-compodoc="block-methods">
+
+            <section data-compodoc="block-properties">
     
-    <h3 id="methods">
-        Methods
+    <h3 id="inputs">
+        Properties
     </h3>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="index"></a>
+                    <a name="key_storage"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                            <span class="modifier">Async</span>
-                        <span ><b>index</b></span>
-                        <a href="#index"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>key_storage</b></span>
+                        <a href="#key_storage"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>index(response: Response)</code>
-                </td>
-            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>string[]</code>
 
-            <tr>
-                <td class="col-md-4">
-                    <b>Decorators : </b>
-                    <br />
-                    <code>@Get()<br /></code>
-                </td>
-            </tr>
-
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @ApiPropertyOptional({description: &#x27;List of required key storage types (e.g., iso_18045_high, iso_18045_moderate)&#x27;, type: undefined, example: undefined})<br />@IsArray()<br />@IsString({each: true})<br />@IsOptional()<br />
+                        </code>
+                    </td>
+                </tr>
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="28"
-                                    class="link-to-prism">src/core/metrics/metrics.controller.ts:28</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/issuer/configuration/issuance/dto/key-attestations-required.dto.ts:29</a></div>
                         </td>
                     </tr>
 
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>List of key storage types required.
+Common values for HAIP:</p>
+<ul>
+<li>&quot;iso_18045_high&quot;: High assurance hardware-backed key storage</li>
+<li>&quot;iso_18045_moderate&quot;: Moderate assurance key storage</li>
+</ul>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html"></code></pre></div></div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="user_authentication"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>user_authentication</b></span>
+                        <a href="#user_authentication"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>string[]</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @ApiPropertyOptional({description: &#x27;List of required user authentication types (e.g., iso_18045_high, iso_18045_moderate)&#x27;, type: undefined, example: undefined})<br />@IsArray()<br />@IsString({each: true})<br />@IsOptional()<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/issuer/configuration/issuance/dto/key-attestations-required.dto.ts:48</a></div>
+                        </td>
+                    </tr>
 
             <tr>
                 <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>response</td>
-                                            <td>
-                                                        <code>Response</code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>unknown</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
+                    <div class="io-description"><p>List of user authentication types required.
+Common values for HAIP:</p>
+<ul>
+<li>&quot;iso_18045_high&quot;: High assurance user authentication</li>
+<li>&quot;iso_18045_moderate&quot;: Moderate assurance user authentication</li>
+</ul>
+<b>Example :</b><div><pre class="line-numbers"><code class="language-html"></code></pre></div></div>
                 </td>
             </tr>
+
         </tbody>
     </table>
-</section>    </div>
+</section>
+
+
+
+
+
+
+
+    </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Res, UseGuards } from &quot;@nestjs/common&quot;;
-import { ApiExcludeController } from &quot;@nestjs/swagger&quot;;
-import { PrometheusController } from &quot;@willsoto/nestjs-prometheus&quot;;
-import type { Response } from &quot;express&quot;;
-import { MetricsAuthGuard } from &quot;./metrics-auth.guard&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiPropertyOptional } from &quot;@nestjs/swagger&quot;;
+import { IsArray, IsOptional, IsString } from &quot;class-validator&quot;;
 
 /**
- * Custom metrics controller that extends the default PrometheusController
- * and adds Bearer token authentication via MetricsAuthGuard.
+ * Represents the key attestations required for issuing credentials.
+ * This is published in the credential issuer metadata under
+ * proof_types_supported[proof_type].key_attestations_required
  *
- * Protection is optional - if METRICS_TOKEN env var is not set,
- * the endpoint is accessible without authentication.
- *
- * @example
- * &#x60;&#x60;&#x60;bash
- * # Without protection (dev mode)
- * curl http://localhost:3000/metrics
- *
- * # With protection (when METRICS_TOKEN is set)
- * curl -H &quot;Authorization: Bearer your-token&quot; http://localhost:3000/metrics
- * &#x60;&#x60;&#x60;
+ * @see https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#appendix-F
  */
-@ApiExcludeController()
-@Controller(&quot;metrics&quot;)
-@UseGuards(MetricsAuthGuard)
-export class MetricsController extends PrometheusController {
-    @Get()
-    async index(@Res({ passthrough: true }) response: Response) {
-        return super.index(response);
-    }
+export class KeyAttestationsRequired {
+    /**
+     * List of key storage types required.
+     * Common values for HAIP:
+     * - &quot;iso_18045_high&quot;: High assurance hardware-backed key storage
+     * - &quot;iso_18045_moderate&quot;: Moderate assurance key storage
+     *
+     * @example [&quot;iso_18045_high&quot;, &quot;iso_18045_moderate&quot;]
+     */
+    @ApiPropertyOptional({
+        description:
+            &quot;List of required key storage types (e.g., iso_18045_high, iso_18045_moderate)&quot;,
+        type: [String],
+        example: [&quot;iso_18045_high&quot;, &quot;iso_18045_moderate&quot;],
+    })
+    @IsArray()
+    @IsString({ each: true })
+    @IsOptional()
+    key_storage?: string[];
+
+    /**
+     * List of user authentication types required.
+     * Common values for HAIP:
+     * - &quot;iso_18045_high&quot;: High assurance user authentication
+     * - &quot;iso_18045_moderate&quot;: Moderate assurance user authentication
+     *
+     * @example [&quot;iso_18045_high&quot;, &quot;iso_18045_moderate&quot;]
+     */
+    @ApiPropertyOptional({
+        description:
+            &quot;List of required user authentication types (e.g., iso_18045_high, iso_18045_moderate)&quot;,
+        type: [String],
+        example: [&quot;iso_18045_high&quot;, &quot;iso_18045_moderate&quot;],
+    })
+    @IsArray()
+    @IsString({ each: true })
+    @IsOptional()
+    user_authentication?: string[];
 }
 </code></pre>
     </div>
 </div>
-
-
-
-
-
-
-
 
 
 
@@ -356,8 +403,8 @@ export class MetricsController extends PrometheusController {
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'controller';
-            var COMPODOC_CURRENT_PAGE_URL = 'MetricsController.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
+            var COMPODOC_CURRENT_PAGE_URL = 'KeyAttestationsRequired.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

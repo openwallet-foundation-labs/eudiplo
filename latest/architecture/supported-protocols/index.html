@@ -1588,6 +1588,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#oid4vp-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OID4VP Features
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2588,6 +2599,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#oid4vp-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OID4VP Features
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2755,6 +2777,59 @@ technical framework.</p>
 <td>Wallet Attestation</td>
 <td>✅</td>
 <td>Verify wallet provider trustworthiness</td>
+</tr>
+</tbody>
+</table>
+<h3 id="oid4vp-features">OID4VP Features<a class="headerlink" href="#oid4vp-features" title="Permanent link">¶</a></h3>
+<p>EUDIPLO implements the following OID4VP features:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Status</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>direct_post.jwt</code> Response Mode</td>
+<td>✅</td>
+<td>Wallet posts the VP Token directly to the verifier, encrypted as a JWE</td>
+</tr>
+<tr>
+<td>DCQL (Digital Credentials Query Language)</td>
+<td>✅</td>
+<td>Structured credential queries with selective disclosure</td>
+</tr>
+<tr>
+<td>Session Identifier Separation (§13.3)</td>
+<td>✅</td>
+<td>Wallet-facing identifier (<code>walletNonce</code>) is distinct from the internal session ID</td>
+</tr>
+<tr>
+<td>Response Code for Same-Device Redirect (§13.3)</td>
+<td>✅</td>
+<td>One-time <code>response_code</code> appended to <code>redirect_uri</code> prevents session fixation on redirect</td>
+</tr>
+<tr>
+<td>JWE-Encrypted Authorization Responses</td>
+<td>✅</td>
+<td>VP Tokens are encrypted to the verifier's key</td>
+</tr>
+<tr>
+<td><code>x509_san_dns</code> / <code>x509_san_uri</code> Client ID Scheme</td>
+<td>✅</td>
+<td>Verifier identification via X.509 certificates</td>
+</tr>
+<tr>
+<td>Wallet Attestation Verification</td>
+<td>✅</td>
+<td>Validate wallet provider trustworthiness before accepting presentations</td>
+</tr>
+<tr>
+<td>Digital Credentials API (DC API)</td>
+<td>✅</td>
+<td>Browser-native credential exchange without QR codes or redirects</td>
 </tr>
 </tbody>
 </table>

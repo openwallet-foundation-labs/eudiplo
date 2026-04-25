@@ -1138,15 +1138,26 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
-  <a href="#per-tenant-configuration" class="md-nav__link">
+  <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Per-Tenant Configuration
+        Prerequisites
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Per-Tenant Configuration">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-configure-registrar-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Configure Registrar Credentials
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 1: Configure Registrar Credentials">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1177,22 +1188,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#access-certificate" class="md-nav__link">
+  <a href="#step-2-create-an-access-certificate" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Access Certificate
+        Step 2: Create an Access Certificate
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Access Certificate">
+    <nav class="md-nav" aria-label="Step 2: Create an Access Certificate">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#via-the-web-ui_1" class="md-nav__link">
+  <a href="#via-the-key-creation-wizard" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Via the Web UI
+        Via the Key Creation Wizard
       
     </span>
   </a>
@@ -2591,15 +2602,26 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
       
         <li class="md-nav__item">
-  <a href="#per-tenant-configuration" class="md-nav__link">
+  <a href="#prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Per-Tenant Configuration
+        Prerequisites
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Per-Tenant Configuration">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-configure-registrar-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Configure Registrar Credentials
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 1: Configure Registrar Credentials">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2630,22 +2652,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#access-certificate" class="md-nav__link">
+  <a href="#step-2-create-an-access-certificate" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Access Certificate
+        Step 2: Create an Access Certificate
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Access Certificate">
+    <nav class="md-nav" aria-label="Step 2: Create an Access Certificate">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#via-the-web-ui_1" class="md-nav__link">
+  <a href="#via-the-key-creation-wizard" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Via the Web UI
+        Via the Key Creation Wizard
       
     </span>
   </a>
@@ -2769,7 +2791,16 @@
 </ul>
 <p>You can still use EUDIPLO without these certificates, but it can result in
 warnings when making requests to the EUDI Wallet.</p>
-<h2 id="per-tenant-configuration">Per-Tenant Configuration<a class="headerlink" href="#per-tenant-configuration" title="Permanent link">¶</a></h2>
+<hr>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">¶</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Role Required</p>
+<p>To see the <strong>Registrar</strong> menu in the client, your tenant must have the
+<code>registrar:manage</code> role assigned. When creating a tenant, make sure to
+select this role (or select "All roles" for a full setup).</p>
+</div>
+<hr>
+<h2 id="step-1-configure-registrar-credentials">Step 1: Configure Registrar Credentials<a class="headerlink" href="#step-1-configure-registrar-credentials" title="Permanent link">¶</a></h2>
 <p>Each tenant can configure their own registrar connection with OIDC credentials.
 This allows different tenants to connect to different registrar instances or
 use different credentials for the same registrar.</p>
@@ -2787,8 +2818,13 @@ use different credentials for the same registrar.</p>
 </li>
 <li>Click <strong>Save Configuration</strong></li>
 </ol>
-<p>The credentials will be validated before saving. If authentication fails, you'll
-receive an error message.</p>
+<div class="admonition info">
+<p class="admonition-title">Credential Validation</p>
+<p>When you save the configuration, EUDIPLO validates your credentials by
+attempting to authenticate with the registrar's OIDC endpoint. If
+authentication fails, you'll receive an error message and the
+configuration will not be saved.</p>
+</div>
 <h3 id="via-configuration-file">Via Configuration File<a class="headerlink" href="#via-configuration-file" title="Permanent link">¶</a></h3>
 <p>You can also configure the registrar by placing a <code>registrar.json</code> file in the
 tenant's configuration folder:</p>
@@ -2797,19 +2833,40 @@ tenant's configuration folder:</p>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">"oidcUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://auth.sandbox.eudi-wallet.org/realms/sandbox-registrar"</span><span class="p">,</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nt">"clientId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"swagger"</span><span class="p">,</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nt">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"your-username"</span><span class="p">,</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">"password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"your-password"</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">}</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">"password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"your-password"</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">"registrationCertificateDefaults"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">        </span><span class="nt">"privacy_policy"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://verifier.example/privacy"</span><span class="p">,</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">        </span><span class="nt">"support_uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mailto:support@verifier.example"</span><span class="p">,</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">        </span><span class="nt">"provided_attestations"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">}</span>
 </code></pre></div>
-<h2 id="access-certificate">Access Certificate<a class="headerlink" href="#access-certificate" title="Permanent link">¶</a></h2>
-<p>Once the registrar is configured, you can create access certificates for your key chains:</p>
-<h3 id="via-the-web-ui_1">Via the Web UI<a class="headerlink" href="#via-the-web-ui_1" title="Permanent link">¶</a></h3>
+<div class="admonition note">
+<p class="admonition-title">File Import Behavior</p>
+<p>When importing from a configuration file during startup, credentials are
+<strong>not</strong> validated (the registrar might not be reachable during initial setup).
+Make sure your credentials are correct before relying on the configuration.</p>
+</div>
+<hr>
+<h2 id="step-2-create-an-access-certificate">Step 2: Create an Access Certificate<a class="headerlink" href="#step-2-create-an-access-certificate" title="Permanent link">¶</a></h2>
+<p>Once the registrar is configured, you can create access certificates via the
+Key Creation Wizard.</p>
+<h3 id="via-the-key-creation-wizard">Via the Key Creation Wizard<a class="headerlink" href="#via-the-key-creation-wizard" title="Permanent link">¶</a></h3>
 <ol>
-<li>Navigate to <strong>Registrar</strong> in the sidebar</li>
-<li>In the "Create Access Certificate" section, select a key chain from the dropdown</li>
-<li>Click <strong>Create Certificate</strong></li>
+<li>Navigate to <strong>Keys</strong> in the sidebar</li>
+<li>Click <strong>+ Create Key</strong> to open the wizard</li>
+<li>Select <strong>Access Certificate</strong> as the key usage</li>
+<li>Select <strong>Registrar Enrollment</strong> as the access source</li>
+<li>Enter a name for the key chain</li>
+<li>Click <strong>Create</strong></li>
 </ol>
-<p>The certificate will be automatically stored in the key chain and you'll be redirected
-to the key chain detail page.</p>
+<p>The wizard will:</p>
+<ul>
+<li>Create a new key chain</li>
+<li>Generate a signing key</li>
+<li>Request an access certificate from the registrar</li>
+<li>Store the certificate in the key chain</li>
+</ul>
 <h3 id="via-the-api">Via the API<a class="headerlink" href="#via-the-api" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"https://your-eudiplo-instance/registrar/access-certificate"</span><span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer &lt;token&gt;"</span><span class="w"> </span><span class="se">\</span>
@@ -2822,11 +2879,23 @@ to the key chain detail page.</p>
 <li><code>keyChainId</code>: The local EUDIPLO key chain ID</li>
 <li><code>crt</code>: The certificate content</li>
 </ul>
+<hr>
 <h2 id="registration-certificate">Registration Certificate<a class="headerlink" href="#registration-certificate" title="Permanent link">¶</a></h2>
-<div class="admonition note">
-<p class="admonition-title">Coming Soon</p>
-<p>Registration Certificate creation through EUDIPLO is not yet implemented. Currently, registration certificates must be managed directly through the registrar's interface.</p>
-</div>
+<p>Registration certificates are created during OID4VP request generation when:</p>
+<ul>
+<li>registrar is configured for the tenant</li>
+<li>the selected presentation config contains <code>registrationCert</code></li>
+</ul>
+<p>The final registration certificate payload is built from:</p>
+<ul>
+<li>tenant-level <code>registrationCertificateDefaults</code> in <code>registrar.json</code> (or <code>/registrar/config</code> API)</li>
+<li>presentation-level <code>registrationCert.body</code> (takes precedence)</li>
+</ul>
+<p>Recommendation:</p>
+<ul>
+<li>keep <code>purpose</code> in the presentation config (<code>registrationCert.body.purpose</code>)</li>
+<li>keep shared legal/contact defaults in registrar config (<code>registrationCertificateDefaults</code>)</li>
+</ul>
 
 
 

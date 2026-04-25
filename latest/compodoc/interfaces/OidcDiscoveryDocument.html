@@ -530,6 +530,7 @@ import {
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { decodeJwt, decodeProtectedHeader } from &quot;jose&quot;;
+import { TraceService } from &quot;nestjs-otel&quot;;
 import { firstValueFrom } from &quot;rxjs&quot;;
 import { LessThan, Repository } from &quot;typeorm&quot;;
 import { v4 } from &quot;uuid&quot;;
@@ -629,6 +630,7 @@ export class ChainedAsService {
         private readonly sessionService: SessionService,
         private readonly issuanceService: IssuanceService,
         private readonly walletAttestationService: WalletAttestationService,
+        private readonly traceService: TraceService,
         @InjectRepository(ChainedAsSessionEntity)
         private readonly sessionRepository: Repository&lt;ChainedAsSessionEntity&gt;,
     ) {}
@@ -772,6 +774,14 @@ export class ChainedAsService {
 
         await this.sessionRepository.save(session);
 
+        // Add session context to span for trace correlation
+        this.traceService.getSpan()?.setAttributes({
+            &quot;session.id&quot;: issuerState,
+            &quot;chained_as.session.id&quot;: sessionId,
+            &quot;session.tenantId&quot;: tenantId,
+            &quot;chained_as.endpoint&quot;: &quot;par&quot;,
+        });
+
         this.logger.debug(
             &#x60;Created Chained AS PAR session ${sessionId} for tenant ${tenantId}&#x60;,
         );
@@ -818,6 +828,14 @@ export class ChainedAsService {
         if (!session) {
             throw new BadRequestException(&quot;Invalid or expired request_uri&quot;);
         }
+
+        // Add session context to span for trace correlation
+        this.traceService.getSpan()?.setAttributes({
+            &quot;session.id&quot;: session.issuerState,
+            &quot;chained_as.session.id&quot;: sessionId,
+            &quot;session.tenantId&quot;: tenantId,
+            &quot;chained_as.endpoint&quot;: &quot;authorize&quot;,
+        });
 
         // Verify client_id matches
         if (session.clientId !&#x3D;&#x3D; clientId) {
@@ -999,6 +1017,14 @@ export class ChainedAsService {
             throw new BadRequestException(&quot;Invalid or expired callback state&quot;);
         }
 
+        // Add session context to span for trace correlation
+        this.traceService.getSpan()?.setAttributes({
+            &quot;session.id&quot;: session.issuerState,
+            &quot;chained_as.session.id&quot;: session.id,
+            &quot;session.tenantId&quot;: tenantId,
+            &quot;chained_as.endpoint&quot;: &quot;callback&quot;,
+        });
+
         const config &#x3D; await this.getChainedAsConfig(tenantId);
         if (!config.upstream) {
             throw new BadRequestException(
@@ -1019,6 +1045,7 @@ export class ChainedAsService {
                 callbackUrl,
             );
         } catch (err) {
+            console.log(err);
             this.logger.error(&quot;Failed to exchange code at upstream&quot;, err);
             session.status &#x3D; ChainedAsSessionStatus.EXPIRED;
             await this.sessionRepository.save(session);
@@ -1101,6 +1128,15 @@ export class ChainedAsService {
             payload.upstream_sub &#x3D; session.upstreamIdTokenClaims.sub;
             payload.upstream_iss &#x3D; session.upstreamIdTokenClaims.iss;
         }
+        // Bind the access token to the Credential(s) the Wallet is
+        // authorized to request, per OID4VCI Section 6. The resource server
+        // enforces this when handling the Credential Request.
+        if (
+            Array.isArray(session.authorizationDetails) &amp;&amp;
+            session.authorizationDetails.length &gt; 0
+        ) {
+            payload.authorization_details &#x3D; session.authorizationDetails;
+        }
         return payload;
     }
 
@@ -1113,25 +1149,68 @@ export class ChainedAsService {
         request: ChainedAsTokenRequestDto,
         dpopJwt?: string,
     ): Promise&lt;ChainedAsTokenResponseDto&gt; {
-        if (request.grant_type !&#x3D;&#x3D; &quot;authorization_code&quot;) {
+        if (
+            request.grant_type !&#x3D;&#x3D; &quot;authorization_code&quot; &amp;&amp;
+            request.grant_type !&#x3D;&#x3D; &quot;refresh_token&quot;
+        ) {
             throw new BadRequestException(
-                &#x27;Invalid grant_type, must be &quot;authorization_code&quot;&#x27;,
+                &#x27;Invalid grant_type, must be &quot;authorization_code&quot; or &quot;refresh_token&quot;&#x27;,
             );
         }
 
-        const session &#x3D; await this.sessionRepository.findOne({
-            where: {
-                tenantId,
-                authorizationCode: request.code,
-                status: ChainedAsSessionStatus.AUTHORIZED,
-            },
-        });
+        let session: ChainedAsSessionEntity | null;
 
-        if (!session) {
-            throw new UnauthorizedException(&quot;Invalid authorization code&quot;);
+        if (request.grant_type &#x3D;&#x3D;&#x3D; &quot;refresh_token&quot;) {
+            if (!request.refresh_token) {
+                throw new BadRequestException(
+                    &quot;refresh_token is required for refresh_token grant&quot;,
+                );
+            }
+            session &#x3D; await this.sessionRepository.findOne({
+                where: {
+                    tenantId,
+                    refreshToken: request.refresh_token,
+                },
+            });
+            if (!session) {
+                throw new UnauthorizedException(
+                    &quot;Invalid or expired refresh_token&quot;,
+                );
+            }
+            if (
+                session.refreshTokenExpiresAt &amp;&amp;
+                session.refreshTokenExpiresAt &lt; new Date()
+            ) {
+                throw new UnauthorizedException(&quot;refresh_token has expired&quot;);
+            }
+        } else {
+            if (!request.code) {
+                throw new BadRequestException(
+                    &quot;code is required for authorization_code grant&quot;,
+                );
+            }
+            session &#x3D; await this.sessionRepository.findOne({
+                where: {
+                    tenantId,
+                    authorizationCode: request.code,
+                    status: ChainedAsSessionStatus.AUTHORIZED,
+                },
+            });
+            if (!session) {
+                throw new UnauthorizedException(&quot;Invalid authorization code&quot;);
+            }
         }
 
+        // Add session context to span for trace correlation
+        this.traceService.getSpan()?.setAttributes({
+            &quot;session.id&quot;: session.issuerState,
+            &quot;chained_as.session.id&quot;: session.id,
+            &quot;session.tenantId&quot;: tenantId,
+            &quot;chained_as.endpoint&quot;: &quot;token&quot;,
+        });
+
         if (
+            request.grant_type &#x3D;&#x3D;&#x3D; &quot;authorization_code&quot; &amp;&amp;
             session.authorizationCodeExpiresAt &amp;&amp;
             session.authorizationCodeExpiresAt &lt; new Date()
         ) {
@@ -1140,7 +1219,9 @@ export class ChainedAsService {
             throw new UnauthorizedException(&quot;Authorization code expired&quot;);
         }
 
-        this.verifyPkce(session, request.code_verifier);
+        if (request.grant_type &#x3D;&#x3D;&#x3D; &quot;authorization_code&quot;) {
+            this.verifyPkce(session, request.code_verifier);
+        }
 
         if (
             request.redirect_uri &amp;&amp;
@@ -1194,6 +1275,24 @@ export class ChainedAsService {
 
         session.status &#x3D; ChainedAsSessionStatus.TOKEN_ISSUED;
         session.accessTokenJti &#x3D; jti;
+
+        const issuanceConfig &#x3D;
+            await this.issuanceService.getIssuanceConfiguration(tenantId);
+
+        let refreshToken: string | undefined;
+        if (issuanceConfig.refreshTokenEnabled) {
+            refreshToken &#x3D; randomBytes(32).toString(&quot;base64url&quot;);
+            let refreshTokenExpiresAt: Date | undefined;
+            if (issuanceConfig.refreshTokenExpiresInSeconds) {
+                refreshTokenExpiresAt &#x3D; new Date(
+                    Date.now() +
+                        issuanceConfig.refreshTokenExpiresInSeconds * 1000,
+                );
+            }
+            session.refreshToken &#x3D; refreshToken;
+            session.refreshTokenExpiresAt &#x3D; refreshTokenExpiresAt;
+        }
+
         await this.sessionRepository.save(session);
 
         return {
@@ -1206,6 +1305,7 @@ export class ChainedAsService {
                 session.authorizationDetails.length &gt; 0 &amp;&amp; {
                     authorization_details: session.authorizationDetails,
                 }),
+            ...(refreshToken &amp;&amp; { refresh_token: refreshToken }),
         };
     }
 
@@ -1244,6 +1344,7 @@ export class ChainedAsService {
      */
     async getMetadata(tenantId: string): Promise&lt;Record&lt;string, unknown&gt;&gt; {
         const baseUrl &#x3D; this.getChainedAsBaseUrl(tenantId);
+        const publicUrl &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
 
         const issuanceConfig &#x3D;
             await this.issuanceService.getIssuanceConfiguration(tenantId);
@@ -1255,9 +1356,9 @@ export class ChainedAsService {
             authorization_endpoint: &#x60;${baseUrl}/authorize&#x60;,
             token_endpoint: &#x60;${baseUrl}/token&#x60;,
             pushed_authorization_request_endpoint: &#x60;${baseUrl}/par&#x60;,
-            jwks_uri: &#x60;${baseUrl}/.well-known/jwks.json&#x60;,
+            jwks_uri: &#x60;${publicUrl}/.well-known/jwks.json/issuers/${tenantId}/chained-as&#x60;,
             response_types_supported: [&quot;code&quot;],
-            grant_types_supported: [&quot;authorization_code&quot;],
+            grant_types_supported: [&quot;authorization_code&quot;, &quot;refresh_token&quot;],
             code_challenge_methods_supported: [&quot;S256&quot;],
             dpop_signing_alg_values_supported: [&quot;ES256&quot;, &quot;ES384&quot;, &quot;ES512&quot;],
         };
@@ -1266,7 +1367,6 @@ export class ChainedAsService {
             metadata.token_endpoint_auth_methods_supported &#x3D; [
                 &quot;attest_jwt_client_auth&quot;,
             ];
-            metadata.client_attestation_pop_nonce_required &#x3D; true;
             metadata.client_attestation_signing_alg_values_supported &#x3D; [
                 &quot;ES256&quot;,
             ];

@@ -22,69 +22,61 @@
 <text text-anchor="start" x="429.73" y="-15.4" font-family="Times-12" font-size="14.00"> &#160;Exports</text>
 <g id="clust1" class="cluster">
 <title>cluster_CoreModule</title>
-<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="120,-70 120,-268 376,-268 376,-70 120,-70"/>
-</g>
-<g id="clust4" class="cluster">
-<title>cluster_CoreModule_exports</title>
-<polygon fill="none" stroke="black" points="128,-208 128,-260 368,-260 368,-208 128,-208"/>
+<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="89,-70 89,-268 407,-268 407,-70 89,-70"/>
 </g>
 <g id="clust3" class="cluster">
 <title>cluster_CoreModule_imports</title>
-<polygon fill="none" stroke="black" points="132,-78 132,-130 365,-130 365,-78 132,-78"/>
+<polygon fill="none" stroke="black" points="287,-78 287,-130 399,-130 399,-78 287,-78"/>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_CoreModule_exports</title>
+<polygon fill="none" stroke="black" points="206,-208 206,-260 322,-260 322,-208 206,-208"/>
+</g>
+<g id="clust6" class="cluster">
+<title>cluster_CoreModule_providers</title>
+<polygon fill="none" stroke="black" points="97,-78 97,-130 279,-130 279,-78 97,-78"/>
 </g>
 <!-- HealthModule -->
 <g id="node1" class="node">
 <title>HealthModule</title>
-<polygon fill="#8dd3c7" stroke="black" points="357.37,-122 354.37,-126 333.37,-126 330.37,-122 260.63,-122 260.63,-86 357.37,-86 357.37,-122"/>
-<text text-anchor="middle" x="309" y="-99.8" font-family="Times,serif" font-size="14.00">HealthModule</text>
+<polygon fill="#8dd3c7" stroke="black" points="391.37,-122 388.37,-126 367.37,-126 364.37,-122 294.63,-122 294.63,-86 391.37,-86 391.37,-122"/>
+<text text-anchor="middle" x="343" y="-99.8" font-family="Times,serif" font-size="14.00">HealthModule</text>
 </g>
 <!-- CoreModule -->
-<g id="node3" class="node">
+<g id="node2" class="node">
 <title>CoreModule</title>
-<polygon fill="#8dd3c7" stroke="black" points="235.26,-187 232.26,-191 211.26,-191 208.26,-187 148.74,-187 148.74,-151 235.26,-151 235.26,-187"/>
-<text text-anchor="middle" x="192" y="-164.8" font-family="Times,serif" font-size="14.00">CoreModule</text>
+<polygon fill="#8dd3c7" stroke="black" points="307.26,-187 304.26,-191 283.26,-191 280.26,-187 220.74,-187 220.74,-151 307.26,-151 307.26,-187"/>
+<text text-anchor="middle" x="264" y="-164.8" font-family="Times,serif" font-size="14.00">CoreModule</text>
 </g>
 <!-- HealthModule&#45;&gt;CoreModule -->
 <g id="edge1" class="edge">
 <title>HealthModule&#45;&gt;CoreModule</title>
-<path fill="none" stroke="black" d="M325.14,-122.02C325.14,-139.37 325.14,-163 325.14,-163 325.14,-163 245.6,-163 245.6,-163"/>
-<polygon fill="black" stroke="black" points="245.6,-159.5 235.6,-163 245.6,-166.5 245.6,-159.5"/>
-</g>
-<!-- MetricsModule -->
-<g id="node2" class="node">
-<title>MetricsModule</title>
-<polygon fill="#8dd3c7" stroke="black" points="242.31,-122 239.31,-126 218.31,-126 215.31,-122 139.69,-122 139.69,-86 242.31,-86 242.31,-122"/>
-<text text-anchor="middle" x="191" y="-99.8" font-family="Times,serif" font-size="14.00">MetricsModule</text>
-</g>
-<!-- MetricsModule&#45;&gt;CoreModule -->
-<g id="edge2" class="edge">
-<title>MetricsModule&#45;&gt;CoreModule</title>
-<path fill="none" stroke="black" d="M192,-122.11C192,-122.11 192,-140.99 192,-140.99"/>
-<polygon fill="black" stroke="black" points="188.5,-140.99 192,-150.99 195.5,-140.99 188.5,-140.99"/>
+<path fill="none" stroke="black" d="M300.97,-122.11C300.97,-122.11 300.97,-140.99 300.97,-140.99"/>
+<polygon fill="black" stroke="black" points="297.47,-140.99 300.97,-150.99 304.47,-140.99 297.47,-140.99"/>
 </g>
 <!-- HealthModule  -->
-<g id="node4" class="node">
+<g id="node3" class="node">
 <title>HealthModule </title>
-<polygon fill="#fb8072" stroke="black" points="360.37,-252 259.63,-252 259.63,-216 360.37,-216 360.37,-252"/>
-<text text-anchor="middle" x="310" y="-229.8" font-family="Times,serif" font-size="14.00">HealthModule </text>
+<polygon fill="#fb8072" stroke="black" points="314.37,-252 213.63,-252 213.63,-216 314.37,-216 314.37,-252"/>
+<text text-anchor="middle" x="264" y="-229.8" font-family="Times,serif" font-size="14.00">HealthModule </text>
 </g>
 <!-- CoreModule&#45;&gt;HealthModule  -->
-<g id="edge3" class="edge">
+<g id="edge2" class="edge">
 <title>CoreModule&#45;&gt;HealthModule </title>
-<path fill="none" stroke="black" stroke-dasharray="5,2" d="M235.36,-175C262.69,-175 292.86,-175 292.86,-175 292.86,-175 292.86,-205.98 292.86,-205.98"/>
-<polygon fill="black" stroke="black" points="289.36,-205.98 292.86,-215.98 296.36,-205.98 289.36,-205.98"/>
+<path fill="none" stroke="black" stroke-dasharray="5,2" d="M264,-187.11C264,-187.11 264,-205.99 264,-205.99"/>
+<polygon fill="black" stroke="black" points="260.5,-205.99 264,-215.99 267.5,-205.99 260.5,-205.99"/>
 </g>
-<!-- MetricsModule  -->
-<g id="node5" class="node">
-<title>MetricsModule </title>
-<polygon fill="#fb8072" stroke="black" points="241.81,-252 136.19,-252 136.19,-216 241.81,-216 241.81,-252"/>
-<text text-anchor="middle" x="189" y="-229.8" font-family="Times,serif" font-size="14.00">MetricsModule </text>
+<!-- TraceIdInterceptor -->
+<g id="node4" class="node">
+<title>TraceIdInterceptor</title>
+<ellipse fill="#fdb462" stroke="black" cx="188" cy="-104" rx="83.32" ry="18"/>
+<text text-anchor="middle" x="188" y="-99.8" font-family="Times,serif" font-size="14.00">TraceIdInterceptor</text>
 </g>
-<!-- CoreModule&#45;&gt;MetricsModule  -->
-<g id="edge4" class="edge">
-<title>CoreModule&#45;&gt;MetricsModule </title>
-<path fill="none" stroke="black" stroke-dasharray="5,2" d="M192,-187.11C192,-187.11 192,-205.99 192,-205.99"/>
-<polygon fill="black" stroke="black" points="188.5,-205.99 192,-215.99 195.5,-205.99 188.5,-205.99"/>
+<!-- TraceIdInterceptor&#45;&gt;CoreModule -->
+<g id="edge3" class="edge">
+<title>TraceIdInterceptor&#45;&gt;CoreModule</title>
+<path fill="none" stroke="black" d="M246.02,-117.15C246.02,-117.15 246.02,-140.69 246.02,-140.69"/>
+<polygon fill="black" stroke="black" points="242.52,-140.69 246.02,-150.69 249.52,-140.69 242.52,-140.69"/>
 </g>
 </g>
 </svg>

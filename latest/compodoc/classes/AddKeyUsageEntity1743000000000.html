@@ -283,8 +283,8 @@ which simplifies the user experience and aligns with the actual data model.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="130"
-                                    class="link-to-prism">src/database/migrations/1743000000000-AddKeyUsageEntity.ts:130</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="131"
+                                    class="link-to-prism">src/database/migrations/1743000000000-AddKeyUsageEntity.ts:131</a></div>
                         </td>
                     </tr>
 
@@ -527,13 +527,14 @@ export class AddKeyUsageEntity1743000000000 implements MigrationInterface {
 
         // Migrate: for each cert usage, find the associated key and create key usage
         // Using INSERT ... SELECT with JOIN to efficiently migrate data
+        // Note: Column names must be quoted to preserve case in PostgreSQL
         await queryRunner.query(&#x60;
-            INSERT INTO key_usage_entity (tenantId, keyId, usage)
-            SELECT DISTINCT cu.tenantId, c.keyId, cu.usage
-            FROM cert_usage_entity cu
-            INNER JOIN cert_entity c ON cu.tenantId &#x3D; c.tenantId AND cu.certId &#x3D; c.id
-            WHERE c.keyId IS NOT NULL
-            ON CONFLICT (tenantId, keyId, usage) DO NOTHING
+            INSERT INTO &quot;key_usage_entity&quot; (&quot;tenantId&quot;, &quot;keyId&quot;, &quot;usage&quot;)
+            SELECT DISTINCT cu.&quot;tenantId&quot;, c.&quot;keyId&quot;, cu.&quot;usage&quot;
+            FROM &quot;cert_usage_entity&quot; cu
+            INNER JOIN &quot;cert_entity&quot; c ON cu.&quot;tenantId&quot; &#x3D; c.&quot;tenantId&quot; AND cu.&quot;certId&quot; &#x3D; c.&quot;id&quot;
+            WHERE c.&quot;keyId&quot; IS NOT NULL
+            ON CONFLICT (&quot;tenantId&quot;, &quot;keyId&quot;, &quot;usage&quot;) DO NOTHING
         &#x60;);
 
         console.log(&quot;[Migration] Data migration complete.&quot;);
