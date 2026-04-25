@@ -68,9 +68,7 @@ export class PresentationListComponent implements OnInit {
 
   registrationCertTooltip(config: PresentationConfig): string {
     const status = this.registrationCertStatus(config);
-    const expiresIn = formatRegistrationCertExpiresIn(
-      config.registrationCertCache as any
-    );
+    const expiresIn = formatRegistrationCertExpiresIn(config.registrationCertCache as any);
     switch (status) {
       case 'active':
         return expiresIn ? `Active — expires in ${expiresIn}` : 'Active';

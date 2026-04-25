@@ -16,9 +16,7 @@ import { PresentationConfig } from '@eudiplo/sdk-core';
 import { PresentationManagementService } from '../presentation-management.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { WebhookConfigShowComponent } from '../../../utils/webhook-config-show/webhook-config-show.component';
-import {
-  presentationManagementControllerReissueRegistrationCertificate,
-} from '@eudiplo/sdk-core';
+import { presentationManagementControllerReissueRegistrationCertificate } from '@eudiplo/sdk-core';
 import {
   formatRegistrationCertExpiresIn,
   getRegistrationCertStatus,
@@ -82,9 +80,7 @@ export class PresentationShowComponent implements OnInit {
   }
 
   get registrationCertExpiresIn(): string | null {
-    return formatRegistrationCertExpiresIn(
-      this.config?.registrationCertCache as any
-    );
+    return formatRegistrationCertExpiresIn(this.config?.registrationCertCache as any);
   }
 
   get registrationCertCache(): {
@@ -112,11 +108,9 @@ export class PresentationShowComponent implements OnInit {
       })
       .catch((err) => {
         console.error('Failed to reissue registration certificate', err);
-        this.snackBar.open(
-          'Failed to reissue registration certificate',
-          'Close',
-          { duration: 4000 }
-        );
+        this.snackBar.open('Failed to reissue registration certificate', 'Close', {
+          duration: 4000,
+        });
       })
       .finally(() => {
         this.reissuing = false;

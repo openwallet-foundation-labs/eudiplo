@@ -492,12 +492,7 @@ export class PresentationCreateComponent implements OnInit {
    * when the registrationCert spec or dcql_query change, so a `null` cache
    * after editing those fields means a fresh issuance is pending.
    */
-  get registrationCertStatus():
-    | 'none'
-    | 'active'
-    | 'expiring'
-    | 'expired'
-    | 'pending' {
+  get registrationCertStatus(): 'none' | 'active' | 'expiring' | 'expired' | 'pending' {
     if (this.create) return 'none';
     return getRegistrationCertStatus({
       registrationCert: this.buildRegistrationCertFromForm() as any,
@@ -524,11 +519,9 @@ export class PresentationCreateComponent implements OnInit {
       })
       .catch((err) => {
         console.error('Failed to reissue registration certificate', err);
-        this.snackBar.open(
-          'Failed to reissue registration certificate',
-          'Close',
-          { duration: 4000 }
-        );
+        this.snackBar.open('Failed to reissue registration certificate', 'Close', {
+          duration: 4000,
+        });
       })
       .finally(() => {
         this.reissuing = false;

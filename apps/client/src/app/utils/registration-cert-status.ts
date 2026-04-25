@@ -1,11 +1,6 @@
 import type { PresentationConfig } from '@eudiplo/sdk-core';
 
-export type RegistrationCertStatus =
-  | 'none'
-  | 'active'
-  | 'expiring'
-  | 'expired'
-  | 'pending';
+export type RegistrationCertStatus = 'none' | 'active' | 'expiring' | 'expired' | 'pending';
 
 interface RegistrationCertCacheLike {
   expiresAt?: number | null;
