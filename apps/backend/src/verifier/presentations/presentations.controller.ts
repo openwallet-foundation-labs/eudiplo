@@ -125,4 +125,34 @@ export class PresentationManagementController {
             user.entity!.id,
         );
     }
+
+    /**
+     * Force-reissue the registration certificate for a presentation
+     * configuration. Bypasses and refreshes the embedded cache.
+     */
+    @Secured([Role.Presentations])
+    @Post(":id/registration-cert/reissue")
+    @ApiOperation({
+        summary: "Reissue the registration certificate cache",
+        description:
+            "Bypasses the embedded registration-certificate cache and re-resolves it from the configured registrar.",
+    })
+    @ApiResponse({
+        status: 200,
+        description: "Updated presentation configuration",
+    })
+    @ApiResponse({
+        status: 400,
+        description:
+            "Config has no registrationCert spec or registrar is not enabled",
+    })
+    reissueRegistrationCertificate(
+        @Param("id") id: string,
+        @Token() user: TokenPayload,
+    ) {
+        return this.presentationsService.reissueRegistrationCertificate(
+            id,
+            user.entity!.id,
+        );
+    }
 }

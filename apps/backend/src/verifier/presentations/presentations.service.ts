@@ -14,6 +14,7 @@ import { Span, TraceService } from "nestjs-otel";
 import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
 import { ServiceTypeIdentifier } from "../../issuer/trust-list/trustlist.service";
+import { RegistrarService } from "../../registrar/registrar.service";
 import { Session } from "../../session/entities/session.entity";
 import { VerifierOptions } from "../../shared/trust/types";
 import { ConfigImportService } from "../../shared/utils/config-import/config-import.service";
@@ -60,6 +61,7 @@ export class PresentationsService {
         private readonly sdjwtvcverifierService: SdjwtvcverifierService,
         private readonly mdocverifierService: MdocverifierService,
         private readonly configService: ConfigService,
+        private readonly registrarService: RegistrarService,
         private readonly logger: PinoLogger,
         private readonly traceService: TraceService,
     ) {
@@ -129,14 +131,16 @@ export class PresentationsService {
      * @param vprequest - The PresentationConfig entity to store.
      * @returns A promise that resolves to the stored PresentationConfig entity.
      */
-    storePresentationConfig(
+    async storePresentationConfig(
         tenantId: string,
         vprequest: PresentationConfigCreateDto,
     ) {
-        return this.vpRequestRepository.save({
+        const merged = {
             ...vprequest,
             tenantId,
-        });
+        } as PresentationConfig;
+        await this.refreshRegistrationCertCache(merged, undefined);
+        return this.vpRequestRepository.save(merged);
     }
 
     /**
@@ -156,12 +160,249 @@ export class PresentationsService {
 
         // Merge existing with updates - client must explicitly set fields to null to clear them
         // Omitted fields keep their existing values
-        return this.vpRequestRepository.save({
+        const merged: PresentationConfig = {
             ...existing,
             ...vprequest,
             id,
             tenantId,
-        });
+        } as PresentationConfig;
+        await this.refreshRegistrationCertCache(merged, existing);
+        return this.vpRequestRepository.save(merged);
+    }
+
+    /**
+     * Force-reissue the registration certificate for a presentation config,
+     * bypassing the cache. Used by the management UI's "Reissue now" action.
+     *
+     * Throws if the config has no `registrationCert` spec or the registrar is
+     * not enabled for this tenant.
+     */
+    async reissueRegistrationCertificate(
+        id: string,
+        tenantId: string,
+    ): Promise<PresentationConfig> {
+        const presentationConfig = await this.getPresentationConfig(
+            id,
+            tenantId,
+        );
+        if (!presentationConfig.registrationCert) {
+            throw new BadRequestException(
+                "Presentation config has no registrationCert spec",
+            );
+        }
+        if (!(await this.registrarService.isEnabledForTenant(tenantId))) {
+            throw new BadRequestException(
+                "Registrar is not enabled for this tenant",
+            );
+        }
+
+        // Resolve `<TENANT_URL>` placeholders so registrar validation/issuance
+        // sees the same DCQL the runtime path will see.
+        const host = this.configService.getOrThrow<string>("PUBLIC_URL");
+        const tenantHost = `${host}/issuers/${tenantId}`;
+        const resolvedDcql = JSON.parse(
+            JSON.stringify(presentationConfig.dcql_query).replaceAll(
+                "<TENANT_URL>",
+                tenantHost,
+            ),
+        );
+
+        // Force a fresh resolve by clearing the cache first.
+        presentationConfig.registrationCertCache = null;
+        const jwt = await this.getOrIssueRegistrationCertificate(
+            presentationConfig,
+            resolvedDcql,
+            `reissue-${id}`,
+        );
+        if (!jwt) {
+            throw new BadRequestException(
+                "Failed to reissue registration certificate",
+            );
+        }
+        return this.getPresentationConfig(id, tenantId);
+    }
+
+    /**
+     * Resolve the registration-certificate JWT to attach to a VP request,
+     * using the embedded {@link PresentationConfig.registrationCertCache}
+     * when it is still valid. On a cache miss/expiry the cert is freshly
+     * resolved via {@link RegistrarService} and the cache is persisted.
+     *
+     * Returns `undefined` when the config has no `registrationCert` spec or
+     * the registrar is not enabled for this tenant.
+     */
+    async getOrIssueRegistrationCertificate(
+        presentationConfig: PresentationConfig,
+        resolvedDcqlQuery: any,
+        requestId: string,
+    ): Promise<string | undefined> {
+        if (!presentationConfig.registrationCert) {
+            return undefined;
+        }
+        if (
+            !(await this.registrarService.isEnabledForTenant(
+                presentationConfig.tenantId,
+            ))
+        ) {
+            return undefined;
+        }
+
+        const dcqlFingerprint = this.registrarService.computeDcqlFingerprint(
+            presentationConfig.dcql_query,
+        );
+        const specFingerprint = this.registrarService.computeSpecFingerprint(
+            presentationConfig.registrationCert,
+        );
+
+        const cache = presentationConfig.registrationCertCache;
+        const now = Math.floor(Date.now() / 1000);
+        const skew = 60;
+        if (
+            cache &&
+            cache.dcqlFingerprint === dcqlFingerprint &&
+            cache.specFingerprint === specFingerprint &&
+            (typeof cache.expiresAt !== "number" ||
+                cache.expiresAt - skew > now)
+        ) {
+            return cache.jwt;
+        }
+
+        const resolved =
+            await this.registrarService.resolveRegistrationCertificate(
+                presentationConfig.registrationCert as any,
+                resolvedDcqlQuery,
+                requestId,
+                presentationConfig.tenantId,
+            );
+
+        const newCache = {
+            jwt: resolved.jwt,
+            fingerprint:
+                this.registrarService.computeAuthorizedCredentialsFingerprint(
+                    resolved.payload.credentials,
+                ),
+            dcqlFingerprint,
+            specFingerprint,
+            issuedAt:
+                typeof resolved.payload.iat === "number"
+                    ? resolved.payload.iat
+                    : undefined,
+            expiresAt:
+                typeof resolved.payload.exp === "number"
+                    ? resolved.payload.exp
+                    : undefined,
+            source: resolved.source,
+        };
+
+        await this.vpRequestRepository.update(
+            {
+                id: presentationConfig.id,
+                tenantId: presentationConfig.tenantId,
+            },
+            { registrationCertCache: newCache },
+        );
+        presentationConfig.registrationCertCache = newCache;
+
+        return resolved.jwt;
+    }
+
+    /**
+     * Recompute (or invalidate) the embedded registration-certificate cache on
+     * the about-to-be-saved presentation config.
+     *
+     * Behavior:
+     *  - If `registrationCert` is unset → clears any stale cache.
+     *  - If a cache exists for an unchanged `registrationCert` spec, unchanged
+     *    `dcql_query`, and is not expired → keeps the existing cache.
+     *  - Otherwise eagerly resolves the certificate via {@link RegistrarService}
+     *    and stores the new cache. On registrar/network failure the cache is
+     *    cleared and the save proceeds; the runtime path will retry.
+     *
+     * Errors raised by the registrar that indicate user-config problems
+     * (`BadRequestException`) propagate to fail the save.
+     */
+    private async refreshRegistrationCertCache(
+        next: PresentationConfig,
+        existing: PresentationConfig | undefined,
+    ): Promise<void> {
+        const spec = next.registrationCert;
+        if (!spec) {
+            next.registrationCertCache = null;
+            return;
+        }
+
+        const dcqlFingerprint = this.registrarService.computeDcqlFingerprint(
+            next.dcql_query,
+        );
+        const specFingerprint =
+            this.registrarService.computeSpecFingerprint(spec);
+
+        const now = Math.floor(Date.now() / 1000);
+        const skew = 60;
+        const cache = existing?.registrationCertCache;
+        const cacheStillValid =
+            cache &&
+            cache.dcqlFingerprint === dcqlFingerprint &&
+            cache.specFingerprint === specFingerprint &&
+            (typeof cache.expiresAt !== "number" ||
+                cache.expiresAt - skew > now);
+
+        if (cacheStillValid) {
+            next.registrationCertCache = cache;
+            return;
+        }
+
+        // Resolve `<TENANT_URL>` placeholders so registrar validation/issuance
+        // sees the same DCQL the runtime path will see.
+        let resolvedDcql: any;
+        try {
+            const host = this.configService.getOrThrow<string>("PUBLIC_URL");
+            const tenantHost = `${host}/issuers/${next.tenantId}`;
+            resolvedDcql = JSON.parse(
+                JSON.stringify(next.dcql_query).replaceAll(
+                    "<TENANT_URL>",
+                    tenantHost,
+                ),
+            );
+        } catch {
+            // No PUBLIC_URL in this context — fall back to the templated form.
+            resolvedDcql = next.dcql_query;
+        }
+
+        try {
+            const resolved =
+                await this.registrarService.resolveRegistrationCertificate(
+                    spec as any,
+                    resolvedDcql,
+                    next.id ?? "presentation-config-save",
+                    next.tenantId,
+                );
+            const payload = resolved.payload;
+            next.registrationCertCache = {
+                jwt: resolved.jwt,
+                fingerprint:
+                    this.registrarService.computeAuthorizedCredentialsFingerprint(
+                        payload.credentials,
+                    ),
+                dcqlFingerprint,
+                specFingerprint,
+                issuedAt:
+                    typeof payload.iat === "number" ? payload.iat : undefined,
+                expiresAt:
+                    typeof payload.exp === "number" ? payload.exp : undefined,
+                source: resolved.source,
+            };
+        } catch (err) {
+            if (err instanceof BadRequestException) {
+                // User-config error — fail the save so the user sees the issue.
+                throw err;
+            }
+            this.logger.warn(
+                { err, tenantId: next.tenantId, configId: next.id },
+                "Failed to eagerly resolve registration certificate at save time; cache cleared, runtime will retry",
+            );
+            next.registrationCertCache = null;
+        }
     }
 
     /**

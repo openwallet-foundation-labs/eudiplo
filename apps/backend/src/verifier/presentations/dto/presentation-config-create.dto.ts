@@ -6,6 +6,7 @@ export class PresentationConfigCreateDto extends OmitType(PresentationConfig, [
     "tenant",
     "createdAt",
     "updatedAt",
+    "registrationCertCache",
 ] as const) {
     // Define the properties for the presentation config create DTO
 }

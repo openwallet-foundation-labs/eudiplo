@@ -98,6 +98,9 @@ import type {
   PresentationManagementControllerDeleteConfigurationResponses,
   PresentationManagementControllerGetConfigurationData,
   PresentationManagementControllerGetConfigurationResponses,
+  PresentationManagementControllerReissueRegistrationCertificateData,
+  PresentationManagementControllerReissueRegistrationCertificateErrors,
+  PresentationManagementControllerReissueRegistrationCertificateResponses,
   PresentationManagementControllerResolveIssuerMetadataData,
   PresentationManagementControllerResolveIssuerMetadataErrors,
   PresentationManagementControllerResolveIssuerMetadataResponses,
@@ -1310,6 +1313,29 @@ export const presentationManagementControllerUpdateConfiguration = <
   });
 
 /**
+ * Reissue the registration certificate cache
+ *
+ * Bypasses the embedded registration-certificate cache and re-resolves it from the configured registrar.
+ */
+export const presentationManagementControllerReissueRegistrationCertificate = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    PresentationManagementControllerReissueRegistrationCertificateData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    PresentationManagementControllerReissueRegistrationCertificateResponses,
+    PresentationManagementControllerReissueRegistrationCertificateErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/verifier/config/{id}/registration-cert/reissue",
+    ...options,
+  });
+
+/**
  * Get cache statistics
  *
  * Returns statistics about the trust list and status list caches.
@@ -1385,76 +1411,6 @@ export const cacheControllerClearStatusListCache = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/cache/status-list",
     ...options,
-  });
-
-/**
- * Create an offer for a credential.
- */
-export const credentialOfferControllerGetOffer = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<CredentialOfferControllerGetOfferData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    CredentialOfferControllerGetOfferResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/issuer/offer",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Complete a deferred credential transaction
- *
- * Completes a pending deferred credential transaction by providing the claims. The credential will be generated and marked as ready for wallet retrieval.
- */
-export const deferredControllerCompleteDeferred = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<DeferredControllerCompleteDeferredData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    DeferredControllerCompleteDeferredResponses,
-    DeferredControllerCompleteDeferredErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/issuer/deferred/{transactionId}/complete",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Fail a deferred credential transaction
- *
- * Marks a deferred credential transaction as failed. The wallet will receive an invalid_transaction_id error when attempting retrieval.
- */
-export const deferredControllerFailDeferred = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<DeferredControllerFailDeferredData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    DeferredControllerFailDeferredResponses,
-    DeferredControllerFailDeferredErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/issuer/deferred/{transactionId}/fail",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
   });
 
 /**
@@ -1557,6 +1513,76 @@ export const registrarControllerCreateAccessCertificate = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/registrar/access-certificate",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Create an offer for a credential.
+ */
+export const credentialOfferControllerGetOffer = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<CredentialOfferControllerGetOfferData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    CredentialOfferControllerGetOfferResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/issuer/offer",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Complete a deferred credential transaction
+ *
+ * Completes a pending deferred credential transaction by providing the claims. The credential will be generated and marked as ready for wallet retrieval.
+ */
+export const deferredControllerCompleteDeferred = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<DeferredControllerCompleteDeferredData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    DeferredControllerCompleteDeferredResponses,
+    DeferredControllerCompleteDeferredErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/issuer/deferred/{transactionId}/complete",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Fail a deferred credential transaction
+ *
+ * Marks a deferred credential transaction as failed. The wallet will receive an invalid_transaction_id error when attempting retrieval.
+ */
+export const deferredControllerFailDeferred = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<DeferredControllerFailDeferredData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    DeferredControllerFailDeferredResponses,
+    DeferredControllerFailDeferredErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/issuer/deferred/{transactionId}/fail",
     ...options,
     headers: {
       "Content-Type": "application/json",

@@ -13,6 +13,7 @@ import { CryptoImplementationService } from "../../crypto/key/crypto-implementat
 import { KeyUsageType } from "../../crypto/key/entities/key-chain.entity";
 import { KeyChainService } from "../../crypto/key/key-chain.service";
 import { OfferResponse } from "../../issuer/issuance/oid4vci/dto/offer-request.dto";
+import { RegistrarService } from "../../registrar/registrar.service";
 import { SessionStatus } from "../../session/entities/session.entity";
 import { SessionService } from "../../session/session.service";
 import { AuditLogContext } from "../../shared/utils/logger/audit-log.service";
@@ -33,6 +34,7 @@ export class Oid4vpService {
         public readonly keyChainService: KeyChainService,
         private readonly encryptionService: EncryptionService,
         private readonly configService: ConfigService,
+        private readonly registrarService: RegistrarService,
         private readonly presentationsService: PresentationsService,
         private readonly sessionService: SessionService,
         private readonly auditLogger: SessionLoggerService,
@@ -165,22 +167,19 @@ export class Oid4vpService {
                 return rest;
             });
 
-            /*             if (
-                await this.registrarService.isEnabledForTenant(session.tenantId)
+            if (
+                presentationConfig.registrationCert &&
+                (await this.registrarService.isEnabledForTenant(
+                    session.tenantId,
+                ))
             ) {
-                const registrationCert = JSON.parse(
-                    JSON.stringify(
-                        presentationConfig.registrationCert,
-                    ).replaceAll("<TENANT_URL>", tenantHost),
-                );
                 regCert =
-                    await this.registrarService.addRegistrationCertificate(
-                        registrationCert,
+                    await this.presentationsService.getOrIssueRegistrationCertificate(
+                        presentationConfig,
                         dcql_query,
                         session.requestId!,
-                        session.tenantId,
                     );
-            } */
+            }
             const nonce = randomUUID();
             await this.sessionService.add(session.id, {
                 vp_nonce: nonce,

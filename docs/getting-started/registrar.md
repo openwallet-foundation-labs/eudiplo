@@ -56,7 +56,12 @@ tenant's configuration folder:
     "oidcUrl": "https://auth.sandbox.eudi-wallet.org/realms/sandbox-registrar",
     "clientId": "swagger",
     "username": "your-username",
-    "password": "your-password"
+    "password": "your-password",
+    "registrationCertificateDefaults": {
+        "privacy_policy": "https://verifier.example/privacy",
+        "support_uri": "mailto:support@verifier.example",
+        "provided_attestations": []
+    }
 }
 ```
 
@@ -108,8 +113,17 @@ The response includes:
 
 ## Registration Certificate
 
-!!! note "Coming Soon"
+Registration certificates are created during OID4VP request generation when:
 
-    Registration Certificate creation through EUDIPLO is not yet implemented.
-    Currently, registration certificates must be managed directly through the
-    registrar's interface.
+- registrar is configured for the tenant
+- the selected presentation config contains `registrationCert`
+
+The final registration certificate payload is built from:
+
+- tenant-level `registrationCertificateDefaults` in `registrar.json` (or `/registrar/config` API)
+- presentation-level `registrationCert.body` (takes precedence)
+
+Recommendation:
+
+- keep `purpose` in the presentation config (`registrationCert.body.purpose`)
+- keep shared legal/contact defaults in registrar config (`registrationCertificateDefaults`)

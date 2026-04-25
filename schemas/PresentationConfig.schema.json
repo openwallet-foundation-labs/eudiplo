@@ -4,6 +4,14 @@
   "title": "PresentationConfig",
   "type": "object",
   "properties": {
+    "registrationCertCache": {
+      "type": "object",
+      "nullable": true,
+      "description": "Server-managed cache of the materialized registration certificate. Read-only; values supplied by clients are ignored.",
+      "example": "",
+      "readOnly": true,
+      "additionalProperties": true
+    },
     "id": {
       "type": "string",
       "description": "Unique identifier for the VP request."

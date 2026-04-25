@@ -36,6 +36,10 @@
     "c_nonce_expires_in": {
       "type": "number",
       "description": "C_NONCE lifetime in seconds"
+    },
+    "refresh_token": {
+      "type": "string",
+      "description": "Refresh token (issued when refresh tokens are enabled)"
     }
   },
   "required": [

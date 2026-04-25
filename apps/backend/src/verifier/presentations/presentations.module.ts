@@ -1,6 +1,7 @@
 import { HttpModule } from "@nestjs/axios";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { RegistrarModule } from "../../registrar/registrar.module";
 import { TrustModule } from "../../shared/trust/trust.module";
 import { ResolverModule } from "../resolver/resolver.module";
 import { CredentialChainValidationService } from "./credential/credential-chain-validation.service";
@@ -16,6 +17,7 @@ import { PresentationsService } from "./presentations.service";
         HttpModule,
         TypeOrmModule.forFeature([PresentationConfig]),
         TrustModule,
+        RegistrarModule,
     ],
     controllers: [PresentationManagementController],
     providers: [

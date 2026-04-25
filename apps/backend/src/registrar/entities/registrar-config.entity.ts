@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsOptional, IsString, IsUrl } from "class-validator";
+import { IsObject, IsOptional, IsString, IsUrl } from "class-validator";
 import { Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
 import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
 
@@ -96,4 +96,19 @@ export class RegistrarConfigEntity {
     @IsString()
     @Column("varchar")
     password!: string;
+
+    /**
+     * Optional tenant-wide defaults merged into registration certificate creation requests.
+     * Presentation config values take precedence over these defaults.
+     */
+    @ApiPropertyOptional({
+        description:
+            "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)",
+        type: "object",
+        additionalProperties: true,
+    })
+    @IsOptional()
+    @IsObject()
+    @Column("json", { nullable: true })
+    registrationCertificateDefaults?: Record<string, unknown> | null;
 }

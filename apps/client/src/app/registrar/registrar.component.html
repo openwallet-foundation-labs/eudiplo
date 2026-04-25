@@ -84,6 +84,7 @@
                   matInput
                   formControlName="clientSecret"
                   [type]="showPassword ? 'text' : 'password'"
+                  placeholder="Optional client secret"
                 />
                 <button
                   mat-icon-button
@@ -108,6 +109,7 @@
                   matInput
                   formControlName="password"
                   [type]="showPassword ? 'text' : 'password'"
+                  placeholder="Enter password"
                   [placeholder]="config?.hasPassword ? 'Leave empty to keep existing' : ''"
                 />
                 <button
@@ -123,6 +125,47 @@
                 }
               </mat-form-field>
             </div>
+
+            <h3>Registration Certificate Defaults (optional)</h3>
+            <p class="section-help">
+              Shared defaults used when creating registration certificates (tenant-wide). Keep
+              presentation-specific purpose in Presentation Configuration.
+            </p>
+            <div
+              formGroupName="registrationCertificateDefaults"
+              fxLayout="column"
+              fxLayoutGap="16px"
+            >
+              <mat-form-field appearance="outline">
+                <mat-label>Privacy Policy URL</mat-label>
+                <input
+                  matInput
+                  formControlName="privacy_policy"
+                  placeholder="https://verifier.example/privacy"
+                />
+                <mat-hint>Tenant-wide default for registration certificate privacy policy</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Support URI</mat-label>
+                <input
+                  matInput
+                  formControlName="support_uri"
+                  placeholder="mailto:support@verifier.example"
+                />
+                <mat-hint>Can be email, phone URI, or URL</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Intermediary RP ID (optional)</mat-label>
+                <input matInput formControlName="intermediary" placeholder="intermediary-rp-id" />
+                <mat-hint>Used when acting via an intermediary relying party</mat-hint>
+              </mat-form-field>
+            </div>
+            <p class="section-help">
+              More advanced default fields (such as provided_attestations) can still be set via
+              registrar API or registrar.json.
+            </p>
           </form>
         </mat-card-content>
 

@@ -99,7 +99,7 @@
 
               <mat-form-field>
                 <mat-label>Lifetime of the request</mat-label>
-                <input matInput formControlName="lifeTime" type="number" />
+                <input matInput formControlName="lifeTime" type="number" placeholder="300" />
                 @if (form.controls['lifeTime'].hasError('required')) {
                   <mat-error> Lifetime is required </mat-error>
                 }
@@ -229,11 +229,194 @@
             </mat-card-header>
             <mat-card-content fxLayout="column" fxLayoutGap="16px">
               <h4>Registrar Certificate (optional)</h4>
-              <app-editor
-                formControlName="registrationCert"
-                [schema]="registrationCertificateRequestSchema"
-                [errors]="form.controls['registrationCert'].errors"
-              ></app-editor>
+              <mat-hint>
+                Two approaches are supported: (1) import/reuse existing certificate via
+                <code>jwt</code> or <code>id</code>, or (2) request a new one via
+                <code>body</code> (including multilingual <code>purpose</code>).
+              </mat-hint>
+
+              @if (!create) {
+                <div
+                  class="reg-cert-status"
+                  [attr.data-status]="registrationCertStatus"
+                  fxLayout="row"
+                  fxLayoutGap="12px"
+                  fxLayoutAlign="start center"
+                >
+                  @switch (registrationCertStatus) {
+                    @case ('active') {
+                      <mat-icon color="primary">verified</mat-icon>
+                      <span
+                        ><strong>Active</strong>
+                        @if (registrationCertExpiresIn) {
+                          — expires in {{ registrationCertExpiresIn }}
+                        }
+                        @if (registrationCertCache?.source) {
+                          ({{ registrationCertCache.source }})
+                        }
+                      </span>
+                    }
+                    @case ('expiring') {
+                      <mat-icon color="accent">schedule</mat-icon>
+                      <span
+                        ><strong>Expiring soon</strong> — {{ registrationCertExpiresIn }}
+                        remaining
+                      </span>
+                    }
+                    @case ('expired') {
+                      <mat-icon color="warn">error_outline</mat-icon>
+                      <span><strong>Expired</strong> — reissue required</span>
+                    }
+                    @case ('pending') {
+                      <mat-icon color="accent">refresh</mat-icon>
+                      <span
+                        ><strong>Pending</strong> — will be reissued on save (config changed)</span
+                      >
+                    }
+                    @case ('none') {
+                      <mat-icon>info</mat-icon>
+                      <span>No registration certificate configured</span>
+                    }
+                  }
+                  <span fxFlex></span>
+                  @if (registrationCertStatus !== 'none') {
+                    <button
+                      mat-stroked-button
+                      type="button"
+                      [disabled]="reissuing"
+                      (click)="reissueRegistrationCert()"
+                    >
+                      <mat-icon>refresh</mat-icon>
+                      {{ reissuing ? 'Reissuing…' : 'Reissue now' }}
+                    </button>
+                  }
+                </div>
+              }
+              <mat-tab-group
+                [selectedIndex]="registrationCertTabIndex"
+                (selectedIndexChange)="registrationCertTabIndex = $event"
+              >
+                <mat-tab label="Import">
+                  <div fxLayout="column" fxLayoutGap="16px" class="tab-content">
+                    <mat-form-field>
+                      <mat-label>Registration Certificate JWT</mat-label>
+                      <textarea
+                        matInput
+                        formControlName="registrationCertImportJwt"
+                        rows="4"
+                        placeholder="Paste existing registration certificate JWT"
+                      ></textarea>
+                      <mat-hint>
+                        If JWT is provided, EUDIPLO uses it directly without contacting registrar.
+                      </mat-hint>
+                    </mat-form-field>
+
+                    <mat-form-field>
+                      <mat-label>Existing Registrar Certificate ID</mat-label>
+                      <input
+                        matInput
+                        formControlName="registrationCertImportId"
+                        placeholder="existing-registration-cert-id"
+                      />
+                      <mat-hint>
+                        Optional alternative to JWT: reuse an active registrar certificate by ID.
+                      </mat-hint>
+                    </mat-form-field>
+                  </div>
+                </mat-tab>
+
+                <mat-tab label="Form Based">
+                  <div fxLayout="column" fxLayoutGap="16px" class="tab-content">
+                    <mat-form-field>
+                      <mat-label>Privacy Policy URL (optional)</mat-label>
+                      <input
+                        matInput
+                        formControlName="registrationCertBodyPrivacyPolicy"
+                        placeholder="https://verifier.example/privacy"
+                      />
+                    </mat-form-field>
+
+                    <mat-form-field>
+                      <mat-label>Support URI (optional)</mat-label>
+                      <input
+                        matInput
+                        formControlName="registrationCertBodySupportUri"
+                        placeholder="mailto:support@verifier.example"
+                      />
+                    </mat-form-field>
+
+                    <mat-form-field>
+                      <mat-label>Intermediary RP ID (optional)</mat-label>
+                      <input
+                        matInput
+                        formControlName="registrationCertBodyIntermediary"
+                        placeholder="intermediary-rp-id"
+                      />
+                    </mat-form-field>
+
+                    <div fxLayout="row" fxLayoutAlign="space-between center">
+                      <h5>Purposes</h5>
+                      <button mat-button type="button" (click)="addRegistrationCertPurpose()">
+                        <mat-icon>add</mat-icon>
+                        Add Purpose
+                      </button>
+                    </div>
+
+                    <div
+                      formArrayName="registrationCertBodyPurpose"
+                      fxLayout="column"
+                      fxLayoutGap="12px"
+                    >
+                      @for (
+                        purposeCtrl of registrationCertPurposeArray.controls;
+                        let i = $index;
+                        track i
+                      ) {
+                        <div
+                          [formGroup]="asFormGroup(purposeCtrl)"
+                          fxLayout="row"
+                          fxLayoutGap="12px"
+                          fxLayout.lt-md="column"
+                          class="purpose-row"
+                        >
+                          <mat-form-field fxFlex="30">
+                            <mat-label>Language</mat-label>
+                            <mat-select formControlName="lang">
+                              @for (option of purposeLanguageOptions; track option.value) {
+                                <mat-option [value]="option.value"
+                                  >{{ option.label }} ({{ option.value }})</mat-option
+                                >
+                              }
+                            </mat-select>
+                          </mat-form-field>
+                          <mat-form-field fxFlex>
+                            <mat-label>Purpose</mat-label>
+                            <input
+                              matInput
+                              formControlName="value"
+                              placeholder="To register a new user"
+                            />
+                          </mat-form-field>
+                          <button
+                            mat-icon-button
+                            color="warn"
+                            type="button"
+                            (click)="removeRegistrationCertPurpose(i)"
+                            matTooltip="Remove purpose"
+                          >
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        </div>
+                      }
+                    </div>
+
+                    <mat-hint>
+                      Add one or more multilingual purpose statements that explain why user data is
+                      requested.
+                    </mat-hint>
+                  </div>
+                </mat-tab>
+              </mat-tab-group>
             </mat-card-content>
           </mat-card>
         </div>

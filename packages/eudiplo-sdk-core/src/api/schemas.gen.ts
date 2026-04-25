@@ -2771,16 +2771,76 @@ export const DCQLSchema = {
   required: ["credentials"],
 } as const;
 
+export const RegistrationCertificatePurposeSchema = {
+  type: "object",
+  properties: {
+    lang: {
+      type: "string",
+    },
+    value: {
+      type: "string",
+    },
+  },
+  required: ["lang", "value"],
+} as const;
+
+export const RegistrationCertificateBodySchema = {
+  type: "object",
+  properties: {
+    privacy_policy: {
+      type: "string",
+    },
+    support_uri: {
+      type: "string",
+    },
+    intermediary: {
+      type: "string",
+    },
+    purpose: {
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/RegistrationCertificatePurpose",
+      },
+    },
+    credentials: {
+      type: "array",
+      items: {
+        type: "object",
+      },
+    },
+    provided_attestations: {
+      type: "array",
+      items: {
+        type: "object",
+      },
+    },
+  },
+  required: ["privacy_policy", "support_uri"],
+} as const;
+
 export const RegistrationCertificateRequestSchema = {
   type: "object",
   properties: {
+    id: {
+      type: "string",
+      description:
+        "Optional registrar-side certificate identifier.\nIf provided and still valid, EUDIPLO reuses it instead of creating a new certificate.",
+    },
+    body: {
+      description:
+        "Registration certificate creation payload.\nThis is merged with tenant-level registrar defaults when a certificate is created.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/RegistrationCertificateBody",
+        },
+      ],
+    },
     jwt: {
       type: "string",
       description:
-        "The body of the registration certificate request containing the necessary details.",
+        "Optional pre-existing registration certificate JWT.\nIf provided, EUDIPLO forwards it as-is and does not create a new one.",
     },
   },
-  required: ["jwt"],
 } as const;
 
 export const PresentationAttachmentSchema = {
@@ -2805,6 +2865,15 @@ export const PresentationAttachmentSchema = {
 export const PresentationConfigSchema = {
   type: "object",
   properties: {
+    registrationCertCache: {
+      type: "object",
+      nullable: true,
+      description:
+        "Server-managed cache of the materialized registration certificate. Read-only; values supplied by clients are ignored.",
+      example: "",
+      readOnly: true,
+      additionalProperties: true,
+    },
     id: {
       type: "string",
       description: "Unique identifier for the VP request.",
@@ -3064,6 +3133,157 @@ export const PresentationConfigUpdateDtoSchema = {
   },
 } as const;
 
+export const RegistrarConfigResponseDtoSchema = {
+  type: "object",
+  properties: {
+    registrarUrl: {
+      type: "string",
+      description: "The base URL of the registrar API",
+      format: "uri",
+      example: "https://sandbox.eudi-wallet.org/api",
+    },
+    oidcUrl: {
+      type: "string",
+      description:
+        "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
+      format: "uri",
+      example: "https://auth.example.com/realms/my-realm",
+    },
+    clientId: {
+      type: "string",
+      description: "The OIDC client ID for the registrar",
+      example: "registrar-client",
+    },
+    clientSecret: {
+      type: "string",
+      description:
+        "The OIDC client secret (optional, for confidential clients)",
+    },
+    username: {
+      type: "string",
+      description: "The username for OIDC login",
+      example: "admin@example.com",
+    },
+    registrationCertificateDefaults: {
+      type: "object",
+      nullable: true,
+      description:
+        "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)",
+      additionalProperties: true,
+    },
+    hasPassword: {
+      type: "boolean",
+      description:
+        "Indicates whether a password is configured (actual password is never returned)",
+      example: true,
+    },
+  },
+  required: ["registrarUrl", "oidcUrl", "clientId", "username", "hasPassword"],
+} as const;
+
+export const CreateRegistrarConfigDtoSchema = {
+  type: "object",
+  properties: {
+    registrarUrl: {
+      type: "string",
+      description: "The base URL of the registrar API",
+      format: "uri",
+      example: "https://sandbox.eudi-wallet.org/api",
+    },
+    oidcUrl: {
+      type: "string",
+      description:
+        "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
+      format: "uri",
+      example: "https://auth.example.com/realms/my-realm",
+    },
+    clientId: {
+      type: "string",
+      description: "The OIDC client ID for the registrar",
+      example: "registrar-client",
+    },
+    clientSecret: {
+      type: "string",
+      description:
+        "The OIDC client secret (optional, for confidential clients)",
+    },
+    username: {
+      type: "string",
+      description: "The username for OIDC login",
+      example: "admin@example.com",
+    },
+    password: {
+      type: "string",
+      description: "The password for OIDC login (stored in plaintext)",
+    },
+    registrationCertificateDefaults: {
+      type: "object",
+      nullable: true,
+      description:
+        "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)",
+      additionalProperties: true,
+    },
+  },
+  required: ["registrarUrl", "oidcUrl", "clientId", "username", "password"],
+} as const;
+
+export const UpdateRegistrarConfigDtoSchema = {
+  type: "object",
+  properties: {
+    registrarUrl: {
+      type: "string",
+      description: "The base URL of the registrar API",
+      format: "uri",
+      example: "https://sandbox.eudi-wallet.org/api",
+    },
+    oidcUrl: {
+      type: "string",
+      description:
+        "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
+      format: "uri",
+      example: "https://auth.example.com/realms/my-realm",
+    },
+    clientId: {
+      type: "string",
+      description: "The OIDC client ID for the registrar",
+      example: "registrar-client",
+    },
+    clientSecret: {
+      type: "string",
+      description:
+        "The OIDC client secret (optional, for confidential clients)",
+    },
+    username: {
+      type: "string",
+      description: "The username for OIDC login",
+      example: "admin@example.com",
+    },
+    password: {
+      type: "string",
+      description: "The password for OIDC login (stored in plaintext)",
+    },
+    registrationCertificateDefaults: {
+      type: "object",
+      nullable: true,
+      description:
+        "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)",
+      additionalProperties: true,
+    },
+  },
+} as const;
+
+export const CreateAccessCertificateDtoSchema = {
+  type: "object",
+  properties: {
+    keyId: {
+      type: "string",
+      description: "The ID of the key to create an access certificate for",
+      example: "my-signing-key",
+    },
+  },
+  required: ["keyId"],
+} as const;
+
 export const DeferredCredentialRequestDtoSchema = {
   type: "object",
   properties: {
@@ -3092,7 +3312,6 @@ export const NotificationRequestDtoSchema = {
 
 export const ObjectSchema = {
   type: "object",
-  properties: {},
 } as const;
 
 export const ParResponseDtoSchema = {
@@ -3249,12 +3468,17 @@ export const ChainedAsTokenRequestDtoSchema = {
   properties: {
     grant_type: {
       type: "string",
-      description: "Grant type (must be 'authorization_code')",
+      description: "Grant type ('authorization_code' or 'refresh_token')",
       example: "authorization_code",
     },
     code: {
       type: "string",
-      description: "Authorization code received in the callback",
+      description:
+        "Authorization code received in the callback (authorization_code grant)",
+    },
+    refresh_token: {
+      type: "string",
+      description: "Refresh token (refresh_token grant)",
     },
     client_id: {
       type: "string",
@@ -3269,7 +3493,7 @@ export const ChainedAsTokenRequestDtoSchema = {
       description: "PKCE code verifier",
     },
   },
-  required: ["grant_type", "code"],
+  required: ["grant_type"],
 } as const;
 
 export const ChainedAsTokenResponseDtoSchema = {
@@ -3307,6 +3531,10 @@ export const ChainedAsTokenResponseDtoSchema = {
     c_nonce_expires_in: {
       type: "number",
       description: "C_NONCE lifetime in seconds",
+    },
+    refresh_token: {
+      type: "string",
+      description: "Refresh token (issued when refresh tokens are enabled)",
     },
   },
   required: ["access_token", "token_type", "expires_in"],
@@ -3446,136 +3674,6 @@ export const AuthorizationResponseSchema = {
         "State value from the authorization request (for correlation).",
     },
   },
-} as const;
-
-export const RegistrarConfigResponseDtoSchema = {
-  type: "object",
-  properties: {
-    registrarUrl: {
-      type: "string",
-      description: "The base URL of the registrar API",
-      format: "uri",
-      example: "https://sandbox.eudi-wallet.org/api",
-    },
-    oidcUrl: {
-      type: "string",
-      description:
-        "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
-      format: "uri",
-      example: "https://auth.example.com/realms/my-realm",
-    },
-    clientId: {
-      type: "string",
-      description: "The OIDC client ID for the registrar",
-      example: "registrar-client",
-    },
-    clientSecret: {
-      type: "string",
-      description:
-        "The OIDC client secret (optional, for confidential clients)",
-    },
-    username: {
-      type: "string",
-      description: "The username for OIDC login",
-      example: "admin@example.com",
-    },
-    hasPassword: {
-      type: "boolean",
-      description:
-        "Indicates whether a password is configured (actual password is never returned)",
-      example: true,
-    },
-  },
-  required: ["registrarUrl", "oidcUrl", "clientId", "username", "hasPassword"],
-} as const;
-
-export const CreateRegistrarConfigDtoSchema = {
-  type: "object",
-  properties: {
-    registrarUrl: {
-      type: "string",
-      description: "The base URL of the registrar API",
-      format: "uri",
-      example: "https://sandbox.eudi-wallet.org/api",
-    },
-    oidcUrl: {
-      type: "string",
-      description:
-        "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
-      format: "uri",
-      example: "https://auth.example.com/realms/my-realm",
-    },
-    clientId: {
-      type: "string",
-      description: "The OIDC client ID for the registrar",
-      example: "registrar-client",
-    },
-    clientSecret: {
-      type: "string",
-      description:
-        "The OIDC client secret (optional, for confidential clients)",
-    },
-    username: {
-      type: "string",
-      description: "The username for OIDC login",
-      example: "admin@example.com",
-    },
-    password: {
-      type: "string",
-      description: "The password for OIDC login (stored in plaintext)",
-    },
-  },
-  required: ["registrarUrl", "oidcUrl", "clientId", "username", "password"],
-} as const;
-
-export const UpdateRegistrarConfigDtoSchema = {
-  type: "object",
-  properties: {
-    registrarUrl: {
-      type: "string",
-      description: "The base URL of the registrar API",
-      format: "uri",
-      example: "https://sandbox.eudi-wallet.org/api",
-    },
-    oidcUrl: {
-      type: "string",
-      description:
-        "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
-      format: "uri",
-      example: "https://auth.example.com/realms/my-realm",
-    },
-    clientId: {
-      type: "string",
-      description: "The OIDC client ID for the registrar",
-      example: "registrar-client",
-    },
-    clientSecret: {
-      type: "string",
-      description:
-        "The OIDC client secret (optional, for confidential clients)",
-    },
-    username: {
-      type: "string",
-      description: "The username for OIDC login",
-      example: "admin@example.com",
-    },
-    password: {
-      type: "string",
-      description: "The password for OIDC login (stored in plaintext)",
-    },
-  },
-} as const;
-
-export const CreateAccessCertificateDtoSchema = {
-  type: "object",
-  properties: {
-    keyId: {
-      type: "string",
-      description: "The ID of the key to create an access certificate for",
-      example: "my-signing-key",
-    },
-  },
-  required: ["keyId"],
 } as const;
 
 export const TrustListEntityInfoSchema = {
@@ -4436,4 +4534,103 @@ export const FileUploadDtoSchema = {
     },
   },
   required: ["file"],
+} as const;
+
+export const PresentationConfigWritableSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description: "Unique identifier for the VP request.",
+    },
+    tenant: {
+      description: "The tenant that owns this object.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/TenantEntity",
+        },
+      ],
+    },
+    description: {
+      type: "string",
+      nullable: true,
+      description: "Description of the presentation configuration.",
+    },
+    lifeTime: {
+      type: "number",
+      description:
+        "Lifetime how long the presentation request is valid after creation, in seconds.",
+    },
+    dcql_query: {
+      description: "The DCQL query to be used for the VP request.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/DCQL",
+        },
+      ],
+    },
+    transaction_data: {
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/TransactionData",
+      },
+    },
+    registrationCert: {
+      nullable: true,
+      description:
+        "The registration certificate request containing the necessary details.",
+      type: "object",
+      allOf: [
+        {
+          $ref: "#/components/schemas/RegistrationCertificateRequest",
+        },
+      ],
+    },
+    webhook: {
+      nullable: true,
+      description: "Optional webhook URL to receive the response.",
+      type: "object",
+      allOf: [
+        {
+          $ref: "#/components/schemas/WebhookConfig",
+        },
+      ],
+    },
+    createdAt: {
+      format: "date-time",
+      type: "string",
+      description: "The timestamp when the VP request was created.",
+    },
+    updatedAt: {
+      format: "date-time",
+      type: "string",
+      description: "The timestamp when the VP request was last updated.",
+    },
+    attached: {
+      nullable: true,
+      description: "Attestation that should be attached",
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/PresentationAttachment",
+      },
+    },
+    redirectUri: {
+      type: "string",
+      nullable: true,
+      description:
+        "Redirect URI to which the user-agent should be redirected after the presentation is completed.\nYou can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.",
+      example: "https://example.com/callback?session={sessionId}",
+    },
+    accessKeyChainId: {
+      type: "string",
+      nullable: true,
+      description:
+        "Optional ID of the access certificate to use for signing the presentation request.\nIf not provided, the default access certificate for the tenant will be used.\n\nNote: This is intentionally NOT a TypeORM relationship because CertEntity uses\na composite primary key (id + tenantId), and SQLite cannot create foreign keys\nthat reference only part of a composite primary key. The relationship is handled\nat the application level in the service layer.",
+    },
+  },
+  required: ["id", "tenant", "dcql_query", "createdAt", "updatedAt"],
+} as const;
+
+export const ObjectWritableSchema = {
+  type: "object",
 } as const;
