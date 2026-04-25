@@ -6,12 +6,16 @@
   "properties": {
     "grant_type": {
       "type": "string",
-      "description": "Grant type (must be 'authorization_code')",
+      "description": "Grant type ('authorization_code' or 'refresh_token')",
       "example": "authorization_code"
     },
     "code": {
       "type": "string",
-      "description": "Authorization code received in the callback"
+      "description": "Authorization code received in the callback (authorization_code grant)"
+    },
+    "refresh_token": {
+      "type": "string",
+      "description": "Refresh token (refresh_token grant)"
     },
     "client_id": {
       "type": "string",
@@ -27,8 +31,7 @@
     }
   },
   "required": [
-    "grant_type",
-    "code"
+    "grant_type"
   ],
   "additionalProperties": false
 }

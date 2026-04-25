@@ -269,24 +269,92 @@
                 <mat-card-subtitle>Certificate used for the presentation</mat-card-subtitle>
               </mat-card-header>
               <mat-card-content>
-                <mat-list class="config-list">
-                  <mat-list-item>
-                    <mat-icon matListItemIcon>key</mat-icon>
-                    <span matListItemTitle>JWT</span>
-                    <span matListItemLine class="jwt-preview"
-                      >{{ config.registrationCert.jwt | slice: 0 : 50 }}...</span
-                    >
-                  </mat-list-item>
-                </mat-list>
-                <mat-expansion-panel>
-                  <mat-expansion-panel-header>
-                    <mat-panel-title>
-                      <mat-icon>code</mat-icon>
-                      Full JWT
-                    </mat-panel-title>
-                  </mat-expansion-panel-header>
-                  <pre class="config-value">{{ config.registrationCert.jwt }}</pre>
-                </mat-expansion-panel>
+                <div
+                  class="reg-cert-status"
+                  fxLayout="row"
+                  fxLayoutGap="12px"
+                  fxLayoutAlign="start center"
+                >
+                  @switch (registrationCertStatus) {
+                    @case ('active') {
+                      <mat-icon color="primary">verified</mat-icon>
+                      <span
+                        ><strong>Active</strong>
+                        @if (registrationCertExpiresIn) {
+                          — expires in {{ registrationCertExpiresIn }}
+                        }
+                        @if (registrationCertCache?.source) {
+                          ({{ registrationCertCache?.source }})
+                        }
+                      </span>
+                    }
+                    @case ('expiring') {
+                      <mat-icon color="accent">schedule</mat-icon>
+                      <span
+                        ><strong>Expiring soon</strong> —
+                        {{ registrationCertExpiresIn }} remaining</span
+                      >
+                    }
+                    @case ('expired') {
+                      <mat-icon color="warn">error_outline</mat-icon>
+                      <span><strong>Expired</strong> — reissue required</span>
+                    }
+                    @case ('pending') {
+                      <mat-icon color="accent">refresh</mat-icon>
+                      <span><strong>Pending</strong> — will be issued on next request</span>
+                    }
+                  }
+                  <span fxFlex></span>
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    [disabled]="reissuing"
+                    (click)="reissueRegistrationCert()"
+                  >
+                    <mat-icon>refresh</mat-icon>
+                    {{ reissuing ? 'Reissuing…' : 'Reissue now' }}
+                  </button>
+                </div>
+
+                @if (registrationCertCache?.jwt) {
+                  <mat-divider></mat-divider>
+                  <mat-list class="config-list">
+                    <mat-list-item>
+                      <mat-icon matListItemIcon>key</mat-icon>
+                      <span matListItemTitle>Cached JWT</span>
+                      <span matListItemLine class="jwt-preview"
+                        >{{ registrationCertCache?.jwt | slice: 0 : 50 }}...</span
+                      >
+                    </mat-list-item>
+                    @if (registrationCertCache?.issuedAt) {
+                      <mat-list-item>
+                        <mat-icon matListItemIcon>event</mat-icon>
+                        <span matListItemTitle>Issued at</span>
+                        <span matListItemLine>{{
+                          registrationCertCache!.issuedAt! * 1000 | date: 'medium'
+                        }}</span>
+                      </mat-list-item>
+                    }
+                    @if (registrationCertCache?.expiresAt) {
+                      <mat-list-item>
+                        <mat-icon matListItemIcon>event_busy</mat-icon>
+                        <span matListItemTitle>Expires at</span>
+                        <span matListItemLine>{{
+                          registrationCertCache!.expiresAt! * 1000 | date: 'medium'
+                        }}</span>
+                      </mat-list-item>
+                    }
+                  </mat-list>
+                  <mat-expansion-panel>
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        <mat-icon>code</mat-icon>
+                        Full cached JWT
+                      </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <pre class="config-value">{{ registrationCertCache?.jwt }}</pre>
+                  </mat-expansion-panel>
+                }
               </mat-card-content>
             </mat-card>
           } @else {

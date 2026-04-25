@@ -1,4 +1,8 @@
-import { ApiHideProperty, ApiProperty } from "@nestjs/swagger";
+import {
+    ApiHideProperty,
+    ApiProperty,
+    ApiPropertyOptional,
+} from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
     IsArray,
@@ -131,6 +135,29 @@ export class TransactionData {
 }
 
 /**
+ * Cached/materialized registration certificate state for a presentation config.
+ *
+ * Server-managed; recomputed when {@link PresentationConfig.registrationCert} or
+ * {@link PresentationConfig.dcql_query} change, or when the JWT expires.
+ */
+export interface RegistrationCertCache {
+    /** The issued/imported registration certificate JWT. */
+    jwt: string;
+    /** Canonical-JSON hash of the cert's authorized `credentials` claim. */
+    fingerprint: string;
+    /** Canonical-JSON hash of the presentation's `dcql_query.credentials` at cache time. */
+    dcqlFingerprint: string;
+    /** Canonical-JSON hash of the {@link PresentationConfig.registrationCert} spec at cache time. */
+    specFingerprint: string;
+    /** JWT `iat` (seconds since epoch). */
+    issuedAt?: number;
+    /** JWT `exp` (seconds since epoch). */
+    expiresAt?: number;
+    /** Origin of the cached JWT. */
+    source: "imported" | "registrar";
+}
+
+/**
  * Entity representing a configuration for a Verifiable Presentation (VP) request.
  */
 @Entity()
@@ -197,6 +224,38 @@ export class PresentationConfig {
     @Type(() => RegistrationCertificateRequest)
     @Column("json", { nullable: true })
     registrationCert?: RegistrationCertificateRequest | null;
+
+    /**
+     * Cached/materialized registration certificate derived from {@link registrationCert}.
+     *
+     * This is a server-managed field (not user-editable). It stores the JWT that
+     * was actually issued (or imported) together with fingerprints used to detect
+     * configuration drift. The cache is invalidated automatically when either the
+     * `registrationCert` spec or the `dcql_query` of this presentation config
+     * changes, ensuring no stale/over-broad authorizations leak into VP requests.
+     *
+     * @example
+     * {
+     *   "jwt": "eyJ...",
+     *   "fingerprint": "<canonical hash of authorized credentials[]>",
+     *   "dcqlFingerprint": "<canonical hash of dcql_query.credentials>",
+     *   "issuedAt": 1714050000,
+     *   "expiresAt": 1714650000,
+     *   "source": "registrar"
+     * }
+     */
+    @ApiPropertyOptional({
+        description:
+            "Server-managed cache of the materialized registration certificate. Read-only; values supplied by clients are ignored.",
+        readOnly: true,
+        type: "object",
+        additionalProperties: true,
+        nullable: true,
+    })
+    @IsOptional()
+    @IsObject()
+    @Column("json", { nullable: true })
+    registrationCertCache?: RegistrationCertCache | null;
 
     /**
      * Optional webhook URL to receive the response.

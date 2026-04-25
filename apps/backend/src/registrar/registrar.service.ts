@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { OAuth2Client, OAuth2Token } from "@badgateway/oauth2-client";
@@ -10,6 +11,7 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
+import { decodeJwt } from "jose";
 import { Repository } from "typeorm";
 import { TenantEntity } from "../auth/tenant/entitites/tenant.entity";
 import { CertService } from "../crypto/key/cert/cert.service";
@@ -24,6 +26,7 @@ import { UpdateRegistrarConfigDto } from "./dto/update-registrar-config.dto";
 import { RegistrarConfigEntity } from "./entities/registrar-config.entity";
 import {
     accessCertificateControllerRegister,
+    type RegistrationCertificateCreation,
     registrationCertificateControllerAll,
     registrationCertificateControllerRegister,
     relyingPartyControllerFindAll,
@@ -216,7 +219,11 @@ export class RegistrarService {
             await this.testCredentials(testConfig);
         }
 
-        await this.configRepository.update({ tenantId }, dto);
+        await this.configRepository.save({
+            ...existing,
+            ...dto,
+            tenantId,
+        });
 
         // Clear any cached token for this tenant
         this.tokenCache.delete(tenantId);
@@ -447,20 +454,80 @@ export class RegistrarService {
     /**
      * Add a registration certificate for a verification session.
      * This is called during VP flows to get a registration certificate from the registrar.
+     * The returned JWT is validated for temporal validity (exp/nbf) and its
+     * authorized DCQL credentials are compared with the effective DCQL query
+     * for the request. Fails closed on any mismatch to prevent overasking.
      * @param req - The registration certificate request body
-     * @param dcqlQuery - The DCQL query (for future validation)
+     * @param dcqlQuery - The effective DCQL query of the VP request (with `<TENANT_URL>` resolved and `trusted_authorities` removed)
      * @param requestId - The session request ID
      * @param tenantId - The tenant ID
      * @returns The registration certificate JWT
      */
     async addRegistrationCertificate(
-        req: { id?: string; body: any },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        _dcqlQuery: any,
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        _requestId: string,
+        req: {
+            id?: string;
+            body?: Partial<RegistrationCertificateCreation>;
+            jwt?: string;
+        },
+        dcqlQuery: any,
+        requestId: string,
         tenantId: string,
     ): Promise<string> {
+        const resolved = await this.resolveRegistrationCertificate(
+            req,
+            dcqlQuery,
+            requestId,
+            tenantId,
+        );
+        return resolved.jwt;
+    }
+
+    /**
+     * Resolve a registration certificate from a spec (`jwt` import / `id` lookup
+     * / `body` creation), validate it against the effective DCQL query and
+     * return both the JWT and its decoded payload.
+     *
+     * This is the canonical entry point used both at presentation-config
+     * save-time (eager caching) and at VP-request time (cache miss / refresh).
+     */
+    async resolveRegistrationCertificate(
+        req: {
+            id?: string;
+            body?: Partial<RegistrationCertificateCreation>;
+            jwt?: string;
+        },
+        dcqlQuery: any,
+        requestId: string,
+        tenantId: string,
+    ): Promise<{
+        jwt: string;
+        payload: Record<string, any>;
+        source: "imported" | "registrar";
+    }> {
+        if (req.jwt) {
+            const payload = this.validateRegistrationCertificate(
+                req.jwt,
+                dcqlQuery,
+                tenantId,
+                requestId,
+                "jwt",
+            );
+            return { jwt: req.jwt, payload, source: "imported" };
+        }
+
+        if (!req.id && !req.body) {
+            throw new BadRequestException(
+                "registrationCert must provide either jwt (import existing), id (reuse existing), or body (create new via registrar)",
+            );
+        }
+
+        const config = await this.configRepository.findOneBy({ tenantId });
+        if (!config) {
+            throw new NotFoundException(
+                `No registrar configuration found for tenant ${tenantId}`,
+            );
+        }
+
         const client = await this.getClient(tenantId);
         const relyingPartyId = await this.getRelyingPartyId(tenantId);
 
@@ -473,20 +540,67 @@ export class RegistrarService {
                 },
             });
 
+            if (existingCerts.error) {
+                this.logger.error(
+                    { error: existingCerts.error },
+                    `[${tenantId}] Failed to fetch existing registration certificates`,
+                );
+                throw new BadRequestException(
+                    "Failed to query registration certificates",
+                );
+            }
+
             const validCerts = existingCerts.data?.filter(
                 (cert) => cert.revoked == null && cert.id === req.id,
             );
 
             if (validCerts && validCerts.length > 0) {
-                return validCerts[0].jwt;
+                const payload = this.validateRegistrationCertificate(
+                    validCerts[0].jwt,
+                    dcqlQuery,
+                    tenantId,
+                    requestId,
+                    "id",
+                );
+                return {
+                    jwt: validCerts[0].jwt,
+                    payload,
+                    source: "registrar",
+                };
+            }
+
+            if (!req.body) {
+                throw new BadRequestException(
+                    `No active registration certificate found for id '${req.id}'. Provide registrationCert.jwt or registrationCert.body to proceed.`,
+                );
             }
         }
 
-        // Create a new registration certificate - rpId is included in the body
-        const bodyWithRpId = {
-            ...req.body,
-            rpId: relyingPartyId,
+        const mergedBody: Partial<RegistrationCertificateCreation> = {
+            ...(config.registrationCertificateDefaults ?? {}),
+            ...(req.body ?? {}),
         };
+
+        if (!mergedBody.privacy_policy || !mergedBody.support_uri) {
+            throw new BadRequestException(
+                "registrationCert.body must include privacy_policy and support_uri (directly or via registrar registrationCertificateDefaults)",
+            );
+        }
+
+        if (
+            !Array.isArray(mergedBody.purpose) ||
+            mergedBody.purpose.length === 0
+        ) {
+            throw new BadRequestException(
+                "registrationCert.body.purpose must be provided in the presentation config",
+            );
+        }
+
+        // Create a new registration certificate - rpId is always derived from the tenant's registrar RP.
+        const bodyWithRpId: RegistrationCertificateCreation = {
+            ...mergedBody,
+            rpId: relyingPartyId,
+        } as RegistrationCertificateCreation;
 
         const res = await registrationCertificateControllerRegister({
             client,
@@ -503,6 +617,203 @@ export class RegistrarService {
             );
         }
 
-        return res.data!.jwt;
+        const newJwt = res.data!.jwt;
+        const payload = this.validateRegistrationCertificate(
+            newJwt,
+            dcqlQuery,
+            tenantId,
+            requestId,
+            "body",
+        );
+        return { jwt: newJwt, payload, source: "registrar" };
+    }
+
+    /**
+     * Validate a registration certificate JWT against the effective DCQL query.
+     *
+     * Performs:
+     * 1. JWT decoding (structural validation).
+     * 2. Temporal validity check (`exp`, `nbf`) with a small clock skew tolerance.
+     * 3. DCQL fingerprint comparison: every credential being requested in
+     *    `dcqlQuery.credentials` MUST be present in the certificate's authorized
+     *    `credentials` claim (canonical-JSON match). Prevents overasking with a
+     *    cert that was issued for a different/narrower set of credentials.
+     *
+     * Fails closed by throwing `BadRequestException` on any mismatch.
+     */
+    private validateRegistrationCertificate(
+        jwt: string,
+        dcqlQuery: any,
+        tenantId: string,
+        requestId: string,
+        source: "jwt" | "id" | "body",
+    ): Record<string, any> {
+        let payload: Record<string, any>;
+        try {
+            payload = decodeJwt(jwt) as Record<string, any>;
+        } catch (err) {
+            this.logger.error(
+                { err, requestId, source },
+                `[${tenantId}] Registration certificate is not a valid JWT`,
+            );
+            throw new BadRequestException(
+                "Registration certificate is not a valid JWT",
+            );
+        }
+
+        const now = Math.floor(Date.now() / 1000);
+        const skew = 60; // seconds
+
+        if (typeof payload.exp === "number" && payload.exp + skew < now) {
+            this.logger.warn(
+                { requestId, source, exp: payload.exp, now },
+                `[${tenantId}] Registration certificate is expired`,
+            );
+            throw new BadRequestException(
+                "Registration certificate is expired",
+            );
+        }
+
+        if (typeof payload.nbf === "number" && payload.nbf - skew > now) {
+            this.logger.warn(
+                { requestId, source, nbf: payload.nbf, now },
+                `[${tenantId}] Registration certificate is not yet valid`,
+            );
+            throw new BadRequestException(
+                "Registration certificate is not yet valid",
+            );
+        }
+
+        const authorizedCredentials = Array.isArray(payload.credentials)
+            ? payload.credentials
+            : null;
+
+        if (!authorizedCredentials || authorizedCredentials.length === 0) {
+            this.logger.warn(
+                { requestId, source },
+                `[${tenantId}] Registration certificate has no authorized credentials claim`,
+            );
+            throw new BadRequestException(
+                "Registration certificate has no authorized credentials",
+            );
+        }
+        const requestedCredentials = Array.isArray(dcqlQuery?.credentials)
+            ? dcqlQuery.credentials
+            : [];
+
+        if (requestedCredentials.length === 0) {
+            // Nothing being requested - nothing to authorize against.
+            return payload;
+        }
+
+        const authorizedFingerprints = new Set(
+            authorizedCredentials.map((c: any) =>
+                this.dcqlCredentialFingerprint(c),
+            ),
+        );
+
+        const unauthorized: any[] = [];
+        for (const cred of requestedCredentials) {
+            const fp = this.dcqlCredentialFingerprint(cred);
+            if (!authorizedFingerprints.has(fp)) {
+                unauthorized.push(cred);
+            }
+        }
+
+        if (unauthorized.length > 0) {
+            this.logger.error(
+                {
+                    requestId,
+                    source,
+                    unauthorizedIds: unauthorized.map((c) => c?.id),
+                },
+                `[${tenantId}] Registration certificate does not authorize the requested DCQL credentials (overasking prevented)`,
+            );
+            throw new BadRequestException(
+                "Registration certificate does not authorize the requested DCQL credentials",
+            );
+        }
+
+        return payload;
+    }
+
+    /**
+     * Compute a canonical fingerprint over a `dcql_query.credentials` array.
+     * Used to detect drift between a cached registration certificate and the
+     * current presentation config's DCQL query.
+     */
+    public computeDcqlFingerprint(dcqlQuery: any): string {
+        const credentials = Array.isArray(dcqlQuery?.credentials)
+            ? dcqlQuery.credentials
+            : [];
+        const fps = credentials
+            .map((c: any) => this.dcqlCredentialFingerprint(c))
+            .sort();
+        return this.hash(fps.join("|"));
+    }
+
+    /**
+     * Compute a canonical fingerprint over a registration certificate's
+     * authorized `credentials` claim. Stored in the cache and used to detect
+     * cert content changes (e.g. registrar rotated the cert).
+     */
+    public computeAuthorizedCredentialsFingerprint(
+        credentials: unknown,
+    ): string {
+        const arr = Array.isArray(credentials) ? credentials : [];
+        const fps = arr
+            .map((c: any) => this.dcqlCredentialFingerprint(c))
+            .sort();
+        return this.hash(fps.join("|"));
+    }
+
+    private hash(input: string): string {
+        // Lightweight, stable, non-cryptographic fingerprint hash.
+        // Equality is the only property we need here (no secrecy).
+        return createHash("sha256").update(input).digest("hex");
+    }
+
+    /**
+     * Compute a stable fingerprint over a registration-certificate spec
+     * (`{ jwt?, id?, body? }`). Used to detect whether a cached certificate
+     * is still derived from the current spec.
+     */
+    public computeSpecFingerprint(spec: unknown): string {
+        return this.hash(this.canonicalJson(spec ?? null));
+    }
+
+    /**
+     * Compute a stable canonical fingerprint of a single DCQL credential entry.
+     * Strips fields that are not part of the authorization scope (e.g. `id`,
+     * `trusted_authorities`) and recursively sorts object keys.
+     */
+    private dcqlCredentialFingerprint(cred: any): string {
+        if (!cred || typeof cred !== "object") {
+            return JSON.stringify(cred ?? null);
+        }
+        // Drop fields not relevant to the authorization-scope comparison.
+        const {
+            id: _id,
+            trusted_authorities: _ta,
+            ...rest
+        } = cred as Record<string, any>;
+        return this.canonicalJson(rest);
+    }
+
+    /**
+     * Recursively canonicalize a JSON value: object keys sorted, arrays preserved
+     * in their original order (DCQL arrays are order-significant for claims).
+     */
+    private canonicalJson(value: any): string {
+        if (value === null || typeof value !== "object") {
+            return JSON.stringify(value);
+        }
+        if (Array.isArray(value)) {
+            return `[${value.map((v) => this.canonicalJson(v)).join(",")}]`;
+        }
+        const keys = Object.keys(value).sort();
+        return `{${keys
+            .map((k) => `${JSON.stringify(k)}:${this.canonicalJson(value[k])}`)
+            .join(",")}}`;
     }
 }

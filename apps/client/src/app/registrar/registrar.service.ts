@@ -14,6 +14,7 @@ export interface RegistrarConfig {
   clientId: string;
   clientSecret?: string;
   username: string;
+  registrationCertificateDefaults?: Record<string, unknown> | null;
   /** Indicates whether a password is configured (actual password is never returned) */
   hasPassword: boolean;
 }
@@ -27,6 +28,7 @@ export interface RegistrarConfigRequest {
   clientId: string;
   clientSecret?: string;
   username: string;
+  registrationCertificateDefaults?: Record<string, unknown> | null;
   password?: string;
 }
 

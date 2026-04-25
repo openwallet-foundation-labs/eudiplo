@@ -1482,11 +1482,40 @@ export type Dcql = {
   credential_sets?: Array<CredentialSetQuery>;
 };
 
+export type RegistrationCertificatePurpose = {
+  lang: string;
+  value: string;
+};
+
+export type RegistrationCertificateBody = {
+  privacy_policy: string;
+  support_uri: string;
+  intermediary?: string;
+  purpose?: Array<RegistrationCertificatePurpose>;
+  credentials?: Array<{
+    [key: string]: unknown;
+  }>;
+  provided_attestations?: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
 export type RegistrationCertificateRequest = {
   /**
-   * The body of the registration certificate request containing the necessary details.
+   * Optional registrar-side certificate identifier.
+   * If provided and still valid, EUDIPLO reuses it instead of creating a new certificate.
    */
-  jwt: string;
+  id?: string;
+  /**
+   * Registration certificate creation payload.
+   * This is merged with tenant-level registrar defaults when a certificate is created.
+   */
+  body?: RegistrationCertificateBody;
+  /**
+   * Optional pre-existing registration certificate JWT.
+   * If provided, EUDIPLO forwards it as-is and does not create a new one.
+   */
+  jwt?: string;
 };
 
 export type PresentationAttachment = {
@@ -1498,6 +1527,12 @@ export type PresentationAttachment = {
 };
 
 export type PresentationConfig = {
+  /**
+   * Server-managed cache of the materialized registration certificate. Read-only; values supplied by clients are ignored.
+   */
+  readonly registrationCertCache?: {
+    [key: string]: unknown;
+  };
   /**
    * Unique identifier for the VP request.
    */
@@ -1657,6 +1692,112 @@ export type PresentationConfigUpdateDto = {
   accessKeyChainId?: string;
 };
 
+export type RegistrarConfigResponseDto = {
+  /**
+   * The base URL of the registrar API
+   */
+  registrarUrl: string;
+  /**
+   * The OIDC issuer URL for authentication (e.g., Keycloak realm URL)
+   */
+  oidcUrl: string;
+  /**
+   * The OIDC client ID for the registrar
+   */
+  clientId: string;
+  /**
+   * The OIDC client secret (optional, for confidential clients)
+   */
+  clientSecret?: string;
+  /**
+   * The username for OIDC login
+   */
+  username: string;
+  /**
+   * Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)
+   */
+  registrationCertificateDefaults?: {
+    [key: string]: unknown;
+  };
+  /**
+   * Indicates whether a password is configured (actual password is never returned)
+   */
+  hasPassword: boolean;
+};
+
+export type CreateRegistrarConfigDto = {
+  /**
+   * The base URL of the registrar API
+   */
+  registrarUrl: string;
+  /**
+   * The OIDC issuer URL for authentication (e.g., Keycloak realm URL)
+   */
+  oidcUrl: string;
+  /**
+   * The OIDC client ID for the registrar
+   */
+  clientId: string;
+  /**
+   * The OIDC client secret (optional, for confidential clients)
+   */
+  clientSecret?: string;
+  /**
+   * The username for OIDC login
+   */
+  username: string;
+  /**
+   * The password for OIDC login (stored in plaintext)
+   */
+  password: string;
+  /**
+   * Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)
+   */
+  registrationCertificateDefaults?: {
+    [key: string]: unknown;
+  };
+};
+
+export type UpdateRegistrarConfigDto = {
+  /**
+   * The base URL of the registrar API
+   */
+  registrarUrl?: string;
+  /**
+   * The OIDC issuer URL for authentication (e.g., Keycloak realm URL)
+   */
+  oidcUrl?: string;
+  /**
+   * The OIDC client ID for the registrar
+   */
+  clientId?: string;
+  /**
+   * The OIDC client secret (optional, for confidential clients)
+   */
+  clientSecret?: string;
+  /**
+   * The username for OIDC login
+   */
+  username?: string;
+  /**
+   * The password for OIDC login (stored in plaintext)
+   */
+  password?: string;
+  /**
+   * Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)
+   */
+  registrationCertificateDefaults?: {
+    [key: string]: unknown;
+  };
+};
+
+export type CreateAccessCertificateDto = {
+  /**
+   * The ID of the key to create an access certificate for
+   */
+  keyId: string;
+};
+
 export type DeferredCredentialRequestDto = {
   /**
    * The transaction identifier previously returned by the Credential Endpoint
@@ -1797,13 +1938,17 @@ export type ChainedAsErrorResponseDto = {
 
 export type ChainedAsTokenRequestDto = {
   /**
-   * Grant type (must be 'authorization_code')
+   * Grant type ('authorization_code' or 'refresh_token')
    */
   grant_type: string;
   /**
-   * Authorization code received in the callback
+   * Authorization code received in the callback (authorization_code grant)
    */
-  code: string;
+  code?: string;
+  /**
+   * Refresh token (refresh_token grant)
+   */
+  refresh_token?: string;
   /**
    * Client identifier
    */
@@ -1849,6 +1994,10 @@ export type ChainedAsTokenResponseDto = {
    * C_NONCE lifetime in seconds
    */
   c_nonce_expires_in?: number;
+  /**
+   * Refresh token (issued when refresh tokens are enabled)
+   */
+  refresh_token?: string;
 };
 
 export type OfferResponse = {
@@ -1940,94 +2089,6 @@ export type AuthorizationResponse = {
    * State value from the authorization request (for correlation).
    */
   state?: string;
-};
-
-export type RegistrarConfigResponseDto = {
-  /**
-   * The base URL of the registrar API
-   */
-  registrarUrl: string;
-  /**
-   * The OIDC issuer URL for authentication (e.g., Keycloak realm URL)
-   */
-  oidcUrl: string;
-  /**
-   * The OIDC client ID for the registrar
-   */
-  clientId: string;
-  /**
-   * The OIDC client secret (optional, for confidential clients)
-   */
-  clientSecret?: string;
-  /**
-   * The username for OIDC login
-   */
-  username: string;
-  /**
-   * Indicates whether a password is configured (actual password is never returned)
-   */
-  hasPassword: boolean;
-};
-
-export type CreateRegistrarConfigDto = {
-  /**
-   * The base URL of the registrar API
-   */
-  registrarUrl: string;
-  /**
-   * The OIDC issuer URL for authentication (e.g., Keycloak realm URL)
-   */
-  oidcUrl: string;
-  /**
-   * The OIDC client ID for the registrar
-   */
-  clientId: string;
-  /**
-   * The OIDC client secret (optional, for confidential clients)
-   */
-  clientSecret?: string;
-  /**
-   * The username for OIDC login
-   */
-  username: string;
-  /**
-   * The password for OIDC login (stored in plaintext)
-   */
-  password: string;
-};
-
-export type UpdateRegistrarConfigDto = {
-  /**
-   * The base URL of the registrar API
-   */
-  registrarUrl?: string;
-  /**
-   * The OIDC issuer URL for authentication (e.g., Keycloak realm URL)
-   */
-  oidcUrl?: string;
-  /**
-   * The OIDC client ID for the registrar
-   */
-  clientId?: string;
-  /**
-   * The OIDC client secret (optional, for confidential clients)
-   */
-  clientSecret?: string;
-  /**
-   * The username for OIDC login
-   */
-  username?: string;
-  /**
-   * The password for OIDC login (stored in plaintext)
-   */
-  password?: string;
-};
-
-export type CreateAccessCertificateDto = {
-  /**
-   * The ID of the key to create an access certificate for
-   */
-  keyId: string;
 };
 
 export type TrustListEntityInfo = {
@@ -2542,6 +2603,69 @@ export type PresentationRequest = {
 
 export type FileUploadDto = {
   file: Blob | File;
+};
+
+export type PresentationConfigWritable = {
+  /**
+   * Unique identifier for the VP request.
+   */
+  id: string;
+  /**
+   * The tenant that owns this object.
+   */
+  tenant: TenantEntity;
+  /**
+   * Description of the presentation configuration.
+   */
+  description?: string;
+  /**
+   * Lifetime how long the presentation request is valid after creation, in seconds.
+   */
+  lifeTime?: number;
+  /**
+   * The DCQL query to be used for the VP request.
+   */
+  dcql_query: Dcql;
+  transaction_data?: Array<TransactionData>;
+  /**
+   * The registration certificate request containing the necessary details.
+   */
+  registrationCert?: RegistrationCertificateRequest;
+  /**
+   * Optional webhook URL to receive the response.
+   */
+  webhook?: WebhookConfig;
+  /**
+   * The timestamp when the VP request was created.
+   */
+  createdAt: string;
+  /**
+   * The timestamp when the VP request was last updated.
+   */
+  updatedAt: string;
+  /**
+   * Attestation that should be attached
+   */
+  attached?: Array<PresentationAttachment>;
+  /**
+   * Redirect URI to which the user-agent should be redirected after the presentation is completed.
+   * You can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID.
+   */
+  redirectUri?: string;
+  /**
+   * Optional ID of the access certificate to use for signing the presentation request.
+   * If not provided, the default access certificate for the tenant will be used.
+   *
+   * Note: This is intentionally NOT a TypeORM relationship because CertEntity uses
+   * a composite primary key (id + tenantId), and SQLite cannot create foreign keys
+   * that reference only part of a composite primary key. The relationship is handled
+   * at the application level in the service layer.
+   */
+  accessKeyChainId?: string;
+};
+
+export type ObjectWritable = {
+  [key: string]: unknown;
 };
 
 export type AppControllerGetVersionData = {
@@ -3376,9 +3500,7 @@ export type PresentationManagementControllerStorePresentationConfigData = {
 };
 
 export type PresentationManagementControllerStorePresentationConfigResponses = {
-  201: {
-    [key: string]: unknown;
-  };
+  201: PresentationConfig;
 };
 
 export type PresentationManagementControllerStorePresentationConfigResponse =
@@ -3444,13 +3566,37 @@ export type PresentationManagementControllerUpdateConfigurationData = {
 };
 
 export type PresentationManagementControllerUpdateConfigurationResponses = {
-  200: {
-    [key: string]: unknown;
-  };
+  200: PresentationConfig;
 };
 
 export type PresentationManagementControllerUpdateConfigurationResponse =
   PresentationManagementControllerUpdateConfigurationResponses[keyof PresentationManagementControllerUpdateConfigurationResponses];
+
+export type PresentationManagementControllerReissueRegistrationCertificateData =
+  {
+    body?: never;
+    path: {
+      id: string;
+    };
+    query?: never;
+    url: "/api/verifier/config/{id}/registration-cert/reissue";
+  };
+
+export type PresentationManagementControllerReissueRegistrationCertificateErrors =
+  {
+    /**
+     * Config has no registrationCert spec or registrar is not enabled
+     */
+    400: unknown;
+  };
+
+export type PresentationManagementControllerReissueRegistrationCertificateResponses =
+  {
+    /**
+     * Updated presentation configuration
+     */
+    200: unknown;
+  };
 
 export type CacheControllerGetStatsData = {
   body?: never;
@@ -3516,75 +3662,6 @@ export type CacheControllerClearStatusListCacheResponses = {
 
 export type CacheControllerClearStatusListCacheResponse =
   CacheControllerClearStatusListCacheResponses[keyof CacheControllerClearStatusListCacheResponses];
-
-export type CredentialOfferControllerGetOfferData = {
-  body: OfferRequestDto;
-  path?: never;
-  query?: never;
-  url: "/api/issuer/offer";
-};
-
-export type CredentialOfferControllerGetOfferResponses = {
-  /**
-   * JSON response
-   */
-  201: OfferResponse;
-};
-
-export type CredentialOfferControllerGetOfferResponse =
-  CredentialOfferControllerGetOfferResponses[keyof CredentialOfferControllerGetOfferResponses];
-
-export type DeferredControllerCompleteDeferredData = {
-  body: CompleteDeferredDto;
-  path: {
-    transactionId: string;
-  };
-  query?: never;
-  url: "/api/issuer/deferred/{transactionId}/complete";
-};
-
-export type DeferredControllerCompleteDeferredErrors = {
-  /**
-   * Transaction not found
-   */
-  404: unknown;
-};
-
-export type DeferredControllerCompleteDeferredResponses = {
-  /**
-   * Transaction completed successfully
-   */
-  200: DeferredOperationResponse;
-};
-
-export type DeferredControllerCompleteDeferredResponse =
-  DeferredControllerCompleteDeferredResponses[keyof DeferredControllerCompleteDeferredResponses];
-
-export type DeferredControllerFailDeferredData = {
-  body?: FailDeferredDto;
-  path: {
-    transactionId: string;
-  };
-  query?: never;
-  url: "/api/issuer/deferred/{transactionId}/fail";
-};
-
-export type DeferredControllerFailDeferredErrors = {
-  /**
-   * Transaction not found
-   */
-  404: unknown;
-};
-
-export type DeferredControllerFailDeferredResponses = {
-  /**
-   * Transaction marked as failed
-   */
-  200: DeferredOperationResponse;
-};
-
-export type DeferredControllerFailDeferredResponse =
-  DeferredControllerFailDeferredResponses[keyof DeferredControllerFailDeferredResponses];
 
 export type RegistrarControllerDeleteConfigData = {
   body?: never;
@@ -3715,6 +3792,75 @@ export type RegistrarControllerCreateAccessCertificateResponses = {
 
 export type RegistrarControllerCreateAccessCertificateResponse =
   RegistrarControllerCreateAccessCertificateResponses[keyof RegistrarControllerCreateAccessCertificateResponses];
+
+export type CredentialOfferControllerGetOfferData = {
+  body: OfferRequestDto;
+  path?: never;
+  query?: never;
+  url: "/api/issuer/offer";
+};
+
+export type CredentialOfferControllerGetOfferResponses = {
+  /**
+   * JSON response
+   */
+  201: OfferResponse;
+};
+
+export type CredentialOfferControllerGetOfferResponse =
+  CredentialOfferControllerGetOfferResponses[keyof CredentialOfferControllerGetOfferResponses];
+
+export type DeferredControllerCompleteDeferredData = {
+  body: CompleteDeferredDto;
+  path: {
+    transactionId: string;
+  };
+  query?: never;
+  url: "/api/issuer/deferred/{transactionId}/complete";
+};
+
+export type DeferredControllerCompleteDeferredErrors = {
+  /**
+   * Transaction not found
+   */
+  404: unknown;
+};
+
+export type DeferredControllerCompleteDeferredResponses = {
+  /**
+   * Transaction completed successfully
+   */
+  200: DeferredOperationResponse;
+};
+
+export type DeferredControllerCompleteDeferredResponse =
+  DeferredControllerCompleteDeferredResponses[keyof DeferredControllerCompleteDeferredResponses];
+
+export type DeferredControllerFailDeferredData = {
+  body?: FailDeferredDto;
+  path: {
+    transactionId: string;
+  };
+  query?: never;
+  url: "/api/issuer/deferred/{transactionId}/fail";
+};
+
+export type DeferredControllerFailDeferredErrors = {
+  /**
+   * Transaction not found
+   */
+  404: unknown;
+};
+
+export type DeferredControllerFailDeferredResponses = {
+  /**
+   * Transaction marked as failed
+   */
+  200: DeferredOperationResponse;
+};
+
+export type DeferredControllerFailDeferredResponse =
+  DeferredControllerFailDeferredResponses[keyof DeferredControllerFailDeferredResponses];
 
 export type TrustListControllerGetAllTrustListsData = {
   body?: never;

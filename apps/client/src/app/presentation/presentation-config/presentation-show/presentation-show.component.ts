@@ -16,6 +16,12 @@ import { PresentationConfig } from '@eudiplo/sdk-core';
 import { PresentationManagementService } from '../presentation-management.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { WebhookConfigShowComponent } from '../../../utils/webhook-config-show/webhook-config-show.component';
+import { presentationManagementControllerReissueRegistrationCertificate } from '@eudiplo/sdk-core';
+import {
+  formatRegistrationCertExpiresIn,
+  getRegistrationCertStatus,
+  type RegistrationCertStatus,
+} from '../../../utils/registration-cert-status';
 
 @Component({
   selector: 'app-presentation-show',
@@ -40,6 +46,7 @@ import { WebhookConfigShowComponent } from '../../../utils/webhook-config-show/w
 })
 export class PresentationShowComponent implements OnInit {
   config?: PresentationConfig;
+  reissuing = false;
 
   constructor(
     private readonly presentationService: PresentationManagementService,
@@ -66,6 +73,48 @@ export class PresentationShowComponent implements OnInit {
 
   get credentialQueries(): any[] {
     return this.config?.dcql_query?.credentials || [];
+  }
+
+  get registrationCertStatus(): RegistrationCertStatus {
+    return getRegistrationCertStatus(this.config);
+  }
+
+  get registrationCertExpiresIn(): string | null {
+    return formatRegistrationCertExpiresIn(this.config?.registrationCertCache as any);
+  }
+
+  get registrationCertCache(): {
+    jwt?: string;
+    source?: string;
+    issuedAt?: number;
+    expiresAt?: number;
+  } | null {
+    return (this.config?.registrationCertCache as any) ?? null;
+  }
+
+  reissueRegistrationCert(): void {
+    if (!this.config) return;
+    this.reissuing = true;
+    presentationManagementControllerReissueRegistrationCertificate({
+      path: { id: this.config.id },
+    })
+      .then((res: any) => {
+        if (res?.data) {
+          this.config = res.data;
+        }
+        this.snackBar.open('Registration certificate reissued', 'Close', {
+          duration: 3000,
+        });
+      })
+      .catch((err) => {
+        console.error('Failed to reissue registration certificate', err);
+        this.snackBar.open('Failed to reissue registration certificate', 'Close', {
+          duration: 4000,
+        });
+      })
+      .finally(() => {
+        this.reissuing = false;
+      });
   }
 
   copyToClipboard(value: string, label: string): void {

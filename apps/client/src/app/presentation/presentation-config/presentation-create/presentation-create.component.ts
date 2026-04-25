@@ -12,6 +12,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import {
   presentationManagementControllerUpdateConfiguration,
+  presentationManagementControllerReissueRegistrationCertificate,
   keyChainControllerGetAll,
   KeyChainResponseDto,
 } from '@eudiplo/sdk-core';
@@ -29,9 +30,12 @@ import { WebhookConfigEditComponent } from '../../../utils/webhook-config-edit/w
 import {
   DCQLSchema,
   presentationConfigSchema,
-  registrationCertificateRequestSchema,
   transactionDataArraySchema,
 } from '../../../utils/schemas';
+import {
+  formatRegistrationCertExpiresIn,
+  getRegistrationCertStatus,
+} from '../../../utils/registration-cert-status';
 import { CredentialIdsComponent } from '../../credential-ids/credential-ids.component';
 
 @Component({
@@ -63,8 +67,9 @@ export class PresentationCreateComponent implements OnInit {
   public form: FormGroup;
   public create = true;
   public copyMode = false;
-
-  registrationCertificateRequestSchema = registrationCertificateRequestSchema;
+  public registrationCertTabIndex = 0;
+  public registrationCertCache: any = null;
+  public reissuing = false;
 
   DCQLSchema = DCQLSchema;
 
@@ -73,6 +78,34 @@ export class PresentationCreateComponent implements OnInit {
   public predefinedConfigs = configs;
 
   public keyChains: KeyChainResponseDto[] = [];
+
+  readonly purposeLanguageOptions = [
+    { value: 'en-US', label: 'English (US)' },
+    { value: 'en-GB', label: 'English (UK)' },
+    { value: 'de-DE', label: 'German' },
+    { value: 'fr-FR', label: 'French' },
+    { value: 'it-IT', label: 'Italian' },
+    { value: 'es-ES', label: 'Spanish' },
+    { value: 'nl-NL', label: 'Dutch' },
+    { value: 'pt-PT', label: 'Portuguese' },
+    { value: 'pl-PL', label: 'Polish' },
+    { value: 'cs-CZ', label: 'Czech' },
+    { value: 'sk-SK', label: 'Slovak' },
+    { value: 'sl-SI', label: 'Slovenian' },
+    { value: 'hr-HR', label: 'Croatian' },
+    { value: 'hu-HU', label: 'Hungarian' },
+    { value: 'ro-RO', label: 'Romanian' },
+    { value: 'bg-BG', label: 'Bulgarian' },
+    { value: 'el-GR', label: 'Greek' },
+    { value: 'fi-FI', label: 'Finnish' },
+    { value: 'sv-SE', label: 'Swedish' },
+    { value: 'da-DK', label: 'Danish' },
+    { value: 'et-EE', label: 'Estonian' },
+    { value: 'lv-LV', label: 'Latvian' },
+    { value: 'lt-LT', label: 'Lithuanian' },
+    { value: 'mt-MT', label: 'Maltese' },
+    { value: 'ga-IE', label: 'Irish' },
+  ];
 
   constructor(
     private readonly presentationService: PresentationManagementService,
@@ -88,7 +121,12 @@ export class PresentationCreateComponent implements OnInit {
       accessKeyChainId: new FormControl(undefined),
       dcql_query: new FormControl(undefined, [Validators.required]),
       lifeTime: new FormControl(300, [Validators.required, Validators.min(1)]),
-      registrationCert: new FormControl(undefined), // Optional field
+      registrationCertImportJwt: new FormControl(undefined),
+      registrationCertImportId: new FormControl(undefined),
+      registrationCertBodyPrivacyPolicy: new FormControl(undefined),
+      registrationCertBodySupportUri: new FormControl(undefined),
+      registrationCertBodyIntermediary: new FormControl(undefined),
+      registrationCertBodyPurpose: new FormArray([]),
       transaction_data: new FormControl(undefined), // Optional transaction data
       attached: new FormArray([]),
       webhook: new FormGroup({
@@ -139,8 +177,12 @@ export class PresentationCreateComponent implements OnInit {
           }
 
           if (formData.registrationCert && typeof formData.registrationCert === 'object') {
-            formData.registrationCert = JSON.stringify(formData.registrationCert, null, 2);
+            this.loadRegistrationCertIntoForm(formData.registrationCert);
+            delete formData.registrationCert;
           }
+
+          this.registrationCertCache = formData.registrationCertCache ?? null;
+          delete formData.registrationCertCache;
 
           if (formData.transaction_data && typeof formData.transaction_data === 'object') {
             formData.transaction_data = JSON.stringify(formData.transaction_data, null, 2);
@@ -197,13 +239,14 @@ export class PresentationCreateComponent implements OnInit {
     if (formValue.dcql_query) {
       try {
         formValue.dcql_query = extractSchema(formValue.dcql_query);
-        formValue.registrationCert = extractSchema(formValue.registrationCert);
         formValue.transaction_data = extractSchema(formValue.transaction_data);
       } catch (error) {
         console.error('Error parsing DCQL Query JSON:', error);
         return;
       }
     }
+
+    formValue.registrationCert = this.buildRegistrationCertFromForm();
 
     if (!formValue.webhook.url) {
       formValue.webhook = null; // Set to null to clear the webhook
@@ -300,11 +343,12 @@ export class PresentationCreateComponent implements OnInit {
     if (formValue.dcql_query && typeof formValue.dcql_query === 'string') {
       try {
         formValue.dcql_query = extractSchema(formValue.dcql_query);
-        formValue.registrationCert = extractSchema(formValue.registrationCert);
       } catch {
         // Ignore JSON parse errors
       }
     }
+
+    formValue.registrationCert = this.buildRegistrationCertFromForm();
     if (!formValue.webhook?.url) {
       formValue.webhook = undefined;
     }
@@ -363,7 +407,8 @@ export class PresentationCreateComponent implements OnInit {
         formData.dcql_query = extractSchema(formData.dcql_query);
       }
       if (formData.registrationCert) {
-        formData.registrationCert = extractSchema(formData.registrationCert);
+        this.loadRegistrationCertIntoForm(extractSchema(formData.registrationCert));
+        delete formData.registrationCert;
       }
 
       this.form.patchValue(formData);
@@ -418,5 +463,147 @@ export class PresentationCreateComponent implements OnInit {
         });
       }
     });
+  }
+
+  get registrationCertPurposeArray(): FormArray {
+    return this.form.get('registrationCertBodyPurpose') as FormArray;
+  }
+
+  addRegistrationCertPurpose(lang = 'en-US', value = ''): void {
+    const normalizedLang = this.purposeLanguageOptions.some((option) => option.value === lang)
+      ? lang
+      : 'en-US';
+
+    this.registrationCertPurposeArray.push(
+      new FormGroup({
+        lang: new FormControl(normalizedLang, [Validators.required]),
+        value: new FormControl(value, [Validators.required]),
+      })
+    );
+  }
+
+  removeRegistrationCertPurpose(index: number): void {
+    this.registrationCertPurposeArray.removeAt(index);
+  }
+
+  /**
+   * Status of the persisted registration-certificate cache for the loaded
+   * presentation config. The backend invalidates this cache automatically
+   * when the registrationCert spec or dcql_query change, so a `null` cache
+   * after editing those fields means a fresh issuance is pending.
+   */
+  get registrationCertStatus(): 'none' | 'active' | 'expiring' | 'expired' | 'pending' {
+    if (this.create) return 'none';
+    return getRegistrationCertStatus({
+      registrationCert: this.buildRegistrationCertFromForm() as any,
+      registrationCertCache: this.registrationCertCache,
+    });
+  }
+
+  get registrationCertExpiresIn(): string | null {
+    return formatRegistrationCertExpiresIn(this.registrationCertCache);
+  }
+
+  reissueRegistrationCert(): void {
+    const id = this.route.snapshot.params['id'];
+    if (!id || this.create) return;
+    this.reissuing = true;
+    presentationManagementControllerReissueRegistrationCertificate({
+      path: { id },
+    })
+      .then((res: any) => {
+        this.registrationCertCache = res?.data?.registrationCertCache ?? null;
+        this.snackBar.open('Registration certificate reissued', 'Close', {
+          duration: 3000,
+        });
+      })
+      .catch((err) => {
+        console.error('Failed to reissue registration certificate', err);
+        this.snackBar.open('Failed to reissue registration certificate', 'Close', {
+          duration: 4000,
+        });
+      })
+      .finally(() => {
+        this.reissuing = false;
+      });
+  }
+
+  private buildRegistrationCertFromForm(): any {
+    if (this.registrationCertTabIndex === 0) {
+      const jwt = this.form.get('registrationCertImportJwt')?.value?.trim();
+      const id = this.form.get('registrationCertImportId')?.value?.trim();
+
+      if (jwt) {
+        return { jwt };
+      }
+
+      if (id) {
+        return { id };
+      }
+
+      return null;
+    }
+
+    const privacy_policy = this.form.get('registrationCertBodyPrivacyPolicy')?.value?.trim();
+    const support_uri = this.form.get('registrationCertBodySupportUri')?.value?.trim();
+    const intermediary = this.form.get('registrationCertBodyIntermediary')?.value?.trim();
+
+    const purpose = this.registrationCertPurposeArray.controls
+      .map((ctrl) => ({
+        lang: ctrl.get('lang')?.value?.trim(),
+        value: ctrl.get('value')?.value?.trim(),
+      }))
+      .filter((entry) => entry.lang && entry.value);
+
+    if (!privacy_policy && !support_uri && !intermediary && purpose.length === 0) {
+      return null;
+    }
+
+    const body: any = {};
+    if (privacy_policy) {
+      body.privacy_policy = privacy_policy;
+    }
+    if (support_uri) {
+      body.support_uri = support_uri;
+    }
+    if (intermediary) {
+      body.intermediary = intermediary;
+    }
+    if (purpose.length > 0) {
+      body.purpose = purpose;
+    }
+
+    return { body };
+  }
+
+  private loadRegistrationCertIntoForm(registrationCert: any): void {
+    this.form.patchValue({
+      registrationCertImportJwt: registrationCert?.jwt ?? undefined,
+      registrationCertImportId: registrationCert?.id ?? undefined,
+      registrationCertBodyPrivacyPolicy: registrationCert?.body?.privacy_policy ?? undefined,
+      registrationCertBodySupportUri: registrationCert?.body?.support_uri ?? undefined,
+      registrationCertBodyIntermediary: registrationCert?.body?.intermediary ?? undefined,
+    });
+
+    while (this.registrationCertPurposeArray.length > 0) {
+      this.registrationCertPurposeArray.removeAt(0);
+    }
+
+    const purposes = Array.isArray(registrationCert?.body?.purpose)
+      ? registrationCert.body.purpose
+      : [];
+
+    for (const purpose of purposes) {
+      this.addRegistrationCertPurpose(purpose?.lang || '', purpose?.value || '');
+    }
+
+    if (registrationCert?.jwt || registrationCert?.id) {
+      this.registrationCertTabIndex = 0;
+      return;
+    }
+
+    if (registrationCert?.body) {
+      this.registrationCertTabIndex = 1;
+    }
   }
 }

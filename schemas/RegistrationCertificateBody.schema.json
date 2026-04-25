@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/RegistrationCertificateBody.schema.json",
+  "title": "RegistrationCertificateBody",
+  "type": "object",
+  "properties": {
+    "privacy_policy": {
+      "type": "string"
+    },
+    "support_uri": {
+      "type": "string"
+    },
+    "intermediary": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "array",
+      "items": {
+        "$ref": "./RegistrationCertificatePurpose.schema.json"
+      }
+    },
+    "credentials": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "provided_attestations": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "required": [
+    "privacy_policy",
+    "support_uri"
+  ],
+  "additionalProperties": false
+}

@@ -21,7 +21,7 @@ be requested from users.
 - `id`: **REQUIRED** - Unique identifier for the presentation configuration.
 - `description`: **REQUIRED** - Human-readable description of the presentation. Will not be displayed to the end user.
 - `dcql_query`: **REQUIRED** - DCQL query defining the requested credentials and claims following the [DCQL specification](https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-digital-credentials-query-l)
-- `registrationCert`: **OPTIONAL** - Registration certificate containing legal and privacy information about the verifier. See [Registration Certificate](../registrar.md#registration-certificate) for details.
+- `registrationCert`: **OPTIONAL** - Registration certificate settings used to create (or reuse) a verifier attestation for this specific presentation config. Keep presentation-specific values such as `purpose` here. See [Registration Certificate](../registrar.md#registration-certificate) for details.
 - `webhook`: **OPTIONAL** - Webhook configuration for receiving verified presentations asynchronously. See [Webhook Integration](../../architecture/webhooks.md#presentation-webhook) for details.
 - `redirectUri`: **OPTIONAL** - URI to redirect the user to after completing the presentation. This is useful for web applications that need to return the user to a specific page after verification. You can use the `{sessionId}` placeholder in the URI, which will be replaced with the actual session ID (e.g., `https://example.com/callback?session={sessionId}`).
 - `transaction_data`: **OPTIONAL** - Array of transaction data objects to include in the OID4VP authorization request. See [Transaction Data](transaction-data.md) for details.
@@ -29,6 +29,31 @@ be requested from users.
 !!! Info
 
     If no webhook is configured, the presentation result can be fetched by querying the `/session` endpoint with the `sessionId`.
+
+### registrationCert Structure
+
+Use `registrationCert` per presentation configuration so each verifier request can declare its own intended use (`purpose`).
+
+```json
+{
+    "registrationCert": {
+        "body": {
+            "purpose": [
+                {
+                    "lang": "en",
+                    "value": "Verify age over 18 for account onboarding"
+                }
+            ]
+        }
+    }
+}
+```
+
+Notes:
+
+- `purpose` should be configured per presentation config.
+- Shared defaults such as `privacy_policy`, `support_uri`, or `provided_attestations` can be configured once at tenant level in `registrar.json` via `registrationCertificateDefaults`.
+- If you already have a registrar certificate JWT, you can set `registrationCert.jwt` to reuse it.
 
 ---
 
@@ -64,9 +89,7 @@ Each entry in `trusted_authorities` specifies:
     "trusted_authorities": [
         {
             "type": "etsi_tl",
-            "values": [
-                "https://example.com/trust-list/pid-provider.jwt"
-            ]
+            "values": ["https://example.com/trust-list/pid-provider.jwt"]
         }
     ]
 }

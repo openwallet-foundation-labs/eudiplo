@@ -75,6 +75,11 @@ export class RegistrarComponent implements OnInit {
       clientSecret: [''],
       username: ['', [Validators.required]],
       password: ['', [Validators.required]],
+      registrationCertificateDefaults: this.fb.group({
+        privacy_policy: [''],
+        support_uri: [''],
+        intermediary: [''],
+      }),
     });
   }
 
@@ -95,6 +100,20 @@ export class RegistrarComponent implements OnInit {
           clientSecret: this.config.clientSecret || '',
           username: this.config.username,
           password: '', // Password is never returned; user must enter new one to change it
+          registrationCertificateDefaults: {
+            privacy_policy:
+              typeof this.config.registrationCertificateDefaults?.['privacy_policy'] === 'string'
+                ? this.config.registrationCertificateDefaults?.['privacy_policy']
+                : '',
+            support_uri:
+              typeof this.config.registrationCertificateDefaults?.['support_uri'] === 'string'
+                ? this.config.registrationCertificateDefaults?.['support_uri']
+                : '',
+            intermediary:
+              typeof this.config.registrationCertificateDefaults?.['intermediary'] === 'string'
+                ? this.config.registrationCertificateDefaults?.['intermediary']
+                : '',
+          },
         });
         // If config exists with a password, password field is optional (keep existing)
         if (this.config.hasPassword) {
@@ -134,6 +153,25 @@ export class RegistrarComponent implements OnInit {
         clientSecret: formValue.clientSecret || undefined,
         username: formValue.username,
       };
+
+      const defaultsGroup = formValue.registrationCertificateDefaults || {};
+      const registrationCertificateDefaults: Record<string, unknown> = {};
+
+      if (defaultsGroup['privacy_policy']?.trim()) {
+        registrationCertificateDefaults['privacy_policy'] = defaultsGroup['privacy_policy'].trim();
+      }
+      if (defaultsGroup['support_uri']?.trim()) {
+        registrationCertificateDefaults['support_uri'] = defaultsGroup['support_uri'].trim();
+      }
+      if (defaultsGroup['intermediary']?.trim()) {
+        registrationCertificateDefaults['intermediary'] = defaultsGroup['intermediary'].trim();
+      }
+
+      if (Object.keys(registrationCertificateDefaults).length > 0) {
+        configRequest.registrationCertificateDefaults = registrationCertificateDefaults;
+      } else {
+        configRequest.registrationCertificateDefaults = null;
+      }
 
       // Only include password if user entered one (for updates) or always for new config
       if (formValue.password) {
