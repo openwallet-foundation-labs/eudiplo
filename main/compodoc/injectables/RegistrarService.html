@@ -190,8 +190,28 @@ to connect to their own registrar instance with their own credentials.</p>
                                 <a href="#addRegistrationCertificate" >addRegistrationCertificate</a>
                             </li>
                             <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#canonicalJson" >canonicalJson</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#computeAuthorizedCredentialsFingerprint" >computeAuthorizedCredentialsFingerprint</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#computeDcqlFingerprint" >computeDcqlFingerprint</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Public</span>
+                                <a href="#computeSpecFingerprint" >computeSpecFingerprint</a>
+                            </li>
+                            <li>
                                     <span class="modifier">Async</span>
                                 <a href="#createAccessCertificate" >createAccessCertificate</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#dcqlCredentialFingerprint" >dcqlCredentialFingerprint</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
@@ -217,6 +237,10 @@ to connect to their own registrar instance with their own credentials.</p>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
+                                <a href="#hash" >hash</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
                                     <span class="modifier">Async</span>
                                 <a href="#importForTenant" >importForTenant</a>
                             </li>
@@ -230,6 +254,10 @@ to connect to their own registrar instance with their own credentials.</p>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
+                                <a href="#resolveRegistrationCertificate" >resolveRegistrationCertificate</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#saveConfig" >saveConfig</a>
                             </li>
                             <li>
@@ -240,6 +268,10 @@ to connect to their own registrar instance with their own credentials.</p>
                             <li>
                                     <span class="modifier">Async</span>
                                 <a href="#updateConfig" >updateConfig</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#validateRegistrationCertificate" >validateRegistrationCertificate</a>
                             </li>
                         </ul>
                     </td>
@@ -264,7 +296,7 @@ to connect to their own registrar instance with their own credentials.</p>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/registrar/registrar.service.ts:56</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="59" class="link-to-prism">src/registrar/registrar.service.ts:59</a></div>
                             </td>
                         </tr>
 
@@ -370,15 +402,15 @@ to connect to their own registrar instance with their own credentials.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>addRegistrationCertificate(req: literal type, _dcqlQuery: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, _requestId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>addRegistrationCertificate(req: literal type, dcqlQuery: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, requestId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="456"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:456</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="466"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:466</a></div>
                         </td>
                     </tr>
 
@@ -386,7 +418,10 @@ to connect to their own registrar instance with their own credentials.</p>
             <tr>
                 <td class="col-md-4">
                         <div class="io-description"><p>Add a registration certificate for a verification session.
-This is called during VP flows to get a registration certificate from the registrar.</p>
+This is called during VP flows to get a registration certificate from the registrar.
+The returned JWT is validated for temporal validity (exp/nbf) and its
+authorized DCQL credentials are compared with the effective DCQL query
+for the request. Fails closed on any mismatch to prevent overasking.</p>
 </div>
 
                             <div class="io-description">
@@ -421,7 +456,7 @@ This is called during VP flows to get a registration certificate from the regist
                                             </td>
                                         </tr>
                                         <tr>
-                                                <td>_dcqlQuery</td>
+                                                <td>dcqlQuery</td>
                                             <td>
                                                             <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
                                             </td>
@@ -432,10 +467,14 @@ This is called during VP flows to get a registration certificate from the regist
 
 
                                             <td>
+                                                    <ul>
+<li>The effective DCQL query of the VP request (with <code>&lt;TENANT_URL&gt;</code> resolved and <code>trusted_authorities</code> removed)</li>
+</ul>
+
                                             </td>
                                         </tr>
                                         <tr>
-                                                <td>_requestId</td>
+                                                <td>requestId</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -446,6 +485,10 @@ This is called during VP flows to get a registration certificate from the regist
 
 
                                             <td>
+                                                    <ul>
+<li>The session request ID</li>
+</ul>
+
                                             </td>
                                         </tr>
                                         <tr>
@@ -485,6 +528,297 @@ This is called during VP flows to get a registration certificate from the regist
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="canonicalJson"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>canonicalJson</b></span>
+                        <a href="#canonicalJson"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>canonicalJson(value: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="807"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:807</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Recursively canonicalize a JSON value: object keys sorted, arrays preserved
+in their original order (DCQL arrays are order-significant for claims).</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>value</td>
+                                            <td>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="computeAuthorizedCredentialsFingerprint"></a>
+                    <span class="name">
+                            <span class="modifier">Public</span>
+                        <span ><b>computeAuthorizedCredentialsFingerprint</b></span>
+                        <a href="#computeAuthorizedCredentialsFingerprint"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>computeAuthorizedCredentialsFingerprint(credentials: unknown)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="760"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:760</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Compute a canonical fingerprint over a registration certificate&#39;s
+authorized <code>credentials</code> claim. Stored in the cache and used to detect
+cert content changes (e.g. registrar rotated the cert).</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>credentials</td>
+                                            <td>
+                                                        <code>unknown</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="computeDcqlFingerprint"></a>
+                    <span class="name">
+                            <span class="modifier">Public</span>
+                        <span ><b>computeDcqlFingerprint</b></span>
+                        <a href="#computeDcqlFingerprint"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>computeDcqlFingerprint(dcqlQuery: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="745"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:745</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Compute a canonical fingerprint over a <code>dcql_query.credentials</code> array.
+Used to detect drift between a cached registration certificate and the
+current presentation config&#39;s DCQL query.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>dcqlQuery</td>
+                                            <td>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="computeSpecFingerprint"></a>
+                    <span class="name">
+                            <span class="modifier">Public</span>
+                        <span ><b>computeSpecFingerprint</b></span>
+                        <a href="#computeSpecFingerprint"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>computeSpecFingerprint(spec: unknown)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="781"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:781</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Compute a stable fingerprint over a registration-certificate spec
+(<code>{ jwt?, id?, body? }</code>). Used to detect whether a cached certificate
+is still derived from the current spec.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>spec</td>
+                                            <td>
+                                                        <code>unknown</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="createAccessCertificate"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -503,8 +837,8 @@ This is called during VP flows to get a registration certificate from the regist
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="393"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:393</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="400"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:400</a></div>
                         </td>
                     </tr>
 
@@ -584,6 +918,79 @@ and stores it in EUDIPLO.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="dcqlCredentialFingerprint"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>dcqlCredentialFingerprint</b></span>
+                        <a href="#dcqlCredentialFingerprint"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>dcqlCredentialFingerprint(cred: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="790"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:790</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Compute a stable canonical fingerprint of a single DCQL credential entry.
+Strips fields that are not part of the authorization scope (e.g. <code>id</code>,
+<code>trusted_authorities</code>) and recursively sorts object keys.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>cred</td>
+                                            <td>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="deleteConfig"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -602,8 +1009,8 @@ and stores it in EUDIPLO.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="231"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:231</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="238"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:238</a></div>
                         </td>
                     </tr>
 
@@ -681,8 +1088,8 @@ and stores it in EUDIPLO.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="276"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:276</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="283"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:283</a></div>
                         </td>
                     </tr>
 
@@ -762,8 +1169,8 @@ Uses Resource Owner Password Credentials (ROPC) flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="332"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:332</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="339"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:339</a></div>
                         </td>
                     </tr>
 
@@ -839,8 +1246,8 @@ Uses Resource Owner Password Credentials (ROPC) flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="150"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:150</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="153"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:153</a></div>
                         </td>
                     </tr>
 
@@ -919,8 +1326,8 @@ Uses Resource Owner Password Credentials (ROPC) flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="357"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:357</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="364"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:364</a></div>
                         </td>
                     </tr>
 
@@ -981,6 +1388,75 @@ Assumes the user has exactly one relying party.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="hash"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>hash</b></span>
+                        <a href="#hash"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>hash(input: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="770"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:770</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>input</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="importForTenant"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
@@ -1000,8 +1476,8 @@ Assumes the user has exactly one relying party.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="79"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:79</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="82"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:82</a></div>
                         </td>
                     </tr>
 
@@ -1079,8 +1555,8 @@ Looks for a registrar.json file in the tenant&#39;s folder.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="128"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:128</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="131"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:131</a></div>
                         </td>
                     </tr>
 
@@ -1158,8 +1634,8 @@ Looks for a registrar.json file in the tenant&#39;s folder.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="140"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:140</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="143"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:143</a></div>
                         </td>
                     </tr>
 
@@ -1220,6 +1696,117 @@ The tenant must explicitly configure their registrar settings.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="resolveRegistrationCertificate"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>resolveRegistrationCertificate</b></span>
+                        <a href="#resolveRegistrationCertificate"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>resolveRegistrationCertificate(req: literal type, dcqlQuery: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, requestId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="493"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:493</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Resolve a registration certificate from a spec (<code>jwt</code> import / <code>id</code> lookup
+/ <code>body</code> creation), validate it against the effective DCQL query and
+return both the JWT and its decoded payload.</p>
+<p>This is the canonical entry point used both at presentation-config
+save-time (eager caching) and at VP-request time (cache miss / refresh).</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>req</td>
+                                            <td>
+                                                        <code>literal type</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>dcqlQuery</td>
+                                            <td>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>requestId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;literal type&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="saveConfig"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -1238,8 +1825,8 @@ The tenant must explicitly configure their registrar settings.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="161"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:161</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="164"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:164</a></div>
                         </td>
                     </tr>
 
@@ -1337,8 +1924,8 @@ Tests the credentials before saving.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="242"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:242</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="249"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:249</a></div>
                         </td>
                     </tr>
 
@@ -1415,8 +2002,8 @@ Tests the credentials before saving.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="187"
-                                    class="link-to-prism">src/registrar/registrar.service.ts:187</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="190"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:190</a></div>
                         </td>
                     </tr>
 
@@ -1491,6 +2078,135 @@ Tests the credentials before saving if auth-related fields are updated.</p>
             </tr>
         </tbody>
     </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="validateRegistrationCertificate"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>validateRegistrationCertificate</b></span>
+                        <a href="#validateRegistrationCertificate"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>validateRegistrationCertificate(jwt: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dcqlQuery: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, requestId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, source: "jwt" | "id" | "body")</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="644"
+                                    class="link-to-prism">src/registrar/registrar.service.ts:644</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Validate a registration certificate JWT against the effective DCQL query.</p>
+<p>Performs:</p>
+<ol>
+<li>JWT decoding (structural validation).</li>
+<li>Temporal validity check (<code>exp</code>, <code>nbf</code>) with a small clock skew tolerance.</li>
+<li>DCQL fingerprint comparison: every credential being requested in
+<code>dcqlQuery.credentials</code> MUST be present in the certificate&#39;s authorized
+<code>credentials</code> claim (canonical-JSON match). Prevents overasking with a
+cert that was issued for a different/narrower set of credentials.</li>
+</ol>
+<p>Fails closed by throwing <code>BadRequestException</code> on any mismatch.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>jwt</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>dcqlQuery</td>
+                                            <td>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>requestId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>source</td>
+                                            <td>
+                                                        <code>&quot;jwt&quot; | &quot;id&quot; | &quot;body&quot;</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Record&lt;string, any&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>
             <section data-compodoc="block-properties">
     
@@ -1523,7 +2239,7 @@ Tests the credentials before saving if auth-related fields are updated.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="51" class="link-to-prism">src/registrar/registrar.service.ts:51</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="54" class="link-to-prism">src/registrar/registrar.service.ts:54</a></div>
                         </td>
                     </tr>
 
@@ -1556,7 +2272,7 @@ Tests the credentials before saving if auth-related fields are updated.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="56" class="link-to-prism">src/registrar/registrar.service.ts:56</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="59" class="link-to-prism">src/registrar/registrar.service.ts:59</a></div>
                         </td>
                     </tr>
 
@@ -1575,7 +2291,8 @@ Tests the credentials before saving if auth-related fields are updated.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { existsSync, readFileSync } from &quot;node:fs&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash } from &quot;node:crypto&quot;;
+import { existsSync, readFileSync } from &quot;node:fs&quot;;
 import { join } from &quot;node:path&quot;;
 import { OAuth2Client, OAuth2Token } from &quot;@badgateway/oauth2-client&quot;;
 import {
@@ -1587,6 +2304,7 @@ import {
 import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
+import { decodeJwt } from &quot;jose&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { TenantEntity } from &quot;../auth/tenant/entitites/tenant.entity&quot;;
 import { CertService } from &quot;../crypto/key/cert/cert.service&quot;;
@@ -1601,6 +2319,7 @@ import { UpdateRegistrarConfigDto } from &quot;./dto/update-registrar-config.dto
 import { RegistrarConfigEntity } from &quot;./entities/registrar-config.entity&quot;;
 import {
     accessCertificateControllerRegister,
+    type RegistrationCertificateCreation,
     registrationCertificateControllerAll,
     registrationCertificateControllerRegister,
     relyingPartyControllerFindAll,
@@ -1793,7 +2512,11 @@ export class RegistrarService {
             await this.testCredentials(testConfig);
         }
 
-        await this.configRepository.update({ tenantId }, dto);
+        await this.configRepository.save({
+            ...existing,
+            ...dto,
+            tenantId,
+        });
 
         // Clear any cached token for this tenant
         this.tokenCache.delete(tenantId);
@@ -2024,20 +2747,80 @@ export class RegistrarService {
     /**
      * Add a registration certificate for a verification session.
      * This is called during VP flows to get a registration certificate from the registrar.
+     * The returned JWT is validated for temporal validity (exp/nbf) and its
+     * authorized DCQL credentials are compared with the effective DCQL query
+     * for the request. Fails closed on any mismatch to prevent overasking.
      * @param req - The registration certificate request body
-     * @param dcqlQuery - The DCQL query (for future validation)
+     * @param dcqlQuery - The effective DCQL query of the VP request (with &#x60;&lt;TENANT_URL&gt;&#x60; resolved and &#x60;trusted_authorities&#x60; removed)
      * @param requestId - The session request ID
      * @param tenantId - The tenant ID
      * @returns The registration certificate JWT
      */
     async addRegistrationCertificate(
-        req: { id?: string; body: any },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        _dcqlQuery: any,
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        _requestId: string,
+        req: {
+            id?: string;
+            body?: Partial&lt;RegistrationCertificateCreation&gt;;
+            jwt?: string;
+        },
+        dcqlQuery: any,
+        requestId: string,
         tenantId: string,
     ): Promise&lt;string&gt; {
+        const resolved &#x3D; await this.resolveRegistrationCertificate(
+            req,
+            dcqlQuery,
+            requestId,
+            tenantId,
+        );
+        return resolved.jwt;
+    }
+
+    /**
+     * Resolve a registration certificate from a spec (&#x60;jwt&#x60; import / &#x60;id&#x60; lookup
+     * / &#x60;body&#x60; creation), validate it against the effective DCQL query and
+     * return both the JWT and its decoded payload.
+     *
+     * This is the canonical entry point used both at presentation-config
+     * save-time (eager caching) and at VP-request time (cache miss / refresh).
+     */
+    async resolveRegistrationCertificate(
+        req: {
+            id?: string;
+            body?: Partial&lt;RegistrationCertificateCreation&gt;;
+            jwt?: string;
+        },
+        dcqlQuery: any,
+        requestId: string,
+        tenantId: string,
+    ): Promise&lt;{
+        jwt: string;
+        payload: Record&lt;string, any&gt;;
+        source: &quot;imported&quot; | &quot;registrar&quot;;
+    }&gt; {
+        if (req.jwt) {
+            const payload &#x3D; this.validateRegistrationCertificate(
+                req.jwt,
+                dcqlQuery,
+                tenantId,
+                requestId,
+                &quot;jwt&quot;,
+            );
+            return { jwt: req.jwt, payload, source: &quot;imported&quot; };
+        }
+
+        if (!req.id &amp;&amp; !req.body) {
+            throw new BadRequestException(
+                &quot;registrationCert must provide either jwt (import existing), id (reuse existing), or body (create new via registrar)&quot;,
+            );
+        }
+
+        const config &#x3D; await this.configRepository.findOneBy({ tenantId });
+        if (!config) {
+            throw new NotFoundException(
+                &#x60;No registrar configuration found for tenant ${tenantId}&#x60;,
+            );
+        }
+
         const client &#x3D; await this.getClient(tenantId);
         const relyingPartyId &#x3D; await this.getRelyingPartyId(tenantId);
 
@@ -2050,20 +2833,67 @@ export class RegistrarService {
                 },
             });
 
+            if (existingCerts.error) {
+                this.logger.error(
+                    { error: existingCerts.error },
+                    &#x60;[${tenantId}] Failed to fetch existing registration certificates&#x60;,
+                );
+                throw new BadRequestException(
+                    &quot;Failed to query registration certificates&quot;,
+                );
+            }
+
             const validCerts &#x3D; existingCerts.data?.filter(
                 (cert) &#x3D;&gt; cert.revoked &#x3D;&#x3D; null &amp;&amp; cert.id &#x3D;&#x3D;&#x3D; req.id,
             );
 
             if (validCerts &amp;&amp; validCerts.length &gt; 0) {
-                return validCerts[0].jwt;
+                const payload &#x3D; this.validateRegistrationCertificate(
+                    validCerts[0].jwt,
+                    dcqlQuery,
+                    tenantId,
+                    requestId,
+                    &quot;id&quot;,
+                );
+                return {
+                    jwt: validCerts[0].jwt,
+                    payload,
+                    source: &quot;registrar&quot;,
+                };
+            }
+
+            if (!req.body) {
+                throw new BadRequestException(
+                    &#x60;No active registration certificate found for id &#x27;${req.id}&#x27;. Provide registrationCert.jwt or registrationCert.body to proceed.&#x60;,
+                );
             }
         }
 
-        // Create a new registration certificate - rpId is included in the body
-        const bodyWithRpId &#x3D; {
-            ...req.body,
-            rpId: relyingPartyId,
+        const mergedBody: Partial&lt;RegistrationCertificateCreation&gt; &#x3D; {
+            ...(config.registrationCertificateDefaults ?? {}),
+            ...(req.body ?? {}),
         };
+
+        if (!mergedBody.privacy_policy || !mergedBody.support_uri) {
+            throw new BadRequestException(
+                &quot;registrationCert.body must include privacy_policy and support_uri (directly or via registrar registrationCertificateDefaults)&quot;,
+            );
+        }
+
+        if (
+            !Array.isArray(mergedBody.purpose) ||
+            mergedBody.purpose.length &#x3D;&#x3D;&#x3D; 0
+        ) {
+            throw new BadRequestException(
+                &quot;registrationCert.body.purpose must be provided in the presentation config&quot;,
+            );
+        }
+
+        // Create a new registration certificate - rpId is always derived from the tenant&#x27;s registrar RP.
+        const bodyWithRpId: RegistrationCertificateCreation &#x3D; {
+            ...mergedBody,
+            rpId: relyingPartyId,
+        } as RegistrationCertificateCreation;
 
         const res &#x3D; await registrationCertificateControllerRegister({
             client,
@@ -2080,7 +2910,204 @@ export class RegistrarService {
             );
         }
 
-        return res.data!.jwt;
+        const newJwt &#x3D; res.data!.jwt;
+        const payload &#x3D; this.validateRegistrationCertificate(
+            newJwt,
+            dcqlQuery,
+            tenantId,
+            requestId,
+            &quot;body&quot;,
+        );
+        return { jwt: newJwt, payload, source: &quot;registrar&quot; };
+    }
+
+    /**
+     * Validate a registration certificate JWT against the effective DCQL query.
+     *
+     * Performs:
+     * 1. JWT decoding (structural validation).
+     * 2. Temporal validity check (&#x60;exp&#x60;, &#x60;nbf&#x60;) with a small clock skew tolerance.
+     * 3. DCQL fingerprint comparison: every credential being requested in
+     *    &#x60;dcqlQuery.credentials&#x60; MUST be present in the certificate&#x27;s authorized
+     *    &#x60;credentials&#x60; claim (canonical-JSON match). Prevents overasking with a
+     *    cert that was issued for a different/narrower set of credentials.
+     *
+     * Fails closed by throwing &#x60;BadRequestException&#x60; on any mismatch.
+     */
+    private validateRegistrationCertificate(
+        jwt: string,
+        dcqlQuery: any,
+        tenantId: string,
+        requestId: string,
+        source: &quot;jwt&quot; | &quot;id&quot; | &quot;body&quot;,
+    ): Record&lt;string, any&gt; {
+        let payload: Record&lt;string, any&gt;;
+        try {
+            payload &#x3D; decodeJwt(jwt) as Record&lt;string, any&gt;;
+        } catch (err) {
+            this.logger.error(
+                { err, requestId, source },
+                &#x60;[${tenantId}] Registration certificate is not a valid JWT&#x60;,
+            );
+            throw new BadRequestException(
+                &quot;Registration certificate is not a valid JWT&quot;,
+            );
+        }
+
+        const now &#x3D; Math.floor(Date.now() / 1000);
+        const skew &#x3D; 60; // seconds
+
+        if (typeof payload.exp &#x3D;&#x3D;&#x3D; &quot;number&quot; &amp;&amp; payload.exp + skew &lt; now) {
+            this.logger.warn(
+                { requestId, source, exp: payload.exp, now },
+                &#x60;[${tenantId}] Registration certificate is expired&#x60;,
+            );
+            throw new BadRequestException(
+                &quot;Registration certificate is expired&quot;,
+            );
+        }
+
+        if (typeof payload.nbf &#x3D;&#x3D;&#x3D; &quot;number&quot; &amp;&amp; payload.nbf - skew &gt; now) {
+            this.logger.warn(
+                { requestId, source, nbf: payload.nbf, now },
+                &#x60;[${tenantId}] Registration certificate is not yet valid&#x60;,
+            );
+            throw new BadRequestException(
+                &quot;Registration certificate is not yet valid&quot;,
+            );
+        }
+
+        const authorizedCredentials &#x3D; Array.isArray(payload.credentials)
+            ? payload.credentials
+            : null;
+
+        if (!authorizedCredentials || authorizedCredentials.length &#x3D;&#x3D;&#x3D; 0) {
+            this.logger.warn(
+                { requestId, source },
+                &#x60;[${tenantId}] Registration certificate has no authorized credentials claim&#x60;,
+            );
+            throw new BadRequestException(
+                &quot;Registration certificate has no authorized credentials&quot;,
+            );
+        }
+        const requestedCredentials &#x3D; Array.isArray(dcqlQuery?.credentials)
+            ? dcqlQuery.credentials
+            : [];
+
+        if (requestedCredentials.length &#x3D;&#x3D;&#x3D; 0) {
+            // Nothing being requested - nothing to authorize against.
+            return payload;
+        }
+
+        const authorizedFingerprints &#x3D; new Set(
+            authorizedCredentials.map((c: any) &#x3D;&gt;
+                this.dcqlCredentialFingerprint(c),
+            ),
+        );
+
+        const unauthorized: any[] &#x3D; [];
+        for (const cred of requestedCredentials) {
+            const fp &#x3D; this.dcqlCredentialFingerprint(cred);
+            if (!authorizedFingerprints.has(fp)) {
+                unauthorized.push(cred);
+            }
+        }
+
+        if (unauthorized.length &gt; 0) {
+            this.logger.error(
+                {
+                    requestId,
+                    source,
+                    unauthorizedIds: unauthorized.map((c) &#x3D;&gt; c?.id),
+                },
+                &#x60;[${tenantId}] Registration certificate does not authorize the requested DCQL credentials (overasking prevented)&#x60;,
+            );
+            throw new BadRequestException(
+                &quot;Registration certificate does not authorize the requested DCQL credentials&quot;,
+            );
+        }
+
+        return payload;
+    }
+
+    /**
+     * Compute a canonical fingerprint over a &#x60;dcql_query.credentials&#x60; array.
+     * Used to detect drift between a cached registration certificate and the
+     * current presentation config&#x27;s DCQL query.
+     */
+    public computeDcqlFingerprint(dcqlQuery: any): string {
+        const credentials &#x3D; Array.isArray(dcqlQuery?.credentials)
+            ? dcqlQuery.credentials
+            : [];
+        const fps &#x3D; credentials
+            .map((c: any) &#x3D;&gt; this.dcqlCredentialFingerprint(c))
+            .sort();
+        return this.hash(fps.join(&quot;|&quot;));
+    }
+
+    /**
+     * Compute a canonical fingerprint over a registration certificate&#x27;s
+     * authorized &#x60;credentials&#x60; claim. Stored in the cache and used to detect
+     * cert content changes (e.g. registrar rotated the cert).
+     */
+    public computeAuthorizedCredentialsFingerprint(
+        credentials: unknown,
+    ): string {
+        const arr &#x3D; Array.isArray(credentials) ? credentials : [];
+        const fps &#x3D; arr
+            .map((c: any) &#x3D;&gt; this.dcqlCredentialFingerprint(c))
+            .sort();
+        return this.hash(fps.join(&quot;|&quot;));
+    }
+
+    private hash(input: string): string {
+        // Lightweight, stable, non-cryptographic fingerprint hash.
+        // Equality is the only property we need here (no secrecy).
+        return createHash(&quot;sha256&quot;).update(input).digest(&quot;hex&quot;);
+    }
+
+    /**
+     * Compute a stable fingerprint over a registration-certificate spec
+     * (&#x60;{ jwt?, id?, body? }&#x60;). Used to detect whether a cached certificate
+     * is still derived from the current spec.
+     */
+    public computeSpecFingerprint(spec: unknown): string {
+        return this.hash(this.canonicalJson(spec ?? null));
+    }
+
+    /**
+     * Compute a stable canonical fingerprint of a single DCQL credential entry.
+     * Strips fields that are not part of the authorization scope (e.g. &#x60;id&#x60;,
+     * &#x60;trusted_authorities&#x60;) and recursively sorts object keys.
+     */
+    private dcqlCredentialFingerprint(cred: any): string {
+        if (!cred || typeof cred !&#x3D;&#x3D; &quot;object&quot;) {
+            return JSON.stringify(cred ?? null);
+        }
+        // Drop fields not relevant to the authorization-scope comparison.
+        const {
+            id: _id,
+            trusted_authorities: _ta,
+            ...rest
+        } &#x3D; cred as Record&lt;string, any&gt;;
+        return this.canonicalJson(rest);
+    }
+
+    /**
+     * Recursively canonicalize a JSON value: object keys sorted, arrays preserved
+     * in their original order (DCQL arrays are order-significant for claims).
+     */
+    private canonicalJson(value: any): string {
+        if (value &#x3D;&#x3D;&#x3D; null || typeof value !&#x3D;&#x3D; &quot;object&quot;) {
+            return JSON.stringify(value);
+        }
+        if (Array.isArray(value)) {
+            return &#x60;[${value.map((v) &#x3D;&gt; this.canonicalJson(v)).join(&quot;,&quot;)}]&#x60;;
+        }
+        const keys &#x3D; Object.keys(value).sort();
+        return &#x60;{${keys
+            .map((k) &#x3D;&gt; &#x60;${JSON.stringify(k)}:${this.canonicalJson(value[k])}&#x60;)
+            .join(&quot;,&quot;)}}&#x60;;
     }
 }
 </code></pre>

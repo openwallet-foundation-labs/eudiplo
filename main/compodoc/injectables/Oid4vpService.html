@@ -212,12 +212,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(logger: PinoLogger, certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, keyChainService: <a href="../injectables/KeyChainService.html" target="_self">KeyChainService</a>, encryptionService: <a href="../injectables/EncryptionService.html" target="_self">EncryptionService</a>, configService: ConfigService, presentationsService: <a href="../injectables/PresentationsService.html" target="_self">PresentationsService</a>, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, auditLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, cryptoImplementationService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, traceService: TraceService)</code>
+<code>constructor(logger: PinoLogger, certService: <a href="../injectables/CertService.html" target="_self">CertService</a>, keyChainService: <a href="../injectables/KeyChainService.html" target="_self">KeyChainService</a>, encryptionService: <a href="../injectables/EncryptionService.html" target="_self">EncryptionService</a>, configService: ConfigService, registrarService: <a href="../injectables/RegistrarService.html" target="_self">RegistrarService</a>, presentationsService: <a href="../injectables/PresentationsService.html" target="_self">PresentationsService</a>, sessionService: <a href="../injectables/SessionService.html" target="_self">SessionService</a>, auditLogger: <a href="../injectables/SessionLoggerService.html" target="_self">SessionLoggerService</a>, webhookService: <a href="../injectables/WebhookService.html" target="_self">WebhookService</a>, cryptoImplementationService: <a href="../injectables/CryptoImplementationService.html" target="_self">CryptoImplementationService</a>, traceService: TraceService)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="28" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:28</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:29</a></div>
                             </td>
                         </tr>
 
@@ -287,6 +287,18 @@
                                                   
                                                         <td>
                                                                     <code>ConfigService</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>registrarService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/RegistrarService.html" target="_self" >RegistrarService</a></code>
                                                         </td>
                                                   
                                                     <td>
@@ -410,8 +422,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="109"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:109</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="111"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:111</a></div>
                         </td>
                     </tr>
 
@@ -515,8 +527,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="297"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:297</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="296"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:296</a></div>
                         </td>
                     </tr>
 
@@ -642,8 +654,8 @@ It initializes the session logging context and logs the start of the flow.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="67"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:67</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="69"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:69</a></div>
                         </td>
                     </tr>
 
@@ -757,8 +769,8 @@ session creation, which is essential for transaction_data hash validation.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="416"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:416</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="415"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:415</a></div>
                         </td>
                     </tr>
 
@@ -852,8 +864,8 @@ from the URL path (not the session ID).</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="50"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:50</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="52"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:52</a></div>
                         </td>
                     </tr>
 
@@ -931,7 +943,7 @@ compatibility with sessions created before the walletNonce migration.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="33" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:33</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="34" class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:34</a></div>
                         </td>
                     </tr>
 
@@ -959,6 +971,7 @@ import { CryptoImplementationService } from &quot;../../crypto/key/crypto-implem
 import { KeyUsageType } from &quot;../../crypto/key/entities/key-chain.entity&quot;;
 import { KeyChainService } from &quot;../../crypto/key/key-chain.service&quot;;
 import { OfferResponse } from &quot;../../issuer/issuance/oid4vci/dto/offer-request.dto&quot;;
+import { RegistrarService } from &quot;../../registrar/registrar.service&quot;;
 import { SessionStatus } from &quot;../../session/entities/session.entity&quot;;
 import { SessionService } from &quot;../../session/session.service&quot;;
 import { AuditLogContext } from &quot;../../shared/utils/logger/audit-log.service&quot;;
@@ -979,6 +992,7 @@ export class Oid4vpService {
         public readonly keyChainService: KeyChainService,
         private readonly encryptionService: EncryptionService,
         private readonly configService: ConfigService,
+        private readonly registrarService: RegistrarService,
         private readonly presentationsService: PresentationsService,
         private readonly sessionService: SessionService,
         private readonly auditLogger: SessionLoggerService,
@@ -1111,22 +1125,19 @@ export class Oid4vpService {
                 return rest;
             });
 
-            /*             if (
-                await this.registrarService.isEnabledForTenant(session.tenantId)
+            if (
+                presentationConfig.registrationCert &amp;&amp;
+                (await this.registrarService.isEnabledForTenant(
+                    session.tenantId,
+                ))
             ) {
-                const registrationCert &#x3D; JSON.parse(
-                    JSON.stringify(
-                        presentationConfig.registrationCert,
-                    ).replaceAll(&quot;&lt;TENANT_URL&gt;&quot;, tenantHost),
-                );
                 regCert &#x3D;
-                    await this.registrarService.addRegistrationCertificate(
-                        registrationCert,
+                    await this.presentationsService.getOrIssueRegistrationCertificate(
+                        presentationConfig,
                         dcql_query,
                         session.requestId!,
-                        session.tenantId,
                     );
-            } */
+            }
             const nonce &#x3D; randomUUID();
             await this.sessionService.add(session.id, {
                 vp_nonce: nonce,

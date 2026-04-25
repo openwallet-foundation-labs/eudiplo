@@ -432,13 +432,13 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="modules/PresentationsModule.html" data-type="entity-link" >PresentationsModule</a>
                                     <li class="chapter inner">
                                         <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
-                                            'data-bs-target="#controllers-links-module-PresentationsModule-3b4f1e5933e27a557f7c7881c810bcddabe9d251d0dfe2a0da8c2d9f8eaec00265b3b19cc7541bab02c49471a2fdba96f0a9cc02e7da9e8ddf97b1cf923f7c7d"' : 'data-bs-target="#xs-controllers-links-module-PresentationsModule-3b4f1e5933e27a557f7c7881c810bcddabe9d251d0dfe2a0da8c2d9f8eaec00265b3b19cc7541bab02c49471a2fdba96f0a9cc02e7da9e8ddf97b1cf923f7c7d"' }>
+                                            'data-bs-target="#controllers-links-module-PresentationsModule-56eb953da90a4460f88ef2f31175fc8f5d143b859b08b465d30dec69c2a96e16a177fbd39eac58418c1ad3e148278409b60c16bdda04cb6a506d31e68731774a"' : 'data-bs-target="#xs-controllers-links-module-PresentationsModule-56eb953da90a4460f88ef2f31175fc8f5d143b859b08b465d30dec69c2a96e16a177fbd39eac58418c1ad3e148278409b60c16bdda04cb6a506d31e68731774a"' }>
                                             <span class="icon ion-md-swap"></span>
                                             <span>Controllers</span>
                                             <span class="icon ion-ios-arrow-down"></span>
                                         </div>
-                                        <ul class="links collapse" ${ isNormalMode ? 'id="controllers-links-module-PresentationsModule-3b4f1e5933e27a557f7c7881c810bcddabe9d251d0dfe2a0da8c2d9f8eaec00265b3b19cc7541bab02c49471a2fdba96f0a9cc02e7da9e8ddf97b1cf923f7c7d"' :
-                                            'id="xs-controllers-links-module-PresentationsModule-3b4f1e5933e27a557f7c7881c810bcddabe9d251d0dfe2a0da8c2d9f8eaec00265b3b19cc7541bab02c49471a2fdba96f0a9cc02e7da9e8ddf97b1cf923f7c7d"' }>
+                                        <ul class="links collapse" ${ isNormalMode ? 'id="controllers-links-module-PresentationsModule-56eb953da90a4460f88ef2f31175fc8f5d143b859b08b465d30dec69c2a96e16a177fbd39eac58418c1ad3e148278409b60c16bdda04cb6a506d31e68731774a"' :
+                                            'id="xs-controllers-links-module-PresentationsModule-56eb953da90a4460f88ef2f31175fc8f5d143b859b08b465d30dec69c2a96e16a177fbd39eac58418c1ad3e148278409b60c16bdda04cb6a506d31e68731774a"' }>
                                             <li class="link">
                                                 <a href="controllers/PresentationManagementController.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >PresentationManagementController</a>
                                             </li>
@@ -446,13 +446,13 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                     </li>
                                 <li class="chapter inner">
                                     <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
-                                        'data-bs-target="#injectables-links-module-PresentationsModule-3b4f1e5933e27a557f7c7881c810bcddabe9d251d0dfe2a0da8c2d9f8eaec00265b3b19cc7541bab02c49471a2fdba96f0a9cc02e7da9e8ddf97b1cf923f7c7d"' : 'data-bs-target="#xs-injectables-links-module-PresentationsModule-3b4f1e5933e27a557f7c7881c810bcddabe9d251d0dfe2a0da8c2d9f8eaec00265b3b19cc7541bab02c49471a2fdba96f0a9cc02e7da9e8ddf97b1cf923f7c7d"' }>
+                                        'data-bs-target="#injectables-links-module-PresentationsModule-56eb953da90a4460f88ef2f31175fc8f5d143b859b08b465d30dec69c2a96e16a177fbd39eac58418c1ad3e148278409b60c16bdda04cb6a506d31e68731774a"' : 'data-bs-target="#xs-injectables-links-module-PresentationsModule-56eb953da90a4460f88ef2f31175fc8f5d143b859b08b465d30dec69c2a96e16a177fbd39eac58418c1ad3e148278409b60c16bdda04cb6a506d31e68731774a"' }>
                                         <span class="icon ion-md-arrow-round-down"></span>
                                         <span>Injectables</span>
                                         <span class="icon ion-ios-arrow-down"></span>
                                     </div>
-                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-PresentationsModule-3b4f1e5933e27a557f7c7881c810bcddabe9d251d0dfe2a0da8c2d9f8eaec00265b3b19cc7541bab02c49471a2fdba96f0a9cc02e7da9e8ddf97b1cf923f7c7d"' :
-                                        'id="xs-injectables-links-module-PresentationsModule-3b4f1e5933e27a557f7c7881c810bcddabe9d251d0dfe2a0da8c2d9f8eaec00265b3b19cc7541bab02c49471a2fdba96f0a9cc02e7da9e8ddf97b1cf923f7c7d"' }>
+                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-PresentationsModule-56eb953da90a4460f88ef2f31175fc8f5d143b859b08b465d30dec69c2a96e16a177fbd39eac58418c1ad3e148278409b60c16bdda04cb6a506d31e68731774a"' :
+                                        'id="xs-injectables-links-module-PresentationsModule-56eb953da90a4460f88ef2f31175fc8f5d143b859b08b465d30dec69c2a96e16a177fbd39eac58418c1ad3e148278409b60c16bdda04cb6a506d31e68731774a"' }>
                                         <li class="link">
                                             <a href="injectables/CredentialChainValidationService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >CredentialChainValidationService</a>
                                         </li>
@@ -860,6 +860,12 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/AddRefreshTokenToSession1752000000000.html" data-type="entity-link" >AddRefreshTokenToSession1752000000000</a>
                             </li>
                             <li class="link">
+                                <a href="classes/AddRegistrationCertCacheToPresentationConfig1756000000000.html" data-type="entity-link" >AddRegistrationCertCacheToPresentationConfig1756000000000</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/AddRegistrationCertificateDefaultsToRegistrarConfig1755000000000.html" data-type="entity-link" >AddRegistrationCertificateDefaultsToRegistrarConfig1755000000000</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/AddSessionErrorReason1750000000000.html" data-type="entity-link" >AddSessionErrorReason1750000000000</a>
                             </li>
                             <li class="link">
@@ -1232,6 +1238,12 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/RegistrarConfigResponseDto.html" data-type="entity-link" >RegistrarConfigResponseDto</a>
                             </li>
                             <li class="link">
+                                <a href="classes/RegistrationCertificateBody.html" data-type="entity-link" >RegistrationCertificateBody</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/RegistrationCertificatePurpose.html" data-type="entity-link" >RegistrationCertificatePurpose</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/RegistrationCertificateRequest.html" data-type="entity-link" >RegistrationCertificateRequest</a>
                             </li>
                             <li class="link">
@@ -1593,6 +1605,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="interfaces/RegisteredImporter.html" data-type="entity-link" >RegisteredImporter</a>
+                            </li>
+                            <li class="link">
+                                <a href="interfaces/RegistrationCertCache.html" data-type="entity-link" >RegistrationCertCache</a>
                             </li>
                             <li class="link">
                                 <a href="interfaces/SchemeOperatorAddress.html" data-type="entity-link" >SchemeOperatorAddress</a>

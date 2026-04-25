@@ -195,6 +195,14 @@ using a secrets manager like HashiCorp Vault.</p>
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#registrationCertificateDefaults" >registrationCertificateDefaults</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
                                 <a href="#tenant" >tenant</a>
                             </li>
                             <li>
@@ -456,6 +464,53 @@ Example: <a href="https://sandbox.eudi-wallet.org/api">https://sandbox.eudi-wall
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="registrationCertificateDefaults"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>registrationCertificateDefaults</b></span>
+                        <a href="#registrationCertificateDefaults"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>Record&lt;string | unknown&gt; | null</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @ApiPropertyOptional({description: &#x27;Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)&#x27;, type: &#x27;object&#x27;, additionalProperties: true})<br />@IsOptional()<br />@IsObject()<br />@Column(&#x27;json&#x27;, {nullable: true})<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="113" class="link-to-prism">src/registrar/entities/registrar-config.entity.ts:113</a></div>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Optional tenant-wide defaults merged into registration certificate creation requests.
+Presentation config values take precedence over these defaults.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="tenant"></a>
                     <span class="name">
                             <span class="modifier"></span>
@@ -586,7 +641,7 @@ Example: <a href="https://sandbox.eudi-wallet.org/api">https://sandbox.eudi-wall
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty, ApiPropertyOptional } from &quot;@nestjs/swagger&quot;;
-import { IsOptional, IsString, IsUrl } from &quot;class-validator&quot;;
+import { IsObject, IsOptional, IsString, IsUrl } from &quot;class-validator&quot;;
 import { Column, Entity, ManyToOne, PrimaryColumn } from &quot;typeorm&quot;;
 import { TenantEntity } from &quot;../../auth/tenant/entitites/tenant.entity&quot;;
 
@@ -683,6 +738,21 @@ export class RegistrarConfigEntity {
     @IsString()
     @Column(&quot;varchar&quot;)
     password!: string;
+
+    /**
+     * Optional tenant-wide defaults merged into registration certificate creation requests.
+     * Presentation config values take precedence over these defaults.
+     */
+    @ApiPropertyOptional({
+        description:
+            &quot;Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)&quot;,
+        type: &quot;object&quot;,
+        additionalProperties: true,
+    })
+    @IsOptional()
+    @IsObject()
+    @Column(&quot;json&quot;, { nullable: true })
+    registrationCertificateDefaults?: Record&lt;string, unknown&gt; | null;
 }
 </code></pre>
     </div>

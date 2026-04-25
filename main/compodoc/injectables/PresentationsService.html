@@ -200,6 +200,10 @@
                                 <a href="#fetchCredentialIssuerMetadata" >fetchCredentialIssuerMetadata</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#getOrIssueRegistrationCertificate" >getOrIssueRegistrationCertificate</a>
+                            </li>
+                            <li>
                                 <a href="#getPresentationConfig" >getPresentationConfig</a>
                             </li>
                             <li>
@@ -227,10 +231,20 @@
                                 <a href="#parseResponse" >parseResponse</a>
                             </li>
                             <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#refreshRegistrationCertCache" >refreshRegistrationCertCache</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#reissueRegistrationCertificate" >reissueRegistrationCertificate</a>
+                            </li>
+                            <li>
                                     <span class="modifier">Async</span>
                                 <a href="#resolveCredentialIssuerMetadata" >resolveCredentialIssuerMetadata</a>
                             </li>
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#storePresentationConfig" >storePresentationConfig</a>
                             </li>
                             <li>
@@ -268,12 +282,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(vpRequestRepository: <a href="../entitys/PresentationConfig.html" target="_self">Repository&lt;PresentationConfig&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>, sdjwtvcverifierService: <a href="../injectables/SdjwtvcverifierService.html" target="_self">SdjwtvcverifierService</a>, mdocverifierService: <a href="../injectables/MdocverifierService.html" target="_self">MdocverifierService</a>, configService: ConfigService, logger: PinoLogger, traceService: TraceService)</code>
+<code>constructor(vpRequestRepository: <a href="../entitys/PresentationConfig.html" target="_self">Repository&lt;PresentationConfig&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>, sdjwtvcverifierService: <a href="../injectables/SdjwtvcverifierService.html" target="_self">SdjwtvcverifierService</a>, mdocverifierService: <a href="../injectables/MdocverifierService.html" target="_self">MdocverifierService</a>, configService: ConfigService, registrarService: <a href="../injectables/RegistrarService.html" target="_self">RegistrarService</a>, logger: PinoLogger, traceService: TraceService)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/verifier/presentations/presentations.service.ts:47</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/verifier/presentations/presentations.service.ts:48</a></div>
                             </td>
                         </tr>
 
@@ -382,6 +396,20 @@
                                                         </td>
                                                 </tr>
                                                 <tr>
+                                                        <td>registrarService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/RegistrarService.html" target="_self" >RegistrarService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                        <td>
+                                                        </td>
+                                                </tr>
+                                                <tr>
                                                         <td>logger</td>
                                                   
                                                         <td>
@@ -446,8 +474,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="267"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:267</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="508"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:508</a></div>
                         </td>
                     </tr>
 
@@ -515,8 +543,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="368"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:368</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="609"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:609</a></div>
                         </td>
                     </tr>
 
@@ -586,8 +614,8 @@ OID4VCI credential issuer metadata endpoint.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="173"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:173</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="414"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:414</a></div>
                         </td>
                     </tr>
 
@@ -684,8 +712,8 @@ OID4VCI credential issuer metadata endpoint.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="214"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:214</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="455"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:455</a></div>
                         </td>
                     </tr>
 
@@ -735,6 +763,106 @@ OID4VCI credential issuer metadata endpoint.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="getOrIssueRegistrationCertificate"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>getOrIssueRegistrationCertificate</b></span>
+                        <a href="#getOrIssueRegistrationCertificate"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getOrIssueRegistrationCertificate(presentationConfig: <a href="../entitys/PresentationConfig.html" target="_self">PresentationConfig</a>, resolvedDcqlQuery: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, requestId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="234"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:234</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Resolve the registration-certificate JWT to attach to a VP request,
+using the embedded <a href="PresentationConfig.registrationCertCache">PresentationConfig.registrationCertCache</a>
+when it is still valid. On a cache miss/expiry the cert is freshly
+resolved via <a href="../injectables/RegistrarService.html">RegistrarService</a> and the cache is persisted.</p>
+<p>Returns <code>undefined</code> when the config has no <code>registrationCert</code> spec or
+the registrar is not enabled for this tenant.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>presentationConfig</td>
+                                            <td>
+                                                            <code><a href="../entitys/PresentationConfig.html" target="_self" >PresentationConfig</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>resolvedDcqlQuery</td>
+                                            <td>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>requestId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;string | undefined&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="getPresentationConfig"></a>
                     <span class="name">
                         <span ><b>getPresentationConfig</b></span>
@@ -751,8 +879,8 @@ OID4VCI credential issuer metadata endpoint.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="183"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:183</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="424"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:424</a></div>
                         </td>
                     </tr>
 
@@ -846,8 +974,8 @@ OID4VCI credential issuer metadata endpoint.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="119"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:119</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="121"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:121</a></div>
                         </td>
                     </tr>
 
@@ -925,8 +1053,8 @@ OID4VCI credential issuer metadata endpoint.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="691"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:691</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="932"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:932</a></div>
                         </td>
                     </tr>
 
@@ -1022,8 +1150,8 @@ For mDOC: the first path element is the namespace, so we return the claim name (
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="613"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:613</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="854"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:854</a></div>
                         </td>
                     </tr>
 
@@ -1106,8 +1234,8 @@ For mDOC: the first path element is the namespace, so we return the claim name (
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="79"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:79</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="81"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:81</a></div>
                         </td>
                     </tr>
 
@@ -1177,8 +1305,8 @@ For mDOC: the first path element is the namespace, so we return the claim name (
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="323"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:323</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="564"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:564</a></div>
                         </td>
                     </tr>
 
@@ -1254,8 +1382,8 @@ For mDOC: the first path element is the namespace, so we return the claim name (
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="425"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:425</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="666"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:666</a></div>
                         </td>
                     </tr>
 
@@ -1331,6 +1459,188 @@ For mDOC: the first path element is the namespace, so we return the claim name (
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="refreshRegistrationCertCache"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>refreshRegistrationCertCache</b></span>
+                        <a href="#refreshRegistrationCertCache"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>refreshRegistrationCertCache(next: <a href="../entitys/PresentationConfig.html" target="_self">PresentationConfig</a>, existing: <a href="../entitys/PresentationConfig.html" target="_self">PresentationConfig | undefined</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="324"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:324</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Recompute (or invalidate) the embedded registration-certificate cache on
+the about-to-be-saved presentation config.</p>
+<p>Behavior:</p>
+<ul>
+<li>If <code>registrationCert</code> is unset → clears any stale cache.</li>
+<li>If a cache exists for an unchanged <code>registrationCert</code> spec, unchanged
+<code>dcql_query</code>, and is not expired → keeps the existing cache.</li>
+<li>Otherwise eagerly resolves the certificate via <a href="../injectables/RegistrarService.html">RegistrarService</a>
+and stores the new cache. On registrar/network failure the cache is
+cleared and the save proceeds; the runtime path will retry.</li>
+</ul>
+<p>Errors raised by the registrar that indicate user-config problems
+(<code>BadRequestException</code>) propagate to fail the save.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>next</td>
+                                            <td>
+                                                            <code><a href="../entitys/PresentationConfig.html" target="_self" >PresentationConfig</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>existing</td>
+                                            <td>
+                                                            <code><a href="../entitys/PresentationConfig.html" target="_self" >PresentationConfig | undefined</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="reissueRegistrationCertificate"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>reissueRegistrationCertificate</b></span>
+                        <a href="#reissueRegistrationCertificate"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>reissueRegistrationCertificate(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="180"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:180</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Force-reissue the registration certificate for a presentation config,
+bypassing the cache. Used by the management UI&#39;s &quot;Reissue now&quot; action.</p>
+<p>Throws if the config has no <code>registrationCert</code> spec or the registrar is
+not enabled for this tenant.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../entitys/PresentationConfig.html" target="_self" >Promise&lt;PresentationConfig&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="resolveCredentialIssuerMetadata"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -1349,8 +1659,8 @@ For mDOC: the first path element is the namespace, so we return the claim name (
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="201"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:201</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="442"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:442</a></div>
                         </td>
                     </tr>
 
@@ -1405,6 +1715,7 @@ This is used by the web client to avoid browser CORS restrictions.</p>
                 <td class="col-md-4">
                     <a name="storePresentationConfig"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>storePresentationConfig</b></span>
                         <a href="#storePresentationConfig"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -1412,15 +1723,16 @@ This is used by the web client to avoid browser CORS restrictions.</p>
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>storePresentationConfig(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, vprequest: <a href="../classes/PresentationConfigCreateDto.html" target="_self">PresentationConfigCreateDto</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>storePresentationConfig(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, vprequest: <a href="../classes/PresentationConfigCreateDto.html" target="_self">PresentationConfigCreateDto</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="132"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:132</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="134"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:134</a></div>
                         </td>
                     </tr>
 
@@ -1483,7 +1795,7 @@ This is used by the web client to avoid browser CORS restrictions.</p>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>unknown</code>
 
                         </div>
                             <div class="io-description">
@@ -1517,8 +1829,8 @@ This is used by the web client to avoid browser CORS restrictions.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="406"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:406</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="647"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:647</a></div>
                         </td>
                     </tr>
 
@@ -1631,8 +1943,8 @@ This is used by the web client to avoid browser CORS restrictions.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="149"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:149</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="153"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:153</a></div>
                         </td>
                     </tr>
 
@@ -1726,8 +2038,8 @@ This is used by the web client to avoid browser CORS restrictions.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="630"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:630</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="871"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:871</a></div>
                         </td>
                     </tr>
 
@@ -1842,8 +2154,8 @@ If no credential_sets are defined, all credentials in the query are required.</p
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="721"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:721</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="962"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:962</a></div>
                         </td>
                     </tr>
 
@@ -1966,7 +2278,7 @@ If no credential_sets are defined, all credentials in the query are required.</p
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/verifier/presentations/presentations.service.ts:47</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="48" class="link-to-prism">src/verifier/presentations/presentations.service.ts:48</a></div>
                         </td>
                     </tr>
 
@@ -1999,7 +2311,7 @@ If no credential_sets are defined, all credentials in the query are required.</p
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">src/verifier/presentations/presentations.service.ts:45</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="46" class="link-to-prism">src/verifier/presentations/presentations.service.ts:46</a></div>
                         </td>
                     </tr>
 
@@ -2028,6 +2340,7 @@ import { Span, TraceService } from &quot;nestjs-otel&quot;;
 import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { Repository } from &quot;typeorm&quot;;
 import { ServiceTypeIdentifier } from &quot;../../issuer/trust-list/trustlist.service&quot;;
+import { RegistrarService } from &quot;../../registrar/registrar.service&quot;;
 import { Session } from &quot;../../session/entities/session.entity&quot;;
 import { VerifierOptions } from &quot;../../shared/trust/types&quot;;
 import { ConfigImportService } from &quot;../../shared/utils/config-import/config-import.service&quot;;
@@ -2074,6 +2387,7 @@ export class PresentationsService {
         private readonly sdjwtvcverifierService: SdjwtvcverifierService,
         private readonly mdocverifierService: MdocverifierService,
         private readonly configService: ConfigService,
+        private readonly registrarService: RegistrarService,
         private readonly logger: PinoLogger,
         private readonly traceService: TraceService,
     ) {
@@ -2143,14 +2457,16 @@ export class PresentationsService {
      * @param vprequest - The PresentationConfig entity to store.
      * @returns A promise that resolves to the stored PresentationConfig entity.
      */
-    storePresentationConfig(
+    async storePresentationConfig(
         tenantId: string,
         vprequest: PresentationConfigCreateDto,
     ) {
-        return this.vpRequestRepository.save({
+        const merged &#x3D; {
             ...vprequest,
             tenantId,
-        });
+        } as PresentationConfig;
+        await this.refreshRegistrationCertCache(merged, undefined);
+        return this.vpRequestRepository.save(merged);
     }
 
     /**
@@ -2170,12 +2486,249 @@ export class PresentationsService {
 
         // Merge existing with updates - client must explicitly set fields to null to clear them
         // Omitted fields keep their existing values
-        return this.vpRequestRepository.save({
+        const merged: PresentationConfig &#x3D; {
             ...existing,
             ...vprequest,
             id,
             tenantId,
-        });
+        } as PresentationConfig;
+        await this.refreshRegistrationCertCache(merged, existing);
+        return this.vpRequestRepository.save(merged);
+    }
+
+    /**
+     * Force-reissue the registration certificate for a presentation config,
+     * bypassing the cache. Used by the management UI&#x27;s &quot;Reissue now&quot; action.
+     *
+     * Throws if the config has no &#x60;registrationCert&#x60; spec or the registrar is
+     * not enabled for this tenant.
+     */
+    async reissueRegistrationCertificate(
+        id: string,
+        tenantId: string,
+    ): Promise&lt;PresentationConfig&gt; {
+        const presentationConfig &#x3D; await this.getPresentationConfig(
+            id,
+            tenantId,
+        );
+        if (!presentationConfig.registrationCert) {
+            throw new BadRequestException(
+                &quot;Presentation config has no registrationCert spec&quot;,
+            );
+        }
+        if (!(await this.registrarService.isEnabledForTenant(tenantId))) {
+            throw new BadRequestException(
+                &quot;Registrar is not enabled for this tenant&quot;,
+            );
+        }
+
+        // Resolve &#x60;&lt;TENANT_URL&gt;&#x60; placeholders so registrar validation/issuance
+        // sees the same DCQL the runtime path will see.
+        const host &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
+        const tenantHost &#x3D; &#x60;${host}/issuers/${tenantId}&#x60;;
+        const resolvedDcql &#x3D; JSON.parse(
+            JSON.stringify(presentationConfig.dcql_query).replaceAll(
+                &quot;&lt;TENANT_URL&gt;&quot;,
+                tenantHost,
+            ),
+        );
+
+        // Force a fresh resolve by clearing the cache first.
+        presentationConfig.registrationCertCache &#x3D; null;
+        const jwt &#x3D; await this.getOrIssueRegistrationCertificate(
+            presentationConfig,
+            resolvedDcql,
+            &#x60;reissue-${id}&#x60;,
+        );
+        if (!jwt) {
+            throw new BadRequestException(
+                &quot;Failed to reissue registration certificate&quot;,
+            );
+        }
+        return this.getPresentationConfig(id, tenantId);
+    }
+
+    /**
+     * Resolve the registration-certificate JWT to attach to a VP request,
+     * using the embedded {@link PresentationConfig.registrationCertCache}
+     * when it is still valid. On a cache miss/expiry the cert is freshly
+     * resolved via {@link RegistrarService} and the cache is persisted.
+     *
+     * Returns &#x60;undefined&#x60; when the config has no &#x60;registrationCert&#x60; spec or
+     * the registrar is not enabled for this tenant.
+     */
+    async getOrIssueRegistrationCertificate(
+        presentationConfig: PresentationConfig,
+        resolvedDcqlQuery: any,
+        requestId: string,
+    ): Promise&lt;string | undefined&gt; {
+        if (!presentationConfig.registrationCert) {
+            return undefined;
+        }
+        if (
+            !(await this.registrarService.isEnabledForTenant(
+                presentationConfig.tenantId,
+            ))
+        ) {
+            return undefined;
+        }
+
+        const dcqlFingerprint &#x3D; this.registrarService.computeDcqlFingerprint(
+            presentationConfig.dcql_query,
+        );
+        const specFingerprint &#x3D; this.registrarService.computeSpecFingerprint(
+            presentationConfig.registrationCert,
+        );
+
+        const cache &#x3D; presentationConfig.registrationCertCache;
+        const now &#x3D; Math.floor(Date.now() / 1000);
+        const skew &#x3D; 60;
+        if (
+            cache &amp;&amp;
+            cache.dcqlFingerprint &#x3D;&#x3D;&#x3D; dcqlFingerprint &amp;&amp;
+            cache.specFingerprint &#x3D;&#x3D;&#x3D; specFingerprint &amp;&amp;
+            (typeof cache.expiresAt !&#x3D;&#x3D; &quot;number&quot; ||
+                cache.expiresAt - skew &gt; now)
+        ) {
+            return cache.jwt;
+        }
+
+        const resolved &#x3D;
+            await this.registrarService.resolveRegistrationCertificate(
+                presentationConfig.registrationCert as any,
+                resolvedDcqlQuery,
+                requestId,
+                presentationConfig.tenantId,
+            );
+
+        const newCache &#x3D; {
+            jwt: resolved.jwt,
+            fingerprint:
+                this.registrarService.computeAuthorizedCredentialsFingerprint(
+                    resolved.payload.credentials,
+                ),
+            dcqlFingerprint,
+            specFingerprint,
+            issuedAt:
+                typeof resolved.payload.iat &#x3D;&#x3D;&#x3D; &quot;number&quot;
+                    ? resolved.payload.iat
+                    : undefined,
+            expiresAt:
+                typeof resolved.payload.exp &#x3D;&#x3D;&#x3D; &quot;number&quot;
+                    ? resolved.payload.exp
+                    : undefined,
+            source: resolved.source,
+        };
+
+        await this.vpRequestRepository.update(
+            {
+                id: presentationConfig.id,
+                tenantId: presentationConfig.tenantId,
+            },
+            { registrationCertCache: newCache },
+        );
+        presentationConfig.registrationCertCache &#x3D; newCache;
+
+        return resolved.jwt;
+    }
+
+    /**
+     * Recompute (or invalidate) the embedded registration-certificate cache on
+     * the about-to-be-saved presentation config.
+     *
+     * Behavior:
+     *  - If &#x60;registrationCert&#x60; is unset → clears any stale cache.
+     *  - If a cache exists for an unchanged &#x60;registrationCert&#x60; spec, unchanged
+     *    &#x60;dcql_query&#x60;, and is not expired → keeps the existing cache.
+     *  - Otherwise eagerly resolves the certificate via {@link RegistrarService}
+     *    and stores the new cache. On registrar/network failure the cache is
+     *    cleared and the save proceeds; the runtime path will retry.
+     *
+     * Errors raised by the registrar that indicate user-config problems
+     * (&#x60;BadRequestException&#x60;) propagate to fail the save.
+     */
+    private async refreshRegistrationCertCache(
+        next: PresentationConfig,
+        existing: PresentationConfig | undefined,
+    ): Promise&lt;void&gt; {
+        const spec &#x3D; next.registrationCert;
+        if (!spec) {
+            next.registrationCertCache &#x3D; null;
+            return;
+        }
+
+        const dcqlFingerprint &#x3D; this.registrarService.computeDcqlFingerprint(
+            next.dcql_query,
+        );
+        const specFingerprint &#x3D;
+            this.registrarService.computeSpecFingerprint(spec);
+
+        const now &#x3D; Math.floor(Date.now() / 1000);
+        const skew &#x3D; 60;
+        const cache &#x3D; existing?.registrationCertCache;
+        const cacheStillValid &#x3D;
+            cache &amp;&amp;
+            cache.dcqlFingerprint &#x3D;&#x3D;&#x3D; dcqlFingerprint &amp;&amp;
+            cache.specFingerprint &#x3D;&#x3D;&#x3D; specFingerprint &amp;&amp;
+            (typeof cache.expiresAt !&#x3D;&#x3D; &quot;number&quot; ||
+                cache.expiresAt - skew &gt; now);
+
+        if (cacheStillValid) {
+            next.registrationCertCache &#x3D; cache;
+            return;
+        }
+
+        // Resolve &#x60;&lt;TENANT_URL&gt;&#x60; placeholders so registrar validation/issuance
+        // sees the same DCQL the runtime path will see.
+        let resolvedDcql: any;
+        try {
+            const host &#x3D; this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;);
+            const tenantHost &#x3D; &#x60;${host}/issuers/${next.tenantId}&#x60;;
+            resolvedDcql &#x3D; JSON.parse(
+                JSON.stringify(next.dcql_query).replaceAll(
+                    &quot;&lt;TENANT_URL&gt;&quot;,
+                    tenantHost,
+                ),
+            );
+        } catch {
+            // No PUBLIC_URL in this context — fall back to the templated form.
+            resolvedDcql &#x3D; next.dcql_query;
+        }
+
+        try {
+            const resolved &#x3D;
+                await this.registrarService.resolveRegistrationCertificate(
+                    spec as any,
+                    resolvedDcql,
+                    next.id ?? &quot;presentation-config-save&quot;,
+                    next.tenantId,
+                );
+            const payload &#x3D; resolved.payload;
+            next.registrationCertCache &#x3D; {
+                jwt: resolved.jwt,
+                fingerprint:
+                    this.registrarService.computeAuthorizedCredentialsFingerprint(
+                        payload.credentials,
+                    ),
+                dcqlFingerprint,
+                specFingerprint,
+                issuedAt:
+                    typeof payload.iat &#x3D;&#x3D;&#x3D; &quot;number&quot; ? payload.iat : undefined,
+                expiresAt:
+                    typeof payload.exp &#x3D;&#x3D;&#x3D; &quot;number&quot; ? payload.exp : undefined,
+                source: resolved.source,
+            };
+        } catch (err) {
+            if (err instanceof BadRequestException) {
+                // User-config error — fail the save so the user sees the issue.
+                throw err;
+            }
+            this.logger.warn(
+                { err, tenantId: next.tenantId, configId: next.id },
+                &quot;Failed to eagerly resolve registration certificate at save time; cache cleared, runtime will retry&quot;,
+            );
+            next.registrationCertCache &#x3D; null;
+        }
     }
 
     /**

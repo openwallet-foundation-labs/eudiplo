@@ -388,6 +388,8 @@ export class RegistrarConfigResponseDto extends OmitType(
         dto.clientId &#x3D; entity.clientId;
         dto.clientSecret &#x3D; entity.clientSecret;
         dto.username &#x3D; entity.username;
+        dto.registrationCertificateDefaults &#x3D;
+            entity.registrationCertificateDefaults;
         dto.hasPassword &#x3D; !!entity.password;
         return dto;
     }

@@ -179,6 +179,14 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                <a href="#reissueRegistrationCertificate" >reissueRegistrationCertificate</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier">Async</span>
                                 <a href="#resolveIssuerMetadata" >resolveIssuerMetadata</a>
@@ -419,6 +427,101 @@
             <tr>
                 <td class="col-md-4">
                         <div class="io-description"><p>Get a presentation request configuration by its ID.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>id</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="reissueRegistrationCertificate"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>reissueRegistrationCertificate</b></span>
+                        <a href="#reissueRegistrationCertificate"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>reissueRegistrationCertificate(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@Secured([&#x27;undefined&#x27;])<br />@Post(&#x27;:id/registration-cert/reissue&#x27;)<br />@ApiOperation({summary: &#x27;Reissue the registration certificate cache&#x27;, description: &#x27;Bypasses the embedded registration-certificate cache and re-resolves it from the configured registrar.&#x27;})<br />@ApiResponse({status: 200, description: &#x27;Updated presentation configuration&#x27;})<br />@ApiResponse({status: 400, description: &#x27;Config has no registrationCert spec or registrar is not enabled&#x27;})<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="149"
+                                    class="link-to-prism">src/verifier/presentations/presentations.controller.ts:149</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Force-reissue the registration certificate for a presentation
+configuration. Bypasses and refreshes the embedded cache.</p>
 </div>
 
                             <div class="io-description">
@@ -877,6 +980,36 @@ export class PresentationManagementController {
     @Delete(&quot;:id&quot;)
     deleteConfiguration(@Param(&quot;id&quot;) id: string, @Token() user: TokenPayload) {
         return this.presentationsService.deletePresentationConfig(
+            id,
+            user.entity!.id,
+        );
+    }
+
+    /**
+     * Force-reissue the registration certificate for a presentation
+     * configuration. Bypasses and refreshes the embedded cache.
+     */
+    @Secured([Role.Presentations])
+    @Post(&quot;:id/registration-cert/reissue&quot;)
+    @ApiOperation({
+        summary: &quot;Reissue the registration certificate cache&quot;,
+        description:
+            &quot;Bypasses the embedded registration-certificate cache and re-resolves it from the configured registrar.&quot;,
+    })
+    @ApiResponse({
+        status: 200,
+        description: &quot;Updated presentation configuration&quot;,
+    })
+    @ApiResponse({
+        status: 400,
+        description:
+            &quot;Config has no registrationCert spec or registrar is not enabled&quot;,
+    })
+    reissueRegistrationCertificate(
+        @Param(&quot;id&quot;) id: string,
+        @Token() user: TokenPayload,
+    ) {
+        return this.presentationsService.reissueRegistrationCertificate(
             id,
             user.entity!.id,
         );
