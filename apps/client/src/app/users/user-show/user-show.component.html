@@ -1,0 +1,31 @@
+<div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px" class="mb-2">
+  <button matIconButton routerLink="../" matTooltip="Back to Users List">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+</div>
+@if (user) {
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>{{ user.username }}</mat-card-title>
+      <mat-card-subtitle>{{ user.email || 'No email' }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p><strong>First name:</strong> {{ user.firstName || 'Not set' }}</p>
+      <p><strong>Last name:</strong> {{ user.lastName || 'Not set' }}</p>
+      <p><strong>Status:</strong> {{ user.enabled ? 'Enabled' : 'Disabled' }}</p>
+
+      <h3>Roles</h3>
+      <mat-chip-set>
+        @for (role of user.roles; track role) {
+          <span>
+            <mat-chip>{{ role }}</mat-chip>
+          </span>
+        }
+      </mat-chip-set>
+    </mat-card-content>
+    <mat-card-actions fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
+      <button mat-button routerLink="edit">Edit</button>
+      <button mat-button color="warn" (click)="deleteUser()">Delete</button>
+    </mat-card-actions>
+  </mat-card>
+}

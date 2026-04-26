@@ -128,6 +128,11 @@ export class AuthService {
             jwks_uri: `${publicUrl}/.well-known/jwks.json`,
             response_types_supported: ["token"],
             grant_types_supported: ["client_credentials"],
+            ...(oidc && {
+                ui_client_id:
+                    this.configService.get<string>("OIDC_UI_CLIENT_ID") ??
+                    "eudiplo-ui",
+            }),
             token_endpoint_auth_methods_supported: [
                 "client_secret_basic",
                 "client_secret_post",

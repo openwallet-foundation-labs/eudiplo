@@ -1,16 +1,24 @@
 <div class="login-container">
   <mat-card class="login-card">
-    <mat-card-header>
-      <mat-card-title>Client</mat-card-title>
-      <mat-card-subtitle>
-        Enter your credentials to authenticate
-        @if (isDevelopmentMode) {
-          <span class="dev-indicator"> (Development Mode - Form pre-filled) </span>
-        }
-      </mat-card-subtitle>
-    </mat-card-header>
+    <div class="brand-header">
+      <div class="brand-mark">
+        <img src="logo.svg" alt="EUDIPLO Logo" class="logo" />
+      </div>
 
-    <img mat-card-image src="logo.svg" alt="EUDIPLO Logo" class="logo" />
+      <div class="brand-copy">
+        <p class="eyebrow">EUDIPLO Console</p>
+        <h1 class="brand-title">Sign in</h1>
+        <p class="brand-subtitle">
+          Choose single sign-on or authenticate with a client ID and secret.
+        </p>
+        @if (isDevelopmentMode) {
+          <span class="dev-indicator"
+            >Development mode enabled. Form values may be pre-filled.</span
+          >
+        }
+      </div>
+    </div>
+
     <mat-card-content>
       @if (loginForm) {
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
@@ -22,8 +30,18 @@
               formControlName="apiUrl"
               placeholder="https://your-api.com"
               type="url"
+              (blur)="onApiUrlBlur()"
             />
             <mat-icon matSuffix>api</mat-icon>
+            @if (detectedMode === 'loading') {
+              <mat-hint>Detecting authentication mode...</mat-hint>
+            }
+            @if (detectedMode === 'oidc') {
+              <mat-hint>SSO is available for this instance.</mat-hint>
+            }
+            @if (detectedMode === 'local') {
+              <mat-hint>This instance accepts client credentials.</mat-hint>
+            }
             @if (loginForm.get('apiUrl')?.invalid && loginForm.get('apiUrl')?.touched) {
               <mat-error>
                 {{ getErrorMessage('apiUrl') }}
@@ -31,43 +49,79 @@
             }
           </mat-form-field>
 
-          <!-- Client ID Field -->
-          <mat-form-field>
-            <mat-label>Client ID</mat-label>
-            <input matInput formControlName="clientId" placeholder="your-client-id" />
-            <mat-icon matSuffix>account_circle</mat-icon>
-            @if (loginForm.get('clientId')?.invalid && loginForm.get('clientId')?.touched) {
-              <mat-error>
-                {{ getErrorMessage('clientId') }}
-              </mat-error>
-            }
-          </mat-form-field>
+          <mat-tab-group
+            class="login-tabs"
+            [selectedIndex]="selectedLoginMode === 'sso' ? 0 : 1"
+            (selectedIndexChange)="onLoginTabChange($event)"
+          >
+            <mat-tab label="SSO" [disabled]="isSsoTabDisabled">
+              <div class="tab-panel">
+                <p class="mode-description">
+                  Sign in with your identity provider using Authorization Code + PKCE.
+                </p>
 
-          <!-- Client Secret Field -->
-          <mat-form-field>
-            <mat-label>Client Secret</mat-label>
-            <input
-              matInput
-              formControlName="clientSecret"
-              [type]="hideClientSecret ? 'password' : 'text'"
-              placeholder="your-client-secret"
-            />
-            <button
-              matIconButton
-              matSuffix
-              type="button"
-              (click)="toggleClientSecretVisibility()"
-              [attr.aria-label]="'Hide client secret'"
-              [attr.aria-pressed]="hideClientSecret"
-            >
-              <mat-icon>{{ hideClientSecret ? 'visibility_off' : 'visibility' }}</mat-icon>
-            </button>
-            @if (loginForm.get('clientSecret')?.invalid && loginForm.get('clientSecret')?.touched) {
-              <mat-error>
-                {{ getErrorMessage('clientSecret') }}
-              </mat-error>
-            }
-          </mat-form-field>
+                @if (detectedMode === 'loading') {
+                  <p class="mode-hint">Checking whether this instance exposes SSO login.</p>
+                }
+
+                @if (detectedMode === 'oidc') {
+                  <p class="mode-hint">SSO is configured. Continue to the provider login page.</p>
+                }
+
+                @if (!isSsoAvailable && detectedMode !== 'loading') {
+                  <p class="mode-hint mode-hint-warning">
+                    SSO is not available for this instance. Use the client credentials tab instead.
+                  </p>
+                }
+              </div>
+            </mat-tab>
+
+            <mat-tab label="Client ID and Secret">
+              <div class="tab-panel">
+                <p class="mode-description">
+                  Authenticate with machine credentials using client ID and client secret.
+                </p>
+
+                <mat-form-field>
+                  <mat-label>Client ID</mat-label>
+                  <input matInput formControlName="clientId" placeholder="your-client-id" />
+                  <mat-icon matSuffix>account_circle</mat-icon>
+                  @if (loginForm.get('clientId')?.invalid && loginForm.get('clientId')?.touched) {
+                    <mat-error>
+                      {{ getErrorMessage('clientId') }}
+                    </mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field>
+                  <mat-label>Client Secret</mat-label>
+                  <input
+                    matInput
+                    formControlName="clientSecret"
+                    [type]="hideClientSecret ? 'password' : 'text'"
+                    placeholder="your-client-secret"
+                  />
+                  <button
+                    matIconButton
+                    matSuffix
+                    type="button"
+                    (click)="toggleClientSecretVisibility()"
+                    [attr.aria-label]="'Hide client secret'"
+                    [attr.aria-pressed]="hideClientSecret"
+                  >
+                    <mat-icon>{{ hideClientSecret ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  </button>
+                  @if (
+                    loginForm.get('clientSecret')?.invalid && loginForm.get('clientSecret')?.touched
+                  ) {
+                    <mat-error>
+                      {{ getErrorMessage('clientSecret') }}
+                    </mat-error>
+                  }
+                </mat-form-field>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
 
           <!-- Login Button -->
           <div
@@ -80,17 +134,19 @@
               matButton="filled"
               color="primary"
               type="submit"
-              [disabled]="isLoading || loginForm.invalid"
+              [disabled]="
+                isLoading || loginForm.invalid || (selectedLoginMode === 'sso' && !isSsoAvailable)
+              "
               class="login-button"
             >
               @if (isLoading) {
                 <mat-spinner diameter="20" class="button-spinner"> </mat-spinner>
               }
               @if (!isLoading) {
-                <span>Login</span>
+                <span>{{ submitLabel }}</span>
               }
               @if (isLoading) {
-                <span>Authenticating...</span>
+                <span>{{ loadingLabel }}</span>
               }
             </button>
 
@@ -103,19 +159,6 @@
               <mat-icon>help_outline</mat-icon>
               Help
             </a>
-
-            @if (isDevelopmentMode) {
-              <button
-                mat-button
-                type="button"
-                (click)="copyShareableUrl()"
-                color="accent"
-                class="share-button"
-              >
-                <mat-icon>link</mat-icon>
-                Copy Shareable URL
-              </button>
-            }
           </div>
         </form>
       }

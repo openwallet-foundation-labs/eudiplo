@@ -12,6 +12,8 @@ export enum Role {
     IssuanceOffer = "issuance:offer",
     // to manage client resources
     Clients = "clients:manage",
+    // to manage human users
+    Users = "users:manage",
     // to manage tenant resources
     Tenants = "tenants:manage",
     // to manage registrar configuration and operations
@@ -28,5 +30,6 @@ export const allRoles = [
     Role.PresentationRequest,
     Role.Presentations,
     Role.Clients,
+    Role.Users,
     Role.Registrar,
 ];

@@ -9,6 +9,11 @@ export interface OidcDiscoveryDto {
     issuer: string;
 
     /**
+     * Public client ID for the Angular UI (Authorization Code + PKCE). Only present in OIDC mode.
+     */
+    ui_client_id?: string;
+
+    /**
      * URL of the OP's OAuth 2.0 Authorization Endpoint.
      */
     authorization_endpoint?: string;

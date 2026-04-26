@@ -430,6 +430,9 @@ importers:
       jose:
         specifier: ^6.1.3
         version: 6.2.2
+      keycloak-js:
+        specifier: ^26.2.4
+        version: 26.2.4
       monaco-editor:
         specifier: ^0.55.1
         version: 0.55.1
@@ -7586,6 +7589,9 @@ packages:
 
   keycharm@0.4.0:
     resolution: {integrity: sha512-TyQTtsabOVv3MeOpR92sIKk/br9wxS+zGj4BG7CR8YbK4jM3tyIBaF0zhzeBUMx36/Q/iQLOKKOT+3jOQtemRQ==}
+
+  keycloak-js@26.2.4:
+    resolution: {integrity: sha512-PnXpR3ubETGOt0B/Qt2lxmPbkZr5bc3vlQsOqDoTPPQsZRp7JjhTKxlJ187uWh8qJhvBab6Gsjb06a8ayOPfuw==}
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
@@ -19171,6 +19177,8 @@ snapshots:
       commander: 8.3.0
 
   keycharm@0.4.0: {}
+
+  keycloak-js@26.2.4: {}
 
   keyv@4.5.4:
     dependencies:

@@ -11,55 +11,125 @@
   align-items: center;
   flex: 1;
   width: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.18), transparent 32%),
+    linear-gradient(145deg, #1d4e89 0%, #153b63 50%, #0d2238 100%);
+  padding: 24px;
 }
 
 .login-card {
   width: 100%;
-  max-width: 450px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  border-radius: 12px;
+  max-width: 520px;
+  padding: 28px 28px 20px;
+  box-shadow: 0 24px 60px rgba(4, 18, 31, 0.28);
+  border-radius: 24px;
+  border: 1px solid rgba(10, 39, 64, 0.08);
+}
+
+.brand-header {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 18px;
+  align-items: center;
+  padding-bottom: 18px;
+}
+
+.brand-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 84px;
+  height: 84px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(29, 78, 137, 0.12), rgba(29, 78, 137, 0.03));
+  border: 1px solid rgba(29, 78, 137, 0.12);
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.eyebrow,
+.brand-title,
+.brand-subtitle {
+  margin: 0;
+}
+
+.eyebrow {
+  color: #1d4e89;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.brand-title {
+  color: #10233a;
+  font-size: 34px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.brand-subtitle {
+  color: rgba(16, 35, 58, 0.72);
+  line-height: 1.5;
 }
 
 .logo {
-  padding: 16px;
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
 }
 
 .dev-indicator {
-  color: #ff9800;
-  font-weight: bold;
-  font-size: 0.8em;
-  display: block;
+  color: #9a6700;
+  background: rgba(255, 152, 0, 0.12);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: 600;
+  font-size: 12px;
+  display: inline-flex;
+  align-self: flex-start;
   margin-top: 4px;
-}
-
-.url-params-hint {
-  color: #666;
-  font-size: 0.75em;
-  margin-top: 8px;
-  display: block;
-  line-height: 1.4;
-
-  code {
-    background-color: #f5f5f5;
-    padding: 2px 4px;
-    border-radius: 3px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.9em;
-  }
-}
-
-.share-button {
-  margin-top: 8px;
-  font-size: 14px;
 }
 
 .login-form {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 20px 0;
+  padding: 8px 0 0;
+}
+
+.login-tabs {
+  margin-top: 2px;
+}
+
+.tab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px 0 4px;
+}
+
+.mode-description,
+.mode-hint {
+  margin: 0;
+}
+
+.mode-description {
+  color: rgba(16, 35, 58, 0.76);
+  line-height: 1.5;
+}
+
+.mode-hint {
+  color: rgba(16, 35, 58, 0.58);
+  font-size: 14px;
+}
+
+.mode-hint-warning {
+  color: #c62828;
 }
 
 .full-width {
@@ -69,7 +139,7 @@
 .button-container {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 12px;
 }
 
 .login-button {
@@ -100,17 +170,38 @@
 
 // Material form field customization
 .mat-mdc-form-field {
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 // Responsive design
 @media (max-width: 600px) {
   .login-container {
-    padding: 10px;
+    padding: 12px;
   }
 
   .login-card {
     max-width: 100%;
-    margin: 0 10px;
+    margin: 0 6px;
+    padding: 22px 18px 16px;
+  }
+
+  .brand-header {
+    grid-template-columns: 64px 1fr;
+    gap: 14px;
+  }
+
+  .brand-mark {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+  }
+
+  .logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .brand-title {
+    font-size: 28px;
   }
 }
