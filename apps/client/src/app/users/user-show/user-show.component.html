@@ -7,11 +7,8 @@
   <mat-card>
     <mat-card-header>
       <mat-card-title>{{ user.username }}</mat-card-title>
-      <mat-card-subtitle>{{ user.email || 'No email' }}</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
-      <p><strong>First name:</strong> {{ user.firstName || 'Not set' }}</p>
-      <p><strong>Last name:</strong> {{ user.lastName || 'Not set' }}</p>
       <p><strong>Status:</strong> {{ user.enabled ? 'Enabled' : 'Disabled' }}</p>
 
       <h3>Roles</h3>

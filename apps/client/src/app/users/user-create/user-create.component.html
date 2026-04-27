@@ -14,41 +14,6 @@
           <input matInput formControlName="username" placeholder="Enter unique username" required />
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Email</mat-label>
-          <input matInput formControlName="email" placeholder="user@example.com" />
-          @if (userForm.get('email')?.hasError('email')) {
-            <mat-error>Email must be valid</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>First name</mat-label>
-          <input matInput formControlName="firstName" placeholder="First name" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Last name</mat-label>
-          <input matInput formControlName="lastName" placeholder="Last name" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Password</mat-label>
-          <input
-            matInput
-            formControlName="password"
-            type="password"
-            [placeholder]="loaded ? 'Leave blank to keep current password' : 'Enter password'"
-            title="Password"
-          />
-          @if (userForm.get('password')?.hasError('required')) {
-            <mat-error>Password is required</mat-error>
-          }
-          @if (userForm.get('password')?.hasError('minlength')) {
-            <mat-error>Password must be at least 8 characters long</mat-error>
-          }
-        </mat-form-field>
-
         <mat-checkbox formControlName="enabled">User enabled</mat-checkbox>
 
         <mat-form-field>

@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators, type FormGroup } from '@a
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -17,12 +18,14 @@ import {
   userControllerUpdateUser,
 } from '@eudiplo/sdk-core';
 import { JwtService, roles } from '../../services/jwt.service';
+import { UserTemporaryPasswordDialogComponent } from '../user-temporary-password-dialog/user-temporary-password-dialog.component';
 
 @Component({
   selector: 'app-user-create',
   imports: [
     ReactiveFormsModule,
     MatCardModule,
+    MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
@@ -46,16 +49,13 @@ export class UserCreateComponent implements OnInit {
 
   constructor(
     private readonly fb: FormBuilder,
+    private readonly dialog: MatDialog,
     private readonly snackBar: MatSnackBar,
     private readonly router: Router,
     private readonly route: ActivatedRoute
   ) {
     this.userForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(1)]],
-      email: ['', [Validators.email]],
-      firstName: [''],
-      lastName: [''],
-      password: ['', [Validators.minLength(8)]],
       enabled: [true],
       roles: [[], [Validators.required]],
     });
@@ -69,8 +69,6 @@ export class UserCreateComponent implements OnInit {
     this.id = this.route.snapshot.paramMap.get('id');
     if (this.id) {
       this.loaded = true;
-      this.userForm.get('password')?.clearValidators();
-      this.userForm.get('password')?.updateValueAndValidity();
       userControllerGetUser({ path: { id: this.id } }).then((res) => {
         if (!res.data) {
           this.snackBar.open('User not found', 'Close', { duration: 3000 });
@@ -78,15 +76,9 @@ export class UserCreateComponent implements OnInit {
           return;
         }
 
-        this.userForm.patchValue({
-          ...res.data,
-          password: '',
-        });
+        this.userForm.patchValue(res.data);
         this.userForm.get('username')?.disable();
       });
-    } else {
-      this.userForm.get('password')?.setValidators([Validators.required, Validators.minLength(8)]);
-      this.userForm.get('password')?.updateValueAndValidity();
     }
   }
 
@@ -97,10 +89,6 @@ export class UserCreateComponent implements OnInit {
       const payload = this.userForm.getRawValue();
 
       if (this.loaded) {
-        if (!payload.password) {
-          delete payload.password;
-        }
-
         await userControllerUpdateUser({
           path: { id: this.id! },
           body: payload,
@@ -108,9 +96,25 @@ export class UserCreateComponent implements OnInit {
         this.snackBar.open('User updated successfully', 'Close', { duration: 3000 });
         await this.router.navigate(['..'], { relativeTo: this.route });
       } else {
-        await userControllerCreateUser({ body: payload });
-        this.snackBar.open('User created successfully', 'Close', { duration: 3000 });
-        await this.router.navigate(['..'], { relativeTo: this.route });
+        const response = await userControllerCreateUser({ body: payload });
+        const temporaryPassword = response.data?.temporaryPassword;
+        if (temporaryPassword) {
+          const dialogRef = this.dialog.open(UserTemporaryPasswordDialogComponent, {
+            data: {
+              username: response.data?.username || payload.username,
+              temporaryPassword,
+            },
+            width: '500px',
+            disableClose: true,
+          });
+
+          dialogRef.afterClosed().subscribe(() => {
+            this.router.navigate(['..'], { relativeTo: this.route });
+          });
+        } else {
+          this.snackBar.open('User created successfully', 'Close', { duration: 3000 });
+          await this.router.navigate(['..'], { relativeTo: this.route });
+        }
       }
     } catch (error) {
       this.snackBar.open(

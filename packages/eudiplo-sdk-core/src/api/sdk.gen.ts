@@ -263,6 +263,9 @@ export const appControllerGetFrontendConfig = <
     ...options,
   });
 
+/**
+ * Get all tenants
+ */
 export const tenantControllerGetTenants = <ThrowOnError extends boolean = true>(
   options?: Options<TenantControllerGetTenantsData, ThrowOnError>,
 ) =>
@@ -276,6 +279,9 @@ export const tenantControllerGetTenants = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
+/**
+ * Initialize a tenant
+ */
 export const tenantControllerInitTenant = <ThrowOnError extends boolean = true>(
   options: Options<TenantControllerInitTenantData, ThrowOnError>,
 ) =>
@@ -293,6 +299,9 @@ export const tenantControllerInitTenant = <ThrowOnError extends boolean = true>(
     },
   });
 
+/**
+ * Deletes a tenant by ID
+ */
 export const tenantControllerDeleteTenant = <
   ThrowOnError extends boolean = true,
 >(
@@ -308,6 +317,9 @@ export const tenantControllerDeleteTenant = <
     ...options,
   });
 
+/**
+ * Get a tenant by ID
+ */
 export const tenantControllerGetTenant = <ThrowOnError extends boolean = true>(
   options: Options<TenantControllerGetTenantData, ThrowOnError>,
 ) =>
@@ -321,6 +333,9 @@ export const tenantControllerGetTenant = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
+/**
+ * Update a tenant by ID
+ */
 export const tenantControllerUpdateTenant = <
   ThrowOnError extends boolean = true,
 >(
@@ -340,6 +355,9 @@ export const tenantControllerUpdateTenant = <
     },
   });
 
+/**
+ * Get all clients for a user
+ */
 export const clientControllerGetClients = <ThrowOnError extends boolean = true>(
   options?: Options<ClientControllerGetClientsData, ThrowOnError>,
 ) =>
@@ -353,6 +371,9 @@ export const clientControllerGetClients = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
+/**
+ * Create a new client
+ */
 export const clientControllerCreateClient = <
   ThrowOnError extends boolean = true,
 >(
@@ -372,6 +393,9 @@ export const clientControllerCreateClient = <
     },
   });
 
+/**
+ * Get a client by its id
+ */
 export const clientControllerDeleteClient = <
   ThrowOnError extends boolean = true,
 >(
@@ -387,6 +411,9 @@ export const clientControllerDeleteClient = <
     ...options,
   });
 
+/**
+ * Get a client by its id
+ */
 export const clientControllerGetClient = <ThrowOnError extends boolean = true>(
   options: Options<ClientControllerGetClientData, ThrowOnError>,
 ) =>
@@ -400,6 +427,9 @@ export const clientControllerGetClient = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
+/**
+ * Update a client by its id
+ */
 export const clientControllerUpdateClient = <
   ThrowOnError extends boolean = true,
 >(
@@ -434,6 +464,13 @@ export const clientControllerGetClientSecret = <
     ...options,
   });
 
+/**
+ * Rotate (regenerate) a client's secret.
+ * Returns the new secret for one-time display - save it immediately!
+ *
+ * Users with `tenants:manage` role can rotate secrets for any client.
+ * Users with `clients:manage` role can only rotate secrets for clients in their tenant.
+ */
 export const clientControllerRotateClientSecret = <
   ThrowOnError extends boolean = true,
 >(
@@ -621,6 +658,9 @@ export const statusListManagementControllerUpdateList = <
     },
   });
 
+/**
+ * Retrieves all sessions.
+ */
 export const sessionControllerGetAllSessions = <
   ThrowOnError extends boolean = true,
 >(
@@ -636,6 +676,9 @@ export const sessionControllerGetAllSessions = <
     ...options,
   });
 
+/**
+ * Deletes a session by its ID
+ */
 export const sessionControllerDeleteSession = <
   ThrowOnError extends boolean = true,
 >(
@@ -651,6 +694,9 @@ export const sessionControllerDeleteSession = <
     ...options,
   });
 
+/**
+ * Retrieves the session information for a given session ID.
+ */
 export const sessionControllerGetSession = <
   ThrowOnError extends boolean = true,
 >(
@@ -684,6 +730,9 @@ export const sessionControllerGetSessionLogs = <
     ...options,
   });
 
+/**
+ * Update the status of the credentials of a specific session.
+ */
 export const sessionControllerRevokeAll = <ThrowOnError extends boolean = true>(
   options: Options<SessionControllerRevokeAllData, ThrowOnError>,
 ) =>
@@ -872,6 +921,9 @@ export const userControllerUpdateUser = <ThrowOnError extends boolean = true>(
     },
   });
 
+/**
+ * Returns the issuance configurations for this tenant. Creates a default one if it does not exist.
+ */
 export const issuanceConfigControllerGetIssuanceConfigurations = <
   ThrowOnError extends boolean = true,
 >(
@@ -890,6 +942,9 @@ export const issuanceConfigControllerGetIssuanceConfigurations = <
     ...options,
   });
 
+/**
+ * Stores the issuance configuration for this tenant.
+ */
 export const issuanceConfigControllerStoreIssuanceConfiguration = <
   ThrowOnError extends boolean = true,
 >(
@@ -912,6 +967,9 @@ export const issuanceConfigControllerStoreIssuanceConfiguration = <
     },
   });
 
+/**
+ * Returns the credential configurations for this tenant.
+ */
 export const credentialConfigControllerGetConfigs = <
   ThrowOnError extends boolean = true,
 >(
@@ -927,6 +985,9 @@ export const credentialConfigControllerGetConfigs = <
     ...options,
   });
 
+/**
+ * Stores the credential configuration for this tenant.
+ */
 export const credentialConfigControllerStoreCredentialConfiguration = <
   ThrowOnError extends boolean = true,
 >(
@@ -949,6 +1010,9 @@ export const credentialConfigControllerStoreCredentialConfiguration = <
     },
   });
 
+/**
+ * Deletes an credential configuration.
+ */
 export const credentialConfigControllerDeleteIssuanceConfiguration = <
   ThrowOnError extends boolean = true,
 >(
@@ -967,6 +1031,9 @@ export const credentialConfigControllerDeleteIssuanceConfiguration = <
     ...options,
   });
 
+/**
+ * Returns a specific credential configuration by ID.
+ */
 export const credentialConfigControllerGetConfigById = <
   ThrowOnError extends boolean = true,
 >(
@@ -982,6 +1049,9 @@ export const credentialConfigControllerGetConfigById = <
     ...options,
   });
 
+/**
+ * Updates a credential configuration by ID.
+ */
 export const credentialConfigControllerUpdateCredentialConfiguration = <
   ThrowOnError extends boolean = true,
 >(
@@ -1103,7 +1173,7 @@ export const attributeProviderControllerUpdate = <
   });
 
 /**
- * List all webhook endpoints
+ * List all webhook endpoints for the tenant.
  */
 export const webhookEndpointControllerGetAll = <
   ThrowOnError extends boolean = true,
@@ -1200,6 +1270,9 @@ export const webhookEndpointControllerUpdate = <
     },
   });
 
+/**
+ * Returns the presentation request configurations.
+ */
 export const presentationManagementControllerConfiguration = <
   ThrowOnError extends boolean = true,
 >(
@@ -1218,6 +1291,9 @@ export const presentationManagementControllerConfiguration = <
     ...options,
   });
 
+/**
+ * Store a presentation request configuration. If it already exists, it will be updated.
+ */
 export const presentationManagementControllerStorePresentationConfig = <
   ThrowOnError extends boolean = true,
 >(
@@ -1267,6 +1343,9 @@ export const presentationManagementControllerResolveIssuerMetadata = <
     },
   });
 
+/**
+ * Deletes a presentation request configuration by its ID.
+ */
 export const presentationManagementControllerDeleteConfiguration = <
   ThrowOnError extends boolean = true,
 >(
@@ -1285,6 +1364,9 @@ export const presentationManagementControllerDeleteConfiguration = <
     ...options,
   });
 
+/**
+ * Get a presentation request configuration by its ID.
+ */
 export const presentationManagementControllerGetConfiguration = <
   ThrowOnError extends boolean = true,
 >(
@@ -1303,6 +1385,9 @@ export const presentationManagementControllerGetConfiguration = <
     ...options,
   });
 
+/**
+ * Update a presentation request configuration by its ID.
+ */
 export const presentationManagementControllerUpdateConfiguration = <
   ThrowOnError extends boolean = true,
 >(
@@ -1533,6 +1618,9 @@ export const registrarControllerCreateAccessCertificate = <
     },
   });
 
+/**
+ * Create an offer for a credential.
+ */
 export const credentialOfferControllerGetOffer = <
   ThrowOnError extends boolean = true,
 >(
@@ -1600,6 +1688,9 @@ export const deferredControllerFailDeferred = <
     },
   });
 
+/**
+ * Returns all trust lists for the tenant
+ */
 export const trustListControllerGetAllTrustLists = <
   ThrowOnError extends boolean = true,
 >(
@@ -1615,6 +1706,9 @@ export const trustListControllerGetAllTrustLists = <
     ...options,
   });
 
+/**
+ * Creates a new trust list for the tenant
+ */
 export const trustListControllerCreateTrustList = <
   ThrowOnError extends boolean = true,
 >(
@@ -1634,6 +1728,9 @@ export const trustListControllerCreateTrustList = <
     },
   });
 
+/**
+ * Deletes a trust list
+ */
 export const trustListControllerDeleteTrustList = <
   ThrowOnError extends boolean = true,
 >(
@@ -1649,6 +1746,9 @@ export const trustListControllerDeleteTrustList = <
     ...options,
   });
 
+/**
+ * Returns the trust list by id for the tenant
+ */
 export const trustListControllerGetTrustList = <
   ThrowOnError extends boolean = true,
 >(
@@ -1664,6 +1764,10 @@ export const trustListControllerGetTrustList = <
     ...options,
   });
 
+/**
+ * Updates a trust list with new entities
+ * Creates a new version for audit and regenerates the JWT
+ */
 export const trustListControllerUpdateTrustList = <
   ThrowOnError extends boolean = true,
 >(
@@ -1683,6 +1787,9 @@ export const trustListControllerUpdateTrustList = <
     },
   });
 
+/**
+ * Exports the trust list in LoTE format
+ */
 export const trustListControllerExportTrustList = <
   ThrowOnError extends boolean = true,
 >(
@@ -1698,6 +1805,9 @@ export const trustListControllerExportTrustList = <
     ...options,
   });
 
+/**
+ * Returns the version history for a trust list
+ */
 export const trustListControllerGetTrustListVersions = <
   ThrowOnError extends boolean = true,
 >(
@@ -1713,6 +1823,9 @@ export const trustListControllerGetTrustListVersions = <
     ...options,
   });
 
+/**
+ * Returns a specific version of a trust list
+ */
 export const trustListControllerGetTrustListVersion = <
   ThrowOnError extends boolean = true,
 >(
@@ -1888,6 +2001,9 @@ export const keyChainControllerRotate = <ThrowOnError extends boolean = true>(
     ...options,
   });
 
+/**
+ * Create an presentation request that can be sent to the user
+ */
 export const verifierOfferControllerGetOffer = <
   ThrowOnError extends boolean = true,
 >(
@@ -1907,6 +2023,9 @@ export const verifierOfferControllerGetOffer = <
     },
   });
 
+/**
+ * Upload files that belong to a tenant like images
+ */
 export const storageControllerUpload = <ThrowOnError extends boolean = true>(
   options: Options<StorageControllerUploadData, ThrowOnError>,
 ) =>

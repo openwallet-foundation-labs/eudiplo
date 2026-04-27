@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import KeycloakAdminClient from "@keycloak/keycloak-admin-client";
 import { Credentials } from "@keycloak/keycloak-admin-client/lib/utils/auth";
 import {
@@ -7,7 +8,7 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { decodeJwt } from "jose";
-import { Role } from "../../roles/role.enum";
+import { allRoles, Role } from "../../roles/role.enum";
 import { CreateUserDto } from "../dto/create-user.dto";
 import { ManagedUserDto } from "../dto/managed-user.dto";
 import { UpdateUserDto } from "../dto/update-user.dto";
@@ -82,9 +83,10 @@ export class KeycloakUsersProvider extends UsersProvider {
 
         const created = await this.kc.users.create({
             username: dto.username,
-            email: dto.email,
-            firstName: dto.firstName,
-            lastName: dto.lastName,
+            email: this.resolveUserEmail(
+                { username: dto.username, email: undefined },
+                tenantId,
+            ),
             enabled: dto.enabled ?? true,
             attributes: { tenant_id: [tenantId] },
         });
@@ -103,17 +105,24 @@ export class KeycloakUsersProvider extends UsersProvider {
             );
         }
 
-        await this.syncRoles(userId, dto.roles ?? []);
+        const temporaryPassword = this.generateTemporaryPassword();
+
         await this.kc.users.resetPassword({
             id: userId,
             credential: {
-                temporary: false,
+                temporary: true,
                 type: "password",
-                value: dto.password,
+                value: temporaryPassword,
             },
         });
 
-        return this.getUser(tenantId, userId);
+        await this.syncRoles(userId, dto.roles ?? []);
+
+        const createdUser = await this.getUser(tenantId, userId);
+        return {
+            ...createdUser,
+            temporaryPassword,
+        };
     }
 
     async updateUser(
@@ -131,17 +140,11 @@ export class KeycloakUsersProvider extends UsersProvider {
         await this.kc.users.update(
             { id: userId },
             {
-                email: dto.email ?? user.email,
-                firstName: dto.firstName ?? user.firstName,
-                lastName: dto.lastName ?? user.lastName,
+                email: this.resolveUserEmail(user, tenantId),
                 enabled: dto.enabled ?? user.enabled,
                 attributes: { tenant_id: [tenantId] },
             },
         );
-
-        if (dto.roles) {
-            await this.syncRoles(userId, dto.roles);
-        }
 
         if (dto.password) {
             await this.kc.users.resetPassword({
@@ -152,6 +155,10 @@ export class KeycloakUsersProvider extends UsersProvider {
                     value: dto.password,
                 },
             });
+        }
+
+        if (dto.roles) {
+            await this.syncRoles(userId, dto.roles);
         }
 
         return this.getUser(tenantId, userId);
@@ -188,13 +195,71 @@ export class KeycloakUsersProvider extends UsersProvider {
         action: string,
     ): void {
         const ownerTenantId = this.getTenantOwnerFromKcUser(user);
-        if (!ownerTenantId || ownerTenantId === tenantId) {
+        if (!ownerTenantId) {
+            throw new ConflictException(
+                `User '${user.username}' has no tenant ownership metadata and cannot be ${action} by tenant '${tenantId}'.`,
+            );
+        }
+
+        if (ownerTenantId === tenantId) {
             return;
         }
 
         throw new ConflictException(
             `User '${user.username}' is managed by tenant '${ownerTenantId}' and cannot be ${action} by tenant '${tenantId}'.`,
         );
+    }
+
+    private resolveUserEmail(
+        user: { username?: string; email?: string },
+        tenantId: string,
+    ): string {
+        const email = user.email?.trim().toLowerCase();
+        if (email) {
+            return email;
+        }
+
+        const username = user.username?.trim();
+        if (!username) {
+            throw new Error(
+                "Keycloak user update requires a username to derive email",
+            );
+        }
+
+        return this.buildEmailFromUsername(username, tenantId);
+    }
+
+    private generateTemporaryPassword(): string {
+        const alphabet =
+            "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*";
+        const bytes = randomBytes(14);
+        return Array.from(bytes, (byte) => alphabet[byte % alphabet.length])
+            .join("")
+            .slice(0, 12);
+    }
+
+    private buildEmailFromUsername(username: string, tenantId: string): string {
+        const normalizedUsername = username.trim().toLowerCase();
+        const isEmailLike = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+            normalizedUsername,
+        );
+
+        if (isEmailLike) {
+            return normalizedUsername;
+        }
+
+        const localPart =
+            normalizedUsername
+                .replace(/[^a-z0-9._+-]/g, "-")
+                .replace(/^-+|-+$/g, "") || "user";
+        const tenantPart =
+            tenantId
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9-]/g, "-")
+                .replace(/^-+|-+$/g, "") || "tenant";
+
+        return `${localPart}+${tenantPart}@eudiplo.local`;
     }
 
     private async mapUser(user: any): Promise<ManagedUserDto> {
@@ -205,8 +270,6 @@ export class KeycloakUsersProvider extends UsersProvider {
             id: user.id!,
             username: user.username!,
             email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
             enabled: user.enabled ?? true,
             roles: roles.map((role) => role.name).filter(Boolean) as Role[],
             tenantId: this.getTenantOwnerFromKcUser(user),
@@ -214,6 +277,8 @@ export class KeycloakUsersProvider extends UsersProvider {
     }
 
     private async syncRoles(userId: string, nextRoles: Role[]): Promise<void> {
+        await this.ensureRealmRoles(nextRoles);
+
         const allRealmRoles = await this.kc.roles.find();
         const currentRoles = await this.kc.users.listRealmRoleMappings({
             id: userId,
@@ -251,5 +316,25 @@ export class KeycloakUsersProvider extends UsersProvider {
                 roles: toAdd,
             });
         }
+    }
+
+    private async ensureRealmRoles(requestedRoles: Role[]): Promise<void> {
+        const existingRoles = await this.kc.roles.find();
+        const targetRoles =
+            requestedRoles.length > 0 ? requestedRoles : allRoles;
+        const missingRoles = targetRoles.filter(
+            (role) =>
+                !existingRoles.some(
+                    (existingRole) => existingRole.name === role,
+                ),
+        );
+
+        if (missingRoles.length === 0) {
+            return;
+        }
+
+        await Promise.all(
+            missingRoles.map((role) => this.kc.roles.create({ name: role })),
+        );
     }
 }

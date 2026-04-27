@@ -33,7 +33,6 @@ export class UserListComponent implements OnInit {
   loading = false;
   displayedColumns: (keyof ManagedUserDto | 'actions')[] = [
     'username',
-    'email',
     'roles',
     'enabled',
     'actions',

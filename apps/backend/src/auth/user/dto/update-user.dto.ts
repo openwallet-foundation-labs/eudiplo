@@ -7,5 +7,5 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
     @IsOptional()
     @IsString()
     @MinLength(8)
-    override password?: string;
+    password?: string;
 }

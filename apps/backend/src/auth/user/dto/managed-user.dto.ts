@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Role } from "../../roles/role.enum";
 
 export class ManagedUserDto {
@@ -11,12 +11,6 @@ export class ManagedUserDto {
     @ApiProperty({ example: "alice@example.com", required: false })
     email?: string;
 
-    @ApiProperty({ example: "Alice", required: false })
-    firstName?: string;
-
-    @ApiProperty({ example: "Admin", required: false })
-    lastName?: string;
-
     @ApiProperty({ example: true })
     enabled!: boolean;
 
@@ -25,4 +19,11 @@ export class ManagedUserDto {
 
     @ApiProperty({ example: "tenant-a", required: false })
     tenantId?: string;
+
+    @ApiPropertyOptional({
+        example: "Ab3!zK8pQ2",
+        description:
+            "One-time temporary password returned only on user creation.",
+    })
+    temporaryPassword?: string;
 }

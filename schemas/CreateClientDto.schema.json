@@ -51,6 +51,7 @@
           "issuance:manage",
           "issuance:offer",
           "clients:manage",
+          "users:manage",
           "tenants:manage",
           "registrar:manage"
         ]

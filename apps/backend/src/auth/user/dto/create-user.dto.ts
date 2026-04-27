@@ -1,11 +1,13 @@
 import { ApiProperty, ApiPropertyOptional, OmitType } from "@nestjs/swagger";
 import {
+    IsArray,
     IsBoolean,
-    IsEmail,
+    IsEnum,
     IsOptional,
     IsString,
     MinLength,
 } from "class-validator";
+import { Role } from "../../roles/role.enum";
 import { ManagedUserDto } from "./managed-user.dto";
 
 export class CreateUserDto extends OmitType(ManagedUserDto, [
@@ -18,25 +20,10 @@ export class CreateUserDto extends OmitType(ManagedUserDto, [
     @MinLength(1)
     override username!: string;
 
-    @ApiProperty({ example: "S3cur3P@ssword" })
-    @IsString()
-    @MinLength(8)
-    password!: string;
-
-    @ApiPropertyOptional({ example: "alice@example.com" })
-    @IsOptional()
-    @IsEmail()
-    email?: string;
-
-    @ApiPropertyOptional({ example: "Alice" })
-    @IsOptional()
-    @IsString()
-    override firstName?: string;
-
-    @ApiPropertyOptional({ example: "Admin" })
-    @IsOptional()
-    @IsString()
-    override lastName?: string;
+    @ApiProperty({ enum: Role, isArray: true })
+    @IsArray()
+    @IsEnum(Role, { each: true })
+    override roles!: Role[];
 
     @ApiPropertyOptional({ example: true })
     @IsOptional()

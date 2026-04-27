@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { client } from '@eudiplo/sdk-core';
+import { appControllerGetFrontendConfig } from '@eudiplo/sdk-core';
 
 export interface GrafanaConfig {
   url?: string;
@@ -29,11 +29,7 @@ export class GrafanaLinkService {
       return this.configPromise;
     }
 
-    this.configPromise = client
-      .get<FrontendConfig>({
-        security: [{ scheme: 'bearer', type: 'http' }],
-        url: '/api/frontend-config',
-      })
+    this.configPromise = appControllerGetFrontendConfig()
       .then((response) => {
         this.config = (response.data as FrontendConfig)?.grafana ?? null;
         return this.config;

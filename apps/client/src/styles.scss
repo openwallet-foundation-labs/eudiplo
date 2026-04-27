@@ -6,7 +6,7 @@ html {
   @include mat.theme(
     (
       color: (
-        primary: mat.$violet-palette,
+        primary: mat.$blue-palette,
         tertiary: mat.$orange-palette,
         theme-type: light,
       ),
