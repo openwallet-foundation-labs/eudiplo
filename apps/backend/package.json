@@ -111,8 +111,13 @@
         "uuid": "^14.0.0"
     },
     "devDependencies": {
+<<<<<<< dependabot/npm_and_yarn/codecov/vite-plugin-2.0.1
+        "@biomejs/biome": "2.4.11",
+        "@codecov/vite-plugin": "^2.0.1",
+=======
         "@biomejs/biome": "2.4.12",
         "@codecov/vite-plugin": "^1.9.1",
+>>>>>>> main
         "@compodoc/compodoc": "^1.2.1",
         "@hey-api/openapi-ts": "^0.96.0",
         "@nestjs/cli": "^11.0.16",
