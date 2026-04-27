@@ -3,11 +3,7 @@ import { RoleDto } from '@eudiplo/sdk-core';
 import { ApiService } from '../core';
 
 // Extend RoleDto to include registrar:manage which may not be in the SDK yet
-export type Role =
-  | RoleDto['role']
-  | 'registrar:manage'
-  | 'tenants:manage'
-  | 'users:manage';
+export type Role = RoleDto['role'] | 'registrar:manage' | 'tenants:manage' | 'users:manage';
 
 export const roles: Role[] = [
   'clients:manage',
