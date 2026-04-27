@@ -522,6 +522,11 @@ export class AuthService {
             jwks_uri: &#x60;${publicUrl}/.well-known/jwks.json&#x60;,
             response_types_supported: [&quot;token&quot;],
             grant_types_supported: [&quot;client_credentials&quot;],
+            ...(oidc &amp;&amp; {
+                ui_client_id:
+                    this.configService.get&lt;string&gt;(&quot;OIDC_UI_CLIENT_ID&quot;) ??
+                    &quot;eudiplo-ui&quot;,
+            }),
             token_endpoint_auth_methods_supported: [
                 &quot;client_secret_basic&quot;,
                 &quot;client_secret_post&quot;,

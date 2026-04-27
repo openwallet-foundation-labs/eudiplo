@@ -2282,6 +2282,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#external-oidc-provider-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        External OIDC Provider Issues
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2913,6 +2924,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#external-oidc-provider-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        External OIDC Provider Issues
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3029,12 +3051,17 @@ for service-to-service communication without user interaction.</p>
 <tr>
 <td><code>AUTH_CLIENT_SECRET</code></td>
 <td><code>any</code></td>
-<td>Client secret (local auth) - required when OIDC is not enabled [when OIDC is set → otherwise required]</td>
+<td>Client secret (local auth). In OIDC mode, optional bootstrap secret used to create/update a Keycloak admin/root client when AUTH_CLIENT_ID is also set [when OIDC is set → otherwise required]</td>
 </tr>
 <tr>
 <td><code>AUTH_CLIENT_ID</code></td>
 <td><code>any</code></td>
-<td>Client ID (local auth) - required when OIDC is not enabled [when OIDC is set → otherwise required]</td>
+<td>Client ID (local auth). In OIDC mode, optional bootstrap client ID used to create/update a Keycloak admin/root client when AUTH_CLIENT_SECRET is also set [when OIDC is set → otherwise required]</td>
+</tr>
+<tr>
+<td><code>OIDC_UI_CLIENT_ID</code></td>
+<td><code>any</code></td>
+<td>Public client ID for the Angular UI in OIDC mode. Used to register a public Keycloak client for Authorization Code + PKCE login. [when OIDC is set → then default="eudiplo-ui"]</td>
 </tr>
 </tbody>
 </table>
@@ -3103,20 +3130,43 @@ for service-to-service authentication where no user interaction is required.</p>
 integrate with external OIDC providers like Keycloak, Auth0, or Azure AD.</p>
 <p><strong>Configuration:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>OIDC=https://your-keycloak.example.com/realms/your-realm
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>PUBLIC_URL=https://your-api.example.com
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>OIDC_CLIENT_ID=your-keycloak-admin-client
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>OIDC_CLIENT_SECRET=your-keycloak-admin-client-secret
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>PUBLIC_URL=https://your-api.example.com
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a># Optional bootstrap root client in OIDC mode
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a># If both are set, EUDIPLO creates/updates this Keycloak client on startup
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>AUTH_CLIENT_ID=root
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>AUTH_CLIENT_SECRET=root-secret
 </code></pre></div>
 <p><strong>Authentication Flow:</strong></p>
 <ol>
 <li>Use your OIDC provider's token endpoint with client credentials flow</li>
 <li>Include the access token in API requests: <code>Authorization: Bearer &lt;token&gt;</code></li>
+<li>If <code>AUTH_CLIENT_ID</code> and <code>AUTH_CLIENT_SECRET</code> are set, use those credentials
+   against Keycloak to get an initial root/admin token.</li>
 </ol>
 <h2 id="configuration_1">Configuration<a class="headerlink" href="#configuration_1" title="Permanent link">¶</a></h2>
 <h3 id="external-oidc-provider_1">External OIDC Provider<a class="headerlink" href="#external-oidc-provider_1" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Enable external OIDC</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nv">OIDC</span><span class="o">=</span><span class="nb">true</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nv">OIDC</span><span class="o">=</span>https://your-keycloak.example.com/realms/your-realm
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nv">OIDC_INTERNAL_ISSUER_URL</span><span class="o">=</span>https://your-keycloak.example.com/realms/your-realm
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="nv">PUBLIC_URL</span><span class="o">=</span>https://your-api.example.com
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="nv">OIDC_CLIENT_ID</span><span class="o">=</span>your-keycloak-admin-client
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="nv">OIDC_CLIENT_SECRET</span><span class="o">=</span>your-keycloak-admin-client-secret
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="nv">PUBLIC_URL</span><span class="o">=</span>https://your-api.example.com
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="c1"># Optional bootstrap root client (created in Keycloak by EUDIPLO startup)</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="nv">AUTH_CLIENT_ID</span><span class="o">=</span>root
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="nv">AUTH_CLIENT_SECRET</span><span class="o">=</span>root-secret
 </code></pre></div>
+<p>In external OIDC mode:</p>
+<ul>
+<li>EUDIPLO does not issue tokens from <code>/oauth2/token</code></li>
+<li><code>OIDC_CLIENT_ID</code> and <code>OIDC_CLIENT_SECRET</code> are used by EUDIPLO to manage
+  roles/clients in Keycloak</li>
+<li><code>AUTH_CLIENT_ID</code> and <code>AUTH_CLIENT_SECRET</code> are optional; when both are set,
+  EUDIPLO bootstraps a Keycloak client intended for initial/root login</li>
+</ul>
 <h3 id="integrated-oauth2-server">Integrated OAuth2 Server<a class="headerlink" href="#integrated-oauth2-server" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Leave OIDC undefined for integrated OAuth2 server</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="c1"># All three values below are REQUIRED</span>
@@ -3151,24 +3201,27 @@ variables, see <a href="../../architecture/key-management/">Key Management</a> a
 <a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">    </span><span class="nx">IssuanceOffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"issuance:offer"</span><span class="p">,</span>
 <a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">    </span><span class="c1">// to manage client resources</span>
 <a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">    </span><span class="nx">Clients</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"clients:manage"</span><span class="p">,</span>
-<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">    </span><span class="c1">// to manage tenant resources</span>
-<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">    </span><span class="nx">Tenants</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"tenants:manage"</span><span class="p">,</span>
-<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">    </span><span class="c1">// to manage registrar configuration and operations</span>
-<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">    </span><span class="nx">Registrar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"registrar:manage"</span><span class="p">,</span>
-<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="p">}</span>
-<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>
-<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="cm">/**</span>
-<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span class="cm"> * List of all roles</span>
-<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span class="cm"> */</span>
-<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">allRoles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Tenants</span><span class="p">,</span>
-<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">IssuanceOffer</span><span class="p">,</span>
-<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Issuances</span><span class="p">,</span>
-<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">PresentationRequest</span><span class="p">,</span>
-<a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Presentations</span><span class="p">,</span>
-<a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Clients</span><span class="p">,</span>
-<a id="__codelineno-5-31" name="__codelineno-5-31" href="#__codelineno-5-31"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Registrar</span><span class="p">,</span>
-<a id="__codelineno-5-32" name="__codelineno-5-32" href="#__codelineno-5-32"></a><span class="p">];</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">    </span><span class="c1">// to manage human users</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">    </span><span class="nx">Users</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"users:manage"</span><span class="p">,</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">    </span><span class="c1">// to manage tenant resources</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">    </span><span class="nx">Tenants</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"tenants:manage"</span><span class="p">,</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="w">    </span><span class="c1">// to manage registrar configuration and operations</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="w">    </span><span class="nx">Registrar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"registrar:manage"</span><span class="p">,</span>
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="p">}</span>
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span class="cm">/**</span>
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a><span class="cm"> * List of all roles</span>
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a><span class="cm"> */</span>
+<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a><span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">allRoles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Tenants</span><span class="p">,</span>
+<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">IssuanceOffer</span><span class="p">,</span>
+<a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Issuances</span><span class="p">,</span>
+<a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">PresentationRequest</span><span class="p">,</span>
+<a id="__codelineno-5-31" name="__codelineno-5-31" href="#__codelineno-5-31"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Presentations</span><span class="p">,</span>
+<a id="__codelineno-5-32" name="__codelineno-5-32" href="#__codelineno-5-32"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Clients</span><span class="p">,</span>
+<a id="__codelineno-5-33" name="__codelineno-5-33" href="#__codelineno-5-33"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Users</span><span class="p">,</span>
+<a id="__codelineno-5-34" name="__codelineno-5-34" href="#__codelineno-5-34"></a><span class="w">    </span><span class="nx">Role</span><span class="p">.</span><span class="nx">Registrar</span><span class="p">,</span>
+<a id="__codelineno-5-35" name="__codelineno-5-35" href="#__codelineno-5-35"></a><span class="p">];</span>
 </code></pre></div>
 <p>Each client can have multiple roles assigned, but each client can only be assigned to one tenant at maximum. The client with the tenant manage must not be assigned to any tenant since it is managing the service in general. There could be other roles in the future like limited access to the metrics endpoint.</p>
 <h3 id="resource-level-access-control">Resource-Level Access Control<a class="headerlink" href="#resource-level-access-control" title="Permanent link">¶</a></h3>
@@ -3215,6 +3268,16 @@ variables, see <a href="../../architecture/key-management/">Key Management</a> a
 <li>Ensure client credentials (<code>AUTH_CLIENT_ID</code>/<code>AUTH_CLIENT_SECRET</code>) are
    configured correctly</li>
 <li>Check that <code>PUBLIC_URL</code> is accessible for OAuth2 flows</li>
+</ol>
+<h3 id="external-oidc-provider-issues">External OIDC Provider Issues<a class="headerlink" href="#external-oidc-provider-issues" title="Permanent link">¶</a></h3>
+<ol>
+<li>If startup logs show role/client initialization failures, verify that the
+   Keycloak admin client (<code>OIDC_CLIENT_ID</code>/<code>OIDC_CLIENT_SECRET</code>) has
+   <code>realm-management</code> permissions (<code>manage-realm</code>, and typically
+   <code>manage-clients</code>, <code>manage-users</code>, <code>view-realm</code>, <code>view-clients</code>, <code>view-users</code>)</li>
+<li>If bootstrap root login fails, ensure both <code>AUTH_CLIENT_ID</code> and
+   <code>AUTH_CLIENT_SECRET</code> are set and obtain tokens from Keycloak's token endpoint
+   (not from EUDIPLO <code>/oauth2/token</code>)</li>
 </ol>
 <h2 id="security-considerations">Security Considerations<a class="headerlink" href="#security-considerations" title="Permanent link">¶</a></h2>
 <ul>

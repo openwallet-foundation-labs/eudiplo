@@ -110,7 +110,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Injectables</li>
-  <li class="breadcrumb-item" >KeycloakClientsProvider</li>
+  <li class="breadcrumb-item" >KeycloakUsersProvider</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -134,7 +134,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/auth/client/adapters/keycloak-clients.service.ts</code>
+            <code>src/auth/user/adapters/keycloak-users.service.ts</code>
         </p>
 
 
@@ -143,7 +143,7 @@
                 <h3>Extends</h3>
             </p>
             <p class="comment">
-                            <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+                            <code><a href="../classes/UsersProvider.html" target="_self" >UsersProvider</a></code>
             </p>
 
 
@@ -163,11 +163,6 @@
                                     <span class="modifier">Private</span>
                                 <a href="#kc" >kc</a>
                             </li>
-                            <li>
-                                    <span class="modifier">Private</span>
-                                    <span class="modifier">Readonly</span>
-                                <a href="#logger" >logger</a>
-                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -182,12 +177,16 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#addClient" >addClient</a>
+                                <a href="#addUser" >addUser</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#buildEmailFromUsername" >buildEmailFromUsername</a>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
                                     <span class="modifier">Async</span>
-                                <a href="#ensureBootstrapAdminClient" >ensureBootstrapAdminClient</a>
+                                <a href="#ensureRealmRoles" >ensureRealmRoles</a>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
@@ -195,32 +194,24 @@
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
-                                    <span class="modifier">Async</span>
-                                <a href="#ensureUiPublicClient" >ensureUiPublicClient</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#getClient" >getClient</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#getClientById" >getClientById</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#getClients" >getClients</a>
+                                <a href="#generateTemporaryPassword" >generateTemporaryPassword</a>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
-                                <a href="#getTenantOwnerFromKcClient" >getTenantOwnerFromKcClient</a>
+                                <a href="#getTenantOwnerFromKcUser" >getTenantOwnerFromKcUser</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#importForTenant" >importForTenant</a>
+                                <a href="#getUser" >getUser</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
+                                <a href="#getUsers" >getUsers</a>
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
-                                <a href="#init" >init</a>
+                                    <span class="modifier">Async</span>
+                                <a href="#mapUser" >mapUser</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
@@ -228,19 +219,20 @@
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#removeClient" >removeClient</a>
+                                <a href="#removeUser" >removeUser</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#resolveUserEmail" >resolveUserEmail</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#syncRoles" >syncRoles</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
-                                <a href="#rotateClientSecret" >rotateClientSecret</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#updateClient" >updateClient</a>
-                            </li>
-                            <li>
-                                    <span class="modifier">Optional</span>
-                                <a href="#validateClientCredentials" >validateClientCredentials</a>
+                                <a href="#updateUser" >updateUser</a>
                             </li>
                         </ul>
                     </td>
@@ -260,12 +252,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(configService: ConfigService, clientRepo: <a href="../entitys/ClientEntity.html" target="_self">Repository&lt;ClientEntity&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>)</code>
+<code>constructor(configService: ConfigService)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="60" class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:60</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/auth/user/adapters/keycloak-users.service.ts:19</a></div>
                             </td>
                         </tr>
 
@@ -294,42 +286,6 @@
                                                     </td>
                                                     
                                                 </tr>
-                                                <tr>
-                                                        <td>clientRepo</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../entitys/ClientEntity.html" target="_self" >Repository&lt;ClientEntity&gt;</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>configImportService</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/ConfigImportService.html" target="_self" >ConfigImportService</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
-                                                <tr>
-                                                        <td>configImportOrchestrator</td>
-                                                  
-                                                        <td>
-                                                                        <code><a href="../injectables/ConfigImportOrchestratorService.html" target="_self" >ConfigImportOrchestratorService</a></code>
-                                                        </td>
-                                                  
-                                                    <td>
-                                                            No
-                                                    </td>
-                                                    
-                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -348,31 +304,31 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="addClient"></a>
+                    <a name="addUser"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
-                        <span ><b>addClient</b></span>
-                        <a href="#addClient"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>addUser</b></span>
+                        <a href="#addUser"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>addClient(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/CreateClientDto.html" target="_self">CreateClientDto</a>)</code>
+                    <code>addUser(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/CreateUserDto.html" target="_self">CreateUserDto</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+                            <div class="io-line">Inherited from         <code><a href="../classes/UsersProvider.html" target="_self" >UsersProvider</a></code>
 </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:331</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/UsersProvider.html#source" target="_self" >UsersProvider:71</a></code>
 </div>
                         </td>
                     </tr>
@@ -408,7 +364,7 @@
                                         <tr>
                                                 <td>dto</td>
                                             <td>
-                                                            <code><a href="../classes/CreateClientDto.html" target="_self" >CreateClientDto</a></code>
+                                                            <code><a href="../classes/CreateUserDto.html" target="_self" >CreateUserDto</a></code>
                                             </td>
 
                                             <td>
@@ -421,7 +377,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>unknown</code>
+                            <b>Returns : </b>        <code><a href="../classes/ManagedUserDto.html" target="_self" >Promise&lt;ManagedUserDto&gt;</a></code>
 
                         </div>
                             <div class="io-description">
@@ -435,41 +391,149 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="ensureBootstrapAdminClient"></a>
+                    <a name="buildEmailFromUsername"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
-                            <span class="modifier">Async</span>
-                        <span ><b>ensureBootstrapAdminClient</b></span>
-                        <a href="#ensureBootstrapAdminClient"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>buildEmailFromUsername</b></span>
+                        <a href="#buildEmailFromUsername"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>ensureBootstrapAdminClient()</code>
+                    <code>buildEmailFromUsername(username: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="174"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:174</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="241"
+                                    class="link-to-prism">src/auth/user/adapters/keycloak-users.service.ts:241</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>In OIDC mode, optionally bootstrap a Keycloak admin/root client from AUTH_CLIENT_ID/SECRET.
-This client can be used to obtain tenant-management tokens via Keycloak.</p>
-</div>
 
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>username</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 
                         </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ensureRealmRoles"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>ensureRealmRoles</b></span>
+                        <a href="#ensureRealmRoles"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>ensureRealmRoles(requestedRoles: <a href="../miscellaneous/enumerations.html#Role" target="_self">Role[]</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="321"
+                                    class="link-to-prism">src/auth/user/adapters/keycloak-users.service.ts:321</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>requestedRoles</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/enumerations.html#Role" target="_self" >Role[]</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -489,15 +553,15 @@ This client can be used to obtain tenant-management tokens via Keycloak.</p>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>ensureTenantOwnership(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, kcClient: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, action: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>ensureTenantOwnership(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, user: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>, action: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="46"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:46</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="192"
+                                    class="link-to-prism">src/auth/user/adapters/keycloak-users.service.ts:192</a></div>
                         </td>
                     </tr>
 
@@ -530,7 +594,7 @@ This client can be used to obtain tenant-management tokens via Keycloak.</p>
 
                                         </tr>
                                         <tr>
-                                                <td>kcClient</td>
+                                                <td>user</td>
                                             <td>
                                                             <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
                                             </td>
@@ -571,38 +635,35 @@ This client can be used to obtain tenant-management tokens via Keycloak.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="ensureUiPublicClient"></a>
+                    <a name="generateTemporaryPassword"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
-                            <span class="modifier">Async</span>
-                        <span ><b>ensureUiPublicClient</b></span>
-                        <a href="#ensureUiPublicClient"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>generateTemporaryPassword</b></span>
+                        <a href="#generateTemporaryPassword"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>ensureUiPublicClient()</code>
+                    <code>generateTemporaryPassword()</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="256"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:256</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="232"
+                                    class="link-to-prism">src/auth/user/adapters/keycloak-users.service.ts:232</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Auto-create or update a public Keycloak client for the Angular UI (Authorization Code + PKCE).</p>
-</div>
 
                         <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 
                         </div>
                 </td>
@@ -613,266 +674,26 @@ This client can be used to obtain tenant-management tokens via Keycloak.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getClient"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>getClient</b></span>
-                        <a href="#getClient"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getClient(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
-</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:291</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>clientId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>unknown</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getClientById"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>getClientById</b></span>
-                        <a href="#getClientById"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getClientById(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
-</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:302</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Get a client by its clientId only (without tenant context).
-Used for JWT validation to fetch client restrictions.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>clientId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../entitys/ClientEntity.html" target="_self" >Promise&lt;ClientEntity | null&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getClients"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>getClients</b></span>
-                        <a href="#getClients"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getClients(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
-</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:285</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../entitys/ClientEntity.html" target="_self" >Promise&lt;ClientEntity[]&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getTenantOwnerFromKcClient"></a>
+                    <a name="getTenantOwnerFromKcUser"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
-                        <span ><b>getTenantOwnerFromKcClient</b></span>
-                        <a href="#getTenantOwnerFromKcClient"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>getTenantOwnerFromKcUser</b></span>
+                        <a href="#getTenantOwnerFromKcUser"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getTenantOwnerFromKcClient(kcClient: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                    <code>getTenantOwnerFromKcUser(user: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="31"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:31</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="177"
+                                    class="link-to-prism">src/auth/user/adapters/keycloak-users.service.ts:177</a></div>
                         </td>
                     </tr>
 
@@ -893,7 +714,7 @@ Used for JWT validation to fetch client restrictions.</p>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>kcClient</td>
+                                                <td>user</td>
                                             <td>
                                                             <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
                                             </td>
@@ -922,31 +743,31 @@ Used for JWT validation to fetch client restrictions.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="importForTenant"></a>
+                    <a name="getUser"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
-                        <span ><b>importForTenant</b></span>
-                        <a href="#importForTenant"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>getUser</b></span>
+                        <a href="#getUser"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>importForTenant(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>getUser(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, userId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+                            <div class="io-line">Inherited from         <code><a href="../classes/UsersProvider.html" target="_self" >UsersProvider</a></code>
 </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:102</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/UsersProvider.html#source" target="_self" >UsersProvider:61</a></code>
 </div>
                         </td>
                     </tr>
@@ -954,8 +775,6 @@ Used for JWT validation to fetch client restrictions.</p>
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Imports clients for a tenant. No-op for Keycloak as clients are managed directly in Keycloak.</p>
-</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -971,6 +790,289 @@ Used for JWT validation to fetch client restrictions.</p>
                                     <tbody>
                                         <tr>
                                                 <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>userId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/ManagedUserDto.html" target="_self" >Promise&lt;ManagedUserDto&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="getUsers"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>getUsers</b></span>
+                        <a href="#getUsers"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getUsers(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Inherited from         <code><a href="../classes/UsersProvider.html" target="_self" >UsersProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/UsersProvider.html#source" target="_self" >UsersProvider:51</a></code>
+</div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/ManagedUserDto.html" target="_self" >Promise&lt;ManagedUserDto[]&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="mapUser"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>mapUser</b></span>
+                        <a href="#mapUser"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>mapUser(user: <a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank">any</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="265"
+                                    class="link-to-prism">src/auth/user/adapters/keycloak-users.service.ts:265</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../classes/ManagedUserDto.html" target="_self" >Promise&lt;ManagedUserDto&gt;</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="onModuleInit"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>onModuleInit</b></span>
+                        <a href="#onModuleInit"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>onModuleInit()</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="25"
+                                    class="link-to-prism">src/auth/user/adapters/keycloak-users.service.ts:25</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="removeUser"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>removeUser</b></span>
+                        <a href="#removeUser"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>removeUser(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, userId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Inherited from         <code><a href="../classes/UsersProvider.html" target="_self" >UsersProvider</a></code>
+</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in         <code><a href="../classes/UsersProvider.html#source" target="_self" >UsersProvider:167</a></code>
+</div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>userId</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
@@ -999,39 +1101,79 @@ Used for JWT validation to fetch client restrictions.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="init"></a>
+                    <a name="resolveUserEmail"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
-                        <span ><b>init</b></span>
-                        <a href="#init"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>resolveUserEmail</b></span>
+                        <a href="#resolveUserEmail"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>init()</code>
+                    <code>resolveUserEmail(user: literal type, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="144"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:144</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="213"
+                                    class="link-to-prism">src/auth/user/adapters/keycloak-users.service.ts:213</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Checks if all the roles are available in the realm. If not they will be created.</p>
-</div>
 
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                        <code>literal type</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
 
                         </div>
+                            <div class="io-description">
+                                
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -1040,26 +1182,27 @@ Used for JWT validation to fetch client restrictions.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="onModuleInit"></a>
+                    <a name="syncRoles"></a>
                     <span class="name">
+                            <span class="modifier">Private</span>
                             <span class="modifier">Async</span>
-                        <span ><b>onModuleInit</b></span>
-                        <a href="#onModuleInit"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>syncRoles</b></span>
+                        <a href="#syncRoles"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>onModuleInit()</code>
+                    <code>syncRoles(userId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, nextRoles: <a href="../miscellaneous/enumerations.html#Role" target="_self">Role[]</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="72"
-                                    class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:72</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="279"
+                                    class="link-to-prism">src/auth/user/adapters/keycloak-users.service.ts:279</a></div>
                         </td>
                     </tr>
 
@@ -1067,10 +1210,52 @@ Used for JWT validation to fetch client restrictions.</p>
             <tr>
                 <td class="col-md-4">
 
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>userId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>nextRoles</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/enumerations.html#Role" target="_self" >Role[]</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
 
                         </div>
+                            <div class="io-description">
+                                
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -1079,31 +1264,31 @@ Used for JWT validation to fetch client restrictions.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="removeClient"></a>
+                    <a name="updateUser"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
-                        <span ><b>removeClient</b></span>
-                        <a href="#removeClient"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>updateUser</b></span>
+                        <a href="#updateUser"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>removeClient(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>updateUser(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, userId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/UpdateUserDto.html" target="_self">UpdateUserDto</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
+                            <div class="io-line">Inherited from         <code><a href="../classes/UsersProvider.html" target="_self" >UsersProvider</a></code>
 </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:530</a></code>
+                                <div class="io-line">Defined in         <code><a href="../classes/UsersProvider.html#source" target="_self" >UsersProvider:128</a></code>
 </div>
                         </td>
                     </tr>
@@ -1137,9 +1322,21 @@ Used for JWT validation to fetch client restrictions.</p>
 
                                         </tr>
                                         <tr>
-                                                <td>clientId</td>
+                                                <td>userId</td>
                                             <td>
                                                             <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>dto</td>
+                                            <td>
+                                                            <code><a href="../classes/UpdateUserDto.html" target="_self" >UpdateUserDto</a></code>
                                             </td>
 
                                             <td>
@@ -1152,291 +1349,7 @@ Used for JWT validation to fetch client restrictions.</p>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="rotateClientSecret"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>rotateClientSecret</b></span>
-                        <a href="#rotateClientSecret"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>rotateClientSecret(tenantId: string | null, clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
-</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:312</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Rotate (regenerate) a client&#39;s secret in Keycloak.
-Returns the new plain secret for one-time display.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                        <code>string | null</code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>clientId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The client ID to rotate the secret for</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;string&gt;</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="updateClient"></a>
-                    <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>updateClient</b></span>
-                        <a href="#updateClient"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>updateClient(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, updateClientDto: <a href="../classes/UpdateClientDto.html" target="_self">UpdateClientDto</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
-</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:464</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>clientId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>updateClientDto</td>
-                                            <td>
-                                                            <code><a href="../classes/UpdateClientDto.html" target="_self" >UpdateClientDto</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>    <code>unknown</code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="validateClientCredentials"></a>
-                    <span class="name">
-                            <span class="modifier">Optional</span>
-                        <span ><b>validateClientCredentials</b></span>
-                        <a href="#validateClientCredentials"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-<code>validateClientCredentials(clientId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, clientSecret: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Inherited from         <code><a href="../classes/ClientsProvider.html" target="_self" >ClientsProvider</a></code>
-</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in         <code><a href="../classes/ClientsProvider.html#source" target="_self" >ClientsProvider:51</a></code>
-</div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>clientId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                        <tr>
-                                                <td>clientSecret</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../entitys/ClientEntity.html" target="_self" >Promise&lt;ClientEntity | null&gt;</a></code>
+                            <b>Returns : </b>        <code><a href="../classes/ManagedUserDto.html" target="_self" >Promise&lt;ManagedUserDto&gt;</a></code>
 
                         </div>
                             <div class="io-description">
@@ -1472,40 +1385,7 @@ Returns the new plain secret for one-time display.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="28" class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:28</a></div>
-                        </td>
-                    </tr>
-
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="logger"></a>
-                    <span class="name">
-                            <span class="modifier">Private</span>
-                            <span class="modifier">Readonly</span>
-                        <span ><b>logger</b></span>
-                        <a href="#logger"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>    <code>unknown</code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>new Logger(KeycloakClientsProvider.name)</code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="29" class="link-to-prism">src/auth/client/adapters/keycloak-clients.service.ts:29</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="19" class="link-to-prism">src/auth/user/adapters/keycloak-users.service.ts:19</a></div>
                         </td>
                     </tr>
 
@@ -1518,75 +1398,28 @@ Returns the new plain secret for one-time display.</p>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { readFileSync } from &quot;node:fs&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { randomBytes } from &quot;node:crypto&quot;;
 import KeycloakAdminClient from &quot;@keycloak/keycloak-admin-client&quot;;
 import { Credentials } from &quot;@keycloak/keycloak-admin-client/lib/utils/auth&quot;;
 import {
     ConflictException,
     Injectable,
-    Logger,
-    OnModuleInit,
+    NotFoundException,
 } from &quot;@nestjs/common&quot;;
 import { ConfigService } from &quot;@nestjs/config&quot;;
-import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
-import { plainToClass } from &quot;class-transformer&quot;;
 import { decodeJwt } from &quot;jose&quot;;
-import { Repository } from &quot;typeorm&quot;;
-import { ConfigImportService } from &quot;../../../shared/utils/config-import/config-import.service&quot;;
-import { ConfigImportOrchestratorService } from &quot;../../../shared/utils/config-import/config-import-orchestrator.service&quot;;
 import { allRoles, Role } from &quot;../../roles/role.enum&quot;;
-import { ClientsProvider } from &quot;../client.provider&quot;;
-import { CreateClientDto } from &quot;../dto/create-client.dto&quot;;
-import { UpdateClientDto } from &quot;../dto/update-client.dto&quot;;
-import { ClientEntity } from &quot;../entities/client.entity&quot;;
+import { CreateUserDto } from &quot;../dto/create-user.dto&quot;;
+import { ManagedUserDto } from &quot;../dto/managed-user.dto&quot;;
+import { UpdateUserDto } from &quot;../dto/update-user.dto&quot;;
+import { UsersProvider } from &quot;../user.provider&quot;;
 
 @Injectable()
-export class KeycloakClientsProvider
-    extends ClientsProvider
-    implements OnModuleInit
-{
+export class KeycloakUsersProvider extends UsersProvider {
     private kc!: KeycloakAdminClient;
-    private readonly logger &#x3D; new Logger(KeycloakClientsProvider.name);
 
-    private getTenantOwnerFromKcClient(kcClient: any): string | undefined {
-        const attrs &#x3D; kcClient?.attributes;
-        const tenantAttr &#x3D; attrs?.tenant_id;
-
-        if (Array.isArray(tenantAttr)) {
-            return tenantAttr[0];
-        }
-
-        if (typeof tenantAttr &#x3D;&#x3D;&#x3D; &quot;string&quot;) {
-            return tenantAttr;
-        }
-
-        return undefined;
-    }
-
-    private ensureTenantOwnership(
-        tenantId: string,
-        kcClient: any,
-        action: string,
-    ): void {
-        const ownerTenantId &#x3D; this.getTenantOwnerFromKcClient(kcClient);
-
-        if (!ownerTenantId || ownerTenantId &#x3D;&#x3D;&#x3D; tenantId) {
-            return;
-        }
-
-        throw new ConflictException(
-            &#x60;Client &#x27;${kcClient.clientId}&#x27; is managed by tenant &#x27;${ownerTenantId}&#x27; and cannot be ${action} by tenant &#x27;${tenantId}&#x27;.&#x60;,
-        );
-    }
-
-    constructor(
-        private readonly configService: ConfigService,
-        @InjectRepository(ClientEntity)
-        private readonly clientRepo: Repository&lt;ClientEntity&gt;,
-        private readonly configImportService: ConfigImportService,
-        configImportOrchestrator: ConfigImportOrchestratorService,
-    ) {
-        super(configImportOrchestrator);
+    constructor(private readonly configService: ConfigService) {
+        super();
     }
 
     async onModuleInit() {
@@ -1605,455 +1438,304 @@ export class KeycloakClientsProvider
         const payload &#x3D; decodeJwt(accessToken!);
         const refreshMs &#x3D;
             Math.max(5, payload.exp! - Date.now() / 1000 - 10) * 1000;
-        // Refresh a bit before expiry
+
         setInterval(async () &#x3D;&gt; {
             try {
                 await this.kc.auth(creds);
             } catch {
-                // log &amp; keep trying on next tick.
+                // ignore; next interval will retry
             }
         }, refreshMs);
-        await this.init();
     }
 
-    /**
-     * Imports clients for a tenant. No-op for Keycloak as clients are managed directly in Keycloak.
-     */
-    async importForTenant(tenantId: string): Promise&lt;void&gt; {
-        await this.configImportService.importConfigsForTenant&lt;ClientEntity&gt;(
-            tenantId,
-            {
-                subfolder: &quot;clients&quot;,
-                fileExtension: &quot;.json&quot;,
-                validationClass: ClientEntity,
-                resourceType: &quot;client config&quot;,
-                loadData: (filePath) &#x3D;&gt; {
-                    const payload &#x3D; JSON.parse(readFileSync(filePath, &quot;utf8&quot;));
-                    return plainToClass(ClientEntity, payload);
-                },
-                checkExists: async (currentTenantId, data) &#x3D;&gt; {
-                    return this.getClientById((data as any).clientId)
-                        .then((client) &#x3D;&gt; !!client)
-                        .catch(() &#x3D;&gt; false);
-                },
-                deleteExisting: async (currentTenantId, data) &#x3D;&gt; {
-                    await this.removeClient(
-                        currentTenantId,
-                        (data as any).clientId,
-                    );
-                },
-                processItem: async (currentTenantId, data) &#x3D;&gt; {
-                    await this.addClient(currentTenantId, {
-                        clientId: (data as any).clientId,
-                        secret: (data as any).secret,
-                        description: (data as any).description,
-                        roles: (data as any).roles,
-                        allowedIssuanceConfigs: (data as any)
-                            .allowedIssuanceConfigs,
-                        allowedPresentationConfigs: (data as any)
-                            .allowedPresentationConfigs,
-                    });
-                },
-            },
+    async getUsers(tenantId: string): Promise&lt;ManagedUserDto[]&gt; {
+        const users &#x3D; await this.kc.users.find({ max: 1000 });
+        const tenantUsers &#x3D; users.filter(
+            (user) &#x3D;&gt;
+                !user.serviceAccountClientId &amp;&amp;
+                this.getTenantOwnerFromKcUser(user) &#x3D;&#x3D;&#x3D; tenantId,
         );
+        return Promise.all(tenantUsers.map((user) &#x3D;&gt; this.mapUser(user)));
     }
 
-    /**
-     * Checks if all the roles are available in the realm. If not they will be created.
-     */
-    private init() {
-        const existingRoles: Role[] &#x3D; allRoles;
-        return this.kc.roles
-            .find()
-            .then(async (roles) &#x3D;&gt; {
-                // Check if all roles exist
-                const missingRoles &#x3D; existingRoles.filter(
-                    (role) &#x3D;&gt; !roles.some((r) &#x3D;&gt; r.name &#x3D;&#x3D;&#x3D; role),
-                );
-                if (missingRoles.length) {
-                    // Create missing roles
-                    await Promise.all(
-                        missingRoles.map((role) &#x3D;&gt;
-                            this.kc.roles.create({ name: role }),
-                        ),
-                    );
-                }
+    async getUser(tenantId: string, userId: string): Promise&lt;ManagedUserDto&gt; {
+        const user &#x3D; await this.kc.users.findOne({ id: userId });
+        if (!user?.id) {
+            throw new NotFoundException(&#x60;User &#x27;${userId}&#x27; not found&#x60;);
+        }
 
-                await this.ensureBootstrapAdminClient();
-                await this.ensureUiPublicClient();
-            })
-            .catch((err) &#x3D;&gt; {
-                this.logger.error(&quot;Error initializing Keycloak roles&quot;, err);
-            });
+        this.ensureTenantOwnership(tenantId, user, &quot;viewed&quot;);
+        return this.mapUser(user);
     }
 
-    /**
-     * In OIDC mode, optionally bootstrap a Keycloak admin/root client from AUTH_CLIENT_ID/SECRET.
-     * This client can be used to obtain tenant-management tokens via Keycloak.
-     */
-    private async ensureBootstrapAdminClient() {
-        const bootstrapClientId &#x3D;
-            this.configService.get&lt;string&gt;(&quot;AUTH_CLIENT_ID&quot;);
-        const bootstrapClientSecret &#x3D;
-            this.configService.get&lt;string&gt;(&quot;AUTH_CLIENT_SECRET&quot;);
-
-        if (!bootstrapClientId &amp;&amp; !bootstrapClientSecret) {
-            return;
-        }
-
-        if (!bootstrapClientId || !bootstrapClientSecret) {
-            this.logger.warn(
-                &quot;Skipping bootstrap admin client setup: AUTH_CLIENT_ID and AUTH_CLIENT_SECRET must both be set in OIDC mode.&quot;,
-            );
-            return;
-        }
-
-        const existingClient &#x3D; (
-            await this.kc.clients.find({ clientId: bootstrapClientId })
-        )[0];
-
-        const bootstrapClientPayload &#x3D; {
-            clientId: bootstrapClientId,
-            description: &quot;Bootstrap admin client for tenant management&quot;,
-            serviceAccountsEnabled: true,
-            enabled: true,
-            publicClient: false,
-            directAccessGrantsEnabled: false,
-            standardFlowEnabled: false,
-            webOrigins: [&quot;*&quot;],
-            secret: bootstrapClientSecret,
-        };
-
-        let clientId &#x3D; existingClient?.id;
-        if (clientId) {
-            await this.kc.clients.update(
-                { id: clientId },
-                bootstrapClientPayload,
-            );
-        } else {
-            const created &#x3D; await this.kc.clients.create(
-                bootstrapClientPayload,
-            );
-            clientId &#x3D; created.id;
-        }
-
-        if (!clientId) {
-            return;
-        }
-
-        const serviceAccountUser &#x3D; await this.kc.clients.getServiceAccountUser({
-            id: clientId,
-        });
-        const allRealmRoles &#x3D; await this.kc.roles.find();
-        const bootstrapRoleNames &#x3D; [Role.Tenants, Role.Clients, Role.Users];
-        const bootstrapRoles &#x3D; bootstrapRoleNames
-            .map((name) &#x3D;&gt; allRealmRoles.find((r) &#x3D;&gt; r.name &#x3D;&#x3D;&#x3D; name))
-            .filter((r): r is NonNullable&lt;typeof r&gt; &#x3D;&gt; !!r?.id &amp;&amp; !!r?.name);
-
-        if (!serviceAccountUser.id || bootstrapRoles.length &#x3D;&#x3D;&#x3D; 0) {
-            return;
-        }
-
-        const currentRoles &#x3D; await this.kc.users.listRealmRoleMappings({
-            id: serviceAccountUser.id,
-        });
-
-        const missingRoles &#x3D; bootstrapRoles.filter(
-            (r) &#x3D;&gt; !currentRoles.some((cr) &#x3D;&gt; cr.name &#x3D;&#x3D;&#x3D; r.name),
-        );
-
-        if (missingRoles.length &gt; 0) {
-            await this.kc.users.addRealmRoleMappings({
-                id: serviceAccountUser.id,
-                roles: missingRoles.map((r) &#x3D;&gt; ({ id: r.id!, name: r.name! })),
-            });
-        }
-    }
-
-    /**
-     * Auto-create or update a public Keycloak client for the Angular UI (Authorization Code + PKCE).
-     */
-    private async ensureUiPublicClient(): Promise&lt;void&gt; {
-        const uiClientId &#x3D;
-            this.configService.get&lt;string&gt;(&quot;OIDC_UI_CLIENT_ID&quot;) ?? &quot;eudiplo-ui&quot;;
-
-        const uiClientPayload &#x3D; {
-            clientId: uiClientId,
-            name: &quot;EUDIPLO UI&quot;,
-            description: &quot;Public OIDC client for the Angular management UI&quot;,
-            publicClient: true,
-            serviceAccountsEnabled: false,
-            standardFlowEnabled: true,
-            directAccessGrantsEnabled: false,
-            enabled: true,
-            redirectUris: [&quot;*&quot;],
-            webOrigins: [&quot;*&quot;],
-        };
-
+    async addUser(
+        tenantId: string,
+        dto: CreateUserDto,
+    ): Promise&lt;ManagedUserDto&gt; {
         const existing &#x3D; (
-            await this.kc.clients.find({ clientId: uiClientId })
+            await this.kc.users.find({ username: dto.username, exact: true })
         )[0];
         if (existing?.id) {
-            await this.kc.clients.update({ id: existing.id }, uiClientPayload);
-            this.logger.log(&#x60;Updated public UI client &#x27;${uiClientId}&#x27;&#x60;);
-        } else {
-            await this.kc.clients.create(uiClientPayload);
-            this.logger.log(&#x60;Created public UI client &#x27;${uiClientId}&#x27;&#x60;);
-        }
-    }
-
-    async getClients(tenantId: string): Promise&lt;ClientEntity[]&gt; {
-        return this.clientRepo.find({
-            where: { tenant: { id: tenantId } },
-        });
-    }
-
-    async getClient(tenantId: string, clientId: string) {
-        return this.clientRepo.findOneByOrFail({
-            clientId,
-            tenant: { id: tenantId },
-        });
-    }
-
-    /**
-     * Get a client by its clientId only (without tenant context).
-     * Used for JWT validation to fetch client restrictions.
-     */
-    async getClientById(clientId: string): Promise&lt;ClientEntity | null&gt; {
-        return this.clientRepo.findOne({ where: { clientId } });
-    }
-
-    /**
-     * Rotate (regenerate) a client&#x27;s secret in Keycloak.
-     * Returns the new plain secret for one-time display.
-     * @param _tenantId - Ignored for Keycloak (clients are global)
-     * @param clientId - The client ID to rotate the secret for
-     */
-    async rotateClientSecret(
-        tenantId: string | null,
-        clientId: string,
-    ): Promise&lt;string&gt; {
-        const kcClient &#x3D; (await this.kc.clients.find({ clientId }))[0];
-        if (!kcClient?.id) {
-            throw new Error(&#x60;Client ${clientId} not found in Keycloak&#x60;);
+            throw new ConflictException(
+                &#x60;User &#x27;${dto.username}&#x27; already exists&#x60;,
+            );
         }
 
-        if (tenantId) {
-            this.ensureTenantOwnership(tenantId, kcClient, &quot;rotated (secret)&quot;);
+        const created &#x3D; await this.kc.users.create({
+            username: dto.username,
+            email: this.resolveUserEmail(
+                { username: dto.username, email: undefined },
+                tenantId,
+            ),
+            enabled: dto.enabled ?? true,
+            attributes: { tenant_id: [tenantId] },
+        });
+
+        const userId &#x3D;
+            created.id ??
+            (
+                await this.kc.users.find({
+                    username: dto.username,
+                    exact: true,
+                })
+            )[0]?.id;
+        if (!userId) {
+            throw new Error(
+                &#x60;User &#x27;${dto.username}&#x27; creation did not return an id&#x60;,
+            );
         }
 
-        const secret &#x3D; await this.kc.clients.generateNewClientSecret({
-            id: kcClient.id,
-        });
-        return secret.value!;
-    }
+        const temporaryPassword &#x3D; this.generateTemporaryPassword();
 
-    async addClient(tenantId: string, dto: CreateClientDto) {
-        const clientPayload &#x3D; {
-            clientId: dto.clientId,
-            description: dto.description,
-            serviceAccountsEnabled: true,
-            enabled: true,
-            publicClient: false,
-            directAccessGrantsEnabled: false,
-            standardFlowEnabled: false,
-            webOrigins: [&quot;*&quot;],
-            secret: dto.secret,
-            attributes: { tenant_id: tenantId },
-            protocolMappers: [
-                // hardcode tenant_id claim into tokens
-                {
-                    name: &quot;tenant_id&quot;,
-                    protocol: &quot;openid-connect&quot;,
-                    protocolMapper: &quot;oidc-hardcoded-claim-mapper&quot;,
-                    config: {
-                        &quot;claim.value&quot;: tenantId,
-                        &quot;claim.name&quot;: &quot;tenant_id&quot;,
-                        &quot;jsonType.label&quot;: &quot;String&quot;,
-                        &quot;id.token.claim&quot;: &quot;true&quot;,
-                        &quot;access.token.claim&quot;: &quot;true&quot;,
-                    },
-                },
-                // expose realm roles as &quot;roles&quot; claim
-                {
-                    name: &quot;realm-roles&quot;,
-                    protocol: &quot;openid-connect&quot;,
-                    protocolMapper: &quot;oidc-usermodel-realm-role-mapper&quot;,
-                    config: {
-                        &quot;claim.name&quot;: &quot;roles&quot;,
-                        &quot;jsonType.label&quot;: &quot;String&quot;,
-                        &quot;id.token.claim&quot;: &quot;true&quot;,
-                        multivalued: &quot;true&quot;,
-                        &quot;access.token.claim&quot;: &quot;true&quot;,
-                    },
-                },
-            ],
+        await this.kc.users.resetPassword({
+            id: userId,
+            credential: {
+                temporary: true,
+                type: &quot;password&quot;,
+                value: temporaryPassword,
+            },
+        });
+
+        await this.syncRoles(userId, dto.roles ?? []);
+
+        const createdUser &#x3D; await this.getUser(tenantId, userId);
+        return {
+            ...createdUser,
+            temporaryPassword,
         };
+    }
 
-        let id: string;
-        let createdNow &#x3D; false;
-        try {
-            const created &#x3D; await this.kc.clients.create(clientPayload);
-            if (!created.id) {
-                throw new Error(
-                    &#x60;Client ${dto.clientId} creation did not return an id&#x60;,
-                );
-            }
-            id &#x3D; created.id;
-            createdNow &#x3D; true;
-        } catch (error: any) {
-            const status &#x3D; error?.response?.status || error?.status;
-            const message &#x3D; &#x60;${error?.message || &quot;&quot;}&#x60;;
-            const isConflict &#x3D; status &#x3D;&#x3D;&#x3D; 409 || message.includes(&quot;409&quot;);
-
-            if (!isConflict) {
-                throw error;
-            }
-
-            this.logger.warn(
-                &#x60;Client ${dto.clientId} already exists in Keycloak; reconciling and updating local mirror&#x60;,
-            );
-
-            const existingClient &#x3D; (
-                await this.kc.clients.find({ clientId: dto.clientId })
-            )[0];
-            if (!existingClient?.id) {
-                throw error;
-            }
-            this.ensureTenantOwnership(tenantId, existingClient, &quot;updated&quot;);
-            id &#x3D; existingClient.id;
-
-            await this.kc.clients.update(
-                { id },
-                {
-                    description: dto.description,
-                    serviceAccountsEnabled: true,
-                    enabled: true,
-                    publicClient: false,
-                    directAccessGrantsEnabled: false,
-                    standardFlowEnabled: false,
-                    webOrigins: [&quot;*&quot;],
-                    attributes: { tenant_id: tenantId },
-                },
-            );
+    async updateUser(
+        tenantId: string,
+        userId: string,
+        dto: UpdateUserDto,
+    ): Promise&lt;ManagedUserDto&gt; {
+        const user &#x3D; await this.kc.users.findOne({ id: userId });
+        if (!user?.id) {
+            throw new NotFoundException(&#x60;User &#x27;${userId}&#x27; not found&#x60;);
         }
 
-        // 3) Generate secret once (show only on creation)
-        const secret &#x3D; dto.secret
-            ? { value: dto.secret }
-            : createdNow
-              ? await this.kc.clients.generateNewClientSecret({ id })
-              : { value: undefined };
+        this.ensureTenantOwnership(tenantId, user, &quot;updated&quot;);
 
-        // 4) Assign realm roles to the service account user
-        const svcUser &#x3D; await this.kc.clients.getServiceAccountUser({ id });
-        const allRealmRoles &#x3D; await this.kc.roles.find();
-        const toAssign &#x3D; dto.roles
-            .map((r) &#x3D;&gt; allRealmRoles.find((ar) &#x3D;&gt; ar.name &#x3D;&#x3D;&#x3D; r))
-            .filter(Boolean) as { id?: string; name?: string }[];
+        await this.kc.users.update(
+            { id: userId },
+            {
+                email: this.resolveUserEmail(user, tenantId),
+                enabled: dto.enabled ?? user.enabled,
+                attributes: { tenant_id: [tenantId] },
+            },
+        );
 
-        if (toAssign.length) {
-            await this.kc.users.addRealmRoleMappings({
-                id: svcUser.id!,
-                roles: toAssign.map((r) &#x3D;&gt; ({ id: r.id!, name: r.name! })),
+        if (dto.password) {
+            await this.kc.users.resetPassword({
+                id: userId,
+                credential: {
+                    temporary: false,
+                    type: &quot;password&quot;,
+                    value: dto.password,
+                },
             });
         }
 
-        // 5) (Optional) Put a mirror row in your DB (no secret)
-        const entity &#x3D; this.clientRepo.create({
-            clientId: dto.clientId,
-            description: dto.description,
-            roles: dto.roles,
-            allowedPresentationConfigs: dto.allowedPresentationConfigs,
-            allowedIssuanceConfigs: dto.allowedIssuanceConfigs,
-            tenant: { id: tenantId },
-        });
-        await this.clientRepo.save(entity);
+        if (dto.roles) {
+            await this.syncRoles(userId, dto.roles);
+        }
 
+        return this.getUser(tenantId, userId);
+    }
+
+    async removeUser(tenantId: string, userId: string): Promise&lt;void&gt; {
+        const user &#x3D; await this.kc.users.findOne({ id: userId });
+        if (!user?.id) {
+            return;
+        }
+
+        this.ensureTenantOwnership(tenantId, user, &quot;deleted&quot;);
+        await this.kc.users.del({ id: userId });
+    }
+
+    private getTenantOwnerFromKcUser(user: any): string | undefined {
+        const attrs &#x3D; user?.attributes;
+        const tenantAttr &#x3D; attrs?.tenant_id;
+
+        if (Array.isArray(tenantAttr)) {
+            return tenantAttr[0];
+        }
+
+        if (typeof tenantAttr &#x3D;&#x3D;&#x3D; &quot;string&quot;) {
+            return tenantAttr;
+        }
+
+        return undefined;
+    }
+
+    private ensureTenantOwnership(
+        tenantId: string,
+        user: any,
+        action: string,
+    ): void {
+        const ownerTenantId &#x3D; this.getTenantOwnerFromKcUser(user);
+        if (!ownerTenantId) {
+            throw new ConflictException(
+                &#x60;User &#x27;${user.username}&#x27; has no tenant ownership metadata and cannot be ${action} by tenant &#x27;${tenantId}&#x27;.&#x60;,
+            );
+        }
+
+        if (ownerTenantId &#x3D;&#x3D;&#x3D; tenantId) {
+            return;
+        }
+
+        throw new ConflictException(
+            &#x60;User &#x27;${user.username}&#x27; is managed by tenant &#x27;${ownerTenantId}&#x27; and cannot be ${action} by tenant &#x27;${tenantId}&#x27;.&#x60;,
+        );
+    }
+
+    private resolveUserEmail(
+        user: { username?: string; email?: string },
+        tenantId: string,
+    ): string {
+        const email &#x3D; user.email?.trim().toLowerCase();
+        if (email) {
+            return email;
+        }
+
+        const username &#x3D; user.username?.trim();
+        if (!username) {
+            throw new Error(
+                &quot;Keycloak user update requires a username to derive email&quot;,
+            );
+        }
+
+        return this.buildEmailFromUsername(username, tenantId);
+    }
+
+    private generateTemporaryPassword(): string {
+        const alphabet &#x3D;
+            &quot;ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&amp;*&quot;;
+        const bytes &#x3D; randomBytes(14);
+        return Array.from(bytes, (byte) &#x3D;&gt; alphabet[byte % alphabet.length])
+            .join(&quot;&quot;)
+            .slice(0, 12);
+    }
+
+    private buildEmailFromUsername(username: string, tenantId: string): string {
+        const normalizedUsername &#x3D; username.trim().toLowerCase();
+        const isEmailLike &#x3D; /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+            normalizedUsername,
+        );
+
+        if (isEmailLike) {
+            return normalizedUsername;
+        }
+
+        const localPart &#x3D;
+            normalizedUsername
+                .replace(/[^a-z0-9._+-]/g, &quot;-&quot;)
+                .replace(/^-+|-+$/g, &quot;&quot;) || &quot;user&quot;;
+        const tenantPart &#x3D;
+            tenantId
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9-]/g, &quot;-&quot;)
+                .replace(/^-+|-+$/g, &quot;&quot;) || &quot;tenant&quot;;
+
+        return &#x60;${localPart}+${tenantPart}@eudiplo.local&#x60;;
+    }
+
+    private async mapUser(user: any): Promise&lt;ManagedUserDto&gt; {
+        const roles &#x3D; await this.kc.users.listRealmRoleMappings({
+            id: user.id!,
+        });
         return {
-            clientId: dto.clientId,
-            description: dto.description,
-            tenantId,
-            roles: dto.roles,
-            allowedPresentationConfigs: dto.allowedPresentationConfigs,
-            allowedIssuanceConfigs: dto.allowedIssuanceConfigs,
-            clientSecret: secret.value,
+            id: user.id!,
+            username: user.username!,
+            email: user.email,
+            enabled: user.enabled ?? true,
+            roles: roles.map((role) &#x3D;&gt; role.name).filter(Boolean) as Role[],
+            tenantId: this.getTenantOwnerFromKcUser(user),
         };
     }
 
-    async updateClient(
-        tenantId: string,
-        clientId: string,
-        updateClientDto: UpdateClientDto,
-    ) {
-        const client &#x3D; await this.getClient(tenantId, clientId);
+    private async syncRoles(userId: string, nextRoles: Role[]): Promise&lt;void&gt; {
+        await this.ensureRealmRoles(nextRoles);
 
-        // Get service account user
-        const kcClient &#x3D; (await this.kc.clients.find({ clientId }))[0];
-        this.ensureTenantOwnership(tenantId, kcClient, &quot;updated&quot;);
-        const svcUser &#x3D; await this.kc.clients.getServiceAccountUser({
-            id: kcClient.id!,
-        });
-
-        // Get all realm roles
         const allRealmRoles &#x3D; await this.kc.roles.find();
-
-        // Roles to assign
-        const newRoles &#x3D; updateClientDto.roles || [];
-        const toAssign &#x3D; newRoles
-            .map((r) &#x3D;&gt; allRealmRoles.find((ar) &#x3D;&gt; ar.name &#x3D;&#x3D;&#x3D; r))
-            .filter(Boolean) as { id?: string; name?: string }[];
-
-        // Get currently assigned roles
         const currentRoles &#x3D; await this.kc.users.listRealmRoleMappings({
-            id: svcUser.id!,
+            id: userId,
         });
 
-        // Roles to remove
-        const toRemove &#x3D; currentRoles
-            .filter((cr) &#x3D;&gt; !newRoles.includes(cr.name as Role))
-            .map((r) &#x3D;&gt; ({ id: r.id!, name: r.name! }));
+        const desired &#x3D; nextRoles
+            .map((role) &#x3D;&gt;
+                allRealmRoles.find((realmRole) &#x3D;&gt; realmRole.name &#x3D;&#x3D;&#x3D; role),
+            )
+            .filter(
+                (role): role is NonNullable&lt;typeof role&gt; &#x3D;&gt;
+                    !!role?.id &amp;&amp; !!role?.name,
+            )
+            .map((role) &#x3D;&gt; ({ id: role.id!, name: role.name! }));
 
-        // Remove roles no longer assigned
-        if (toRemove.length) {
+        const toRemove &#x3D; currentRoles
+            .filter((role) &#x3D;&gt; !nextRoles.includes(role.name as Role))
+            .map((role) &#x3D;&gt; ({ id: role.id!, name: role.name! }));
+
+        const toAdd &#x3D; desired.filter(
+            (role) &#x3D;&gt;
+                !currentRoles.some((current) &#x3D;&gt; current.name &#x3D;&#x3D;&#x3D; role.name),
+        );
+
+        if (toRemove.length &gt; 0) {
             await this.kc.users.delRealmRoleMappings({
-                id: svcUser.id!,
+                id: userId,
                 roles: toRemove,
             });
         }
 
-        // Add new roles
-        if (toAssign.length) {
+        if (toAdd.length &gt; 0) {
             await this.kc.users.addRealmRoleMappings({
-                id: svcUser.id!,
-                roles: toAssign.map((r) &#x3D;&gt; ({ id: r.id!, name: r.name! })),
+                id: userId,
+                roles: toAdd,
             });
         }
-
-        // Update client in Keycloak
-        await this.kc.clients.update(
-            { id: kcClient.id! },
-            {
-                description: updateClientDto.description ?? client.description,
-            },
-        );
-
-        // Optionally update your DB mirror
-        await this.clientRepo.update(
-            { clientId, tenant: { id: tenantId } },
-            { ...updateClientDto },
-        );
-
-        return this.getClient(tenantId, clientId);
     }
 
-    async removeClient(tenantId: string, clientId: string) {
-        const kcClient &#x3D; (await this.kc.clients.find({ clientId }))[0];
-        if (kcClient?.id) {
-            this.ensureTenantOwnership(tenantId, kcClient, &quot;deleted&quot;);
-            await this.kc.clients.del({ id: kcClient.id });
+    private async ensureRealmRoles(requestedRoles: Role[]): Promise&lt;void&gt; {
+        const existingRoles &#x3D; await this.kc.roles.find();
+        const targetRoles &#x3D;
+            requestedRoles.length &gt; 0 ? requestedRoles : allRoles;
+        const missingRoles &#x3D; targetRoles.filter(
+            (role) &#x3D;&gt;
+                !existingRoles.some(
+                    (existingRole) &#x3D;&gt; existingRole.name &#x3D;&#x3D;&#x3D; role,
+                ),
+        );
+
+        if (missingRoles.length &#x3D;&#x3D;&#x3D; 0) {
+            return;
         }
-        await this.clientRepo.delete({ clientId, tenant: { id: tenantId } });
+
+        await Promise.all(
+            missingRoles.map((role) &#x3D;&gt; this.kc.roles.create({ name: role })),
+        );
     }
 }
 </code></pre>
@@ -2099,7 +1781,7 @@ export class KeycloakClientsProvider
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'injectable';
-            var COMPODOC_CURRENT_PAGE_URL = 'KeycloakClientsProvider.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'KeycloakUsersProvider.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

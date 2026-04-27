@@ -107,7 +107,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Controllers</li>
-  <li class="breadcrumb-item" >WebhookEndpointController</li>
+  <li class="breadcrumb-item" >UserController</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -131,13 +131,13 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/issuer/configuration/webhook-endpoint/webhook-endpoint.controller.ts</code>
+            <code>src/auth/user/user.controller.ts</code>
         </p>
             <p class="comment">
                 <h3>Prefix</h3>
             </p>
             <p class="comment">
-                <code>issuer/webhook-endpoints</code>
+                <code>user</code>
             </p>
 
 
@@ -163,26 +163,29 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
-                                <a href="#create" >create</a>
+                                    <span class="modifier"></span>
+                                <a href="#createUser" >createUser</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
-                                <a href="#delete" >delete</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                <a href="#getAll" >getAll</a>
+                                <a href="#deleteUser" >deleteUser</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
-                                <a href="#getById" >getById</a>
+                                <a href="#getUser" >getUser</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                <a href="#getUsers" >getUsers</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
@@ -190,7 +193,7 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
-                                <a href="#update" >update</a>
+                                <a href="#updateUser" >updateUser</a>
                             </li>
                         </ul>
                     </td>
@@ -213,21 +216,22 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="create"></a>
+                    <a name="createUser"></a>
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
-                        <span ><b>create</b></span>
-                        <a href="#create"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier"></span>
+                        <span ><b>createUser</b></span>
+                        <a href="#createUser"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>create(dto: <a href="../classes/CreateWebhookEndpointDto.html" target="_self">CreateWebhookEndpointDto</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                    <code>createUser(createUserDto: <a href="../classes/CreateUserDto.html" target="_self">CreateUserDto</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
                 </td>
             </tr>
 
@@ -235,14 +239,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Post()<br />@ApiOperation({summary: &#x27;Create a new webhook endpoint&#x27;})<br />@ApiResponse({status: 201, description: &#x27;Webhook endpoint created&#x27;})<br />@ApiBody({type: CreateWebhookEndpointDto})<br /></code>
+                    <code>@ApiOperation({summary: &#x27;Create a new managed user&#x27;})<br />@ApiBody({type: CreateUserDto})<br />@ApiResponse({status: 201, type: ManagedUserDto})<br />@Secured([&#x27;undefined&#x27;])<br />@Post()<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="52"
-                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.controller.ts:52</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="49"
+                                    class="link-to-prism">src/auth/user/user.controller.ts:49</a></div>
                         </td>
                     </tr>
 
@@ -263,9 +267,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>dto</td>
+                                                <td>createUserDto</td>
                                             <td>
-                                                            <code><a href="../classes/CreateWebhookEndpointDto.html" target="_self" >CreateWebhookEndpointDto</a></code>
+                                                            <code><a href="../classes/CreateUserDto.html" target="_self" >CreateUserDto</a></code>
                                             </td>
 
                                             <td>
@@ -304,21 +308,21 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="delete"></a>
+                    <a name="deleteUser"></a>
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
-                        <span ><b>delete</b></span>
-                        <a href="#delete"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>deleteUser</b></span>
+                        <a href="#deleteUser"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>delete(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                    <code>deleteUser(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
                 </td>
             </tr>
 
@@ -326,14 +330,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Delete(&#x27;:id&#x27;)<br />@ApiOperation({summary: &#x27;Delete a webhook endpoint&#x27;})<br />@ApiResponse({status: 200, description: &#x27;Webhook endpoint deleted&#x27;})<br />@ApiResponse({status: 404, description: &#x27;Webhook endpoint not found&#x27;})<br /></code>
+                    <code>@ApiOperation({summary: &#x27;Delete a managed user&#x27;})<br />@ApiResponse({status: 200})<br />@Secured([&#x27;undefined&#x27;])<br />@Delete(&#x27;:id&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="73"
-                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.controller.ts:73</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="91"
+                                    class="link-to-prism">src/auth/user/user.controller.ts:91</a></div>
                         </td>
                     </tr>
 
@@ -395,19 +399,21 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="getAll"></a>
+                    <a name="getUser"></a>
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
-                        <span ><b>getAll</b></span>
-                        <a href="#getAll"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>getUser</b></span>
+                        <a href="#getUser"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getAll(user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                    <code>getUser(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
                 </td>
             </tr>
 
@@ -415,95 +421,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get()<br />@ApiResponse({status: 200, description: &#x27;List of webhook endpoints&#x27;, type: undefined})<br /></code>
+                    <code>@ApiOperation({summary: &#x27;Get a managed user by id&#x27;})<br />@ApiResponse({status: 200, type: ManagedUserDto})<br />@Secured([&#x27;undefined&#x27;])<br />@Get(&#x27;:id&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="36"
-                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.controller.ts:36</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>List all webhook endpoints for the tenant.</p>
-</div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>user</td>
-                                            <td>
-                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../entitys/WebhookEndpointEntity.html" target="_self" >Promise&lt;WebhookEndpointEntity[]&gt;</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="getById"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                        <span ><b>getById</b></span>
-                        <a href="#getById"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>getById(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
-                </td>
-            </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <b>Decorators : </b>
-                    <br />
-                    <code>@Get(&#x27;:id&#x27;)<br />@ApiOperation({summary: &#x27;Get a webhook endpoint by ID&#x27;})<br />@ApiResponse({status: 200, description: &#x27;The webhook endpoint&#x27;})<br />@ApiResponse({status: 404, description: &#x27;Webhook endpoint not found&#x27;})<br /></code>
-                </td>
-            </tr>
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="44"
-                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.controller.ts:44</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="40"
+                                    class="link-to-prism">src/auth/user/user.controller.ts:40</a></div>
                         </td>
                     </tr>
 
@@ -565,22 +490,21 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="update"></a>
+                    <a name="getUsers"></a>
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
-                        <span ><b>update</b></span>
-                        <a href="#update"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>getUsers</b></span>
+                        <a href="#getUsers"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>update(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/UpdateWebhookEndpointDto.html" target="_self">UpdateWebhookEndpointDto</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                    <code>getUsers(user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
                 </td>
             </tr>
 
@@ -588,14 +512,94 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Patch(&#x27;:id&#x27;)<br />@ApiOperation({summary: &#x27;Update a webhook endpoint&#x27;})<br />@ApiResponse({status: 200, description: &#x27;Webhook endpoint updated&#x27;})<br />@ApiResponse({status: 404, description: &#x27;Webhook endpoint not found&#x27;})<br />@ApiBody({type: UpdateWebhookEndpointDto})<br /></code>
+                    <code>@ApiOperation({summary: &#x27;Get all managed users for the current tenant&#x27;})<br />@ApiResponse({status: 200, type: ManagedUserDto, isArray: true})<br />@Secured([&#x27;undefined&#x27;])<br />@Get()<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="61"
-                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.controller.ts:61</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="32"
+                                    class="link-to-prism">src/auth/user/user.controller.ts:32</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="updateUser"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                        <span ><b>updateUser</b></span>
+                        <a href="#updateUser"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>updateUser(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, updateUserDto: <a href="../classes/UpdateUserDto.html" target="_self">UpdateUserDto</a>, user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <b>Decorators : </b>
+                    <br />
+                    <code>@ApiOperation({summary: &#x27;Update a managed user&#x27;})<br />@ApiBody({type: UpdateUserDto})<br />@ApiResponse({status: 200, type: ManagedUserDto})<br />@Secured([&#x27;undefined&#x27;])<br />@Patch(&#x27;:id&#x27;)<br /></code>
+                </td>
+            </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="70"
+                                    class="link-to-prism">src/auth/user/user.controller.ts:70</a></div>
                         </td>
                     </tr>
 
@@ -628,9 +632,9 @@
 
                                         </tr>
                                         <tr>
-                                                <td>dto</td>
+                                                <td>updateUserDto</td>
                                             <td>
-                                                            <code><a href="../classes/UpdateWebhookEndpointDto.html" target="_self" >UpdateWebhookEndpointDto</a></code>
+                                                            <code><a href="../classes/UpdateUserDto.html" target="_self" >UpdateUserDto</a></code>
                                             </td>
 
                                             <td>
@@ -673,76 +677,94 @@
     Body,
     Controller,
     Delete,
+    ForbiddenException,
     Get,
+    Inject,
     Param,
     Patch,
     Post,
 } from &quot;@nestjs/common&quot;;
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from &quot;@nestjs/swagger&quot;;
-import { Role } from &quot;../../../auth/roles/role.enum&quot;;
-import { Secured } from &quot;../../../auth/secure.decorator&quot;;
-import { Token, TokenPayload } from &quot;../../../auth/token.decorator&quot;;
-import { CreateWebhookEndpointDto } from &quot;./dto/create-webhook-endpoint.dto&quot;;
-import { UpdateWebhookEndpointDto } from &quot;./dto/update-webhook-endpoint.dto&quot;;
-import { WebhookEndpointEntity } from &quot;./entities/webhook-endpoint.entity&quot;;
-import { WebhookEndpointService } from &quot;./webhook-endpoint.service&quot;;
+import { Role } from &quot;../roles/role.enum&quot;;
+import { Secured } from &quot;../secure.decorator&quot;;
+import { Token, TokenPayload } from &quot;../token.decorator&quot;;
+import { CreateUserDto } from &quot;./dto/create-user.dto&quot;;
+import { ManagedUserDto } from &quot;./dto/managed-user.dto&quot;;
+import { UpdateUserDto } from &quot;./dto/update-user.dto&quot;;
+import { USERS_PROVIDER, UsersProvider } from &quot;./user.provider&quot;;
 
-@ApiTags(&quot;Issuer&quot;)
-@Secured([Role.Issuances])
-@Controller(&quot;issuer/webhook-endpoints&quot;)
-export class WebhookEndpointController {
-    constructor(private readonly service: WebhookEndpointService) {}
+@ApiTags(&quot;User&quot;)
+@Controller(&quot;user&quot;)
+export class UserController {
+    constructor(
+        @Inject(USERS_PROVIDER) private readonly users: UsersProvider,
+    ) {}
 
-    /**
-     * List all webhook endpoints for the tenant.
-     * @param user
-     * @returns
-     */
+    @ApiOperation({ summary: &quot;Get all managed users for the current tenant&quot; })
+    @ApiResponse({ status: 200, type: ManagedUserDto, isArray: true })
+    @Secured([Role.Users])
     @Get()
-    @ApiResponse({
-        status: 200,
-        description: &quot;List of webhook endpoints&quot;,
-        type: [WebhookEndpointEntity],
-    })
-    getAll(@Token() user: TokenPayload): Promise&lt;WebhookEndpointEntity[]&gt; {
-        return this.service.getAll(user.entity!.id);
+    getUsers(@Token() user: TokenPayload) {
+        return this.users.getUsers(user.entity!.id);
     }
 
+    @ApiOperation({ summary: &quot;Get a managed user by id&quot; })
+    @ApiResponse({ status: 200, type: ManagedUserDto })
+    @Secured([Role.Users])
     @Get(&quot;:id&quot;)
-    @ApiOperation({ summary: &quot;Get a webhook endpoint by ID&quot; })
-    @ApiResponse({ status: 200, description: &quot;The webhook endpoint&quot; })
-    @ApiResponse({ status: 404, description: &quot;Webhook endpoint not found&quot; })
-    getById(@Param(&quot;id&quot;) id: string, @Token() user: TokenPayload) {
-        return this.service.getById(user.entity!.id, id);
+    getUser(@Param(&quot;id&quot;) id: string, @Token() user: TokenPayload) {
+        return this.users.getUser(user.entity!.id, id);
     }
 
+    @ApiOperation({ summary: &quot;Create a new managed user&quot; })
+    @ApiBody({ type: CreateUserDto })
+    @ApiResponse({ status: 201, type: ManagedUserDto })
+    @Secured([Role.Users])
     @Post()
-    @ApiOperation({ summary: &quot;Create a new webhook endpoint&quot; })
-    @ApiResponse({ status: 201, description: &quot;Webhook endpoint created&quot; })
-    @ApiBody({ type: CreateWebhookEndpointDto })
-    create(@Body() dto: CreateWebhookEndpointDto, @Token() user: TokenPayload) {
-        return this.service.create(user.entity!.id, dto);
-    }
-
-    @Patch(&quot;:id&quot;)
-    @ApiOperation({ summary: &quot;Update a webhook endpoint&quot; })
-    @ApiResponse({ status: 200, description: &quot;Webhook endpoint updated&quot; })
-    @ApiResponse({ status: 404, description: &quot;Webhook endpoint not found&quot; })
-    @ApiBody({ type: UpdateWebhookEndpointDto })
-    update(
-        @Param(&quot;id&quot;) id: string,
-        @Body() dto: UpdateWebhookEndpointDto,
+    createUser(
+        @Body() createUserDto: CreateUserDto,
         @Token() user: TokenPayload,
     ) {
-        return this.service.update(user.entity!.id, id, dto);
+        if (
+            createUserDto.roles?.includes(Role.Tenants) &amp;&amp;
+            !user.roles.includes(Role.Tenants)
+        ) {
+            throw new ForbiddenException(
+                &quot;Cannot assign tenant:manage role without having tenant:manage privileges&quot;,
+            );
+        }
+
+        return this.users.addUser(user.entity!.id, createUserDto);
     }
 
+    @ApiOperation({ summary: &quot;Update a managed user&quot; })
+    @ApiBody({ type: UpdateUserDto })
+    @ApiResponse({ status: 200, type: ManagedUserDto })
+    @Secured([Role.Users])
+    @Patch(&quot;:id&quot;)
+    updateUser(
+        @Param(&quot;id&quot;) id: string,
+        @Body() updateUserDto: UpdateUserDto,
+        @Token() user: TokenPayload,
+    ) {
+        if (
+            updateUserDto.roles?.includes(Role.Tenants) &amp;&amp;
+            !user.roles.includes(Role.Tenants)
+        ) {
+            throw new ForbiddenException(
+                &quot;Cannot assign tenant:manage role without having tenant:manage privileges&quot;,
+            );
+        }
+
+        return this.users.updateUser(user.entity!.id, id, updateUserDto);
+    }
+
+    @ApiOperation({ summary: &quot;Delete a managed user&quot; })
+    @ApiResponse({ status: 200 })
+    @Secured([Role.Users])
     @Delete(&quot;:id&quot;)
-    @ApiOperation({ summary: &quot;Delete a webhook endpoint&quot; })
-    @ApiResponse({ status: 200, description: &quot;Webhook endpoint deleted&quot; })
-    @ApiResponse({ status: 404, description: &quot;Webhook endpoint not found&quot; })
-    delete(@Param(&quot;id&quot;) id: string, @Token() user: TokenPayload) {
-        return this.service.delete(user.entity!.id, id);
+    deleteUser(@Param(&quot;id&quot;) id: string, @Token() user: TokenPayload) {
+        return this.users.removeUser(user.entity!.id, id);
     }
 }
 </code></pre>
@@ -790,7 +812,7 @@ export class WebhookEndpointController {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'controller';
-            var COMPODOC_CURRENT_PAGE_URL = 'WebhookEndpointController.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'UserController.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 
