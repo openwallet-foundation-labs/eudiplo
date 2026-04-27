@@ -47,6 +47,7 @@ export const RoleDtoSchema = {
         "issuance:manage",
         "issuance:offer",
         "clients:manage",
+        "users:manage",
         "tenants:manage",
         "registrar:manage",
       ],
@@ -271,6 +272,7 @@ export const ClientEntitySchema = {
           "issuance:manage",
           "issuance:offer",
           "clients:manage",
+          "users:manage",
           "tenants:manage",
           "registrar:manage",
         ],
@@ -333,6 +335,7 @@ export const CreateTenantDtoSchema = {
           "issuance:manage",
           "issuance:offer",
           "clients:manage",
+          "users:manage",
           "tenants:manage",
           "registrar:manage",
         ],
@@ -383,6 +386,7 @@ export const UpdateTenantDtoSchema = {
           "issuance:manage",
           "issuance:offer",
           "clients:manage",
+          "users:manage",
           "tenants:manage",
           "registrar:manage",
         ],
@@ -439,6 +443,7 @@ export const UpdateClientDtoSchema = {
           "issuance:manage",
           "issuance:offer",
           "clients:manage",
+          "users:manage",
           "tenants:manage",
           "registrar:manage",
         ],
@@ -494,6 +499,7 @@ export const CreateClientDtoSchema = {
           "issuance:manage",
           "issuance:offer",
           "clients:manage",
+          "users:manage",
           "tenants:manage",
           "registrar:manage",
         ],
@@ -1262,6 +1268,143 @@ export const UpdateSessionConfigDtoSchema = {
   },
 } as const;
 
+export const ManagedUserDtoSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      example: "5a3412a4-9ccf-41aa-b79c-f7e2a8a9b0d1",
+    },
+    username: {
+      type: "string",
+      example: "alice",
+    },
+    email: {
+      type: "string",
+      example: "alice@example.com",
+    },
+    enabled: {
+      type: "boolean",
+      example: true,
+    },
+    roles: {
+      type: "array",
+      items: {
+        type: "string",
+        enum: [
+          "presentation:manage",
+          "presentation:request",
+          "issuance:manage",
+          "issuance:offer",
+          "clients:manage",
+          "users:manage",
+          "tenants:manage",
+          "registrar:manage",
+        ],
+      },
+    },
+    tenantId: {
+      type: "string",
+      example: "tenant-a",
+    },
+    temporaryPassword: {
+      type: "string",
+      example: "Ab3!zK8pQ2",
+      description:
+        "One-time temporary password returned only on user creation.",
+    },
+  },
+  required: ["id", "username", "enabled", "roles"],
+} as const;
+
+export const CreateUserDtoSchema = {
+  type: "object",
+  properties: {
+    username: {
+      type: "string",
+      minLength: 1,
+      example: "alice",
+    },
+    email: {
+      type: "string",
+      example: "alice@example.com",
+    },
+    roles: {
+      type: "array",
+      items: {
+        type: "string",
+        enum: [
+          "presentation:manage",
+          "presentation:request",
+          "issuance:manage",
+          "issuance:offer",
+          "clients:manage",
+          "users:manage",
+          "tenants:manage",
+          "registrar:manage",
+        ],
+      },
+    },
+    temporaryPassword: {
+      type: "string",
+      example: "Ab3!zK8pQ2",
+      description:
+        "One-time temporary password returned only on user creation.",
+    },
+    enabled: {
+      type: "boolean",
+      example: true,
+    },
+  },
+  required: ["username", "roles"],
+} as const;
+
+export const UpdateUserDtoSchema = {
+  type: "object",
+  properties: {
+    username: {
+      type: "string",
+      minLength: 1,
+      example: "alice",
+    },
+    email: {
+      type: "string",
+      example: "alice@example.com",
+    },
+    roles: {
+      type: "array",
+      items: {
+        type: "string",
+        enum: [
+          "presentation:manage",
+          "presentation:request",
+          "issuance:manage",
+          "issuance:offer",
+          "clients:manage",
+          "users:manage",
+          "tenants:manage",
+          "registrar:manage",
+        ],
+      },
+    },
+    temporaryPassword: {
+      type: "string",
+      example: "Ab3!zK8pQ2",
+      description:
+        "One-time temporary password returned only on user creation.",
+    },
+    enabled: {
+      type: "boolean",
+      example: true,
+    },
+    password: {
+      type: "string",
+      minLength: 8,
+      example: "S3cur3P@ssword",
+    },
+  },
+} as const;
+
 export const AuthenticationMethodNoneSchema = {
   type: "object",
   properties: {
@@ -1886,6 +2029,43 @@ export const IaeActionRedirectToWebSchema = {
   required: ["type", "url"],
 } as const;
 
+export const WebhookEndpointEntitySchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description: "Unique identifier for the webhook endpoint",
+    },
+    auth: {
+      oneOf: [
+        {
+          $ref: "#/components/schemas/WebHookAuthConfigNone",
+        },
+        {
+          $ref: "#/components/schemas/WebHookAuthConfigHeader",
+        },
+      ],
+    },
+    tenantId: {
+      type: "string",
+    },
+    tenant: {
+      $ref: "#/components/schemas/TenantEntity",
+    },
+    name: {
+      type: "string",
+    },
+    description: {
+      type: "string",
+      nullable: true,
+    },
+    url: {
+      type: "string",
+    },
+  },
+  required: ["id", "auth", "tenantId", "tenant", "name", "url"],
+} as const;
+
 export const EmbeddedDisclosurePolicySchema = {
   type: "object",
   properties: {
@@ -2055,42 +2235,6 @@ export const IssuerMetadataCredentialConfigSchema = {
 } as const;
 
 export const AttributeProviderEntitySchema = {
-  type: "object",
-  properties: {
-    auth: {
-      oneOf: [
-        {
-          $ref: "#/components/schemas/WebHookAuthConfigNone",
-        },
-        {
-          $ref: "#/components/schemas/WebHookAuthConfigHeader",
-        },
-      ],
-    },
-    id: {
-      type: "string",
-    },
-    tenantId: {
-      type: "string",
-    },
-    tenant: {
-      $ref: "#/components/schemas/TenantEntity",
-    },
-    name: {
-      type: "string",
-    },
-    description: {
-      type: "string",
-      nullable: true,
-    },
-    url: {
-      type: "string",
-    },
-  },
-  required: ["auth", "id", "tenantId", "tenant", "name", "url"],
-} as const;
-
-export const WebhookEndpointEntitySchema = {
   type: "object",
   properties: {
     auth: {
@@ -2696,6 +2840,10 @@ export const UpdateAttributeProviderDtoSchema = {
 export const CreateWebhookEndpointDtoSchema = {
   type: "object",
   properties: {
+    id: {
+      type: "string",
+      description: "Unique identifier for the webhook endpoint",
+    },
     auth: {
       oneOf: [
         {
@@ -2705,9 +2853,6 @@ export const CreateWebhookEndpointDtoSchema = {
           $ref: "#/components/schemas/WebHookAuthConfigHeader",
         },
       ],
-    },
-    id: {
-      type: "string",
     },
     name: {
       type: "string",
@@ -2720,12 +2865,16 @@ export const CreateWebhookEndpointDtoSchema = {
       type: "string",
     },
   },
-  required: ["auth", "id", "name", "url"],
+  required: ["id", "auth", "name", "url"],
 } as const;
 
 export const UpdateWebhookEndpointDtoSchema = {
   type: "object",
   properties: {
+    id: {
+      type: "string",
+      description: "Unique identifier for the webhook endpoint",
+    },
     auth: {
       oneOf: [
         {
@@ -2735,9 +2884,6 @@ export const UpdateWebhookEndpointDtoSchema = {
           $ref: "#/components/schemas/WebHookAuthConfigHeader",
         },
       ],
-    },
-    id: {
-      type: "string",
     },
     name: {
       type: "string",

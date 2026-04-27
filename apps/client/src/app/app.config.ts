@@ -1,5 +1,6 @@
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import {
+  APP_INITIALIZER,
   type ApplicationConfig,
   importProvidersFrom,
   provideZoneChangeDetection,
@@ -17,6 +18,7 @@ import schemas from './utils/schemas.json';
 import transactionDataSchemaObj from '../../../../schemas/TransactionData.schema.json';
 import claimsMetadataSchemaObj from '../../../../schemas/ClaimMetadata.schema.json';
 import { authInterceptor } from './core';
+import { OidcService } from './core/oidc.service';
 
 declare let monaco: any;
 
@@ -55,6 +57,12 @@ export function onMonacoLoad() {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (oidcService: OidcService) => () => oidcService.initialize(),
+      deps: [OidcService],
+      multi: true,
+    },
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     importProvidersFrom(FlexLayoutModule),

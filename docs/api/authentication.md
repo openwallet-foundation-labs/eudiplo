@@ -85,13 +85,22 @@ integrate with external OIDC providers like Keycloak, Auth0, or Azure AD.
 
 ```env
 OIDC=https://your-keycloak.example.com/realms/your-realm
+OIDC_CLIENT_ID=your-keycloak-admin-client
+OIDC_CLIENT_SECRET=your-keycloak-admin-client-secret
 PUBLIC_URL=https://your-api.example.com
+
+# Optional bootstrap root client in OIDC mode
+# If both are set, EUDIPLO creates/updates this Keycloak client on startup
+AUTH_CLIENT_ID=root
+AUTH_CLIENT_SECRET=root-secret
 ```
 
 **Authentication Flow:**
 
 1. Use your OIDC provider's token endpoint with client credentials flow
 2. Include the access token in API requests: `Authorization: Bearer <token>`
+3. If `AUTH_CLIENT_ID` and `AUTH_CLIENT_SECRET` are set, use those credentials
+   against Keycloak to get an initial root/admin token.
 
 ## Configuration
 
@@ -99,10 +108,24 @@ PUBLIC_URL=https://your-api.example.com
 
 ```bash
 # Enable external OIDC
-OIDC=true
+OIDC=https://your-keycloak.example.com/realms/your-realm
 OIDC_INTERNAL_ISSUER_URL=https://your-keycloak.example.com/realms/your-realm
+OIDC_CLIENT_ID=your-keycloak-admin-client
+OIDC_CLIENT_SECRET=your-keycloak-admin-client-secret
 PUBLIC_URL=https://your-api.example.com
+
+# Optional bootstrap root client (created in Keycloak by EUDIPLO startup)
+AUTH_CLIENT_ID=root
+AUTH_CLIENT_SECRET=root-secret
 ```
+
+In external OIDC mode:
+
+- EUDIPLO does not issue tokens from `/oauth2/token`
+- `OIDC_CLIENT_ID` and `OIDC_CLIENT_SECRET` are used by EUDIPLO to manage
+  roles/clients in Keycloak
+- `AUTH_CLIENT_ID` and `AUTH_CLIENT_SECRET` are optional; when both are set,
+  EUDIPLO bootstraps a Keycloak client intended for initial/root login
 
 ### Integrated OAuth2 Server
 
@@ -189,6 +212,16 @@ If the client attempts to use a config not in their allowed list, a `403 Forbidd
 2. Ensure client credentials (`AUTH_CLIENT_ID`/`AUTH_CLIENT_SECRET`) are
    configured correctly
 3. Check that `PUBLIC_URL` is accessible for OAuth2 flows
+
+### External OIDC Provider Issues
+
+1. If startup logs show role/client initialization failures, verify that the
+   Keycloak admin client (`OIDC_CLIENT_ID`/`OIDC_CLIENT_SECRET`) has
+   `realm-management` permissions (`manage-realm`, and typically
+   `manage-clients`, `manage-users`, `view-realm`, `view-clients`, `view-users`)
+2. If bootstrap root login fails, ensure both `AUTH_CLIENT_ID` and
+   `AUTH_CLIENT_SECRET` are set and obtain tokens from Keycloak's token endpoint
+   (not from EUDIPLO `/oauth2/token`)
 
 ## Security Considerations
 

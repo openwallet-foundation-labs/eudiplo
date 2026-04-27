@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ManagedUserDto.schema.json",
+  "title": "ManagedUserDto",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "example": "5a3412a4-9ccf-41aa-b79c-f7e2a8a9b0d1"
+    },
+    "username": {
+      "type": "string",
+      "example": "alice"
+    },
+    "email": {
+      "type": "string",
+      "example": "alice@example.com"
+    },
+    "enabled": {
+      "type": "boolean",
+      "example": true
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "presentation:manage",
+          "presentation:request",
+          "issuance:manage",
+          "issuance:offer",
+          "clients:manage",
+          "users:manage",
+          "tenants:manage",
+          "registrar:manage"
+        ]
+      }
+    },
+    "tenantId": {
+      "type": "string",
+      "example": "tenant-a"
+    }
+  },
+  "required": [
+    "id",
+    "username",
+    "enabled",
+    "roles"
+  ],
+  "additionalProperties": false
+}

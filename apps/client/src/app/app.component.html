@@ -25,6 +25,7 @@
         mat-menu-item
         href="https://openwallet-foundation-labs.github.io/eudiplo/main/"
         target="_blank"
+        rel="noopener"
       >
         <mat-icon>help</mat-icon>
         Documentation
@@ -51,7 +52,7 @@
         </mat-list-item>
 
         <!-- Administration Section -->
-        @if (hasRole(['tenants:manage', 'clients:manage'])) {
+        @if (hasRole(['tenants:manage', 'clients:manage', 'users:manage'])) {
           <mat-divider></mat-divider>
           <div mat-subheader>
             <mat-icon class="subheader-icon">admin_panel_settings</mat-icon>
@@ -77,6 +78,17 @@
             >
               <mat-icon matListItemIcon>devices</mat-icon>
               <span matListItemTitle>API Clients</span>
+            </mat-list-item>
+          }
+
+          @if (hasRole('users:manage')) {
+            <mat-list-item
+              [routerLink]="['/users']"
+              routerLinkActive="active-link"
+              (click)="closeSidenavOnMobile()"
+            >
+              <mat-icon matListItemIcon>group</mat-icon>
+              <span matListItemTitle>Users</span>
             </mat-list-item>
           }
         }

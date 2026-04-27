@@ -20,6 +20,9 @@ import {
  */
 @Entity()
 export class WebhookEndpointEntity {
+    @ApiProperty({
+        description: "Unique identifier for the webhook endpoint",
+    })
     @IsString()
     @PrimaryColumn("varchar")
     id!: string;

@@ -36,6 +36,7 @@ export type RoleDto = {
     | "issuance:manage"
     | "issuance:offer"
     | "clients:manage"
+    | "users:manage"
     | "tenants:manage"
     | "registrar:manage";
 };
@@ -163,6 +164,7 @@ export type ClientEntity = {
     | "issuance:manage"
     | "issuance:offer"
     | "clients:manage"
+    | "users:manage"
     | "tenants:manage"
     | "registrar:manage"
   >;
@@ -199,6 +201,7 @@ export type CreateTenantDto = {
     | "issuance:manage"
     | "issuance:offer"
     | "clients:manage"
+    | "users:manage"
     | "tenants:manage"
     | "registrar:manage"
   >;
@@ -227,6 +230,7 @@ export type UpdateTenantDto = {
     | "issuance:manage"
     | "issuance:offer"
     | "clients:manage"
+    | "users:manage"
     | "tenants:manage"
     | "registrar:manage"
   >;
@@ -258,6 +262,7 @@ export type UpdateClientDto = {
     | "issuance:manage"
     | "issuance:offer"
     | "clients:manage"
+    | "users:manage"
     | "tenants:manage"
     | "registrar:manage"
   >;
@@ -293,6 +298,7 @@ export type CreateClientDto = {
     | "issuance:manage"
     | "issuance:offer"
     | "clients:manage"
+    | "users:manage"
     | "tenants:manage"
     | "registrar:manage"
   >;
@@ -763,6 +769,69 @@ export type UpdateSessionConfigDto = {
   cleanupMode?: "full" | "anonymize";
 };
 
+export type ManagedUserDto = {
+  id: string;
+  username: string;
+  email?: string;
+  enabled: boolean;
+  roles: Array<
+    | "presentation:manage"
+    | "presentation:request"
+    | "issuance:manage"
+    | "issuance:offer"
+    | "clients:manage"
+    | "users:manage"
+    | "tenants:manage"
+    | "registrar:manage"
+  >;
+  tenantId?: string;
+  /**
+   * One-time temporary password returned only on user creation.
+   */
+  temporaryPassword?: string;
+};
+
+export type CreateUserDto = {
+  username: string;
+  email?: string;
+  roles: Array<
+    | "presentation:manage"
+    | "presentation:request"
+    | "issuance:manage"
+    | "issuance:offer"
+    | "clients:manage"
+    | "users:manage"
+    | "tenants:manage"
+    | "registrar:manage"
+  >;
+  /**
+   * One-time temporary password returned only on user creation.
+   */
+  temporaryPassword?: string;
+  enabled?: boolean;
+};
+
+export type UpdateUserDto = {
+  username?: string;
+  email?: string;
+  roles?: Array<
+    | "presentation:manage"
+    | "presentation:request"
+    | "issuance:manage"
+    | "issuance:offer"
+    | "clients:manage"
+    | "users:manage"
+    | "tenants:manage"
+    | "registrar:manage"
+  >;
+  /**
+   * One-time temporary password returned only on user creation.
+   */
+  temporaryPassword?: string;
+  enabled?: boolean;
+  password?: string;
+};
+
 export type AuthenticationMethodNone = {
   method: "none";
 };
@@ -1084,6 +1153,19 @@ export type IaeActionRedirectToWeb = {
   description?: string;
 };
 
+export type WebhookEndpointEntity = {
+  /**
+   * Unique identifier for the webhook endpoint
+   */
+  id: string;
+  auth: WebHookAuthConfigNone | WebHookAuthConfigHeader;
+  tenantId: string;
+  tenant: TenantEntity;
+  name: string;
+  description?: string;
+  url: string;
+};
+
 export type EmbeddedDisclosurePolicy = {
   policy: string;
 };
@@ -1189,16 +1271,6 @@ export type IssuerMetadataCredentialConfig = {
 };
 
 export type AttributeProviderEntity = {
-  auth: WebHookAuthConfigNone | WebHookAuthConfigHeader;
-  id: string;
-  tenantId: string;
-  tenant: TenantEntity;
-  name: string;
-  description?: string;
-  url: string;
-};
-
-export type WebhookEndpointEntity = {
   auth: WebHookAuthConfigNone | WebHookAuthConfigHeader;
   id: string;
   tenantId: string;
@@ -1462,16 +1534,22 @@ export type UpdateAttributeProviderDto = {
 };
 
 export type CreateWebhookEndpointDto = {
-  auth: WebHookAuthConfigNone | WebHookAuthConfigHeader;
+  /**
+   * Unique identifier for the webhook endpoint
+   */
   id: string;
+  auth: WebHookAuthConfigNone | WebHookAuthConfigHeader;
   name: string;
   description?: string;
   url: string;
 };
 
 export type UpdateWebhookEndpointDto = {
-  auth?: WebHookAuthConfigNone | WebHookAuthConfigHeader;
+  /**
+   * Unique identifier for the webhook endpoint
+   */
   id?: string;
+  auth?: WebHookAuthConfigNone | WebHookAuthConfigHeader;
   name?: string;
   description?: string;
   url?: string;
@@ -3177,6 +3255,79 @@ export type SessionEventsControllerSubscribeToSessionEventsResponses = {
   200: unknown;
 };
 
+export type UserControllerGetUsersData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/user";
+};
+
+export type UserControllerGetUsersResponses = {
+  200: Array<ManagedUserDto>;
+};
+
+export type UserControllerGetUsersResponse =
+  UserControllerGetUsersResponses[keyof UserControllerGetUsersResponses];
+
+export type UserControllerCreateUserData = {
+  body: CreateUserDto;
+  path?: never;
+  query?: never;
+  url: "/api/user";
+};
+
+export type UserControllerCreateUserResponses = {
+  201: ManagedUserDto;
+};
+
+export type UserControllerCreateUserResponse =
+  UserControllerCreateUserResponses[keyof UserControllerCreateUserResponses];
+
+export type UserControllerDeleteUserData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/user/{id}";
+};
+
+export type UserControllerDeleteUserResponses = {
+  200: unknown;
+};
+
+export type UserControllerGetUserData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/user/{id}";
+};
+
+export type UserControllerGetUserResponses = {
+  200: ManagedUserDto;
+};
+
+export type UserControllerGetUserResponse =
+  UserControllerGetUserResponses[keyof UserControllerGetUserResponses];
+
+export type UserControllerUpdateUserData = {
+  body: UpdateUserDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/user/{id}";
+};
+
+export type UserControllerUpdateUserResponses = {
+  200: ManagedUserDto;
+};
+
+export type UserControllerUpdateUserResponse =
+  UserControllerUpdateUserResponses[keyof UserControllerUpdateUserResponses];
+
 export type IssuanceConfigControllerGetIssuanceConfigurationsData = {
   body?: never;
   path?: never;
@@ -3392,8 +3543,11 @@ export type WebhookEndpointControllerGetAllResponses = {
   /**
    * List of webhook endpoints
    */
-  200: unknown;
+  200: Array<WebhookEndpointEntity>;
 };
+
+export type WebhookEndpointControllerGetAllResponse =
+  WebhookEndpointControllerGetAllResponses[keyof WebhookEndpointControllerGetAllResponses];
 
 export type WebhookEndpointControllerCreateData = {
   body: CreateWebhookEndpointDto;

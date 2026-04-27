@@ -1,0 +1,50 @@
+<div fxLayout="column" fxFlex fxLayoutGap="24px">
+  <div fxLayout="row" fxLayoutAlign="space-between center">
+    <h2>{{ loaded ? 'Edit user' : 'Create user' }}</h2>
+    <button matIconButton [routerLink]="['../']" matTooltip="Back to Users List">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+    <mat-card>
+      <mat-card-content fxLayout="column" fxLayoutGap="16px">
+        <mat-form-field appearance="outline">
+          <mat-label>Username</mat-label>
+          <input matInput formControlName="username" placeholder="Enter unique username" required />
+        </mat-form-field>
+
+        <mat-checkbox formControlName="enabled">User enabled</mat-checkbox>
+
+        <mat-form-field>
+          <mat-label>Roles</mat-label>
+          <mat-select formControlName="roles" multiple>
+            @for (role of availableRoles; track role) {
+              <mat-option [value]="role">
+                {{ role }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </mat-card-content>
+
+      <mat-card-actions fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
+        <button mat-button type="button" (click)="onCancel()" [disabled]="isSubmitting">
+          Cancel
+        </button>
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          [disabled]="userForm.invalid || isSubmitting"
+        >
+          @if (loaded) {
+            {{ isSubmitting ? 'Updating...' : 'Update User' }}
+          } @else {
+            {{ isSubmitting ? 'Creating...' : 'Create User' }}
+          }
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </form>
+</div>

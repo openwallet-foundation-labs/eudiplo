@@ -32,6 +32,7 @@ import { ClientEntity } from "./entities/client.entity";
                     ? new KeycloakClientsProvider(
                           configService,
                           repo,
+                          configImportService,
                           configImportOrchestrator,
                       )
                     : new InternalClientsProvider(

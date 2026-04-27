@@ -20,6 +20,7 @@ import { sessionManagementRoutes } from './session-management/session-management
 import { statusListRoutes } from './status-list-management/status-list.routes';
 import { clientRoutes, tenantRoutes } from './tenants/tenants.routes';
 import { trustListRoutes } from './trust-list/trust-list.routes';
+import { userRoutes } from './users/users.routes';
 
 export const routes: Routes = [
   {
@@ -40,6 +41,12 @@ export const routes: Routes = [
     canActivate: [AuthGuard, RoleGuard],
     data: { role: getRole('clients:manage') },
     children: clientRoutes,
+  },
+  {
+    path: 'users',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: getRole('users:manage') },
+    children: userRoutes,
   },
   {
     path: 'tenants',

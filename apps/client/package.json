@@ -37,6 +37,7 @@
     "ajv": "^8.18.0",
     "ajv-formats": "^3.0.1",
     "jose": "^6.1.3",
+    "keycloak-js": "^26.2.4",
     "monaco-editor": "^0.55.1",
     "ngx-flexible-layout": "^21.0.0",
     "ngx-monaco-editor-v2": "^21.1.4",

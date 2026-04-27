@@ -66,6 +66,7 @@
             "issuance:manage",
             "issuance:offer",
             "clients:manage",
+            "users:manage",
             "tenants:manage",
             "registrar:manage"
           ],
@@ -327,6 +328,7 @@
               "issuance:manage",
               "issuance:offer",
               "clients:manage",
+              "users:manage",
               "tenants:manage",
               "registrar:manage"
             ]
@@ -394,6 +396,7 @@
               "issuance:manage",
               "issuance:offer",
               "clients:manage",
+              "users:manage",
               "tenants:manage",
               "registrar:manage"
             ]
@@ -449,6 +452,7 @@
               "issuance:manage",
               "issuance:offer",
               "clients:manage",
+              "users:manage",
               "tenants:manage",
               "registrar:manage"
             ]
@@ -517,6 +521,7 @@
               "issuance:manage",
               "issuance:offer",
               "clients:manage",
+              "users:manage",
               "tenants:manage",
               "registrar:manage"
             ]
@@ -577,6 +582,7 @@
               "issuance:manage",
               "issuance:offer",
               "clients:manage",
+              "users:manage",
               "tenants:manage",
               "registrar:manage"
             ]
@@ -1425,6 +1431,141 @@
     }
   },
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ManagedUserDto.schema.json",
+    "fileMatch": ["a://b/ManagedUserDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ManagedUserDto.schema.json",
+      "title": "ManagedUserDto",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "5a3412a4-9ccf-41aa-b79c-f7e2a8a9b0d1"
+        },
+        "username": {
+          "type": "string",
+          "example": "alice"
+        },
+        "email": {
+          "type": "string",
+          "example": "alice@example.com"
+        },
+        "enabled": {
+          "type": "boolean",
+          "example": true
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "presentation:manage",
+              "presentation:request",
+              "issuance:manage",
+              "issuance:offer",
+              "clients:manage",
+              "users:manage",
+              "tenants:manage",
+              "registrar:manage"
+            ]
+          }
+        },
+        "tenantId": {
+          "type": "string",
+          "example": "tenant-a"
+        }
+      },
+      "required": ["id", "username", "enabled", "roles"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateUserDto.schema.json",
+    "fileMatch": ["a://b/CreateUserDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/CreateUserDto.schema.json",
+      "title": "CreateUserDto",
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "minLength": 1,
+          "example": "alice"
+        },
+        "email": {
+          "type": "string",
+          "example": "alice@example.com"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "presentation:manage",
+              "presentation:request",
+              "issuance:manage",
+              "issuance:offer",
+              "clients:manage",
+              "users:manage",
+              "tenants:manage",
+              "registrar:manage"
+            ]
+          }
+        },
+        "enabled": {
+          "type": "boolean",
+          "example": true
+        }
+      },
+      "required": ["username", "roles"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateUserDto.schema.json",
+    "fileMatch": ["a://b/UpdateUserDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateUserDto.schema.json",
+      "title": "UpdateUserDto",
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "minLength": 1,
+          "example": "alice"
+        },
+        "email": {
+          "type": "string",
+          "example": "alice@example.com"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "presentation:manage",
+              "presentation:request",
+              "issuance:manage",
+              "issuance:offer",
+              "clients:manage",
+              "users:manage",
+              "tenants:manage",
+              "registrar:manage"
+            ]
+          }
+        },
+        "enabled": {
+          "type": "boolean",
+          "example": true
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AuthenticationMethodNone.schema.json",
     "fileMatch": ["a://b/AuthenticationMethodNone*.schema.json"],
     "schema": {
@@ -2191,6 +2332,50 @@
     }
   },
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/WebhookEndpointEntity.schema.json",
+    "fileMatch": ["a://b/WebhookEndpointEntity*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/WebhookEndpointEntity.schema.json",
+      "title": "WebhookEndpointEntity",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the webhook endpoint"
+        },
+        "auth": {
+          "oneOf": [
+            {
+              "$ref": "./WebHookAuthConfigNone.schema.json"
+            },
+            {
+              "$ref": "./WebHookAuthConfigHeader.schema.json"
+            }
+          ]
+        },
+        "tenantId": {
+          "type": "string"
+        },
+        "tenant": {
+          "$ref": "./TenantEntity.schema.json"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": ["id", "auth", "tenantId", "tenant", "name", "url"],
+      "additionalProperties": false
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/EmbeddedDisclosurePolicy.schema.json",
     "fileMatch": ["a://b/EmbeddedDisclosurePolicy*.schema.json"],
     "schema": {
@@ -2406,49 +2591,6 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/AttributeProviderEntity.schema.json",
       "title": "AttributeProviderEntity",
-      "type": "object",
-      "properties": {
-        "auth": {
-          "oneOf": [
-            {
-              "$ref": "./WebHookAuthConfigNone.schema.json"
-            },
-            {
-              "$ref": "./WebHookAuthConfigHeader.schema.json"
-            }
-          ]
-        },
-        "id": {
-          "type": "string"
-        },
-        "tenantId": {
-          "type": "string"
-        },
-        "tenant": {
-          "$ref": "./TenantEntity.schema.json"
-        },
-        "name": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string",
-          "nullable": true
-        },
-        "url": {
-          "type": "string"
-        }
-      },
-      "required": ["auth", "id", "tenantId", "tenant", "name", "url"],
-      "additionalProperties": false
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/WebhookEndpointEntity.schema.json",
-    "fileMatch": ["a://b/WebhookEndpointEntity*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/WebhookEndpointEntity.schema.json",
-      "title": "WebhookEndpointEntity",
       "type": "object",
       "properties": {
         "auth": {
@@ -3087,6 +3229,10 @@
       "title": "CreateWebhookEndpointDto",
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the webhook endpoint"
+        },
         "auth": {
           "oneOf": [
             {
@@ -3096,9 +3242,6 @@
               "$ref": "./WebHookAuthConfigHeader.schema.json"
             }
           ]
-        },
-        "id": {
-          "type": "string"
         },
         "name": {
           "type": "string"
@@ -3111,7 +3254,7 @@
           "type": "string"
         }
       },
-      "required": ["auth", "id", "name", "url"],
+      "required": ["id", "auth", "name", "url"],
       "additionalProperties": false
     }
   },
@@ -3124,6 +3267,10 @@
       "title": "UpdateWebhookEndpointDto",
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the webhook endpoint"
+        },
         "auth": {
           "oneOf": [
             {
@@ -3133,9 +3280,6 @@
               "$ref": "./WebHookAuthConfigHeader.schema.json"
             }
           ]
-        },
-        "id": {
-          "type": "string"
         },
         "name": {
           "type": "string"

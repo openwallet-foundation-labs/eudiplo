@@ -7,8 +7,15 @@ import { ClientModule } from "./client/client.module";
 import { JwtService } from "./jwt.service";
 import { JwtStrategy } from "./jwt.strategy";
 import { TenantModule } from "./tenant/tenant.module";
+import { UserModule } from "./user/user.module";
 @Module({
-    imports: [PassportModule, ConfigModule, TenantModule, ClientModule],
+    imports: [
+        PassportModule,
+        ConfigModule,
+        TenantModule,
+        ClientModule,
+        UserModule,
+    ],
     providers: [JwtStrategy, JwtService, AuthService],
     controllers: [AuthController],
     exports: [PassportModule, JwtStrategy, JwtService],

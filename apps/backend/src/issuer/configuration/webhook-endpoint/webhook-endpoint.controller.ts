@@ -13,6 +13,7 @@ import { Secured } from "../../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../../auth/token.decorator";
 import { CreateWebhookEndpointDto } from "./dto/create-webhook-endpoint.dto";
 import { UpdateWebhookEndpointDto } from "./dto/update-webhook-endpoint.dto";
+import { WebhookEndpointEntity } from "./entities/webhook-endpoint.entity";
 import { WebhookEndpointService } from "./webhook-endpoint.service";
 
 @ApiTags("Issuer")
@@ -21,10 +22,18 @@ import { WebhookEndpointService } from "./webhook-endpoint.service";
 export class WebhookEndpointController {
     constructor(private readonly service: WebhookEndpointService) {}
 
+    /**
+     * List all webhook endpoints for the tenant.
+     * @param user
+     * @returns
+     */
     @Get()
-    @ApiOperation({ summary: "List all webhook endpoints" })
-    @ApiResponse({ status: 200, description: "List of webhook endpoints" })
-    getAll(@Token() user: TokenPayload) {
+    @ApiResponse({
+        status: 200,
+        description: "List of webhook endpoints",
+        type: [WebhookEndpointEntity],
+    })
+    getAll(@Token() user: TokenPayload): Promise<WebhookEndpointEntity[]> {
         return this.service.getAll(user.entity!.id);
     }
 

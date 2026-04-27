@@ -5,40 +5,92 @@ import { firstValueFrom } from 'rxjs/internal/firstValueFrom';
 import { client, clientControllerGetClientSecret, ClientEntity } from '@eudiplo/sdk-core';
 import type { Client } from '@eudiplo/sdk-core/api/client/index';
 import { environment } from '../../environments/environment';
+import { OidcService } from './oidc.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ApiService {
-  accessToken!: string;
+  private _localAccessToken = '';
   oauth2Client!: OAuth2Client;
-  isAuthenticated = false;
+  private _localIsAuthenticated = false;
   private tokenExpirationTime?: number;
   private baseUrl?: string;
   client!: Client;
   private refreshTimerId?: ReturnType<typeof setTimeout>;
   private refreshInProgress?: Promise<void> | null = null;
 
-  constructor(private readonly httpClient: HttpClient) {
+  constructor(
+    private readonly httpClient: HttpClient,
+    private readonly oidcService: OidcService
+  ) {
     // Set default base URL from environment first
     this.setClient(environment.api?.baseUrl || 'http://localhost:3000');
     // Then try to load stored config (may override the default)
     this.loadTokenFromStorage();
   }
 
+  /** Returns the access token, preferring the OIDC token in OIDC mode. */
+  get accessToken(): string {
+    if (this.oidcService.mode === 'oidc') {
+      return this.oidcService.token;
+    }
+    return this._localAccessToken;
+  }
+
+  /** Returns true if the user is authenticated (local or OIDC mode). */
+  get isAuthenticated(): boolean {
+    if (this.oidcService.mode === 'oidc') {
+      return this.oidcService.authenticated;
+    }
+    return this._localIsAuthenticated;
+  }
+
+  set isAuthenticated(value: boolean) {
+    this._localIsAuthenticated = value;
+  }
+
+  /** Fetches the OIDC discovery document from the given base URL. */
+  async fetchDiscovery(baseUrl: string): Promise<any> {
+    return firstValueFrom(this.httpClient.get(`${baseUrl}/.well-known/oauth-authorization-server`));
+  }
+
   async login(clientId: string, clientSecret: string, baseUrl: string) {
     // Get OIDC issuer URL (safe network call with error handling)
-    let oidcUrl: string;
+    let discovery: any;
     try {
-      const res: any = await firstValueFrom(
-        this.httpClient.get(`${baseUrl}/.well-known/oauth-authorization-server`)
-      );
-      oidcUrl = res?.issuer;
-      if (!oidcUrl) throw new Error('Invalid OIDC discovery response');
+      discovery = await this.fetchDiscovery(baseUrl);
+      if (!discovery?.issuer) {
+        throw new Error('Invalid OIDC discovery response');
+      }
     } catch (err) {
       console.error('Failed to fetch OIDC discovery document', err);
       throw err;
     }
+
+    // Human login in OIDC mode: use Authorization Code + PKCE via keycloak-js.
+    if (discovery.ui_client_id) {
+      this.setClient(baseUrl);
+      await this.oidcService.redirectToLogin({
+        issuerUrl: discovery.issuer,
+        uiClientId: discovery.ui_client_id,
+        apiUrl: baseUrl,
+      });
+      return;
+    }
+
+    const oidcUrl = discovery.issuer;
+
+    await this.loginWithClientCredentials(clientId, clientSecret, baseUrl, oidcUrl);
+  }
+
+  async loginWithClientCredentials(
+    clientId: string,
+    clientSecret: string,
+    baseUrl: string,
+    issuerUrl?: string
+  ) {
+    const oidcUrl = issuerUrl ?? (await this.fetchDiscovery(baseUrl)).issuer;
 
     this.oauth2Client = new OAuth2Client({
       discoveryEndpoint: `${oidcUrl}/.well-known/oauth-authorization-server`,
@@ -116,7 +168,7 @@ export class ApiService {
         }
 
         const token = await this.oauth2Client.clientCredentials();
-        this.accessToken = token.accessToken;
+        this._localAccessToken = token.accessToken;
         this.isAuthenticated = true;
 
         const expirationTime = token.expiresAt as number;
@@ -147,6 +199,9 @@ export class ApiService {
    * Checks if the user is currently authenticated
    */
   getAuthenticationStatus(): boolean {
+    if (this.oidcService.mode === 'oidc') {
+      return this.oidcService.authenticated && !!this.oidcService.token;
+    }
     return this.isAuthenticated && !!this.accessToken && this.isTokenValid();
   }
 
@@ -154,6 +209,15 @@ export class ApiService {
    * Checks if the user is authenticated or can auto-refresh the token
    */
   async ensureAuthenticated(): Promise<boolean> {
+    if (this.oidcService.mode === 'oidc') {
+      try {
+        await this.oidcService.updateToken(30);
+      } catch (error) {
+        console.warn('Failed to update OIDC token:', error);
+      }
+      return this.getAuthenticationStatus();
+    }
+
     // If we're already authenticated with a valid token, return true
     if (this.getAuthenticationStatus()) {
       return true;
@@ -177,6 +241,11 @@ export class ApiService {
    * Manually trigger a token refresh (useful for components)
    */
   async manualRefreshToken(): Promise<void> {
+    if (this.oidcService.mode === 'oidc') {
+      await this.oidcService.updateToken(30);
+      return;
+    }
+
     if (!this.canRefreshToken()) {
       throw new Error('Cannot refresh token: client credentials not available');
     }
@@ -216,6 +285,9 @@ export class ApiService {
    * Returns false if client secret is not stored (after page reload)
    */
   canRefreshToken(): boolean {
+    if (this.oidcService.mode === 'oidc') {
+      return true;
+    }
     return !!this.oauth2Client?.settings.clientSecret;
   }
 
@@ -256,17 +328,23 @@ export class ApiService {
    * Logs out the user by clearing the access token
    */
   logout(): void {
-    this.accessToken = '';
+    // Clear any scheduled refresh first.
+    if (this.refreshTimerId) {
+      clearTimeout(this.refreshTimerId);
+      this.refreshTimerId = undefined;
+    }
+
+    if (this.oidcService.mode === 'oidc') {
+      this.oidcService.logout();
+      return;
+    }
+
+    this._localAccessToken = '';
     this.isAuthenticated = false;
     this.tokenExpirationTime = undefined;
     this.baseUrl = undefined;
     this.clearTokenFromStorage();
     localStorage.removeItem('oauth_client_secret');
-    // Clear any scheduled refresh
-    if (this.refreshTimerId) {
-      clearTimeout(this.refreshTimerId);
-      this.refreshTimerId = undefined;
-    }
   }
 
   /**
@@ -285,7 +363,7 @@ export class ApiService {
 
         // Check if token is still valid (with 1 minute buffer)
         if (expirationTime > currentTime + 60000) {
-          this.accessToken = storedToken;
+          this._localAccessToken = storedToken;
           this.tokenExpirationTime = expirationTime;
           this.isAuthenticated = true;
 
@@ -383,12 +461,20 @@ export class ApiService {
     }
 
     const currentTime = Date.now();
-    // Refresh when 75% of token lifetime has passed, or 5 minutes before expiration (whichever is earlier)
-    const tokenLifetime = expirationTime - currentTime;
-    const refreshAt75Percent = currentTime + tokenLifetime * 0.75;
-    const refresh5MinsBefore = expirationTime - 300000; // 5 minutes before
+    // Use an adaptive refresh buffer to support both short and long token lifetimes.
+    // - For long-lived tokens, refresh up to 5 minutes before expiry.
+    // - For short-lived tokens (e.g., 5 minutes), refresh at ~75% of lifetime.
+    // - Never refresh with less than a 30-second safety buffer.
+    const tokenLifetime = Math.max(0, expirationTime - currentTime);
+    const minimumSafetyBuffer = 30000; // 30 seconds
+    const maxSafetyBuffer = 300000; // 5 minutes
+    const quarterLifetimeBuffer = Math.floor(tokenLifetime * 0.25);
+    const refreshBuffer = Math.min(
+      maxSafetyBuffer,
+      Math.max(minimumSafetyBuffer, quarterLifetimeBuffer)
+    );
 
-    const refreshTime = Math.min(refreshAt75Percent, refresh5MinsBefore);
+    const refreshTime = expirationTime - refreshBuffer;
     const timeUntilRefresh = refreshTime - currentTime;
 
     if (timeUntilRefresh > 0) {

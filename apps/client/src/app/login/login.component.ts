@@ -10,11 +10,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { EnvironmentService } from '../services/environment.service';
 import { ApiService } from '../core';
+import { OidcService } from '../core/oidc.service';
 
 @Component({
   selector: 'app-login',
@@ -29,6 +31,7 @@ import { ApiService } from '../core';
     MatProgressSpinnerModule,
     MatIconModule,
     MatSnackBarModule,
+    MatTabsModule,
     FlexLayoutModule,
   ],
   templateUrl: './login.component.html',
@@ -39,6 +42,10 @@ export class LoginComponent implements OnInit {
   isLoading = false;
   hideClientSecret = true;
   isDevelopmentMode = false;
+  detectedMode: null | 'loading' | 'local' | 'oidc' = null;
+  selectedLoginMode: 'sso' | 'client' = 'sso';
+  private discoveredIssuer?: string;
+  private discoveredUiClientId?: string;
 
   constructor(
     private readonly formBuilder: FormBuilder,
@@ -46,7 +53,8 @@ export class LoginComponent implements OnInit {
     private readonly router: Router,
     private readonly route: ActivatedRoute,
     private readonly snackBar: MatSnackBar,
-    private readonly environmentService: EnvironmentService
+    private readonly environmentService: EnvironmentService,
+    private readonly oidcService: OidcService
   ) {}
 
   ngOnInit(): void {
@@ -60,6 +68,11 @@ export class LoginComponent implements OnInit {
     console.log('Initializing login form');
     this.initializeForm();
 
+    const initialApiUrl = this.loginForm.get('apiUrl')?.value;
+    if (initialApiUrl) {
+      void this.detectMode(initialApiUrl);
+    }
+
     // Auto-login if all required params are provided via URL
     this.autoLoginIfParamsProvided();
   }
@@ -69,8 +82,10 @@ export class LoginComponent implements OnInit {
 
     // Check if all required params are in the URL
     if (queryParams['clientId'] && queryParams['clientSecret'] && queryParams['apiUrl']) {
+      this.selectedLoginMode = 'client';
+      this.syncLoginModeState();
       console.log('Auto-login: All credentials provided via URL');
-      this.onSubmit();
+      void this.onSubmit();
     }
   }
 
@@ -120,6 +135,87 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  onApiUrlBlur(): void {
+    const url = this.loginForm.get('apiUrl')?.value;
+    if (url) {
+      void this.detectMode(url);
+    }
+  }
+
+  onLoginTabChange(index: number): void {
+    this.selectedLoginMode = index === 0 ? 'sso' : 'client';
+    this.syncLoginModeState();
+  }
+
+  private setClientCredentialValidators(required: boolean): void {
+    const clientIdControl = this.loginForm.get('clientId');
+    const clientSecretControl = this.loginForm.get('clientSecret');
+
+    if (required) {
+      clientIdControl?.setValidators([Validators.required]);
+      clientSecretControl?.setValidators([Validators.required]);
+    } else {
+      clientIdControl?.clearValidators();
+      clientSecretControl?.clearValidators();
+    }
+
+    clientIdControl?.updateValueAndValidity({ emitEvent: false });
+    clientSecretControl?.updateValueAndValidity({ emitEvent: false });
+  }
+
+  private syncLoginModeState(): void {
+    const requiresClientCredentials =
+      this.selectedLoginMode === 'client' ||
+      this.detectedMode === 'local' ||
+      this.detectedMode === null;
+
+    this.setClientCredentialValidators(requiresClientCredentials);
+  }
+
+  private async detectMode(apiUrl: string): Promise<void> {
+    const normalizedUrl = apiUrl.replace(/\/+$/, '');
+    this.detectedMode = 'loading';
+
+    try {
+      const discovery = await this.apiService.fetchDiscovery(normalizedUrl);
+
+      if (discovery?.ui_client_id) {
+        this.detectedMode = 'oidc';
+        this.selectedLoginMode = 'sso';
+        this.discoveredIssuer = discovery.issuer;
+        this.discoveredUiClientId = discovery.ui_client_id;
+      } else {
+        this.detectedMode = 'local';
+        this.selectedLoginMode = 'client';
+        this.discoveredIssuer = undefined;
+        this.discoveredUiClientId = undefined;
+      }
+    } catch {
+      this.detectedMode = 'local';
+      this.selectedLoginMode = 'client';
+      this.discoveredIssuer = undefined;
+      this.discoveredUiClientId = undefined;
+    }
+
+    this.syncLoginModeState();
+  }
+
+  get isSsoAvailable(): boolean {
+    return this.detectedMode === 'oidc';
+  }
+
+  get isSsoTabDisabled(): boolean {
+    return this.detectedMode === 'local';
+  }
+
+  get submitLabel(): string {
+    return this.selectedLoginMode === 'sso' ? 'Login with SSO' : 'Login with Client Credentials';
+  }
+
+  get loadingLabel(): string {
+    return this.selectedLoginMode === 'sso' ? 'Redirecting to SSO...' : 'Authenticating...';
+  }
+
   async onSubmit(): Promise<void> {
     if (this.loginForm.valid) {
       this.isLoading = true;
@@ -130,8 +226,28 @@ export class LoginComponent implements OnInit {
         // Normalize the URL: remove trailing slashes
         const normalizedUrl = formValue.apiUrl.replace(/\/+$/, '');
 
-        // Initialize the API service with OIDC credentials and base URL
-        await this.apiService.login(formValue.clientId, formValue.clientSecret, normalizedUrl);
+        if (this.selectedLoginMode === 'sso') {
+          const issuerUrl = this.discoveredIssuer;
+          const uiClientId = this.discoveredUiClientId;
+
+          if (!issuerUrl || !uiClientId) {
+            throw new Error('OIDC mode detected but discovery metadata is incomplete.');
+          }
+
+          await this.oidcService.redirectToLogin({
+            issuerUrl,
+            uiClientId,
+            apiUrl: normalizedUrl,
+          });
+          return;
+        }
+
+        await this.apiService.loginWithClientCredentials(
+          formValue.clientId,
+          formValue.clientSecret,
+          normalizedUrl,
+          this.discoveredIssuer
+        );
 
         // Attempt to refresh/get access token
         await this.apiService.refreshAccessToken();
@@ -209,42 +325,5 @@ export class LoginComponent implements OnInit {
 
   toggleClientSecretVisibility(): void {
     this.hideClientSecret = !this.hideClientSecret;
-  }
-
-  /**
-   * Generates a shareable URL with current form values as query parameters
-   * Excludes clientSecret for security reasons
-   */
-  generateShareableUrl(): string {
-    const baseUrl = globalThis.location.origin + globalThis.location.pathname;
-    const formValue = this.loginForm.value;
-
-    const params = new URLSearchParams();
-    if (formValue.oidcUrl) params.set('oidcUrl', formValue.oidcUrl);
-    if (formValue.clientId) params.set('clientId', formValue.clientId);
-    if (formValue.apiUrl) params.set('apiUrl', formValue.apiUrl);
-    // Note: We intentionally exclude clientSecret for security
-
-    return `${baseUrl}?${params.toString()}`;
-  }
-
-  /**
-   * Copies the shareable URL to clipboard
-   */
-  async copyShareableUrl(): Promise<void> {
-    try {
-      const url = this.generateShareableUrl();
-      await navigator.clipboard.writeText(url);
-      this.snackBar.open('Shareable URL copied to clipboard!', 'Close', {
-        duration: 3000,
-        panelClass: ['success-snackbar'],
-      });
-    } catch (error) {
-      console.error('Failed to copy URL:', error);
-      this.snackBar.open('Failed to copy URL to clipboard', 'Close', {
-        duration: 3000,
-        panelClass: ['error-snackbar'],
-      });
-    }
   }
 }

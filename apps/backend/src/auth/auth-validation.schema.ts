@@ -79,7 +79,7 @@ export const AUTH_VALIDATION_SCHEMA: Joi.ObjectSchema = Joi.object({
         otherwise: Joi.string().required(),
     })
         .description(
-            "Client secret (local auth) - required when OIDC is not enabled",
+            "Client secret (local auth). In OIDC mode, optional bootstrap secret used to create/update a Keycloak admin/root client when AUTH_CLIENT_ID is also set",
         )
         .meta({ group: "auth", order: 80 }),
 
@@ -89,7 +89,17 @@ export const AUTH_VALIDATION_SCHEMA: Joi.ObjectSchema = Joi.object({
         otherwise: Joi.string().required(),
     })
         .description(
-            "Client ID (local auth) - required when OIDC is not enabled",
+            "Client ID (local auth). In OIDC mode, optional bootstrap client ID used to create/update a Keycloak admin/root client when AUTH_CLIENT_SECRET is also set",
         )
         .meta({ group: "auth", order: 90 }),
+
+    OIDC_UI_CLIENT_ID: Joi.when("OIDC", {
+        is: Joi.exist(),
+        then: Joi.string().default("eudiplo-ui"),
+        otherwise: Joi.optional(),
+    })
+        .description(
+            "Public client ID for the Angular UI in OIDC mode. Used to register a public Keycloak client for Authorization Code + PKCE login.",
+        )
+        .meta({ group: "auth", order: 95 }),
 }).unknown(true);

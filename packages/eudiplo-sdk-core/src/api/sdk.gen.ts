@@ -184,6 +184,16 @@ import type {
   TrustListControllerGetTrustListVersionsResponses,
   TrustListControllerUpdateTrustListData,
   TrustListControllerUpdateTrustListResponses,
+  UserControllerCreateUserData,
+  UserControllerCreateUserResponses,
+  UserControllerDeleteUserData,
+  UserControllerDeleteUserResponses,
+  UserControllerGetUserData,
+  UserControllerGetUserResponses,
+  UserControllerGetUsersData,
+  UserControllerGetUsersResponses,
+  UserControllerUpdateUserData,
+  UserControllerUpdateUserResponses,
   VerifierOfferControllerGetOfferData,
   VerifierOfferControllerGetOfferResponses,
   WebhookEndpointControllerCreateData,
@@ -824,6 +834,94 @@ export const sessionEventsControllerSubscribeToSessionEvents = <
   >({ url: "/api/session/{id}/events", ...options });
 
 /**
+ * Get all managed users for the current tenant
+ */
+export const userControllerGetUsers = <ThrowOnError extends boolean = true>(
+  options?: Options<UserControllerGetUsersData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    UserControllerGetUsersResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/user",
+    ...options,
+  });
+
+/**
+ * Create a new managed user
+ */
+export const userControllerCreateUser = <ThrowOnError extends boolean = true>(
+  options: Options<UserControllerCreateUserData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    UserControllerCreateUserResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/user",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete a managed user
+ */
+export const userControllerDeleteUser = <ThrowOnError extends boolean = true>(
+  options: Options<UserControllerDeleteUserData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    UserControllerDeleteUserResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/user/{id}",
+    ...options,
+  });
+
+/**
+ * Get a managed user by id
+ */
+export const userControllerGetUser = <ThrowOnError extends boolean = true>(
+  options: Options<UserControllerGetUserData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    UserControllerGetUserResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/user/{id}",
+    ...options,
+  });
+
+/**
+ * Update a managed user
+ */
+export const userControllerUpdateUser = <ThrowOnError extends boolean = true>(
+  options: Options<UserControllerUpdateUserData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    UserControllerUpdateUserResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/user/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Returns the issuance configurations for this tenant. Creates a default one if it does not exist.
  */
 export const issuanceConfigControllerGetIssuanceConfigurations = <
@@ -1075,7 +1173,7 @@ export const attributeProviderControllerUpdate = <
   });
 
 /**
- * List all webhook endpoints
+ * List all webhook endpoints for the tenant.
  */
 export const webhookEndpointControllerGetAll = <
   ThrowOnError extends boolean = true,

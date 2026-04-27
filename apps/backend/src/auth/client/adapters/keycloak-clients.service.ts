@@ -1,10 +1,18 @@
+import { readFileSync } from "node:fs";
 import KeycloakAdminClient from "@keycloak/keycloak-admin-client";
 import { Credentials } from "@keycloak/keycloak-admin-client/lib/utils/auth";
-import { Injectable, OnModuleInit } from "@nestjs/common";
+import {
+    ConflictException,
+    Injectable,
+    Logger,
+    OnModuleInit,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
+import { plainToClass } from "class-transformer";
 import { decodeJwt } from "jose";
 import { Repository } from "typeorm";
+import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
 import { ConfigImportOrchestratorService } from "../../../shared/utils/config-import/config-import-orchestrator.service";
 import { allRoles, Role } from "../../roles/role.enum";
 import { ClientsProvider } from "../client.provider";
@@ -18,11 +26,44 @@ export class KeycloakClientsProvider
     implements OnModuleInit
 {
     private kc!: KeycloakAdminClient;
+    private readonly logger = new Logger(KeycloakClientsProvider.name);
+
+    private getTenantOwnerFromKcClient(kcClient: any): string | undefined {
+        const attrs = kcClient?.attributes;
+        const tenantAttr = attrs?.tenant_id;
+
+        if (Array.isArray(tenantAttr)) {
+            return tenantAttr[0];
+        }
+
+        if (typeof tenantAttr === "string") {
+            return tenantAttr;
+        }
+
+        return undefined;
+    }
+
+    private ensureTenantOwnership(
+        tenantId: string,
+        kcClient: any,
+        action: string,
+    ): void {
+        const ownerTenantId = this.getTenantOwnerFromKcClient(kcClient);
+
+        if (!ownerTenantId || ownerTenantId === tenantId) {
+            return;
+        }
+
+        throw new ConflictException(
+            `Client '${kcClient.clientId}' is managed by tenant '${ownerTenantId}' and cannot be ${action} by tenant '${tenantId}'.`,
+        );
+    }
 
     constructor(
         private readonly configService: ConfigService,
         @InjectRepository(ClientEntity)
         private readonly clientRepo: Repository<ClientEntity>,
+        private readonly configImportService: ConfigImportService,
         configImportOrchestrator: ConfigImportOrchestratorService,
     ) {
         super(configImportOrchestrator);
@@ -58,8 +99,43 @@ export class KeycloakClientsProvider
     /**
      * Imports clients for a tenant. No-op for Keycloak as clients are managed directly in Keycloak.
      */
-    importForTenant(_tenantId: string): Promise<void> {
-        return Promise.resolve();
+    async importForTenant(tenantId: string): Promise<void> {
+        await this.configImportService.importConfigsForTenant<ClientEntity>(
+            tenantId,
+            {
+                subfolder: "clients",
+                fileExtension: ".json",
+                validationClass: ClientEntity,
+                resourceType: "client config",
+                loadData: (filePath) => {
+                    const payload = JSON.parse(readFileSync(filePath, "utf8"));
+                    return plainToClass(ClientEntity, payload);
+                },
+                checkExists: async (currentTenantId, data) => {
+                    return this.getClientById((data as any).clientId)
+                        .then((client) => !!client)
+                        .catch(() => false);
+                },
+                deleteExisting: async (currentTenantId, data) => {
+                    await this.removeClient(
+                        currentTenantId,
+                        (data as any).clientId,
+                    );
+                },
+                processItem: async (currentTenantId, data) => {
+                    await this.addClient(currentTenantId, {
+                        clientId: (data as any).clientId,
+                        secret: (data as any).secret,
+                        description: (data as any).description,
+                        roles: (data as any).roles,
+                        allowedIssuanceConfigs: (data as any)
+                            .allowedIssuanceConfigs,
+                        allowedPresentationConfigs: (data as any)
+                            .allowedPresentationConfigs,
+                    });
+                },
+            },
+        );
     }
 
     /**
@@ -69,23 +145,141 @@ export class KeycloakClientsProvider
         const existingRoles: Role[] = allRoles;
         return this.kc.roles
             .find()
-            .then((roles) => {
+            .then(async (roles) => {
                 // Check if all roles exist
                 const missingRoles = existingRoles.filter(
                     (role) => !roles.some((r) => r.name === role),
                 );
                 if (missingRoles.length) {
                     // Create missing roles
-                    return Promise.all(
+                    await Promise.all(
                         missingRoles.map((role) =>
                             this.kc.roles.create({ name: role }),
                         ),
                     );
                 }
+
+                await this.ensureBootstrapAdminClient();
+                await this.ensureUiPublicClient();
             })
             .catch((err) => {
-                console.error("Error initializing Keycloak roles:", err);
+                this.logger.error("Error initializing Keycloak roles", err);
             });
+    }
+
+    /**
+     * In OIDC mode, optionally bootstrap a Keycloak admin/root client from AUTH_CLIENT_ID/SECRET.
+     * This client can be used to obtain tenant-management tokens via Keycloak.
+     */
+    private async ensureBootstrapAdminClient() {
+        const bootstrapClientId =
+            this.configService.get<string>("AUTH_CLIENT_ID");
+        const bootstrapClientSecret =
+            this.configService.get<string>("AUTH_CLIENT_SECRET");
+
+        if (!bootstrapClientId && !bootstrapClientSecret) {
+            return;
+        }
+
+        if (!bootstrapClientId || !bootstrapClientSecret) {
+            this.logger.warn(
+                "Skipping bootstrap admin client setup: AUTH_CLIENT_ID and AUTH_CLIENT_SECRET must both be set in OIDC mode.",
+            );
+            return;
+        }
+
+        const existingClient = (
+            await this.kc.clients.find({ clientId: bootstrapClientId })
+        )[0];
+
+        const bootstrapClientPayload = {
+            clientId: bootstrapClientId,
+            description: "Bootstrap admin client for tenant management",
+            serviceAccountsEnabled: true,
+            enabled: true,
+            publicClient: false,
+            directAccessGrantsEnabled: false,
+            standardFlowEnabled: false,
+            webOrigins: ["*"],
+            secret: bootstrapClientSecret,
+        };
+
+        let clientId = existingClient?.id;
+        if (clientId) {
+            await this.kc.clients.update(
+                { id: clientId },
+                bootstrapClientPayload,
+            );
+        } else {
+            const created = await this.kc.clients.create(
+                bootstrapClientPayload,
+            );
+            clientId = created.id;
+        }
+
+        if (!clientId) {
+            return;
+        }
+
+        const serviceAccountUser = await this.kc.clients.getServiceAccountUser({
+            id: clientId,
+        });
+        const allRealmRoles = await this.kc.roles.find();
+        const bootstrapRoleNames = [Role.Tenants, Role.Clients, Role.Users];
+        const bootstrapRoles = bootstrapRoleNames
+            .map((name) => allRealmRoles.find((r) => r.name === name))
+            .filter((r): r is NonNullable<typeof r> => !!r?.id && !!r?.name);
+
+        if (!serviceAccountUser.id || bootstrapRoles.length === 0) {
+            return;
+        }
+
+        const currentRoles = await this.kc.users.listRealmRoleMappings({
+            id: serviceAccountUser.id,
+        });
+
+        const missingRoles = bootstrapRoles.filter(
+            (r) => !currentRoles.some((cr) => cr.name === r.name),
+        );
+
+        if (missingRoles.length > 0) {
+            await this.kc.users.addRealmRoleMappings({
+                id: serviceAccountUser.id,
+                roles: missingRoles.map((r) => ({ id: r.id!, name: r.name! })),
+            });
+        }
+    }
+
+    /**
+     * Auto-create or update a public Keycloak client for the Angular UI (Authorization Code + PKCE).
+     */
+    private async ensureUiPublicClient(): Promise<void> {
+        const uiClientId =
+            this.configService.get<string>("OIDC_UI_CLIENT_ID") ?? "eudiplo-ui";
+
+        const uiClientPayload = {
+            clientId: uiClientId,
+            name: "EUDIPLO UI",
+            description: "Public OIDC client for the Angular management UI",
+            publicClient: true,
+            serviceAccountsEnabled: false,
+            standardFlowEnabled: true,
+            directAccessGrantsEnabled: false,
+            enabled: true,
+            redirectUris: ["*"],
+            webOrigins: ["*"],
+        };
+
+        const existing = (
+            await this.kc.clients.find({ clientId: uiClientId })
+        )[0];
+        if (existing?.id) {
+            await this.kc.clients.update({ id: existing.id }, uiClientPayload);
+            this.logger.log(`Updated public UI client '${uiClientId}'`);
+        } else {
+            await this.kc.clients.create(uiClientPayload);
+            this.logger.log(`Created public UI client '${uiClientId}'`);
+        }
     }
 
     async getClients(tenantId: string): Promise<ClientEntity[]> {
@@ -116,13 +310,18 @@ export class KeycloakClientsProvider
      * @param clientId - The client ID to rotate the secret for
      */
     async rotateClientSecret(
-        _tenantId: string | null,
+        tenantId: string | null,
         clientId: string,
     ): Promise<string> {
         const kcClient = (await this.kc.clients.find({ clientId }))[0];
         if (!kcClient?.id) {
             throw new Error(`Client ${clientId} not found in Keycloak`);
         }
+
+        if (tenantId) {
+            this.ensureTenantOwnership(tenantId, kcClient, "rotated (secret)");
+        }
+
         const secret = await this.kc.clients.generateNewClientSecret({
             id: kcClient.id,
         });
@@ -130,9 +329,7 @@ export class KeycloakClientsProvider
     }
 
     async addClient(tenantId: string, dto: CreateClientDto) {
-        dto.clientId = `${tenantId}-${dto.clientId}`; // namespaced
-        // 1) Create client
-        const created = await this.kc.clients.create({
+        const clientPayload = {
             clientId: dto.clientId,
             description: dto.description,
             serviceAccountsEnabled: true,
@@ -141,7 +338,8 @@ export class KeycloakClientsProvider
             directAccessGrantsEnabled: false,
             standardFlowEnabled: false,
             webOrigins: ["*"],
-            attributes: { tenant_id: tenantId }, // useful marker
+            secret: dto.secret,
+            attributes: { tenant_id: tenantId },
             protocolMappers: [
                 // hardcode tenant_id claim into tokens
                 {
@@ -164,17 +362,68 @@ export class KeycloakClientsProvider
                     config: {
                         "claim.name": "roles",
                         "jsonType.label": "String",
+                        "id.token.claim": "true",
                         multivalued: "true",
                         "access.token.claim": "true",
                     },
                 },
             ],
-        });
+        };
 
-        const id = created.id!;
+        let id: string;
+        let createdNow = false;
+        try {
+            const created = await this.kc.clients.create(clientPayload);
+            if (!created.id) {
+                throw new Error(
+                    `Client ${dto.clientId} creation did not return an id`,
+                );
+            }
+            id = created.id;
+            createdNow = true;
+        } catch (error: any) {
+            const status = error?.response?.status || error?.status;
+            const message = `${error?.message || ""}`;
+            const isConflict = status === 409 || message.includes("409");
+
+            if (!isConflict) {
+                throw error;
+            }
+
+            this.logger.warn(
+                `Client ${dto.clientId} already exists in Keycloak; reconciling and updating local mirror`,
+            );
+
+            const existingClient = (
+                await this.kc.clients.find({ clientId: dto.clientId })
+            )[0];
+            if (!existingClient?.id) {
+                throw error;
+            }
+            this.ensureTenantOwnership(tenantId, existingClient, "updated");
+            id = existingClient.id;
+
+            await this.kc.clients.update(
+                { id },
+                {
+                    description: dto.description,
+                    serviceAccountsEnabled: true,
+                    enabled: true,
+                    publicClient: false,
+                    directAccessGrantsEnabled: false,
+                    standardFlowEnabled: false,
+                    webOrigins: ["*"],
+                    attributes: { tenant_id: tenantId },
+                },
+            );
+        }
 
         // 3) Generate secret once (show only on creation)
-        const secret = await this.kc.clients.generateNewClientSecret({ id });
+        const secret = dto.secret
+            ? { value: dto.secret }
+            : createdNow
+              ? await this.kc.clients.generateNewClientSecret({ id })
+              : { value: undefined };
 
         // 4) Assign realm roles to the service account user
         const svcUser = await this.kc.clients.getServiceAccountUser({ id });
@@ -221,6 +470,7 @@ export class KeycloakClientsProvider
 
         // Get service account user
         const kcClient = (await this.kc.clients.find({ clientId }))[0];
+        this.ensureTenantOwnership(tenantId, kcClient, "updated");
         const svcUser = await this.kc.clients.getServiceAccountUser({
             id: kcClient.id!,
         });
@@ -279,7 +529,10 @@ export class KeycloakClientsProvider
 
     async removeClient(tenantId: string, clientId: string) {
         const kcClient = (await this.kc.clients.find({ clientId }))[0];
-        if (kcClient?.id) await this.kc.clients.del({ id: kcClient.id });
+        if (kcClient?.id) {
+            this.ensureTenantOwnership(tenantId, kcClient, "deleted");
+            await this.kc.clients.del({ id: kcClient.id });
+        }
         await this.clientRepo.delete({ clientId, tenant: { id: tenantId } });
     }
 }

@@ -4,6 +4,10 @@
   "title": "UpdateWebhookEndpointDto",
   "type": "object",
   "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the webhook endpoint"
+    },
     "auth": {
       "oneOf": [
         {
@@ -13,9 +17,6 @@
           "$ref": "./WebHookAuthConfigHeader.schema.json"
         }
       ]
-    },
-    "id": {
-      "type": "string"
     },
     "name": {
       "type": "string"
