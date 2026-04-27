@@ -226,7 +226,8 @@ export class PresentationCreateComponent implements OnInit {
   private applyRegistrationCertDefaultsIfMissing(defaults: Record<string, unknown>): void {
     const privacy =
       typeof defaults['privacy_policy'] === 'string' ? defaults['privacy_policy'].trim() : '';
-    const support = typeof defaults['support_uri'] === 'string' ? defaults['support_uri'].trim() : '';
+    const support =
+      typeof defaults['support_uri'] === 'string' ? defaults['support_uri'].trim() : '';
     const intermediary =
       typeof defaults['intermediary'] === 'string' ? defaults['intermediary'].trim() : '';
 
