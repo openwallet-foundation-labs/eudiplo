@@ -253,14 +253,29 @@ export class Oid4vciService {
                 issuanceConfig.display !== null
                     ? issuanceConfig.display
                     : undefined,
-            credential_response_encryption:
-                issuanceConfig?.credentialResponseEncryption
-                    ? {
-                          alg_values_supported: ["ECDH-ES"],
-                          enc_values_supported: ["A128GCM", "A256GCM"],
-                          encryption_required: false,
-                      }
-                    : undefined,
+            //TODO: add support for credential request encryption in the future
+            /*             credential_request_encryption: {
+                jwks: [
+                    {
+                        kty: "EC",
+                        kid: "ac",
+                        use: "enc",
+                        crv: "P-256",
+                        alg: "ECDH-ES",
+                        x: "YO4epjifD-KWeq1sL2tNmm36BhXnkJ0He-WqMYrp9Fk",
+                        y: "Hekpm0zfK7C-YccH5iBjcIXgf6YdUvNUac_0At55Okk",
+                    },
+                ],
+                enc_values_supported: ["A128GCM"],
+                zip_values_supported: ["DEF"],
+                encryption_required: issuanceConfig?.credentialRequestEncryption ? true : false,
+            }, */
+            credential_response_encryption: {
+                alg_values_supported: ["ECDH-ES"],
+                enc_values_supported: ["A128GCM", "A256GCM"],
+                encryption_required:
+                    issuanceConfig?.credentialResponseEncryption ? true : false,
+            },
             batch_credential_issuance:
                 issuanceConfig?.batchSize && issuanceConfig?.batchSize > 1
                     ? {
