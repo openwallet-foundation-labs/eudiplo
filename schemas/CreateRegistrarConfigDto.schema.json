@@ -35,10 +35,15 @@
       "description": "The password for OIDC login (stored in plaintext)"
     },
     "registrationCertificateDefaults": {
-      "type": "object",
       "nullable": true,
       "description": "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)",
-      "additionalProperties": true
+      "additionalProperties": true,
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "./RegistrationCertificateDefaults.schema.json"
+        }
+      ]
     }
   },
   "required": [

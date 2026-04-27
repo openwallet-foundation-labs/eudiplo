@@ -4,6 +4,30 @@ import { Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
 import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
 
 /**
+ * Typed defaults for registrar registration certificate creation.
+ * These values are merged into presentation-specific registration certificate bodies.
+ */
+export class RegistrationCertificateDefaults {
+    @ApiPropertyOptional({
+        description:
+            "Default privacy policy URL for registration certificate creation.",
+        example: "https://verifier.example/privacy",
+    })
+    @IsOptional()
+    @IsString()
+    privacy_policy?: string;
+
+    @ApiPropertyOptional({
+        description:
+            "Default support contact URI for registration certificate creation.",
+        example: "mailto:support@verifier.example",
+    })
+    @IsOptional()
+    @IsString()
+    support_uri?: string;
+}
+
+/**
  * Stores the configuration for connecting to an external registrar service.
  * Each tenant can have their own registrar configuration with OIDC credentials.
  *
@@ -104,11 +128,11 @@ export class RegistrarConfigEntity {
     @ApiPropertyOptional({
         description:
             "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)",
-        type: "object",
+        type: () => RegistrationCertificateDefaults,
         additionalProperties: true,
     })
     @IsOptional()
     @IsObject()
     @Column("json", { nullable: true })
-    registrationCertificateDefaults?: Record<string, unknown> | null;
+    registrationCertificateDefaults?: RegistrationCertificateDefaults | null;
 }

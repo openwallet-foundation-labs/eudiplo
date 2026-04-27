@@ -37,6 +37,7 @@ import {
   getRegistrationCertStatus,
 } from '../../../utils/registration-cert-status';
 import { CredentialIdsComponent } from '../../credential-ids/credential-ids.component';
+import { RegistrarService } from '../../../registrar/registrar.service';
 
 @Component({
   selector: 'app-presentation-create',
@@ -112,7 +113,8 @@ export class PresentationCreateComponent implements OnInit {
     private readonly router: Router,
     private readonly route: ActivatedRoute,
     private readonly snackBar: MatSnackBar,
-    private readonly dialog: MatDialog
+    private readonly dialog: MatDialog,
+    private readonly registrarService: RegistrarService
   ) {
     this.form = new FormGroup({
       id: new FormControl(undefined, [Validators.required]),
@@ -143,6 +145,8 @@ export class PresentationCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.loadRegistrarDefaults();
+
     // Load key chains for the select dropdown (filter by access usage type)
     keyChainControllerGetAll({}).then(
       (res) =>
@@ -202,6 +206,46 @@ export class PresentationCreateComponent implements OnInit {
             this.create = false;
           }
         });
+    }
+  }
+
+  private async loadRegistrarDefaults(): Promise<void> {
+    try {
+      const config = await this.registrarService.getConfig();
+      const defaults = config?.registrationCertificateDefaults;
+      if (!defaults || typeof defaults !== 'object') {
+        return;
+      }
+
+      this.applyRegistrationCertDefaultsIfMissing(defaults as Record<string, unknown>);
+    } catch {
+      // Optional enhancement only; keep form functional if registrar config is unavailable.
+    }
+  }
+
+  private applyRegistrationCertDefaultsIfMissing(defaults: Record<string, unknown>): void {
+    const privacy =
+      typeof defaults['privacy_policy'] === 'string' ? defaults['privacy_policy'].trim() : '';
+    const support = typeof defaults['support_uri'] === 'string' ? defaults['support_uri'].trim() : '';
+    const intermediary =
+      typeof defaults['intermediary'] === 'string' ? defaults['intermediary'].trim() : '';
+
+    const privacyCtrl = this.form.get('registrationCertBodyPrivacyPolicy');
+    const supportCtrl = this.form.get('registrationCertBodySupportUri');
+    const intermediaryCtrl = this.form.get('registrationCertBodyIntermediary');
+
+    const currentPrivacy = `${privacyCtrl?.value ?? ''}`.trim();
+    const currentSupport = `${supportCtrl?.value ?? ''}`.trim();
+    const currentIntermediary = `${intermediaryCtrl?.value ?? ''}`.trim();
+
+    if (!currentPrivacy && privacy) {
+      privacyCtrl?.setValue(privacy);
+    }
+    if (!currentSupport && support) {
+      supportCtrl?.setValue(support);
+    }
+    if (!currentIntermediary && intermediary) {
+      intermediaryCtrl?.setValue(intermediary);
     }
   }
 
@@ -477,7 +521,7 @@ export class PresentationCreateComponent implements OnInit {
     this.registrationCertPurposeArray.push(
       new FormGroup({
         lang: new FormControl(normalizedLang, [Validators.required]),
-        value: new FormControl(value, [Validators.required]),
+        content: new FormControl(value, [Validators.required]),
       })
     );
   }
@@ -544,33 +588,30 @@ export class PresentationCreateComponent implements OnInit {
       return null;
     }
 
-    const privacy_policy = this.form.get('registrationCertBodyPrivacyPolicy')?.value?.trim();
-    const support_uri = this.form.get('registrationCertBodySupportUri')?.value?.trim();
-    const intermediary = this.form.get('registrationCertBodyIntermediary')?.value?.trim();
-
     const purpose = this.registrationCertPurposeArray.controls
       .map((ctrl) => ({
         lang: ctrl.get('lang')?.value?.trim(),
-        value: ctrl.get('value')?.value?.trim(),
+        content: ctrl.get('content')?.value?.trim(),
       }))
-      .filter((entry) => entry.lang && entry.value);
+      .filter((entry) => entry.lang && entry.content);
 
-    if (!privacy_policy && !support_uri && !intermediary && purpose.length === 0) {
+    if (purpose.length === 0) {
       return null;
     }
 
-    const body: any = {};
-    if (privacy_policy) {
-      body.privacy_policy = privacy_policy;
+    const privacyPolicy = this.form.get('registrationCertBodyPrivacyPolicy')?.value?.trim();
+    const supportUri = this.form.get('registrationCertBodySupportUri')?.value?.trim();
+    const intermediary = this.form.get('registrationCertBodyIntermediary')?.value?.trim();
+
+    const body: any = { purpose };
+    if (privacyPolicy) {
+      body.privacy_policy = privacyPolicy;
     }
-    if (support_uri) {
-      body.support_uri = support_uri;
+    if (supportUri) {
+      body.support_uri = supportUri;
     }
     if (intermediary) {
       body.intermediary = intermediary;
-    }
-    if (purpose.length > 0) {
-      body.purpose = purpose;
     }
 
     return { body };
@@ -594,7 +635,10 @@ export class PresentationCreateComponent implements OnInit {
       : [];
 
     for (const purpose of purposes) {
-      this.addRegistrationCertPurpose(purpose?.lang || '', purpose?.value || '');
+      this.addRegistrationCertPurpose(
+        purpose?.lang || '',
+        purpose?.content || purpose?.value || ''
+      );
     }
 
     if (registrationCert?.jwt || registrationCert?.id) {

@@ -327,8 +327,13 @@
 
                 <mat-tab label="Form Based">
                   <div fxLayout="column" fxLayoutGap="16px" class="tab-content">
+                    <mat-hint>
+                      Defaults from tenant registrar configuration are prefilled here. You can
+                      override values per presentation config.
+                    </mat-hint>
+
                     <mat-form-field>
-                      <mat-label>Privacy Policy URL (optional)</mat-label>
+                      <mat-label>Privacy Policy URL</mat-label>
                       <input
                         matInput
                         formControlName="registrationCertBodyPrivacyPolicy"
@@ -337,7 +342,7 @@
                     </mat-form-field>
 
                     <mat-form-field>
-                      <mat-label>Support URI (optional)</mat-label>
+                      <mat-label>Support URI</mat-label>
                       <input
                         matInput
                         formControlName="registrationCertBodySupportUri"
@@ -350,7 +355,7 @@
                       <input
                         matInput
                         formControlName="registrationCertBodyIntermediary"
-                        placeholder="intermediary-rp-id"
+                        placeholder="optional-relying-party-id"
                       />
                     </mat-form-field>
 
@@ -393,7 +398,7 @@
                             <mat-label>Purpose</mat-label>
                             <input
                               matInput
-                              formControlName="value"
+                              formControlName="content"
                               placeholder="To register a new user"
                             />
                           </mat-form-field>

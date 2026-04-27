@@ -25,12 +25,22 @@ export class UserController {
         @Inject(USERS_PROVIDER) private readonly users: UsersProvider,
     ) {}
 
+    private requireTenantContext(user: TokenPayload): string {
+        if (!user.entity?.id) {
+            throw new ForbiddenException(
+                "This endpoint requires a tenant context. Use a tenant-bound account.",
+            );
+        }
+        return user.entity.id;
+    }
+
     @ApiOperation({ summary: "Get all managed users for the current tenant" })
     @ApiResponse({ status: 200, type: ManagedUserDto, isArray: true })
     @Secured([Role.Users])
     @Get()
     getUsers(@Token() user: TokenPayload) {
-        return this.users.getUsers(user.entity!.id);
+        const tenantId = this.requireTenantContext(user);
+        return this.users.getUsers(tenantId);
     }
 
     @ApiOperation({ summary: "Get a managed user by id" })
@@ -38,7 +48,8 @@ export class UserController {
     @Secured([Role.Users])
     @Get(":id")
     getUser(@Param("id") id: string, @Token() user: TokenPayload) {
-        return this.users.getUser(user.entity!.id, id);
+        const tenantId = this.requireTenantContext(user);
+        return this.users.getUser(tenantId, id);
     }
 
     @ApiOperation({ summary: "Create a new managed user" })
@@ -50,6 +61,7 @@ export class UserController {
         @Body() createUserDto: CreateUserDto,
         @Token() user: TokenPayload,
     ) {
+        const tenantId = this.requireTenantContext(user);
         if (
             createUserDto.roles?.includes(Role.Tenants) &&
             !user.roles.includes(Role.Tenants)
@@ -59,7 +71,7 @@ export class UserController {
             );
         }
 
-        return this.users.addUser(user.entity!.id, createUserDto);
+        return this.users.addUser(tenantId, createUserDto);
     }
 
     @ApiOperation({ summary: "Update a managed user" })
@@ -72,6 +84,7 @@ export class UserController {
         @Body() updateUserDto: UpdateUserDto,
         @Token() user: TokenPayload,
     ) {
+        const tenantId = this.requireTenantContext(user);
         if (
             updateUserDto.roles?.includes(Role.Tenants) &&
             !user.roles.includes(Role.Tenants)
@@ -81,7 +94,7 @@ export class UserController {
             );
         }
 
-        return this.users.updateUser(user.entity!.id, id, updateUserDto);
+        return this.users.updateUser(tenantId, id, updateUserDto);
     }
 
     @ApiOperation({ summary: "Delete a managed user" })
@@ -89,6 +102,7 @@ export class UserController {
     @Secured([Role.Users])
     @Delete(":id")
     deleteUser(@Param("id") id: string, @Token() user: TokenPayload) {
-        return this.users.removeUser(user.entity!.id, id);
+        const tenantId = this.requireTenantContext(user);
+        return this.users.removeUser(tenantId, id);
     }
 }

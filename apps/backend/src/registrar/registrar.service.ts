@@ -5,6 +5,7 @@ import { OAuth2Client, OAuth2Token } from "@badgateway/oauth2-client";
 import {
     BadRequestException,
     Injectable,
+    InternalServerErrorException,
     Logger,
     NotFoundException,
 } from "@nestjs/common";
@@ -581,6 +582,27 @@ export class RegistrarService {
             ...(req.body ?? {}),
         };
 
+        // If credentials are not explicitly set in registrationCert.body,
+        // derive them from the effective DCQL query used for this request.
+        if (!Array.isArray(mergedBody.credentials)) {
+            const dcqlCredentials = Array.isArray(dcqlQuery?.credentials)
+                ? dcqlQuery.credentials
+                : [];
+            mergedBody.credentials = dcqlCredentials.map((credential: any) => {
+                // Registrar CredentialDef only supports format, claims and meta.
+                return {
+                    format: credential?.format,
+                    claims: Array.isArray(credential?.claims)
+                        ? credential.claims
+                        : undefined,
+                    meta:
+                        credential?.meta && typeof credential.meta === "object"
+                            ? credential.meta
+                            : {},
+                };
+            }) as any;
+        }
+
         if (!mergedBody.privacy_policy || !mergedBody.support_uri) {
             throw new BadRequestException(
                 "registrationCert.body must include privacy_policy and support_uri (directly or via registrar registrationCertificateDefaults)",
@@ -596,6 +618,15 @@ export class RegistrarService {
             );
         }
 
+        if (
+            !Array.isArray(mergedBody.credentials) ||
+            mergedBody.credentials.length === 0
+        ) {
+            throw new BadRequestException(
+                "registrationCert.body.credentials could not be derived from dcql_query.credentials",
+            );
+        }
+
         // Create a new registration certificate - rpId is always derived from the tenant's registrar RP.
         const bodyWithRpId: RegistrationCertificateCreation = {
             ...mergedBody,
@@ -608,12 +639,37 @@ export class RegistrarService {
         });
 
         if (res.error) {
+            const statusCode = Number(
+                (res.error as any)?.statusCode ?? (res.error as any)?.status,
+            );
+            const upstreamMessage =
+                (res.error as any)?.message ||
+                (res.error as any)?.error ||
+                "Unknown registrar error";
+
             this.logger.error(
-                { error: res.error },
+                {
+                    error: res.error,
+                    statusCode: Number.isFinite(statusCode)
+                        ? statusCode
+                        : undefined,
+                    requestBody: bodyWithRpId,
+                },
                 `[${tenantId}] Failed to create registration certificate`,
             );
-            throw new BadRequestException(
-                "Failed to create registration certificate",
+
+            if (
+                Number.isFinite(statusCode) &&
+                statusCode >= 400 &&
+                statusCode < 500
+            ) {
+                throw new BadRequestException(
+                    `Failed to create registration certificate: ${upstreamMessage}`,
+                );
+            }
+
+            throw new InternalServerErrorException(
+                `Registrar temporarily unavailable while creating registration certificate${Number.isFinite(statusCode) ? ` (upstream status ${statusCode})` : ""}`,
             );
         }
 
@@ -783,21 +839,40 @@ export class RegistrarService {
     }
 
     /**
-     * Compute a stable canonical fingerprint of a single DCQL credential entry.
-     * Strips fields that are not part of the authorization scope (e.g. `id`,
-     * `trusted_authorities`) and recursively sorts object keys.
+     * Compute a stable canonical fingerprint of a single credential entry.
+     *
+     * We normalize to registrar CredentialDef shape (`format`, `claims`, `meta`)
+     * before hashing, because DCQL credentials may include transport/query fields
+     * (`id`, `multiple`, `trusted_authorities`) that are not present in registrar
+     * certificates and would otherwise cause false overasking mismatches.
      */
     private dcqlCredentialFingerprint(cred: any): string {
         if (!cred || typeof cred !== "object") {
             return JSON.stringify(cred ?? null);
         }
-        // Drop fields not relevant to the authorization-scope comparison.
-        const {
-            id: _id,
-            trusted_authorities: _ta,
-            ...rest
-        } = cred as Record<string, any>;
-        return this.canonicalJson(rest);
+
+        // Registrar responses may use `claim`, while internal/DCQL structures
+        // typically use `claims`. Treat both as equivalent for authorization
+        // comparison to avoid false overasking mismatches.
+        const normalizedClaims = Array.isArray(
+            (cred as Record<string, any>).claims,
+        )
+            ? (cred as Record<string, any>).claims
+            : Array.isArray((cred as Record<string, any>).claim)
+              ? (cred as Record<string, any>).claim
+              : undefined;
+
+        const normalized = {
+            format: (cred as Record<string, any>).format,
+            claims: normalizedClaims,
+            meta:
+                (cred as Record<string, any>).meta &&
+                typeof (cred as Record<string, any>).meta === "object"
+                    ? (cred as Record<string, any>).meta
+                    : {},
+        };
+
+        return this.canonicalJson(normalized);
     }
 
     /**

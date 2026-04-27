@@ -39,6 +39,11 @@
     "tenantId": {
       "type": "string",
       "example": "tenant-a"
+    },
+    "temporaryPassword": {
+      "type": "string",
+      "example": "Ab3!zK8pQ2",
+      "description": "One-time temporary password returned only on user creation."
     }
   },
   "required": [

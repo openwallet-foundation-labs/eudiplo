@@ -30,6 +30,15 @@ export class ClientController {
         @Inject(CLIENTS_PROVIDER) private readonly clients: ClientsProvider,
     ) {}
 
+    private requireTenantContext(user: TokenPayload): string {
+        if (!user.entity?.id) {
+            throw new ForbiddenException(
+                "This endpoint requires a tenant context. Use a tenant-bound account.",
+            );
+        }
+        return user.entity.id;
+    }
+
     /**
      * Get all clients for a user
      * @param user
@@ -38,7 +47,8 @@ export class ClientController {
     @Secured([Role.Clients])
     @Get()
     getClients(@Token() user: TokenPayload) {
-        return this.clients.getClients(user.entity!.id);
+        const tenantId = this.requireTenantContext(user);
+        return this.clients.getClients(tenantId);
     }
 
     /**
@@ -50,7 +60,8 @@ export class ClientController {
     @Secured([Role.Clients])
     @Get(":id")
     getClient(@Param("id") id: string, @Token() user: TokenPayload) {
-        return this.clients.getClient(user.entity!.id, id);
+        const tenantId = this.requireTenantContext(user);
+        return this.clients.getClient(tenantId, id);
     }
 
     /**
@@ -93,7 +104,7 @@ export class ClientController {
         // Regular client managers can only rotate their own tenant's clients
         const tenantId = user.roles.includes(Role.Tenants)
             ? null
-            : user.entity!.id;
+            : this.requireTenantContext(user);
         const secret = await this.clients.rotateClientSecret(tenantId, id);
         return { secret };
     }
@@ -112,6 +123,7 @@ export class ClientController {
         @Body() updateClientDto: UpdateClientDto,
         @Token() user: TokenPayload,
     ) {
+        const tenantId = this.requireTenantContext(user);
         // Prevent privilege escalation: only users with tenant:manage can grant tenant:manage
         if (
             updateClientDto.roles?.includes(Role.Tenants) &&
@@ -121,7 +133,7 @@ export class ClientController {
                 "Cannot assign tenant:manage role without having tenant:manage privileges",
             );
         }
-        return this.clients.updateClient(user.entity!.id, id, updateClientDto);
+        return this.clients.updateClient(tenantId, id, updateClientDto);
     }
 
     /**
@@ -136,6 +148,7 @@ export class ClientController {
         @Body() createClientDto: CreateClientDto,
         @Token() user: TokenPayload,
     ) {
+        const tenantId = this.requireTenantContext(user);
         // Prevent privilege escalation: only users with tenant:manage can grant tenant:manage
         if (
             createClientDto.roles?.includes(Role.Tenants) &&
@@ -145,7 +158,7 @@ export class ClientController {
                 "Cannot assign tenant:manage role without having tenant:manage privileges",
             );
         }
-        return this.clients.addClient(user.entity!.id, createClientDto);
+        return this.clients.addClient(tenantId, createClientDto);
     }
 
     /**
@@ -157,6 +170,7 @@ export class ClientController {
     @Secured([Role.Clients])
     @Delete(":id")
     deleteClient(@Param("id") id: string, @Token() user: TokenPayload) {
-        return this.clients.removeClient(user.entity!.id, id);
+        const tenantId = this.requireTenantContext(user);
+        return this.clients.removeClient(tenantId, id);
     }
 }
