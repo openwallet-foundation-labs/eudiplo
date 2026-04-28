@@ -111,10 +111,10 @@
         "uuid": "^14.0.0"
     },
     "devDependencies": {
-        "@biomejs/biome": "2.4.12",
+        "@biomejs/biome": "2.4.13",
         "@codecov/vite-plugin": "^1.9.1",
         "@compodoc/compodoc": "^1.2.1",
-        "@hey-api/openapi-ts": "^0.96.0",
+        "@hey-api/openapi-ts": "^0.97.0",
         "@nestjs/cli": "^11.0.16",
         "@nestjs/schematics": "^11.0.9",
         "@nestjs/testing": "^11.1.14",
