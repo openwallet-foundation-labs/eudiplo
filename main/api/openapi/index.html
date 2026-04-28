@@ -4420,6 +4420,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#registrationcertificatedefaults" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RegistrationCertificateDefaults
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#registrationcertificatepurpose" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -6425,6 +6436,17 @@
     <span class="md-ellipsis">
       
         RegistrationCertificateBody
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#registrationcertificatedefaults_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RegistrationCertificateDefaults
       
     </span>
   </a>
@@ -9546,6 +9568,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#registrationcertificatedefaults" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RegistrationCertificateDefaults
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#registrationcertificatepurpose" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -11551,6 +11584,17 @@
     <span class="md-ellipsis">
       
         RegistrationCertificateBody
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#registrationcertificatedefaults_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RegistrationCertificateDefaults
       
     </span>
   </a>
@@ -20978,25 +21022,30 @@ Creates a new version for audit and regenerates the JWT</p>
 <a id="__codelineno-151-28" name="__codelineno-151-28" href="#__codelineno-151-28"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin@example.com"</span>
 <a id="__codelineno-151-29" name="__codelineno-151-29" href="#__codelineno-151-29"></a><span class="w">        </span><span class="p">},</span>
 <a id="__codelineno-151-30" name="__codelineno-151-30" href="#__codelineno-151-30"></a><span class="w">        </span><span class="nt">"registrationCertificateDefaults"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-151-31" name="__codelineno-151-31" href="#__codelineno-151-31"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"object"</span><span class="p">,</span>
-<a id="__codelineno-151-32" name="__codelineno-151-32" href="#__codelineno-151-32"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-151-33" name="__codelineno-151-33" href="#__codelineno-151-33"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)"</span><span class="p">,</span>
-<a id="__codelineno-151-34" name="__codelineno-151-34" href="#__codelineno-151-34"></a><span class="w">            </span><span class="nt">"additionalProperties"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-151-35" name="__codelineno-151-35" href="#__codelineno-151-35"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-151-36" name="__codelineno-151-36" href="#__codelineno-151-36"></a><span class="w">        </span><span class="nt">"hasPassword"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-151-37" name="__codelineno-151-37" href="#__codelineno-151-37"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"boolean"</span><span class="p">,</span>
-<a id="__codelineno-151-38" name="__codelineno-151-38" href="#__codelineno-151-38"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Indicates whether a password is configured (actual password is never returned)"</span><span class="p">,</span>
-<a id="__codelineno-151-39" name="__codelineno-151-39" href="#__codelineno-151-39"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-151-40" name="__codelineno-151-40" href="#__codelineno-151-40"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-151-41" name="__codelineno-151-41" href="#__codelineno-151-41"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-151-42" name="__codelineno-151-42" href="#__codelineno-151-42"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-151-43" name="__codelineno-151-43" href="#__codelineno-151-43"></a><span class="w">        </span><span class="s2">"registrarUrl"</span><span class="p">,</span>
-<a id="__codelineno-151-44" name="__codelineno-151-44" href="#__codelineno-151-44"></a><span class="w">        </span><span class="s2">"oidcUrl"</span><span class="p">,</span>
-<a id="__codelineno-151-45" name="__codelineno-151-45" href="#__codelineno-151-45"></a><span class="w">        </span><span class="s2">"clientId"</span><span class="p">,</span>
-<a id="__codelineno-151-46" name="__codelineno-151-46" href="#__codelineno-151-46"></a><span class="w">        </span><span class="s2">"username"</span><span class="p">,</span>
-<a id="__codelineno-151-47" name="__codelineno-151-47" href="#__codelineno-151-47"></a><span class="w">        </span><span class="s2">"hasPassword"</span>
-<a id="__codelineno-151-48" name="__codelineno-151-48" href="#__codelineno-151-48"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-151-49" name="__codelineno-151-49" href="#__codelineno-151-49"></a><span class="p">}</span>
+<a id="__codelineno-151-31" name="__codelineno-151-31" href="#__codelineno-151-31"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-151-32" name="__codelineno-151-32" href="#__codelineno-151-32"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)"</span><span class="p">,</span>
+<a id="__codelineno-151-33" name="__codelineno-151-33" href="#__codelineno-151-33"></a><span class="w">            </span><span class="nt">"additionalProperties"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-151-34" name="__codelineno-151-34" href="#__codelineno-151-34"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"object"</span><span class="p">,</span>
+<a id="__codelineno-151-35" name="__codelineno-151-35" href="#__codelineno-151-35"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-151-36" name="__codelineno-151-36" href="#__codelineno-151-36"></a><span class="w">                </span><span class="p">{</span>
+<a id="__codelineno-151-37" name="__codelineno-151-37" href="#__codelineno-151-37"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/RegistrationCertificateDefaults"</span>
+<a id="__codelineno-151-38" name="__codelineno-151-38" href="#__codelineno-151-38"></a><span class="w">                </span><span class="p">}</span>
+<a id="__codelineno-151-39" name="__codelineno-151-39" href="#__codelineno-151-39"></a><span class="w">            </span><span class="p">]</span>
+<a id="__codelineno-151-40" name="__codelineno-151-40" href="#__codelineno-151-40"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-151-41" name="__codelineno-151-41" href="#__codelineno-151-41"></a><span class="w">        </span><span class="nt">"hasPassword"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-151-42" name="__codelineno-151-42" href="#__codelineno-151-42"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"boolean"</span><span class="p">,</span>
+<a id="__codelineno-151-43" name="__codelineno-151-43" href="#__codelineno-151-43"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Indicates whether a password is configured (actual password is never returned)"</span><span class="p">,</span>
+<a id="__codelineno-151-44" name="__codelineno-151-44" href="#__codelineno-151-44"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-151-45" name="__codelineno-151-45" href="#__codelineno-151-45"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-151-46" name="__codelineno-151-46" href="#__codelineno-151-46"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-151-47" name="__codelineno-151-47" href="#__codelineno-151-47"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-151-48" name="__codelineno-151-48" href="#__codelineno-151-48"></a><span class="w">        </span><span class="s2">"registrarUrl"</span><span class="p">,</span>
+<a id="__codelineno-151-49" name="__codelineno-151-49" href="#__codelineno-151-49"></a><span class="w">        </span><span class="s2">"oidcUrl"</span><span class="p">,</span>
+<a id="__codelineno-151-50" name="__codelineno-151-50" href="#__codelineno-151-50"></a><span class="w">        </span><span class="s2">"clientId"</span><span class="p">,</span>
+<a id="__codelineno-151-51" name="__codelineno-151-51" href="#__codelineno-151-51"></a><span class="w">        </span><span class="s2">"username"</span><span class="p">,</span>
+<a id="__codelineno-151-52" name="__codelineno-151-52" href="#__codelineno-151-52"></a><span class="w">        </span><span class="s2">"hasPassword"</span>
+<a id="__codelineno-151-53" name="__codelineno-151-53" href="#__codelineno-151-53"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-151-54" name="__codelineno-151-54" href="#__codelineno-151-54"></a><span class="p">}</span>
 </code></pre></div>
 </details>
 </div>
@@ -21085,20 +21134,25 @@ Creates a new version for audit and regenerates the JWT</p>
 <a id="__codelineno-153-32" name="__codelineno-153-32" href="#__codelineno-153-32"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The password for OIDC login (stored in plaintext)"</span>
 <a id="__codelineno-153-33" name="__codelineno-153-33" href="#__codelineno-153-33"></a><span class="w">        </span><span class="p">},</span>
 <a id="__codelineno-153-34" name="__codelineno-153-34" href="#__codelineno-153-34"></a><span class="w">        </span><span class="nt">"registrationCertificateDefaults"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-153-35" name="__codelineno-153-35" href="#__codelineno-153-35"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"object"</span><span class="p">,</span>
-<a id="__codelineno-153-36" name="__codelineno-153-36" href="#__codelineno-153-36"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-153-37" name="__codelineno-153-37" href="#__codelineno-153-37"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)"</span><span class="p">,</span>
-<a id="__codelineno-153-38" name="__codelineno-153-38" href="#__codelineno-153-38"></a><span class="w">            </span><span class="nt">"additionalProperties"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-153-39" name="__codelineno-153-39" href="#__codelineno-153-39"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-153-40" name="__codelineno-153-40" href="#__codelineno-153-40"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-153-41" name="__codelineno-153-41" href="#__codelineno-153-41"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-153-42" name="__codelineno-153-42" href="#__codelineno-153-42"></a><span class="w">        </span><span class="s2">"registrarUrl"</span><span class="p">,</span>
-<a id="__codelineno-153-43" name="__codelineno-153-43" href="#__codelineno-153-43"></a><span class="w">        </span><span class="s2">"oidcUrl"</span><span class="p">,</span>
-<a id="__codelineno-153-44" name="__codelineno-153-44" href="#__codelineno-153-44"></a><span class="w">        </span><span class="s2">"clientId"</span><span class="p">,</span>
-<a id="__codelineno-153-45" name="__codelineno-153-45" href="#__codelineno-153-45"></a><span class="w">        </span><span class="s2">"username"</span><span class="p">,</span>
-<a id="__codelineno-153-46" name="__codelineno-153-46" href="#__codelineno-153-46"></a><span class="w">        </span><span class="s2">"password"</span>
-<a id="__codelineno-153-47" name="__codelineno-153-47" href="#__codelineno-153-47"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-153-48" name="__codelineno-153-48" href="#__codelineno-153-48"></a><span class="p">}</span>
+<a id="__codelineno-153-35" name="__codelineno-153-35" href="#__codelineno-153-35"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-153-36" name="__codelineno-153-36" href="#__codelineno-153-36"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)"</span><span class="p">,</span>
+<a id="__codelineno-153-37" name="__codelineno-153-37" href="#__codelineno-153-37"></a><span class="w">            </span><span class="nt">"additionalProperties"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-153-38" name="__codelineno-153-38" href="#__codelineno-153-38"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"object"</span><span class="p">,</span>
+<a id="__codelineno-153-39" name="__codelineno-153-39" href="#__codelineno-153-39"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-153-40" name="__codelineno-153-40" href="#__codelineno-153-40"></a><span class="w">                </span><span class="p">{</span>
+<a id="__codelineno-153-41" name="__codelineno-153-41" href="#__codelineno-153-41"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/RegistrationCertificateDefaults"</span>
+<a id="__codelineno-153-42" name="__codelineno-153-42" href="#__codelineno-153-42"></a><span class="w">                </span><span class="p">}</span>
+<a id="__codelineno-153-43" name="__codelineno-153-43" href="#__codelineno-153-43"></a><span class="w">            </span><span class="p">]</span>
+<a id="__codelineno-153-44" name="__codelineno-153-44" href="#__codelineno-153-44"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-153-45" name="__codelineno-153-45" href="#__codelineno-153-45"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-153-46" name="__codelineno-153-46" href="#__codelineno-153-46"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-153-47" name="__codelineno-153-47" href="#__codelineno-153-47"></a><span class="w">        </span><span class="s2">"registrarUrl"</span><span class="p">,</span>
+<a id="__codelineno-153-48" name="__codelineno-153-48" href="#__codelineno-153-48"></a><span class="w">        </span><span class="s2">"oidcUrl"</span><span class="p">,</span>
+<a id="__codelineno-153-49" name="__codelineno-153-49" href="#__codelineno-153-49"></a><span class="w">        </span><span class="s2">"clientId"</span><span class="p">,</span>
+<a id="__codelineno-153-50" name="__codelineno-153-50" href="#__codelineno-153-50"></a><span class="w">        </span><span class="s2">"username"</span><span class="p">,</span>
+<a id="__codelineno-153-51" name="__codelineno-153-51" href="#__codelineno-153-51"></a><span class="w">        </span><span class="s2">"password"</span>
+<a id="__codelineno-153-52" name="__codelineno-153-52" href="#__codelineno-153-52"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-153-53" name="__codelineno-153-53" href="#__codelineno-153-53"></a><span class="p">}</span>
 </code></pre></div>
 </details>
 </div>
@@ -21155,25 +21209,30 @@ Creates a new version for audit and regenerates the JWT</p>
 <a id="__codelineno-155-28" name="__codelineno-155-28" href="#__codelineno-155-28"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin@example.com"</span>
 <a id="__codelineno-155-29" name="__codelineno-155-29" href="#__codelineno-155-29"></a><span class="w">        </span><span class="p">},</span>
 <a id="__codelineno-155-30" name="__codelineno-155-30" href="#__codelineno-155-30"></a><span class="w">        </span><span class="nt">"registrationCertificateDefaults"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-155-31" name="__codelineno-155-31" href="#__codelineno-155-31"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"object"</span><span class="p">,</span>
-<a id="__codelineno-155-32" name="__codelineno-155-32" href="#__codelineno-155-32"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-155-33" name="__codelineno-155-33" href="#__codelineno-155-33"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)"</span><span class="p">,</span>
-<a id="__codelineno-155-34" name="__codelineno-155-34" href="#__codelineno-155-34"></a><span class="w">            </span><span class="nt">"additionalProperties"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-155-35" name="__codelineno-155-35" href="#__codelineno-155-35"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-155-36" name="__codelineno-155-36" href="#__codelineno-155-36"></a><span class="w">        </span><span class="nt">"hasPassword"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-155-37" name="__codelineno-155-37" href="#__codelineno-155-37"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"boolean"</span><span class="p">,</span>
-<a id="__codelineno-155-38" name="__codelineno-155-38" href="#__codelineno-155-38"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Indicates whether a password is configured (actual password is never returned)"</span><span class="p">,</span>
-<a id="__codelineno-155-39" name="__codelineno-155-39" href="#__codelineno-155-39"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-155-40" name="__codelineno-155-40" href="#__codelineno-155-40"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-155-41" name="__codelineno-155-41" href="#__codelineno-155-41"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-155-42" name="__codelineno-155-42" href="#__codelineno-155-42"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-155-43" name="__codelineno-155-43" href="#__codelineno-155-43"></a><span class="w">        </span><span class="s2">"registrarUrl"</span><span class="p">,</span>
-<a id="__codelineno-155-44" name="__codelineno-155-44" href="#__codelineno-155-44"></a><span class="w">        </span><span class="s2">"oidcUrl"</span><span class="p">,</span>
-<a id="__codelineno-155-45" name="__codelineno-155-45" href="#__codelineno-155-45"></a><span class="w">        </span><span class="s2">"clientId"</span><span class="p">,</span>
-<a id="__codelineno-155-46" name="__codelineno-155-46" href="#__codelineno-155-46"></a><span class="w">        </span><span class="s2">"username"</span><span class="p">,</span>
-<a id="__codelineno-155-47" name="__codelineno-155-47" href="#__codelineno-155-47"></a><span class="w">        </span><span class="s2">"hasPassword"</span>
-<a id="__codelineno-155-48" name="__codelineno-155-48" href="#__codelineno-155-48"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-155-49" name="__codelineno-155-49" href="#__codelineno-155-49"></a><span class="p">}</span>
+<a id="__codelineno-155-31" name="__codelineno-155-31" href="#__codelineno-155-31"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-155-32" name="__codelineno-155-32" href="#__codelineno-155-32"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)"</span><span class="p">,</span>
+<a id="__codelineno-155-33" name="__codelineno-155-33" href="#__codelineno-155-33"></a><span class="w">            </span><span class="nt">"additionalProperties"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-155-34" name="__codelineno-155-34" href="#__codelineno-155-34"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"object"</span><span class="p">,</span>
+<a id="__codelineno-155-35" name="__codelineno-155-35" href="#__codelineno-155-35"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-155-36" name="__codelineno-155-36" href="#__codelineno-155-36"></a><span class="w">                </span><span class="p">{</span>
+<a id="__codelineno-155-37" name="__codelineno-155-37" href="#__codelineno-155-37"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/RegistrationCertificateDefaults"</span>
+<a id="__codelineno-155-38" name="__codelineno-155-38" href="#__codelineno-155-38"></a><span class="w">                </span><span class="p">}</span>
+<a id="__codelineno-155-39" name="__codelineno-155-39" href="#__codelineno-155-39"></a><span class="w">            </span><span class="p">]</span>
+<a id="__codelineno-155-40" name="__codelineno-155-40" href="#__codelineno-155-40"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-155-41" name="__codelineno-155-41" href="#__codelineno-155-41"></a><span class="w">        </span><span class="nt">"hasPassword"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-155-42" name="__codelineno-155-42" href="#__codelineno-155-42"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"boolean"</span><span class="p">,</span>
+<a id="__codelineno-155-43" name="__codelineno-155-43" href="#__codelineno-155-43"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Indicates whether a password is configured (actual password is never returned)"</span><span class="p">,</span>
+<a id="__codelineno-155-44" name="__codelineno-155-44" href="#__codelineno-155-44"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-155-45" name="__codelineno-155-45" href="#__codelineno-155-45"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-155-46" name="__codelineno-155-46" href="#__codelineno-155-46"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-155-47" name="__codelineno-155-47" href="#__codelineno-155-47"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-155-48" name="__codelineno-155-48" href="#__codelineno-155-48"></a><span class="w">        </span><span class="s2">"registrarUrl"</span><span class="p">,</span>
+<a id="__codelineno-155-49" name="__codelineno-155-49" href="#__codelineno-155-49"></a><span class="w">        </span><span class="s2">"oidcUrl"</span><span class="p">,</span>
+<a id="__codelineno-155-50" name="__codelineno-155-50" href="#__codelineno-155-50"></a><span class="w">        </span><span class="s2">"clientId"</span><span class="p">,</span>
+<a id="__codelineno-155-51" name="__codelineno-155-51" href="#__codelineno-155-51"></a><span class="w">        </span><span class="s2">"username"</span><span class="p">,</span>
+<a id="__codelineno-155-52" name="__codelineno-155-52" href="#__codelineno-155-52"></a><span class="w">        </span><span class="s2">"hasPassword"</span>
+<a id="__codelineno-155-53" name="__codelineno-155-53" href="#__codelineno-155-53"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-155-54" name="__codelineno-155-54" href="#__codelineno-155-54"></a><span class="p">}</span>
 </code></pre></div>
 </details>
 </div>
@@ -21262,13 +21321,18 @@ Creates a new version for audit and regenerates the JWT</p>
 <a id="__codelineno-157-32" name="__codelineno-157-32" href="#__codelineno-157-32"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The password for OIDC login (stored in plaintext)"</span>
 <a id="__codelineno-157-33" name="__codelineno-157-33" href="#__codelineno-157-33"></a><span class="w">        </span><span class="p">},</span>
 <a id="__codelineno-157-34" name="__codelineno-157-34" href="#__codelineno-157-34"></a><span class="w">        </span><span class="nt">"registrationCertificateDefaults"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-157-35" name="__codelineno-157-35" href="#__codelineno-157-35"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"object"</span><span class="p">,</span>
-<a id="__codelineno-157-36" name="__codelineno-157-36" href="#__codelineno-157-36"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-157-37" name="__codelineno-157-37" href="#__codelineno-157-37"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)"</span><span class="p">,</span>
-<a id="__codelineno-157-38" name="__codelineno-157-38" href="#__codelineno-157-38"></a><span class="w">            </span><span class="nt">"additionalProperties"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-157-39" name="__codelineno-157-39" href="#__codelineno-157-39"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-157-40" name="__codelineno-157-40" href="#__codelineno-157-40"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-157-41" name="__codelineno-157-41" href="#__codelineno-157-41"></a><span class="p">}</span>
+<a id="__codelineno-157-35" name="__codelineno-157-35" href="#__codelineno-157-35"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-157-36" name="__codelineno-157-36" href="#__codelineno-157-36"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)"</span><span class="p">,</span>
+<a id="__codelineno-157-37" name="__codelineno-157-37" href="#__codelineno-157-37"></a><span class="w">            </span><span class="nt">"additionalProperties"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-157-38" name="__codelineno-157-38" href="#__codelineno-157-38"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"object"</span><span class="p">,</span>
+<a id="__codelineno-157-39" name="__codelineno-157-39" href="#__codelineno-157-39"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-157-40" name="__codelineno-157-40" href="#__codelineno-157-40"></a><span class="w">                </span><span class="p">{</span>
+<a id="__codelineno-157-41" name="__codelineno-157-41" href="#__codelineno-157-41"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/RegistrationCertificateDefaults"</span>
+<a id="__codelineno-157-42" name="__codelineno-157-42" href="#__codelineno-157-42"></a><span class="w">                </span><span class="p">}</span>
+<a id="__codelineno-157-43" name="__codelineno-157-43" href="#__codelineno-157-43"></a><span class="w">            </span><span class="p">]</span>
+<a id="__codelineno-157-44" name="__codelineno-157-44" href="#__codelineno-157-44"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-157-45" name="__codelineno-157-45" href="#__codelineno-157-45"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-157-46" name="__codelineno-157-46" href="#__codelineno-157-46"></a><span class="p">}</span>
 </code></pre></div>
 </details>
 </div>
@@ -21325,25 +21389,30 @@ Creates a new version for audit and regenerates the JWT</p>
 <a id="__codelineno-159-28" name="__codelineno-159-28" href="#__codelineno-159-28"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="s2">"admin@example.com"</span>
 <a id="__codelineno-159-29" name="__codelineno-159-29" href="#__codelineno-159-29"></a><span class="w">        </span><span class="p">},</span>
 <a id="__codelineno-159-30" name="__codelineno-159-30" href="#__codelineno-159-30"></a><span class="w">        </span><span class="nt">"registrationCertificateDefaults"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-159-31" name="__codelineno-159-31" href="#__codelineno-159-31"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"object"</span><span class="p">,</span>
-<a id="__codelineno-159-32" name="__codelineno-159-32" href="#__codelineno-159-32"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-159-33" name="__codelineno-159-33" href="#__codelineno-159-33"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)"</span><span class="p">,</span>
-<a id="__codelineno-159-34" name="__codelineno-159-34" href="#__codelineno-159-34"></a><span class="w">            </span><span class="nt">"additionalProperties"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-159-35" name="__codelineno-159-35" href="#__codelineno-159-35"></a><span class="w">        </span><span class="p">},</span>
-<a id="__codelineno-159-36" name="__codelineno-159-36" href="#__codelineno-159-36"></a><span class="w">        </span><span class="nt">"hasPassword"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-159-37" name="__codelineno-159-37" href="#__codelineno-159-37"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"boolean"</span><span class="p">,</span>
-<a id="__codelineno-159-38" name="__codelineno-159-38" href="#__codelineno-159-38"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Indicates whether a password is configured (actual password is never returned)"</span><span class="p">,</span>
-<a id="__codelineno-159-39" name="__codelineno-159-39" href="#__codelineno-159-39"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
-<a id="__codelineno-159-40" name="__codelineno-159-40" href="#__codelineno-159-40"></a><span class="w">        </span><span class="p">}</span>
-<a id="__codelineno-159-41" name="__codelineno-159-41" href="#__codelineno-159-41"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-159-42" name="__codelineno-159-42" href="#__codelineno-159-42"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<a id="__codelineno-159-43" name="__codelineno-159-43" href="#__codelineno-159-43"></a><span class="w">        </span><span class="s2">"registrarUrl"</span><span class="p">,</span>
-<a id="__codelineno-159-44" name="__codelineno-159-44" href="#__codelineno-159-44"></a><span class="w">        </span><span class="s2">"oidcUrl"</span><span class="p">,</span>
-<a id="__codelineno-159-45" name="__codelineno-159-45" href="#__codelineno-159-45"></a><span class="w">        </span><span class="s2">"clientId"</span><span class="p">,</span>
-<a id="__codelineno-159-46" name="__codelineno-159-46" href="#__codelineno-159-46"></a><span class="w">        </span><span class="s2">"username"</span><span class="p">,</span>
-<a id="__codelineno-159-47" name="__codelineno-159-47" href="#__codelineno-159-47"></a><span class="w">        </span><span class="s2">"hasPassword"</span>
-<a id="__codelineno-159-48" name="__codelineno-159-48" href="#__codelineno-159-48"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-159-49" name="__codelineno-159-49" href="#__codelineno-159-49"></a><span class="p">}</span>
+<a id="__codelineno-159-31" name="__codelineno-159-31" href="#__codelineno-159-31"></a><span class="w">            </span><span class="nt">"nullable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-159-32" name="__codelineno-159-32" href="#__codelineno-159-32"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)"</span><span class="p">,</span>
+<a id="__codelineno-159-33" name="__codelineno-159-33" href="#__codelineno-159-33"></a><span class="w">            </span><span class="nt">"additionalProperties"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-159-34" name="__codelineno-159-34" href="#__codelineno-159-34"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"object"</span><span class="p">,</span>
+<a id="__codelineno-159-35" name="__codelineno-159-35" href="#__codelineno-159-35"></a><span class="w">            </span><span class="nt">"allOf"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-159-36" name="__codelineno-159-36" href="#__codelineno-159-36"></a><span class="w">                </span><span class="p">{</span>
+<a id="__codelineno-159-37" name="__codelineno-159-37" href="#__codelineno-159-37"></a><span class="w">                    </span><span class="nt">"$ref"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#/components/schemas/RegistrationCertificateDefaults"</span>
+<a id="__codelineno-159-38" name="__codelineno-159-38" href="#__codelineno-159-38"></a><span class="w">                </span><span class="p">}</span>
+<a id="__codelineno-159-39" name="__codelineno-159-39" href="#__codelineno-159-39"></a><span class="w">            </span><span class="p">]</span>
+<a id="__codelineno-159-40" name="__codelineno-159-40" href="#__codelineno-159-40"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-159-41" name="__codelineno-159-41" href="#__codelineno-159-41"></a><span class="w">        </span><span class="nt">"hasPassword"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-159-42" name="__codelineno-159-42" href="#__codelineno-159-42"></a><span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"boolean"</span><span class="p">,</span>
+<a id="__codelineno-159-43" name="__codelineno-159-43" href="#__codelineno-159-43"></a><span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Indicates whether a password is configured (actual password is never returned)"</span><span class="p">,</span>
+<a id="__codelineno-159-44" name="__codelineno-159-44" href="#__codelineno-159-44"></a><span class="w">            </span><span class="nt">"example"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-159-45" name="__codelineno-159-45" href="#__codelineno-159-45"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-159-46" name="__codelineno-159-46" href="#__codelineno-159-46"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-159-47" name="__codelineno-159-47" href="#__codelineno-159-47"></a><span class="w">    </span><span class="nt">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-159-48" name="__codelineno-159-48" href="#__codelineno-159-48"></a><span class="w">        </span><span class="s2">"registrarUrl"</span><span class="p">,</span>
+<a id="__codelineno-159-49" name="__codelineno-159-49" href="#__codelineno-159-49"></a><span class="w">        </span><span class="s2">"oidcUrl"</span><span class="p">,</span>
+<a id="__codelineno-159-50" name="__codelineno-159-50" href="#__codelineno-159-50"></a><span class="w">        </span><span class="s2">"clientId"</span><span class="p">,</span>
+<a id="__codelineno-159-51" name="__codelineno-159-51" href="#__codelineno-159-51"></a><span class="w">        </span><span class="s2">"username"</span><span class="p">,</span>
+<a id="__codelineno-159-52" name="__codelineno-159-52" href="#__codelineno-159-52"></a><span class="w">        </span><span class="s2">"hasPassword"</span>
+<a id="__codelineno-159-53" name="__codelineno-159-53" href="#__codelineno-159-53"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-159-54" name="__codelineno-159-54" href="#__codelineno-159-54"></a><span class="p">}</span>
 </code></pre></div>
 </details>
 </div>
@@ -23316,7 +23385,7 @@ passed inside a signed request object it can already be an array.</td>
         <tr>
             <td><code>registrationCertificateDefaults</code></td>
             <td></td>
-            <td>Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)</td>
+            <td>Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)</td>
         </tr>
         <tr>
             <td><code>username</code></td>
@@ -25944,7 +26013,7 @@ If not provided, the configured webhook from the configuration will be used.</td
         <tr>
             <td><code>registrationCertificateDefaults</code></td>
             <td></td>
-            <td>Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)</td>
+            <td>Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)</td>
         </tr>
         <tr>
             <td><code>username</code></td>
@@ -25997,6 +26066,29 @@ If not provided, the configured webhook from the configuration will be used.</td
     </tbody>
 </table>
 
+<h3 id="registrationcertificatedefaults">RegistrationCertificateDefaults<a class="headerlink" href="#registrationcertificatedefaults" title="Permanent link">¶</a></h3>
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>privacy_policy</code></td>
+            <td><span class="string-type">string</span></td>
+            <td>Default privacy policy URL for registration certificate creation.</td>
+        </tr>
+        <tr>
+            <td><code>support_uri</code></td>
+            <td><span class="string-type">string</span></td>
+            <td>Default support contact URI for registration certificate creation.</td>
+        </tr>
+    </tbody>
+</table>
+
 <h3 id="registrationcertificatepurpose">RegistrationCertificatePurpose<a class="headerlink" href="#registrationcertificatepurpose" title="Permanent link">¶</a></h3>
 <table>
     <thead>
@@ -26008,12 +26100,12 @@ If not provided, the configured webhook from the configuration will be used.</td
     </thead>
     <tbody>
         <tr>
-            <td><code>lang</code></td>
+            <td><code>content</code></td>
             <td><span class="string-type">string</span></td>
             <td></td>
         </tr>
         <tr>
-            <td><code>value</code></td>
+            <td><code>lang</code></td>
             <td><span class="string-type">string</span></td>
             <td></td>
         </tr>
@@ -27182,7 +27274,7 @@ Stored for round-tripping when editing.</td>
         <tr>
             <td><code>registrationCertificateDefaults</code></td>
             <td></td>
-            <td>Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)</td>
+            <td>Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)</td>
         </tr>
         <tr>
             <td><code>username</code></td>
@@ -31183,7 +31275,7 @@ passed inside a signed request object it can already be an array.</td>
         <tr>
             <td><code>registrationCertificateDefaults</code></td>
             <td></td>
-            <td>Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)</td>
+            <td>Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)</td>
         </tr>
         <tr>
             <td><code>username</code></td>
@@ -33811,7 +33903,7 @@ If not provided, the configured webhook from the configuration will be used.</td
         <tr>
             <td><code>registrationCertificateDefaults</code></td>
             <td></td>
-            <td>Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)</td>
+            <td>Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)</td>
         </tr>
         <tr>
             <td><code>username</code></td>
@@ -33864,6 +33956,29 @@ If not provided, the configured webhook from the configuration will be used.</td
     </tbody>
 </table>
 
+<h3 id="registrationcertificatedefaults_1">RegistrationCertificateDefaults<a class="headerlink" href="#registrationcertificatedefaults_1" title="Permanent link">¶</a></h3>
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>privacy_policy</code></td>
+            <td><span class="string-type">string</span></td>
+            <td>Default privacy policy URL for registration certificate creation.</td>
+        </tr>
+        <tr>
+            <td><code>support_uri</code></td>
+            <td><span class="string-type">string</span></td>
+            <td>Default support contact URI for registration certificate creation.</td>
+        </tr>
+    </tbody>
+</table>
+
 <h3 id="registrationcertificatepurpose_1">RegistrationCertificatePurpose<a class="headerlink" href="#registrationcertificatepurpose_1" title="Permanent link">¶</a></h3>
 <table>
     <thead>
@@ -33875,12 +33990,12 @@ If not provided, the configured webhook from the configuration will be used.</td
     </thead>
     <tbody>
         <tr>
-            <td><code>lang</code></td>
+            <td><code>content</code></td>
             <td><span class="string-type">string</span></td>
             <td></td>
         </tr>
         <tr>
-            <td><code>value</code></td>
+            <td><code>lang</code></td>
             <td><span class="string-type">string</span></td>
             <td></td>
         </tr>
@@ -35049,7 +35164,7 @@ Stored for round-tripping when editing.</td>
         <tr>
             <td><code>registrationCertificateDefaults</code></td>
             <td></td>
-            <td>Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)</td>
+            <td>Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)</td>
         </tr>
         <tr>
             <td><code>username</code></td>

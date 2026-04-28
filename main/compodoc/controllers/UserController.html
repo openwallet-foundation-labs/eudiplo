@@ -188,6 +188,10 @@
                                 <a href="#getUsers" >getUsers</a>
                             </li>
                             <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#requireTenantContext" >requireTenantContext</a>
+                            </li>
+                            <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
@@ -245,8 +249,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="49"
-                                    class="link-to-prism">src/auth/user/user.controller.ts:49</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="60"
+                                    class="link-to-prism">src/auth/user/user.controller.ts:60</a></div>
                         </td>
                     </tr>
 
@@ -336,8 +340,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="91"
-                                    class="link-to-prism">src/auth/user/user.controller.ts:91</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="104"
+                                    class="link-to-prism">src/auth/user/user.controller.ts:104</a></div>
                         </td>
                     </tr>
 
@@ -427,8 +431,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="40"
-                                    class="link-to-prism">src/auth/user/user.controller.ts:40</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="50"
+                                    class="link-to-prism">src/auth/user/user.controller.ts:50</a></div>
                         </td>
                     </tr>
 
@@ -518,8 +522,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="32"
-                                    class="link-to-prism">src/auth/user/user.controller.ts:32</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="41"
+                                    class="link-to-prism">src/auth/user/user.controller.ts:41</a></div>
                         </td>
                     </tr>
 
@@ -569,6 +573,75 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="requireTenantContext"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>requireTenantContext</b></span>
+                        <a href="#requireTenantContext"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>requireTenantContext(user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="28"
+                                    class="link-to-prism">src/auth/user/user.controller.ts:28</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="updateUser"></a>
                     <span class="name">
                             <span class="modifier"></span>
@@ -598,8 +671,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="70"
-                                    class="link-to-prism">src/auth/user/user.controller.ts:70</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="82"
+                                    class="link-to-prism">src/auth/user/user.controller.ts:82</a></div>
                         </td>
                     </tr>
 
@@ -700,12 +773,22 @@ export class UserController {
         @Inject(USERS_PROVIDER) private readonly users: UsersProvider,
     ) {}
 
+    private requireTenantContext(user: TokenPayload): string {
+        if (!user.entity?.id) {
+            throw new ForbiddenException(
+                &quot;This endpoint requires a tenant context. Use a tenant-bound account.&quot;,
+            );
+        }
+        return user.entity.id;
+    }
+
     @ApiOperation({ summary: &quot;Get all managed users for the current tenant&quot; })
     @ApiResponse({ status: 200, type: ManagedUserDto, isArray: true })
     @Secured([Role.Users])
     @Get()
     getUsers(@Token() user: TokenPayload) {
-        return this.users.getUsers(user.entity!.id);
+        const tenantId &#x3D; this.requireTenantContext(user);
+        return this.users.getUsers(tenantId);
     }
 
     @ApiOperation({ summary: &quot;Get a managed user by id&quot; })
@@ -713,7 +796,8 @@ export class UserController {
     @Secured([Role.Users])
     @Get(&quot;:id&quot;)
     getUser(@Param(&quot;id&quot;) id: string, @Token() user: TokenPayload) {
-        return this.users.getUser(user.entity!.id, id);
+        const tenantId &#x3D; this.requireTenantContext(user);
+        return this.users.getUser(tenantId, id);
     }
 
     @ApiOperation({ summary: &quot;Create a new managed user&quot; })
@@ -725,6 +809,7 @@ export class UserController {
         @Body() createUserDto: CreateUserDto,
         @Token() user: TokenPayload,
     ) {
+        const tenantId &#x3D; this.requireTenantContext(user);
         if (
             createUserDto.roles?.includes(Role.Tenants) &amp;&amp;
             !user.roles.includes(Role.Tenants)
@@ -734,7 +819,7 @@ export class UserController {
             );
         }
 
-        return this.users.addUser(user.entity!.id, createUserDto);
+        return this.users.addUser(tenantId, createUserDto);
     }
 
     @ApiOperation({ summary: &quot;Update a managed user&quot; })
@@ -747,6 +832,7 @@ export class UserController {
         @Body() updateUserDto: UpdateUserDto,
         @Token() user: TokenPayload,
     ) {
+        const tenantId &#x3D; this.requireTenantContext(user);
         if (
             updateUserDto.roles?.includes(Role.Tenants) &amp;&amp;
             !user.roles.includes(Role.Tenants)
@@ -756,7 +842,7 @@ export class UserController {
             );
         }
 
-        return this.users.updateUser(user.entity!.id, id, updateUserDto);
+        return this.users.updateUser(tenantId, id, updateUserDto);
     }
 
     @ApiOperation({ summary: &quot;Delete a managed user&quot; })
@@ -764,7 +850,8 @@ export class UserController {
     @Secured([Role.Users])
     @Delete(&quot;:id&quot;)
     deleteUser(@Param(&quot;id&quot;) id: string, @Token() user: TokenPayload) {
-        return this.users.removeUser(user.entity!.id, id);
+        const tenantId &#x3D; this.requireTenantContext(user);
+        return this.users.removeUser(tenantId, id);
     }
 }
 </code></pre>

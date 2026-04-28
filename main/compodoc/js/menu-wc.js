@@ -472,13 +472,13 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="modules/RegistrarModule.html" data-type="entity-link" >RegistrarModule</a>
                                     <li class="chapter inner">
                                         <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
-                                            'data-bs-target="#controllers-links-module-RegistrarModule-c8e32871f61293606f6816f87f2db6aeb48ef528e4ae0023d9f9c2d52d528a2fd9e84b6a1b8a51d6ab5617781fccca14bd1689b740fe0bc89c3d3fe26077225a"' : 'data-bs-target="#xs-controllers-links-module-RegistrarModule-c8e32871f61293606f6816f87f2db6aeb48ef528e4ae0023d9f9c2d52d528a2fd9e84b6a1b8a51d6ab5617781fccca14bd1689b740fe0bc89c3d3fe26077225a"' }>
+                                            'data-bs-target="#controllers-links-module-RegistrarModule-265fefc8e6d3c98d71505470ba2461847335d3ca3b12abe43a7af97bbef9a2bfd4319d33284dd0271502747743d73875de7651ac50666460f84f54a5674ccf7d"' : 'data-bs-target="#xs-controllers-links-module-RegistrarModule-265fefc8e6d3c98d71505470ba2461847335d3ca3b12abe43a7af97bbef9a2bfd4319d33284dd0271502747743d73875de7651ac50666460f84f54a5674ccf7d"' }>
                                             <span class="icon ion-md-swap"></span>
                                             <span>Controllers</span>
                                             <span class="icon ion-ios-arrow-down"></span>
                                         </div>
-                                        <ul class="links collapse" ${ isNormalMode ? 'id="controllers-links-module-RegistrarModule-c8e32871f61293606f6816f87f2db6aeb48ef528e4ae0023d9f9c2d52d528a2fd9e84b6a1b8a51d6ab5617781fccca14bd1689b740fe0bc89c3d3fe26077225a"' :
-                                            'id="xs-controllers-links-module-RegistrarModule-c8e32871f61293606f6816f87f2db6aeb48ef528e4ae0023d9f9c2d52d528a2fd9e84b6a1b8a51d6ab5617781fccca14bd1689b740fe0bc89c3d3fe26077225a"' }>
+                                        <ul class="links collapse" ${ isNormalMode ? 'id="controllers-links-module-RegistrarModule-265fefc8e6d3c98d71505470ba2461847335d3ca3b12abe43a7af97bbef9a2bfd4319d33284dd0271502747743d73875de7651ac50666460f84f54a5674ccf7d"' :
+                                            'id="xs-controllers-links-module-RegistrarModule-265fefc8e6d3c98d71505470ba2461847335d3ca3b12abe43a7af97bbef9a2bfd4319d33284dd0271502747743d73875de7651ac50666460f84f54a5674ccf7d"' }>
                                             <li class="link">
                                                 <a href="controllers/RegistrarController.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >RegistrarController</a>
                                             </li>
@@ -486,15 +486,27 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                     </li>
                                 <li class="chapter inner">
                                     <div class="simple menu-toggler" data-bs-toggle="collapse" ${ isNormalMode ?
-                                        'data-bs-target="#injectables-links-module-RegistrarModule-c8e32871f61293606f6816f87f2db6aeb48ef528e4ae0023d9f9c2d52d528a2fd9e84b6a1b8a51d6ab5617781fccca14bd1689b740fe0bc89c3d3fe26077225a"' : 'data-bs-target="#xs-injectables-links-module-RegistrarModule-c8e32871f61293606f6816f87f2db6aeb48ef528e4ae0023d9f9c2d52d528a2fd9e84b6a1b8a51d6ab5617781fccca14bd1689b740fe0bc89c3d3fe26077225a"' }>
+                                        'data-bs-target="#injectables-links-module-RegistrarModule-265fefc8e6d3c98d71505470ba2461847335d3ca3b12abe43a7af97bbef9a2bfd4319d33284dd0271502747743d73875de7651ac50666460f84f54a5674ccf7d"' : 'data-bs-target="#xs-injectables-links-module-RegistrarModule-265fefc8e6d3c98d71505470ba2461847335d3ca3b12abe43a7af97bbef9a2bfd4319d33284dd0271502747743d73875de7651ac50666460f84f54a5674ccf7d"' }>
                                         <span class="icon ion-md-arrow-round-down"></span>
                                         <span>Injectables</span>
                                         <span class="icon ion-ios-arrow-down"></span>
                                     </div>
-                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-RegistrarModule-c8e32871f61293606f6816f87f2db6aeb48ef528e4ae0023d9f9c2d52d528a2fd9e84b6a1b8a51d6ab5617781fccca14bd1689b740fe0bc89c3d3fe26077225a"' :
-                                        'id="xs-injectables-links-module-RegistrarModule-c8e32871f61293606f6816f87f2db6aeb48ef528e4ae0023d9f9c2d52d528a2fd9e84b6a1b8a51d6ab5617781fccca14bd1689b740fe0bc89c3d3fe26077225a"' }>
+                                    <ul class="links collapse" ${ isNormalMode ? 'id="injectables-links-module-RegistrarModule-265fefc8e6d3c98d71505470ba2461847335d3ca3b12abe43a7af97bbef9a2bfd4319d33284dd0271502747743d73875de7651ac50666460f84f54a5674ccf7d"' :
+                                        'id="xs-injectables-links-module-RegistrarModule-265fefc8e6d3c98d71505470ba2461847335d3ca3b12abe43a7af97bbef9a2bfd4319d33284dd0271502747743d73875de7651ac50666460f84f54a5674ccf7d"' }>
+                                        <li class="link">
+                                            <a href="injectables/AccessCertificateService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >AccessCertificateService</a>
+                                        </li>
+                                        <li class="link">
+                                            <a href="injectables/RegistrarAuthService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >RegistrarAuthService</a>
+                                        </li>
+                                        <li class="link">
+                                            <a href="injectables/RegistrarConfigService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >RegistrarConfigService</a>
+                                        </li>
                                         <li class="link">
                                             <a href="injectables/RegistrarService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >RegistrarService</a>
+                                        </li>
+                                        <li class="link">
+                                            <a href="injectables/RegistrationCertificateService.html" data-type="entity-link" data-context="sub-entity" data-context-id="modules" >RegistrationCertificateService</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1265,6 +1277,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                             </li>
                             <li class="link">
                                 <a href="classes/RegistrationCertificateBody.html" data-type="entity-link" >RegistrationCertificateBody</a>
+                            </li>
+                            <li class="link">
+                                <a href="classes/RegistrationCertificateDefaults.html" data-type="entity-link" >RegistrationCertificateDefaults</a>
                             </li>
                             <li class="link">
                                 <a href="classes/RegistrationCertificatePurpose.html" data-type="entity-link" >RegistrationCertificatePurpose</a>

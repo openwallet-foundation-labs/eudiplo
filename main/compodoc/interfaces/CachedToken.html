@@ -141,7 +141,7 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/registrar/registrar.service.ts</code>
+            <code>src/registrar/registrar-auth.service.ts</code>
         </p>
 
 
@@ -260,37 +260,17 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { createHash } from &quot;node:crypto&quot;;
-import { existsSync, readFileSync } from &quot;node:fs&quot;;
-import { join } from &quot;node:path&quot;;
-import { OAuth2Client, OAuth2Token } from &quot;@badgateway/oauth2-client&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { OAuth2Client, OAuth2Token } from &quot;@badgateway/oauth2-client&quot;;
 import {
     BadRequestException,
     Injectable,
     Logger,
     NotFoundException,
 } from &quot;@nestjs/common&quot;;
-import { ConfigService } from &quot;@nestjs/config&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
-import { plainToClass } from &quot;class-transformer&quot;;
-import { decodeJwt } from &quot;jose&quot;;
 import { Repository } from &quot;typeorm&quot;;
-import { TenantEntity } from &quot;../auth/tenant/entitites/tenant.entity&quot;;
-import { CertService } from &quot;../crypto/key/cert/cert.service&quot;;
-import { KeyChainService } from &quot;../crypto/key/key-chain.service&quot;;
-import {
-    ConfigImportOrchestratorService,
-    ImportPhase,
-} from &quot;../shared/utils/config-import/config-import-orchestrator.service&quot;;
-import { CreateAccessCertificateDto } from &quot;./dto/create-access-certificate.dto&quot;;
-import { CreateRegistrarConfigDto } from &quot;./dto/create-registrar-config.dto&quot;;
-import { UpdateRegistrarConfigDto } from &quot;./dto/update-registrar-config.dto&quot;;
 import { RegistrarConfigEntity } from &quot;./entities/registrar-config.entity&quot;;
 import {
-    accessCertificateControllerRegister,
-    type RegistrationCertificateCreation,
-    registrationCertificateControllerAll,
-    registrationCertificateControllerRegister,
     relyingPartyControllerFindAll,
     relyingPartyControllerRegister,
 } from &quot;./generated&quot;;
@@ -305,210 +285,26 @@ interface CachedToken {
 }
 
 /**
- * RegistrarService is responsible for managing the interaction with the registrar,
- * specifically for creating access certificates.
- *
- * This service supports per-tenant registrar configuration, allowing each tenant
- * to connect to their own registrar instance with their own credentials.
+ * Handles OAuth2 token acquisition/caching and low-level registrar client
+ * creation. Also provides {@link getRelyingPartyId} which is shared by both
+ * access-certificate and registration-certificate flows.
  */
 @Injectable()
-export class RegistrarService {
-    private readonly logger &#x3D; new Logger(RegistrarService.name);
+export class RegistrarAuthService {
+    private readonly logger &#x3D; new Logger(RegistrarAuthService.name);
 
-    /**
-     * Cache of OAuth2 tokens per tenant.
-     */
     private readonly tokenCache &#x3D; new Map&lt;string, CachedToken&gt;();
 
     constructor(
-        private readonly configService: ConfigService,
-        configImportOrchestrator: ConfigImportOrchestratorService,
         @InjectRepository(RegistrarConfigEntity)
         private readonly configRepository: Repository&lt;RegistrarConfigEntity&gt;,
-        private readonly certService: CertService,
-        private readonly keyChainService: KeyChainService,
-    ) {
-        // Register for config import at CORE phase (same as certificates)
-        configImportOrchestrator.register(
-            &quot;registrar&quot;,
-            ImportPhase.CORE,
-            (tenantId) &#x3D;&gt; this.importForTenant(tenantId),
-        );
-    }
-
-    /**
-     * Import registrar configuration for a tenant from the config folder.
-     * Looks for a registrar.json file in the tenant&#x27;s folder.
-     * @param tenantId - The tenant ID to import for
-     */
-    private async importForTenant(tenantId: string): Promise&lt;void&gt; {
-        const configPath &#x3D; this.configService.getOrThrow(&quot;CONFIG_FOLDER&quot;);
-        const force &#x3D; this.configService.get&lt;boolean&gt;(&quot;CONFIG_IMPORT_FORCE&quot;);
-        const filePath &#x3D; join(configPath, tenantId, &quot;registrar.json&quot;);
-
-        if (!existsSync(filePath)) {
-            return;
-        }
-
-        try {
-            // Check if already exists
-            const existing &#x3D; await this.configRepository.findOneBy({
-                tenantId,
-            });
-            if (existing &amp;&amp; !force) {
-                this.logger.debug(
-                    &#x60;[${tenantId}] Registrar config already exists, skipping&#x60;,
-                );
-                return;
-            }
-
-            // Delete existing if force is enabled
-            if (existing &amp;&amp; force) {
-                await this.configRepository.delete({ tenantId });
-            }
-
-            // Load and validate the config
-            const payload &#x3D; JSON.parse(readFileSync(filePath, &quot;utf8&quot;));
-            const config &#x3D; plainToClass(CreateRegistrarConfigDto, payload);
-
-            // Save without testing credentials (they may not be valid during import)
-            await this.configRepository.save({
-                tenantId,
-                ...config,
-            });
-
-            this.logger.log(&#x60;[${tenantId}] Registrar config imported&#x60;);
-        } catch (error: any) {
-            this.logger.error(
-                &#x60;[${tenantId}] Failed to import registrar config: ${error.message}&#x60;,
-            );
-        }
-    }
-
-    /**
-     * Check if a tenant has registrar configuration.
-     * @param tenantId - The tenant ID to check
-     * @returns True if the tenant has registrar config, false otherwise
-     */
-    async isEnabledForTenant(tenantId: string): Promise&lt;boolean&gt; {
-        const config &#x3D; await this.configRepository.findOneBy({ tenantId });
-        return !!config;
-    }
-
-    /**
-     * Called when a tenant is initialized.
-     * With per-tenant configuration, this is a no-op.
-     * The tenant must explicitly configure their registrar settings.
-     * @param _tenant - The tenant entity (unused)
-     */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async onTenantInit(_tenant: TenantEntity): Promise&lt;void&gt; {
-        // No-op: with per-tenant configuration, registrar setup is done explicitly
-        // through the registrar config API, not automatically on tenant creation.
-    }
-
-    /**
-     * Get the registrar configuration for a tenant.
-     * @param tenantId - The tenant ID
-     * @returns The registrar configuration or null if not configured
-     */
-    getConfig(tenantId: string): Promise&lt;RegistrarConfigEntity | null&gt; {
-        return this.configRepository.findOneBy({ tenantId });
-    }
-
-    /**
-     * Create or update the registrar configuration for a tenant.
-     * Tests the credentials before saving.
-     * @param tenantId - The tenant ID
-     * @param dto - The configuration data
-     * @returns The saved configuration
-     */
-    async saveConfig(
-        tenantId: string,
-        dto: CreateRegistrarConfigDto,
-    ): Promise&lt;RegistrarConfigEntity&gt; {
-        // Test credentials before saving
-        await this.testCredentials(dto);
-
-        const config &#x3D; await this.configRepository.save({
-            tenantId,
-            ...dto,
-        });
-
-        // Clear any cached token for this tenant
-        this.tokenCache.delete(tenantId);
-
-        this.logger.log(&#x60;[${tenantId}] Registrar configuration saved&#x60;);
-        return config;
-    }
-
-    /**
-     * Update the registrar configuration for a tenant.
-     * Tests the credentials before saving if auth-related fields are updated.
-     * @param tenantId - The tenant ID
-     * @param dto - The partial configuration data to update
-     * @returns The updated configuration
-     */
-    async updateConfig(
-        tenantId: string,
-        dto: UpdateRegistrarConfigDto,
-    ): Promise&lt;RegistrarConfigEntity&gt; {
-        const existing &#x3D; await this.configRepository.findOneBy({ tenantId });
-        if (!existing) {
-            throw new NotFoundException(
-                &#x60;No registrar configuration found for tenant ${tenantId}&#x60;,
-            );
-        }
-
-        // If any auth-related field is being updated, test the new credentials
-        const hasAuthChanges &#x3D;
-            dto.oidcUrl !&#x3D;&#x3D; undefined ||
-            dto.clientId !&#x3D;&#x3D; undefined ||
-            dto.clientSecret !&#x3D;&#x3D; undefined ||
-            dto.username !&#x3D;&#x3D; undefined ||
-            dto.password !&#x3D;&#x3D; undefined;
-
-        if (hasAuthChanges) {
-            // Merge existing config with updates for testing
-            const testConfig &#x3D; {
-                registrarUrl: dto.registrarUrl ?? existing.registrarUrl,
-                oidcUrl: dto.oidcUrl ?? existing.oidcUrl,
-                clientId: dto.clientId ?? existing.clientId,
-                clientSecret: dto.clientSecret ?? existing.clientSecret,
-                username: dto.username ?? existing.username,
-                password: dto.password ?? existing.password,
-            };
-            await this.testCredentials(testConfig);
-        }
-
-        await this.configRepository.save({
-            ...existing,
-            ...dto,
-            tenantId,
-        });
-
-        // Clear any cached token for this tenant
-        this.tokenCache.delete(tenantId);
-
-        return this.configRepository.findOneByOrFail({ tenantId });
-    }
-
-    /**
-     * Delete the registrar configuration for a tenant.
-     * @param tenantId - The tenant ID
-     */
-    async deleteConfig(tenantId: string): Promise&lt;void&gt; {
-        await this.configRepository.delete({ tenantId });
-        this.tokenCache.delete(tenantId);
-        this.logger.log(&#x60;[${tenantId}] Registrar configuration deleted&#x60;);
-    }
+    ) {}
 
     /**
      * Test OIDC credentials by attempting to obtain an access token.
-     * @param config - The configuration to test
      * @throws BadRequestException if authentication fails
      */
-    private async testCredentials(config: {
+    async testCredentials(config: {
         oidcUrl: string;
         clientId: string;
         clientSecret?: string;
@@ -537,13 +333,9 @@ export class RegistrarService {
     }
 
     /**
-     * Get or refresh the access token for a tenant.
-     * Uses Resource Owner Password Credentials (ROPC) flow.
-     * @param tenantId - The tenant ID
-     * @returns The access token
+     * Get or refresh the access token for a tenant using the ROPC flow.
      */
-    private async getAccessToken(tenantId: string): Promise&lt;string&gt; {
-        // Check cache first
+    async getAccessToken(tenantId: string): Promise&lt;string&gt; {
         const cached &#x3D; this.tokenCache.get(tenantId);
         if (cached &amp;&amp; cached.expiresAt &gt; Date.now() + 5000) {
             return cached.token;
@@ -565,7 +357,6 @@ export class RegistrarService {
 
         let tokenResponse: OAuth2Token;
         try {
-            // Use Resource Owner Password Credentials (ROPC) flow
             tokenResponse &#x3D; await oauth2Client.password({
                 username: config.username,
                 password: config.password,
@@ -579,11 +370,10 @@ export class RegistrarService {
             );
         }
 
-        // Cache the token
         const expiresAt &#x3D;
             typeof tokenResponse.expiresAt &#x3D;&#x3D;&#x3D; &quot;number&quot;
                 ? tokenResponse.expiresAt
-                : Date.now() + 3600 * 1000; // Default 1 hour
+                : Date.now() + 3600 * 1000;
 
         this.tokenCache.set(tenantId, {
             token: tokenResponse.accessToken,
@@ -594,11 +384,9 @@ export class RegistrarService {
     }
 
     /**
-     * Create a configured client for the registrar API.
-     * @param tenantId - The tenant ID
-     * @returns Configured registrar client
+     * Create a configured registrar API client for the given tenant.
      */
-    private async getClient(tenantId: string) {
+    async getClient(tenantId: string) {
         const config &#x3D; await this.configRepository.findOneBy({ tenantId });
         if (!config) {
             throw new NotFoundException(
@@ -619,11 +407,9 @@ export class RegistrarService {
 
     /**
      * Get the relying party ID from the registrar.
-     * Assumes the user has exactly one relying party.
-     * @param tenantId - The tenant ID
-     * @returns The relying party ID
+     * If none exists yet, one is registered on the fly.
      */
-    private async getRelyingPartyId(tenantId: string): Promise&lt;string&gt; {
+    async getRelyingPartyId(tenantId: string): Promise&lt;string&gt; {
         const client &#x3D; await this.getClient(tenantId);
 
         const res &#x3D; await relyingPartyControllerFindAll({ client });
@@ -639,444 +425,21 @@ export class RegistrarService {
 
         const relyingParties &#x3D; res.data || [];
         if (relyingParties.length &#x3D;&#x3D;&#x3D; 0) {
-            //register one
-            const res &#x3D; await relyingPartyControllerRegister({
+            const createRes &#x3D; await relyingPartyControllerRegister({
                 client,
                 body: {},
             });
-            return res.data!.id;
-        } else {
-            // Return the first (and typically only) relying party
-            return relyingParties[0].id;
+            return createRes.data!.id;
         }
+
+        return relyingParties[0].id;
     }
 
     /**
-     * Create an access certificate for a key.
-     * Fetches the relying party from the registrar, creates the certificate,
-     * and stores it in EUDIPLO.
-     * @param tenantId - The tenant ID
-     * @param dto - The access certificate creation data
-     * @returns The access certificate response with registrar ID, local cert ID, and certificate
+     * Remove the cached token for a tenant (e.g. after config changes).
      */
-    async createAccessCertificate(
-        tenantId: string,
-        dto: CreateAccessCertificateDto,
-    ): Promise&lt;{ id: string; certId: string; crt: string }&gt; {
-        const client &#x3D; await this.getClient(tenantId);
-
-        // Fetch the relying party ID from the registrar
-        const relyingPartyId &#x3D; await this.getRelyingPartyId(tenantId);
-
-        const host &#x3D; new URL(
-            this.configService.getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;),
-        ).hostname;
-
-        const publicKey &#x3D; await this.keyChainService.getPublicKey(
-            &quot;pem&quot;,
-            tenantId,
-            dto.keyId,
-        );
-
-        const res &#x3D; await accessCertificateControllerRegister({
-            client,
-            body: {
-                publicKey,
-                dns: [host],
-                rpId: relyingPartyId,
-            },
-        });
-
-        if (res.error) {
-            this.logger.error(
-                { error: res.error },
-                &#x60;[${tenantId}] Failed to create access certificate&#x60;,
-            );
-            throw new BadRequestException(
-                &quot;Failed to create access certificate&quot;,
-            );
-        }
-
-        const { id, crt } &#x3D; res.data!;
-
-        // Store the certificate in EUDIPLO
-        const certId &#x3D; await this.certService.addCertificate(tenantId, {
-            crt: [crt],
-            keyId: dto.keyId,
-            description: &#x60;Access certificate from registrar (ID: ${id})&#x60;,
-        });
-
-        this.logger.log(
-            &#x60;[${tenantId}] Created access certificate with ID: ${id}, stored as ${certId}&#x60;,
-        );
-
-        return { id, certId, crt };
-    }
-
-    /**
-     * Add a registration certificate for a verification session.
-     * This is called during VP flows to get a registration certificate from the registrar.
-     * The returned JWT is validated for temporal validity (exp/nbf) and its
-     * authorized DCQL credentials are compared with the effective DCQL query
-     * for the request. Fails closed on any mismatch to prevent overasking.
-     * @param req - The registration certificate request body
-     * @param dcqlQuery - The effective DCQL query of the VP request (with &#x60;&lt;TENANT_URL&gt;&#x60; resolved and &#x60;trusted_authorities&#x60; removed)
-     * @param requestId - The session request ID
-     * @param tenantId - The tenant ID
-     * @returns The registration certificate JWT
-     */
-    async addRegistrationCertificate(
-        req: {
-            id?: string;
-            body?: Partial&lt;RegistrationCertificateCreation&gt;;
-            jwt?: string;
-        },
-        dcqlQuery: any,
-        requestId: string,
-        tenantId: string,
-    ): Promise&lt;string&gt; {
-        const resolved &#x3D; await this.resolveRegistrationCertificate(
-            req,
-            dcqlQuery,
-            requestId,
-            tenantId,
-        );
-        return resolved.jwt;
-    }
-
-    /**
-     * Resolve a registration certificate from a spec (&#x60;jwt&#x60; import / &#x60;id&#x60; lookup
-     * / &#x60;body&#x60; creation), validate it against the effective DCQL query and
-     * return both the JWT and its decoded payload.
-     *
-     * This is the canonical entry point used both at presentation-config
-     * save-time (eager caching) and at VP-request time (cache miss / refresh).
-     */
-    async resolveRegistrationCertificate(
-        req: {
-            id?: string;
-            body?: Partial&lt;RegistrationCertificateCreation&gt;;
-            jwt?: string;
-        },
-        dcqlQuery: any,
-        requestId: string,
-        tenantId: string,
-    ): Promise&lt;{
-        jwt: string;
-        payload: Record&lt;string, any&gt;;
-        source: &quot;imported&quot; | &quot;registrar&quot;;
-    }&gt; {
-        if (req.jwt) {
-            const payload &#x3D; this.validateRegistrationCertificate(
-                req.jwt,
-                dcqlQuery,
-                tenantId,
-                requestId,
-                &quot;jwt&quot;,
-            );
-            return { jwt: req.jwt, payload, source: &quot;imported&quot; };
-        }
-
-        if (!req.id &amp;&amp; !req.body) {
-            throw new BadRequestException(
-                &quot;registrationCert must provide either jwt (import existing), id (reuse existing), or body (create new via registrar)&quot;,
-            );
-        }
-
-        const config &#x3D; await this.configRepository.findOneBy({ tenantId });
-        if (!config) {
-            throw new NotFoundException(
-                &#x60;No registrar configuration found for tenant ${tenantId}&#x60;,
-            );
-        }
-
-        const client &#x3D; await this.getClient(tenantId);
-        const relyingPartyId &#x3D; await this.getRelyingPartyId(tenantId);
-
-        // Check if a certificate with the given ID already exists
-        if (req.id) {
-            const existingCerts &#x3D; await registrationCertificateControllerAll({
-                client,
-                query: {
-                    rp: relyingPartyId,
-                },
-            });
-
-            if (existingCerts.error) {
-                this.logger.error(
-                    { error: existingCerts.error },
-                    &#x60;[${tenantId}] Failed to fetch existing registration certificates&#x60;,
-                );
-                throw new BadRequestException(
-                    &quot;Failed to query registration certificates&quot;,
-                );
-            }
-
-            const validCerts &#x3D; existingCerts.data?.filter(
-                (cert) &#x3D;&gt; cert.revoked &#x3D;&#x3D; null &amp;&amp; cert.id &#x3D;&#x3D;&#x3D; req.id,
-            );
-
-            if (validCerts &amp;&amp; validCerts.length &gt; 0) {
-                const payload &#x3D; this.validateRegistrationCertificate(
-                    validCerts[0].jwt,
-                    dcqlQuery,
-                    tenantId,
-                    requestId,
-                    &quot;id&quot;,
-                );
-                return {
-                    jwt: validCerts[0].jwt,
-                    payload,
-                    source: &quot;registrar&quot;,
-                };
-            }
-
-            if (!req.body) {
-                throw new BadRequestException(
-                    &#x60;No active registration certificate found for id &#x27;${req.id}&#x27;. Provide registrationCert.jwt or registrationCert.body to proceed.&#x60;,
-                );
-            }
-        }
-
-        const mergedBody: Partial&lt;RegistrationCertificateCreation&gt; &#x3D; {
-            ...(config.registrationCertificateDefaults ?? {}),
-            ...(req.body ?? {}),
-        };
-
-        if (!mergedBody.privacy_policy || !mergedBody.support_uri) {
-            throw new BadRequestException(
-                &quot;registrationCert.body must include privacy_policy and support_uri (directly or via registrar registrationCertificateDefaults)&quot;,
-            );
-        }
-
-        if (
-            !Array.isArray(mergedBody.purpose) ||
-            mergedBody.purpose.length &#x3D;&#x3D;&#x3D; 0
-        ) {
-            throw new BadRequestException(
-                &quot;registrationCert.body.purpose must be provided in the presentation config&quot;,
-            );
-        }
-
-        // Create a new registration certificate - rpId is always derived from the tenant&#x27;s registrar RP.
-        const bodyWithRpId: RegistrationCertificateCreation &#x3D; {
-            ...mergedBody,
-            rpId: relyingPartyId,
-        } as RegistrationCertificateCreation;
-
-        const res &#x3D; await registrationCertificateControllerRegister({
-            client,
-            body: bodyWithRpId,
-        });
-
-        if (res.error) {
-            this.logger.error(
-                { error: res.error },
-                &#x60;[${tenantId}] Failed to create registration certificate&#x60;,
-            );
-            throw new BadRequestException(
-                &quot;Failed to create registration certificate&quot;,
-            );
-        }
-
-        const newJwt &#x3D; res.data!.jwt;
-        const payload &#x3D; this.validateRegistrationCertificate(
-            newJwt,
-            dcqlQuery,
-            tenantId,
-            requestId,
-            &quot;body&quot;,
-        );
-        return { jwt: newJwt, payload, source: &quot;registrar&quot; };
-    }
-
-    /**
-     * Validate a registration certificate JWT against the effective DCQL query.
-     *
-     * Performs:
-     * 1. JWT decoding (structural validation).
-     * 2. Temporal validity check (&#x60;exp&#x60;, &#x60;nbf&#x60;) with a small clock skew tolerance.
-     * 3. DCQL fingerprint comparison: every credential being requested in
-     *    &#x60;dcqlQuery.credentials&#x60; MUST be present in the certificate&#x27;s authorized
-     *    &#x60;credentials&#x60; claim (canonical-JSON match). Prevents overasking with a
-     *    cert that was issued for a different/narrower set of credentials.
-     *
-     * Fails closed by throwing &#x60;BadRequestException&#x60; on any mismatch.
-     */
-    private validateRegistrationCertificate(
-        jwt: string,
-        dcqlQuery: any,
-        tenantId: string,
-        requestId: string,
-        source: &quot;jwt&quot; | &quot;id&quot; | &quot;body&quot;,
-    ): Record&lt;string, any&gt; {
-        let payload: Record&lt;string, any&gt;;
-        try {
-            payload &#x3D; decodeJwt(jwt) as Record&lt;string, any&gt;;
-        } catch (err) {
-            this.logger.error(
-                { err, requestId, source },
-                &#x60;[${tenantId}] Registration certificate is not a valid JWT&#x60;,
-            );
-            throw new BadRequestException(
-                &quot;Registration certificate is not a valid JWT&quot;,
-            );
-        }
-
-        const now &#x3D; Math.floor(Date.now() / 1000);
-        const skew &#x3D; 60; // seconds
-
-        if (typeof payload.exp &#x3D;&#x3D;&#x3D; &quot;number&quot; &amp;&amp; payload.exp + skew &lt; now) {
-            this.logger.warn(
-                { requestId, source, exp: payload.exp, now },
-                &#x60;[${tenantId}] Registration certificate is expired&#x60;,
-            );
-            throw new BadRequestException(
-                &quot;Registration certificate is expired&quot;,
-            );
-        }
-
-        if (typeof payload.nbf &#x3D;&#x3D;&#x3D; &quot;number&quot; &amp;&amp; payload.nbf - skew &gt; now) {
-            this.logger.warn(
-                { requestId, source, nbf: payload.nbf, now },
-                &#x60;[${tenantId}] Registration certificate is not yet valid&#x60;,
-            );
-            throw new BadRequestException(
-                &quot;Registration certificate is not yet valid&quot;,
-            );
-        }
-
-        const authorizedCredentials &#x3D; Array.isArray(payload.credentials)
-            ? payload.credentials
-            : null;
-
-        if (!authorizedCredentials || authorizedCredentials.length &#x3D;&#x3D;&#x3D; 0) {
-            this.logger.warn(
-                { requestId, source },
-                &#x60;[${tenantId}] Registration certificate has no authorized credentials claim&#x60;,
-            );
-            throw new BadRequestException(
-                &quot;Registration certificate has no authorized credentials&quot;,
-            );
-        }
-        const requestedCredentials &#x3D; Array.isArray(dcqlQuery?.credentials)
-            ? dcqlQuery.credentials
-            : [];
-
-        if (requestedCredentials.length &#x3D;&#x3D;&#x3D; 0) {
-            // Nothing being requested - nothing to authorize against.
-            return payload;
-        }
-
-        const authorizedFingerprints &#x3D; new Set(
-            authorizedCredentials.map((c: any) &#x3D;&gt;
-                this.dcqlCredentialFingerprint(c),
-            ),
-        );
-
-        const unauthorized: any[] &#x3D; [];
-        for (const cred of requestedCredentials) {
-            const fp &#x3D; this.dcqlCredentialFingerprint(cred);
-            if (!authorizedFingerprints.has(fp)) {
-                unauthorized.push(cred);
-            }
-        }
-
-        if (unauthorized.length &gt; 0) {
-            this.logger.error(
-                {
-                    requestId,
-                    source,
-                    unauthorizedIds: unauthorized.map((c) &#x3D;&gt; c?.id),
-                },
-                &#x60;[${tenantId}] Registration certificate does not authorize the requested DCQL credentials (overasking prevented)&#x60;,
-            );
-            throw new BadRequestException(
-                &quot;Registration certificate does not authorize the requested DCQL credentials&quot;,
-            );
-        }
-
-        return payload;
-    }
-
-    /**
-     * Compute a canonical fingerprint over a &#x60;dcql_query.credentials&#x60; array.
-     * Used to detect drift between a cached registration certificate and the
-     * current presentation config&#x27;s DCQL query.
-     */
-    public computeDcqlFingerprint(dcqlQuery: any): string {
-        const credentials &#x3D; Array.isArray(dcqlQuery?.credentials)
-            ? dcqlQuery.credentials
-            : [];
-        const fps &#x3D; credentials
-            .map((c: any) &#x3D;&gt; this.dcqlCredentialFingerprint(c))
-            .sort();
-        return this.hash(fps.join(&quot;|&quot;));
-    }
-
-    /**
-     * Compute a canonical fingerprint over a registration certificate&#x27;s
-     * authorized &#x60;credentials&#x60; claim. Stored in the cache and used to detect
-     * cert content changes (e.g. registrar rotated the cert).
-     */
-    public computeAuthorizedCredentialsFingerprint(
-        credentials: unknown,
-    ): string {
-        const arr &#x3D; Array.isArray(credentials) ? credentials : [];
-        const fps &#x3D; arr
-            .map((c: any) &#x3D;&gt; this.dcqlCredentialFingerprint(c))
-            .sort();
-        return this.hash(fps.join(&quot;|&quot;));
-    }
-
-    private hash(input: string): string {
-        // Lightweight, stable, non-cryptographic fingerprint hash.
-        // Equality is the only property we need here (no secrecy).
-        return createHash(&quot;sha256&quot;).update(input).digest(&quot;hex&quot;);
-    }
-
-    /**
-     * Compute a stable fingerprint over a registration-certificate spec
-     * (&#x60;{ jwt?, id?, body? }&#x60;). Used to detect whether a cached certificate
-     * is still derived from the current spec.
-     */
-    public computeSpecFingerprint(spec: unknown): string {
-        return this.hash(this.canonicalJson(spec ?? null));
-    }
-
-    /**
-     * Compute a stable canonical fingerprint of a single DCQL credential entry.
-     * Strips fields that are not part of the authorization scope (e.g. &#x60;id&#x60;,
-     * &#x60;trusted_authorities&#x60;) and recursively sorts object keys.
-     */
-    private dcqlCredentialFingerprint(cred: any): string {
-        if (!cred || typeof cred !&#x3D;&#x3D; &quot;object&quot;) {
-            return JSON.stringify(cred ?? null);
-        }
-        // Drop fields not relevant to the authorization-scope comparison.
-        const {
-            id: _id,
-            trusted_authorities: _ta,
-            ...rest
-        } &#x3D; cred as Record&lt;string, any&gt;;
-        return this.canonicalJson(rest);
-    }
-
-    /**
-     * Recursively canonicalize a JSON value: object keys sorted, arrays preserved
-     * in their original order (DCQL arrays are order-significant for claims).
-     */
-    private canonicalJson(value: any): string {
-        if (value &#x3D;&#x3D;&#x3D; null || typeof value !&#x3D;&#x3D; &quot;object&quot;) {
-            return JSON.stringify(value);
-        }
-        if (Array.isArray(value)) {
-            return &#x60;[${value.map((v) &#x3D;&gt; this.canonicalJson(v)).join(&quot;,&quot;)}]&#x60;;
-        }
-        const keys &#x3D; Object.keys(value).sort();
-        return &#x60;{${keys
-            .map((k) &#x3D;&gt; &#x60;${JSON.stringify(k)}:${this.canonicalJson(value[k])}&#x60;)
-            .join(&quot;,&quot;)}}&#x60;;
+    invalidateToken(tenantId: string): void {
+        this.tokenCache.delete(tenantId);
     }
 }
 </code></pre>
