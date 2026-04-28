@@ -29,9 +29,19 @@
         ]
       }
     },
+    "temporaryPassword": {
+      "type": "string",
+      "example": "Ab3!zK8pQ2",
+      "description": "One-time temporary password returned only on user creation."
+    },
     "enabled": {
       "type": "boolean",
       "example": true
+    },
+    "password": {
+      "type": "string",
+      "minLength": 8,
+      "example": "S3cur3P@ssword"
     }
   },
   "additionalProperties": false

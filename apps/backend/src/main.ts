@@ -177,6 +177,12 @@ async function bootstrap() {
     app.useLogger(app.get(Logger));
 
     // Set explicit body size limits (security best practice)
+    // Parse encrypted credential requests sent as application/jwt (JWE compact serialization)
+    // Must be registered BEFORE the JSON parser so it takes precedence for this content type
+    app.useBodyParser("text", {
+        type: "application/jwt",
+        limit: "10mb",
+    });
     app.useBodyParser("json", { limit: "10mb" });
     app.enableCors();
 

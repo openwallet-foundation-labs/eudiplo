@@ -1615,6 +1615,12 @@ export const IssuanceConfigSchema = {
         "Whether `credential_response_encryption` should be advertised in the credential issuer metadata.",
       default: false,
     },
+    credentialRequestEncryption: {
+      type: "boolean",
+      description:
+        "Whether `credential_request_encryption` should be advertised in the credential issuer metadata.",
+      default: false,
+    },
     refreshTokenExpiresInSeconds: {
       type: "number",
       description:
@@ -1714,6 +1720,12 @@ export const IssuanceDtoSchema = {
       type: "boolean",
       description:
         "Whether `credential_response_encryption` should be advertised in the credential issuer metadata.",
+      default: false,
+    },
+    credentialRequestEncryption: {
+      type: "boolean",
+      description:
+        "Whether `credential_request_encryption` should be advertised in the credential issuer metadata.",
       default: false,
     },
     refreshTokenExpiresInSeconds: {
