@@ -59,8 +59,7 @@ tenant's configuration folder:
     "password": "your-password",
     "registrationCertificateDefaults": {
         "privacy_policy": "https://verifier.example/privacy",
-        "support_uri": "mailto:support@verifier.example",
-        "provided_attestations": []
+        "support_uri": "mailto:support@verifier.example"
     }
 }
 ```
@@ -113,17 +112,69 @@ The response includes:
 
 ## Registration Certificate
 
-Registration certificates are created during OID4VP request generation when:
+Registration certificates are attached to OID4VP requests when:
 
-- registrar is configured for the tenant
-- the selected presentation config contains `registrationCert`
+- a registrar is configured for the tenant, and
+- the selected presentation config contains a `registrationCert` field.
 
-The final registration certificate payload is built from:
+### Resolution Strategies
 
-- tenant-level `registrationCertificateDefaults` in `registrar.json` (or `/registrar/config` API)
-- presentation-level `registrationCert.body` (takes precedence)
+The `registrationCert` field supports three mutually exclusive strategies, evaluated in priority order:
 
-Recommendation:
+| Field                   | Behavior                                                                                                                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `registrationCert.jwt`  | Uses the provided JWT directly (no registrar call). Still validated for expiry and DCQL authorization.                                                                          |
+| `registrationCert.id`   | Looks up an existing (non-revoked) certificate by ID from the registrar. Falls back to creating a new one using `registrationCert.body` if no active cert is found for that ID. |
+| `registrationCert.body` | Creates a new certificate at the registrar using the merged body (see below).                                                                                                   |
 
-- keep `purpose` in the presentation config (`registrationCert.body.purpose`)
-- keep shared legal/contact defaults in registrar config (`registrationCertificateDefaults`)
+At least one of `jwt`, `id`, or `body` must be provided.
+
+### Payload Merging
+
+When creating via `body`, the final certificate payload is merged in this order (later takes precedence):
+
+1. `registrationCertificateDefaults` from the tenant's registrar config (shared legal/contact defaults)
+2. `registrationCert.body` from the presentation config (per-presentation overrides)
+
+The `rpId` is always derived automatically from the tenant's registrar relying party and cannot be set manually.
+
+**Required fields** (must be present after merging):
+
+| Field            | Where to set                                                     |
+| ---------------- | ---------------------------------------------------------------- |
+| `privacy_policy` | Registrar defaults or presentation body                          |
+| `support_uri`    | Registrar defaults or presentation body                          |
+| `purpose`        | Presentation body (`registrationCert.body.purpose`)              |
+| `credentials`    | Auto-derived from `dcql_query.credentials` if not explicitly set |
+
+### Credential Auto-Derivation
+
+If `registrationCert.body.credentials` is not explicitly set, EUDIPLO automatically derives the credentials list from the effective DCQL query (`dcql_query.credentials`) of the presentation config. Only the `format`, `claims`, and `meta` fields are forwarded to the registrar (DCQL-only fields like `id`, `multiple`, and `trusted_authorities` are stripped).
+
+### Certificate Validation
+
+Every registration certificate (regardless of source) is validated before use:
+
+- **Temporal validity**: `exp` and `nbf` are checked with a 60-second clock-skew tolerance. Expired or not-yet-valid certificates are rejected.
+- **DCQL authorization (overasking prevention)**: Every credential requested in the DCQL query must be present in the certificate's authorized `credentials` claim. If the certificate does not cover all requested credentials, the request is rejected to prevent overasking.
+
+### Recommended Setup
+
+```json title="config/{tenant-id}/registrar.json — shared defaults"
+{
+    "registrationCertificateDefaults": {
+        "privacy_policy": "https://verifier.example/privacy",
+        "support_uri": "mailto:support@verifier.example"
+    }
+}
+```
+
+```json title="Presentation config — per-presentation fields"
+{
+    "registrationCert": {
+        "body": {
+            "purpose": [{ "lang": "en", "value": "Age verification" }]
+        }
+    }
+}
+```

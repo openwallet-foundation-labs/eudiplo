@@ -3363,11 +3363,11 @@
         "lang": {
           "type": "string"
         },
-        "value": {
+        "content": {
           "type": "string"
         }
       },
-      "required": ["lang", "value"],
+      "required": ["lang", "content"],
       "additionalProperties": false
     }
   },
@@ -3408,7 +3408,6 @@
           }
         }
       },
-      "required": ["privacy_policy", "support_uri"],
       "additionalProperties": false
     }
   },
@@ -3753,6 +3752,29 @@
     }
   },
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/RegistrationCertificateDefaults.schema.json",
+    "fileMatch": ["a://b/RegistrationCertificateDefaults*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/RegistrationCertificateDefaults.schema.json",
+      "title": "RegistrationCertificateDefaults",
+      "type": "object",
+      "properties": {
+        "privacy_policy": {
+          "type": "string",
+          "description": "Default privacy policy URL for registration certificate creation.",
+          "example": "https://verifier.example/privacy"
+        },
+        "support_uri": {
+          "type": "string",
+          "description": "Default support contact URI for registration certificate creation.",
+          "example": "mailto:support@verifier.example"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/RegistrarConfigResponseDto.schema.json",
     "fileMatch": ["a://b/RegistrarConfigResponseDto*.schema.json"],
     "schema": {
@@ -3788,10 +3810,15 @@
           "example": "admin@example.com"
         },
         "registrationCertificateDefaults": {
-          "type": "object",
           "nullable": true,
-          "description": "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)",
-          "additionalProperties": true
+          "description": "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)",
+          "additionalProperties": true,
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "./RegistrationCertificateDefaults.schema.json"
+            }
+          ]
         },
         "hasPassword": {
           "type": "boolean",
@@ -3843,10 +3870,15 @@
           "description": "The password for OIDC login (stored in plaintext)"
         },
         "registrationCertificateDefaults": {
-          "type": "object",
           "nullable": true,
-          "description": "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)",
-          "additionalProperties": true
+          "description": "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)",
+          "additionalProperties": true,
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "./RegistrationCertificateDefaults.schema.json"
+            }
+          ]
         }
       },
       "required": ["registrarUrl", "oidcUrl", "clientId", "username", "password"],
@@ -3893,10 +3925,15 @@
           "description": "The password for OIDC login (stored in plaintext)"
         },
         "registrationCertificateDefaults": {
-          "type": "object",
           "nullable": true,
-          "description": "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)",
-          "additionalProperties": true
+          "description": "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)",
+          "additionalProperties": true,
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "./RegistrationCertificateDefaults.schema.json"
+            }
+          ]
         }
       },
       "additionalProperties": false

@@ -7,13 +7,13 @@
     "lang": {
       "type": "string"
     },
-    "value": {
+    "content": {
       "type": "string"
     }
   },
   "required": [
     "lang",
-    "value"
+    "content"
   ],
   "additionalProperties": false
 }

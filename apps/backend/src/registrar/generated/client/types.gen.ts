@@ -75,6 +75,7 @@ export interface RequestOptions<
         }>,
         Pick<
             ServerSentEventsOptions<TData>,
+            | "onRequest"
             | "onSseError"
             | "onSseEvent"
             | "sseDefaultRetryDelay"
@@ -101,6 +102,7 @@ export interface ResolvedRequestOptions<
     ThrowOnError extends boolean = boolean,
     Url extends string = string,
 > extends RequestOptions<unknown, TResponseStyle, ThrowOnError, Url> {
+    headers: Headers;
     serializedBody?: string;
 }
 
@@ -174,7 +176,7 @@ type SseFn = <
     TResponseStyle extends ResponseStyle = "fields",
 >(
     options: Omit<
-        RequestOptions<TData, TResponseStyle, ThrowOnError>,
+        RequestOptions<never, TResponseStyle, ThrowOnError>,
         "method"
     >,
 ) => Promise<ServerSentEventsResult<TData, TError>>;

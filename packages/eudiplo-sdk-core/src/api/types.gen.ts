@@ -1570,12 +1570,12 @@ export type Dcql = {
 
 export type RegistrationCertificatePurpose = {
   lang: string;
-  value: string;
+  content: string;
 };
 
 export type RegistrationCertificateBody = {
-  privacy_policy: string;
-  support_uri: string;
+  privacy_policy?: string;
+  support_uri?: string;
   intermediary?: string;
   purpose?: Array<RegistrationCertificatePurpose>;
   credentials?: Array<{
@@ -1778,6 +1778,17 @@ export type PresentationConfigUpdateDto = {
   accessKeyChainId?: string;
 };
 
+export type RegistrationCertificateDefaults = {
+  /**
+   * Default privacy policy URL for registration certificate creation.
+   */
+  privacy_policy?: string;
+  /**
+   * Default support contact URI for registration certificate creation.
+   */
+  support_uri?: string;
+};
+
 export type RegistrarConfigResponseDto = {
   /**
    * The base URL of the registrar API
@@ -1800,11 +1811,9 @@ export type RegistrarConfigResponseDto = {
    */
   username: string;
   /**
-   * Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)
+   * Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)
    */
-  registrationCertificateDefaults?: {
-    [key: string]: unknown;
-  };
+  registrationCertificateDefaults?: RegistrationCertificateDefaults;
   /**
    * Indicates whether a password is configured (actual password is never returned)
    */
@@ -1837,11 +1846,9 @@ export type CreateRegistrarConfigDto = {
    */
   password: string;
   /**
-   * Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)
+   * Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)
    */
-  registrationCertificateDefaults?: {
-    [key: string]: unknown;
-  };
+  registrationCertificateDefaults?: RegistrationCertificateDefaults;
 };
 
 export type UpdateRegistrarConfigDto = {
@@ -1870,11 +1877,9 @@ export type UpdateRegistrarConfigDto = {
    */
   password?: string;
   /**
-   * Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)
+   * Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)
    */
-  registrationCertificateDefaults?: {
-    [key: string]: unknown;
-  };
+  registrationCertificateDefaults?: RegistrationCertificateDefaults;
 };
 
 export type CreateAccessCertificateDto = {

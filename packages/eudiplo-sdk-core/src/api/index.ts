@@ -336,6 +336,7 @@ export type {
   RegistrarControllerUpdateConfigResponse,
   RegistrarControllerUpdateConfigResponses,
   RegistrationCertificateBody,
+  RegistrationCertificateDefaults,
   RegistrationCertificatePurpose,
   RegistrationCertificateRequest,
   ResolveIssuerMetadataDto,

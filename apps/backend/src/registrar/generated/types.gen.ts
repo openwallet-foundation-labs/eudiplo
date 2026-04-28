@@ -107,7 +107,7 @@ export type ProvidedAttestation = {
 
 export type MultiLang = {
     lang: string;
-    value: string;
+    content: string;
 };
 
 export type RegistrationCertificateCreation = {
@@ -151,6 +151,184 @@ export type OmitTypeClass = {
     createdAt: string;
 };
 
+export type ReserveSchemaIdDto = {
+    /**
+     * Optional human-readable name hint for the schema (used in documentation only)
+     */
+    nameHint?: string;
+};
+
+export type ReservationResponseDto = {
+    /**
+     * The full reserved schema ID URL that should be used in the JWT
+     */
+    reservedId: string;
+    /**
+     * When this reservation expires (ISO 8601)
+     */
+    expiresAt: string;
+    /**
+     * Secret token to include when submitting the schema metadata JWT
+     */
+    reservationToken: string;
+};
+
+export type TrustAuthority = {
+    /**
+     * Unique identifier for this trust authority entry.
+     */
+    id: string;
+    /**
+     * Type of trust framework.
+     */
+    frameworkType: "etsi_tl";
+    /**
+     * URI or identifier for the trust list/authority.
+     */
+    value: string;
+    /**
+     * Verification method for trust list signature (e.g., JWK).
+     */
+    verificationMethod?: {
+        [key: string]: unknown;
+    };
+    schemaMetadata: SchemaMetadata;
+};
+
+export type SchemaMetadata = {
+    /**
+     * The unique, server-assigned identifier (UUID) for the schema metadata.
+     */
+    id: string;
+    /**
+     * Attestation type identifier (URI) from the schema metadata.
+     */
+    attestationId: string;
+    /**
+     * Version of this schema metadata (SemVer).
+     */
+    version: string;
+    /**
+     * URI of the human-readable Rulebook document.
+     */
+    rulebookURI?: string;
+    /**
+     * Subresource Integrity hash for the rulebook URI.
+     */
+    rulebookIntegrity?: string;
+    /**
+     * Level of security (LoS) of this attestation.
+     */
+    attestationLoS:
+        | "iso_18045_high"
+        | "iso_18045_moderate"
+        | "iso_18045_enhanced-basic"
+        | "iso_18045_basic";
+    /**
+     * Required binding type between attestation and holder.
+     */
+    bindingType: "claim" | "key" | "biometric" | "none";
+    /**
+     * Credential formats in which this attestation is available.
+     */
+    supportedFormats: Array<"dc+sd-jwt" | "mso_mdoc">;
+    /**
+     * Format-specific schema URIs for this schema metadata.
+     */
+    schemaURIs: Array<MetadataSchema>;
+    /**
+     * Trust frameworks / trust anchors applicable to this schema metadata.
+     */
+    trustedAuthorities: Array<TrustAuthority>;
+    /**
+     * Domain category for filtering.
+     */
+    category?:
+        | "identity"
+        | "health"
+        | "finance"
+        | "education"
+        | "mobility"
+        | "employment"
+        | "other";
+    /**
+     * Free-form tags for filtering and search.
+     */
+    tags?: Array<string>;
+    /**
+     * The original signed JWT.
+     */
+    signedJwt: string;
+    /**
+     * Issuer from the JWT (iss claim).
+     */
+    issuer: string;
+    /**
+     * Serial number of the access certificate that signed this schema metadata.
+     */
+    signerCertificateSerial: string;
+    /**
+     * The access certificate used to sign this schema metadata.
+     */
+    signerCertificate?: AccessCertificate;
+    /**
+     * Timestamp when the JWT was issued (from iat claim).
+     */
+    issuedAt: string;
+    /**
+     * Server creation timestamp.
+     */
+    createdAt: string;
+    /**
+     * Last update timestamp.
+     */
+    updatedAt: string;
+};
+
+export type MetadataSchema = {
+    /**
+     * Unique identifier for this schema entry.
+     */
+    id: string;
+    /**
+     * The credential format identifier.
+     */
+    formatIdentifier: "dc+sd-jwt" | "mso_mdoc";
+    /**
+     * URI to the schema definition.
+     */
+    uri?: string;
+    /**
+     * Inline schema content (JSON Schema).
+     */
+    schemaContent?: {
+        [key: string]: unknown;
+    };
+    /**
+     * Subresource Integrity hash for the schema.
+     */
+    integrity?: string;
+    schemaMetadata: SchemaMetadata;
+};
+
+export type UpdateSchemaMetadataDto = {
+    /**
+     * Domain category for filtering.
+     */
+    category?:
+        | "identity"
+        | "health"
+        | "finance"
+        | "education"
+        | "mobility"
+        | "employment"
+        | "other";
+    /**
+     * Free-form tags for filtering and search.
+     */
+    tags?: Array<string>;
+};
+
 export type HealthControllerCheckData = {
     body?: never;
     path?: never;
@@ -167,19 +345,19 @@ export type HealthControllerCheckErrors = {
         info?: {
             [key: string]: {
                 status: string;
-                [key: string]: unknown | string;
+                [key: string]: unknown;
             };
         } | null;
         error?: {
             [key: string]: {
                 status: string;
-                [key: string]: unknown | string;
+                [key: string]: unknown;
             };
         } | null;
         details?: {
             [key: string]: {
                 status: string;
-                [key: string]: unknown | string;
+                [key: string]: unknown;
             };
         };
     };
@@ -197,19 +375,19 @@ export type HealthControllerCheckResponses = {
         info?: {
             [key: string]: {
                 status: string;
-                [key: string]: unknown | string;
+                [key: string]: unknown;
             };
         } | null;
         error?: {
             [key: string]: {
                 status: string;
-                [key: string]: unknown | string;
+                [key: string]: unknown;
             };
         } | null;
         details?: {
             [key: string]: {
                 status: string;
-                [key: string]: unknown | string;
+                [key: string]: unknown;
             };
         };
     };
@@ -404,15 +582,8 @@ export type RegistrationCertificateControllerFindOneData = {
     url: "/registration-certificates/{id}";
 };
 
-export type RegistrationCertificateControllerFindOneErrors = {
-    default: RegistrationCertificate;
-};
-
-export type RegistrationCertificateControllerFindOneError =
-    RegistrationCertificateControllerFindOneErrors[keyof RegistrationCertificateControllerFindOneErrors];
-
 export type RegistrationCertificateControllerFindOneResponses = {
-    200: RegistrationCertificate;
+    default: RegistrationCertificate;
 };
 
 export type RegistrationCertificateControllerFindOneResponse =
@@ -448,3 +619,274 @@ export type StatusListControllerCrlFileResponses = {
 
 export type StatusListControllerCrlFileResponse =
     StatusListControllerCrlFileResponses[keyof StatusListControllerCrlFileResponses];
+
+export type SchemaMetadataControllerReserveSchemaIdData = {
+    /**
+     * Optional name hint for the generated ID
+     */
+    body: ReserveSchemaIdDto;
+    path?: never;
+    query?: never;
+    url: "/schema-metadata/reserve";
+};
+
+export type SchemaMetadataControllerReserveSchemaIdErrors = {
+    /**
+     * Authentication required.
+     */
+    401: unknown;
+};
+
+export type SchemaMetadataControllerReserveSchemaIdResponses = {
+    /**
+     * Schema ID reserved successfully.
+     */
+    201: ReservationResponseDto;
+};
+
+export type SchemaMetadataControllerReserveSchemaIdResponse =
+    SchemaMetadataControllerReserveSchemaIdResponses[keyof SchemaMetadataControllerReserveSchemaIdResponses];
+
+export type SchemaMetadataControllerFindAllData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Filter by attestation type identifier
+         */
+        attestationId?: string;
+        /**
+         * Filter by schema metadata version
+         */
+        version?: string;
+    };
+    url: "/schema-metadata";
+};
+
+export type SchemaMetadataControllerFindAllResponses = {
+    /**
+     * List of all schema metadata.
+     */
+    200: Array<SchemaMetadata>;
+};
+
+export type SchemaMetadataControllerFindAllResponse =
+    SchemaMetadataControllerFindAllResponses[keyof SchemaMetadataControllerFindAllResponses];
+
+export type SchemaMetadataControllerSubmitSchemaMetadataData = {
+    /**
+     * The signed schema metadata JWT
+     */
+    body: string;
+    headers?: {
+        /**
+         * Reservation token for catalog-assigned attestationIds
+         */
+        "X-Reservation-Token"?: string;
+    };
+    path?: never;
+    query?: never;
+    url: "/schema-metadata";
+};
+
+export type SchemaMetadataControllerSubmitSchemaMetadataErrors = {
+    /**
+     * Invalid JWT format or missing required fields.
+     */
+    400: unknown;
+    /**
+     * Invalid signature or unauthorized access certificate.
+     */
+    401: unknown;
+    /**
+     * Catalog URL used without valid reservation token.
+     */
+    403: unknown;
+    /**
+     * Schema metadata with same id and version already exists.
+     */
+    409: unknown;
+};
+
+export type SchemaMetadataControllerSubmitSchemaMetadataResponses = {
+    /**
+     * The schema metadata has been successfully submitted.
+     */
+    201: SchemaMetadata;
+};
+
+export type SchemaMetadataControllerSubmitSchemaMetadataResponse =
+    SchemaMetadataControllerSubmitSchemaMetadataResponses[keyof SchemaMetadataControllerSubmitSchemaMetadataResponses];
+
+export type SchemaMetadataControllerRemoveData = {
+    body?: never;
+    path: {
+        /**
+         * Schema metadata UUID
+         */
+        id: string;
+    };
+    query?: never;
+    url: "/schema-metadata/{id}";
+};
+
+export type SchemaMetadataControllerRemoveErrors = {
+    /**
+     * You can only delete schema metadata that you uploaded.
+     */
+    403: unknown;
+    /**
+     * Schema metadata not found.
+     */
+    404: unknown;
+};
+
+export type SchemaMetadataControllerRemoveResponses = {
+    /**
+     * The schema metadata has been successfully deleted.
+     */
+    200: unknown;
+};
+
+export type SchemaMetadataControllerFindOneData = {
+    body?: never;
+    path: {
+        /**
+         * Schema metadata UUID
+         */
+        id: string;
+    };
+    query?: never;
+    url: "/schema-metadata/{id}";
+};
+
+export type SchemaMetadataControllerFindOneErrors = {
+    /**
+     * Schema metadata not found.
+     */
+    404: unknown;
+};
+
+export type SchemaMetadataControllerFindOneResponses = {
+    /**
+     * The schema metadata details.
+     */
+    200: SchemaMetadata;
+};
+
+export type SchemaMetadataControllerFindOneResponse =
+    SchemaMetadataControllerFindOneResponses[keyof SchemaMetadataControllerFindOneResponses];
+
+export type SchemaMetadataControllerUpdateMetadataData = {
+    body: UpdateSchemaMetadataDto;
+    path: {
+        /**
+         * Schema metadata UUID
+         */
+        id: string;
+    };
+    query?: never;
+    url: "/schema-metadata/{id}";
+};
+
+export type SchemaMetadataControllerUpdateMetadataErrors = {
+    /**
+     * Schema metadata not found.
+     */
+    404: unknown;
+};
+
+export type SchemaMetadataControllerUpdateMetadataResponses = {
+    /**
+     * The schema metadata has been successfully updated.
+     */
+    200: SchemaMetadata;
+};
+
+export type SchemaMetadataControllerUpdateMetadataResponse =
+    SchemaMetadataControllerUpdateMetadataResponses[keyof SchemaMetadataControllerUpdateMetadataResponses];
+
+export type SchemaMetadataControllerGetSignedJwtData = {
+    body?: never;
+    path: {
+        /**
+         * Schema metadata UUID
+         */
+        id: string;
+    };
+    query?: never;
+    url: "/schema-metadata/{id}/jwt";
+};
+
+export type SchemaMetadataControllerGetSignedJwtErrors = {
+    /**
+     * Schema metadata not found.
+     */
+    404: unknown;
+};
+
+export type SchemaMetadataControllerGetSignedJwtResponses = {
+    /**
+     * The original signed JWT.
+     */
+    200: string;
+};
+
+export type SchemaMetadataControllerGetSignedJwtResponse =
+    SchemaMetadataControllerGetSignedJwtResponses[keyof SchemaMetadataControllerGetSignedJwtResponses];
+
+export type SchemaMetadataControllerExportData = {
+    body?: never;
+    path: {
+        /**
+         * Schema metadata UUID
+         */
+        id: string;
+    };
+    query?: never;
+    url: "/schema-metadata/{id}/export";
+};
+
+export type SchemaMetadataControllerExportErrors = {
+    /**
+     * Schema metadata not found.
+     */
+    404: unknown;
+};
+
+export type SchemaMetadataControllerExportResponses = {
+    /**
+     * The schema metadata in catalog-of-attestations JSON format.
+     */
+    200: unknown;
+};
+
+export type SchemaMetadataControllerGetSchemaData = {
+    body?: never;
+    path: {
+        /**
+         * Schema metadata UUID
+         */
+        id: string;
+        /**
+         * Credential format identifier
+         */
+        format: string;
+    };
+    query?: never;
+    url: "/schema-metadata/{id}/schemas/{format}";
+};
+
+export type SchemaMetadataControllerGetSchemaErrors = {
+    /**
+     * Schema not found.
+     */
+    404: unknown;
+};
+
+export type SchemaMetadataControllerGetSchemaResponses = {
+    /**
+     * The JSON Schema for the specified format.
+     */
+    200: unknown;
+};

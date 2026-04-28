@@ -23,7 +23,6 @@ import type {
     RegistrationCertificateControllerDeleteData,
     RegistrationCertificateControllerDeleteResponses,
     RegistrationCertificateControllerFindOneData,
-    RegistrationCertificateControllerFindOneErrors,
     RegistrationCertificateControllerFindOneResponses,
     RegistrationCertificateControllerRegisterData,
     RegistrationCertificateControllerRegisterResponses,
@@ -33,6 +32,32 @@ import type {
     RelyingPartyControllerFindOneResponses,
     RelyingPartyControllerRegisterData,
     RelyingPartyControllerRegisterResponses,
+    SchemaMetadataControllerExportData,
+    SchemaMetadataControllerExportErrors,
+    SchemaMetadataControllerExportResponses,
+    SchemaMetadataControllerFindAllData,
+    SchemaMetadataControllerFindAllResponses,
+    SchemaMetadataControllerFindOneData,
+    SchemaMetadataControllerFindOneErrors,
+    SchemaMetadataControllerFindOneResponses,
+    SchemaMetadataControllerGetSchemaData,
+    SchemaMetadataControllerGetSchemaErrors,
+    SchemaMetadataControllerGetSchemaResponses,
+    SchemaMetadataControllerGetSignedJwtData,
+    SchemaMetadataControllerGetSignedJwtErrors,
+    SchemaMetadataControllerGetSignedJwtResponses,
+    SchemaMetadataControllerRemoveData,
+    SchemaMetadataControllerRemoveErrors,
+    SchemaMetadataControllerRemoveResponses,
+    SchemaMetadataControllerReserveSchemaIdData,
+    SchemaMetadataControllerReserveSchemaIdErrors,
+    SchemaMetadataControllerReserveSchemaIdResponses,
+    SchemaMetadataControllerSubmitSchemaMetadataData,
+    SchemaMetadataControllerSubmitSchemaMetadataErrors,
+    SchemaMetadataControllerSubmitSchemaMetadataResponses,
+    SchemaMetadataControllerUpdateMetadataData,
+    SchemaMetadataControllerUpdateMetadataErrors,
+    SchemaMetadataControllerUpdateMetadataResponses,
     StatusListControllerCrlFileData,
     StatusListControllerCrlFileResponses,
     StatusListControllerGetListData,
@@ -42,7 +67,8 @@ import type {
 export type Options<
     TData extends TDataShape = TDataShape,
     ThrowOnError extends boolean = boolean,
-> = Options2<TData, ThrowOnError> & {
+    TResponse = unknown,
+> = Options2<TData, ThrowOnError, TResponse> & {
     /**
      * You can provide a client instance returned by `createClient()` instead of
      * individual options. This might be also useful if you want to implement a
@@ -281,7 +307,7 @@ export const registrationCertificateControllerFindOne = <
 ) =>
     (options.client ?? client).get<
         RegistrationCertificateControllerFindOneResponses,
-        RegistrationCertificateControllerFindOneErrors,
+        unknown,
         ThrowOnError
     >({ url: "/registration-certificates/{id}", ...options });
 
@@ -312,3 +338,165 @@ export const statusListControllerCrlFile = <
         unknown,
         ThrowOnError
     >({ url: "/status-management/crl", ...options });
+
+/**
+ * Reserve a schema ID
+ *
+ * Reserve a unique schema ID (catalog URL) before signing and submitting schema metadata. The returned ID must be used as the attestationId in the signed JWT. Reservation expires in 24 hours.
+ */
+export const schemaMetadataControllerReserveSchemaId = <
+    ThrowOnError extends boolean = false,
+>(
+    options: Options<SchemaMetadataControllerReserveSchemaIdData, ThrowOnError>,
+) =>
+    (options.client ?? client).post<
+        SchemaMetadataControllerReserveSchemaIdResponses,
+        SchemaMetadataControllerReserveSchemaIdErrors,
+        ThrowOnError
+    >({
+        security: [{ scheme: "bearer", type: "http" }],
+        url: "/schema-metadata/reserve",
+        ...options,
+        headers: {
+            "Content-Type": "application/json",
+            ...options.headers,
+        },
+    });
+
+/**
+ * Get all schema metadata
+ */
+export const schemaMetadataControllerFindAll = <
+    ThrowOnError extends boolean = false,
+>(
+    options?: Options<SchemaMetadataControllerFindAllData, ThrowOnError>,
+) =>
+    (options?.client ?? client).get<
+        SchemaMetadataControllerFindAllResponses,
+        unknown,
+        ThrowOnError
+    >({ url: "/schema-metadata", ...options });
+
+/**
+ * Submit signed schema metadata
+ *
+ * Submit schema metadata signed with an access certificate. The JWT must have type "attestation-schema+jwt" and contain x5c certificate chain. If the attestationId is a catalog URL, include the reservation token in the X-Reservation-Token header.
+ */
+export const schemaMetadataControllerSubmitSchemaMetadata = <
+    ThrowOnError extends boolean = false,
+>(
+    options: Options<
+        SchemaMetadataControllerSubmitSchemaMetadataData,
+        ThrowOnError
+    >,
+) =>
+    (options.client ?? client).post<
+        SchemaMetadataControllerSubmitSchemaMetadataResponses,
+        SchemaMetadataControllerSubmitSchemaMetadataErrors,
+        ThrowOnError
+    >({
+        url: "/schema-metadata",
+        ...options,
+        headers: {
+            "Content-Type": "application/jwt",
+            ...options.headers,
+        },
+    });
+
+/**
+ * Delete schema metadata
+ */
+export const schemaMetadataControllerRemove = <
+    ThrowOnError extends boolean = false,
+>(
+    options: Options<SchemaMetadataControllerRemoveData, ThrowOnError>,
+) =>
+    (options.client ?? client).delete<
+        SchemaMetadataControllerRemoveResponses,
+        SchemaMetadataControllerRemoveErrors,
+        ThrowOnError
+    >({
+        security: [{ scheme: "bearer", type: "http" }],
+        url: "/schema-metadata/{id}",
+        ...options,
+    });
+
+/**
+ * Get schema metadata by ID
+ */
+export const schemaMetadataControllerFindOne = <
+    ThrowOnError extends boolean = false,
+>(
+    options: Options<SchemaMetadataControllerFindOneData, ThrowOnError>,
+) =>
+    (options.client ?? client).get<
+        SchemaMetadataControllerFindOneResponses,
+        SchemaMetadataControllerFindOneErrors,
+        ThrowOnError
+    >({ url: "/schema-metadata/{id}", ...options });
+
+/**
+ * Update schema metadata attributes
+ *
+ * Update server-side metadata like category, status, tags, jurisdiction, and trust framework. These fields are not part of the signed JWT.
+ */
+export const schemaMetadataControllerUpdateMetadata = <
+    ThrowOnError extends boolean = false,
+>(
+    options: Options<SchemaMetadataControllerUpdateMetadataData, ThrowOnError>,
+) =>
+    (options.client ?? client).patch<
+        SchemaMetadataControllerUpdateMetadataResponses,
+        SchemaMetadataControllerUpdateMetadataErrors,
+        ThrowOnError
+    >({
+        security: [{ scheme: "bearer", type: "http" }],
+        url: "/schema-metadata/{id}",
+        ...options,
+        headers: {
+            "Content-Type": "application/json",
+            ...options.headers,
+        },
+    });
+
+/**
+ * Get the original signed JWT
+ */
+export const schemaMetadataControllerGetSignedJwt = <
+    ThrowOnError extends boolean = false,
+>(
+    options: Options<SchemaMetadataControllerGetSignedJwtData, ThrowOnError>,
+) =>
+    (options.client ?? client).get<
+        SchemaMetadataControllerGetSignedJwtResponses,
+        SchemaMetadataControllerGetSignedJwtErrors,
+        ThrowOnError
+    >({ url: "/schema-metadata/{id}/jwt", ...options });
+
+/**
+ * Export schema metadata in catalog format
+ */
+export const schemaMetadataControllerExport = <
+    ThrowOnError extends boolean = false,
+>(
+    options: Options<SchemaMetadataControllerExportData, ThrowOnError>,
+) =>
+    (options.client ?? client).get<
+        SchemaMetadataControllerExportResponses,
+        SchemaMetadataControllerExportErrors,
+        ThrowOnError
+    >({ url: "/schema-metadata/{id}/export", ...options });
+
+/**
+ * Get schema content for a specific credential format
+ */
+export const schemaMetadataControllerGetSchema = <
+    ThrowOnError extends boolean = false,
+>(
+    options: Options<SchemaMetadataControllerGetSchemaData, ThrowOnError>,
+) =>
+    (options.client ?? client).get<
+        SchemaMetadataControllerGetSchemaResponses,
+        SchemaMetadataControllerGetSchemaErrors,
+        ThrowOnError
+    >({ url: "/schema-metadata/{id}/schemas/{format}", ...options });

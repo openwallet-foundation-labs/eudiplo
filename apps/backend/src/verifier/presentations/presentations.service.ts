@@ -139,8 +139,16 @@ export class PresentationsService {
             ...vprequest,
             tenantId,
         } as PresentationConfig;
-        await this.refreshRegistrationCertCache(merged, undefined);
-        return this.vpRequestRepository.save(merged);
+
+        // Persist first for fast UI response; cache is resolved asynchronously.
+        merged.registrationCertCache = null;
+        const saved = await this.vpRequestRepository.save(merged);
+
+        if (saved.registrationCert) {
+            this.scheduleRegistrationCertRefresh(saved.id, tenantId);
+        }
+
+        return saved;
     }
 
     /**
@@ -166,8 +174,28 @@ export class PresentationsService {
             id,
             tenantId,
         } as PresentationConfig;
-        await this.refreshRegistrationCertCache(merged, existing);
-        return this.vpRequestRepository.save(merged);
+
+        // Return quickly; resolve registration-certificate cache asynchronously.
+        const cacheRelevantChanged =
+            Object.prototype.hasOwnProperty.call(
+                vprequest,
+                "registrationCert",
+            ) || Object.prototype.hasOwnProperty.call(vprequest, "dcql_query");
+
+        if (!merged.registrationCert) {
+            merged.registrationCertCache = null;
+        } else if (cacheRelevantChanged) {
+            // Mark pending in UI while async refresh runs.
+            merged.registrationCertCache = null;
+        }
+
+        const saved = await this.vpRequestRepository.save(merged);
+
+        if (saved.registrationCert && cacheRelevantChanged) {
+            this.scheduleRegistrationCertRefresh(saved.id, tenantId);
+        }
+
+        return saved;
     }
 
     /**
@@ -402,6 +430,46 @@ export class PresentationsService {
                 "Failed to eagerly resolve registration certificate at save time; cache cleared, runtime will retry",
             );
             next.registrationCertCache = null;
+        }
+    }
+
+    /**
+     * Trigger registration-certificate cache refresh in the background.
+     * This keeps create/update endpoints responsive while cert issuance
+     * happens asynchronously.
+     */
+    private scheduleRegistrationCertRefresh(
+        id: string,
+        tenantId: string,
+    ): void {
+        void this.refreshRegistrationCertCacheAsync(id, tenantId);
+    }
+
+    private async refreshRegistrationCertCacheAsync(
+        id: string,
+        tenantId: string,
+    ): Promise<void> {
+        try {
+            const latest = await this.vpRequestRepository.findOneBy({
+                id,
+                tenantId,
+            });
+
+            if (!latest || !latest.registrationCert) {
+                return;
+            }
+
+            const refreshed = {
+                ...latest,
+            } as PresentationConfig;
+
+            await this.refreshRegistrationCertCache(refreshed, latest);
+            await this.vpRequestRepository.save(refreshed);
+        } catch (err) {
+            this.logger.warn(
+                { err, tenantId, configId: id },
+                "Asynchronous registration-certificate cache refresh failed; runtime will retry",
+            );
         }
     }
 
