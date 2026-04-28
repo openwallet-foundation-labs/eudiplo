@@ -945,6 +945,10 @@ export type IssuanceConfig = {
    */
   credentialResponseEncryption?: boolean;
   /**
+   * Whether `credential_request_encryption` should be advertised in the credential issuer metadata.
+   */
+  credentialRequestEncryption?: boolean;
+  /**
    * Refresh token lifetime in seconds. Defaults to 2592000 (30 days).
    */
   refreshTokenExpiresInSeconds?: number;
@@ -1014,6 +1018,10 @@ export type IssuanceDto = {
    * Whether `credential_response_encryption` should be advertised in the credential issuer metadata.
    */
   credentialResponseEncryption?: boolean;
+  /**
+   * Whether `credential_request_encryption` should be advertised in the credential issuer metadata.
+   */
+  credentialRequestEncryption?: boolean;
   /**
    * Refresh token lifetime in seconds. Defaults to 2592000 (30 days).
    */

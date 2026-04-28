@@ -35,6 +35,7 @@ import { LessThan, Repository } from "typeorm";
 import { v4 } from "uuid";
 import { TokenPayload } from "../../../auth/token.decorator";
 import { CryptoService } from "../../../crypto/crypto.service";
+import { EncryptionService } from "../../../crypto/encryption/encryption.service";
 import {
     Session,
     SessionStatus,
@@ -104,6 +105,7 @@ export class Oid4vciService {
         private readonly nonceRepository: Repository<NonceEntity>,
         @InjectRepository(WebhookEndpointEntity)
         private readonly webhookEndpointRepo: Repository<WebhookEndpointEntity>,
+        private readonly encryptionService: EncryptionService,
     ) {}
 
     /**
@@ -151,6 +153,37 @@ export class Oid4vciService {
         return new Oauth2ResourceServer({
             callbacks,
         });
+    }
+
+    /**
+     * Build the `credential_request_encryption` metadata object if enabled.
+     * Fetches the tenant's encryption public key and returns the metadata block
+     * advertising that the issuer can receive encrypted credential requests.
+     */
+    private async getCredentialRequestEncryptionMetadata(
+        tenantId: string,
+        issuanceConfig: { credentialRequestEncryption?: boolean } | null,
+    ): Promise<
+        | {
+              jwks: { keys: object[] };
+              alg_values_supported: string[];
+              enc_values_supported: string[];
+              encryption_required: boolean;
+          }
+        | undefined
+    > {
+        const encPublicKey =
+            await this.encryptionService.getEncryptionPublicKey(tenantId);
+        encPublicKey.use = "enc";
+
+        return {
+            jwks: { keys: [encPublicKey] },
+            alg_values_supported: ["ECDH-ES"],
+            enc_values_supported: ["A128GCM", "A256GCM"],
+            encryption_required: issuanceConfig?.credentialRequestEncryption
+                ? true
+                : false,
+        };
     }
 
     /**
@@ -253,14 +286,17 @@ export class Oid4vciService {
                 issuanceConfig.display !== null
                     ? issuanceConfig.display
                     : undefined,
-            credential_response_encryption:
-                issuanceConfig?.credentialResponseEncryption
-                    ? {
-                          alg_values_supported: ["ECDH-ES"],
-                          enc_values_supported: ["A128GCM", "A256GCM"],
-                          encryption_required: false,
-                      }
-                    : undefined,
+            credential_request_encryption:
+                await this.getCredentialRequestEncryptionMetadata(
+                    tenantId,
+                    issuanceConfig,
+                ),
+            credential_response_encryption: {
+                alg_values_supported: ["ECDH-ES"],
+                enc_values_supported: ["A128GCM", "A256GCM"],
+                encryption_required:
+                    issuanceConfig?.credentialResponseEncryption ? true : false,
+            },
             batch_credential_issuance:
                 issuanceConfig?.batchSize && issuanceConfig?.batchSize > 1
                     ? {
@@ -790,8 +826,70 @@ export class Oid4vciService {
         );
         issuerMetadata.knownCredentialConfigurations = known;
 
+        // Decrypt encrypted credential request (JWE) if Content-Type is application/jwt
+        const rawBody = req.body as
+            | Record<string, unknown>
+            | string
+            | undefined;
+        const contentType = (req.headers["content-type"] ?? "").toLowerCase();
+        const isJwtContentType =
+            contentType.startsWith("application/jwt") ||
+            contentType.startsWith(
+                "application/openid4vci-credential-request+jwt",
+            );
+
+        let requestBody: Record<string, unknown>;
+        if (isJwtContentType || typeof rawBody === "string") {
+            // Encrypted credential request - need to read and decrypt JWE
+            let jweString: string;
+            if (typeof rawBody === "string") {
+                // Text body parser successfully set req.body as string
+                jweString = rawBody;
+            } else {
+                // Body parser did not consume the stream for non-JSON content types;
+                // read raw body from the request stream directly as a fallback.
+                try {
+                    jweString = await new Promise<string>((resolve, reject) => {
+                        const chunks: Buffer[] = [];
+                        req.on("data", (chunk: Buffer) => chunks.push(chunk));
+                        req.on("end", () =>
+                            resolve(Buffer.concat(chunks).toString("utf8")),
+                        );
+                        req.on("error", reject);
+                    });
+                } catch {
+                    throw new CredentialRequestException(
+                        "invalid_encryption_parameters",
+                        "Failed to read encrypted credential request body",
+                    );
+                }
+                if (!jweString) {
+                    throw new CredentialRequestException(
+                        "invalid_encryption_parameters",
+                        "Encrypted credential request body is empty",
+                    );
+                }
+            }
+            try {
+                requestBody = await this.encryptionService.decryptJweToJson<
+                    Record<string, unknown>
+                >(jweString, tenantId);
+            } catch {
+                throw new CredentialRequestException(
+                    "invalid_encryption_parameters",
+                    "Failed to decrypt encrypted credential request",
+                );
+            }
+        } else if (rawBody && typeof rawBody === "object") {
+            requestBody = rawBody;
+        } else {
+            throw new CredentialRequestException(
+                "invalid_credential_request",
+                "Credential request body is missing or malformed",
+            );
+        }
+
         // Validate credential_configuration_id before parsing to return spec-compliant error code
-        const requestBody = req.body as Record<string, unknown>;
         const requestedConfigId = requestBody.credential_configuration_id as
             | string
             | undefined;

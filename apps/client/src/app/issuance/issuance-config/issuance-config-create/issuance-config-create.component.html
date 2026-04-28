@@ -97,6 +97,17 @@
                   >
                 </div>
               </mat-slide-toggle>
+
+              <mat-slide-toggle formControlName="credentialRequestEncryption">
+                <div fxLayout="column">
+                  <span><strong>Require Credential Request Encryption</strong></span>
+                  <span class="toggle-description"
+                    >Advertise `credential_request_encryption` in the credential issuer metadata.
+                    When enabled, wallets MUST send encrypted credential requests (JWE). Leave
+                    disabled unless your conformance profile requires it.</span
+                  >
+                </div>
+              </mat-slide-toggle>
             </mat-card-content>
           </mat-card>
 

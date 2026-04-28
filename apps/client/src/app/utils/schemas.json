@@ -1864,6 +1864,11 @@
           "description": "Whether `credential_response_encryption` should be advertised in the credential issuer metadata.",
           "default": false
         },
+        "credentialRequestEncryption": {
+          "type": "boolean",
+          "description": "Whether `credential_request_encryption` should be advertised in the credential issuer metadata.",
+          "default": false
+        },
         "refreshTokenExpiresInSeconds": {
           "type": "number",
           "description": "Refresh token lifetime in seconds. Defaults to 2592000 (30 days).",
@@ -1960,6 +1965,11 @@
         "credentialResponseEncryption": {
           "type": "boolean",
           "description": "Whether `credential_response_encryption` should be advertised in the credential issuer metadata.",
+          "default": false
+        },
+        "credentialRequestEncryption": {
+          "type": "boolean",
+          "description": "Whether `credential_request_encryption` should be advertised in the credential issuer metadata.",
           "default": false
         },
         "refreshTokenExpiresInSeconds": {

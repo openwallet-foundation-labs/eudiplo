@@ -172,6 +172,22 @@ export class IssuanceConfig {
     credentialResponseEncryption?: boolean;
 
     /**
+     * Whether to advertise `credential_request_encryption` in the credential issuer metadata.
+     * When enabled, the issuer publishes its encryption public key so wallets can
+     * send encrypted credential requests. Set `encryption_required` to enforce it.
+     * Default: false
+     */
+    @ApiPropertyOptional({
+        description:
+            "Whether `credential_request_encryption` should be advertised in the credential issuer metadata.",
+        default: false,
+    })
+    @IsBoolean()
+    @IsOptional()
+    @Column("boolean", { default: false })
+    credentialRequestEncryption?: boolean;
+
+    /**
      * Lifetime of issued refresh tokens in seconds.
      * Default: 2592000 (30 days)
      * Set to null for non-expiring refresh tokens (not recommended for security).
