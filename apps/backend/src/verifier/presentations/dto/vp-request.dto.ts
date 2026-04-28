@@ -13,15 +13,17 @@ export class RegistrationCertificatePurpose {
     lang!: string;
 
     @IsString()
-    value!: string;
+    content!: string;
 }
 
 export class RegistrationCertificateBody {
+    @IsOptional()
     @IsString()
-    privacy_policy!: string;
+    privacy_policy?: string;
 
+    @IsOptional()
     @IsString()
-    support_uri!: string;
+    support_uri?: string;
 
     @IsOptional()
     @IsString()

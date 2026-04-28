@@ -225,7 +225,7 @@ export class KeycloakClientsProvider
             id: clientId,
         });
         const allRealmRoles = await this.kc.roles.find();
-        const bootstrapRoleNames = [Role.Tenants, Role.Clients, Role.Users];
+        const bootstrapRoleNames = [Role.Tenants];
         const bootstrapRoles = bootstrapRoleNames
             .map((name) => allRealmRoles.find((r) => r.name === name))
             .filter((r): r is NonNullable<typeof r> => !!r?.id && !!r?.name);

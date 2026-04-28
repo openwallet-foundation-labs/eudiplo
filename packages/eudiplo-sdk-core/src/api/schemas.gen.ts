@@ -1615,6 +1615,12 @@ export const IssuanceConfigSchema = {
         "Whether `credential_response_encryption` should be advertised in the credential issuer metadata.",
       default: false,
     },
+    credentialRequestEncryption: {
+      type: "boolean",
+      description:
+        "Whether `credential_request_encryption` should be advertised in the credential issuer metadata.",
+      default: false,
+    },
     refreshTokenExpiresInSeconds: {
       type: "number",
       description:
@@ -1714,6 +1720,12 @@ export const IssuanceDtoSchema = {
       type: "boolean",
       description:
         "Whether `credential_response_encryption` should be advertised in the credential issuer metadata.",
+      default: false,
+    },
+    credentialRequestEncryption: {
+      type: "boolean",
+      description:
+        "Whether `credential_request_encryption` should be advertised in the credential issuer metadata.",
       default: false,
     },
     refreshTokenExpiresInSeconds: {
@@ -2923,11 +2935,11 @@ export const RegistrationCertificatePurposeSchema = {
     lang: {
       type: "string",
     },
-    value: {
+    content: {
       type: "string",
     },
   },
-  required: ["lang", "value"],
+  required: ["lang", "content"],
 } as const;
 
 export const RegistrationCertificateBodySchema = {
@@ -2961,7 +2973,6 @@ export const RegistrationCertificateBodySchema = {
       },
     },
   },
-  required: ["privacy_policy", "support_uri"],
 } as const;
 
 export const RegistrationCertificateRequestSchema = {
@@ -3279,6 +3290,24 @@ export const PresentationConfigUpdateDtoSchema = {
   },
 } as const;
 
+export const RegistrationCertificateDefaultsSchema = {
+  type: "object",
+  properties: {
+    privacy_policy: {
+      type: "string",
+      description:
+        "Default privacy policy URL for registration certificate creation.",
+      example: "https://verifier.example/privacy",
+    },
+    support_uri: {
+      type: "string",
+      description:
+        "Default support contact URI for registration certificate creation.",
+      example: "mailto:support@verifier.example",
+    },
+  },
+} as const;
+
 export const RegistrarConfigResponseDtoSchema = {
   type: "object",
   properties: {
@@ -3311,11 +3340,16 @@ export const RegistrarConfigResponseDtoSchema = {
       example: "admin@example.com",
     },
     registrationCertificateDefaults: {
-      type: "object",
       nullable: true,
       description:
-        "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)",
+        "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)",
       additionalProperties: true,
+      type: "object",
+      allOf: [
+        {
+          $ref: "#/components/schemas/RegistrationCertificateDefaults",
+        },
+      ],
     },
     hasPassword: {
       type: "boolean",
@@ -3363,11 +3397,16 @@ export const CreateRegistrarConfigDtoSchema = {
       description: "The password for OIDC login (stored in plaintext)",
     },
     registrationCertificateDefaults: {
-      type: "object",
       nullable: true,
       description:
-        "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)",
+        "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)",
       additionalProperties: true,
+      type: "object",
+      allOf: [
+        {
+          $ref: "#/components/schemas/RegistrationCertificateDefaults",
+        },
+      ],
     },
   },
   required: ["registrarUrl", "oidcUrl", "clientId", "username", "password"],
@@ -3409,11 +3448,16 @@ export const UpdateRegistrarConfigDtoSchema = {
       description: "The password for OIDC login (stored in plaintext)",
     },
     registrationCertificateDefaults: {
-      type: "object",
       nullable: true,
       description:
-        "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)",
+        "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)",
       additionalProperties: true,
+      type: "object",
+      allOf: [
+        {
+          $ref: "#/components/schemas/RegistrationCertificateDefaults",
+        },
+      ],
     },
   },
 } as const;

@@ -1,9 +1,13 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { CryptoModule } from "../crypto/crypto.module";
+import { AccessCertificateService } from "./access-certificate.service";
 import { RegistrarConfigEntity } from "./entities/registrar-config.entity";
 import { RegistrarController } from "./registrar.controller";
 import { RegistrarService } from "./registrar.service";
+import { RegistrarAuthService } from "./registrar-auth.service";
+import { RegistrarConfigService } from "./registrar-config.service";
+import { RegistrationCertificateService } from "./registration-certificate.service";
 
 /**
  * RegistrarModule is responsible for managing the registrar service.
@@ -16,7 +20,13 @@ import { RegistrarService } from "./registrar.service";
 @Module({
     imports: [CryptoModule, TypeOrmModule.forFeature([RegistrarConfigEntity])],
     controllers: [RegistrarController],
-    providers: [RegistrarService],
+    providers: [
+        RegistrarAuthService,
+        RegistrarConfigService,
+        RegistrationCertificateService,
+        AccessCertificateService,
+        RegistrarService,
+    ],
     exports: [RegistrarService],
 })
 export class RegistrarModule {}
