@@ -13,32 +13,6 @@
       "type": "string",
       "description": "Default support contact URI for registration certificate creation.",
       "example": "mailto:support@verifier.example"
-    },
-    "provided_attestations": {
-      "type": "array",
-      "description": "Default provided attestations list for registration certificate creation.",
-      "items": {
-        "type": "object",
-        "properties": {
-          "format": {
-            "type": "string",
-            "enum": [
-              "dc+sd-jwt",
-              "mso_mdoc"
-            ]
-          },
-          "meta": {
-            "type": "object",
-            "additionalProperties": true
-          }
-        },
-        "required": [
-          "format",
-          "meta"
-        ],
-        "additionalProperties": false
-      },
-      "example": []
     }
   },
   "additionalProperties": false

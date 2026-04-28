@@ -3330,7 +3330,7 @@ export const RegistrarConfigResponseDtoSchema = {
     registrationCertificateDefaults: {
       nullable: true,
       description:
-        "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)",
+        "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)",
       additionalProperties: true,
       type: "object",
       allOf: [
@@ -3387,7 +3387,7 @@ export const CreateRegistrarConfigDtoSchema = {
     registrationCertificateDefaults: {
       nullable: true,
       description:
-        "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)",
+        "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)",
       additionalProperties: true,
       type: "object",
       allOf: [
@@ -3438,7 +3438,7 @@ export const UpdateRegistrarConfigDtoSchema = {
     registrationCertificateDefaults: {
       nullable: true,
       description:
-        "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)",
+        "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)",
       additionalProperties: true,
       type: "object",
       allOf: [

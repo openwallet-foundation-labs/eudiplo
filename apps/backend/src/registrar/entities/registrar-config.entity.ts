@@ -127,7 +127,7 @@ export class RegistrarConfigEntity {
      */
     @ApiPropertyOptional({
         description:
-            "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)",
+            "Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)",
         type: () => RegistrationCertificateDefaults,
         additionalProperties: true,
     })

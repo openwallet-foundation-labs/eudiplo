@@ -52,7 +52,7 @@ Use `registrationCert` per presentation configuration so each verifier request c
 Notes:
 
 - `purpose` should be configured per presentation config.
-- Shared defaults such as `privacy_policy`, `support_uri`, or `provided_attestations` can be configured once at tenant level in `registrar.json` via `registrationCertificateDefaults`.
+- Shared defaults such as `privacy_policy` or `support_uri` can be configured once at tenant level in `registrar.json` via `registrationCertificateDefaults`.
 - If you already have a registrar certificate JWT, you can set `registrationCert.jwt` to reuse it.
 
 ---

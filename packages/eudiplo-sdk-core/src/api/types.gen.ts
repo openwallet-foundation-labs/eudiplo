@@ -1803,7 +1803,7 @@ export type RegistrarConfigResponseDto = {
    */
   username: string;
   /**
-   * Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)
+   * Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)
    */
   registrationCertificateDefaults?: RegistrationCertificateDefaults;
   /**
@@ -1838,7 +1838,7 @@ export type CreateRegistrarConfigDto = {
    */
   password: string;
   /**
-   * Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)
+   * Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)
    */
   registrationCertificateDefaults?: RegistrationCertificateDefaults;
 };
@@ -1869,7 +1869,7 @@ export type UpdateRegistrarConfigDto = {
    */
   password?: string;
   /**
-   * Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri, provided_attestations)
+   * Optional default values merged into registration certificate creation requests (for example privacy_policy, support_uri)
    */
   registrationCertificateDefaults?: RegistrationCertificateDefaults;
 };
