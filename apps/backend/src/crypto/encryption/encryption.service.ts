@@ -1,5 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import { exportJWK, generateKeyPair, importJWK, JWK, jwtDecrypt } from "jose";
+import {
+    compactDecrypt,
+    exportJWK,
+    generateKeyPair,
+    importJWK,
+    JWK,
+    jwtDecrypt,
+} from "jose";
 import { KeyUsageType } from "../key/entities/key-chain.entity";
 import { KeyChainService } from "../key/key-chain.service";
 
@@ -69,5 +76,30 @@ export class EncryptionService {
         publicKey.kid = keyChain.id;
 
         return publicKey;
+    }
+
+    /**
+     * Decrypts a JWE (JSON Web Encryption) compact token and returns the plaintext
+     * parsed as JSON. Use this when the JWE payload is raw JSON (not a nested JWT).
+     * @param jwe - The JWE compact serialization string.
+     * @param tenantId - The ID of the tenant.
+     * @returns The decrypted payload parsed as a JSON object.
+     */
+    async decryptJweToJson<T = Record<string, unknown>>(
+        jwe: string,
+        tenantId: string,
+    ): Promise<T> {
+        const keyChain = await this.keyChainService.findByUsageType(
+            tenantId,
+            KeyUsageType.Encrypt,
+        );
+
+        const privateEncryptionKey = (await importJWK(
+            keyChain.activeKey,
+            "ECDH-ES",
+        )) as CryptoKey;
+
+        const { plaintext } = await compactDecrypt(jwe, privateEncryptionKey);
+        return JSON.parse(new TextDecoder().decode(plaintext)) as T;
     }
 }

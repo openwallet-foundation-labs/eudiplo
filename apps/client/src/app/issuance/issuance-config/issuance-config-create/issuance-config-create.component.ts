@@ -83,6 +83,7 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
       refreshTokenEnabled: new FormControl(true),
       refreshTokenExpiresInSeconds: new FormControl(2592000, [Validators.min(1)]),
       credentialResponseEncryption: new FormControl(false),
+      credentialRequestEncryption: new FormControl(false),
       walletAttestationRequired: new FormControl(false),
       walletProviderTrustLists: this.fb.array([]),
       chainedAs: this.fb.group({
@@ -205,6 +206,9 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
         credentialResponseEncryption:
           (config as { credentialResponseEncryption?: boolean }).credentialResponseEncryption ??
           false,
+        credentialRequestEncryption:
+          (config as { credentialRequestEncryption?: boolean }).credentialRequestEncryption ??
+          false,
         walletAttestationRequired: config.walletAttestationRequired ?? false,
         preferredAuthServer: config.preferredAuthServer ?? '',
       });
@@ -269,6 +273,7 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
         ? formValue.refreshTokenExpiresInSeconds || 2592000
         : undefined,
       credentialResponseEncryption: formValue.credentialResponseEncryption ?? false,
+      credentialRequestEncryption: formValue.credentialRequestEncryption ?? false,
       authServers: formValue.authServers?.length > 0 ? formValue.authServers : undefined,
       preferredAuthServer: formValue.preferredAuthServer || undefined,
       walletAttestationRequired: formValue.walletAttestationRequired,

@@ -1474,6 +1474,11 @@
         "tenantId": {
           "type": "string",
           "example": "tenant-a"
+        },
+        "temporaryPassword": {
+          "type": "string",
+          "example": "Ab3!zK8pQ2",
+          "description": "One-time temporary password returned only on user creation."
         }
       },
       "required": ["id", "username", "enabled", "roles"],
@@ -1513,6 +1518,11 @@
               "registrar:manage"
             ]
           }
+        },
+        "temporaryPassword": {
+          "type": "string",
+          "example": "Ab3!zK8pQ2",
+          "description": "One-time temporary password returned only on user creation."
         },
         "enabled": {
           "type": "boolean",
@@ -1557,9 +1567,19 @@
             ]
           }
         },
+        "temporaryPassword": {
+          "type": "string",
+          "example": "Ab3!zK8pQ2",
+          "description": "One-time temporary password returned only on user creation."
+        },
         "enabled": {
           "type": "boolean",
           "example": true
+        },
+        "password": {
+          "type": "string",
+          "minLength": 8,
+          "example": "S3cur3P@ssword"
         }
       },
       "additionalProperties": false
@@ -1844,6 +1864,11 @@
           "description": "Whether `credential_response_encryption` should be advertised in the credential issuer metadata.",
           "default": false
         },
+        "credentialRequestEncryption": {
+          "type": "boolean",
+          "description": "Whether `credential_request_encryption` should be advertised in the credential issuer metadata.",
+          "default": false
+        },
         "refreshTokenExpiresInSeconds": {
           "type": "number",
           "description": "Refresh token lifetime in seconds. Defaults to 2592000 (30 days).",
@@ -1940,6 +1965,11 @@
         "credentialResponseEncryption": {
           "type": "boolean",
           "description": "Whether `credential_response_encryption` should be advertised in the credential issuer metadata.",
+          "default": false
+        },
+        "credentialRequestEncryption": {
+          "type": "boolean",
+          "description": "Whether `credential_request_encryption` should be advertised in the credential issuer metadata.",
           "default": false
         },
         "refreshTokenExpiresInSeconds": {

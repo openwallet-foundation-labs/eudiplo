@@ -3,6 +3,7 @@
     "batchSize": 10,
     "dPopRequired": true,
     "credentialResponseEncryption": true,
+    "credentialRequestEncryption": true,
     "walletAttestationRequired": true,
     "display": [
         {
