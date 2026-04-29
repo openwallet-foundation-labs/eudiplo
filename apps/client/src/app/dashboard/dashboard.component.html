@@ -17,6 +17,19 @@
     </div>
   </div>
 
+  @if (dashboardService.isReadOnly && !dashboardService.isLoading) {
+    <mat-card class="setup-card readonly-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="setup-icon">visibility</mat-icon>
+        <mat-card-title>Read-only Dashboard</mat-card-title>
+        <mat-card-subtitle
+          >Your role allows monitoring, but not setup changes for
+          issuance/presentation</mat-card-subtitle
+        >
+      </mat-card-header>
+    </mat-card>
+  }
+
   <!-- Setup Guide (shown if setup not complete) -->
   @if (dashboardService.showSetupGuide && !dashboardService.isLoading) {
     <mat-card class="setup-card">
@@ -66,6 +79,37 @@
                   <mat-chip>{{ dashboardService.totalKeyChains }} key chain(s)</mat-chip>
                 }
               </div>
+
+              <!-- Step 2: Configure Access Certificate -->
+              <div
+                class="setup-step"
+                [class.completed]="dashboardService.hasUsableAccessCertificate"
+                fxLayout="row"
+                fxLayoutAlign="start center"
+                fxLayoutGap="12px"
+              >
+                <mat-icon [class.done]="dashboardService.hasUsableAccessCertificate">
+                  {{
+                    dashboardService.hasUsableAccessCertificate
+                      ? 'check_circle'
+                      : 'radio_button_unchecked'
+                  }}
+                </mat-icon>
+                <div fxFlex>
+                  <strong>2. Configure an Access Certificate</strong>
+                  <p>
+                    An active access certificate is required to sign wallet-facing issuance and
+                    presentation requests
+                  </p>
+                </div>
+                @if (!dashboardService.hasUsableAccessCertificate) {
+                  <a mat-stroked-button color="primary" routerLink="/keys/create">
+                    <mat-icon>verified</mat-icon> Configure
+                  </a>
+                } @else {
+                  <mat-chip>{{ dashboardService.accessKeyChains }} access key chain(s)</mat-chip>
+                }
+              </div>
             </div>
           </div>
         }
@@ -83,6 +127,8 @@
                   Issue Credentials
                   @if (dashboardService.isReadyToIssue) {
                     <mat-chip color="primary" highlighted>Ready</mat-chip>
+                  } @else if (dashboardService.issueReadinessReason; as reason) {
+                    <mat-chip class="reason-chip" [matTooltip]="reason">{{ reason }}</mat-chip>
                   }
                 </h3>
 
@@ -140,6 +186,20 @@
                       <mat-chip>{{ dashboardService.credentialConfigs }} config(s)</mat-chip>
                     }
                   </div>
+
+                  @if (!dashboardService.isReadyToIssue) {
+                    <div class="track-actions" fxLayout="row" fxLayoutGap="8px">
+                      @if (!dashboardService.hasIssuanceConfig) {
+                        <a mat-flat-button color="primary" routerLink="/issuance-config">
+                          <mat-icon>settings</mat-icon> Configure Issuance
+                        </a>
+                      } @else if (dashboardService.credentialConfigs === 0) {
+                        <a mat-flat-button color="primary" routerLink="/credential-config/create">
+                          <mat-icon>add</mat-icon> Add Credential Config
+                        </a>
+                      }
+                    </div>
+                  }
                 </div>
               </div>
             }
@@ -152,6 +212,8 @@
                   Verify Presentations
                   @if (dashboardService.isReadyToVerify) {
                     <mat-chip color="accent" highlighted>Ready</mat-chip>
+                  } @else if (dashboardService.verifyReadinessReason; as reason) {
+                    <mat-chip class="reason-chip" [matTooltip]="reason">{{ reason }}</mat-chip>
                   }
                 </h3>
 
@@ -187,6 +249,16 @@
                       <mat-chip>{{ dashboardService.presentationConfigs }} config(s)</mat-chip>
                     }
                   </div>
+
+                  @if (!dashboardService.isReadyToVerify) {
+                    <div class="track-actions" fxLayout="row" fxLayoutGap="8px">
+                      @if (dashboardService.presentationConfigs === 0) {
+                        <a mat-flat-button color="primary" routerLink="/presentation-config/create">
+                          <mat-icon>add</mat-icon> Add Presentation Config
+                        </a>
+                      }
+                    </div>
+                  }
                 </div>
               </div>
             }
@@ -262,6 +334,101 @@
       </a>
     }
   </div>
+
+  <mat-card class="session-breakdown-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>health_and_safety</mat-icon>
+      <mat-card-title>Operational Health</mat-card-title>
+      <mat-card-subtitle>Readiness and integration health signals</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="session-stats" fxLayout="row wrap" fxLayoutGap="24px">
+        <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+          <mat-icon class="status-completed">verified</mat-icon>
+          <span
+            ><strong>Access Certificate:</strong>
+            {{ dashboardService.accessCertificateStatusLabel }}</span
+          >
+        </div>
+        @if (dashboardService.accessCertificateExpiresAt) {
+          <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+            <mat-icon class="status-expired">event</mat-icon>
+            <span
+              ><strong>Expires:</strong>
+              {{ dashboardService.accessCertificateExpiresAt | date: 'yyyy-MM-dd HH:mm' }}</span
+            >
+          </div>
+          @if (dashboardService.accessCertificateDaysUntilExpiry !== null) {
+            <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+              <mat-icon class="status-expired">hourglass_top</mat-icon>
+              <span
+                ><strong>Days Remaining:</strong>
+                {{ dashboardService.accessCertificateDaysUntilExpiry }}</span
+              >
+            </div>
+          }
+        }
+        <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+          <mat-icon class="status-fetched">shield</mat-icon>
+          <span><strong>Trust Lists:</strong> {{ dashboardService.trustListCount }}</span>
+        </div>
+        <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+          <mat-icon class="status-active">hub</mat-icon>
+          <span
+            ><strong>Registrar:</strong>
+            {{ dashboardService.hasRegistrarConfig ? 'Configured' : 'Not configured' }}</span
+          >
+        </div>
+      </div>
+
+      <div class="session-stats" fxLayout="row wrap" fxLayoutGap="24px">
+        <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+          <mat-icon class="status-completed">north_east</mat-icon>
+          <span
+            ><strong>Last Issuance Success:</strong>
+            {{
+              dashboardService.lastSuccessfulIssuanceAt
+                ? (dashboardService.lastSuccessfulIssuanceAt | date: 'yyyy-MM-dd HH:mm')
+                : 'n/a'
+            }}</span
+          >
+        </div>
+        <div class="session-stat" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+          <mat-icon class="status-completed">fact_check</mat-icon>
+          <span
+            ><strong>Last Presentation Success:</strong>
+            {{
+              dashboardService.lastSuccessfulPresentationAt
+                ? (dashboardService.lastSuccessfulPresentationAt | date: 'yyyy-MM-dd HH:mm')
+                : 'n/a'
+            }}</span
+          >
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  @if (dashboardService.hasWarnings) {
+    <mat-card class="setup-card warnings-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="setup-icon">warning</mat-icon>
+        <mat-card-title>Warnings</mat-card-title>
+        <mat-card-subtitle
+          >Non-blocking signals that may impact runtime reliability</mat-card-subtitle
+        >
+      </mat-card-header>
+      <mat-card-content>
+        <div class="setup-steps" fxLayout="column" fxLayoutGap="8px">
+          @for (warning of dashboardService.warningMessages; track warning) {
+            <div class="setup-step" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="12px">
+              <mat-icon>warning_amber</mat-icon>
+              <div fxFlex>{{ warning }}</div>
+            </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
 
   <!-- Session Status Breakdown -->
   @if (
@@ -340,11 +507,11 @@
             mat-raised-button
             color="primary"
             routerLink="/offer/issuance"
-            [class.disabled]="dashboardService.credentialConfigs === 0"
-            [attr.tabindex]="dashboardService.credentialConfigs === 0 ? -1 : 0"
+            [class.disabled]="!dashboardService.isReadyToIssue"
+            [attr.tabindex]="!dashboardService.isReadyToIssue ? -1 : 0"
             [matTooltip]="
-              dashboardService.credentialConfigs === 0
-                ? 'Create a credential configuration first'
+              !dashboardService.isReadyToIssue
+                ? dashboardService.issueReadinessReason || 'Issuance is not ready'
                 : 'Create an issuance offer'
             "
           >
@@ -356,11 +523,11 @@
             mat-raised-button
             color="accent"
             routerLink="/offer/presentation"
-            [class.disabled]="dashboardService.presentationConfigs === 0"
-            [attr.tabindex]="dashboardService.presentationConfigs === 0 ? -1 : 0"
+            [class.disabled]="!dashboardService.isReadyToVerify"
+            [attr.tabindex]="!dashboardService.isReadyToVerify ? -1 : 0"
             [matTooltip]="
-              dashboardService.presentationConfigs === 0
-                ? 'Create a presentation configuration first'
+              !dashboardService.isReadyToVerify
+                ? dashboardService.verifyReadinessReason || 'Presentation is not ready'
                 : 'Request a presentation'
             "
           >
@@ -379,24 +546,20 @@
         }
       </div>
       @if (
-        (dashboardService.canManageIssuance && dashboardService.credentialConfigs === 0) ||
-        (dashboardService.canManagePresentation && dashboardService.presentationConfigs === 0)
+        (dashboardService.canManageIssuance && !dashboardService.isReadyToIssue) ||
+        (dashboardService.canManagePresentation && !dashboardService.isReadyToVerify)
       ) {
         <div class="actions-hint">
           <mat-icon>info</mat-icon>
           <span>
-            @if (
-              dashboardService.credentialConfigs === 0 && dashboardService.presentationConfigs === 0
-            ) {
-              To issue credentials or request presentations, first create a
-              <a routerLink="/credential-config/create">credential configuration</a> or
-              <a routerLink="/presentation-config/create">presentation configuration</a>.
-            } @else if (dashboardService.credentialConfigs === 0) {
-              To issue credentials, first
-              <a routerLink="/credential-config/create">create a credential configuration</a>.
-            } @else {
-              To request presentations, first
-              <a routerLink="/presentation-config/create">create a presentation configuration</a>.
+            @if (dashboardService.canManageIssuance && dashboardService.issueReadinessReason) {
+              Issuance is blocked: <strong>{{ dashboardService.issueReadinessReason }}</strong
+              >.
+            }
+            @if (dashboardService.canManagePresentation && dashboardService.verifyReadinessReason) {
+              Presentation is blocked:
+              <strong>{{ dashboardService.verifyReadinessReason }}</strong
+              >.
             }
           </span>
         </div>
@@ -443,87 +606,4 @@
       </div>
     </mat-card-content>
   </mat-card>
-
-  <!-- Current Configuration (Collapsible) -->
-  <mat-expansion-panel class="config-panel">
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        <mat-icon>settings</mat-icon>
-        Connection Details
-      </mat-panel-title>
-      <mat-panel-description> View your current API configuration </mat-panel-description>
-    </mat-expansion-panel-header>
-
-    <div fxLayout="column" fxLayoutGap="12px" class="config-content">
-      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px" class="config-row">
-        <mat-form-field appearance="outline" fxFlex>
-          <mat-label>API Base URL</mat-label>
-          <input matInput [value]="currentBaseUrl" readonly aria-label="API Base URL" />
-          <button
-            mat-icon-button
-            matSuffix
-            (click)="copyToClipboard(currentBaseUrl, 'API Base URL')"
-            matTooltip="Copy to clipboard"
-            aria-label="Copy API Base URL to clipboard"
-          >
-            <mat-icon>content_copy</mat-icon>
-          </button>
-        </mat-form-field>
-      </div>
-
-      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px" class="config-row">
-        <mat-form-field appearance="outline" fxFlex>
-          <mat-label>OAuth URL</mat-label>
-          <input matInput [value]="currentOidcUrl" readonly aria-label="OAuth URL" />
-          <button
-            mat-icon-button
-            matSuffix
-            (click)="copyToClipboard(currentOidcUrl, 'OAuth URL')"
-            matTooltip="Copy to clipboard"
-            aria-label="Copy OAuth URL to clipboard"
-          >
-            <mat-icon>content_copy</mat-icon>
-          </button>
-        </mat-form-field>
-      </div>
-
-      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px" class="config-row">
-        <mat-form-field appearance="outline" fxFlex>
-          <mat-label>Client ID</mat-label>
-          <input matInput [value]="currentClientId" readonly aria-label="Client ID" />
-          <button
-            mat-icon-button
-            matSuffix
-            (click)="copyToClipboard(currentClientId, 'Client ID')"
-            matTooltip="Copy to clipboard"
-            aria-label="Copy Client ID to clipboard"
-          >
-            <mat-icon>content_copy</mat-icon>
-          </button>
-        </mat-form-field>
-      </div>
-
-      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px" class="config-row">
-        <mat-form-field appearance="outline" fxFlex>
-          <mat-label>Client Secret</mat-label>
-          <input
-            matInput
-            [value]="currentClientSecret"
-            readonly
-            type="password"
-            aria-label="Client Secret"
-          />
-          <button
-            mat-icon-button
-            matSuffix
-            (click)="copyToClipboard(currentClientSecret, 'Client Secret')"
-            matTooltip="Copy to clipboard"
-            aria-label="Copy Client Secret to clipboard"
-          >
-            <mat-icon>content_copy</mat-icon>
-          </button>
-        </mat-form-field>
-      </div>
-    </div>
-  </mat-expansion-panel>
 </div>

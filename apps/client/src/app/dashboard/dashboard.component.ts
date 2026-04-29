@@ -1,13 +1,11 @@
 import { Component, type OnDestroy, type OnInit } from '@angular/core';
+import { DatePipe } from '@angular/common';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -32,14 +30,12 @@ import { DashboardService } from './dashboard.service';
     MatDividerModule,
     MatIconModule,
     MatChipsModule,
-    MatExpansionModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatTooltipModule,
     MatGridListModule,
+    DatePipe,
     RouterModule,
   ],
   templateUrl: './dashboard.component.html',
@@ -132,22 +128,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.apiService.canRefreshToken();
   }
 
-  get currentClientId(): string {
-    return this.apiService.getClientId() || 'Not configured';
-  }
-
-  get currentClientSecret(): string {
-    return this.apiService.getClientSecret() || 'Not configured';
-  }
-
-  get currentOidcUrl(): string {
-    return this.apiService.getoidcUrl() || 'Not configured';
-  }
-
-  get oauthConfiguration(): { server?: string; clientId?: string; baseUrl?: string } | null {
-    return this.apiService.getOAuthConfiguration();
-  }
-
   /**
    * Fetch backend version from the API
    */
@@ -169,25 +149,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private fetchClientVersion(): void {
     const env = (window as any)['env'];
     this.clientVersion = env?.version || 'dev';
-  }
-
-  /**
-   * Copy text to clipboard
-   */
-  async copyToClipboard(text: string, label: string): Promise<void> {
-    try {
-      await navigator.clipboard.writeText(text);
-      this.snackBar.open(`${label} copied to clipboard!`, 'OK', {
-        duration: 2000,
-        panelClass: ['success-snackbar'],
-      });
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
-      this.snackBar.open(`Failed to copy ${label}`, 'OK', {
-        duration: 3000,
-        panelClass: ['error-snackbar'],
-      });
-    }
   }
 
   openGrafana(): void {

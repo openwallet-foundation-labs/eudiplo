@@ -52,6 +52,9 @@ export class PresentationRequestComponent implements OnInit {
   configs: PresentationConfig[] = [];
   loading = false;
   generatingOffer = false;
+  checkingReadiness = false;
+  readinessError: string | null = null;
+  isReadyToGenerate = false;
   offerResult: OfferResponse | null = null;
   qrCodeDataUrl: string | null = null;
   showTransactionDataOverride = false;
@@ -71,6 +74,9 @@ export class PresentationRequestComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.form.get('requestId')?.valueChanges.subscribe((value) => {
+      void this.evaluateReadiness(value || undefined);
+    });
     this.loadConfigurations();
   }
 
@@ -83,8 +89,10 @@ export class PresentationRequestComponent implements OnInit {
       const prefillData = history.state?.presentationRequest as { requestId: string } | undefined;
       if (prefillData?.requestId) {
         this.form.patchValue({ requestId: prefillData.requestId });
+        await this.evaluateReadiness(prefillData.requestId);
       } else if (this.route.snapshot.params['id']) {
         this.form.patchValue({ requestId: this.route.snapshot.params['id'] });
+        await this.evaluateReadiness(this.route.snapshot.params['id']);
         //since we do not have any other values for now, we can submit the form
         this.onSubmit();
       }
@@ -104,7 +112,44 @@ export class PresentationRequestComponent implements OnInit {
     return this.configs.find((config) => config.id === selectedId);
   }
 
+  private async evaluateReadiness(requestId?: string): Promise<void> {
+    if (!requestId) {
+      this.isReadyToGenerate = false;
+      this.readinessError = null;
+      return;
+    }
+
+    this.checkingReadiness = true;
+    this.readinessError = null;
+
+    try {
+      const readiness =
+        await this.presentationManagementService.checkPresentationReadiness(requestId);
+      this.isReadyToGenerate = readiness.ready;
+      this.readinessError = readiness.ready
+        ? null
+        : readiness.reason || 'Presentation cannot be generated with the current setup.';
+    } catch (error) {
+      console.error('Error checking presentation readiness:', error);
+      this.isReadyToGenerate = false;
+      this.readinessError = 'Failed to validate presentation readiness.';
+    } finally {
+      this.checkingReadiness = false;
+    }
+  }
+
   async onSubmit(): Promise<void> {
+    const requestId = this.form.get('requestId')?.value;
+    await this.evaluateReadiness(requestId || undefined);
+
+    if (!this.isReadyToGenerate) {
+      this.snackBar.open(this.readinessError || 'Presentation cannot be generated yet.', 'Close', {
+        duration: 4000,
+        panelClass: ['error-snackbar'],
+      });
+      return;
+    }
+
     this.generatingOffer = true;
     this.offerResult = null;
     this.qrCodeDataUrl = null;
@@ -165,6 +210,8 @@ export class PresentationRequestComponent implements OnInit {
     this.form.reset({
       requestId: '',
     });
+    this.readinessError = null;
+    this.isReadyToGenerate = false;
     this.offerResult = null;
     this.qrCodeDataUrl = null;
   }

@@ -59,6 +59,20 @@ mat-icon[mat-card-avatar] {
     background: #ffccbc;
   }
 
+  &.readonly-card {
+    border-left-color: #1565c0;
+    background: linear-gradient(135deg, #eef7ff 0%, #ffffff 100%);
+
+    .setup-icon {
+      color: #0d47a1;
+      background: #bbdefb;
+    }
+  }
+
+  &.warnings-card {
+    border-left-color: #e65100;
+  }
+
   .setup-section {
     margin-bottom: 16px;
 
@@ -122,7 +136,16 @@ mat-icon[mat-card-avatar] {
         mat-chip {
           font-size: 11px;
           min-height: 22px;
+
+          &.reason-chip {
+            background: rgba(230, 81, 0, 0.12);
+            color: #8e3a00;
+          }
         }
+      }
+
+      .track-actions {
+        margin-top: 12px;
       }
     }
   }

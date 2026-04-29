@@ -1,11 +1,11 @@
 import { Controller, Get, UseGuards } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import {
     ApiOperation,
     ApiResponse,
     ApiSecurity,
     ApiTags,
 } from "@nestjs/swagger";
-import { ConfigService } from "@nestjs/config";
 import { JwtAuthGuard } from "../../auth/auth.guard";
 import { FrontendConfigResponseDto } from "./dto/frontend-config-response.dto";
 

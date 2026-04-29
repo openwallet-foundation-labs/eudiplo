@@ -1,0 +1,95 @@
+<div fxLayout="column" fxLayoutAlign="start center" class="settings-container">
+  <mat-card class="settings-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>settings_ethernet</mat-icon>
+      <mat-card-title>Connection Details</mat-card-title>
+      <mat-card-subtitle>Current API and authentication configuration</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div fxLayout="column" fxLayoutGap="12px" class="config-content">
+        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px" class="config-row">
+          <mat-form-field appearance="outline" fxFlex>
+            <mat-label>API Base URL</mat-label>
+            <input matInput [value]="currentBaseUrl" readonly aria-label="API Base URL" />
+            <button
+              mat-icon-button
+              matSuffix
+              (click)="copyToClipboard(currentBaseUrl, 'API Base URL')"
+              matTooltip="Copy to clipboard"
+              aria-label="Copy API Base URL to clipboard"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+
+        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px" class="config-row">
+          <mat-form-field appearance="outline" fxFlex>
+            <mat-label>OAuth URL</mat-label>
+            <input matInput [value]="currentOidcUrl" readonly aria-label="OAuth URL" />
+            <button
+              mat-icon-button
+              matSuffix
+              (click)="copyToClipboard(currentOidcUrl, 'OAuth URL')"
+              matTooltip="Copy to clipboard"
+              aria-label="Copy OAuth URL to clipboard"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+
+        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px" class="config-row">
+          <mat-form-field appearance="outline" fxFlex>
+            <mat-label>Client ID</mat-label>
+            <input matInput [value]="currentClientId" readonly aria-label="Client ID" />
+            <button
+              mat-icon-button
+              matSuffix
+              (click)="copyToClipboard(currentClientId, 'Client ID')"
+              matTooltip="Copy to clipboard"
+              aria-label="Copy Client ID to clipboard"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+
+        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px" class="config-row">
+          <mat-form-field appearance="outline" fxFlex>
+            <mat-label>Client Secret</mat-label>
+            <input
+              matInput
+              [value]="currentClientSecret"
+              readonly
+              type="password"
+              aria-label="Client Secret"
+            />
+            <button
+              mat-icon-button
+              matSuffix
+              (click)="copyToClipboard(currentClientSecret, 'Client Secret')"
+              matTooltip="Copy to clipboard"
+              aria-label="Copy Client Secret to clipboard"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+
+        <div class="hint-row" fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+          <mat-icon>info</mat-icon>
+          <span>Automatic token refresh: {{ canAutoRefresh ? 'enabled' : 'disabled' }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <a mat-button color="primary" routerLink="/dashboard">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Dashboard
+      </a>
+    </mat-card-actions>
+  </mat-card>
+</div>

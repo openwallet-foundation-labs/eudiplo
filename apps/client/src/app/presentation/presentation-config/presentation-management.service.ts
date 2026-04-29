@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import {
+  keyChainControllerGetAll,
+  KeyChainResponseDto,
   PresentationConfig,
   presentationManagementControllerGetConfiguration,
   PresentationRequest,
@@ -39,5 +41,66 @@ export class PresentationManagementService {
     return verifierOfferControllerGetOffer({ body: offerRequest }).then(
       (response) => response.data
     );
+  }
+
+  async checkPresentationReadiness(requestId: string): Promise<{
+    ready: boolean;
+    reason?: string;
+  }> {
+    const config = await this.getPresentationById(requestId);
+    if (!config) {
+      return {
+        ready: false,
+        reason: 'Presentation configuration not found',
+      };
+    }
+
+    const keyChainsResponse = await keyChainControllerGetAll({});
+    const accessKeyChains = (keyChainsResponse.data || []).filter(
+      (keyChain: KeyChainResponseDto) => keyChain.usageType === 'access'
+    );
+
+    if (accessKeyChains.length === 0) {
+      return {
+        ready: false,
+        reason:
+          'No access key chain is configured. Create an access key chain and access certificate first.',
+      };
+    }
+
+    const hasActiveCertificate = (keyChain: KeyChainResponseDto): boolean =>
+      !!keyChain.activeCertificate?.pem;
+
+    if (config.accessKeyChainId) {
+      const selectedKeyChain = accessKeyChains.find(
+        (keyChain) => keyChain.id === config.accessKeyChainId
+      );
+      if (!selectedKeyChain) {
+        return {
+          ready: false,
+          reason: 'The selected access key chain for this presentation config does not exist.',
+        };
+      }
+
+      if (!hasActiveCertificate(selectedKeyChain)) {
+        return {
+          ready: false,
+          reason:
+            'The selected access key chain has no active access certificate. Create or refresh the access certificate first.',
+        };
+      }
+
+      return { ready: true };
+    }
+
+    if (!accessKeyChains.some(hasActiveCertificate)) {
+      return {
+        ready: false,
+        reason:
+          'No active access certificate is available for any access key chain. Create an access certificate first.',
+      };
+    }
+
+    return { ready: true };
   }
 }
