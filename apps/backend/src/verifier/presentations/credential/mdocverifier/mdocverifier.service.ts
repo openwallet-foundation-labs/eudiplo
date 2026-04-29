@@ -32,6 +32,13 @@ export type MdocVerificationResult = {
     claims: Record<string, unknown>;
     payload: string;
     docType?: string;
+    failureType?:
+        | "signature_invalid"
+        | "no_trust_chain_to_root"
+        | "trust_chain_not_trusted"
+        | "x5c_missing"
+        | "verification_error";
+    failureReason?: string;
 };
 
 /**
@@ -138,11 +145,22 @@ export class MdocverifierService {
                         `Certificate chain validation failed: ${chainResult.errorDetails}`,
                     );
                 }
+
+                const failureType = this.mapChainErrorToFailureType(
+                    chainResult.error,
+                );
+                const failureReason =
+                    chainResult.errorDetails ||
+                    chainResult.error ||
+                    "Certificate chain validation failed";
+
                 return {
                     verified: false,
                     claims,
                     payload: vp,
                     docType,
+                    failureType,
+                    failureReason,
                 };
             }
 
@@ -229,13 +247,82 @@ export class MdocverifierService {
 
         this.logger.error(`mDOC verification failed: ${errorDetails}`);
 
+        let failureType = this.classifyVerificationError(error);
+        let failureReason = error?.message ?? String(error);
+
+        // In some failing cases the mDOC library throws a signature-related error first,
+        // even though the underlying trust chain is also not valid for the configured trust list.
+        // Probe chain validation here to return a more actionable trust-specific reason.
+        if (failureType === "signature_invalid") {
+            try {
+                const uint8Array = Buffer.from(vp, "base64url");
+                const deviceResponse = DeviceResponse.decode(uint8Array);
+                const mdocDocument = deviceResponse.documents?.[0];
+
+                if (mdocDocument) {
+                    const chainResult =
+                        await this.validateIssuerCertificateChain(
+                            mdocDocument,
+                            options,
+                        );
+
+                    if (!chainResult.verified) {
+                        failureType = this.mapChainErrorToFailureType(
+                            chainResult.error,
+                        );
+                        failureReason =
+                            chainResult.errorDetails ||
+                            chainResult.error ||
+                            failureReason;
+
+                        this.logger.warn(
+                            `mDOC verification encountered signature error but trust chain check also failed: ${failureReason}`,
+                        );
+                    }
+                }
+            } catch (chainProbeError: any) {
+                this.logger.debug(
+                    `Could not probe chain failure after signature error: ${chainProbeError?.message ?? chainProbeError}`,
+                );
+            }
+        }
+
         return {
             verified: false,
             claims: {},
             payload: vp,
             docType:
                 details.docType === "unknown" ? undefined : details.docType,
+            failureType,
+            failureReason,
         };
+    }
+
+    private mapChainErrorToFailureType(
+        errorCode?: string,
+    ): MdocVerificationResult["failureType"] {
+        switch (errorCode) {
+            case "x5c_required":
+                return "x5c_missing";
+            case "chain_build_failed":
+                return "no_trust_chain_to_root";
+            case "no_trusted_entity_match":
+                return "trust_chain_not_trusted";
+            default:
+                return "verification_error";
+        }
+    }
+
+    private classifyVerificationError(
+        error: any,
+    ): MdocVerificationResult["failureType"] {
+        const message = String(error?.message ?? error).toLowerCase();
+
+        if (message.includes("signature")) {
+            return "signature_invalid";
+        }
+
+        return "verification_error";
     }
 
     /**

@@ -178,7 +178,7 @@ describe("Presentation - mDOC Credential", () => {
         const untrustedCert =
             await x509Lib.X509CertificateGenerator.createSelfSigned({
                 serialNumber: "01",
-                name: "CN=Untrusted mDOC Issuer",
+                name: "C=DE, CN=Untrusted mDOC Issuer",
                 notBefore: new Date(),
                 notAfter: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
                 signingAlgorithm: { name: "ECDSA", hash: "SHA-256" },
@@ -245,7 +245,7 @@ describe("Presentation - mDOC Credential", () => {
         // The submission should succeed (200 per OID4VP spec) but session should fail
         expect(submitRes.response.status).toBe(200);
 
-        // Verify the session is marked as failed with trust-related error
+        // Verify the session is marked as failed with a trust-chain specific error
         const sessionRes = await request(app.getHttpServer())
             .get(`/session/${sessionId}`)
             .trustLocalhost()
@@ -253,11 +253,11 @@ describe("Presentation - mDOC Credential", () => {
             .expect(200);
 
         expect(sessionRes.body.status).toBe("failed");
-        // Error should mention trust chain, signature validation, or untrusted issuer
-        // The system may fail at signature verification (when x5c doesn't chain to trust anchor)
-        // or at trust list matching - both indicate credential rejection from untrusted source
+        expect(sessionRes.body.errorReason).toContain(
+            'mDOC verification failed for credential "pid-mso-mdoc":',
+        );
         expect(sessionRes.body.errorReason).toMatch(
-            /trust|chain|no_trusted_entity_match|invalid|failed/i,
+            /no trust chain to a trusted root could be built|certificate chain does not match any trusted entity/i,
         );
     });
 });
