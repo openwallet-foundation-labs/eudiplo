@@ -1062,8 +1062,8 @@ the registrar is not enabled for this tenant.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1000"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:1000</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1028"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:1028</a></div>
                         </td>
                     </tr>
 
@@ -1159,8 +1159,8 @@ For mDOC: the first path element is the namespace, so we return the claim name (
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="922"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:922</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="950"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:950</a></div>
                         </td>
                     </tr>
 
@@ -2214,8 +2214,8 @@ happens asynchronously.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="939"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:939</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="967"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:967</a></div>
                         </td>
                     </tr>
 
@@ -2330,8 +2330,8 @@ If no credential_sets are defined, all credentials in the query are required.</p
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1030"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:1030</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1058"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:1058</a></div>
                         </td>
                     </tr>
 
@@ -3356,10 +3356,38 @@ export class PresentationsService {
                                     },
                                     verifyOptions,
                                 );
-
                             if (!result.verified) {
+                                const reasonByType: Record&lt;string, string&gt; &#x3D; {
+                                    signature_invalid:
+                                        &quot;mDOC signature is invalid&quot;,
+                                    no_trust_chain_to_root:
+                                        &quot;no trust chain to a trusted root could be built&quot;,
+                                    trust_chain_not_trusted:
+                                        &quot;certificate chain does not match any trusted entity&quot;,
+                                    x5c_missing:
+                                        &quot;credential does not include an x5c chain but it is required&quot;,
+                                    verification_error:
+                                        &quot;mDOC verification failed&quot;,
+                                };
+
+                                const reason &#x3D;
+                                    (result.failureType
+                                        ? reasonByType[result.failureType]
+                                        : undefined) ||
+                                    result.failureReason ||
+                                    &quot;mDOC verification failed&quot;;
+
+                                this.logger.warn(
+                                    {
+                                        credentialId: attId,
+                                        failureType: result.failureType,
+                                        failureReason: result.failureReason,
+                                    },
+                                    &quot;mDOC verification failed&quot;,
+                                );
+
                                 throw new BadRequestException(
-                                    &#x60;mDOC verification failed for credential &quot;${attId}&quot;&#x60;,
+                                    &#x60;mDOC verification failed for credential &quot;${attId}&quot;: ${reason}&#x60;,
                                 );
                             }
 
