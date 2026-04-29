@@ -33,6 +33,14 @@ export const routes: Routes = [
       import('./dashboard/dashboard.component').then((m) => m.DashboardComponent),
     canActivate: [AuthGuard],
   },
+  {
+    path: 'settings/connection',
+    loadComponent: () =>
+      import('./settings/connection-settings/connection-settings.component').then(
+        (m) => m.ConnectionSettingsComponent
+      ),
+    canActivate: [AuthGuard],
+  },
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
 
   // Tenant & Client routes

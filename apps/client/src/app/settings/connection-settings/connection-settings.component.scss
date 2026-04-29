@@ -1,0 +1,25 @@
+:host {
+  display: block;
+}
+
+.settings-container {
+  width: 100%;
+  padding: 24px;
+}
+
+.settings-card {
+  width: 100%;
+  max-width: 980px;
+}
+
+.hint-row {
+  margin-top: 8px;
+  color: #1565c0;
+  font-size: 14px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}

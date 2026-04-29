@@ -51,6 +51,21 @@
           <span matListItemTitle>Dashboard</span>
         </mat-list-item>
 
+        <mat-divider></mat-divider>
+        <div mat-subheader>
+          <mat-icon class="subheader-icon">settings</mat-icon>
+          Settings
+        </div>
+
+        <mat-list-item
+          [routerLink]="['/settings/connection']"
+          routerLinkActive="active-link"
+          (click)="closeSidenavOnMobile()"
+        >
+          <mat-icon matListItemIcon>settings_ethernet</mat-icon>
+          <span matListItemTitle>Connection Settings</span>
+        </mat-list-item>
+
         <!-- Administration Section -->
         @if (hasRole(['tenants:manage', 'clients:manage', 'users:manage'])) {
           <mat-divider></mat-divider>
