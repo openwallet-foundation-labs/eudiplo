@@ -854,10 +854,38 @@ export class PresentationsService {
                                     },
                                     verifyOptions,
                                 );
-
                             if (!result.verified) {
+                                const reasonByType: Record<string, string> = {
+                                    signature_invalid:
+                                        "mDOC signature is invalid",
+                                    no_trust_chain_to_root:
+                                        "no trust chain to a trusted root could be built",
+                                    trust_chain_not_trusted:
+                                        "certificate chain does not match any trusted entity",
+                                    x5c_missing:
+                                        "credential does not include an x5c chain but it is required",
+                                    verification_error:
+                                        "mDOC verification failed",
+                                };
+
+                                const reason =
+                                    (result.failureType
+                                        ? reasonByType[result.failureType]
+                                        : undefined) ||
+                                    result.failureReason ||
+                                    "mDOC verification failed";
+
+                                this.logger.warn(
+                                    {
+                                        credentialId: attId,
+                                        failureType: result.failureType,
+                                        failureReason: result.failureReason,
+                                    },
+                                    "mDOC verification failed",
+                                );
+
                                 throw new BadRequestException(
-                                    `mDOC verification failed for credential "${attId}"`,
+                                    `mDOC verification failed for credential "${attId}": ${reason}`,
                                 );
                             }
 
