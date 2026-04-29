@@ -181,8 +181,8 @@ importers:
         specifier: 0.6.0
         version: 0.6.0
       '@owf/token-status-list':
-        specifier: 0.1.0-alpha-20260421112634
-        version: 0.1.0-alpha-20260421112634
+        specifier: 0.1.0-alpha-20260422101556
+        version: 0.1.0-alpha-20260422101556
       '@panva/hkdf':
         specifier: ^1.2.1
         version: 1.2.1
@@ -3675,17 +3675,14 @@ packages:
   '@owf/eudi-lote@0.1.0-alpha-20260422101556':
     resolution: {integrity: sha512-Srh97sfLe1agV8ZHREk2NPRdNoU1q/fmofXBaIfusfKbelIrrUo94IYLzcU9SRsW4yu/jstV50J978auWiA5Fw==}
 
-  '@owf/identity-common@0.1.0-alpha-20260421112634':
-    resolution: {integrity: sha512-jw6bZF8Mgti8KRS+fsZK4to6eloyqdW5fridCs6oP41v4inHXsxxnENpSlW3iOdBbOWlILDE+Xk/idzujEpm0Q==}
-
   '@owf/identity-common@0.1.0-alpha-20260422101556':
     resolution: {integrity: sha512-0CJhMHXWf+Dn0MpZCeachjFjMjBI2uCJl56Po3dnGiJDis5wVkfWPeCdPJZ2h4fBWwXV0+Owa8nJRxXeruRwrA==}
 
   '@owf/mdoc@0.6.0':
     resolution: {integrity: sha512-vJL62hzjcSweBjDD9eRUH1RIMSzZUtHKjVFMMo50oHPLO9ZVZbQABFe9IFoa5AgXkwfv27HjnFv/eRbkOrlsUA==}
 
-  '@owf/token-status-list@0.1.0-alpha-20260421112634':
-    resolution: {integrity: sha512-hySkITnOMi/nb6fkpZ7AyANN0xCkKuz1LxS/cmggGJGAqVsP3buwdJsuv4NwLkRlWLl4pC1sBF9uwYzn5lO+tg==}
+  '@owf/token-status-list@0.1.0-alpha-20260422101556':
+    resolution: {integrity: sha512-cwZHQPqBaXt3pTbllI6GLafE+Ws8HfEYoOgmpiQiK1sFElkF07mFZt1FTt1YElbMWtEV6YLTh+MjEWdJdRNklA==}
 
   '@oxc-project/types@0.113.0':
     resolution: {integrity: sha512-Tp3XmgxwNQ9pEN9vxgJBAqdRamHibi76iowQ38O2I4PMpcvNRQNVsU2n1x1nv9yh0XoTrGFzf7cZSGxmixxrhA==}
@@ -14880,8 +14877,6 @@ snapshots:
       '@owf/identity-common': 0.1.0-alpha-20260422101556
       zod: 4.3.6
 
-  '@owf/identity-common@0.1.0-alpha-20260421112634': {}
-
   '@owf/identity-common@0.1.0-alpha-20260422101556': {}
 
   '@owf/mdoc@0.6.0':
@@ -14890,9 +14885,9 @@ snapshots:
       zod: 4.3.6
       zod-validation-error: 5.0.0(zod@4.3.6)
 
-  '@owf/token-status-list@0.1.0-alpha-20260421112634':
+  '@owf/token-status-list@0.1.0-alpha-20260422101556':
     dependencies:
-      '@owf/identity-common': 0.1.0-alpha-20260421112634
+      '@owf/identity-common': 0.1.0-alpha-20260422101556
       cbor-x: 1.6.4
       pako: 2.1.0
 
