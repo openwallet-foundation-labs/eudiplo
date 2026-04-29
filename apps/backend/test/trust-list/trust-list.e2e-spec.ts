@@ -1,10 +1,10 @@
 import "reflect-metadata";
 import { rmSync } from "node:fs";
-import { resolve, join } from "node:path";
+import { join, resolve } from "node:path";
 import { INestApplication, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
-import { decodeJwt, decodeProtectedHeader, jwtVerify, importX509 } from "jose";
+import { decodeJwt, decodeProtectedHeader, importX509, jwtVerify } from "jose";
 import request from "supertest";
 import { App } from "supertest/types";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";

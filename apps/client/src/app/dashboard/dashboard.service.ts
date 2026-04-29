@@ -175,7 +175,7 @@ export class DashboardService {
                 }
               });
               break;
-            case 'keyChains':
+            case 'keyChains': {
               this.totalKeyChains = result.value.data.filter(
                 (kc: { usageType: string }) => kc.usageType !== 'encrypt'
               ).length;
@@ -185,6 +185,7 @@ export class DashboardService {
               );
               this.applyAccessCertificateHealth(accessKeyChains);
               break;
+            }
             case 'issuance':
               this.hasIssuanceConfig = !!result.value.data;
               break;
