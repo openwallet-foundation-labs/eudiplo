@@ -92,7 +92,9 @@
               mat-flat-button
               color="primary"
               type="submit"
-              [disabled]="form.invalid || generatingOffer || checkingReadiness || !isReadyToGenerate"
+              [disabled]="
+                form.invalid || generatingOffer || checkingReadiness || !isReadyToGenerate
+              "
             >
               Generate Request
             </button>

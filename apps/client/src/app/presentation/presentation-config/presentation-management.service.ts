@@ -72,12 +72,13 @@ export class PresentationManagementService {
       !!keyChain.activeCertificate?.pem;
 
     if (config.accessKeyChainId) {
-      const selectedKeyChain = accessKeyChains.find((keyChain) => keyChain.id === config.accessKeyChainId);
+      const selectedKeyChain = accessKeyChains.find(
+        (keyChain) => keyChain.id === config.accessKeyChainId
+      );
       if (!selectedKeyChain) {
         return {
           ready: false,
-          reason:
-            'The selected access key chain for this presentation config does not exist.',
+          reason: 'The selected access key chain for this presentation config does not exist.',
         };
       }
 

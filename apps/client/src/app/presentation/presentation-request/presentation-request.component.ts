@@ -123,9 +123,8 @@ export class PresentationRequestComponent implements OnInit {
     this.readinessError = null;
 
     try {
-      const readiness = await this.presentationManagementService.checkPresentationReadiness(
-        requestId
-      );
+      const readiness =
+        await this.presentationManagementService.checkPresentationReadiness(requestId);
       this.isReadyToGenerate = readiness.ready;
       this.readinessError = readiness.ready
         ? null
