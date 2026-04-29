@@ -59,6 +59,23 @@
   margin-top: 8px;
 }
 
+.readiness-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(0, 0, 0, 0.7);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &.readiness-error {
+    color: #c62828;
+  }
+}
+
 .result-card {
   background: linear-gradient(135deg, #e8f5e8 0%, #f0f9ff 100%);
   border: 1px solid #4caf50;

@@ -49,6 +49,20 @@
               Use DC-API instead of QR-Code
             </mat-slide-toggle>
 
+            @if (form.get('requestId')?.value && checkingReadiness) {
+              <div class="readiness-hint">
+                <mat-icon>sync</mat-icon>
+                <span>Checking whether presentation can be generated...</span>
+              </div>
+            }
+
+            @if (readinessError) {
+              <div class="readiness-hint readiness-error">
+                <mat-icon>error</mat-icon>
+                <span>{{ readinessError }}</span>
+              </div>
+            }
+
             <!-- Transaction Data Override Toggle -->
             <mat-slide-toggle
               [(ngModel)]="showTransactionDataOverride"
@@ -78,7 +92,7 @@
               mat-flat-button
               color="primary"
               type="submit"
-              [disabled]="form.invalid || generatingOffer"
+              [disabled]="form.invalid || generatingOffer || checkingReadiness || !isReadyToGenerate"
             >
               Generate Request
             </button>
