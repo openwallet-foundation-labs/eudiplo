@@ -436,6 +436,20 @@ export class AuthorizeService {
             parsedAccessTokenRequest.grant.grantType ===
             preAuthorizedCodeGrantIdentifier
         ) {
+            // Brute-force protection: reject if session is already locked out
+            if (session.credentialPayload?.tx_code) {
+                const maxAttempts = issuanceConfig.txCodeMaxAttempts ?? 5;
+                if ((session.txCodeFailedAttempts ?? 0) >= maxAttempts) {
+                    this.logger.warn(
+                        `Session ${session.id} is locked after ${session.txCodeFailedAttempts} failed tx_code attempts`,
+                    );
+                    throw new TokenErrorException(
+                        "invalid_grant",
+                        "Too many failed tx_code attempts. The pre-authorized code has been invalidated.",
+                    );
+                }
+            }
+
             const { dpop } = await this.getAuthorizationServer(
                 tenantId,
                 session.id,
@@ -461,9 +475,30 @@ export class AuthorizeService {
                     expectedPreAuthorizedCode: session.authorization_code!,
                     expectedTxCode: session.credentialPayload?.tx_code,
                 })
-                .catch((err) => {
+                .catch(async (err) => {
                     // Map verification errors to OAuth 2.0 error codes
                     const errorCode = this.mapToTokenErrorCode(err.error);
+                    // On wrong tx_code, increment the failed attempt counter and check for lockout
+                    if (errorCode === "invalid_tx_code") {
+                        const maxAttempts =
+                            issuanceConfig.txCodeMaxAttempts ?? 5;
+                        const failedAttempts =
+                            await this.sessionService.incrementTxCodeFailedAttempts(
+                                session.id,
+                            );
+                        if (failedAttempts >= maxAttempts) {
+                            this.logger.warn(
+                                `Session ${session.id} locked after ${failedAttempts} failed tx_code attempts`,
+                            );
+                            throw new TokenErrorException(
+                                "invalid_grant",
+                                "Too many failed tx_code attempts. The pre-authorized code has been invalidated.",
+                            );
+                        }
+                        this.logger.warn(
+                            `Failed tx_code attempt ${failedAttempts}/${maxAttempts} for session ${session.id}`,
+                        );
+                    }
                     throw new TokenErrorException(
                         errorCode,
                         err.error_description,

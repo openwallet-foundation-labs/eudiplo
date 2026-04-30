@@ -143,6 +143,31 @@
         </ng-template>
 
         <div fxLayout="column" fxLayoutGap="24px" class="tab-content">
+          <!-- tx_code Brute-Force Protection Card -->
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>pin</mat-icon>
+                Transaction Code (tx_code) Protection
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-list class="config-list">
+                <mat-list-item>
+                  <mat-icon matListItemIcon>lock</mat-icon>
+                  <span matListItemTitle>Max Failed tx_code Attempts</span>
+                  <span matListItemLine>
+                    {{
+                      config.txCodeMaxAttempts !== null && config.txCodeMaxAttempts !== undefined
+                        ? config.txCodeMaxAttempts
+                        : 'Default (5)'
+                    }}
+                  </span>
+                </mat-list-item>
+              </mat-list>
+            </mat-card-content>
+          </mat-card>
+
           <mat-card>
             <mat-card-header>
               <mat-card-title>

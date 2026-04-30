@@ -39,6 +39,12 @@
       "default": 2592000,
       "nullable": true
     },
+    "txCodeMaxAttempts": {
+      "type": "number",
+      "description": "Maximum failed tx_code attempts before the pre-authorized code is invalidated. Defaults to 5.",
+      "default": 5,
+      "nullable": true
+    },
     "authServers": {
       "description": "Authentication server URL for the issuance process.",
       "type": "array",

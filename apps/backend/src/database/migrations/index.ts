@@ -23,3 +23,4 @@ export { AddCredentialRequestEncryptionToIssuanceConfig1753100000000 } from "./1
 export { AddRefreshTokenToChainedAsSession1754000000000 } from "./1754000000000-AddRefreshTokenToChainedAsSession";
 export { AddRegistrationCertificateDefaultsToRegistrarConfig1755000000000 } from "./1755000000000-AddRegistrationCertificateDefaultsToRegistrarConfig";
 export { AddRegistrationCertCacheToPresentationConfig1756000000000 } from "./1756000000000-AddRegistrationCertCacheToPresentationConfig";
+export { AddTxCodeAttemptTracking1757000000000 } from "./1757000000000-AddTxCodeAttemptTracking";

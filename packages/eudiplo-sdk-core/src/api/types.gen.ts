@@ -706,6 +706,12 @@ export type Session = {
    * Stores the error message when status is 'failed'.
    */
   errorReason?: string;
+  /**
+   * Number of failed tx_code (transaction code) validation attempts.
+   * Used to enforce brute-force protection in the pre-authorized code flow.
+   * Reset implicitly when the session is consumed successfully.
+   */
+  txCodeFailedAttempts: number;
 };
 
 export type SessionLogEntryResponseDto = {
@@ -953,6 +959,10 @@ export type IssuanceConfig = {
    */
   refreshTokenExpiresInSeconds?: number;
   /**
+   * Maximum failed tx_code attempts before the pre-authorized code is invalidated. Defaults to 5.
+   */
+  txCodeMaxAttempts?: number;
+  /**
    * The tenant that owns this object.
    */
   tenant: TenantEntity;
@@ -1026,6 +1036,10 @@ export type IssuanceDto = {
    * Refresh token lifetime in seconds. Defaults to 2592000 (30 days).
    */
   refreshTokenExpiresInSeconds?: number;
+  /**
+   * Maximum failed tx_code attempts before the pre-authorized code is invalidated. Defaults to 5.
+   */
+  txCodeMaxAttempts?: number;
   /**
    * Authentication server URL for the issuance process.
    */

@@ -1176,6 +1176,11 @@ export const SessionSchema = {
       description:
         "Error reason if the session failed.\nStores the error message when status is 'failed'.",
     },
+    txCodeFailedAttempts: {
+      type: "number",
+      description:
+        "Number of failed tx_code (transaction code) validation attempts.\nUsed to enforce brute-force protection in the pre-authorized code flow.\nReset implicitly when the session is consumed successfully.",
+    },
   },
   required: [
     "status",
@@ -1186,6 +1191,7 @@ export const SessionSchema = {
     "tenantId",
     "tenant",
     "notifications",
+    "txCodeFailedAttempts",
   ],
 } as const;
 
@@ -1628,6 +1634,13 @@ export const IssuanceConfigSchema = {
       default: 2592000,
       nullable: true,
     },
+    txCodeMaxAttempts: {
+      type: "number",
+      description:
+        "Maximum failed tx_code attempts before the pre-authorized code is invalidated. Defaults to 5.",
+      default: 5,
+      nullable: true,
+    },
     tenant: {
       description: "The tenant that owns this object.",
       allOf: [
@@ -1733,6 +1746,13 @@ export const IssuanceDtoSchema = {
       description:
         "Refresh token lifetime in seconds. Defaults to 2592000 (30 days).",
       default: 2592000,
+      nullable: true,
+    },
+    txCodeMaxAttempts: {
+      type: "number",
+      description:
+        "Maximum failed tx_code attempts before the pre-authorized code is invalidated. Defaults to 5.",
+      default: 5,
       nullable: true,
     },
     authServers: {

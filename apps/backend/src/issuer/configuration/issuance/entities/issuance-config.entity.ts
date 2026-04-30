@@ -204,6 +204,23 @@ export class IssuanceConfig {
     refreshTokenExpiresInSeconds?: number;
 
     /**
+     * Maximum number of failed tx_code (transaction code) validation attempts
+     * before the pre-authorized code is invalidated. Protects against brute-force
+     * attacks on the OID4VCI pre-authorized code flow.
+     * Default: 5. Set to null to disable the limit (not recommended).
+     */
+    @ApiPropertyOptional({
+        description:
+            "Maximum failed tx_code attempts before the pre-authorized code is invalidated. Defaults to 5.",
+        default: 5,
+        nullable: true,
+    })
+    @IsNumber()
+    @IsOptional()
+    @Column("int", { nullable: true })
+    txCodeMaxAttempts?: number;
+
+    /**
      * The timestamp when the VP request was created.
      */
     @CreateDateColumn()

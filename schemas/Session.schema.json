@@ -169,6 +169,10 @@
     "errorReason": {
       "type": "string",
       "description": "Error reason if the session failed.\nStores the error message when status is 'failed'."
+    },
+    "txCodeFailedAttempts": {
+      "type": "number",
+      "description": "Number of failed tx_code (transaction code) validation attempts.\nUsed to enforce brute-force protection in the pre-authorized code flow.\nReset implicitly when the session is consumed successfully."
     }
   },
   "required": [
@@ -179,7 +183,8 @@
     "useDcApi",
     "tenantId",
     "tenant",
-    "notifications"
+    "notifications",
+    "txCodeFailedAttempts"
   ],
   "additionalProperties": false
 }
