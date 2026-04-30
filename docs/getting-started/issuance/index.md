@@ -41,6 +41,22 @@ When creating an offer, you can:
 4. **Optionally pass notification webhooks** - Use the `notifyWebhook` parameter to
    get notified about issuance status changes
 
+### Single-Use Offers (Replay Prevention)
+
+All credential offers are **single-use and non-replayable**. Once a wallet completes the issuance flow with a credential offer:
+
+- The offer is marked as consumed and cannot be used again
+- Any subsequent attempts to use the same offer will be rejected with an `invalid_grant` error
+- The `consumedAt` timestamp records when the offer was first used
+
+**Important Considerations:**
+
+- **Create a new offer for each issuance**: If a user needs credentials again, create a fresh credential offer via the API
+- **Offer expiration**: Combine single-use enforcement with TTL-based session cleanup (configured per-tenant) to ensure expired offers don't accumulate
+- **Refresh tokens**: Refresh tokens remain valid and can be used to obtain new access tokens for additional operations on the issued credentials
+
+This design prevents credential offer replay attacks where an attacker could reuse an intercepted offer to obtain credentials fraudulently.
+
 ---
 
 ## Credential Issuance Flow

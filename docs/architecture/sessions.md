@@ -34,6 +34,36 @@ the OID4VP protocol flow.
 For details on how these fields are used in practice, see
 [Credential Presentation — Direct Post Security Model](../getting-started/presentation/index.md#direct-post-security-model-oid4vp-133).
 
+## Single-Use Validation
+
+All credential offers (OID4VCI) and presentation requests (OID4VP) are **enforced as single-use** to prevent replay attacks. Once an offer or request is consumed, it cannot be reused:
+
+| Field        | Type               | Description                                         |
+| ------------ | ------------------ | --------------------------------------------------- |
+| `consumed`   | `boolean`          | Flag indicating if the offer/request has been used  |
+| `consumedAt` | `datetime \| null` | Timestamp when the offer/request was first consumed |
+
+### How It Works
+
+**For OID4VCI (Credential Issuance):**
+
+- When a wallet first exchanges the authorization code for an access token, the session is marked as consumed
+- Any subsequent attempts to use the same offer are rejected with `invalid_grant` error
+- Refresh tokens are exempt and can be renewed
+
+**For OID4VP (Credential Presentation):**
+
+- When a wallet submits a presentation response, the session is marked as consumed
+- Any subsequent presentation attempts with the same request are rejected with a `400 Bad Request` error
+
+### Audit Trail
+
+The `consumedAt` timestamp provides an audit trail for compliance and security monitoring. This allows you to:
+
+- Verify when an offer/request was actually used
+- Detect and investigate suspicious patterns (e.g., multiple consumption attempts)
+- Maintain security event logs
+
 ### Cleanup Modes
 
 EUDIPLO supports two cleanup modes:

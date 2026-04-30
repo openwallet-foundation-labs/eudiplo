@@ -1,19 +1,15 @@
-import {
-    BadRequestException,
-    HttpStatus,
-    INestApplication,
-} from "@nestjs/common";
+import { INestApplication } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import { TypeOrmModule } from "@nestjs/typeorm";
 import { Test, TestingModule } from "@nestjs/testing";
+import { TypeOrmModule } from "@nestjs/typeorm";
 import request from "supertest";
-import { IssuanceModule } from "../src/issuer/issuance/issuance.module";
-import { AuthModule } from "../src/auth/auth.module";
 import { DataSource } from "typeorm";
+import { AuthModule } from "../src/auth/auth.module";
 import { getTypeOrmConfig } from "../src/database/config";
-import { PresentationsModule } from "../src/verifier/presentations/presentations.module";
-import { SessionService } from "../src/session/session.service";
+import { IssuanceModule } from "../src/issuer/issuance/issuance.module";
 import { RegistrarModule } from "../src/registrar/registrar.module";
+import { SessionService } from "../src/session/session.service";
+import { PresentationsModule } from "../src/verifier/presentations/presentations.module";
 
 describe("Single-Use Validation (Issue #503)", () => {
     let app: INestApplication;
