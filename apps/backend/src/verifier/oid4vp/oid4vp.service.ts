@@ -416,6 +416,14 @@ export class Oid4vpService {
     async getResponse(body: AuthorizationResponse, nonce: string) {
         const session = await this.resolveSessionByNonce(nonce);
 
+        // Enforce single-use validation: prevent replay attacks
+        // Check if this presentation request has already been consumed
+        if (session.consumed) {
+            throw new BadRequestException(
+                "The presentation offer has already been used",
+            );
+        }
+
         // Add session context to span for trace correlation
         const span = this.traceService.getSpan();
         span?.setAttributes({
@@ -559,6 +567,8 @@ export class Oid4vpService {
                 credentials: credentials as any,
                 status: SessionStatus.Completed,
                 responseCode,
+                consumed: true,
+                consumedAt: new Date(),
             });
             // if there a a webhook passed in the session, use it
             if (webhook) {

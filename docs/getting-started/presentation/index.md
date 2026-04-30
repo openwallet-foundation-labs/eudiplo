@@ -60,6 +60,22 @@ All presentation requests include registration certificates that provide:
 - **Contact details** for data protection inquiries
 - **Purpose statements** explaining why data is requested
 
+### Single-Use Requests (Replay Prevention)
+
+All presentation requests are **single-use and non-replayable**. Once a wallet submits a presentation response to a request:
+
+- The request is marked as consumed and cannot be used again
+- Any subsequent attempts to submit presentations for the same request will be rejected with a `400 Bad Request` error
+- The `consumedAt` timestamp records when the request was first used
+
+**Important Considerations:**
+
+- **Create a new request for each presentation**: If you need to verify credentials multiple times, create a fresh presentation request via the API
+- **Request expiration**: Combine single-use enforcement with TTL-based session cleanup (configured per-tenant) to ensure expired requests don't accumulate
+- **Security benefit**: This prevents presentation request replay attacks where an attacker could reuse an intercepted request to submit fraudulent credentials
+
+This design is consistent with OAuth 2.0 security best practices and protects against presentation replay attacks.
+
 ---
 
 ## Architecture

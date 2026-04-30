@@ -416,6 +416,20 @@ export class AuthorizeService {
                     );
                 });
         }
+
+        // Enforce single-use validation for sessions already consumed by
+        // credential processing. Refresh token grant remains exempt.
+        if (
+            parsedAccessTokenRequest.grant.grantType !==
+                refreshTokenGrantIdentifier &&
+            session.consumed
+        ) {
+            throw new TokenErrorException(
+                "invalid_grant",
+                "The credential offer has already been used",
+            );
+        }
+
         const issuanceConfig =
             await this.issuanceService.getIssuanceConfiguration(tenantId);
 

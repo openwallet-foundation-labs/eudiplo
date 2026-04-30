@@ -275,4 +275,20 @@ export class Session {
      */
     @Column("int", { default: 0 })
     txCodeFailedAttempts!: number;
+
+    /**
+     * Flag indicating whether the session offer has been consumed.
+     * Prevents replay attacks by ensuring each offer can only be used once.
+     * For OID4VCI: set after successful token exchange.
+     * For OID4VP: set after successful response validation.
+     */
+    @Column("boolean", { default: false })
+    consumed!: boolean;
+
+    /**
+     * Timestamp when the session offer was consumed.
+     * Null if the offer has not yet been consumed.
+     */
+    @Column({ nullable: true })
+    consumedAt?: Date;
 }

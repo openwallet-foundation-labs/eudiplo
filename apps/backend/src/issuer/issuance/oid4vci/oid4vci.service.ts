@@ -1015,6 +1015,15 @@ export class Oid4vciService {
                 issuanceConfig,
             );
 
+        // Enforce single-use validation: prevent replay attacks
+        // Check if this offer has already been consumed
+        if (session.consumed) {
+            throw new CredentialRequestException(
+                "credential_request_denied",
+                "The credential offer has already been used",
+            );
+        }
+
         // Add session context to span for trace correlation
         const span = this.traceService.getSpan();
         span?.setAttributes({
@@ -1087,6 +1096,8 @@ export class Oid4vciService {
             await this.sessionService.add(session.id, {
                 notifications: session.notifications,
                 status: SessionStatus.Fetched,
+                consumed: true,
+                consumedAt: new Date(),
             });
 
             this.auditLogger.logFlowComplete(logContext, {
