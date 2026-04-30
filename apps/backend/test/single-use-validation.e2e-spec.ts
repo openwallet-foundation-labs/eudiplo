@@ -1,148 +1,238 @@
+import "reflect-metadata";
 import { INestApplication } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
-import { Test, TestingModule } from "@nestjs/testing";
-import { TypeOrmModule } from "@nestjs/typeorm";
+import { clientAuthenticationAnonymous } from "@openid4vc/oauth2";
+import { Openid4vciClient } from "@openid4vc/openid4vci";
+import {
+    Openid4vpAuthorizationRequest,
+    Openid4vpClient,
+} from "@openid4vc/openid4vp";
+import { CryptoKey } from "jose";
 import request from "supertest";
-import { DataSource } from "typeorm";
-import { AuthModule } from "../src/auth/auth.module";
-import { getTypeOrmConfig } from "../src/database/config";
-import { IssuanceModule } from "../src/issuer/issuance/issuance.module";
-import { RegistrarModule } from "../src/registrar/registrar.module";
-import { SessionService } from "../src/session/session.service";
-import { PresentationsModule } from "../src/verifier/presentations/presentations.module";
+import { App } from "supertest/types";
+import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { StatusListService } from "../src/issuer/lifecycle/status/status-list.service";
+import { ResponseType } from "../src/verifier/oid4vp/dto/presentation-request.dto";
+import {
+    callbacks,
+    createPresentationRequest,
+    createTestFetch,
+    encryptVpToken,
+    IssuanceTestContext,
+    PresentationTestContext,
+    preparePresentation,
+    setupIssuanceTestApp,
+    setupPresentationTestApp,
+} from "./utils";
 
-describe("Single-Use Validation (Issue #503)", () => {
-    let app: INestApplication;
-    let dataSource: DataSource;
-    let sessionService: SessionService;
+describe("Single-Use Validation (Issue #503) - OID4VCI", () => {
+    let app: INestApplication<App>;
     let authToken: string;
-    let tenantId: string;
+    let ctx: IssuanceTestContext;
 
     beforeAll(async () => {
-        const moduleFixture: TestingModule = await Test.createTestingModule({
-            imports: [
-                ConfigModule.forRoot({
-                    isGlobal: true,
-                    envFilePath: ".env",
-                }),
-                TypeOrmModule.forRoot(getTypeOrmConfig()),
-                AuthModule,
-                IssuanceModule,
-                PresentationsModule,
-                RegistrarModule,
-            ],
-        }).compile();
-
-        app = moduleFixture.createNestApplication();
-        await app.init();
-
-        dataSource = moduleFixture.get(DataSource);
-        sessionService = moduleFixture.get(SessionService);
-
-        // Run migrations
-        await dataSource.runMigrations();
-
-        // Create test tenant and get auth token
-        const tenantRes = await request(app.getHttpServer())
-            .post("/auth/tenants")
-            .send({ name: "Test Tenant" })
-            .expect(201);
-        tenantId = tenantRes.body.id;
-
-        // Get auth token
-        const loginRes = await request(app.getHttpServer())
-            .post("/auth/login")
-            .send({
-                tenantId,
-                username: "admin",
-                password: "admin", // default credentials
-            })
-            .expect(200);
-        authToken = loginRes.body.token;
+        ctx = await setupIssuanceTestApp();
+        app = ctx.app;
+        authToken = ctx.authToken;
     });
 
     afterAll(async () => {
         await app.close();
     });
 
-    describe("OID4VCI - Single-Use Validation", () => {
-        test("should prevent token exchange after offer is consumed", async () => {
-            // Create a credential offer
-            const offerRes = await request(app.getHttpServer())
-                .post(`/issuers/${tenantId}/issuance/offer`)
-                .set("Authorization", `Bearer ${authToken}`)
-                .send({
-                    credentialConfigurationIds: ["test-credential"],
-                    flow: "issuer_initiated",
-                })
-                .expect(200);
+    test("should prevent token exchange after offer is consumed", async () => {
+        // Create a credential offer
+        const offerRes = await request(app.getHttpServer())
+            .post("/issuer/offer")
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .send({
+                response_type: "uri",
+                credentialConfigurationIds: ["pid"],
+                flow: "pre_authorized_code",
+            })
+            .expect(201);
 
-            const sessionId = offerRes.body.session;
-            const authorizationCode = offerRes.body.authorizationCode;
+        const sessionId = offerRes.body.session;
 
-            // First token exchange should succeed
-            const tokenRes1 = await request(app.getHttpServer())
-                .post(`/issuers/${tenantId}/authorize/token`)
-                .send({
-                    grant_type: "authorization_code",
-                    code: authorizationCode,
-                    client_id: "test-client",
-                })
-                .expect(200);
-
-            expect(tokenRes1.body.access_token).toBeDefined();
-
-            // Verify session is marked as consumed
-            const session = await sessionService.get(sessionId);
-            expect(session.consumed).toBe(true);
-            expect(session.consumedAt).toBeDefined();
-
-            // Second token exchange with the same code should fail
-            const tokenRes2 = await request(app.getHttpServer())
-                .post(`/issuers/${tenantId}/authorize/token`)
-                .send({
-                    grant_type: "authorization_code",
-                    code: authorizationCode,
-                    client_id: "test-client",
-                })
-                .expect(400);
-
-            expect(tokenRes2.body.error).toBe("invalid_grant");
-            expect(tokenRes2.body.error_description).toContain(
-                "credential offer has already been used",
-            );
+        const client = new Openid4vciClient({
+            callbacks: {
+                ...callbacks,
+                clientAuthentication: clientAuthenticationAnonymous(),
+            },
         });
 
-        test("should prevent credential request after offer is consumed", async () => {
-            // This test verifies that even if someone has an old access token,
-            // they cannot request credentials from a consumed offer
-            // (This would require setting up the full flow which is complex,
-            // so we'll document the scenario)
-            expect(true).toBe(true);
+        const credentialOffer = await client.resolveCredentialOffer(
+            offerRes.body.uri,
+        );
+        const issuerMetadata = await client.resolveIssuerMetadata(
+            credentialOffer.credential_issuer,
+        );
+
+        // First token exchange should succeed
+        const tokenResponse =
+            await client.retrievePreAuthorizedCodeAccessTokenFromOffer({
+                credentialOffer,
+                issuerMetadata,
+            });
+        expect(tokenResponse.accessTokenResponse.access_token).toBeDefined();
+
+        // Verify session is marked as consumed
+        const sessionResponse = await request(app.getHttpServer())
+            .get(`/session/${sessionId}`)
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .expect(200);
+        expect(sessionResponse.body.consumed).toBe(true);
+        expect(sessionResponse.body.consumedAt).toBeDefined();
+
+        // Second token exchange with the same code should fail
+        const tokenEndpoint = issuerMetadata.authorizationServers?.[0]
+            ?.token_endpoint as string;
+        expect(tokenEndpoint).toBeDefined();
+
+        const tokenPath = new URL(tokenEndpoint!).pathname;
+        const preAuthorizedCode =
+            credentialOffer.grants?.[
+                "urn:ietf:params:oauth:grant-type:pre-authorized_code"
+            ]?.["pre-authorized_code"];
+        expect(preAuthorizedCode).toBeDefined();
+
+        const tokenRes2 = await request(app.getHttpServer())
+            .post(tokenPath)
+            .trustLocalhost()
+            .send({
+                grant_type:
+                    "urn:ietf:params:oauth:grant-type:pre-authorized_code",
+                "pre-authorized_code": preAuthorizedCode,
+            })
+            .expect(400);
+
+        expect(tokenRes2.body.error).toBe("invalid_grant");
+        expect(tokenRes2.body.error_description).toContain(
+            "credential offer has already been used",
+        );
+    });
+
+    test("should prevent credential request after offer is consumed", async () => {
+        // Covered in issuance e2e tests where credentials are requested with proofs.
+        expect(true).toBe(true);
+    });
+});
+
+describe("Single-Use Validation (Issue #503) - OID4VP", () => {
+    let app: INestApplication<App>;
+    let authToken: string;
+    let host: string;
+    let privateIssuerKey: CryptoKey;
+    let issuerCertChain: string[];
+    let statusListService: StatusListService;
+    let client: Openid4vpClient;
+    let ctx: PresentationTestContext;
+
+    const credentialConfigId = "pid";
+
+    beforeAll(async () => {
+        ctx = await setupPresentationTestApp();
+        app = ctx.app;
+        authToken = ctx.authToken;
+        host = ctx.host;
+        privateIssuerKey = ctx.privateIssuerKey;
+        issuerCertChain = ctx.issuerCertChain;
+        statusListService = ctx.statusListService;
+
+        client = new Openid4vpClient({
+            callbacks: {
+                ...callbacks,
+                fetch: createTestFetch(app, () => host),
+            },
         });
     });
 
-    describe("OID4VP - Single-Use Validation", () => {
-        test("should prevent presentation response after request is consumed", async () => {
-            // This would require a full OID4VP flow setup
-            // The test verifies that:
-            // 1. First presentation response succeeds
-            // 2. Session is marked as consumed
-            // 3. Second presentation response fails with 400 error
-            expect(true).toBe(true);
-        });
+    afterAll(async () => {
+        await app.close();
     });
 
-    describe("Single-Use Validation - Edge Cases", () => {
-        test("should handle refresh token separately from single-use validation", async () => {
-            // Refresh tokens should not trigger single-use validation
-            // as they are used after the initial offer is consumed
-            expect(true).toBe(true);
+    test("should prevent presentation response after request is consumed", async () => {
+        const res = await createPresentationRequest(app, authToken, {
+            response_type: ResponseType.URI,
+            requestId: "pid-no-hook",
         });
 
-        test("should return appropriate error message when consumed offer is reused", async () => {
-            // Verify that error messages are clear and compliant with spec
-            expect(true).toBe(true);
+        const sessionId: string = res.body.session;
+        const authRequest = client.parseOpenid4vpAuthorizationRequest({
+            authorizationRequest: res.body.uri,
         });
+
+        const resolved = await client.resolveOpenId4vpAuthorizationRequest({
+            authorizationRequestPayload: authRequest.params,
+            responseMode: { type: "direct_post" },
+        });
+
+        const vpToken = await preparePresentation(
+            {
+                iat: Math.floor(Date.now() / 1000),
+                aud: resolved.authorizationRequestPayload.aud as string,
+                nonce: resolved.authorizationRequestPayload.nonce,
+            },
+            privateIssuerKey,
+            issuerCertChain,
+            statusListService,
+            credentialConfigId,
+        );
+
+        const jwt = await encryptVpToken(vpToken, "pid", resolved);
+
+        const authorizationResponse =
+            await client.createOpenid4vpAuthorizationResponse({
+                authorizationRequestPayload: authRequest.params,
+                authorizationResponsePayload: {
+                    response: jwt,
+                },
+                ...callbacks,
+            });
+
+        const firstSubmit = await client.submitOpenid4vpAuthorizationResponse({
+            authorizationResponsePayload:
+                authorizationResponse.authorizationResponsePayload,
+            authorizationRequestPayload:
+                resolved.authorizationRequestPayload as Openid4vpAuthorizationRequest,
+        });
+
+        expect(firstSubmit.response.status).toBe(200);
+
+        const sessionAfterFirstSubmit = await request(app.getHttpServer())
+            .get(`/session/${sessionId}`)
+            .trustLocalhost()
+            .set("Authorization", `Bearer ${authToken}`)
+            .expect(200);
+
+        expect(sessionAfterFirstSubmit.body.status).toBe("completed");
+        expect(sessionAfterFirstSubmit.body.consumed).toBe(true);
+        expect(sessionAfterFirstSubmit.body.consumedAt).toBeDefined();
+
+        const responseUri = resolved.authorizationRequestPayload
+            .response_uri as string;
+
+        const secondSubmit = await request(app.getHttpServer())
+            .post(new URL(responseUri).pathname)
+            .trustLocalhost()
+            .send(authorizationResponse.authorizationResponsePayload)
+            .expect(400);
+
+        expect(secondSubmit.body.message).toContain(
+            "presentation offer has already been used",
+        );
+    });
+});
+
+describe("Single-Use Validation - Edge Cases", () => {
+    test("should handle refresh token separately from single-use validation", async () => {
+        // Covered in issuance-refresh-token.e2e-spec.ts.
+        expect(true).toBe(true);
+    });
+
+    test("should return appropriate error message when consumed offer is reused", async () => {
+        // Covered by token endpoint replay assertion in this file.
+        expect(true).toBe(true);
     });
 });
