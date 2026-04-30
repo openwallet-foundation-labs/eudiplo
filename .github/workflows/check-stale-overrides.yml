@@ -9,23 +9,20 @@ on:
     - cron: '0 6 * * 1' # Weekly on Monday 6 AM UTC
   workflow_dispatch: # Manual trigger
 
+concurrency:
+  group: stale-overrides-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check-overrides:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
-
-      - uses: pnpm/action-setup@v6
-        with:
-          version: 10
 
       - uses: actions/setup-node@v6
         with:
           node-version: '22'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
 
       - name: Check for stale overrides
         id: check
