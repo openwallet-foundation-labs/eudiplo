@@ -289,6 +289,6 @@ export class Session {
      * Timestamp when the session offer was consumed.
      * Null if the offer has not yet been consumed.
      */
-    @Column("datetime", { nullable: true })
+    @Column({ nullable: true })
     consumedAt?: Date;
 }

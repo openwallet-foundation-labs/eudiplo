@@ -47,8 +47,8 @@ All credential offers (OID4VCI) and presentation requests (OID4VP) are **enforce
 
 **For OID4VCI (Credential Issuance):**
 
-- When a wallet first exchanges the authorization code for an access token, the session is marked as consumed
-- Any subsequent attempts to use the same offer are rejected with `invalid_grant` error
+- Token replay with the same authorization or pre-authorized code is rejected with `invalid_grant`
+- The session is marked as consumed when the credential endpoint successfully processes the request
 - Refresh tokens are exempt and can be renewed
 
 **For OID4VP (Credential Presentation):**

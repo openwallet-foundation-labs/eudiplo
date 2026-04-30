@@ -11,6 +11,7 @@ import request from "supertest";
 import { App } from "supertest/types";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { StatusListService } from "../src/issuer/lifecycle/status/status-list.service";
+import { SessionService } from "../src/session/session.service";
 import { ResponseType } from "../src/verifier/oid4vp/dto/presentation-request.dto";
 import {
     callbacks,
@@ -28,18 +29,20 @@ describe("Single-Use Validation (Issue #503) - OID4VCI", () => {
     let app: INestApplication<App>;
     let authToken: string;
     let ctx: IssuanceTestContext;
+    let sessionService: SessionService;
 
     beforeAll(async () => {
         ctx = await setupIssuanceTestApp();
         app = ctx.app;
         authToken = ctx.authToken;
+        sessionService = app.get(SessionService);
     });
 
     afterAll(async () => {
         await app.close();
     });
 
-    test("should prevent token exchange after offer is consumed", async () => {
+    test("should reject token exchange once offer is consumed", async () => {
         // Create a credential offer
         const offerRes = await request(app.getHttpServer())
             .post("/issuer/offer")
@@ -76,14 +79,20 @@ describe("Single-Use Validation (Issue #503) - OID4VCI", () => {
             });
         expect(tokenResponse.accessTokenResponse.access_token).toBeDefined();
 
-        // Verify session is marked as consumed
+        // Session is consumed on credential request, not on token exchange
         const sessionResponse = await request(app.getHttpServer())
             .get(`/session/${sessionId}`)
             .trustLocalhost()
             .set("Authorization", `Bearer ${authToken}`)
             .expect(200);
-        expect(sessionResponse.body.consumed).toBe(true);
-        expect(sessionResponse.body.consumedAt).toBeDefined();
+        expect(sessionResponse.body.consumed).toBe(false);
+        expect(sessionResponse.body.consumedAt).toBeFalsy();
+
+        // Simulate consumed state (normally set by successful credential request)
+        await sessionService.add(sessionId, {
+            consumed: true,
+            consumedAt: new Date(),
+        });
 
         // Second token exchange with the same code should fail
         const tokenEndpoint = issuerMetadata.authorizationServers?.[0]

@@ -45,8 +45,8 @@ When creating an offer, you can:
 
 All credential offers are **single-use and non-replayable**. Once a wallet completes the issuance flow with a credential offer:
 
-- The offer is marked as consumed and cannot be used again
-- Any subsequent attempts to use the same offer will be rejected with an `invalid_grant` error
+- Token replay with the same authorization or pre-authorized code is rejected with an `invalid_grant` error
+- The offer is marked as consumed at the credential endpoint and cannot be used again after successful credential processing
 - The `consumedAt` timestamp records when the offer was first used
 
 **Important Considerations:**
