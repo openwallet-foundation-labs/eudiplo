@@ -907,6 +907,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/AddSigningKeyIdToIssuanceConfig1741000000000.html" data-type="entity-link" >AddSigningKeyIdToIssuanceConfig1741000000000</a>
                             </li>
                             <li class="link">
+                                <a href="classes/AddTxCodeAttemptTracking1757000000000.html" data-type="entity-link" >AddTxCodeAttemptTracking1757000000000</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/AllExceptionsFilter.html" data-type="entity-link" >AllExceptionsFilter</a>
                             </li>
                             <li class="link">
