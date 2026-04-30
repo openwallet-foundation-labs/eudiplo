@@ -13,7 +13,7 @@ export class ClientEntity {
      * The unique identifier for the client.
      */
     @IsString()
-    @PrimaryColumn()
+    @PrimaryColumn("varchar")
     clientId!: string;
 
     /**
@@ -21,13 +21,13 @@ export class ClientEntity {
      */
     @IsString()
     @IsOptional()
-    @Column({ nullable: true })
+    @Column("varchar", { nullable: true })
     secret?: string;
 
     /**
      * The unique identifier for the tenant that the client belongs to. Only null for accounts that manage tenants, that do not belong to a client
      */
-    @Column({ nullable: true })
+    @Column("varchar", { nullable: true })
     tenantId?: string;
 
     /**
@@ -35,7 +35,7 @@ export class ClientEntity {
      */
     @IsString()
     @IsOptional()
-    @Column({ nullable: true })
+    @Column("varchar", { nullable: true })
     description?: string;
 
     /**

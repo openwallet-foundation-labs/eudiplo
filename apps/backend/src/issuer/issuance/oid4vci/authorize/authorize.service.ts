@@ -416,6 +416,19 @@ export class AuthorizeService {
                     );
                 });
         }
+
+        // Enforce single-use validation: prevent replay attacks
+        // Check if this offer has already been consumed
+        if (
+            parsedAccessTokenRequest.grant.grantType !==
+                refreshTokenGrantIdentifier &&
+            session.consumed
+        ) {
+            throw new TokenErrorException(
+                "invalid_grant",
+                "The credential offer has already been used",
+            );
+        }
         const issuanceConfig =
             await this.issuanceService.getIssuanceConfiguration(tenantId);
 
@@ -647,6 +660,19 @@ export class AuthorizeService {
             await this.sessionService.add(session.id, {
                 refresh_token: tokenResponse.refresh_token,
                 refresh_token_expires_at: refreshTokenExpiresAt,
+            });
+        }
+
+        // Mark session as consumed for single-use validation (prevent replay attacks)
+        // Only mark as consumed for non-refresh-token grants
+        if (
+            parsedAccessTokenRequest.grant.grantType !==
+                refreshTokenGrantIdentifier &&
+            !session.consumed
+        ) {
+            await this.sessionService.add(session.id, {
+                consumed: true,
+                consumedAt: new Date(),
             });
         }
 
