@@ -2499,6 +2499,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#single-use-offers-replay-prevention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Single-Use Offers (Replay Prevention)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2789,6 +2800,20 @@ When creating an offer, you can:</p>
 <li><strong>Optionally pass notification webhooks</strong> - Use the <code>notifyWebhook</code> parameter to
    get notified about issuance status changes</li>
 </ol>
+<h3 id="single-use-offers-replay-prevention">Single-Use Offers (Replay Prevention)<a class="headerlink" href="#single-use-offers-replay-prevention" title="Permanent link">¶</a></h3>
+<p>All credential offers are <strong>single-use and non-replayable</strong>. Once a wallet completes the issuance flow with a credential offer:</p>
+<ul>
+<li>Token replay with the same authorization or pre-authorized code is rejected with an <code>invalid_grant</code> error</li>
+<li>The offer is marked as consumed at the credential endpoint and cannot be used again after successful credential processing</li>
+<li>The <code>consumedAt</code> timestamp records when the offer was first used</li>
+</ul>
+<p><strong>Important Considerations:</strong></p>
+<ul>
+<li><strong>Create a new offer for each issuance</strong>: If a user needs credentials again, create a fresh credential offer via the API</li>
+<li><strong>Offer expiration</strong>: Combine single-use enforcement with TTL-based session cleanup (configured per-tenant) to ensure expired offers don't accumulate</li>
+<li><strong>Refresh tokens</strong>: Refresh tokens remain valid and can be used to obtain new access tokens for additional operations on the issued credentials</li>
+</ul>
+<p>This design prevents credential offer replay attacks where an attacker could reuse an intercepted offer to obtain credentials fraudulently.</p>
 <hr>
 <h2 id="credential-issuance-flow">Credential Issuance Flow<a class="headerlink" href="#credential-issuance-flow" title="Permanent link">¶</a></h2>
 <p>This flow describes how a backend service starts an issuance flow of an

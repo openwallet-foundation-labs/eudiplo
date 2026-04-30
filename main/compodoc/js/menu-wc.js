@@ -904,6 +904,9 @@ customElements.define('compodoc-menu', class extends HTMLElement {
                                 <a href="classes/AddSessionLogEntry1749000000000.html" data-type="entity-link" >AddSessionLogEntry1749000000000</a>
                             </li>
                             <li class="link">
+                                <a href="classes/AddSessionSingleUseTracking1760000000000.html" data-type="entity-link" >AddSessionSingleUseTracking1760000000000</a>
+                            </li>
+                            <li class="link">
                                 <a href="classes/AddSigningKeyIdToIssuanceConfig1741000000000.html" data-type="entity-link" >AddSigningKeyIdToIssuanceConfig1741000000000</a>
                             </li>
                             <li class="link">

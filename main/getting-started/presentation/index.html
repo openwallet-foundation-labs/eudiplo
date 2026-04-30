@@ -2510,6 +2510,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#single-use-requests-replay-prevention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Single-Use Requests (Replay Prevention)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2843,6 +2854,20 @@ to define presentation requests:</p>
 <li><strong>Contact details</strong> for data protection inquiries</li>
 <li><strong>Purpose statements</strong> explaining why data is requested</li>
 </ul>
+<h3 id="single-use-requests-replay-prevention">Single-Use Requests (Replay Prevention)<a class="headerlink" href="#single-use-requests-replay-prevention" title="Permanent link">¶</a></h3>
+<p>All presentation requests are <strong>single-use and non-replayable</strong>. Once a wallet submits a presentation response to a request:</p>
+<ul>
+<li>The request is marked as consumed and cannot be used again</li>
+<li>Any subsequent attempts to submit presentations for the same request will be rejected with a <code>400 Bad Request</code> error</li>
+<li>The <code>consumedAt</code> timestamp records when the request was first used</li>
+</ul>
+<p><strong>Important Considerations:</strong></p>
+<ul>
+<li><strong>Create a new request for each presentation</strong>: If you need to verify credentials multiple times, create a fresh presentation request via the API</li>
+<li><strong>Request expiration</strong>: Combine single-use enforcement with TTL-based session cleanup (configured per-tenant) to ensure expired requests don't accumulate</li>
+<li><strong>Security benefit</strong>: This prevents presentation request replay attacks where an attacker could reuse an intercepted request to submit fraudulent credentials</li>
+</ul>
+<p>This design is consistent with OAuth 2.0 security best practices and protects against presentation replay attacks.</p>
 <hr>
 <h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">¶</a></h2>
 <h3 id="tenant-based-configuration">Tenant-Based Configuration<a class="headerlink" href="#tenant-based-configuration" title="Permanent link">¶</a></h3>

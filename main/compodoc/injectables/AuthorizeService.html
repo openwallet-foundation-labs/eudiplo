@@ -1008,8 +1008,8 @@ According to OID4VCI Section 6.3:</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="661"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:661</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="675"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:675</a></div>
                         </td>
                     </tr>
 
@@ -1617,6 +1617,20 @@ export class AuthorizeService {
                     );
                 });
         }
+
+        // Enforce single-use validation for sessions already consumed by
+        // credential processing. Refresh token grant remains exempt.
+        if (
+            parsedAccessTokenRequest.grant.grantType !&#x3D;&#x3D;
+                refreshTokenGrantIdentifier &amp;&amp;
+            session.consumed
+        ) {
+            throw new TokenErrorException(
+                &quot;invalid_grant&quot;,
+                &quot;The credential offer has already been used&quot;,
+            );
+        }
+
         const issuanceConfig &#x3D;
             await this.issuanceService.getIssuanceConfiguration(tenantId);
 
