@@ -25,6 +25,8 @@ describe("OIDF", () => {
         import.meta.env.VITE_DOMAIN ?? "host.testcontainers.internal:3000";
     const OIDF_URL = import.meta.env.VITE_OIDF_URL ?? "https://localhost:8443";
     const OIDF_DEMO_TOKEN = import.meta.env.VITE_OIDF_DEMO_TOKEN;
+    const ENFORCE_MODULE_COVERAGE_GUARD =
+        import.meta.env.VITE_OIDF_ENFORCE_MODULE_COVERAGE === "true";
 
     let app: INestApplication;
     let PLAN_ID: string;
@@ -201,4 +203,25 @@ describe("OIDF", () => {
         const result = await oidfSuite.getResult(testInstance.id);
         expect(result).toBe("PASSED");
     }, 10000);
+
+    test("module coverage guard - verifier plan", async () => {
+        const availableModules = [
+            ...new Set(await oidfSuite.getAllTestsModules(PLAN_ID)),
+        ];
+
+        if (!ENFORCE_MODULE_COVERAGE_GUARD) {
+            if (availableModules.length > 1) {
+                console.warn(
+                    `OIDF verifier coverage guard warning: plan exposes ${availableModules.length} modules (${availableModules.join(", ")}). Set VITE_OIDF_ENFORCE_MODULE_COVERAGE=true to fail on this.`,
+                );
+            }
+            return;
+        }
+
+        // Strict mode: guard against plan expansion without adding dedicated tests.
+        expect(
+            availableModules.length,
+            `Verifier plan contains ${availableModules.length} modules (${availableModules.join(", ")}). Add dedicated tests per new module.`,
+        ).toBe(1);
+    });
 });

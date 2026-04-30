@@ -8,6 +8,22 @@ export interface TestInstance {
     url: string;
 }
 
+export type OIDFProtocol = "oid4vci" | "oid4vp";
+export type OIDFRole = "issuer" | "verifier" | "wallet";
+
+export interface OIDFAvailablePlan {
+    planName: string;
+    profileNames: string[];
+    protocols: OIDFProtocol[];
+    roles: OIDFRole[];
+    isHaip: boolean;
+}
+
+export interface OIDFPlanModule {
+    testModule: string;
+    variant: Record<string, string>;
+}
+
 interface TestResult {
     status: string;
     result: string;
@@ -123,6 +139,164 @@ export class OIDFSuite {
     }
 
     /**
+     * Returns all plans exposed by the running OIDF suite.
+     * The response shape can differ across suite versions, so we discover plan objects recursively.
+     */
+    async getAvailablePlans(): Promise<OIDFAvailablePlan[]> {
+        const response = await this.instance.get("/api/plan/available");
+        const rawData = response.data;
+
+        const plansByName = new Map<string, OIDFAvailablePlan>();
+
+        const walk = (value: unknown): void => {
+            if (Array.isArray(value)) {
+                for (const entry of value) {
+                    walk(entry);
+                }
+                return;
+            }
+
+            if (value && typeof value === "object") {
+                const record = value as Record<string, unknown>;
+
+                const maybePlanName =
+                    typeof record.planName === "string"
+                        ? record.planName
+                        : typeof record.plan === "string"
+                          ? record.plan
+                          : undefined;
+
+                const profileNames = this.extractProfileNames(record);
+
+                if (maybePlanName) {
+                    const existing = plansByName.get(maybePlanName);
+                    if (existing) {
+                        existing.profileNames = [
+                            ...new Set([
+                                ...existing.profileNames,
+                                ...profileNames,
+                            ]),
+                        ];
+                    } else {
+                        plansByName.set(maybePlanName, {
+                            planName: maybePlanName,
+                            profileNames,
+                            protocols: this.detectProtocols(
+                                maybePlanName,
+                                profileNames,
+                            ),
+                            roles: this.detectRoles(
+                                maybePlanName,
+                                profileNames,
+                            ),
+                            isHaip: this.detectHaip(
+                                maybePlanName,
+                                profileNames,
+                            ),
+                        });
+                    }
+                }
+
+                for (const nested of Object.values(record)) {
+                    walk(nested);
+                }
+            }
+        };
+
+        walk(rawData);
+
+        return [...plansByName.values()].sort((a, b) =>
+            a.planName.localeCompare(b.planName),
+        );
+    }
+
+    /**
+     * Returns plans relevant for OID4VCI and/or OID4VP.
+     */
+    async getAvailableOid4Plans(
+        protocols: OIDFProtocol[] = ["oid4vci", "oid4vp"],
+    ): Promise<OIDFAvailablePlan[]> {
+        const requested = new Set(protocols.map((protocol) => protocol));
+        const plans = await this.getAvailablePlans();
+
+        return plans.filter((plan) =>
+            plan.protocols.some((protocol) => requested.has(protocol)),
+        );
+    }
+
+    /**
+     * Returns plans relevant for HAIP issuer/verifier testing.
+     */
+    async getAvailableHaipIssuerVerifierPlans(): Promise<OIDFAvailablePlan[]> {
+        const plans = await this.getAvailableOid4Plans(["oid4vci", "oid4vp"]);
+
+        return plans.filter(
+            (plan) =>
+                plan.isHaip &&
+                plan.roles.some(
+                    (role) => role === "issuer" || role === "verifier",
+                ),
+        );
+    }
+
+    private extractProfileNames(record: Record<string, unknown>): string[] {
+        const rawProfiles = record.certificationProfileName;
+        if (Array.isArray(rawProfiles)) {
+            return rawProfiles.filter(
+                (profile): profile is string => typeof profile === "string",
+            );
+        }
+
+        if (typeof rawProfiles === "string") {
+            return [rawProfiles];
+        }
+
+        return [];
+    }
+
+    private detectProtocols(
+        planName: string,
+        profileNames: string[],
+    ): OIDFProtocol[] {
+        const signal = `${planName} ${profileNames.join(" ")}`.toLowerCase();
+        const protocols: OIDFProtocol[] = [];
+
+        if (signal.includes("oid4vci")) {
+            protocols.push("oid4vci");
+        }
+
+        if (signal.includes("oid4vp")) {
+            protocols.push("oid4vp");
+        }
+
+        return protocols;
+    }
+
+    private detectRoles(planName: string, profileNames: string[]): OIDFRole[] {
+        const signal = `${planName} ${profileNames.join(" ")}`.toLowerCase();
+        const roles: OIDFRole[] = [];
+
+        if (signal.includes("issuer")) {
+            roles.push("issuer");
+        }
+
+        if (signal.includes("verifier")) {
+            roles.push("verifier");
+        }
+
+        if (signal.includes("wallet")) {
+            roles.push("wallet");
+        }
+
+        return roles;
+    }
+
+    private detectHaip(planName: string, profileNames: string[]): boolean {
+        const signal = `${planName} ${profileNames.join(" ")}`.toLowerCase();
+        return signal.includes("haip");
+    }
+
+    /**
      * Returns all available test modules for a given plan.
      */
     getAllTestsModules(planId: string) {
@@ -132,11 +306,70 @@ export class OIDFSuite {
     }
 
     /**
+     * Returns all plan modules with their module-level variants.
+     */
+    async getPlanModules(planId: string): Promise<OIDFPlanModule[]> {
+        const plan = await this.getPlan(planId);
+        return (plan.modules ?? []).map((module: any) => ({
+            testModule: String(module.testModule),
+            variant: this.normalizeVariantRecord(module.variant),
+        }));
+    }
+
+    /**
+     * Builds a stable scenario key for coverage checks across plan and module variants.
+     */
+    buildScenarioKey(input: {
+        testModule: string;
+        planVariant?: Record<string, unknown>;
+        moduleVariant?: Record<string, unknown>;
+    }): string {
+        const planVariant = this.normalizeVariantRecord(input.planVariant);
+        const moduleVariant = this.normalizeVariantRecord(input.moduleVariant);
+
+        const normalizedPlanVariant = this.sortRecord(planVariant);
+        const normalizedModuleVariant = this.sortRecord(moduleVariant);
+
+        return JSON.stringify({
+            testModule: input.testModule,
+            planVariant: normalizedPlanVariant,
+            moduleVariant: normalizedModuleVariant,
+        });
+    }
+
+    /**
      * Returns the plan data including variant information.
      */
     async getPlan(planId: string): Promise<any> {
         const response = await this.instance.get(`/api/plan/${planId}`);
         return response.data;
+    }
+
+    private normalizeVariantRecord(
+        value?: Record<string, unknown>,
+    ): Record<string, string> {
+        if (!value || typeof value !== "object") {
+            return {};
+        }
+
+        const record: Record<string, string> = {};
+        for (const [key, raw] of Object.entries(value)) {
+            if (raw === undefined || raw === null) {
+                continue;
+            }
+            record[key] = String(raw);
+        }
+
+        return record;
+    }
+
+    private sortRecord(input: Record<string, string>): Record<string, string> {
+        const sorted: Record<string, string> = {};
+        for (const key of Object.keys(input).sort()) {
+            sorted[key] = input[key];
+        }
+
+        return sorted;
     }
 
     /**
