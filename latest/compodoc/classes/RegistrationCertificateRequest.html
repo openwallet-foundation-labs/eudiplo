@@ -238,7 +238,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="67" class="link-to-prism">src/verifier/presentations/dto/vp-request.dto.ts:67</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="69" class="link-to-prism">src/verifier/presentations/dto/vp-request.dto.ts:69</a></div>
                         </td>
                     </tr>
 
@@ -283,7 +283,7 @@ This is merged with tenant-level registrar defaults when a certificate is create
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="57" class="link-to-prism">src/verifier/presentations/dto/vp-request.dto.ts:57</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="59" class="link-to-prism">src/verifier/presentations/dto/vp-request.dto.ts:59</a></div>
                         </td>
                     </tr>
 
@@ -329,7 +329,7 @@ If provided and still valid, EUDIPLO reuses it instead of creating a new certifi
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="76" class="link-to-prism">src/verifier/presentations/dto/vp-request.dto.ts:76</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="78" class="link-to-prism">src/verifier/presentations/dto/vp-request.dto.ts:78</a></div>
                         </td>
                     </tr>
 
@@ -370,15 +370,17 @@ export class RegistrationCertificatePurpose {
     lang!: string;
 
     @IsString()
-    value!: string;
+    content!: string;
 }
 
 export class RegistrationCertificateBody {
+    @IsOptional()
     @IsString()
-    privacy_policy!: string;
+    privacy_policy?: string;
 
+    @IsOptional()
     @IsString()
-    support_uri!: string;
+    support_uri?: string;
 
     @IsOptional()
     @IsString()

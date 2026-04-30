@@ -203,6 +203,10 @@
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
+                                <a href="#incrementTxCodeFailedAttempts" >incrementTxCodeFailedAttempts</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#onApplicationBootstrap" >onApplicationBootstrap</a>
                             </li>
                             <li>
@@ -511,8 +515,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="291"
-                                    class="link-to-prism">src/session/session.service.ts:291</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="310"
+                                    class="link-to-prism">src/session/session.service.ts:310</a></div>
                         </td>
                     </tr>
 
@@ -664,8 +668,8 @@ Returns null if no session matches.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="303"
-                                    class="link-to-prism">src/session/session.service.ts:303</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="322"
+                                    class="link-to-prism">src/session/session.service.ts:322</a></div>
                         </td>
                     </tr>
 
@@ -963,6 +967,85 @@ Used for wallet-initiated flows where the wallet presents a token from an extern
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="incrementTxCodeFailedAttempts"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>incrementTxCodeFailedAttempts</b></span>
+                        <a href="#incrementTxCodeFailedAttempts"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>incrementTxCodeFailedAttempts(sessionId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="209"
+                                    class="link-to-prism">src/session/session.service.ts:209</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Atomically increments the failed tx_code attempt counter for a session.
+Returns the updated attempt count.
+Used for brute-force protection in the OID4VCI pre-authorized code flow.</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>sessionId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <p>The session ID</p>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;number&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>The updated txCodeFailedAttempts count</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="onApplicationBootstrap"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -1110,8 +1193,8 @@ Emits a session status change event for SSE subscribers.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="208"
-                                    class="link-to-prism">src/session/session.service.ts:208</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="227"
+                                    class="link-to-prism">src/session/session.service.ts:227</a></div>
                         </td>
                     </tr>
 
@@ -1406,6 +1489,25 @@ export class SessionService implements OnApplicationBootstrap {
      */
     getBy(where: FindOptionsWhere&lt;Session&gt;) {
         return this.sessionRepository.findOneByOrFail(where);
+    }
+
+    /**
+     * Atomically increments the failed tx_code attempt counter for a session.
+     * Returns the updated attempt count.
+     * Used for brute-force protection in the OID4VCI pre-authorized code flow.
+     * @param sessionId The session ID
+     * @returns The updated txCodeFailedAttempts count
+     */
+    async incrementTxCodeFailedAttempts(sessionId: string): Promise&lt;number&gt; {
+        await this.sessionRepository.increment(
+            { id: sessionId },
+            &quot;txCodeFailedAttempts&quot;,
+            1,
+        );
+        const session &#x3D; await this.sessionRepository.findOneByOrFail({
+            id: sessionId,
+        });
+        return session.txCodeFailedAttempts ?? 0;
     }
 
     /**

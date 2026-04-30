@@ -178,6 +178,7 @@ per-offer via <code>webhookEndpointId</code> on the offer request.</p>
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#id" >id</a>
                             </li>
                             <li>
@@ -248,7 +249,7 @@ per-offer via <code>webhookEndpointId</code> on the offer request.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="64" class="link-to-prism">src/issuer/configuration/webhook-endpoint/entities/webhook-endpoint.entity.ts:64</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="67" class="link-to-prism">src/issuer/configuration/webhook-endpoint/entities/webhook-endpoint.entity.ts:67</a></div>
                         </td>
                     </tr>
 
@@ -287,7 +288,7 @@ per-offer via <code>webhookEndpointId</code> on the offer request.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="40" class="link-to-prism">src/issuer/configuration/webhook-endpoint/entities/webhook-endpoint.entity.ts:40</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="43" class="link-to-prism">src/issuer/configuration/webhook-endpoint/entities/webhook-endpoint.entity.ts:43</a></div>
                         </td>
                     </tr>
 
@@ -300,6 +301,7 @@ per-offer via <code>webhookEndpointId</code> on the offer request.</p>
                 <td class="col-md-4">
                     <a name="id"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                         <span ><b>id</b></span>
@@ -318,13 +320,13 @@ per-offer via <code>webhookEndpointId</code> on the offer request.</p>
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @IsString()<br />@PrimaryColumn(&#x27;varchar&#x27;)<br />
+                            @ApiProperty({description: &#x27;Unique identifier for the webhook endpoint&#x27;})<br />@IsString()<br />@PrimaryColumn(&#x27;varchar&#x27;)<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="25" class="link-to-prism">src/issuer/configuration/webhook-endpoint/entities/webhook-endpoint.entity.ts:25</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="28" class="link-to-prism">src/issuer/configuration/webhook-endpoint/entities/webhook-endpoint.entity.ts:28</a></div>
                         </td>
                     </tr>
 
@@ -361,7 +363,7 @@ per-offer via <code>webhookEndpointId</code> on the offer request.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="35" class="link-to-prism">src/issuer/configuration/webhook-endpoint/entities/webhook-endpoint.entity.ts:35</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="38" class="link-to-prism">src/issuer/configuration/webhook-endpoint/entities/webhook-endpoint.entity.ts:38</a></div>
                         </td>
                     </tr>
 
@@ -397,7 +399,7 @@ per-offer via <code>webhookEndpointId</code> on the offer request.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/issuer/configuration/webhook-endpoint/entities/webhook-endpoint.entity.ts:31</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="34" class="link-to-prism">src/issuer/configuration/webhook-endpoint/entities/webhook-endpoint.entity.ts:34</a></div>
                         </td>
                     </tr>
 
@@ -433,7 +435,7 @@ per-offer via <code>webhookEndpointId</code> on the offer request.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="28" class="link-to-prism">src/issuer/configuration/webhook-endpoint/entities/webhook-endpoint.entity.ts:28</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="31" class="link-to-prism">src/issuer/configuration/webhook-endpoint/entities/webhook-endpoint.entity.ts:31</a></div>
                         </td>
                     </tr>
 
@@ -470,7 +472,7 @@ per-offer via <code>webhookEndpointId</code> on the offer request.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="44" class="link-to-prism">src/issuer/configuration/webhook-endpoint/entities/webhook-endpoint.entity.ts:44</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="47" class="link-to-prism">src/issuer/configuration/webhook-endpoint/entities/webhook-endpoint.entity.ts:47</a></div>
                         </td>
                     </tr>
 
@@ -504,6 +506,9 @@ import {
  */
 @Entity()
 export class WebhookEndpointEntity {
+    @ApiProperty({
+        description: &quot;Unique identifier for the webhook endpoint&quot;,
+    })
     @IsString()
     @PrimaryColumn(&quot;varchar&quot;)
     id!: string;

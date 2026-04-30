@@ -769,8 +769,8 @@ session creation, which is essential for transaction_data hash validation.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="415"
-                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:415</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="416"
+                                    class="link-to-prism">src/verifier/oid4vp/oid4vp.service.ts:416</a></div>
                         </td>
                     </tr>
 
@@ -1276,6 +1276,7 @@ export class Oid4vpService {
         const cert &#x3D; await this.certService.find({
             tenantId: tenantId,
             type: KeyUsageType.Access,
+            certId: presentationConfig.accessKeyChainId ?? undefined,
         });
 
         const certHash &#x3D; this.certService.getCertHash(cert);

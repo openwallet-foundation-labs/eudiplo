@@ -191,6 +191,10 @@
                                 <a href="#getClientSecret" class="deprecated-name">getClientSecret</a>
                             </li>
                             <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#requireTenantContext" >requireTenantContext</a>
+                            </li>
+                            <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier">Async</span>
@@ -248,8 +252,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="135"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:135</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="147"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:147</a></div>
                         </td>
                     </tr>
 
@@ -339,8 +343,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="159"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:159</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="172"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:172</a></div>
                         </td>
                     </tr>
 
@@ -430,8 +434,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="52"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:52</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="62"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:62</a></div>
                         </td>
                     </tr>
 
@@ -521,8 +525,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="40"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:40</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="49"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:49</a></div>
                         </td>
                     </tr>
 
@@ -607,8 +611,8 @@ Use POST /client/:id/rotate-secret to generate a new secret.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="65"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:65</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="76"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:76</a></div>
                         </td>
                     </tr>
 
@@ -672,6 +676,75 @@ Use POST /client/:id/rotate-secret to generate a new secret.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="requireTenantContext"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>requireTenantContext</b></span>
+                        <a href="#requireTenantContext"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>requireTenantContext(user: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="33"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:33</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>user</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="rotateClientSecret"></a>
                     <span class="name">
                             <span class="modifier"></span>
@@ -699,8 +772,8 @@ Use POST /client/:id/rotate-secret to generate a new secret.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="88"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:88</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="99"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:99</a></div>
                         </td>
                     </tr>
 
@@ -794,8 +867,8 @@ Users with <code>clients:manage</code> role can only rotate secrets for clients 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="110"
-                                    class="link-to-prism">src/auth/client/client.controller.ts:110</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="121"
+                                    class="link-to-prism">src/auth/client/client.controller.ts:121</a></div>
                         </td>
                     </tr>
 
@@ -903,6 +976,15 @@ export class ClientController {
         @Inject(CLIENTS_PROVIDER) private readonly clients: ClientsProvider,
     ) {}
 
+    private requireTenantContext(user: TokenPayload): string {
+        if (!user.entity?.id) {
+            throw new ForbiddenException(
+                &quot;This endpoint requires a tenant context. Use a tenant-bound account.&quot;,
+            );
+        }
+        return user.entity.id;
+    }
+
     /**
      * Get all clients for a user
      * @param user
@@ -911,7 +993,8 @@ export class ClientController {
     @Secured([Role.Clients])
     @Get()
     getClients(@Token() user: TokenPayload) {
-        return this.clients.getClients(user.entity!.id);
+        const tenantId &#x3D; this.requireTenantContext(user);
+        return this.clients.getClients(tenantId);
     }
 
     /**
@@ -923,7 +1006,8 @@ export class ClientController {
     @Secured([Role.Clients])
     @Get(&quot;:id&quot;)
     getClient(@Param(&quot;id&quot;) id: string, @Token() user: TokenPayload) {
-        return this.clients.getClient(user.entity!.id, id);
+        const tenantId &#x3D; this.requireTenantContext(user);
+        return this.clients.getClient(tenantId, id);
     }
 
     /**
@@ -966,7 +1050,7 @@ export class ClientController {
         // Regular client managers can only rotate their own tenant&#x27;s clients
         const tenantId &#x3D; user.roles.includes(Role.Tenants)
             ? null
-            : user.entity!.id;
+            : this.requireTenantContext(user);
         const secret &#x3D; await this.clients.rotateClientSecret(tenantId, id);
         return { secret };
     }
@@ -985,6 +1069,7 @@ export class ClientController {
         @Body() updateClientDto: UpdateClientDto,
         @Token() user: TokenPayload,
     ) {
+        const tenantId &#x3D; this.requireTenantContext(user);
         // Prevent privilege escalation: only users with tenant:manage can grant tenant:manage
         if (
             updateClientDto.roles?.includes(Role.Tenants) &amp;&amp;
@@ -994,7 +1079,7 @@ export class ClientController {
                 &quot;Cannot assign tenant:manage role without having tenant:manage privileges&quot;,
             );
         }
-        return this.clients.updateClient(user.entity!.id, id, updateClientDto);
+        return this.clients.updateClient(tenantId, id, updateClientDto);
     }
 
     /**
@@ -1009,6 +1094,7 @@ export class ClientController {
         @Body() createClientDto: CreateClientDto,
         @Token() user: TokenPayload,
     ) {
+        const tenantId &#x3D; this.requireTenantContext(user);
         // Prevent privilege escalation: only users with tenant:manage can grant tenant:manage
         if (
             createClientDto.roles?.includes(Role.Tenants) &amp;&amp;
@@ -1018,7 +1104,7 @@ export class ClientController {
                 &quot;Cannot assign tenant:manage role without having tenant:manage privileges&quot;,
             );
         }
-        return this.clients.addClient(user.entity!.id, createClientDto);
+        return this.clients.addClient(tenantId, createClientDto);
     }
 
     /**
@@ -1030,7 +1116,8 @@ export class ClientController {
     @Secured([Role.Clients])
     @Delete(&quot;:id&quot;)
     deleteClient(@Param(&quot;id&quot;) id: string, @Token() user: TokenPayload) {
-        return this.clients.removeClient(user.entity!.id, id);
+        const tenantId &#x3D; this.requireTenantContext(user);
+        return this.clients.removeClient(tenantId, id);
     }
 }
 </code></pre>

@@ -175,7 +175,6 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
                                 <a href="#getAll" >getAll</a>
                             </li>
                             <li>
@@ -242,8 +241,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="43"
-                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.controller.ts:43</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="52"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.controller.ts:52</a></div>
                         </td>
                     </tr>
 
@@ -333,8 +332,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="64"
-                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.controller.ts:64</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="73"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.controller.ts:73</a></div>
                         </td>
                     </tr>
 
@@ -400,7 +399,6 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
                         <span ><b>getAll</b></span>
                         <a href="#getAll"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -417,20 +415,22 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Get()<br />@ApiOperation({summary: &#x27;List all webhook endpoints&#x27;})<br />@ApiResponse({status: 200, description: &#x27;List of webhook endpoints&#x27;})<br /></code>
+                    <code>@Get()<br />@ApiResponse({status: 200, description: &#x27;List of webhook endpoints&#x27;, type: undefined})<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="27"
-                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.controller.ts:27</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="36"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.controller.ts:36</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>List all webhook endpoints for the tenant.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -460,7 +460,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>        <code><a href="../entitys/WebhookEndpointEntity.html" target="_self" >Promise&lt;WebhookEndpointEntity[]&gt;</a></code>
 
                         </div>
                             <div class="io-description">
@@ -502,8 +502,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="35"
-                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.controller.ts:35</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="44"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.controller.ts:44</a></div>
                         </td>
                     </tr>
 
@@ -594,8 +594,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="52"
-                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.controller.ts:52</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="61"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.controller.ts:61</a></div>
                         </td>
                     </tr>
 
@@ -684,6 +684,7 @@ import { Secured } from &quot;../../../auth/secure.decorator&quot;;
 import { Token, TokenPayload } from &quot;../../../auth/token.decorator&quot;;
 import { CreateWebhookEndpointDto } from &quot;./dto/create-webhook-endpoint.dto&quot;;
 import { UpdateWebhookEndpointDto } from &quot;./dto/update-webhook-endpoint.dto&quot;;
+import { WebhookEndpointEntity } from &quot;./entities/webhook-endpoint.entity&quot;;
 import { WebhookEndpointService } from &quot;./webhook-endpoint.service&quot;;
 
 @ApiTags(&quot;Issuer&quot;)
@@ -692,10 +693,18 @@ import { WebhookEndpointService } from &quot;./webhook-endpoint.service&quot;;
 export class WebhookEndpointController {
     constructor(private readonly service: WebhookEndpointService) {}
 
+    /**
+     * List all webhook endpoints for the tenant.
+     * @param user
+     * @returns
+     */
     @Get()
-    @ApiOperation({ summary: &quot;List all webhook endpoints&quot; })
-    @ApiResponse({ status: 200, description: &quot;List of webhook endpoints&quot; })
-    getAll(@Token() user: TokenPayload) {
+    @ApiResponse({
+        status: 200,
+        description: &quot;List of webhook endpoints&quot;,
+        type: [WebhookEndpointEntity],
+    })
+    getAll(@Token() user: TokenPayload): Promise&lt;WebhookEndpointEntity[]&gt; {
         return this.service.getAll(user.entity!.id);
     }
 

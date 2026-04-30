@@ -411,6 +411,13 @@ export type MdocVerificationResult &#x3D; {
     claims: Record&lt;string, unknown&gt;;
     payload: string;
     docType?: string;
+    failureType?:
+        | &quot;signature_invalid&quot;
+        | &quot;no_trust_chain_to_root&quot;
+        | &quot;trust_chain_not_trusted&quot;
+        | &quot;x5c_missing&quot;
+        | &quot;verification_error&quot;;
+    failureReason?: string;
 };
 
 /**
@@ -517,11 +524,22 @@ export class MdocverifierService {
                         &#x60;Certificate chain validation failed: ${chainResult.errorDetails}&#x60;,
                     );
                 }
+
+                const failureType &#x3D; this.mapChainErrorToFailureType(
+                    chainResult.error,
+                );
+                const failureReason &#x3D;
+                    chainResult.errorDetails ||
+                    chainResult.error ||
+                    &quot;Certificate chain validation failed&quot;;
+
                 return {
                     verified: false,
                     claims,
                     payload: vp,
                     docType,
+                    failureType,
+                    failureReason,
                 };
             }
 
@@ -608,13 +626,82 @@ export class MdocverifierService {
 
         this.logger.error(&#x60;mDOC verification failed: ${errorDetails}&#x60;);
 
+        let failureType &#x3D; this.classifyVerificationError(error);
+        let failureReason &#x3D; error?.message ?? String(error);
+
+        // In some failing cases the mDOC library throws a signature-related error first,
+        // even though the underlying trust chain is also not valid for the configured trust list.
+        // Probe chain validation here to return a more actionable trust-specific reason.
+        if (failureType &#x3D;&#x3D;&#x3D; &quot;signature_invalid&quot;) {
+            try {
+                const uint8Array &#x3D; Buffer.from(vp, &quot;base64url&quot;);
+                const deviceResponse &#x3D; DeviceResponse.decode(uint8Array);
+                const mdocDocument &#x3D; deviceResponse.documents?.[0];
+
+                if (mdocDocument) {
+                    const chainResult &#x3D;
+                        await this.validateIssuerCertificateChain(
+                            mdocDocument,
+                            options,
+                        );
+
+                    if (!chainResult.verified) {
+                        failureType &#x3D; this.mapChainErrorToFailureType(
+                            chainResult.error,
+                        );
+                        failureReason &#x3D;
+                            chainResult.errorDetails ||
+                            chainResult.error ||
+                            failureReason;
+
+                        this.logger.warn(
+                            &#x60;mDOC verification encountered signature error but trust chain check also failed: ${failureReason}&#x60;,
+                        );
+                    }
+                }
+            } catch (chainProbeError: any) {
+                this.logger.debug(
+                    &#x60;Could not probe chain failure after signature error: ${chainProbeError?.message ?? chainProbeError}&#x60;,
+                );
+            }
+        }
+
         return {
             verified: false,
             claims: {},
             payload: vp,
             docType:
                 details.docType &#x3D;&#x3D;&#x3D; &quot;unknown&quot; ? undefined : details.docType,
+            failureType,
+            failureReason,
         };
+    }
+
+    private mapChainErrorToFailureType(
+        errorCode?: string,
+    ): MdocVerificationResult[&quot;failureType&quot;] {
+        switch (errorCode) {
+            case &quot;x5c_required&quot;:
+                return &quot;x5c_missing&quot;;
+            case &quot;chain_build_failed&quot;:
+                return &quot;no_trust_chain_to_root&quot;;
+            case &quot;no_trusted_entity_match&quot;:
+                return &quot;trust_chain_not_trusted&quot;;
+            default:
+                return &quot;verification_error&quot;;
+        }
+    }
+
+    private classifyVerificationError(
+        error: any,
+    ): MdocVerificationResult[&quot;failureType&quot;] {
+        const message &#x3D; String(error?.message ?? error).toLowerCase();
+
+        if (message.includes(&quot;signature&quot;)) {
+            return &quot;signature_invalid&quot;;
+        }
+
+        return &quot;verification_error&quot;;
     }
 
     /**

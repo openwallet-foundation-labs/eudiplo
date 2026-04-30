@@ -1235,6 +1235,67 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Registration Certificate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resolution-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resolution Strategies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#payload-merging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Payload Merging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#credential-auto-derivation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Credential Auto-Derivation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#certificate-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Certificate Validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -2699,6 +2760,67 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Registration Certificate">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resolution-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resolution Strategies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#payload-merging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Payload Merging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#credential-auto-derivation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Credential Auto-Derivation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#certificate-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Certificate Validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -2836,10 +2958,9 @@ tenant's configuration folder:</p>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">"password"</span><span class="p">:</span><span class="w"> </span><span class="s2">"your-password"</span><span class="p">,</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">"registrationCertificateDefaults"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">        </span><span class="nt">"privacy_policy"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://verifier.example/privacy"</span><span class="p">,</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">        </span><span class="nt">"support_uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mailto:support@verifier.example"</span><span class="p">,</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">        </span><span class="nt">"provided_attestations"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">}</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">        </span><span class="nt">"support_uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mailto:support@verifier.example"</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">}</span>
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">File Import Behavior</p>
@@ -2881,21 +3002,94 @@ Key Creation Wizard.</p>
 </ul>
 <hr>
 <h2 id="registration-certificate">Registration Certificate<a class="headerlink" href="#registration-certificate" title="Permanent link">¶</a></h2>
-<p>Registration certificates are created during OID4VP request generation when:</p>
+<p>Registration certificates are attached to OID4VP requests when:</p>
 <ul>
-<li>registrar is configured for the tenant</li>
-<li>the selected presentation config contains <code>registrationCert</code></li>
+<li>a registrar is configured for the tenant, and</li>
+<li>the selected presentation config contains a <code>registrationCert</code> field.</li>
 </ul>
-<p>The final registration certificate payload is built from:</p>
+<h3 id="resolution-strategies">Resolution Strategies<a class="headerlink" href="#resolution-strategies" title="Permanent link">¶</a></h3>
+<p>The <code>registrationCert</code> field supports three mutually exclusive strategies, evaluated in priority order:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>registrationCert.jwt</code></td>
+<td>Uses the provided JWT directly (no registrar call). Still validated for expiry and DCQL authorization.</td>
+</tr>
+<tr>
+<td><code>registrationCert.id</code></td>
+<td>Looks up an existing (non-revoked) certificate by ID from the registrar. Falls back to creating a new one using <code>registrationCert.body</code> if no active cert is found for that ID.</td>
+</tr>
+<tr>
+<td><code>registrationCert.body</code></td>
+<td>Creates a new certificate at the registrar using the merged body (see below).</td>
+</tr>
+</tbody>
+</table>
+<p>At least one of <code>jwt</code>, <code>id</code>, or <code>body</code> must be provided.</p>
+<h3 id="payload-merging">Payload Merging<a class="headerlink" href="#payload-merging" title="Permanent link">¶</a></h3>
+<p>When creating via <code>body</code>, the final certificate payload is merged in this order (later takes precedence):</p>
+<ol>
+<li><code>registrationCertificateDefaults</code> from the tenant's registrar config (shared legal/contact defaults)</li>
+<li><code>registrationCert.body</code> from the presentation config (per-presentation overrides)</li>
+</ol>
+<p>The <code>rpId</code> is always derived automatically from the tenant's registrar relying party and cannot be set manually.</p>
+<p><strong>Required fields</strong> (must be present after merging):</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Where to set</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>privacy_policy</code></td>
+<td>Registrar defaults or presentation body</td>
+</tr>
+<tr>
+<td><code>support_uri</code></td>
+<td>Registrar defaults or presentation body</td>
+</tr>
+<tr>
+<td><code>purpose</code></td>
+<td>Presentation body (<code>registrationCert.body.purpose</code>)</td>
+</tr>
+<tr>
+<td><code>credentials</code></td>
+<td>Auto-derived from <code>dcql_query.credentials</code> if not explicitly set</td>
+</tr>
+</tbody>
+</table>
+<h3 id="credential-auto-derivation">Credential Auto-Derivation<a class="headerlink" href="#credential-auto-derivation" title="Permanent link">¶</a></h3>
+<p>If <code>registrationCert.body.credentials</code> is not explicitly set, EUDIPLO automatically derives the credentials list from the effective DCQL query (<code>dcql_query.credentials</code>) of the presentation config. Only the <code>format</code>, <code>claims</code>, and <code>meta</code> fields are forwarded to the registrar (DCQL-only fields like <code>id</code>, <code>multiple</code>, and <code>trusted_authorities</code> are stripped).</p>
+<h3 id="certificate-validation">Certificate Validation<a class="headerlink" href="#certificate-validation" title="Permanent link">¶</a></h3>
+<p>Every registration certificate (regardless of source) is validated before use:</p>
 <ul>
-<li>tenant-level <code>registrationCertificateDefaults</code> in <code>registrar.json</code> (or <code>/registrar/config</code> API)</li>
-<li>presentation-level <code>registrationCert.body</code> (takes precedence)</li>
+<li><strong>Temporal validity</strong>: <code>exp</code> and <code>nbf</code> are checked with a 60-second clock-skew tolerance. Expired or not-yet-valid certificates are rejected.</li>
+<li><strong>DCQL authorization (overasking prevention)</strong>: Every credential requested in the DCQL query must be present in the certificate's authorized <code>credentials</code> claim. If the certificate does not cover all requested credentials, the request is rejected to prevent overasking.</li>
 </ul>
-<p>Recommendation:</p>
-<ul>
-<li>keep <code>purpose</code> in the presentation config (<code>registrationCert.body.purpose</code>)</li>
-<li>keep shared legal/contact defaults in registrar config (<code>registrationCertificateDefaults</code>)</li>
-</ul>
+<h3 id="recommended-setup">Recommended Setup<a class="headerlink" href="#recommended-setup" title="Permanent link">¶</a></h3>
+<div class="highlight"><span class="filename">config/{tenant-id}/registrar.json — shared defaults</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="nt">"registrationCertificateDefaults"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">        </span><span class="nt">"privacy_policy"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://verifier.example/privacy"</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">        </span><span class="nt">"support_uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mailto:support@verifier.example"</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><span class="filename">Presentation config — per-presentation fields</span><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nt">"registrationCert"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">        </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">            </span><span class="nt">"purpose"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nt">"lang"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="p">,</span><span class="w"> </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Age verification"</span><span class="w"> </span><span class="p">}]</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">}</span>
+</code></pre></div>
 
 
 

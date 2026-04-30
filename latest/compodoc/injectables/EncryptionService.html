@@ -167,6 +167,10 @@
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
+                                <a href="#decryptJweToJson" >decryptJweToJson</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#getEncryptionPublicKey" >getEncryptionPublicKey</a>
                             </li>
                             <li>
@@ -196,7 +200,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/crypto/encryption/encryption.service.ts:10</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="17" class="link-to-prism">src/crypto/encryption/encryption.service.ts:17</a></div>
                             </td>
                         </tr>
 
@@ -261,8 +265,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="40"
-                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:40</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="47"
+                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:47</a></div>
                         </td>
                     </tr>
 
@@ -348,6 +352,112 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="decryptJweToJson"></a>
+                    <span class="name">
+                            <span class="modifier">Async</span>
+                        <span ><b>decryptJweToJson</b></span>
+                        <a href="#decryptJweToJson"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>decryptJweToJson(jwe: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="88"
+                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:88</a></div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="col-md-4">
+                            <b>Type parameters :</b>
+                            <ul class="type-parameters">
+                                    <li>T</li>
+                            </ul>
+                        </td>
+                    </tr>
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Decrypts a JWE (JSON Web Encryption) compact token and returns the plaintext
+parsed as JSON. Use this when the JWE payload is raw JSON (not a nested JWT).</p>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                                <td>Description</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>jwe</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The JWE compact serialization string.</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                                    <ul>
+<li>The ID of the tenant.</li>
+</ul>
+
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;T&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                <p>The decrypted payload parsed as a JSON object.</p>
+
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="getEncryptionPublicKey"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -366,8 +476,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="60"
-                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:60</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="67"
+                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:67</a></div>
                         </td>
                     </tr>
 
@@ -445,8 +555,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="18"
-                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:18</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="25"
+                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:25</a></div>
                         </td>
                     </tr>
 
@@ -509,7 +619,14 @@ Creates a key chain with an ECDH-ES encryption key.</p>
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable } from &quot;@nestjs/common&quot;;
-import { exportJWK, generateKeyPair, importJWK, JWK, jwtDecrypt } from &quot;jose&quot;;
+import {
+    compactDecrypt,
+    exportJWK,
+    generateKeyPair,
+    importJWK,
+    JWK,
+    jwtDecrypt,
+} from &quot;jose&quot;;
 import { KeyUsageType } from &quot;../key/entities/key-chain.entity&quot;;
 import { KeyChainService } from &quot;../key/key-chain.service&quot;;
 
@@ -579,6 +696,31 @@ export class EncryptionService {
         publicKey.kid &#x3D; keyChain.id;
 
         return publicKey;
+    }
+
+    /**
+     * Decrypts a JWE (JSON Web Encryption) compact token and returns the plaintext
+     * parsed as JSON. Use this when the JWE payload is raw JSON (not a nested JWT).
+     * @param jwe - The JWE compact serialization string.
+     * @param tenantId - The ID of the tenant.
+     * @returns The decrypted payload parsed as a JSON object.
+     */
+    async decryptJweToJson&lt;T &#x3D; Record&lt;string, unknown&gt;&gt;(
+        jwe: string,
+        tenantId: string,
+    ): Promise&lt;T&gt; {
+        const keyChain &#x3D; await this.keyChainService.findByUsageType(
+            tenantId,
+            KeyUsageType.Encrypt,
+        );
+
+        const privateEncryptionKey &#x3D; (await importJWK(
+            keyChain.activeKey,
+            &quot;ECDH-ES&quot;,
+        )) as CryptoKey;
+
+        const { plaintext } &#x3D; await compactDecrypt(jwe, privateEncryptionKey);
+        return JSON.parse(new TextDecoder().decode(plaintext)) as T;
     }
 }
 </code></pre>

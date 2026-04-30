@@ -1008,8 +1008,8 @@ According to OID4VCI Section 6.3:</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="626"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:626</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="661"
+                                    class="link-to-prism">src/issuer/issuance/oid4vci/authorize/authorize.service.ts:661</a></div>
                         </td>
                     </tr>
 
@@ -1637,6 +1637,20 @@ export class AuthorizeService {
             parsedAccessTokenRequest.grant.grantType &#x3D;&#x3D;&#x3D;
             preAuthorizedCodeGrantIdentifier
         ) {
+            // Brute-force protection: reject if session is already locked out
+            if (session.credentialPayload?.tx_code) {
+                const maxAttempts &#x3D; issuanceConfig.txCodeMaxAttempts ?? 5;
+                if ((session.txCodeFailedAttempts ?? 0) &gt;&#x3D; maxAttempts) {
+                    this.logger.warn(
+                        &#x60;Session ${session.id} is locked after ${session.txCodeFailedAttempts} failed tx_code attempts&#x60;,
+                    );
+                    throw new TokenErrorException(
+                        &quot;invalid_grant&quot;,
+                        &quot;Too many failed tx_code attempts. The pre-authorized code has been invalidated.&quot;,
+                    );
+                }
+            }
+
             const { dpop } &#x3D; await this.getAuthorizationServer(
                 tenantId,
                 session.id,
@@ -1662,9 +1676,30 @@ export class AuthorizeService {
                     expectedPreAuthorizedCode: session.authorization_code!,
                     expectedTxCode: session.credentialPayload?.tx_code,
                 })
-                .catch((err) &#x3D;&gt; {
+                .catch(async (err) &#x3D;&gt; {
                     // Map verification errors to OAuth 2.0 error codes
                     const errorCode &#x3D; this.mapToTokenErrorCode(err.error);
+                    // On wrong tx_code, increment the failed attempt counter and check for lockout
+                    if (errorCode &#x3D;&#x3D;&#x3D; &quot;invalid_tx_code&quot;) {
+                        const maxAttempts &#x3D;
+                            issuanceConfig.txCodeMaxAttempts ?? 5;
+                        const failedAttempts &#x3D;
+                            await this.sessionService.incrementTxCodeFailedAttempts(
+                                session.id,
+                            );
+                        if (failedAttempts &gt;&#x3D; maxAttempts) {
+                            this.logger.warn(
+                                &#x60;Session ${session.id} locked after ${failedAttempts} failed tx_code attempts&#x60;,
+                            );
+                            throw new TokenErrorException(
+                                &quot;invalid_grant&quot;,
+                                &quot;Too many failed tx_code attempts. The pre-authorized code has been invalidated.&quot;,
+                            );
+                        }
+                        this.logger.warn(
+                            &#x60;Failed tx_code attempt ${failedAttempts}/${maxAttempts} for session ${session.id}&#x60;,
+                        );
+                    }
                     throw new TokenErrorException(
                         errorCode,
                         err.error_description,
