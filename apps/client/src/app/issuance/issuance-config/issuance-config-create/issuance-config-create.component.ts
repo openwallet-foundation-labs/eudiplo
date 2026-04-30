@@ -82,6 +82,7 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
       dPopRequired: new FormControl(false),
       refreshTokenEnabled: new FormControl(true),
       refreshTokenExpiresInSeconds: new FormControl(2592000, [Validators.min(1)]),
+      txCodeMaxAttempts: new FormControl<number | null>(null, [Validators.min(1)]),
       credentialResponseEncryption: new FormControl(false),
       credentialRequestEncryption: new FormControl(false),
       walletAttestationRequired: new FormControl(false),
@@ -211,6 +212,7 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
           false,
         walletAttestationRequired: config.walletAttestationRequired ?? false,
         preferredAuthServer: config.preferredAuthServer ?? '',
+        txCodeMaxAttempts: config.txCodeMaxAttempts ?? null,
       });
 
       // Load Chained AS config if present
@@ -274,6 +276,7 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
         : undefined,
       credentialResponseEncryption: formValue.credentialResponseEncryption ?? false,
       credentialRequestEncryption: formValue.credentialRequestEncryption ?? false,
+      txCodeMaxAttempts: formValue.txCodeMaxAttempts ?? undefined,
       authServers: formValue.authServers?.length > 0 ? formValue.authServers : undefined,
       preferredAuthServer: formValue.preferredAuthServer || undefined,
       walletAttestationRequired: formValue.walletAttestationRequired,

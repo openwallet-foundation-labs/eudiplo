@@ -200,6 +200,25 @@ export class SessionService implements OnApplicationBootstrap {
     }
 
     /**
+     * Atomically increments the failed tx_code attempt counter for a session.
+     * Returns the updated attempt count.
+     * Used for brute-force protection in the OID4VCI pre-authorized code flow.
+     * @param sessionId The session ID
+     * @returns The updated txCodeFailedAttempts count
+     */
+    async incrementTxCodeFailedAttempts(sessionId: string): Promise<number> {
+        await this.sessionRepository.increment(
+            { id: sessionId },
+            "txCodeFailedAttempts",
+            1,
+        );
+        const session = await this.sessionRepository.findOneByOrFail({
+            id: sessionId,
+        });
+        return session.txCodeFailedAttempts ?? 0;
+    }
+
+    /**
      * Tidy up sessions based on per-tenant configuration.
      * Each tenant can configure their own TTL and cleanup mode.
      * - 'full' mode: Deletes the entire session record

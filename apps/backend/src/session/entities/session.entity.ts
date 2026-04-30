@@ -267,4 +267,12 @@ export class Session {
      */
     @Column("text", { nullable: true })
     errorReason?: string;
+
+    /**
+     * Number of failed tx_code (transaction code) validation attempts.
+     * Used to enforce brute-force protection in the pre-authorized code flow.
+     * Reset implicitly when the session is consumed successfully.
+     */
+    @Column("int", { default: 0 })
+    txCodeFailedAttempts!: number;
 }
