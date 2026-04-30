@@ -268,6 +268,42 @@
         </ng-template>
 
         <div fxLayout="column" fxLayoutGap="24px" class="tab-content">
+          <!-- tx_code Brute-Force Protection Card -->
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>pin</mat-icon>
+                Transaction Code (tx_code) Protection
+              </mat-card-title>
+              <mat-card-subtitle
+                >Limit failed PIN/OTP attempts in the pre-authorized code flow</mat-card-subtitle
+              >
+            </mat-card-header>
+            <mat-card-content fxLayout="column" fxLayoutGap="16px">
+              <mat-form-field>
+                <mat-label>Max Failed tx_code Attempts</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  formControlName="txCodeMaxAttempts"
+                  placeholder="5"
+                  min="1"
+                />
+                <mat-icon matSuffix>lock</mat-icon>
+                <mat-hint>
+                  Maximum number of wrong PIN/OTP attempts before the pre-authorized code is
+                  invalidated. Leave empty to use the default (5). Set higher only if you have a
+                  specific need.
+                </mat-hint>
+                @if (
+                  form.get('txCodeMaxAttempts')?.invalid && form.get('txCodeMaxAttempts')?.touched
+                ) {
+                  <mat-error>Must be at least 1</mat-error>
+                }
+              </mat-form-field>
+            </mat-card-content>
+          </mat-card>
+
           <!-- Wallet Attestation Card -->
           <mat-card>
             <mat-card-header>
