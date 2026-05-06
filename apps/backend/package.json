@@ -75,6 +75,7 @@
         "@opentelemetry/sdk-node": "^0.216.0",
         "@opentelemetry/sdk-trace-base": "^2.6.1",
         "@opentelemetry/semantic-conventions": "^1.40.0",
+        "@owf/crypto": "0.1.0-alpha-20260302093714",
         "@owf/eudi-attestation-schema": "0.2.0-alpha-20260430100930",
         "@owf/eudi-lote": "0.1.0-alpha-20260422101556",
         "@owf/mdoc": "0.6.0",
