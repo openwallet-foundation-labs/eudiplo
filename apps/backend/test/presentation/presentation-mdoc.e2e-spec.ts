@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import { createHash } from "node:crypto";
 import { INestApplication } from "@nestjs/common";
 import {
     Openid4vpAuthorizationRequest,
@@ -33,6 +34,44 @@ describe("Presentation - mDOC Credential", () => {
     let ctx: PresentationTestContext;
 
     let client: Openid4vpClient;
+
+    function computeJwkThumbprint(jwks?: {
+        keys?: Array<Record<string, any>>;
+    }): Uint8Array | undefined {
+        const keys = jwks?.keys;
+        if (!keys || keys.length === 0) return undefined;
+
+        const encJwk = keys.find((k) => k.use === "enc") ?? keys[0];
+        let canonical: string | undefined;
+
+        if (encJwk?.kty === "EC") {
+            canonical = JSON.stringify({
+                crv: encJwk.crv,
+                kty: encJwk.kty,
+                x: encJwk.x,
+                y: encJwk.y,
+            });
+        } else if (encJwk?.kty === "OKP") {
+            canonical = JSON.stringify({
+                crv: encJwk.crv,
+                kty: encJwk.kty,
+                x: encJwk.x,
+            });
+        } else if (encJwk?.kty === "RSA") {
+            canonical = JSON.stringify({
+                e: encJwk.e,
+                kty: encJwk.kty,
+                n: encJwk.n,
+            });
+        }
+
+        if (!canonical) return undefined;
+        return new Uint8Array(
+            createHash("sha256")
+                .update(Buffer.from(canonical, "utf8"))
+                .digest(),
+        );
+    }
 
     /**
      * Helper function to submit a mDOC presentation
@@ -76,6 +115,11 @@ describe("Presentation - mDOC Credential", () => {
             values.issuerCert,
             resolved.authorizationRequestPayload.client_id!,
             resolved.authorizationRequestPayload.response_uri as string,
+            resolved.authorizationRequestPayload.response_mode ??
+                "direct_post.jwt",
+            computeJwkThumbprint(
+                resolved.authorizationRequestPayload.client_metadata?.jwks,
+            ),
         );
 
         const jwt = await encryptVpToken(
@@ -221,6 +265,11 @@ describe("Presentation - mDOC Credential", () => {
             untrustedCertPem,
             resolved.authorizationRequestPayload.client_id!,
             resolved.authorizationRequestPayload.response_uri as string,
+            resolved.authorizationRequestPayload.response_mode ??
+                "direct_post.jwt",
+            computeJwkThumbprint(
+                resolved.authorizationRequestPayload.client_metadata?.jwks,
+            ),
         );
 
         const jwt = await encryptVpToken(vp_token, "pid-mso-mdoc", resolved);
