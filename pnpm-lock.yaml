@@ -297,7 +297,7 @@ importers:
         version: 11.0.21(@swc/cli@0.8.1(@swc/core@1.15.33)(chokidar@4.0.3))(@swc/core@1.15.33)(@types/node@25.6.0)(prettier@3.8.3)
       '@nestjs/schematics':
         specifier: ^11.0.9
-        version: 11.1.0(chokidar@5.0.0)(prettier@3.8.3)(typescript@5.9.3)
+        version: 11.1.0(chokidar@4.0.3)(prettier@3.8.3)(typescript@5.9.3)
       '@nestjs/testing':
         specifier: ^11.1.14
         version: 11.1.19(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.19)(@nestjs/platform-express@11.1.19)
@@ -11076,17 +11076,6 @@ snapshots:
     optionalDependencies:
       chokidar: 4.0.3
 
-  '@angular-devkit/core@19.2.24(chokidar@5.0.0)':
-    dependencies:
-      ajv: 8.18.0
-      ajv-formats: 3.0.1(ajv@8.18.0)
-      jsonc-parser: 3.3.1
-      picomatch: 4.0.4
-      rxjs: 7.8.1
-      source-map: 0.7.4
-    optionalDependencies:
-      chokidar: 5.0.0
-
   '@angular-devkit/core@21.1.0(chokidar@5.0.0)':
     dependencies:
       ajv: 8.17.1
@@ -11135,16 +11124,6 @@ snapshots:
   '@angular-devkit/schematics@19.2.24(chokidar@4.0.3)':
     dependencies:
       '@angular-devkit/core': 19.2.24(chokidar@4.0.3)
-      jsonc-parser: 3.3.1
-      magic-string: 0.30.17
-      ora: 5.4.1
-      rxjs: 7.8.1
-    transitivePeerDependencies:
-      - chokidar
-
-  '@angular-devkit/schematics@19.2.24(chokidar@5.0.0)':
-    dependencies:
-      '@angular-devkit/core': 19.2.24(chokidar@5.0.0)
       jsonc-parser: 3.3.1
       magic-string: 0.30.17
       ora: 5.4.1
@@ -13889,19 +13868,6 @@ snapshots:
     transitivePeerDependencies:
       - chokidar
 
-  '@nestjs/schematics@11.1.0(chokidar@5.0.0)(prettier@3.8.3)(typescript@5.9.3)':
-    dependencies:
-      '@angular-devkit/core': 19.2.24(chokidar@5.0.0)
-      '@angular-devkit/schematics': 19.2.24(chokidar@5.0.0)
-      comment-json: 5.0.0
-      jsonc-parser: 3.3.1
-      pluralize: 8.0.0
-      typescript: 5.9.3
-    optionalDependencies:
-      prettier: 3.8.3
-    transitivePeerDependencies:
-      - chokidar
-
   '@nestjs/swagger@11.4.2(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.19)(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)':
     dependencies:
       '@microsoft/tsdoc': 0.16.0
@@ -16014,7 +15980,7 @@ snapshots:
       source-map: 0.7.6
       tinyglobby: 0.2.15
     optionalDependencies:
-      chokidar: 5.0.0
+      chokidar: 4.0.3
     transitivePeerDependencies:
       - bare-abort-controller
       - react-native-b4a
