@@ -52,7 +52,6 @@ export class SchemaUriEntry {
 
     @ApiPropertyOptional({
         description: "URI pointing to the schema document for this format",
-        example: "https://example.com/schemas/my-credential.dc+sd-jwt.json",
     })
     @IsString()
     uri!: string;
@@ -71,7 +70,6 @@ export class TrustAuthorityEntry {
 
     @ApiPropertyOptional({
         description: "URI of the trust list or trust anchor",
-        example: "https://example.com/trust-lists/members.jws",
     })
     @IsString()
     value!: string;
