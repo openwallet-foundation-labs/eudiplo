@@ -391,7 +391,6 @@ export class CredentialConfigCreateComponent implements OnInit {
 
     // Update lifetime preset selection
     this.updateLifetimePresetFromValue(config.lifeTime || 3600);
-
   }
 
   /**
