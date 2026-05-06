@@ -21,6 +21,7 @@ import { statusListRoutes } from './status-list-management/status-list.routes';
 import { clientRoutes, tenantRoutes } from './tenants/tenants.routes';
 import { trustListRoutes } from './trust-list/trust-list.routes';
 import { userRoutes } from './users/users.routes';
+import { schemaMetadataRoutes } from './schema-metadata/schema-metadata.routes';
 
 export const routes: Routes = [
   {
@@ -158,5 +159,13 @@ export const routes: Routes = [
     path: 'trust-list',
     canActivate: [AuthGuard],
     children: trustListRoutes,
+  },
+
+  // Schema metadata routes
+  {
+    path: 'schema-metadata',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: getRole('registrar:manage') },
+    children: schemaMetadataRoutes,
   },
 ];

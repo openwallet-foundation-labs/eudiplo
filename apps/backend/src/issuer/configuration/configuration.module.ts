@@ -2,6 +2,7 @@ import { HttpModule } from "@nestjs/axios";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { CryptoModule } from "../../crypto/crypto.module";
+import { RegistrarModule } from "../../registrar/registrar.module";
 import { SessionModule } from "../../session/session.module";
 import { WebhookService } from "../../shared/utils/webhook/webhook.service";
 import { PresentationsModule } from "../../verifier/presentations/presentations.module";
@@ -15,6 +16,7 @@ import { CredentialsService } from "./credentials/credentials.service";
 import { CredentialConfig } from "./credentials/entities/credential.entity";
 import { MdocIssuerService } from "./credentials/issuer/mdoc-issuer/mdoc-issuer.service";
 import { SdjwtvcIssuerService } from "./credentials/issuer/sdjwtvc-issuer/sdjwtvc-issuer.service";
+import { SchemaMetaAdapterService } from "./credentials/schema-meta/schema-meta-adapter.service";
 import { IssuanceConfig } from "./issuance/entities/issuance-config.entity";
 import { IssuanceService } from "./issuance/issuance.service";
 import { IssuanceConfigController } from "./issuance/issuance-config.controller";
@@ -37,6 +39,7 @@ import { WebhookEndpointService } from "./webhook-endpoint/webhook-endpoint.serv
         HttpModule,
         SessionModule,
         PresentationsModule,
+        RegistrarModule,
         TypeOrmModule.forFeature([
             IssuanceConfig,
             CredentialConfig,
@@ -59,6 +62,7 @@ import { WebhookEndpointService } from "./webhook-endpoint/webhook-endpoint.serv
         MdocIssuerService,
         AttributeProviderService,
         WebhookEndpointService,
+        SchemaMetaAdapterService,
     ],
     exports: [
         IssuanceService,

@@ -80,6 +80,33 @@
       </mat-card-content>
     </mat-card>
 
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Referenced by Credential Configs</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (relatedCredentialConfigs.length) {
+          <div fxLayout="column" fxLayoutGap="4px" class="card-content-top">
+            @for (cc of relatedCredentialConfigs; track cc.id) {
+              <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                <mat-icon class="label-icon">description</mat-icon>
+                <span class="value">{{ cc.description || cc.id }}</span>
+                <a
+                  mat-icon-button
+                  [routerLink]="['/credential-config', cc.id]"
+                  matTooltip="Open credential config"
+                >
+                  <mat-icon>open_in_new</mat-icon>
+                </a>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="url-description">No credential configs reference this trust list.</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
     <!-- Entities Card -->
     @if (entities.length > 0) {
       <mat-card>

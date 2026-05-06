@@ -18,6 +18,18 @@ import { toBuffer } from "../../shared/utils/buffer.util";
 // Use global Web Crypto API (available in Node.js 19+)
 const webCrypto = globalThis.crypto;
 
+function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
+    if (a.length !== b.length) {
+        return false;
+    }
+    for (let i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 export const mdocContext: MdocContext = {
     crypto: {
         digest: async ({ digestAlgorithm, bytes }) => {
@@ -68,10 +80,12 @@ export const mdocContext: MdocContext = {
                     throw new Error("tag is required for mac0 verification");
                 }
 
-                return (
-                    mac0.tag ===
-                    hmac(sha256, key.privateKey, mac0.toBeAuthenticated)
+                const expectedTag = hmac(
+                    sha256,
+                    key.privateKey,
+                    mac0.toBeAuthenticated,
                 );
+                return bytesEqual(mac0.tag, expectedTag);
             },
         },
         sign1: {

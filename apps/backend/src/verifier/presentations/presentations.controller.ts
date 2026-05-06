@@ -14,6 +14,7 @@ import { Token, TokenPayload } from "../../auth/token.decorator";
 import { PresentationConfigCreateDto } from "./dto/presentation-config-create.dto";
 import { PresentationConfigUpdateDto } from "./dto/presentation-config-update.dto";
 import { ResolveIssuerMetadataDto } from "./dto/resolve-issuer-metadata.dto";
+import { ResolveSchemaMetadataDto } from "./dto/resolve-schema-metadata.dto";
 import { PresentationsService } from "./presentations.service";
 
 @ApiTags("Verifier")
@@ -56,6 +57,55 @@ export class PresentationManagementController {
     async resolveIssuerMetadata(@Body() body: ResolveIssuerMetadataDto) {
         return this.presentationsService.resolveCredentialIssuerMetadata(
             body.issuerUrl,
+        );
+    }
+
+    /**
+     * Resolve schema metadata server-side and decode its signed JWT payload.
+     * This avoids browser CORS limitations when importing schema metadata
+     * directly from registrar URLs.
+     */
+    @Secured([Role.Presentations, Role.PresentationRequest])
+    @Post("schema-metadata/resolve")
+    @ApiOperation({
+        summary: "Resolve external schema metadata",
+        description:
+            "Fetches schema metadata from an external URL, extracts signedJwt, validates the JWT payload shape and returns normalized fields for presentation config import.",
+    })
+    @ApiBody({ type: ResolveSchemaMetadataDto })
+    @ApiResponse({
+        status: 200,
+        description: "Resolved schema metadata import payload",
+    })
+    @ApiResponse({
+        status: 400,
+        description:
+            "Invalid URL, invalid response, or invalid schema metadata JWT",
+    })
+    async resolveSchemaMetadata(@Body() body: ResolveSchemaMetadataDto) {
+        return this.presentationsService.resolveSchemaMetadata(
+            body.schemaMetadataUrl,
+        );
+    }
+
+    /**
+     * List schema metadata entries from the connected registrar catalog.
+     * Returns an empty array when the registrar is not enabled for this tenant.
+     */
+    @Secured([Role.Presentations, Role.PresentationRequest])
+    @Get("schema-metadata/catalog")
+    @ApiOperation({
+        summary: "List schema metadata from the registrar catalog",
+        description:
+            "Returns all schema metadata entries from the configured registrar. Returns an empty array when no registrar is configured.",
+    })
+    @ApiResponse({
+        status: 200,
+        description: "Catalog entries from the registrar",
+    })
+    listSchemaMetadataCatalog(@Token() user: TokenPayload) {
+        return this.presentationsService.listSchemaMetadataCatalog(
+            user.entity!.id,
         );
     }
 

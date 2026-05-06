@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/SchemaUriEntry.schema.json",
+  "title": "SchemaUriEntry",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "string",
+      "description": "Attestation format this schema URI applies to (e.g. dc+sd-jwt, mso_mdoc)",
+      "example": "dc+sd-jwt"
+    },
+    "uri": {
+      "type": "string",
+      "format": "uri",
+      "description": "URI pointing to the schema document for this format",
+      "example": "https://example.com/schemas/my-credential.dc+sd-jwt.json"
+    }
+  },
+  "additionalProperties": false
+}

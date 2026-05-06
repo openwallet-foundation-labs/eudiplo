@@ -1,0 +1,44 @@
+.metadata-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.metadata-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.value {
+  font-size: 14px;
+}
+
+.trust-value {
+  word-break: break-all;
+  flex: 1;
+}
+
+.label-icon {
+  font-size: 18px;
+  height: 18px;
+  width: 18px;
+  color: rgba(0, 0, 0, 0.54);
+  flex-shrink: 0;
+}
+
+.deprecated-card {
+  border-color: orange;
+}
+
+.publish-form {
+  margin-top: 12px;
+}
+
+.card-content-top {
+  margin-top: 8px;
+}

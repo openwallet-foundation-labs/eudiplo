@@ -173,6 +173,15 @@
     "txCodeFailedAttempts": {
       "type": "number",
       "description": "Number of failed tx_code (transaction code) validation attempts.\nUsed to enforce brute-force protection in the pre-authorized code flow.\nReset implicitly when the session is consumed successfully."
+    },
+    "consumed": {
+      "type": "boolean",
+      "description": "Flag indicating whether the session offer has been consumed.\nPrevents replay attacks by ensuring each offer can only be used once.\nFor OID4VCI: set after successful token exchange.\nFor OID4VP: set after successful response validation."
+    },
+    "consumedAt": {
+      "format": "date-time",
+      "type": "string",
+      "description": "Timestamp when the session offer was consumed.\nNull if the offer has not yet been consumed."
     }
   },
   "required": [
@@ -184,7 +193,8 @@
     "tenantId",
     "tenant",
     "notifications",
-    "txCodeFailedAttempts"
+    "txCodeFailedAttempts",
+    "consumed"
   ],
   "additionalProperties": false
 }

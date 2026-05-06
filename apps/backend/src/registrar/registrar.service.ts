@@ -8,6 +8,7 @@ import { RegistrarConfigEntity } from "./entities/registrar-config.entity";
 import { type RegistrationCertificateCreation } from "./generated";
 import { RegistrarConfigService } from "./registrar-config.service";
 import { RegistrationCertificateService } from "./registration-certificate.service";
+import { SchemaMetadataService } from "./schema-metadata.service";
 
 /**
  * Facade that preserves the original public API of the registrar domain.
@@ -23,6 +24,7 @@ export class RegistrarService {
         private readonly configSvc: RegistrarConfigService,
         private readonly regCertSvc: RegistrationCertificateService,
         private readonly accessCertSvc: AccessCertificateService,
+        private readonly schemaMetadataSvc: SchemaMetadataService,
     ) {}
 
     // -------------------------------------------------------------------------
@@ -126,5 +128,80 @@ export class RegistrarService {
 
     computeSpecFingerprint(spec: unknown): string {
         return this.regCertSvc.computeSpecFingerprint(spec);
+    }
+
+    // -------------------------------------------------------------------------
+    // Schema metadata delegation → SchemaMetadataService
+    // -------------------------------------------------------------------------
+
+    reserveSchemaId(tenantId: string, nameHint?: string) {
+        return this.schemaMetadataSvc.reserveSchemaId(tenantId, nameHint);
+    }
+
+    findAllSchemaMetadata(
+        tenantId: string,
+        filters: { attestationId?: string; version?: string },
+    ) {
+        return this.schemaMetadataSvc.findAll(tenantId, filters);
+    }
+
+    submitSchemaMetadata(
+        tenantId: string,
+        signedJwt: string,
+        reservationToken?: string,
+    ) {
+        return this.schemaMetadataSvc.submitSignedSchemaMetadata(
+            tenantId,
+            signedJwt,
+            reservationToken,
+        );
+    }
+
+    findOneSchemaMetadata(tenantId: string, id: string) {
+        return this.schemaMetadataSvc.findOne(tenantId, id);
+    }
+
+    updateSchemaMetadata(
+        tenantId: string,
+        id: string,
+        version: string,
+        dto: { category?: string; tags?: string[] },
+    ) {
+        return this.schemaMetadataSvc.updateMetadata(
+            tenantId,
+            id,
+            version,
+            dto as any,
+        );
+    }
+
+    removeSchemaMetadata(tenantId: string, id: string, version: string) {
+        return this.schemaMetadataSvc.remove(tenantId, id, version);
+    }
+
+    getSchemaMetadataJwt(tenantId: string, id: string, version: string) {
+        return this.schemaMetadataSvc.getSignedJwt(tenantId, id, version);
+    }
+
+    exportSchemaMetadata(tenantId: string, id: string, version: string) {
+        return this.schemaMetadataSvc.exportCatalogFormat(
+            tenantId,
+            id,
+            version,
+        );
+    }
+
+    getSchemaMetadataSchema(
+        tenantId: string,
+        id: string,
+        version: string,
+        format: string,
+    ) {
+        return this.schemaMetadataSvc.getSchemaByFormat(
+            tenantId,
+            id,
+            version,
+            format,
+        );
     }
 }

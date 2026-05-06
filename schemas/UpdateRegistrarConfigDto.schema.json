@@ -7,13 +7,11 @@
     "registrarUrl": {
       "type": "string",
       "description": "The base URL of the registrar API",
-      "format": "uri",
       "example": "https://sandbox.eudi-wallet.org/api"
     },
     "oidcUrl": {
       "type": "string",
       "description": "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
-      "format": "uri",
       "example": "https://auth.example.com/realms/my-realm"
     },
     "clientId": {

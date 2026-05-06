@@ -174,6 +174,9 @@ importers:
       '@opentelemetry/semantic-conventions':
         specifier: ^1.40.0
         version: 1.40.0
+      '@owf/eudi-attestation-schema':
+        specifier: 0.2.0-alpha-20260430100930
+        version: 0.2.0-alpha-20260430100930
       '@owf/eudi-lote':
         specifier: 0.1.0-alpha-20260422101556
         version: 0.1.0-alpha-20260422101556
@@ -294,7 +297,7 @@ importers:
         version: 11.0.21(@swc/cli@0.8.1(@swc/core@1.15.33)(chokidar@4.0.3))(@swc/core@1.15.33)(@types/node@25.6.0)(prettier@3.8.3)
       '@nestjs/schematics':
         specifier: ^11.0.9
-        version: 11.1.0(chokidar@4.0.3)(prettier@3.8.3)(typescript@5.9.3)
+        version: 11.1.0(chokidar@5.0.0)(prettier@3.8.3)(typescript@5.9.3)
       '@nestjs/testing':
         specifier: ^11.1.14
         version: 11.1.19(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.19)(@nestjs/platform-express@11.1.19)
@@ -3687,11 +3690,20 @@ packages:
   '@owf/crypto@0.1.0-alpha-20260422101556':
     resolution: {integrity: sha512-rgZ2U+bvcv6W33d6sPx2LfQZk8+pds28iwGCfRxu/Zqsp6olNYuvmd1oNm0oN4Am9TV1cVxi/sjOnUNUfcTmvA==}
 
+  '@owf/crypto@0.2.0-alpha-20260430100930':
+    resolution: {integrity: sha512-Rw3+eql5OKxxxJljtzs2Ix0T8hBVJ9oHGuicpSlQ8jkkY4W9b1rIQp1HVCMjUeYhaOTzaZDnh8Ig+U4j1sTfVQ==}
+
+  '@owf/eudi-attestation-schema@0.2.0-alpha-20260430100930':
+    resolution: {integrity: sha512-zNdkYQCQx020dnTBrqm/nGYOIZddsiZyrqfjML9ZkAyvXhFxc8WGaN6rBVPDFxXyDVue20y1OChrCXqUTm3zXw==}
+
   '@owf/eudi-lote@0.1.0-alpha-20260422101556':
     resolution: {integrity: sha512-Srh97sfLe1agV8ZHREk2NPRdNoU1q/fmofXBaIfusfKbelIrrUo94IYLzcU9SRsW4yu/jstV50J978auWiA5Fw==}
 
   '@owf/identity-common@0.1.0-alpha-20260422101556':
     resolution: {integrity: sha512-0CJhMHXWf+Dn0MpZCeachjFjMjBI2uCJl56Po3dnGiJDis5wVkfWPeCdPJZ2h4fBWwXV0+Owa8nJRxXeruRwrA==}
+
+  '@owf/identity-common@0.2.0-alpha-20260430100930':
+    resolution: {integrity: sha512-QnQSco97yuvHJSHb8+rlxk0tZ50NngWCwBKLON3mEd9w8SoYP9gjwVq4bfPIoUHSMOmjTlFtkLfpbDWEBV8d7A==}
 
   '@owf/mdoc@0.6.0':
     resolution: {integrity: sha512-vJL62hzjcSweBjDD9eRUH1RIMSzZUtHKjVFMMo50oHPLO9ZVZbQABFe9IFoa5AgXkwfv27HjnFv/eRbkOrlsUA==}
@@ -11064,6 +11076,17 @@ snapshots:
     optionalDependencies:
       chokidar: 4.0.3
 
+  '@angular-devkit/core@19.2.24(chokidar@5.0.0)':
+    dependencies:
+      ajv: 8.18.0
+      ajv-formats: 3.0.1(ajv@8.18.0)
+      jsonc-parser: 3.3.1
+      picomatch: 4.0.4
+      rxjs: 7.8.1
+      source-map: 0.7.4
+    optionalDependencies:
+      chokidar: 5.0.0
+
   '@angular-devkit/core@21.1.0(chokidar@5.0.0)':
     dependencies:
       ajv: 8.17.1
@@ -11112,6 +11135,16 @@ snapshots:
   '@angular-devkit/schematics@19.2.24(chokidar@4.0.3)':
     dependencies:
       '@angular-devkit/core': 19.2.24(chokidar@4.0.3)
+      jsonc-parser: 3.3.1
+      magic-string: 0.30.17
+      ora: 5.4.1
+      rxjs: 7.8.1
+    transitivePeerDependencies:
+      - chokidar
+
+  '@angular-devkit/schematics@19.2.24(chokidar@5.0.0)':
+    dependencies:
+      '@angular-devkit/core': 19.2.24(chokidar@5.0.0)
       jsonc-parser: 3.3.1
       magic-string: 0.30.17
       ora: 5.4.1
@@ -13856,6 +13889,19 @@ snapshots:
     transitivePeerDependencies:
       - chokidar
 
+  '@nestjs/schematics@11.1.0(chokidar@5.0.0)(prettier@3.8.3)(typescript@5.9.3)':
+    dependencies:
+      '@angular-devkit/core': 19.2.24(chokidar@5.0.0)
+      '@angular-devkit/schematics': 19.2.24(chokidar@5.0.0)
+      comment-json: 5.0.0
+      jsonc-parser: 3.3.1
+      pluralize: 8.0.0
+      typescript: 5.9.3
+    optionalDependencies:
+      prettier: 3.8.3
+    transitivePeerDependencies:
+      - chokidar
+
   '@nestjs/swagger@11.4.2(@nestjs/common@11.1.19(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.19)(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)':
     dependencies:
       '@microsoft/tsdoc': 0.16.0
@@ -14943,6 +14989,17 @@ snapshots:
       '@noble/hashes': 2.2.0
       '@owf/identity-common': 0.1.0-alpha-20260422101556
 
+  '@owf/crypto@0.2.0-alpha-20260430100930':
+    dependencies:
+      '@noble/hashes': 2.2.0
+      '@owf/identity-common': 0.2.0-alpha-20260430100930
+
+  '@owf/eudi-attestation-schema@0.2.0-alpha-20260430100930':
+    dependencies:
+      '@owf/crypto': 0.2.0-alpha-20260430100930
+      '@owf/identity-common': 0.2.0-alpha-20260430100930
+      zod: 4.3.6
+
   '@owf/eudi-lote@0.1.0-alpha-20260422101556':
     dependencies:
       '@owf/crypto': 0.1.0-alpha-20260422101556
@@ -14950,6 +15007,8 @@ snapshots:
       zod: 4.3.6
 
   '@owf/identity-common@0.1.0-alpha-20260422101556': {}
+
+  '@owf/identity-common@0.2.0-alpha-20260430100930': {}
 
   '@owf/mdoc@0.6.0':
     dependencies:
@@ -15955,7 +16014,7 @@ snapshots:
       source-map: 0.7.6
       tinyglobby: 0.2.15
     optionalDependencies:
-      chokidar: 4.0.3
+      chokidar: 5.0.0
     transitivePeerDependencies:
       - bare-abort-controller
       - react-native-b4a

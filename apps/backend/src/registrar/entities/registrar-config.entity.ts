@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsObject, IsOptional, IsString, IsUrl } from "class-validator";
+import { IsObject, IsOptional, IsString } from "class-validator";
 import { Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
 import { TenantEntity } from "../../auth/tenant/entitites/tenant.entity";
 
@@ -57,7 +57,7 @@ export class RegistrarConfigEntity {
         description: "The base URL of the registrar API",
         example: "https://sandbox.eudi-wallet.org/api",
     })
-    @IsUrl()
+    @IsString()
     @Column("varchar")
     registrarUrl!: string;
 
@@ -71,7 +71,7 @@ export class RegistrarConfigEntity {
             "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
         example: "https://auth.example.com/realms/my-realm",
     })
-    @IsUrl()
+    @IsString()
     @Column("varchar")
     oidcUrl!: string;
 

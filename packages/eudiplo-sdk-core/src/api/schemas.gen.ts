@@ -1181,6 +1181,17 @@ export const SessionSchema = {
       description:
         "Number of failed tx_code (transaction code) validation attempts.\nUsed to enforce brute-force protection in the pre-authorized code flow.\nReset implicitly when the session is consumed successfully.",
     },
+    consumed: {
+      type: "boolean",
+      description:
+        "Flag indicating whether the session offer has been consumed.\nPrevents replay attacks by ensuring each offer can only be used once.\nFor OID4VCI: set after successful token exchange.\nFor OID4VP: set after successful response validation.",
+    },
+    consumedAt: {
+      format: "date-time",
+      type: "string",
+      description:
+        "Timestamp when the session offer was consumed.\nNull if the offer has not yet been consumed.",
+    },
   },
   required: [
     "status",
@@ -1192,6 +1203,7 @@ export const SessionSchema = {
     "tenant",
     "notifications",
     "txCodeFailedAttempts",
+    "consumed",
   ],
 } as const;
 
@@ -2098,6 +2110,98 @@ export const WebhookEndpointEntitySchema = {
   required: ["id", "auth", "tenantId", "tenant", "name", "url"],
 } as const;
 
+export const SchemaUriEntrySchema = {
+  type: "object",
+  properties: {
+    format: {
+      type: "string",
+      description:
+        "Attestation format this schema URI applies to (e.g. dc+sd-jwt, mso_mdoc)",
+      example: "dc+sd-jwt",
+    },
+    uri: {
+      type: "string",
+      format: "uri",
+      description: "URI pointing to the schema document for this format",
+      example: "https://example.com/schemas/my-credential.dc+sd-jwt.json",
+    },
+  },
+} as const;
+
+export const TrustAuthorityEntrySchema = {
+  type: "object",
+  properties: {
+    frameworkType: {
+      enum: ["aki", "etsi_tl", "openid_federation"],
+      type: "string",
+      description: "Trust framework type",
+    },
+    value: {
+      type: "string",
+      description: "URI of the trust list or trust anchor",
+      example: "https://example.com/trust-lists/members.jws",
+    },
+    isLoTE: {
+      type: "boolean",
+      description:
+        "Whether this trust authority is a List of Trusted Entities (LoTE)",
+    },
+  },
+} as const;
+
+export const SchemaMetaConfigSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description:
+        "Optional override for the schema ID (attestation identifier URI). When not set, derived from vct (dc+sd-jwt) or docType (mso_mdoc).",
+      example: "https://example.com/attestations/my-credential",
+    },
+    version: {
+      type: "string",
+      description: "Schema version in SemVer format",
+      example: "1.0.0",
+    },
+    rulebookURI: {
+      type: "string",
+      format: "uri",
+      description: "URI of the Attestation Rulebook",
+      example: "https://example.com/rulebooks/my-credential/1.0.0.md",
+    },
+    attestationLoS: {
+      enum: [
+        "iso_18045_high",
+        "iso_18045_moderate",
+        "iso_18045_enhanced-basic",
+        "iso_18045_basic",
+      ],
+      type: "string",
+      description: "Attestation Level of Security",
+    },
+    bindingType: {
+      enum: ["claim", "key", "biometric", "none"],
+      type: "string",
+      description: "Cryptographic binding type",
+    },
+    schemaURIs: {
+      description:
+        "Schema URIs per attestation format. When omitted, the format is derived from the credential config format field.",
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/SchemaUriEntry",
+      },
+    },
+    trustedAuthorities: {
+      description: "Trust authorities for this attestation schema",
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/TrustAuthorityEntry",
+      },
+    },
+  },
+} as const;
+
 export const EmbeddedDisclosurePolicySchema = {
   type: "object",
   properties: {
@@ -2480,6 +2584,17 @@ export const CredentialConfigSchema = {
         ],
       },
     },
+    schemaMeta: {
+      nullable: true,
+      description:
+        "TS11 schema metadata configuration for EUDI Catalogue of Attestations.\n\nWhen present, EUDIPLO can generate a SchemaMeta object per the TS11 spec\nusing the GET /issuer/credentials/:id/schema-metadata endpoint.\n\n The underlying TS11 specification is not yet finalized.",
+      type: "object",
+      allOf: [
+        {
+          $ref: "#/components/schemas/SchemaMetaConfig",
+        },
+      ],
+    },
     embeddedDisclosurePolicy: {
       nullable: true,
       description:
@@ -2613,6 +2728,17 @@ export const CredentialConfigCreateSchema = {
         ],
       },
     },
+    schemaMeta: {
+      nullable: true,
+      description:
+        "TS11 schema metadata configuration for EUDI Catalogue of Attestations.\n\nWhen present, EUDIPLO can generate a SchemaMeta object per the TS11 spec\nusing the GET /issuer/credentials/:id/schema-metadata endpoint.\n\n The underlying TS11 specification is not yet finalized.",
+      type: "object",
+      allOf: [
+        {
+          $ref: "#/components/schemas/SchemaMetaConfig",
+        },
+      ],
+    },
     embeddedDisclosurePolicy: {
       nullable: true,
       description:
@@ -2729,6 +2855,17 @@ export const CredentialConfigUpdateSchema = {
         ],
       },
     },
+    schemaMeta: {
+      nullable: true,
+      description:
+        "TS11 schema metadata configuration for EUDI Catalogue of Attestations.\n\nWhen present, EUDIPLO can generate a SchemaMeta object per the TS11 spec\nusing the GET /issuer/credentials/:id/schema-metadata endpoint.\n\n The underlying TS11 specification is not yet finalized.",
+      type: "object",
+      allOf: [
+        {
+          $ref: "#/components/schemas/SchemaMetaConfig",
+        },
+      ],
+    },
     embeddedDisclosurePolicy: {
       nullable: true,
       description:
@@ -2808,6 +2945,52 @@ export const CredentialConfigUpdateSchema = {
       ],
     },
   },
+} as const;
+
+export const SignSchemaMetaConfigDtoSchema = {
+  type: "object",
+  properties: {
+    config: {
+      description: "The schema metadata configuration to sign and submit",
+      allOf: [
+        {
+          $ref: "#/components/schemas/SchemaMetaConfig",
+        },
+      ],
+    },
+    keyChainId: {
+      type: "string",
+      description:
+        "ID of the key chain to use for signing. Defaults to the tenant's default key chain.",
+    },
+    credentialConfigId: {
+      type: "string",
+      description:
+        "ID of the credential config to link back after submission. When provided, schemaMeta.id on the credential config is updated with the reserved attestation ID.",
+    },
+  },
+  required: ["config"],
+} as const;
+
+export const SignVersionSchemaMetaConfigDtoSchema = {
+  type: "object",
+  properties: {
+    config: {
+      description:
+        "The schema metadata configuration to sign and submit as a new version. Must include the existing id.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/SchemaMetaConfig",
+        },
+      ],
+    },
+    keyChainId: {
+      type: "string",
+      description:
+        "ID of the key chain to use for signing. Defaults to the tenant's default key chain.",
+    },
+  },
+  required: ["config"],
 } as const;
 
 export const CreateAttributeProviderDtoSchema = {
@@ -3334,14 +3517,12 @@ export const RegistrarConfigResponseDtoSchema = {
     registrarUrl: {
       type: "string",
       description: "The base URL of the registrar API",
-      format: "uri",
       example: "https://sandbox.eudi-wallet.org/api",
     },
     oidcUrl: {
       type: "string",
       description:
         "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
-      format: "uri",
       example: "https://auth.example.com/realms/my-realm",
     },
     clientId: {
@@ -3387,14 +3568,12 @@ export const CreateRegistrarConfigDtoSchema = {
     registrarUrl: {
       type: "string",
       description: "The base URL of the registrar API",
-      format: "uri",
       example: "https://sandbox.eudi-wallet.org/api",
     },
     oidcUrl: {
       type: "string",
       description:
         "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
-      format: "uri",
       example: "https://auth.example.com/realms/my-realm",
     },
     clientId: {
@@ -3438,14 +3617,12 @@ export const UpdateRegistrarConfigDtoSchema = {
     registrarUrl: {
       type: "string",
       description: "The base URL of the registrar API",
-      format: "uri",
       example: "https://sandbox.eudi-wallet.org/api",
     },
     oidcUrl: {
       type: "string",
       description:
         "The OIDC issuer URL for authentication (e.g., Keycloak realm URL)",
-      format: "uri",
       example: "https://auth.example.com/realms/my-realm",
     },
     clientId: {
@@ -3492,6 +3669,286 @@ export const CreateAccessCertificateDtoSchema = {
     },
   },
   required: ["keyId"],
+} as const;
+
+export const MetadataSchemaDtoSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description: "Unique identifier for this schema entry",
+    },
+    formatIdentifier: {
+      type: "string",
+      description: "The credential format identifier",
+      enum: ["dc+sd-jwt", "mso_mdoc"],
+    },
+    uri: {
+      type: "string",
+      description: "URI to the schema definition",
+    },
+    schemaContent: {
+      type: "object",
+      description: "Inline schema content (JSON Schema)",
+      additionalProperties: true,
+    },
+    integrity: {
+      type: "string",
+      description: "Subresource Integrity hash for the schema",
+    },
+  },
+  required: ["id", "formatIdentifier"],
+} as const;
+
+export const TrustAuthorityDtoSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description: "Unique identifier for this trust authority entry",
+    },
+    frameworkType: {
+      type: "string",
+      description: "Type of trust framework",
+      enum: ["etsi_tl"],
+    },
+    value: {
+      type: "string",
+      description: "URI or identifier for the trust list / authority",
+    },
+    verificationMethod: {
+      type: "object",
+      description:
+        "Verification method for the trust list signature (e.g., JWK)",
+      additionalProperties: true,
+    },
+  },
+  required: ["id", "frameworkType", "value"],
+} as const;
+
+export const AccessCertificateRefDtoSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+    },
+    relyingPartyId: {
+      type: "string",
+    },
+    certificate: {
+      type: "string",
+    },
+    revoked: {
+      type: "string",
+    },
+    createdAt: {
+      type: "string",
+    },
+  },
+  required: ["id", "relyingPartyId", "certificate", "revoked", "createdAt"],
+} as const;
+
+export const SchemaMetadataResponseDtoSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description:
+        "The unique, server-assigned identifier (UUID) for the schema metadata",
+    },
+    version: {
+      type: "string",
+      description: "Version of this schema metadata (SemVer)",
+    },
+    rulebookURI: {
+      type: "string",
+      description: "URI of the human-readable Rulebook document",
+    },
+    rulebookIntegrity: {
+      type: "string",
+      description: "Subresource Integrity hash for the rulebook URI",
+    },
+    attestationLoS: {
+      type: "string",
+      description: "Level of security (LoS) of this attestation",
+      enum: [
+        "iso_18045_high",
+        "iso_18045_moderate",
+        "iso_18045_enhanced-basic",
+        "iso_18045_basic",
+      ],
+    },
+    bindingType: {
+      type: "string",
+      description: "Required binding type between attestation and holder",
+      enum: ["claim", "key", "biometric", "none"],
+    },
+    supportedFormats: {
+      type: "array",
+      description: "Credential formats in which this attestation is available",
+      items: {
+        type: "string",
+        enum: ["dc+sd-jwt", "mso_mdoc"],
+      },
+    },
+    schemaURIs: {
+      description: "Format-specific schema URIs for this schema metadata",
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/MetadataSchemaDto",
+      },
+    },
+    trustedAuthorities: {
+      description:
+        "Trust frameworks / trust anchors applicable to this schema metadata",
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/TrustAuthorityDto",
+      },
+    },
+    category: {
+      type: "string",
+      description: "Domain category for filtering",
+      enum: [
+        "identity",
+        "health",
+        "finance",
+        "education",
+        "mobility",
+        "employment",
+        "other",
+      ],
+    },
+    tags: {
+      description: "Free-form tags for filtering and search",
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+    signedJwt: {
+      type: "string",
+      description: "The original signed JWT",
+    },
+    issuer: {
+      type: "string",
+      description: "Issuer from the JWT (`iss` claim)",
+    },
+    signerCertificateSerial: {
+      type: "string",
+      description:
+        "Serial number of the access certificate that signed this schema metadata",
+    },
+    signerCertificate: {
+      description: "The access certificate used to sign this schema metadata",
+      allOf: [
+        {
+          $ref: "#/components/schemas/AccessCertificateRefDto",
+        },
+      ],
+    },
+    issuedAt: {
+      type: "string",
+      description: "Timestamp when the JWT was issued (from the `iat` claim)",
+    },
+    createdAt: {
+      type: "string",
+      description: "Server creation timestamp",
+    },
+    updatedAt: {
+      type: "string",
+      description: "Last update timestamp",
+    },
+    deprecated: {
+      type: "boolean",
+      description: "Whether this version is deprecated",
+    },
+    deprecationMessage: {
+      type: "string",
+      description: "Deprecation message shown to consumers",
+    },
+    supersededByVersion: {
+      type: "string",
+      description: "The version that supersedes this one",
+    },
+  },
+  required: [
+    "id",
+    "version",
+    "attestationLoS",
+    "bindingType",
+    "supportedFormats",
+    "schemaURIs",
+    "trustedAuthorities",
+    "signedJwt",
+    "issuer",
+    "signerCertificateSerial",
+    "issuedAt",
+    "createdAt",
+    "updatedAt",
+  ],
+} as const;
+
+export const SubmitSchemaMetadataDtoSchema = {
+  type: "object",
+  properties: {
+    signedJwt: {
+      type: "string",
+      description:
+        "The signed schema metadata JWS (compact serialization). Sign via `POST /api/issuer/credentials/schema-metadata/sign`.",
+    },
+    reservationToken: {
+      type: "string",
+      description:
+        "Reservation token returned by `/schema-metadata/reserve`. Required when the JWT's `id` is a registrar-reserved URL.",
+    },
+  },
+  required: ["signedJwt"],
+} as const;
+
+export const UpdateSchemaMetadataDtoSchema = {
+  type: "object",
+  properties: {
+    category: {
+      type: "string",
+      description: "Domain category for filtering",
+      enum: [
+        "identity",
+        "health",
+        "finance",
+        "education",
+        "mobility",
+        "employment",
+        "other",
+      ],
+    },
+    tags: {
+      description: "Free-form tags for filtering and search",
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+  },
+} as const;
+
+export const DeprecateSchemaMetadataDtoSchema = {
+  type: "object",
+  properties: {
+    deprecated: {
+      type: "boolean",
+      description: "Whether to mark this version as deprecated",
+    },
+    message: {
+      type: "string",
+      description: "Deprecation message shown to consumers",
+    },
+    supersededByVersion: {
+      type: "string",
+      description: "The version that supersedes this one",
+    },
+  },
+  required: ["deprecated"],
 } as const;
 
 export const DeferredCredentialRequestDtoSchema = {

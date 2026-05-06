@@ -1,0 +1,36 @@
+.dcql-preview {
+  background: #f6f7f9;
+  border: 1px solid #d8dce3;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 0;
+  max-height: 280px;
+  overflow: auto;
+  font-size: 12px;
+}
+
+.error-card {
+  border-left: 4px solid #d32f2f;
+}
+
+.catalog-list-item {
+  height: auto !important;
+  padding: 12px 0;
+
+  ::ng-deep .mdc-list-item__content {
+    width: 100%;
+  }
+}
+
+.catalog-meta {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.catalog-description {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.72);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

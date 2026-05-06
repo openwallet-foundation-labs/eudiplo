@@ -20,6 +20,7 @@ import { PresentationManagementService } from '../presentation-management.servic
 import { MatDialog } from '@angular/material/dialog';
 import { JsonViewDialogComponent } from '../../../issuance/credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
 import { IssuerMetadataBrowserComponent } from '../issuer-metadata-browser/issuer-metadata-browser.component';
+import { SchemaMetadataBrowserComponent } from '../schema-metadata-browser/schema-metadata-browser.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDividerModule } from '@angular/material/divider';
@@ -504,6 +505,44 @@ export class PresentationCreateComponent implements OnInit {
         // Set the DCQL query in the form
         this.form.get('dcql_query')?.setValue(JSON.stringify(dcqlQuery, null, 2));
         this.snackBar.open('DCQL query imported from issuer', 'OK', {
+          duration: 3000,
+        });
+      }
+    });
+  }
+
+  /**
+   * Open the schema metadata browser dialog to import DCQL from schema metadata.
+   */
+  importFromSchemaMetadata(): void {
+    const dialogRef = this.dialog.open(SchemaMetadataBrowserComponent, {
+      data: {},
+      disableClose: false,
+      minWidth: '60vw',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        const dcqlQuery = result.dcqlQuery ? result.dcqlQuery : result;
+        this.form.get('dcql_query')?.setValue(JSON.stringify(dcqlQuery, null, 2));
+
+        const idControl = this.form.get('id');
+        const descriptionControl = this.form.get('description');
+
+        const currentId = `${idControl?.value ?? ''}`.trim();
+        const currentDescription = `${descriptionControl?.value ?? ''}`.trim();
+
+        if (!currentId && typeof result.suggestedPresentationId === 'string') {
+          idControl?.setValue(result.suggestedPresentationId);
+        }
+
+        if (!currentDescription && typeof result.suggestedDescription === 'string') {
+          descriptionControl?.setValue(result.suggestedDescription);
+        }
+
+        this.snackBar.open('DCQL query imported from schema metadata', 'OK', {
           duration: 3000,
         });
       }

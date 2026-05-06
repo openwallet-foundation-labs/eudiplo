@@ -25,7 +25,11 @@ export type MdocSessionData = {
     responseMode: string;
     clientId: string;
     responseUri: string;
+    /** SHA-256 JWK thumbprint (raw bytes) of the verifier's JAR signing key. */
+    jwkThumbprint?: Uint8Array;
 };
+
+export type RequestedMdocClaimPath = string[];
 
 export type MdocVerificationResult = {
     verified: boolean;
@@ -73,6 +77,7 @@ export class MdocverifierService {
         vp: string,
         sessionData: MdocSessionData,
         options: VerifierOptions,
+        requestedClaimPaths?: RequestedMdocClaimPath[],
     ): Promise<MdocVerificationResult> {
         try {
             // 1) Decode the device response
@@ -116,6 +121,7 @@ export class MdocverifierService {
             // 4) Build a device request (currently requesting all claims that were received)
             const deviceRequest = this.buildDeviceRequest(
                 docType,
+                requestedClaimPaths,
                 claimsByNamespace,
             );
 
@@ -175,6 +181,7 @@ export class MdocverifierService {
                 docType,
             };
         } catch (error: any) {
+            console.log(error);
             return this.handleVerificationError(vp, error, options);
         }
     }
@@ -436,16 +443,40 @@ export class MdocverifierService {
      */
     private buildDeviceRequest(
         docType: string,
+        requestedClaimPaths: RequestedMdocClaimPath[] | undefined,
         claimsByNamespace: Record<string, Record<string, unknown>>,
     ): DeviceRequest {
-        // Build namespace map preserving the original per-namespace structure
+        // Prefer original DCQL claim paths because deviceAuth is bound to the
+        // request semantics, not just the disclosed claims returned by the wallet.
         const namespaces: Record<string, Record<string, boolean>> = {};
 
-        for (const [ns, nsClaims] of Object.entries(claimsByNamespace)) {
-            if (Object.keys(nsClaims).length > 0) {
-                namespaces[ns] = {};
-                for (const claimKey of Object.keys(nsClaims)) {
-                    namespaces[ns][claimKey] = true;
+        if (requestedClaimPaths && requestedClaimPaths.length > 0) {
+            for (const path of requestedClaimPaths) {
+                if (path.length === 0) {
+                    continue;
+                }
+
+                const namespace = path.length > 1 ? path[0] : docType;
+                const claimName =
+                    path.length > 1 ? path.slice(1).join(".") : path[0];
+
+                if (!namespaces[namespace]) {
+                    namespaces[namespace] = {};
+                }
+                namespaces[namespace][claimName] = true;
+            }
+        }
+
+        if (Object.keys(namespaces).length === 0) {
+            // Fallback: build namespace map from disclosed claims.
+            // This is less strict than using original DCQL but keeps compatibility
+            // for flows where no explicit mDOC claims were requested.
+            for (const [ns, nsClaims] of Object.entries(claimsByNamespace)) {
+                if (Object.keys(nsClaims).length > 0) {
+                    namespaces[ns] = {};
+                    for (const claimKey of Object.keys(nsClaims)) {
+                        namespaces[ns][claimKey] = true;
+                    }
                 }
             }
         }

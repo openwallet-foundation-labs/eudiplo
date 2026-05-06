@@ -51,6 +51,15 @@
         Import from Issuer
       </button>
 
+      <button
+        mat-stroked-button
+        (click)="importFromSchemaMetadata()"
+        matTooltip="Import DCQL query from schema metadata"
+      >
+        <mat-icon>schema</mat-icon>
+        Import from Schema Metadata
+      </button>
+
       <!-- Back Button -->
       <button matIconButton [routerLink]="['../']" matTooltip="Back to list">
         <mat-icon>arrow_back</mat-icon>

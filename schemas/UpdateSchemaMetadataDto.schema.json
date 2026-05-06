@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateSchemaMetadataDto.schema.json",
+  "title": "UpdateSchemaMetadataDto",
+  "type": "object",
+  "properties": {
+    "category": {
+      "type": "string",
+      "description": "Domain category for filtering",
+      "enum": [
+        "identity",
+        "health",
+        "finance",
+        "education",
+        "mobility",
+        "employment",
+        "other"
+      ]
+    },
+    "tags": {
+      "description": "Free-form tags for filtering and search",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}

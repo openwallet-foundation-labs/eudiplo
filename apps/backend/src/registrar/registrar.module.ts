@@ -8,6 +8,8 @@ import { RegistrarService } from "./registrar.service";
 import { RegistrarAuthService } from "./registrar-auth.service";
 import { RegistrarConfigService } from "./registrar-config.service";
 import { RegistrationCertificateService } from "./registration-certificate.service";
+import { SchemaMetadataController } from "./schema-metadata.controller";
+import { SchemaMetadataService } from "./schema-metadata.service";
 
 /**
  * RegistrarModule is responsible for managing the registrar service.
@@ -19,12 +21,13 @@ import { RegistrationCertificateService } from "./registration-certificate.servi
  */
 @Module({
     imports: [CryptoModule, TypeOrmModule.forFeature([RegistrarConfigEntity])],
-    controllers: [RegistrarController],
+    controllers: [RegistrarController, SchemaMetadataController],
     providers: [
         RegistrarAuthService,
         RegistrarConfigService,
         RegistrationCertificateService,
         AccessCertificateService,
+        SchemaMetadataService,
         RegistrarService,
     ],
     exports: [RegistrarService],

@@ -1,0 +1,228 @@
+<div fxLayout="row" fxLayoutAlign="space-between center">
+  <h2>Create Schema Metadata</h2>
+  <button matIconButton [routerLink]="['../']" matTooltip="Back to list">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+</div>
+
+<!-- Step 1: Compose Schema Metadata -->
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Compose Schema Metadata</mat-card-title>
+    <mat-card-subtitle>
+      Fill in the TS11 schema metadata fields. You can import schema URIs from existing credential
+      configs and add trusted authorities from your trust lists.
+    </mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <form
+      [formGroup]="composeForm"
+      (ngSubmit)="$event.preventDefault()"
+      fxLayout="column"
+      fxLayoutGap="16px"
+    >
+      <!-- Core fields -->
+      <div fxLayout="row" fxLayoutGap="12px" fxLayout.lt-md="column">
+        <mat-form-field fxFlex appearance="outline">
+          <mat-label>Version</mat-label>
+          <input matInput formControlName="version" placeholder="1.0.0" />
+        </mat-form-field>
+        @if (demoDefaultsEnabled) {
+          <button mat-stroked-button type="button" (click)="applyDemoValues()" class="no-shrink">
+            <mat-icon>auto_fix_high</mat-icon>
+            Fill Demo Values
+          </button>
+        }
+      </div>
+
+      <div fxLayout="row" fxLayoutGap="12px" fxLayout.lt-md="column">
+        <mat-form-field fxFlex appearance="outline">
+          <mat-label>Rulebook URI</mat-label>
+          <input
+            matInput
+            formControlName="rulebookURI"
+            placeholder="https://example.com/rulebook"
+          />
+          <mat-hint>The integrity hash is computed by the backend at signing time.</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <div fxLayout="row" fxLayoutGap="12px" fxLayout.lt-md="column">
+        <mat-form-field fxFlex appearance="outline">
+          <mat-label>Attestation LoS</mat-label>
+          <mat-select formControlName="attestationLoS">
+            @for (opt of attestationLoSOptions; track opt.value) {
+              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field fxFlex appearance="outline">
+          <mat-label>Binding Type</mat-label>
+          <mat-select formControlName="bindingType">
+            @for (opt of bindingTypeOptions; track opt.value) {
+              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Schema URIs -->
+      <div>
+        <div fxLayout="row" fxLayoutAlign="space-between center" class="section-header">
+          <strong>Schema URIs</strong>
+          <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="start center">
+            @if (credentialConfigs.length > 0) {
+              <mat-form-field appearance="outline" class="import-field">
+                <mat-label>Import from credential config</mat-label>
+                <mat-select [formControl]="importSchemaConfigId">
+                  @for (c of credentialConfigs; track c.id) {
+                    <mat-option [value]="c.id">{{ configLabel(c) }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="importSchemaURIsFromConfig()"
+                [disabled]="!importSchemaConfigId.value"
+              >
+                <mat-icon>download</mat-icon> Import
+              </button>
+            }
+            <button mat-stroked-button type="button" (click)="addSchemaURI()">
+              <mat-icon>add</mat-icon> Add
+            </button>
+          </div>
+        </div>
+
+        @for (group of schemaURIs.controls; track $index) {
+          <div
+            [formGroup]="group"
+            fxLayout="row"
+            fxLayoutGap="8px"
+            fxLayoutAlign="start center"
+            fxLayout.lt-md="column"
+            class="array-row"
+          >
+            <mat-form-field appearance="outline" class="format-field">
+              <mat-label>Format</mat-label>
+              <mat-select formControlName="format">
+                @for (opt of schemaFormatOptions; track opt.value) {
+                  <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field fxFlex appearance="outline">
+              <mat-label>URI</mat-label>
+              <input matInput formControlName="uri" placeholder="https://..." />
+              @if (group.get('imported')?.value) {
+                <mat-icon matSuffix matTooltip="Imported — value is fixed">lock</mat-icon>
+              }
+            </mat-form-field>
+            <button
+              mat-icon-button
+              type="button"
+              color="warn"
+              (click)="removeSchemaURI($index)"
+              class="no-shrink"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        }
+
+        @if (schemaURIs.length === 0) {
+          <p class="hint-text error-text">
+            At least one schema URI is required. Use "Add" or import from a credential config.
+          </p>
+        }
+      </div>
+
+      <!-- Trusted Authorities -->
+      <div>
+        <div fxLayout="row" fxLayoutAlign="space-between center" class="section-header">
+          <strong>Trusted Authorities</strong>
+          <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="start center">
+            @if (trustLists.length > 0) {
+              <mat-form-field appearance="outline" class="import-field">
+                <mat-label>Add from trust list</mat-label>
+                <mat-select [formControl]="importTrustListId">
+                  @for (tl of trustLists; track tl.id) {
+                    <mat-option [value]="tl.id">{{ trustListLabel(tl) }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="importTrustList()"
+                [disabled]="!importTrustListId.value"
+              >
+                <mat-icon>playlist_add</mat-icon> Add
+              </button>
+            }
+            <button mat-stroked-button type="button" (click)="addTrustedAuthority()">
+              <mat-icon>add</mat-icon> Add
+            </button>
+          </div>
+        </div>
+
+        @for (group of trustedAuthorities.controls; track $index) {
+          <div
+            [formGroup]="group"
+            fxLayout="row"
+            fxLayoutGap="8px"
+            fxLayoutAlign="start center"
+            fxLayout.lt-md="column"
+            class="array-row"
+          >
+            <mat-form-field appearance="outline" class="framework-field">
+              <mat-label>Framework Type</mat-label>
+              <mat-select formControlName="frameworkType">
+                @for (opt of frameworkTypeOptions; track opt.value) {
+                  <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field fxFlex appearance="outline">
+              <mat-label>Value (URI)</mat-label>
+              <input matInput formControlName="value" placeholder="https://..." />
+              @if (group.get('imported')?.value) {
+                <mat-icon matSuffix matTooltip="Imported — value is fixed">lock</mat-icon>
+              }
+            </mat-form-field>
+            <mat-checkbox formControlName="isLoTE" class="no-shrink">LoTE</mat-checkbox>
+            <button
+              mat-icon-button
+              type="button"
+              color="warn"
+              (click)="removeTrustedAuthority($index)"
+              class="no-shrink"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        }
+
+        @if (trustedAuthorities.length === 0) {
+          <p class="hint-text error-text">At least one trusted authority is required.</p>
+        }
+      </div>
+    </form>
+  </mat-card-content>
+  <mat-card-actions align="end">
+    <button mat-stroked-button type="button" [routerLink]="['../']" class="no-shrink">
+      Cancel
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      type="button"
+      (click)="submit()"
+      [disabled]="loading || composeForm.invalid"
+    >
+      <mat-icon>send</mat-icon>
+      {{ loading ? 'Submitting…' : 'Submit' }}
+    </button>
+  </mat-card-actions>
+</mat-card>
