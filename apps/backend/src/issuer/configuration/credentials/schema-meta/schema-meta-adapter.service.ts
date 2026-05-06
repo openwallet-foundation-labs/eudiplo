@@ -3,7 +3,6 @@ import {
     Injectable,
     NotFoundException,
 } from "@nestjs/common";
-import { type Signer } from "@owf/crypto";
 import {
     type SchemaMeta,
     type SignedSchemaMeta,
@@ -13,6 +12,7 @@ import {
     trustAuthority as trustAuthorityBuilder,
     validateSchemaMeta,
 } from "@owf/eudi-attestation-schema";
+import { Signer } from "@sd-jwt/types";
 import { PinoLogger } from "nestjs-pino";
 import { KeyUsageType } from "../../../../crypto/key/entities/key-chain.entity";
 import { KeyChainService } from "../../../../crypto/key/key-chain.service";
