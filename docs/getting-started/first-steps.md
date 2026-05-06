@@ -118,7 +118,18 @@ Now define what your credential will contain and how it looks.
 
 ---
 
-## Step 4: Configure Issuance Settings
+## Step 4 (Optional): Create Schema Metadata
+
+If you use TS11 schema metadata, create it in the dedicated flow:
+
+1. Navigate to **Schema Metadata** in the sidebar
+2. Click **+ Create**
+3. Fill in version, rulebook URI, schema URIs, and trust authorities
+4. Save the schema metadata entry
+
+For details, see [Schema Metadata](./issuance/schema-metadata.md).
+
+## Step 5: Configure Issuance Settings
 
 The issuance configuration defines how your issuer presents itself to wallets.
 
@@ -137,7 +148,7 @@ The issuance configuration defines how your issuer presents itself to wallets.
 
 ---
 
-## Step 5: Issue Your First Credential! 🎉
+## Step 6: Issue Your First Credential! 🎉
 
 Now create a credential offer and send it to a wallet.
 

@@ -165,7 +165,7 @@ export class PresentationsService {
         merged.registrationCertCache = null;
         const saved = await this.vpRequestRepository.save(merged);
 
-        if (saved.registrationCert) {
+        if (saved.registration_cert) {
             this.scheduleRegistrationCertRefresh(saved.id, tenantId);
         }
 
@@ -203,7 +203,7 @@ export class PresentationsService {
                 "registrationCert",
             ) || Object.prototype.hasOwnProperty.call(vprequest, "dcql_query");
 
-        if (!merged.registrationCert) {
+        if (!merged.registration_cert) {
             merged.registrationCertCache = null;
         } else if (cacheRelevantChanged) {
             // Mark pending in UI while async refresh runs.
@@ -212,7 +212,7 @@ export class PresentationsService {
 
         const saved = await this.vpRequestRepository.save(merged);
 
-        if (saved.registrationCert && cacheRelevantChanged) {
+        if (saved.registration_cert && cacheRelevantChanged) {
             this.scheduleRegistrationCertRefresh(saved.id, tenantId);
         }
 
@@ -234,7 +234,7 @@ export class PresentationsService {
             id,
             tenantId,
         );
-        if (!presentationConfig.registrationCert) {
+        if (!presentationConfig.registration_cert) {
             throw new BadRequestException(
                 "Presentation config has no registrationCert spec",
             );
@@ -258,8 +258,19 @@ export class PresentationsService {
 
         // Force a fresh resolve by clearing the cache first.
         presentationConfig.registrationCertCache = null;
+        const reissueConfig = {
+            ...presentationConfig,
+            registration_cert: presentationConfig.registration_cert?.body
+                ? {
+                      body: presentationConfig.registration_cert.body,
+                      ...(presentationConfig.registration_cert.id
+                          ? { id: presentationConfig.registration_cert.id }
+                          : {}),
+                  }
+                : presentationConfig.registration_cert,
+        } as PresentationConfig;
         const jwt = await this.getOrIssueRegistrationCertificate(
-            presentationConfig,
+            reissueConfig,
             resolvedDcql,
             `reissue-${id}`,
         );
@@ -285,7 +296,7 @@ export class PresentationsService {
         resolvedDcqlQuery: any,
         requestId: string,
     ): Promise<string | undefined> {
-        if (!presentationConfig.registrationCert) {
+        if (!presentationConfig.registration_cert) {
             return undefined;
         }
         if (
@@ -300,7 +311,7 @@ export class PresentationsService {
             presentationConfig.dcql_query,
         );
         const specFingerprint = this.registrarService.computeSpecFingerprint(
-            presentationConfig.registrationCert,
+            presentationConfig.registration_cert,
         );
 
         const cache = presentationConfig.registrationCertCache;
@@ -318,7 +329,7 @@ export class PresentationsService {
 
         const resolved =
             await this.registrarService.resolveRegistrationCertificate(
-                presentationConfig.registrationCert as any,
+                presentationConfig.registration_cert as any,
                 resolvedDcqlQuery,
                 requestId,
                 presentationConfig.tenantId,
@@ -374,7 +385,7 @@ export class PresentationsService {
         next: PresentationConfig,
         existing: PresentationConfig | undefined,
     ): Promise<void> {
-        const spec = next.registrationCert;
+        const spec = next.registration_cert;
         if (!spec) {
             next.registrationCertCache = null;
             return;
@@ -476,7 +487,7 @@ export class PresentationsService {
                 tenantId,
             });
 
-            if (!latest || !latest.registrationCert) {
+            if (!latest || !latest.registration_cert) {
                 return;
             }
 

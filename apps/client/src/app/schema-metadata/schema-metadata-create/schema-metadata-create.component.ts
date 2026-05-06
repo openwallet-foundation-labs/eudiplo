@@ -28,6 +28,9 @@ import { ApiService } from '../../core';
 import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
 import { SchemaMetadataService } from '../schema-metadata.service';
 
+const SEMVER_REGEX =
+  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
+
 @Component({
   selector: 'app-schema-metadata-create',
   imports: [
@@ -85,7 +88,7 @@ export class SchemaMetadataCreateComponent implements OnInit {
 
   /** The main schema metadata composition form */
   composeForm = new FormGroup({
-    version: new FormControl('', [Validators.required]),
+    version: new FormControl('', [Validators.required, Validators.pattern(SEMVER_REGEX)]),
     rulebookURI: new FormControl('', [Validators.required]),
     attestationLoS: new FormControl('', [Validators.required]),
     bindingType: new FormControl('', [Validators.required]),
@@ -119,7 +122,7 @@ export class SchemaMetadataCreateComponent implements OnInit {
 
   applyDemoValues(): void {
     this.composeForm.patchValue({
-      version: '1.0',
+      version: '1.0.0',
       rulebookURI:
         'https://raw.githubusercontent.com/cre8/catalog-of-attestations/refs/heads/main/rulebooks/gym-membership-card/1.0.0.md',
       attestationLoS: 'iso_18045_basic',

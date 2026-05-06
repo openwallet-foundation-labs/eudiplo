@@ -30,8 +30,6 @@ import {
   webhookEndpointControllerGetAll,
   AttributeProviderEntity,
   WebhookEndpointEntity,
-  trustListControllerGetAllTrustLists,
-  TrustList,
 } from '@eudiplo/sdk-core';
 import { PresentationManagementService } from '../../../presentation/presentation-config/presentation-management.service';
 import { CredentialConfigService } from '../credential-config.service';
@@ -87,29 +85,6 @@ export class CredentialConfigCreateComponent implements OnInit {
   webhookEndpoints: WebhookEndpointEntity[] = [];
 
   predefinedConfigs = configs;
-
-  // Schema Metadata (TS11)
-  trustLists: TrustList[] = [];
-
-  attestationLoSOptions = [
-    { label: 'ISO 18045 High', value: 'iso_18045_high' },
-    { label: 'ISO 18045 Moderate', value: 'iso_18045_moderate' },
-    { label: 'ISO 18045 Enhanced-Basic', value: 'iso_18045_enhanced-basic' },
-    { label: 'ISO 18045 Basic', value: 'iso_18045_basic' },
-  ];
-
-  bindingTypeOptions = [
-    { label: 'Key', value: 'key' },
-    { label: 'Claim', value: 'claim' },
-    { label: 'Biometric', value: 'biometric' },
-    { label: 'None', value: 'none' },
-  ];
-
-  frameworkTypeOptions = [
-    { label: 'ETSI Trust List', value: 'etsi_tl' },
-    { label: 'AKI', value: 'aki' },
-    { label: 'OpenID Federation', value: 'openid_federation' },
-  ];
 
   // Lifetime presets in seconds
   lifetimePresets = [
@@ -192,15 +167,6 @@ export class CredentialConfigCreateComponent implements OnInit {
       keyAttestationEnabled: new FormControl(false),
       keyStorageTypes: new FormControl<string[]>([]),
       userAuthenticationTypes: new FormControl<string[]>([]),
-      // Schema Metadata (TS11)
-      schemaMetaEnabled: new FormControl(false),
-      schemaMetaId: new FormControl(''),
-      schemaMetaVersion: new FormControl(''),
-      schemaMetaRulebookURI: new FormControl(''),
-      schemaMetaAttestationLoS: new FormControl(''),
-      schemaMetaBindingType: new FormControl(''),
-      schemaMetaSchemaURIs: new FormArray([]),
-      schemaMetaTrustedAuthorities: new FormArray([]),
     } as { [k in keyof Omit<CredentialConfigCreate, 'config'>]: any });
 
     // Set initial validator for vctString based on default mode
@@ -261,14 +227,6 @@ export class CredentialConfigCreateComponent implements OnInit {
       (res) => (this.webhookEndpoints = (res.data || []) as WebhookEndpointEntity[]),
       (error) => {
         console.error('Failed to load webhook endpoints:', error);
-      }
-    );
-
-    // Load trust lists for TS11 schemaMeta trusted authorities
-    trustListControllerGetAllTrustLists({}).then(
-      (res) => (this.trustLists = (res.data || []) as TrustList[]),
-      (error) => {
-        console.error('Failed to load trust lists:', error);
       }
     );
 
@@ -434,24 +392,6 @@ export class CredentialConfigCreateComponent implements OnInit {
     // Update lifetime preset selection
     this.updateLifetimePresetFromValue(config.lifeTime || 3600);
 
-    // Restore schemaMeta
-    const sm = (config as any).schemaMeta;
-    this.form.patchValue({
-      schemaMetaEnabled: !!sm,
-      schemaMetaId: sm?.id || '',
-      schemaMetaVersion: sm?.version || '',
-      schemaMetaRulebookURI: sm?.rulebookURI || '',
-      schemaMetaAttestationLoS: sm?.attestationLoS || '',
-      schemaMetaBindingType: sm?.bindingType || '',
-    });
-    this.schemaMetaSchemaURIs.clear();
-    (sm?.schemaURIs || []).forEach((entry: any) =>
-      this.schemaMetaSchemaURIs.push(this.createSchemaURIGroup(entry))
-    );
-    this.schemaMetaTrustedAuthorities.clear();
-    (sm?.trustedAuthorities || []).forEach((ta: any) =>
-      this.schemaMetaTrustedAuthorities.push(this.createTrustedAuthorityGroup(ta))
-    );
   }
 
   /**
@@ -566,65 +506,6 @@ export class CredentialConfigCreateComponent implements OnInit {
       }
     });
     return invalidFields;
-  }
-
-  // Schema Metadata helpers
-  get schemaMetaSchemaURIs(): FormArray {
-    return this.form.get('schemaMetaSchemaURIs') as FormArray;
-  }
-
-  get schemaMetaTrustedAuthorities(): FormArray {
-    return this.form.get('schemaMetaTrustedAuthorities') as FormArray;
-  }
-
-  createSchemaURIGroup(entry?: { format?: string; uri?: string }): FormGroup {
-    return new FormGroup({
-      format: new FormControl(entry?.format || ''),
-      uri: new FormControl(entry?.uri || ''),
-    });
-  }
-
-  addSchemaURI(): void {
-    this.schemaMetaSchemaURIs.push(this.createSchemaURIGroup());
-  }
-
-  removeSchemaURI(index: number): void {
-    this.schemaMetaSchemaURIs.removeAt(index);
-  }
-
-  createTrustedAuthorityGroup(ta?: {
-    frameworkType?: string;
-    value?: string;
-    isLoTE?: boolean;
-  }): FormGroup {
-    return new FormGroup({
-      frameworkType: new FormControl(ta?.frameworkType || 'etsi_tl'),
-      value: new FormControl(ta?.value || ''),
-      isLoTE: new FormControl(ta?.isLoTE ?? false),
-    });
-  }
-
-  addTrustedAuthority(): void {
-    this.schemaMetaTrustedAuthorities.push(this.createTrustedAuthorityGroup());
-  }
-
-  removeTrustedAuthority(index: number): void {
-    this.schemaMetaTrustedAuthorities.removeAt(index);
-  }
-
-  /**
-   * Returns the ETSI LoTE URL for a given trust list id (used as the value in trusted authorities)
-   */
-  getTrustListLoTEUrl(trustListId: string): string {
-    return `/api/trust-list/${trustListId}/export`;
-  }
-
-  onTrustListSelect(index: number, trustListId: string): void {
-    const group = this.schemaMetaTrustedAuthorities.at(index) as FormGroup;
-    group.patchValue({
-      value: this.getTrustListLoTEUrl(trustListId),
-      isLoTE: true,
-    });
   }
 
   // Display Configuration Management
@@ -859,40 +740,6 @@ export class CredentialConfigCreateComponent implements OnInit {
     delete formValue.keyAttestationEnabled;
     delete formValue.keyStorageTypes;
     delete formValue.userAuthenticationTypes;
-
-    // Build schemaMeta
-    const smEnabled = formValue.schemaMetaEnabled;
-    if (smEnabled) {
-      const schemaURIs = (formValue.schemaMetaSchemaURIs as any[])
-        .filter((e: any) => e.uri?.trim())
-        .map((e: any) => ({ format: e.format, uri: e.uri }));
-      const trustedAuthorities = (formValue.schemaMetaTrustedAuthorities as any[]).filter(
-        (ta: any) => ta.value?.trim()
-      );
-      formValue.schemaMeta = {
-        ...(formValue.schemaMetaId?.trim() && { id: formValue.schemaMetaId.trim() }),
-        ...(formValue.schemaMetaVersion?.trim() && { version: formValue.schemaMetaVersion.trim() }),
-        ...(formValue.schemaMetaRulebookURI?.trim() && {
-          rulebookURI: formValue.schemaMetaRulebookURI.trim(),
-        }),
-        ...(formValue.schemaMetaAttestationLoS && {
-          attestationLoS: formValue.schemaMetaAttestationLoS,
-        }),
-        ...(formValue.schemaMetaBindingType && { bindingType: formValue.schemaMetaBindingType }),
-        ...(schemaURIs.length && { schemaURIs }),
-        ...(trustedAuthorities.length && { trustedAuthorities }),
-      };
-    } else {
-      formValue.schemaMeta = null;
-    }
-    delete formValue.schemaMetaEnabled;
-    delete formValue.schemaMetaId;
-    delete formValue.schemaMetaVersion;
-    delete formValue.schemaMetaRulebookURI;
-    delete formValue.schemaMetaAttestationLoS;
-    delete formValue.schemaMetaBindingType;
-    delete formValue.schemaMetaSchemaURIs;
-    delete formValue.schemaMetaTrustedAuthorities;
 
     return formValue;
   }

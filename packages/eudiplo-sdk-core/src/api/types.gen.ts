@@ -1783,7 +1783,7 @@ export type PresentationConfig = {
   /**
    * The registration certificate request containing the necessary details.
    */
-  registrationCert?: RegistrationCertificateRequest;
+  registration_cert?: RegistrationCertificateRequest;
   /**
    * Optional webhook URL to receive the response.
    */
@@ -1824,6 +1824,13 @@ export type ResolveIssuerMetadataDto = {
   issuerUrl: string;
 };
 
+export type ResolveSchemaMetadataDto = {
+  /**
+   * Schema metadata URL to resolve server-side. The response must contain a signedJwt field.
+   */
+  schemaMetadataUrl: string;
+};
+
 export type PresentationConfigCreateDto = {
   /**
    * Unique identifier for the VP request.
@@ -1845,7 +1852,7 @@ export type PresentationConfigCreateDto = {
   /**
    * The registration certificate request containing the necessary details.
    */
-  registrationCert?: RegistrationCertificateRequest;
+  registration_cert?: RegistrationCertificateRequest;
   /**
    * Optional webhook URL to receive the response.
    */
@@ -1892,7 +1899,7 @@ export type PresentationConfigUpdateDto = {
   /**
    * The registration certificate request containing the necessary details.
    */
-  registrationCert?: RegistrationCertificateRequest;
+  registration_cert?: RegistrationCertificateRequest;
   /**
    * Optional webhook URL to receive the response.
    */
@@ -3057,7 +3064,7 @@ export type PresentationConfigWritable = {
   /**
    * The registration certificate request containing the necessary details.
    */
-  registrationCert?: RegistrationCertificateRequest;
+  registration_cert?: RegistrationCertificateRequest;
   /**
    * Optional webhook URL to receive the response.
    */
@@ -4103,6 +4110,42 @@ export type PresentationManagementControllerResolveIssuerMetadataResponses = {
    */
   200: unknown;
 };
+
+export type PresentationManagementControllerResolveSchemaMetadataData = {
+  body: ResolveSchemaMetadataDto;
+  path?: never;
+  query?: never;
+  url: "/api/verifier/config/schema-metadata/resolve";
+};
+
+export type PresentationManagementControllerResolveSchemaMetadataErrors = {
+  /**
+   * Invalid URL, invalid response, or invalid schema metadata JWT
+   */
+  400: unknown;
+};
+
+export type PresentationManagementControllerResolveSchemaMetadataResponses = {
+  /**
+   * Resolved schema metadata import payload
+   */
+  200: unknown;
+};
+
+export type PresentationManagementControllerListSchemaMetadataCatalogData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/verifier/config/schema-metadata/catalog";
+};
+
+export type PresentationManagementControllerListSchemaMetadataCatalogResponses =
+  {
+    /**
+     * Catalog entries from the registrar
+     */
+    200: unknown;
+  };
 
 export type PresentationManagementControllerDeleteConfigurationData = {
   body?: never;

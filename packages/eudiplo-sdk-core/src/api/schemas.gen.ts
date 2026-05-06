@@ -2121,7 +2121,6 @@ export const SchemaUriEntrySchema = {
     },
     uri: {
       type: "string",
-      format: "uri",
       description: "URI pointing to the schema document for this format",
       example: "https://example.com/schemas/my-credential.dc+sd-jwt.json",
     },
@@ -2165,7 +2164,6 @@ export const SchemaMetaConfigSchema = {
     },
     rulebookURI: {
       type: "string",
-      format: "uri",
       description: "URI of the Attestation Rulebook",
       example: "https://example.com/rulebooks/my-credential/1.0.0.md",
     },
@@ -3270,7 +3268,7 @@ export const PresentationConfigSchema = {
         $ref: "#/components/schemas/TransactionData",
       },
     },
-    registrationCert: {
+    registration_cert: {
       nullable: true,
       description:
         "The registration certificate request containing the necessary details.",
@@ -3340,6 +3338,21 @@ export const ResolveIssuerMetadataDtoSchema = {
   required: ["issuerUrl"],
 } as const;
 
+export const ResolveSchemaMetadataDtoSchema = {
+  type: "object",
+  properties: {
+    schemaMetadataUrl: {
+      type: "string",
+      format: "uri",
+      description:
+        "Schema metadata URL to resolve server-side. The response must contain a signedJwt field.",
+      example:
+        "https://registrar.example.com/schema-metadata/5c0d7dbb-ef2e-448b-b84f-b8103575947b",
+    },
+  },
+  required: ["schemaMetadataUrl"],
+} as const;
+
 export const PresentationConfigCreateDtoSchema = {
   type: "object",
   properties: {
@@ -3371,7 +3384,7 @@ export const PresentationConfigCreateDtoSchema = {
         $ref: "#/components/schemas/TransactionData",
       },
     },
-    registrationCert: {
+    registration_cert: {
       nullable: true,
       description:
         "The registration certificate request containing the necessary details.",
@@ -3448,7 +3461,7 @@ export const PresentationConfigUpdateDtoSchema = {
         $ref: "#/components/schemas/TransactionData",
       },
     },
-    registrationCert: {
+    registration_cert: {
       nullable: true,
       description:
         "The registration certificate request containing the necessary details.",
@@ -5242,7 +5255,7 @@ export const PresentationConfigWritableSchema = {
         $ref: "#/components/schemas/TransactionData",
       },
     },
-    registrationCert: {
+    registration_cert: {
       nullable: true,
       description:
         "The registration certificate request containing the necessary details.",

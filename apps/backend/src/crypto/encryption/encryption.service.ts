@@ -74,6 +74,7 @@ export class EncryptionService {
         const publicKey: JWK = { ...keyChain.activeKey };
         delete publicKey.d;
         publicKey.kid = keyChain.id;
+        publicKey.use = "enc";
 
         return publicKey;
     }

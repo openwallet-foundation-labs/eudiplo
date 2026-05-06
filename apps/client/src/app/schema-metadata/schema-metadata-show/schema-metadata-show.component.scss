@@ -9,6 +9,23 @@
   flex-direction: column;
 }
 
+.metadata-item-versions {
+  grid-column: 1 / -1;
+}
+
+.versions-list {
+  margin-top: 8px;
+}
+
+.version-pill {
+  min-width: auto;
+  padding: 0 10px;
+}
+
+.version-pill-active {
+  background: rgba(0, 0, 0, 0.06);
+}
+
 .label {
   font-size: 12px;
   color: rgba(0, 0, 0, 0.6);

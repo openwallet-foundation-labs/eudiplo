@@ -16,7 +16,6 @@
     },
     "rulebookURI": {
       "type": "string",
-      "format": "uri",
       "description": "URI of the Attestation Rulebook",
       "example": "https://example.com/rulebooks/my-credential/1.0.0.md"
     },

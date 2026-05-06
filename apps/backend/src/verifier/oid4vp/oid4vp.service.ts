@@ -168,7 +168,7 @@ export class Oid4vpService {
             });
 
             if (
-                presentationConfig.registrationCert &&
+                presentationConfig.registration_cert &&
                 (await this.registrarService.isEnabledForTenant(
                     session.tenantId,
                 ))

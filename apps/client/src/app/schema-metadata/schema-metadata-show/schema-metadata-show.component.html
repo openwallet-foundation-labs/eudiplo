@@ -36,7 +36,7 @@
               <mat-label>New Version (SemVer)</mat-label>
               <input matInput formControlName="newVersion" placeholder="1.1.0" />
               @if (publishForm.get('newVersion')?.hasError('pattern')) {
-                <mat-error>Must be a valid SemVer (e.g. 1.2.0)</mat-error>
+                <mat-error>Must be a valid semantic version (e.g. 1.2.0 or 1.2.0-rc.1)</mat-error>
               }
             </mat-form-field>
             <mat-form-field appearance="outline">
@@ -92,6 +92,22 @@
       </mat-card-header>
       <mat-card-content>
         <div class="metadata-grid">
+          <div class="metadata-item metadata-item-versions">
+            <span class="label">Available Versions</span>
+            <div fxLayout="row" fxLayoutGap="6px" fxLayoutWrap class="versions-list">
+              @for (version of availableVersions; track version) {
+                <button
+                  mat-stroked-button
+                  type="button"
+                  class="version-pill"
+                  [class.version-pill-active]="version === item.version"
+                  (click)="showVersion(version)"
+                >
+                  {{ version }}
+                </button>
+              }
+            </div>
+          </div>
           <div class="metadata-item">
             <span class="label">Version</span>
             <span class="value">{{ item.version }}</span>
@@ -153,7 +169,7 @@
         <mat-card-title>Trusted Authorities</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        @if (item.trustedAuthorities.length) {
+        @if (trustListIds.length) {
           <div fxLayout="column" fxLayoutGap="8px" class="card-content-top">
             @for (ta of trustListIds; track ta.value) {
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">

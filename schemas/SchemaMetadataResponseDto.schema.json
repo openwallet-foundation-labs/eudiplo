@@ -116,6 +116,18 @@
     "updatedAt": {
       "type": "string",
       "description": "Last update timestamp"
+    },
+    "deprecated": {
+      "type": "boolean",
+      "description": "Whether this version is deprecated"
+    },
+    "deprecationMessage": {
+      "type": "string",
+      "description": "Deprecation message shown to consumers"
+    },
+    "supersededByVersion": {
+      "type": "string",
+      "description": "The version that supersedes this one"
     }
   },
   "required": [

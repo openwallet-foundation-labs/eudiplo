@@ -17,11 +17,11 @@ const EXPIRING_WINDOW_SECONDS = 7 * 24 * 60 * 60;
  * spec at all → none.
  */
 export function getRegistrationCertStatus(
-  config: Pick<PresentationConfig, 'registrationCert' | 'registrationCertCache'> | null | undefined
+  config: Pick<PresentationConfig, 'registration_cert' | 'registrationCertCache'> | null | undefined
 ): RegistrationCertStatus {
   if (!config) return 'none';
   const cache = config.registrationCertCache as RegistrationCertCacheLike | null | undefined;
-  const hasSpec = !!config.registrationCert;
+  const hasSpec = !!config.registration_cert;
 
   if (!cache) {
     return hasSpec ? 'pending' : 'none';

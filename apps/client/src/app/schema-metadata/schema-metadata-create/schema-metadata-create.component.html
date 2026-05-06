@@ -26,6 +26,9 @@
         <mat-form-field fxFlex appearance="outline">
           <mat-label>Version</mat-label>
           <input matInput formControlName="version" placeholder="1.0.0" />
+          @if (composeForm.get('version')?.hasError('pattern')) {
+            <mat-error>Must be a valid semantic version (e.g. 1.0.0 or 1.0.0-beta.1)</mat-error>
+          }
         </mat-form-field>
         @if (demoDefaultsEnabled) {
           <button mat-stroked-button type="button" (click)="applyDemoValues()" class="no-shrink">

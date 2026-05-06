@@ -107,12 +107,17 @@ import type {
   PresentationManagementControllerDeleteConfigurationResponses,
   PresentationManagementControllerGetConfigurationData,
   PresentationManagementControllerGetConfigurationResponses,
+  PresentationManagementControllerListSchemaMetadataCatalogData,
+  PresentationManagementControllerListSchemaMetadataCatalogResponses,
   PresentationManagementControllerReissueRegistrationCertificateData,
   PresentationManagementControllerReissueRegistrationCertificateErrors,
   PresentationManagementControllerReissueRegistrationCertificateResponses,
   PresentationManagementControllerResolveIssuerMetadataData,
   PresentationManagementControllerResolveIssuerMetadataErrors,
   PresentationManagementControllerResolveIssuerMetadataResponses,
+  PresentationManagementControllerResolveSchemaMetadataData,
+  PresentationManagementControllerResolveSchemaMetadataErrors,
+  PresentationManagementControllerResolveSchemaMetadataResponses,
   PresentationManagementControllerStorePresentationConfigData,
   PresentationManagementControllerStorePresentationConfigResponses,
   PresentationManagementControllerUpdateConfigurationData,
@@ -1434,6 +1439,56 @@ export const presentationManagementControllerResolveIssuerMetadata = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Resolve external schema metadata
+ *
+ * Fetches schema metadata from an external URL, extracts signedJwt, validates the JWT payload shape and returns normalized fields for presentation config import.
+ */
+export const presentationManagementControllerResolveSchemaMetadata = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<
+    PresentationManagementControllerResolveSchemaMetadataData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    PresentationManagementControllerResolveSchemaMetadataResponses,
+    PresentationManagementControllerResolveSchemaMetadataErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/verifier/config/schema-metadata/resolve",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List schema metadata from the registrar catalog
+ *
+ * Returns all schema metadata entries from the configured registrar. Returns an empty array when no registrar is configured.
+ */
+export const presentationManagementControllerListSchemaMetadataCatalog = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<
+    PresentationManagementControllerListSchemaMetadataCatalogData,
+    ThrowOnError
+  >,
+) =>
+  (options?.client ?? client).get<
+    PresentationManagementControllerListSchemaMetadataCatalogResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/verifier/config/schema-metadata/catalog",
+    ...options,
   });
 
 /**

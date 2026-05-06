@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -11,6 +11,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { combineLatest } from 'rxjs';
 import type {
   CredentialConfig,
   SchemaMetaConfig,
@@ -18,6 +20,9 @@ import type {
 } from '@eudiplo/sdk-core';
 import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
 import { SchemaMetadata, SchemaMetadataService } from '../schema-metadata.service';
+
+const SEMVER_REGEX =
+  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 
 @Component({
   selector: 'app-schema-metadata-show',
@@ -40,8 +45,11 @@ import { SchemaMetadata, SchemaMetadataService } from '../schema-metadata.servic
   styleUrl: './schema-metadata-show.component.scss',
 })
 export class SchemaMetadataShowComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+
   id = '';
   item?: SchemaMetadata;
+  availableVersions: string[] = [];
   loading = false;
   showPublishForm = false;
   publishing = false;
@@ -61,7 +69,7 @@ export class SchemaMetadataShowComponent implements OnInit {
   });
 
   publishForm = new FormGroup({
-    newVersion: new FormControl('', [Validators.required, Validators.pattern(/^\d+\.\d+\.\d+$/)]),
+    newVersion: new FormControl('', [Validators.required, Validators.pattern(SEMVER_REGEX)]),
     rulebookURI: new FormControl(''),
     deprecateCurrent: new FormControl(true),
   });
@@ -75,15 +83,47 @@ export class SchemaMetadataShowComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.id = this.route.snapshot.paramMap.get('id') || '';
-    this.load();
+    combineLatest([this.route.paramMap, this.route.queryParamMap])
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(([paramMap, queryParams]) => {
+        this.id = paramMap.get('id') || '';
+        const version = queryParams.get('version') || undefined;
+        void this.load(version);
+      });
   }
 
-  async load(): Promise<void> {
+  async load(version?: string): Promise<void> {
     if (!this.id) return;
     this.loading = true;
     try {
-      this.item = await this.schemaMetadataService.getById(this.id);
+      const [latestItem, versions] = await Promise.all([
+        this.schemaMetadataService.getById(this.id),
+        this.schemaMetadataService.getVersions(this.id),
+      ]);
+
+      this.availableVersions = versions
+        .map((entry) => entry.version)
+        .sort((a, b) => this.compareSemverDesc(a, b));
+
+      const selectedVersion = version?.trim();
+      if (selectedVersion) {
+        const selectedItems = await this.schemaMetadataService.list({
+          attestationId: this.id,
+          version: selectedVersion,
+        });
+        this.item = selectedItems[0] ?? latestItem;
+      } else {
+        this.item = latestItem;
+      }
+
+      if (selectedVersion && this.item.version !== selectedVersion) {
+        this.snackBar.open(
+          `Version ${selectedVersion} not found. Showing version ${this.item.version} instead.`,
+          'Close',
+          { duration: 4000 }
+        );
+      }
+
       this.metadataForm.patchValue({
         category: this.item.category || '',
         tagsCsv: (this.item.tags || []).join(', '),
@@ -346,7 +386,9 @@ export class SchemaMetadataShowComponent implements OnInit {
         duration: 4000,
       });
       this.showPublishForm = false;
-      this.router.navigate(['/schema-metadata', newEntry.id]);
+      this.router.navigate(['/schema-metadata', newEntry.id], {
+        queryParams: { version: newEntry.version },
+      });
     } catch (error) {
       console.error('Failed to publish new version:', error);
       this.snackBar.open(this.getErrorMessage(error, 'Failed to publish new version'), 'Close', {
@@ -366,5 +408,29 @@ export class SchemaMetadataShowComponent implements OnInit {
       console.error('Failed to delete schema metadata:', error);
       this.snackBar.open('Failed to delete schema metadata', 'Close', { duration: 3000 });
     }
+  }
+
+  async showVersion(version: string): Promise<void> {
+    if (!version || this.item?.version === version) return;
+
+    await this.router.navigate(['/schema-metadata', this.id], {
+      queryParams: { version },
+    });
+  }
+
+  private compareSemverDesc(a: string, b: string): number {
+    const aParts = a.split('.').map((part) => Number.parseInt(part, 10));
+    const bParts = b.split('.').map((part) => Number.parseInt(part, 10));
+    const maxLen = Math.max(aParts.length, bParts.length);
+
+    for (let index = 0; index < maxLen; index += 1) {
+      const aValue = Number.isNaN(aParts[index]) ? 0 : (aParts[index] ?? 0);
+      const bValue = Number.isNaN(bParts[index]) ? 0 : (bParts[index] ?? 0);
+      if (aValue !== bValue) {
+        return bValue - aValue;
+      }
+    }
+
+    return 0;
   }
 }

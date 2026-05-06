@@ -11,7 +11,6 @@
     },
     "uri": {
       "type": "string",
-      "format": "uri",
       "description": "URI pointing to the schema document for this format",
       "example": "https://example.com/schemas/my-credential.dc+sd-jwt.json"
     }

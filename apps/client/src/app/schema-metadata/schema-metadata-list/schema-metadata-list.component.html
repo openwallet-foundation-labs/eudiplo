@@ -9,18 +9,26 @@
 
 @if (loading) {
   <p>Loading schema metadata...</p>
-} @else if (items.length === 0) {
+} @else if (groupedItems.length === 0) {
   <p>No schema metadata found.</p>
 } @else {
-  <table mat-table [dataSource]="items" class="mat-elevation-z8">
+  <table mat-table [dataSource]="groupedItems" class="mat-elevation-z8">
     <ng-container matColumnDef="id">
       <th mat-header-cell *matHeaderCellDef>ID</th>
       <td mat-cell *matCellDef="let item">{{ item.id }}</td>
     </ng-container>
 
-    <ng-container matColumnDef="version">
-      <th mat-header-cell *matHeaderCellDef>Version</th>
-      <td mat-cell *matCellDef="let item">{{ item.version }}</td>
+    <ng-container matColumnDef="versions">
+      <th mat-header-cell *matHeaderCellDef>Versions</th>
+      <td mat-cell *matCellDef="let item">
+        <div class="versions-cell" fxLayout="row" fxLayoutGap="6px" fxLayoutWrap>
+          @for (version of item.versions; track version) {
+            <a [routerLink]="[item.id]" [queryParams]="{ version: version }" class="version-pill">{{
+              version
+            }}</a>
+          }
+        </div>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="issuer">
