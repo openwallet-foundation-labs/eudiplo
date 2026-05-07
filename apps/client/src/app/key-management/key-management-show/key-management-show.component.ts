@@ -10,8 +10,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { KeyChainResponseDto, CertificateInfoDto } from '@eudiplo/sdk-core';
+import { MatDialog } from '@angular/material/dialog';
 import { KeyChainService } from '../key-chain.service';
 import { Subscription } from 'rxjs';
+import { JsonViewDialogComponent } from '../../issuance/credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
 
 @Component({
   selector: 'app-key-management-show',
@@ -38,7 +40,8 @@ export class KeyManagementShowComponent implements OnInit, OnDestroy {
     private readonly keyChainService: KeyChainService,
     private readonly route: ActivatedRoute,
     private readonly snackBar: MatSnackBar,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -177,6 +180,28 @@ export class KeyManagementShowComponent implements OnInit, OnDestroy {
 
   get canRotate(): boolean {
     return this.keyChain?.rotationPolicy?.enabled || false;
+  }
+
+  async viewAsJson(): Promise<void> {
+    if (!this.keyChain) return;
+
+    try {
+      const exportData = await this.keyChainService.export(this.keyChain.id);
+      this.dialog.open(JsonViewDialogComponent, {
+        data: {
+          title: 'Key Chain JSON',
+          jsonData: exportData,
+          readonly: true,
+        },
+        disableClose: false,
+        minWidth: '60vw',
+        maxWidth: '95vw',
+        maxHeight: '95vh',
+      });
+    } catch (error) {
+      this.snackBar.open('Failed to load key chain JSON', 'Close', { duration: 3000 });
+      console.error('View JSON error:', error);
+    }
   }
 
   async exportKeyChain(): Promise<void> {

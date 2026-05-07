@@ -124,26 +124,6 @@
             <mat-icon matListItemIcon>vpn_key</mat-icon>
             <span matListItemTitle>Keys</span>
           </mat-list-item>
-
-          @if (hasRole('registrar:manage')) {
-            <mat-list-item
-              [routerLink]="['/registrar']"
-              routerLinkActive="active-link"
-              (click)="closeSidenavOnMobile()"
-            >
-              <mat-icon matListItemIcon>app_registration</mat-icon>
-              <span matListItemTitle>Registrar</span>
-            </mat-list-item>
-          }
-
-          <mat-list-item
-            [routerLink]="['/webhook-endpoints']"
-            routerLinkActive="active-link"
-            (click)="closeSidenavOnMobile()"
-          >
-            <mat-icon matListItemIcon>webhook</mat-icon>
-            <span matListItemTitle>Webhook Endpoints</span>
-          </mat-list-item>
         }
 
         <!-- Credential Issuance Section -->
@@ -213,6 +193,33 @@
           }
         }
 
+        <!-- Registrar Section -->
+        @if (hasRole('registrar:manage')) {
+          <mat-divider></mat-divider>
+          <div mat-subheader>
+            <mat-icon class="subheader-icon">app_registration</mat-icon>
+            Registrar
+          </div>
+
+          <mat-list-item
+            [routerLink]="['/registrar']"
+            routerLinkActive="active-link"
+            (click)="closeSidenavOnMobile()"
+          >
+            <mat-icon matListItemIcon>app_registration</mat-icon>
+            <span matListItemTitle>Registrar Config</span>
+          </mat-list-item>
+
+          <mat-list-item
+            [routerLink]="['/schema-metadata']"
+            routerLinkActive="active-link"
+            (click)="closeSidenavOnMobile()"
+          >
+            <mat-icon matListItemIcon>schema</mat-icon>
+            <span matListItemTitle>Schema Metadata</span>
+          </mat-list-item>
+        }
+
         <!-- Credential Verification Section -->
         @if (hasRole(['presentation:manage', 'presentation:request'])) {
           <mat-divider></mat-divider>
@@ -240,6 +247,15 @@
             >
               <mat-icon matListItemIcon>tune</mat-icon>
               <span matListItemTitle>Verification Configs</span>
+            </mat-list-item>
+
+            <mat-list-item
+              [routerLink]="['/webhook-endpoints']"
+              routerLinkActive="active-link"
+              (click)="closeSidenavOnMobile()"
+            >
+              <mat-icon matListItemIcon>webhook</mat-icon>
+              <span matListItemTitle>Webhook Endpoints</span>
             </mat-list-item>
           }
         }

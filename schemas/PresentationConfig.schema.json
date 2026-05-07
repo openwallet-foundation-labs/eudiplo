@@ -47,7 +47,7 @@
         "$ref": "./TransactionData.schema.json"
       }
     },
-    "registrationCert": {
+    "registration_cert": {
       "nullable": true,
       "description": "The registration certificate request containing the necessary details.",
       "type": "object",

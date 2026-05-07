@@ -1,0 +1,248 @@
+@if (item) {
+  <div fxLayout="column" fxLayoutGap="16px">
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+      <h2>Schema Metadata Details</h2>
+      <div fxLayout="row" fxLayoutGap="4px">
+        <button mat-icon-button [routerLink]="['../']" matTooltip="Back to list">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Copy signed JWT" (click)="copyJwt()">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Download export" (click)="downloadExport()">
+          <mat-icon>download</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Publish new version" (click)="togglePublishForm()">
+          <mat-icon>publish</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" matTooltip="Delete" (click)="delete()">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    @if (showPublishForm) {
+      <mat-card appearance="outlined">
+        <mat-card-header>
+          <mat-card-title>Publish New Version</mat-card-title>
+          <mat-card-subtitle
+            >Signs the existing schema config under a new SemVer and submits it to the
+            registrar.</mat-card-subtitle
+          >
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="publishForm" fxLayout="column" fxLayoutGap="12px" class="publish-form">
+            <mat-form-field appearance="outline">
+              <mat-label>New Version (SemVer)</mat-label>
+              <input matInput formControlName="newVersion" placeholder="1.1.0" />
+              @if (publishForm.get('newVersion')?.hasError('pattern')) {
+                <mat-error>Must be a valid semantic version (e.g. 1.2.0 or 1.2.0-rc.1)</mat-error>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Rulebook URI (leave blank to keep current)</mat-label>
+              <input matInput formControlName="rulebookURI" placeholder="{{ item.rulebookURI }}" />
+            </mat-form-field>
+            <mat-checkbox formControlName="deprecateCurrent">
+              Deprecate current version <strong>{{ item.version }}</strong>
+            </mat-checkbox>
+            <div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
+              <button mat-button type="button" (click)="togglePublishForm()">Cancel</button>
+              <button
+                mat-raised-button
+                color="primary"
+                type="button"
+                [disabled]="publishForm.invalid || publishing"
+                (click)="publishNewVersion()"
+              >
+                @if (publishing) {
+                  Publishing…
+                } @else {
+                  Publish
+                }
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    }
+    @if (item.deprecated) {
+      <mat-card appearance="outlined" class="deprecated-card">
+        <mat-card-content>
+          <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+            <mat-icon color="warn">warning</mat-icon>
+            <strong>This version is deprecated.</strong>
+            @if (item.deprecationMessage) {
+              <span>{{ item.deprecationMessage }}</span>
+            }
+            @if (item.supersededByVersion) {
+              <span
+                >Superseded by version: <strong>{{ item.supersededByVersion }}</strong></span
+              >
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>{{ item.id }}</mat-card-title>
+        <mat-card-subtitle>ID: {{ item.id }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="metadata-grid">
+          <div class="metadata-item metadata-item-versions">
+            <span class="label">Available Versions</span>
+            <div fxLayout="row" fxLayoutGap="6px" fxLayoutWrap class="versions-list">
+              @for (version of availableVersions; track version) {
+                <button
+                  mat-stroked-button
+                  type="button"
+                  class="version-pill"
+                  [class.version-pill-active]="version === item.version"
+                  (click)="showVersion(version)"
+                >
+                  {{ version }}
+                </button>
+              }
+            </div>
+          </div>
+          <div class="metadata-item">
+            <span class="label">Version</span>
+            <span class="value">{{ item.version }}</span>
+          </div>
+          <div class="metadata-item">
+            <span class="label">Issuer</span>
+            <span class="value">{{ item.issuer }}</span>
+          </div>
+          <div class="metadata-item">
+            <span class="label">Attestation LoS</span>
+            <span class="value">{{ item.attestationLoS }}</span>
+          </div>
+          <div class="metadata-item">
+            <span class="label">Binding Type</span>
+            <span class="value">{{ item.bindingType }}</span>
+          </div>
+          <div class="metadata-item">
+            <span class="label">Created</span>
+            <span class="value">{{ item.createdAt | date: 'medium' }}</span>
+          </div>
+          <div class="metadata-item">
+            <span class="label">Updated</span>
+            <span class="value">{{ item.updatedAt | date: 'medium' }}</span>
+          </div>
+        </div>
+
+        @if (jwtUrl) {
+          <div fxLayout="column" fxLayoutGap="8px" class="card-content-top">
+            <mat-form-field appearance="outline">
+              <mat-label>JWT URL</mat-label>
+              <input matInput [value]="jwtUrl" readonly />
+              <button
+                mat-icon-button
+                matSuffix
+                type="button"
+                matTooltip="Copy JWT URL"
+                (click)="copyJwtUrl()"
+              >
+                <mat-icon>content_copy</mat-icon>
+              </button>
+              <a
+                mat-icon-button
+                matSuffix
+                [href]="jwtUrl"
+                target="_blank"
+                rel="noopener"
+                matTooltip="Open JWT URL"
+              >
+                <mat-icon>open_in_new</mat-icon>
+              </a>
+            </mat-form-field>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Trusted Authorities</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (trustListIds.length) {
+          <div fxLayout="column" fxLayoutGap="8px" class="card-content-top">
+            @for (ta of trustListIds; track ta.value) {
+              <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                <mat-icon class="label-icon">verified</mat-icon>
+                <span class="value trust-value">{{ ta.value }}</span>
+                @if (ta.localId) {
+                  <a
+                    mat-icon-button
+                    [routerLink]="['/trust-list', ta.localId]"
+                    matTooltip="Open trust list"
+                  >
+                    <mat-icon>open_in_new</mat-icon>
+                  </a>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="label">No trusted authorities configured.</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Referenced by Credential Configs</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (relatedCredentialConfigs.length) {
+          <div fxLayout="column" fxLayoutGap="4px" class="card-content-top">
+            @for (cc of relatedCredentialConfigs; track cc.id) {
+              <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+                <mat-icon class="label-icon">description</mat-icon>
+                <span class="value">{{ cc.description || cc.id }}</span>
+                <a
+                  mat-icon-button
+                  [routerLink]="['/credential-config', cc.id]"
+                  matTooltip="Open credential config"
+                >
+                  <mat-icon>open_in_new</mat-icon>
+                </a>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="label">No credential configs reference this schema metadata.</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Catalog Metadata</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="metadataForm" fxLayout="column" fxLayoutGap="12px">
+          <mat-form-field appearance="outline">
+            <mat-label>Category</mat-label>
+            <input matInput formControlName="category" placeholder="identity, health, finance..." />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Tags (comma-separated)</mat-label>
+            <input matInput formControlName="tagsCsv" placeholder="eidas, lote" />
+          </mat-form-field>
+
+          <div fxLayout="row" fxLayoutAlign="end center">
+            <button mat-raised-button color="primary" type="button" (click)="saveMetadata()">
+              Save
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+}

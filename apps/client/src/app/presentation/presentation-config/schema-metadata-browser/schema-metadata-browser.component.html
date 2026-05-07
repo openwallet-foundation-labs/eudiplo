@@ -1,0 +1,223 @@
+<h2 mat-dialog-title fxLayout="row" fxLayoutAlign="space-between center">
+  <span>Import from Schema Metadata</span>
+  <button mat-icon-button (click)="close()" matTooltip="Close">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content fxLayout="column" fxLayoutGap="16px">
+  <mat-tab-group animationDuration="0" (selectedIndexChange)="$event === 1 && loadCatalog()">
+    <!-- ── Tab 1: Enter URL manually ─────────────────────────────── -->
+    <mat-tab label="Enter URL">
+      <div fxLayout="column" fxLayoutGap="16px" style="padding-top: 16px">
+        <div fxLayout="column" fxLayoutGap="8px">
+          <mat-form-field appearance="outline" fxFlex>
+            <mat-label>Schema Metadata URL</mat-label>
+            <input
+              matInput
+              [formControl]="urlControl"
+              placeholder="https://registrar.example.com/schema-metadata/{id}"
+              (keyup.enter)="fetchSchemaMetadata()"
+            />
+            <mat-hint>Enter a URL that returns a schema metadata object with signedJwt</mat-hint>
+            @if (urlControl.hasError('required')) {
+              <mat-error>URL is required</mat-error>
+            }
+            @if (urlControl.hasError('pattern')) {
+              <mat-error>Enter a valid URL</mat-error>
+            }
+          </mat-form-field>
+
+          <button
+            mat-flat-button
+            color="primary"
+            (click)="fetchSchemaMetadata()"
+            [disabled]="loading || urlControl.invalid"
+          >
+            @if (loading) {
+              <mat-spinner diameter="20"></mat-spinner>
+            } @else {
+              <ng-container>
+                <mat-icon>search</mat-icon>
+                Fetch Schema Metadata
+              </ng-container>
+            }
+          </button>
+        </div>
+
+        @if (error) {
+          <mat-card class="error-card">
+            <mat-card-content fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+              <mat-icon color="warn">error</mat-icon>
+              <span>{{ error }}</span>
+            </mat-card-content>
+          </mat-card>
+        }
+
+        @if (resolved) {
+          <mat-card>
+            <mat-card-content fxLayout="column" fxLayoutGap="8px">
+              @if (resolved.schema.name) {
+                <div><strong>Name:</strong> {{ resolved.schema.name }}</div>
+              }
+              <div>
+                <strong>Schema ID:</strong> <code>{{ resolved.schema.id }}</code>
+              </div>
+              @if (resolved.schema.version) {
+                <div><strong>Version:</strong> {{ resolved.schema.version }}</div>
+              }
+              @if (resolved.schema.description) {
+                <div><strong>Description:</strong> {{ resolved.schema.description }}</div>
+              }
+            </mat-card-content>
+          </mat-card>
+
+          <div fxLayout="column" fxLayoutGap="8px">
+            <h3>Supported Credential Formats</h3>
+            @for (format of resolved.schema.supportedFormats; track format) {
+              <mat-checkbox
+                [checked]="selectedFormats.get(format) || false"
+                (change)="toggleFormat(format, $event.checked)"
+              >
+                {{ format }}
+              </mat-checkbox>
+            }
+          </div>
+        }
+
+        @if (resolved && hasSelections()) {
+          <mat-divider></mat-divider>
+          <div fxLayout="column" fxLayoutGap="8px">
+            <h3>Generated DCQL Query</h3>
+            <pre class="dcql-preview">{{ getGeneratedDcql() | json }}</pre>
+          </div>
+        }
+      </div>
+    </mat-tab>
+
+    <!-- ── Tab 2: Browse catalog ──────────────────────────────────── -->
+    <mat-tab label="Browse Catalog">
+      <div fxLayout="column" fxLayoutGap="16px" style="padding-top: 16px">
+        @if (catalogLoading) {
+          <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="8px">
+            <mat-spinner diameter="24"></mat-spinner>
+            <span>Loading catalog…</span>
+          </div>
+        }
+
+        @if (catalogError) {
+          <mat-card class="error-card">
+            <mat-card-content fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+              <mat-icon color="warn">error</mat-icon>
+              <span>{{ catalogError }}</span>
+            </mat-card-content>
+          </mat-card>
+        }
+
+        @if (!catalogLoading && catalogLoaded && catalogEntries.length === 0 && !catalogError) {
+          <mat-card>
+            <mat-card-content fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+              <mat-icon>info</mat-icon>
+              <span
+                >No schema metadata found in the catalog. Make sure a registrar is configured for
+                this tenant.</span
+              >
+            </mat-card-content>
+          </mat-card>
+        }
+
+        @if (catalogLoaded && catalogEntries.length > 0) {
+          <mat-form-field appearance="outline" fxFlex>
+            <mat-label>Filter</mat-label>
+            <mat-icon matPrefix>search</mat-icon>
+            <input matInput [(ngModel)]="catalogFilter" placeholder="Name, ID, category or tag" />
+          </mat-form-field>
+
+          <mat-list>
+            @for (entry of filteredCatalogEntries; track entry.id + entry.version) {
+              <mat-list-item class="catalog-list-item">
+                <div fxLayout="column" fxLayoutGap="4px" style="width: 100%">
+                  <div fxLayout="row" fxLayoutAlign="space-between center">
+                    <strong>{{ entry.name || entry.id }}</strong>
+                    <button
+                      mat-stroked-button
+                      color="primary"
+                      (click)="selectFromCatalog(entry)"
+                      matTooltip="Use this schema"
+                    >
+                      <mat-icon>add</mat-icon>
+                      Use
+                    </button>
+                  </div>
+                  <div class="catalog-meta">
+                    <code>{{ entry.id }}</code>
+                    @if (entry.version) {
+                      &nbsp;· v{{ entry.version }}
+                    }
+                    @if (entry.category) {
+                      &nbsp;· {{ entry.category }}
+                    }
+                  </div>
+                  @if (entry.description) {
+                    <div class="catalog-description">{{ entry.description }}</div>
+                  }
+                  <div fxLayout="row" fxLayoutGap="4px" style="flex-wrap: wrap; margin-top: 4px">
+                    @for (format of entry.supportedFormats; track format) {
+                      <mat-chip style="font-size: 11px">{{ format }}</mat-chip>
+                    }
+                    @for (tag of entry.tags ?? []; track tag) {
+                      <mat-chip style="font-size: 11px" color="accent">{{ tag }}</mat-chip>
+                    }
+                  </div>
+                </div>
+              </mat-list-item>
+              <mat-divider></mat-divider>
+            }
+          </mat-list>
+        }
+
+        <!-- Format selection + DCQL preview shown when a catalog entry is selected -->
+        @if (resolved) {
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title
+                >Selected: {{ resolved.schema.name || resolved.schema.id }}</mat-card-title
+              >
+              @if (resolved.schema.version) {
+                <mat-card-subtitle>v{{ resolved.schema.version }}</mat-card-subtitle>
+              }
+            </mat-card-header>
+          </mat-card>
+
+          <div fxLayout="column" fxLayoutGap="8px">
+            <h3>Supported Credential Formats</h3>
+            @for (format of resolved.schema.supportedFormats; track format) {
+              <mat-checkbox
+                [checked]="selectedFormats.get(format) || false"
+                (change)="toggleFormat(format, $event.checked)"
+              >
+                {{ format }}
+              </mat-checkbox>
+            }
+          </div>
+
+          @if (hasSelections()) {
+            <mat-divider></mat-divider>
+            <div fxLayout="column" fxLayoutGap="8px">
+              <h3>Generated DCQL Query</h3>
+              <pre class="dcql-preview">{{ getGeneratedDcql() | json }}</pre>
+            </div>
+          }
+        }
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Cancel</button>
+  <button mat-flat-button color="primary" (click)="insert()" [disabled]="!hasSelections()">
+    <mat-icon>add</mat-icon>
+    Insert DCQL
+  </button>
+</mat-dialog-actions>

@@ -1,23 +1,29 @@
 # Configuring Credential Issuance Flows
 
-The issuance system uses a **two-layer configuration approach**:
+The issuance system uses a **three-part configuration approach**:
 
 1. **Credential Configurations** - Define the structure, format, and metadata of
    individual credentials
-2. **Issuance Configuration** - Define the issuance configuration that get used to
-   group multiple credentials and publish the issuer metadata
+2. **Schema Metadata (TS11)** - Define schema-level metadata in a dedicated,
+   reusable registrar-managed resource
+3. **Issuance Configuration** - Define the issuance configuration that gets used to
+   group multiple credentials and publish issuer metadata
 
 ---
 
 ## API Endpoints
 
-The system uses two separate endpoints for the two-layer configuration:
+The system uses separate endpoints for each configuration layer:
 
 ### Credential Configurations
 
 To manage individual credential configurations, use the
 `/issuer/credentials` endpoint. This endpoint handles the definition
 of credential types, their formats, claims, and display properties.
+
+### Schema Metadata
+
+Schema metadata is managed in a dedicated flow. See [Schema Metadata](schema-metadata.md) for setup and version management.
 
 ### Issuance Configuration
 
@@ -432,6 +438,8 @@ This issuance documentation is organized into the following sections:
 - **[Credential Configuration](credential-configuration.md)** - Learn how to
   define individual credential types, their structure, claims, and display
   properties
+- **[Schema Metadata](schema-metadata.md)** - Manage TS11 schema metadata as a
+  dedicated, reusable registrar-backed resource
 - **[Issuance Configuration](issuance-configuration.md)** - Understand how to
   create issuance configurations that group multiple credentials and define
   issuance parameters such as authorization and webhooks
@@ -448,9 +456,11 @@ For a quick start, follow these steps:
    Attribute Providers using the [Attribute Providers](attribute-provider.md) guide
 2. **Create a credential configuration** - Define your credential type using the
    [Credential Configuration](credential-configuration.md) guide
-3. **Create an issuance configuration** - Define the issuance configuration using
+3. **Create schema metadata** (recommended) - Manage TS11 schema metadata using the
+   [Schema Metadata](schema-metadata.md) guide
+4. **Create an issuance configuration** - Define the issuance configuration using
    the [Issuance Configuration](issuance-configuration.md) guide
-4. **Issue credentials** - Start the issuance flow by creating credential offers
+5. **Issue credentials** - Start the issuance flow by creating credential offers
 
 ---
 

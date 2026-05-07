@@ -1,0 +1,334 @@
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Type } from "class-transformer";
+import {
+    IsArray,
+    IsEnum,
+    IsOptional,
+    IsString,
+    ValidateNested,
+} from "class-validator";
+
+const ATTESTATION_LOS_VALUES = [
+    "iso_18045_high",
+    "iso_18045_moderate",
+    "iso_18045_enhanced-basic",
+    "iso_18045_basic",
+] as const;
+export type AttestationLoS = (typeof ATTESTATION_LOS_VALUES)[number];
+
+const BINDING_TYPE_VALUES = ["claim", "key", "biometric", "none"] as const;
+export type BindingType = (typeof BINDING_TYPE_VALUES)[number];
+
+const FORMAT_VALUES = ["dc+sd-jwt", "mso_mdoc"] as const;
+export type CredentialFormatId = (typeof FORMAT_VALUES)[number];
+
+const CATEGORY_VALUES = [
+    "identity",
+    "health",
+    "finance",
+    "education",
+    "mobility",
+    "employment",
+    "other",
+] as const;
+export type SchemaMetadataCategory = (typeof CATEGORY_VALUES)[number];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Request bodies
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Request body for `POST /registrar/schema-metadata/reserve`.
+ */
+export class ReserveSchemaMetadataDto {
+    /**
+     * Optional human-readable name hint used by the registrar when generating
+     * the reserved attestation ID. Used in documentation only.
+     */
+    @ApiPropertyOptional({
+        description:
+            "Optional human-readable name hint for the schema (used in documentation only)",
+    })
+    @IsOptional()
+    @IsString()
+    nameHint?: string;
+}
+
+/**
+ * Response of `POST /registrar/schema-metadata/reserve`.
+ */
+export class ReservationResponseDto {
+    @ApiProperty({
+        description:
+            "The full reserved schema ID URL that should be used as the `id` in the signed JWT",
+    })
+    reservedId!: string;
+
+    @ApiProperty({
+        description: "When this reservation expires (ISO 8601)",
+    })
+    expiresAt!: string;
+
+    @ApiProperty({
+        description:
+            "Secret token to include in the `X-Reservation-Token` header when submitting the schema metadata JWT",
+    })
+    reservationToken!: string;
+}
+
+/**
+ * Request body for `POST /registrar/schema-metadata`.
+ */
+export class SubmitSchemaMetadataDto {
+    @ApiProperty({
+        description:
+            "The signed schema metadata JWS (compact serialization). Sign via `POST /api/issuer/credentials/schema-metadata/sign`.",
+    })
+    @IsString()
+    signedJwt!: string;
+
+    @ApiPropertyOptional({
+        description:
+            "Reservation token returned by `/schema-metadata/reserve`. Required when the JWT's `id` is a registrar-reserved URL.",
+    })
+    @IsOptional()
+    @IsString()
+    reservationToken?: string;
+}
+
+/**
+ * Request body for `PATCH /registrar/schema-metadata/:id`.
+ */
+export class UpdateSchemaMetadataDto {
+    @ApiPropertyOptional({
+        description: "Domain category for filtering",
+        enum: CATEGORY_VALUES,
+    })
+    @IsOptional()
+    @IsEnum(CATEGORY_VALUES)
+    category?: SchemaMetadataCategory;
+
+    @ApiPropertyOptional({
+        description: "Free-form tags for filtering and search",
+        type: [String],
+    })
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    tags?: string[];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Response DTOs
+// ─────────────────────────────────────────────────────────────────────────────
+
+export class MetadataSchemaDto {
+    @ApiProperty({ description: "Unique identifier for this schema entry" })
+    id!: string;
+
+    @ApiProperty({
+        description: "The credential format identifier",
+        enum: FORMAT_VALUES,
+    })
+    formatIdentifier!: CredentialFormatId;
+
+    @ApiPropertyOptional({ description: "URI to the schema definition" })
+    uri?: string;
+
+    @ApiPropertyOptional({
+        description: "Inline schema content (JSON Schema)",
+        type: "object",
+        additionalProperties: true,
+    })
+    schemaContent?: Record<string, unknown>;
+
+    @ApiPropertyOptional({
+        description: "Subresource Integrity hash for the schema",
+    })
+    integrity?: string;
+}
+
+export class TrustAuthorityDto {
+    @ApiProperty({
+        description: "Unique identifier for this trust authority entry",
+    })
+    id!: string;
+
+    @ApiProperty({
+        description: "Type of trust framework",
+        enum: ["etsi_tl"],
+    })
+    frameworkType!: "etsi_tl";
+
+    @ApiProperty({
+        description: "URI or identifier for the trust list / authority",
+    })
+    value!: string;
+
+    @ApiPropertyOptional({
+        description:
+            "Verification method for the trust list signature (e.g., JWK)",
+        type: "object",
+        additionalProperties: true,
+    })
+    verificationMethod?: Record<string, unknown>;
+}
+
+export class AccessCertificateRefDto {
+    @ApiProperty()
+    id!: string;
+
+    @ApiProperty()
+    relyingPartyId!: string;
+
+    @ApiProperty()
+    certificate!: string;
+
+    @ApiProperty()
+    revoked!: string;
+
+    @ApiProperty()
+    createdAt!: string;
+}
+
+/**
+ * Schema metadata record as returned by `GET/POST /registrar/schema-metadata` and friends.
+ *
+ * The shape mirrors the registrar-API response 1:1 so that the service can pass
+ * upstream payloads through unchanged.
+ */
+export class SchemaMetadataResponseDto {
+    @ApiProperty({
+        description:
+            "The unique, server-assigned identifier (UUID) for the schema metadata",
+    })
+    id!: string;
+
+    @ApiProperty({ description: "Version of this schema metadata (SemVer)" })
+    version!: string;
+
+    @ApiPropertyOptional({
+        description: "URI of the human-readable Rulebook document",
+    })
+    rulebookURI?: string;
+
+    @ApiPropertyOptional({
+        description: "Subresource Integrity hash for the rulebook URI",
+    })
+    rulebookIntegrity?: string;
+
+    @ApiProperty({
+        description: "Level of security (LoS) of this attestation",
+        enum: ATTESTATION_LOS_VALUES,
+    })
+    attestationLoS!: AttestationLoS;
+
+    @ApiProperty({
+        description: "Required binding type between attestation and holder",
+        enum: BINDING_TYPE_VALUES,
+    })
+    bindingType!: BindingType;
+
+    @ApiProperty({
+        description:
+            "Credential formats in which this attestation is available",
+        enum: FORMAT_VALUES,
+        isArray: true,
+    })
+    supportedFormats!: CredentialFormatId[];
+
+    @ApiProperty({
+        description: "Format-specific schema URIs for this schema metadata",
+        type: [MetadataSchemaDto],
+    })
+    @ValidateNested({ each: true })
+    @Type(() => MetadataSchemaDto)
+    schemaURIs!: MetadataSchemaDto[];
+
+    @ApiProperty({
+        description:
+            "Trust frameworks / trust anchors applicable to this schema metadata",
+        type: [TrustAuthorityDto],
+    })
+    @ValidateNested({ each: true })
+    @Type(() => TrustAuthorityDto)
+    trustedAuthorities!: TrustAuthorityDto[];
+
+    @ApiPropertyOptional({
+        description: "Domain category for filtering",
+        enum: CATEGORY_VALUES,
+    })
+    category?: SchemaMetadataCategory;
+
+    @ApiPropertyOptional({
+        description: "Free-form tags for filtering and search",
+        type: [String],
+    })
+    tags?: string[];
+
+    @ApiProperty({ description: "The original signed JWT" })
+    signedJwt!: string;
+
+    @ApiProperty({ description: "Issuer from the JWT (`iss` claim)" })
+    issuer!: string;
+
+    @ApiProperty({
+        description:
+            "Serial number of the access certificate that signed this schema metadata",
+    })
+    signerCertificateSerial!: string;
+
+    @ApiPropertyOptional({
+        description: "The access certificate used to sign this schema metadata",
+        type: AccessCertificateRefDto,
+    })
+    @ValidateNested()
+    @Type(() => AccessCertificateRefDto)
+    signerCertificate?: AccessCertificateRefDto;
+
+    @ApiProperty({
+        description: "Timestamp when the JWT was issued (from the `iat` claim)",
+    })
+    issuedAt!: string;
+
+    @ApiProperty({ description: "Server creation timestamp" })
+    createdAt!: string;
+
+    @ApiProperty({ description: "Last update timestamp" })
+    updatedAt!: string;
+
+    @ApiPropertyOptional({ description: "Whether this version is deprecated" })
+    deprecated?: boolean;
+
+    @ApiPropertyOptional({
+        description: "Deprecation message shown to consumers",
+    })
+    deprecationMessage?: string;
+
+    @ApiPropertyOptional({
+        description: "The version that supersedes this one",
+    })
+    supersededByVersion?: string;
+}
+
+/**
+ * Request body for `PATCH /registrar/schema-metadata/:id/versions/:version/deprecation`.
+ */
+export class DeprecateSchemaMetadataDto {
+    @ApiProperty({ description: "Whether to mark this version as deprecated" })
+    deprecated!: boolean;
+
+    @ApiPropertyOptional({
+        description: "Deprecation message shown to consumers",
+    })
+    @IsOptional()
+    @IsString()
+    message?: string;
+
+    @ApiPropertyOptional({
+        description: "The version that supersedes this one",
+    })
+    @IsOptional()
+    @IsString()
+    supersededByVersion?: string;
+}

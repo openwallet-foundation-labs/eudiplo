@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/SchemaMetadataResponseDto.schema.json",
+  "title": "SchemaMetadataResponseDto",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "The unique, server-assigned identifier (UUID) for the schema metadata"
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of this schema metadata (SemVer)"
+    },
+    "rulebookURI": {
+      "type": "string",
+      "description": "URI of the human-readable Rulebook document"
+    },
+    "rulebookIntegrity": {
+      "type": "string",
+      "description": "Subresource Integrity hash for the rulebook URI"
+    },
+    "attestationLoS": {
+      "type": "string",
+      "description": "Level of security (LoS) of this attestation",
+      "enum": [
+        "iso_18045_high",
+        "iso_18045_moderate",
+        "iso_18045_enhanced-basic",
+        "iso_18045_basic"
+      ]
+    },
+    "bindingType": {
+      "type": "string",
+      "description": "Required binding type between attestation and holder",
+      "enum": [
+        "claim",
+        "key",
+        "biometric",
+        "none"
+      ]
+    },
+    "supportedFormats": {
+      "type": "array",
+      "description": "Credential formats in which this attestation is available",
+      "items": {
+        "type": "string",
+        "enum": [
+          "dc+sd-jwt",
+          "mso_mdoc"
+        ]
+      }
+    },
+    "schemaURIs": {
+      "description": "Format-specific schema URIs for this schema metadata",
+      "type": "array",
+      "items": {
+        "$ref": "./MetadataSchemaDto.schema.json"
+      }
+    },
+    "trustedAuthorities": {
+      "description": "Trust frameworks / trust anchors applicable to this schema metadata",
+      "type": "array",
+      "items": {
+        "$ref": "./TrustAuthorityDto.schema.json"
+      }
+    },
+    "category": {
+      "type": "string",
+      "description": "Domain category for filtering",
+      "enum": [
+        "identity",
+        "health",
+        "finance",
+        "education",
+        "mobility",
+        "employment",
+        "other"
+      ]
+    },
+    "tags": {
+      "description": "Free-form tags for filtering and search",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "signedJwt": {
+      "type": "string",
+      "description": "The original signed JWT"
+    },
+    "issuer": {
+      "type": "string",
+      "description": "Issuer from the JWT (`iss` claim)"
+    },
+    "signerCertificateSerial": {
+      "type": "string",
+      "description": "Serial number of the access certificate that signed this schema metadata"
+    },
+    "signerCertificate": {
+      "description": "The access certificate used to sign this schema metadata",
+      "allOf": [
+        {
+          "$ref": "./AccessCertificateRefDto.schema.json"
+        }
+      ]
+    },
+    "issuedAt": {
+      "type": "string",
+      "description": "Timestamp when the JWT was issued (from the `iat` claim)"
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "Server creation timestamp"
+    },
+    "updatedAt": {
+      "type": "string",
+      "description": "Last update timestamp"
+    },
+    "deprecated": {
+      "type": "boolean",
+      "description": "Whether this version is deprecated"
+    },
+    "deprecationMessage": {
+      "type": "string",
+      "description": "Deprecation message shown to consumers"
+    },
+    "supersededByVersion": {
+      "type": "string",
+      "description": "The version that supersedes this one"
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "attestationLoS",
+    "bindingType",
+    "supportedFormats",
+    "schemaURIs",
+    "trustedAuthorities",
+    "signedJwt",
+    "issuer",
+    "signerCertificateSerial",
+    "issuedAt",
+    "createdAt",
+    "updatedAt"
+  ],
+  "additionalProperties": false
+}

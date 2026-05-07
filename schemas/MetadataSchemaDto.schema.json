@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/MetadataSchemaDto.schema.json",
+  "title": "MetadataSchemaDto",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this schema entry"
+    },
+    "formatIdentifier": {
+      "type": "string",
+      "description": "The credential format identifier",
+      "enum": [
+        "dc+sd-jwt",
+        "mso_mdoc"
+      ]
+    },
+    "uri": {
+      "type": "string",
+      "description": "URI to the schema definition"
+    },
+    "schemaContent": {
+      "type": "object",
+      "description": "Inline schema content (JSON Schema)",
+      "additionalProperties": true
+    },
+    "integrity": {
+      "type": "string",
+      "description": "Subresource Integrity hash for the schema"
+    }
+  },
+  "required": [
+    "id",
+    "formatIdentifier"
+  ],
+  "additionalProperties": false
+}

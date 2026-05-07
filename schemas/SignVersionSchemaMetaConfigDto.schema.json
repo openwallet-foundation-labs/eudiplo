@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/SignVersionSchemaMetaConfigDto.schema.json",
+  "title": "SignVersionSchemaMetaConfigDto",
+  "type": "object",
+  "properties": {
+    "config": {
+      "description": "The schema metadata configuration to sign and submit as a new version. Must include the existing id.",
+      "allOf": [
+        {
+          "$ref": "./SchemaMetaConfig.schema.json"
+        }
+      ]
+    },
+    "keyChainId": {
+      "type": "string",
+      "description": "ID of the key chain to use for signing. Defaults to the tenant's default key chain."
+    }
+  },
+  "required": [
+    "config"
+  ],
+  "additionalProperties": false
+}

@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import {
-  client,
   type KeyChainCreateDto,
   type KeyChainResponseDto,
   type KeyChainUpdateDto,
   keyChainControllerCreate,
   keyChainControllerDelete,
+  keyChainControllerExport,
   keyChainControllerGetAll,
   keyChainControllerGetById,
   keyChainControllerRotate,
@@ -73,11 +73,7 @@ export class KeyChainService {
    * Export a key chain in config-import-compatible format (includes private key).
    */
   async export(id: string): Promise<Record<string, unknown>> {
-    const response = await client.get({
-      security: [{ scheme: 'bearer', type: 'http' }],
-      url: '/key-chain/{id}/export',
-      path: { id },
-    });
+    const response = await keyChainControllerExport({ path: { id } });
     return response.data as Record<string, unknown>;
   }
 }

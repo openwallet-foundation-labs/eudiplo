@@ -739,6 +739,7 @@ export class CredentialConfigCreateComponent implements OnInit {
     delete formValue.keyAttestationEnabled;
     delete formValue.keyStorageTypes;
     delete formValue.userAuthenticationTypes;
+
     return formValue;
   }
 

@@ -40,18 +40,30 @@ import type {
     SchemaMetadataControllerFindOneData,
     SchemaMetadataControllerFindOneErrors,
     SchemaMetadataControllerFindOneResponses,
+    SchemaMetadataControllerGetInternalMetadataData,
+    SchemaMetadataControllerGetInternalMetadataErrors,
+    SchemaMetadataControllerGetInternalMetadataResponses,
+    SchemaMetadataControllerGetLatestVersionInfoData,
+    SchemaMetadataControllerGetLatestVersionInfoErrors,
+    SchemaMetadataControllerGetLatestVersionInfoResponses,
     SchemaMetadataControllerGetSchemaData,
     SchemaMetadataControllerGetSchemaErrors,
     SchemaMetadataControllerGetSchemaResponses,
     SchemaMetadataControllerGetSignedJwtData,
     SchemaMetadataControllerGetSignedJwtErrors,
     SchemaMetadataControllerGetSignedJwtResponses,
+    SchemaMetadataControllerListVersionsData,
+    SchemaMetadataControllerListVersionsErrors,
+    SchemaMetadataControllerListVersionsResponses,
     SchemaMetadataControllerRemoveData,
     SchemaMetadataControllerRemoveErrors,
     SchemaMetadataControllerRemoveResponses,
     SchemaMetadataControllerReserveSchemaIdData,
     SchemaMetadataControllerReserveSchemaIdErrors,
     SchemaMetadataControllerReserveSchemaIdResponses,
+    SchemaMetadataControllerSetVersionDeprecationData,
+    SchemaMetadataControllerSetVersionDeprecationErrors,
+    SchemaMetadataControllerSetVersionDeprecationResponses,
     SchemaMetadataControllerSubmitSchemaMetadataData,
     SchemaMetadataControllerSubmitSchemaMetadataErrors,
     SchemaMetadataControllerSubmitSchemaMetadataResponses,
@@ -380,7 +392,7 @@ export const schemaMetadataControllerFindAll = <
 /**
  * Submit signed schema metadata
  *
- * Submit schema metadata signed with an access certificate. The JWT must have type "attestation-schema+jwt" and contain x5c certificate chain. If the attestationId is a catalog URL, include the reservation token in the X-Reservation-Token header.
+ * Submit schema metadata signed with an access certificate. The JWT must have type "attestation-schema+jwt" and contain x5c certificate chain.
  */
 export const schemaMetadataControllerSubmitSchemaMetadata = <
     ThrowOnError extends boolean = false,
@@ -404,6 +416,76 @@ export const schemaMetadataControllerSubmitSchemaMetadata = <
     });
 
 /**
+ * Get latest version information by ID
+ */
+export const schemaMetadataControllerGetLatestVersionInfo = <
+    ThrowOnError extends boolean = false,
+>(
+    options: Options<
+        SchemaMetadataControllerGetLatestVersionInfoData,
+        ThrowOnError
+    >,
+) =>
+    (options.client ?? client).get<
+        SchemaMetadataControllerGetLatestVersionInfoResponses,
+        SchemaMetadataControllerGetLatestVersionInfoErrors,
+        ThrowOnError
+    >({ url: "/schema-metadata/{id}/latest", ...options });
+
+/**
+ * List all versions by ID
+ */
+export const schemaMetadataControllerListVersions = <
+    ThrowOnError extends boolean = false,
+>(
+    options: Options<SchemaMetadataControllerListVersionsData, ThrowOnError>,
+) =>
+    (options.client ?? client).get<
+        SchemaMetadataControllerListVersionsResponses,
+        SchemaMetadataControllerListVersionsErrors,
+        ThrowOnError
+    >({ url: "/schema-metadata/{id}/versions", ...options });
+
+/**
+ * Set version deprecation status
+ */
+export const schemaMetadataControllerSetVersionDeprecation = <
+    ThrowOnError extends boolean = false,
+>(
+    options: Options<
+        SchemaMetadataControllerSetVersionDeprecationData,
+        ThrowOnError
+    >,
+) =>
+    (options.client ?? client).patch<
+        SchemaMetadataControllerSetVersionDeprecationResponses,
+        SchemaMetadataControllerSetVersionDeprecationErrors,
+        ThrowOnError
+    >({
+        security: [{ scheme: "bearer", type: "http" }],
+        url: "/schema-metadata/{id}/versions/{version}/deprecation",
+        ...options,
+        headers: {
+            "Content-Type": "application/json",
+            ...options.headers,
+        },
+    });
+
+/**
+ * Get latest schema metadata by ID
+ */
+export const schemaMetadataControllerFindOne = <
+    ThrowOnError extends boolean = false,
+>(
+    options: Options<SchemaMetadataControllerFindOneData, ThrowOnError>,
+) =>
+    (options.client ?? client).get<
+        SchemaMetadataControllerFindOneResponses,
+        SchemaMetadataControllerFindOneErrors,
+        ThrowOnError
+    >({ url: "/schema-metadata/{id}", ...options });
+
+/**
  * Delete schema metadata
  */
 export const schemaMetadataControllerRemove = <
@@ -417,23 +499,9 @@ export const schemaMetadataControllerRemove = <
         ThrowOnError
     >({
         security: [{ scheme: "bearer", type: "http" }],
-        url: "/schema-metadata/{id}",
+        url: "/schema-metadata/{id}/versions/{version}",
         ...options,
     });
-
-/**
- * Get schema metadata by ID
- */
-export const schemaMetadataControllerFindOne = <
-    ThrowOnError extends boolean = false,
->(
-    options: Options<SchemaMetadataControllerFindOneData, ThrowOnError>,
-) =>
-    (options.client ?? client).get<
-        SchemaMetadataControllerFindOneResponses,
-        SchemaMetadataControllerFindOneErrors,
-        ThrowOnError
-    >({ url: "/schema-metadata/{id}", ...options });
 
 /**
  * Update schema metadata attributes
@@ -451,7 +519,7 @@ export const schemaMetadataControllerUpdateMetadata = <
         ThrowOnError
     >({
         security: [{ scheme: "bearer", type: "http" }],
-        url: "/schema-metadata/{id}",
+        url: "/schema-metadata/{id}/versions/{version}",
         ...options,
         headers: {
             "Content-Type": "application/json",
@@ -471,7 +539,28 @@ export const schemaMetadataControllerGetSignedJwt = <
         SchemaMetadataControllerGetSignedJwtResponses,
         SchemaMetadataControllerGetSignedJwtErrors,
         ThrowOnError
-    >({ url: "/schema-metadata/{id}/jwt", ...options });
+    >({ url: "/schema-metadata/{id}/versions/{version}/jwt", ...options });
+
+/**
+ * Get internal author-only metadata
+ */
+export const schemaMetadataControllerGetInternalMetadata = <
+    ThrowOnError extends boolean = false,
+>(
+    options: Options<
+        SchemaMetadataControllerGetInternalMetadataData,
+        ThrowOnError
+    >,
+) =>
+    (options.client ?? client).get<
+        SchemaMetadataControllerGetInternalMetadataResponses,
+        SchemaMetadataControllerGetInternalMetadataErrors,
+        ThrowOnError
+    >({
+        security: [{ scheme: "bearer", type: "http" }],
+        url: "/schema-metadata/{id}/versions/{version}/internal",
+        ...options,
+    });
 
 /**
  * Export schema metadata in catalog format
@@ -485,7 +574,7 @@ export const schemaMetadataControllerExport = <
         SchemaMetadataControllerExportResponses,
         SchemaMetadataControllerExportErrors,
         ThrowOnError
-    >({ url: "/schema-metadata/{id}/export", ...options });
+    >({ url: "/schema-metadata/{id}/versions/{version}/export", ...options });
 
 /**
  * Get schema content for a specific credential format
@@ -499,4 +588,7 @@ export const schemaMetadataControllerGetSchema = <
         SchemaMetadataControllerGetSchemaResponses,
         SchemaMetadataControllerGetSchemaErrors,
         ThrowOnError
-    >({ url: "/schema-metadata/{id}/schemas/{format}", ...options });
+    >({
+        url: "/schema-metadata/{id}/versions/{version}/schemas/{format}",
+        ...options,
+    });

@@ -2,7 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import type { Jwk } from "@openid4vc/oauth2";
 import { CoseKey, DeviceKey, Issuer, SignatureAlgorithm } from "@owf/mdoc";
 import { X509Certificate } from "@peculiar/x509";
-import { exportJWK } from "jose";
+import { exportJWK, importX509 } from "jose";
 import { CertService } from "../../../../../crypto/key/cert/cert.service";
 import { KeyUsageType } from "../../../../../crypto/key/entities/key-chain.entity";
 import { KeyChainService } from "../../../../../crypto/key/key-chain.service";
@@ -96,6 +96,12 @@ export class MdocIssuerService {
             return new Uint8Array(x509Cert.rawData);
         });
 
+        // Ensure the private key used for signing matches the embedded leaf certificate.
+        await this.assertSigningKeyMatchesLeafCertificate(
+            privateKey as Jwk,
+            certificate.crt[0],
+        );
+
         // Set validity dates
         const signed = new Date();
         const validFrom = new Date(signed);
@@ -126,6 +132,49 @@ export class MdocIssuerService {
 
         // Return the encoded credential for OID4VCI
         return issuerSigned.encodedForOid4Vci;
+    }
+
+    private async assertSigningKeyMatchesLeafCertificate(
+        privateJwk: Jwk,
+        leafCertificatePem?: string,
+    ): Promise<void> {
+        if (!leafCertificatePem) {
+            throw new Error(
+                "mDOC issuance failed: no leaf certificate configured on the selected attestation key chain",
+            );
+        }
+
+        const certPublicKey = await importX509(leafCertificatePem, "ES256", {
+            extractable: true,
+        });
+        const certPublicJwk = (await exportJWK(certPublicKey)) as Jwk;
+
+        const privateJwkPublicPart = {
+            kty: privateJwk.kty,
+            crv: privateJwk.crv,
+            x: privateJwk.x,
+            y: privateJwk.y,
+        };
+        const certJwkPublicPart = {
+            kty: certPublicJwk.kty,
+            crv: certPublicJwk.crv,
+            x: certPublicJwk.x,
+            y: certPublicJwk.y,
+        };
+
+        if (
+            privateJwkPublicPart.kty !== certJwkPublicPart.kty ||
+            privateJwkPublicPart.crv !== certJwkPublicPart.crv ||
+            privateJwkPublicPart.x !== certJwkPublicPart.x ||
+            privateJwkPublicPart.y !== certJwkPublicPart.y
+        ) {
+            this.logger.error(
+                "mDOC issuance key mismatch: active signing key does not match leaf certificate public key",
+            );
+            throw new Error(
+                "mDOC issuance failed: signing key does not match the embedded attestation certificate. Regenerate or re-import the certificate for this key chain.",
+            );
+        }
     }
 
     /**

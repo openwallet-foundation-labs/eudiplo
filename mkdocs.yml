@@ -114,6 +114,7 @@ nav:
         - Issuance:
           - Overview: getting-started/issuance/index.md
           - Credential Configuration: getting-started/issuance/credential-configuration.md
+          - Schema Metadata: getting-started/issuance/schema-metadata.md
           - Issuance Configuration: getting-started/issuance/issuance-configuration.md
         - Presentation:
           - Overview: getting-started/presentation/index.md

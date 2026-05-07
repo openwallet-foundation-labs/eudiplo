@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { lookup } from "node:dns/promises";
 import { readFileSync } from "node:fs";
 import { isIP } from "node:net";
@@ -37,6 +38,26 @@ import {
 import { IncompletePresentationException } from "./exceptions/incomplete-presentation.exception";
 
 type CredentialType = "dc+sd-jwt" | "mso_mdoc";
+
+type ResolvedSchemaMetadataPayload = {
+    id: string;
+    version?: string;
+    name?: string;
+    description?: string;
+    category?: string;
+    tags?: string[];
+    supportedFormats: string[];
+    schemaURIs: Array<{
+        formatIdentifier?: string;
+        format?: string;
+        uri?: string;
+    }>;
+    trustedAuthorities: Array<{
+        frameworkType?: string;
+        value?: string;
+        isLoTE?: boolean;
+    }>;
+};
 
 /**
  * Service for managing Verifiable Presentations (VPs) and handling SD-JWT-VCs.
@@ -144,7 +165,7 @@ export class PresentationsService {
         merged.registrationCertCache = null;
         const saved = await this.vpRequestRepository.save(merged);
 
-        if (saved.registrationCert) {
+        if (saved.registration_cert) {
             this.scheduleRegistrationCertRefresh(saved.id, tenantId);
         }
 
@@ -182,7 +203,7 @@ export class PresentationsService {
                 "registrationCert",
             ) || Object.prototype.hasOwnProperty.call(vprequest, "dcql_query");
 
-        if (!merged.registrationCert) {
+        if (!merged.registration_cert) {
             merged.registrationCertCache = null;
         } else if (cacheRelevantChanged) {
             // Mark pending in UI while async refresh runs.
@@ -191,7 +212,7 @@ export class PresentationsService {
 
         const saved = await this.vpRequestRepository.save(merged);
 
-        if (saved.registrationCert && cacheRelevantChanged) {
+        if (saved.registration_cert && cacheRelevantChanged) {
             this.scheduleRegistrationCertRefresh(saved.id, tenantId);
         }
 
@@ -213,7 +234,7 @@ export class PresentationsService {
             id,
             tenantId,
         );
-        if (!presentationConfig.registrationCert) {
+        if (!presentationConfig.registration_cert) {
             throw new BadRequestException(
                 "Presentation config has no registrationCert spec",
             );
@@ -237,8 +258,19 @@ export class PresentationsService {
 
         // Force a fresh resolve by clearing the cache first.
         presentationConfig.registrationCertCache = null;
+        const reissueConfig = {
+            ...presentationConfig,
+            registration_cert: presentationConfig.registration_cert?.body
+                ? {
+                      body: presentationConfig.registration_cert.body,
+                      ...(presentationConfig.registration_cert.id
+                          ? { id: presentationConfig.registration_cert.id }
+                          : {}),
+                  }
+                : presentationConfig.registration_cert,
+        } as PresentationConfig;
         const jwt = await this.getOrIssueRegistrationCertificate(
-            presentationConfig,
+            reissueConfig,
             resolvedDcql,
             `reissue-${id}`,
         );
@@ -264,7 +296,7 @@ export class PresentationsService {
         resolvedDcqlQuery: any,
         requestId: string,
     ): Promise<string | undefined> {
-        if (!presentationConfig.registrationCert) {
+        if (!presentationConfig.registration_cert) {
             return undefined;
         }
         if (
@@ -279,7 +311,7 @@ export class PresentationsService {
             presentationConfig.dcql_query,
         );
         const specFingerprint = this.registrarService.computeSpecFingerprint(
-            presentationConfig.registrationCert,
+            presentationConfig.registration_cert,
         );
 
         const cache = presentationConfig.registrationCertCache;
@@ -297,7 +329,7 @@ export class PresentationsService {
 
         const resolved =
             await this.registrarService.resolveRegistrationCertificate(
-                presentationConfig.registrationCert as any,
+                presentationConfig.registration_cert as any,
                 resolvedDcqlQuery,
                 requestId,
                 presentationConfig.tenantId,
@@ -353,7 +385,7 @@ export class PresentationsService {
         next: PresentationConfig,
         existing: PresentationConfig | undefined,
     ): Promise<void> {
-        const spec = next.registrationCert;
+        const spec = next.registration_cert;
         if (!spec) {
             next.registrationCertCache = null;
             return;
@@ -455,7 +487,7 @@ export class PresentationsService {
                 tenantId,
             });
 
-            if (!latest || !latest.registrationCert) {
+            if (!latest || !latest.registration_cert) {
                 return;
             }
 
@@ -520,6 +552,129 @@ export class PresentationsService {
         return metadata;
     }
 
+    /**
+     * Resolve schema metadata from a URL and decode its signed JWT payload.
+     * Returns normalized fields that can be used to build a DCQL query.
+     */
+    /**
+     * List schema metadata entries from the connected registrar catalog.
+     * Returns an empty array when the registrar is not enabled for the tenant.
+     */
+    async listSchemaMetadataCatalog(tenantId: string) {
+        const enabled =
+            await this.registrarService.isEnabledForTenant(tenantId);
+        if (!enabled) {
+            return [];
+        }
+        return this.registrarService.findAllSchemaMetadata(tenantId, {});
+    }
+
+    async resolveSchemaMetadata(schemaMetadataUrl: string): Promise<{
+        signedJwt: string;
+        schema: ResolvedSchemaMetadataPayload;
+    }> {
+        const response =
+            await this.fetchCredentialIssuerMetadata(schemaMetadataUrl);
+
+        if (!response || typeof response !== "object") {
+            throw new BadRequestException(
+                `Schema metadata response from ${schemaMetadataUrl} is invalid`,
+            );
+        }
+
+        const signedJwt =
+            typeof (response as { signedJwt?: unknown }).signedJwt === "string"
+                ? (response as { signedJwt: string }).signedJwt
+                : undefined;
+
+        if (!signedJwt) {
+            throw new BadRequestException(
+                "Schema metadata response does not contain a signedJwt field",
+            );
+        }
+
+        let payload: Record<string, unknown>;
+        try {
+            payload = decodeJwt(signedJwt) as Record<string, unknown>;
+        } catch {
+            throw new BadRequestException(
+                "signedJwt in schema metadata response is not a valid JWT",
+            );
+        }
+
+        const id = typeof payload.id === "string" ? payload.id : undefined;
+        if (!id) {
+            throw new BadRequestException(
+                "Schema metadata JWT payload is missing a valid id",
+            );
+        }
+
+        const supportedFormats = Array.isArray(payload.supportedFormats)
+            ? payload.supportedFormats.filter(
+                  (format): format is string => typeof format === "string",
+              )
+            : [];
+
+        const schemaURIs = Array.isArray(payload.schemaURIs)
+            ? (payload.schemaURIs as Array<{
+                  formatIdentifier?: string;
+                  format?: string;
+                  uri?: string;
+              }>)
+            : [];
+
+        const trustedAuthorities = Array.isArray(payload.trustedAuthorities)
+            ? (payload.trustedAuthorities as Array<{
+                  frameworkType?: string;
+                  value?: string;
+                  isLoTE?: boolean;
+              }>)
+            : [];
+
+        const schemaUriFormats = schemaURIs
+            .map((entry) => entry.formatIdentifier ?? entry.format)
+            .filter((format): format is string => typeof format === "string");
+
+        const allFormats = Array.from(
+            new Set([...supportedFormats, ...schemaUriFormats]),
+        );
+
+        if (allFormats.length === 0) {
+            throw new BadRequestException(
+                "Schema metadata JWT payload does not contain any supported formats",
+            );
+        }
+
+        return {
+            signedJwt,
+            schema: {
+                id,
+                version:
+                    typeof payload.version === "string"
+                        ? payload.version
+                        : undefined,
+                name:
+                    typeof payload.name === "string" ? payload.name : undefined,
+                description:
+                    typeof payload.description === "string"
+                        ? payload.description
+                        : undefined,
+                category:
+                    typeof payload.category === "string"
+                        ? payload.category
+                        : undefined,
+                tags: Array.isArray(payload.tags)
+                    ? payload.tags.filter(
+                          (tag): tag is string => typeof tag === "string",
+                      )
+                    : undefined,
+                supportedFormats: allFormats,
+                schemaURIs,
+                trustedAuthorities,
+            },
+        };
+    }
+
     private async fetchCredentialIssuerMetadata(metadataUrl: string) {
         let currentUrl = metadataUrl;
 
@@ -561,11 +716,25 @@ export class PresentationsService {
                 );
             }
 
-            return response.json().catch(() => {
+            // Try to parse as JSON; if it fails, check if it's a raw JWT string
+            const text = await response.text();
+            try {
+                return JSON.parse(text);
+            } catch {
+                // If JSON parsing fails, check if the response is a raw JWT string
+                // (format: base64url.base64url.base64url)
+                if (
+                    /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(
+                        text,
+                    )
+                ) {
+                    // Return as { signedJwt: string } to normalize for resolveSchemaMetadata
+                    return { signedJwt: text };
+                }
                 throw new BadRequestException(
-                    `Issuer metadata response from ${currentUrl} is not valid JSON`,
+                    `Issuer metadata response from ${currentUrl} is not valid JSON or JWT`,
                 );
-            });
+            }
         }
 
         throw new BadRequestException(
@@ -765,11 +934,74 @@ export class PresentationsService {
         // Get transaction_data from the request object JWT payload
         // This ensures we use the exact same encoded strings that were sent to the wallet
         let transactionDataStrings: string[] | undefined;
+        let requestObjectSessionData:
+            | {
+                  nonce?: string;
+                  client_id?: string;
+                  response_uri?: string;
+                  response_mode?: string;
+              }
+            | undefined;
+        let requestObjectJwkThumbprint: Uint8Array | undefined;
         if (session.requestObject) {
             const requestPayload = decodeJwt(session.requestObject) as {
                 transaction_data?: string[];
+                nonce?: string;
+                client_id?: string;
+                response_uri?: string;
+                response_mode?: string;
+                client_metadata?: {
+                    jwks?: { keys?: Array<Record<string, any>> };
+                };
             };
             transactionDataStrings = requestPayload.transaction_data;
+            requestObjectSessionData = requestPayload;
+
+            // Per ISO 18013-7 / OpenID4VP, OID4VPHandoverInfo carries the SHA-256
+            // JWK thumbprint of the verifier's response encryption key (the one in
+            // client_metadata.jwks used to encrypt the JARM response). The wallet
+            // computes this when constructing DeviceAuthentication, so we must
+            // match it here.
+            try {
+                const jwks = requestPayload.client_metadata?.jwks?.keys;
+                if (jwks && jwks.length > 0) {
+                    // Pick the first encryption key (use=enc) or fall back to first.
+                    const encJwk = jwks.find((k) => k.use === "enc") ?? jwks[0];
+                    // RFC 7638 canonical JSON for EC/OKP/RSA keys.
+                    let canonical: string | undefined;
+                    if (encJwk.kty === "EC") {
+                        canonical = JSON.stringify({
+                            crv: encJwk.crv,
+                            kty: encJwk.kty,
+                            x: encJwk.x,
+                            y: encJwk.y,
+                        });
+                    } else if (encJwk.kty === "OKP") {
+                        canonical = JSON.stringify({
+                            crv: encJwk.crv,
+                            kty: encJwk.kty,
+                            x: encJwk.x,
+                        });
+                    } else if (encJwk.kty === "RSA") {
+                        canonical = JSON.stringify({
+                            e: encJwk.e,
+                            kty: encJwk.kty,
+                            n: encJwk.n,
+                        });
+                    }
+                    if (canonical) {
+                        requestObjectJwkThumbprint = new Uint8Array(
+                            createHash("sha256")
+                                .update(Buffer.from(canonical, "utf8"))
+                                .digest(),
+                        );
+                    }
+                }
+            } catch (err: any) {
+                this.logger.debug(
+                    `Could not compute response-encryption JWK thumbprint: ${err?.message ?? err}`,
+                );
+            }
         }
 
         const results = await Promise.all(
@@ -844,15 +1076,28 @@ export class PresentationsService {
                                 await this.mdocverifierService.verify(
                                     cred,
                                     {
-                                        nonce: session.vp_nonce as string,
-                                        clientId: session.clientId!,
-                                        responseUri: session.responseUri!,
+                                        nonce:
+                                            requestObjectSessionData?.nonce ??
+                                            (session.vp_nonce as string),
+                                        clientId:
+                                            requestObjectSessionData?.client_id ??
+                                            session.clientId!,
+                                        responseUri:
+                                            requestObjectSessionData?.response_uri ??
+                                            session.responseUri!,
                                         protocol: "openid4vp",
-                                        responseMode: session.useDcApi
-                                            ? "dc_api.jwt"
-                                            : "direct_post.jwt",
+                                        responseMode:
+                                            requestObjectSessionData?.response_mode ??
+                                            (session.useDcApi
+                                                ? "dc_api.jwt"
+                                                : "direct_post.jwt"),
+                                        jwkThumbprint:
+                                            requestObjectJwkThumbprint,
                                     },
                                     verifyOptions,
+                                    dcqlCredential.claims?.map(
+                                        (claim) => claim.path,
+                                    ),
                                 );
                             if (!result.verified) {
                                 const reasonByType: Record<string, string> = {

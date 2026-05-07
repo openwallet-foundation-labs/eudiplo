@@ -17,6 +17,7 @@ import { PresentationManagementService } from '../presentation-management.servic
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { WebhookConfigShowComponent } from '../../../utils/webhook-config-show/webhook-config-show.component';
 import { presentationManagementControllerReissueRegistrationCertificate } from '@eudiplo/sdk-core';
+import { decodeJwt, decodeProtectedHeader } from 'jose';
 import {
   formatRegistrationCertExpiresIn,
   getRegistrationCertStatus,
@@ -92,6 +93,36 @@ export class PresentationShowComponent implements OnInit {
     return (this.config?.registrationCertCache as any) ?? null;
   }
 
+  get registrationCertJwt(): string | null {
+    const cachedJwt = this.registrationCertCache?.jwt;
+    if (cachedJwt) return cachedJwt;
+
+    const configuredJwt = (this.config as any)?.registration_cert?.jwt;
+    return typeof configuredJwt === 'string' && configuredJwt.length > 0 ? configuredJwt : null;
+  }
+
+  get parsedRegistrationCertHeader(): string {
+    const jwt = this.registrationCertJwt;
+    if (!jwt) return 'No registration certificate JWT available';
+
+    try {
+      return JSON.stringify(decodeProtectedHeader(jwt), null, 2);
+    } catch (error) {
+      return `Unable to decode JWT header: ${error instanceof Error ? error.message : 'Unknown error'}`;
+    }
+  }
+
+  get parsedRegistrationCertPayload(): string {
+    const jwt = this.registrationCertJwt;
+    if (!jwt) return 'No registration certificate JWT available';
+
+    try {
+      return JSON.stringify(decodeJwt(jwt), null, 2);
+    } catch (error) {
+      return `Unable to decode JWT payload: ${error instanceof Error ? error.message : 'Unknown error'}`;
+    }
+  }
+
   reissueRegistrationCert(): void {
     if (!this.config) return;
     this.reissuing = true;
@@ -159,7 +190,16 @@ export class PresentationShowComponent implements OnInit {
    */
   downloadConfig() {
     if (this.config) {
-      const blob = new Blob([JSON.stringify(this.config, null, 2)], {
+      const exportConfig: any = { ...this.config };
+      if (this.registrationCertJwt) {
+        exportConfig.registration_cert = {
+          ...((this.config as any).registration_cert ?? {}),
+          jwt: this.registrationCertJwt,
+        };
+      }
+      delete exportConfig.registrationCertCache;
+
+      const blob = new Blob([JSON.stringify(exportConfig, null, 2)], {
         type: 'application/json',
       });
       const url = URL.createObjectURL(blob);

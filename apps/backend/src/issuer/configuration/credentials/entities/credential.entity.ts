@@ -25,6 +25,7 @@ import { AttributeProviderEntity } from "../../attribute-provider/entities/attri
 import { KeyAttestationsRequired } from "../../issuance/dto/key-attestations-required.dto";
 import { WebhookEndpointEntity } from "../../webhook-endpoint/entities/webhook-endpoint.entity";
 import { ClaimMetadata } from "../dto/claim-metadata.dto";
+import { SchemaMetaConfig } from "../dto/schema-meta-config.dto";
 import {
     IaeAction,
     IaeActionBase,
@@ -327,6 +328,21 @@ export class CredentialConfig {
     @Type(() => SchemaResponse)
     @Column("json", { nullable: true })
     schema?: SchemaResponse | null;
+
+    /**
+     * TS11 schema metadata configuration for EUDI Catalogue of Attestations.
+     *
+     * When present, EUDIPLO can generate a SchemaMeta object per the TS11 spec
+     * using the GET /issuer/credentials/:id/schema-metadata endpoint.
+     *
+     * @experimental The underlying TS11 specification is not yet finalized.
+     */
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => SchemaMetaConfig)
+    @ApiPropertyOptional({ type: () => SchemaMetaConfig })
+    @Column("json", { nullable: true })
+    schemaMeta?: SchemaMetaConfig | null;
 
     /**
      * Embedded disclosure policy (discriminated union by `policy`).

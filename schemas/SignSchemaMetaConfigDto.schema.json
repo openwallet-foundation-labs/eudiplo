@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/SignSchemaMetaConfigDto.schema.json",
+  "title": "SignSchemaMetaConfigDto",
+  "type": "object",
+  "properties": {
+    "config": {
+      "description": "The schema metadata configuration to sign and submit",
+      "allOf": [
+        {
+          "$ref": "./SchemaMetaConfig.schema.json"
+        }
+      ]
+    },
+    "keyChainId": {
+      "type": "string",
+      "description": "ID of the key chain to use for signing. Defaults to the tenant's default key chain."
+    },
+    "credentialConfigId": {
+      "type": "string",
+      "description": "ID of the credential config to link back after submission. When provided, schemaMeta.id on the credential config is updated with the reserved attestation ID."
+    }
+  },
+  "required": [
+    "config"
+  ],
+  "additionalProperties": false
+}

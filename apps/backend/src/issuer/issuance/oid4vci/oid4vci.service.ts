@@ -174,7 +174,6 @@ export class Oid4vciService {
     > {
         const encPublicKey =
             await this.encryptionService.getEncryptionPublicKey(tenantId);
-        encPublicKey.use = "enc";
 
         return {
             jwks: { keys: [encPublicKey] },

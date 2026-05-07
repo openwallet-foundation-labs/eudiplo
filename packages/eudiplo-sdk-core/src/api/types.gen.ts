@@ -712,6 +712,18 @@ export type Session = {
    * Reset implicitly when the session is consumed successfully.
    */
   txCodeFailedAttempts: number;
+  /**
+   * Flag indicating whether the session offer has been consumed.
+   * Prevents replay attacks by ensuring each offer can only be used once.
+   * For OID4VCI: set after successful token exchange.
+   * For OID4VP: set after successful response validation.
+   */
+  consumed: boolean;
+  /**
+   * Timestamp when the session offer was consumed.
+   * Null if the offer has not yet been consumed.
+   */
+  consumedAt?: string;
 };
 
 export type SessionLogEntryResponseDto = {
@@ -1188,6 +1200,67 @@ export type WebhookEndpointEntity = {
   url: string;
 };
 
+export type SchemaUriEntry = {
+  /**
+   * Attestation format this schema URI applies to (e.g. dc+sd-jwt, mso_mdoc)
+   */
+  format?: string;
+  /**
+   * URI pointing to the schema document for this format
+   */
+  uri?: string;
+};
+
+export type TrustAuthorityEntry = {
+  /**
+   * Trust framework type
+   */
+  frameworkType?: "aki" | "etsi_tl" | "openid_federation";
+  /**
+   * URI of the trust list or trust anchor
+   */
+  value?: string;
+  /**
+   * Whether this trust authority is a List of Trusted Entities (LoTE)
+   */
+  isLoTE?: boolean;
+};
+
+export type SchemaMetaConfig = {
+  /**
+   * Optional override for the schema ID (attestation identifier URI). When not set, derived from vct (dc+sd-jwt) or docType (mso_mdoc).
+   */
+  id?: string;
+  /**
+   * Schema version in SemVer format
+   */
+  version?: string;
+  /**
+   * URI of the Attestation Rulebook
+   */
+  rulebookURI?: string;
+  /**
+   * Attestation Level of Security
+   */
+  attestationLoS?:
+    | "iso_18045_high"
+    | "iso_18045_moderate"
+    | "iso_18045_enhanced-basic"
+    | "iso_18045_basic";
+  /**
+   * Cryptographic binding type
+   */
+  bindingType?: "claim" | "key" | "biometric" | "none";
+  /**
+   * Schema URIs per attestation format. When omitted, the format is derived from the credential config format field.
+   */
+  schemaURIs?: Array<SchemaUriEntry>;
+  /**
+   * Trust authorities for this attestation schema
+   */
+  trustedAuthorities?: Array<TrustAuthorityEntry>;
+};
+
 export type EmbeddedDisclosurePolicy = {
   policy: string;
 };
@@ -1407,6 +1480,15 @@ export type CredentialConfig = {
    */
   iaeActions?: Array<IaeActionOpenid4VpPresentation | IaeActionRedirectToWeb>;
   /**
+   * TS11 schema metadata configuration for EUDI Catalogue of Attestations.
+   *
+   * When present, EUDIPLO can generate a SchemaMeta object per the TS11 spec
+   * using the GET /issuer/credentials/:id/schema-metadata endpoint.
+   *
+   * The underlying TS11 specification is not yet finalized.
+   */
+  schemaMeta?: SchemaMetaConfig;
+  /**
    * Embedded disclosure policy (discriminated union by `policy`).
    * The discriminator makes class-transformer instantiate the right subclass,
    * and then class-validator runs that subclass’s rules.
@@ -1459,6 +1541,15 @@ export type CredentialConfigCreate = {
    */
   iaeActions?: Array<IaeActionOpenid4VpPresentation | IaeActionRedirectToWeb>;
   /**
+   * TS11 schema metadata configuration for EUDI Catalogue of Attestations.
+   *
+   * When present, EUDIPLO can generate a SchemaMeta object per the TS11 spec
+   * using the GET /issuer/credentials/:id/schema-metadata endpoint.
+   *
+   * The underlying TS11 specification is not yet finalized.
+   */
+  schemaMeta?: SchemaMetaConfig;
+  /**
    * Embedded disclosure policy (discriminated union by `policy`).
    * The discriminator makes class-transformer instantiate the right subclass,
    * and then class-validator runs that subclass’s rules.
@@ -1504,6 +1595,15 @@ export type CredentialConfigUpdate = {
    */
   iaeActions?: Array<IaeActionOpenid4VpPresentation | IaeActionRedirectToWeb>;
   /**
+   * TS11 schema metadata configuration for EUDI Catalogue of Attestations.
+   *
+   * When present, EUDIPLO can generate a SchemaMeta object per the TS11 spec
+   * using the GET /issuer/credentials/:id/schema-metadata endpoint.
+   *
+   * The underlying TS11 specification is not yet finalized.
+   */
+  schemaMeta?: SchemaMetaConfig;
+  /**
    * Embedded disclosure policy (discriminated union by `policy`).
    * The discriminator makes class-transformer instantiate the right subclass,
    * and then class-validator runs that subclass’s rules.
@@ -1537,6 +1637,32 @@ export type CredentialConfigUpdate = {
   statusManagement?: boolean;
   lifeTime?: number;
   schema?: SchemaResponse;
+};
+
+export type SignSchemaMetaConfigDto = {
+  /**
+   * The schema metadata configuration to sign and submit
+   */
+  config: SchemaMetaConfig;
+  /**
+   * ID of the key chain to use for signing. Defaults to the tenant's default key chain.
+   */
+  keyChainId?: string;
+  /**
+   * ID of the credential config to link back after submission. When provided, schemaMeta.id on the credential config is updated with the reserved attestation ID.
+   */
+  credentialConfigId?: string;
+};
+
+export type SignVersionSchemaMetaConfigDto = {
+  /**
+   * The schema metadata configuration to sign and submit as a new version. Must include the existing id.
+   */
+  config: SchemaMetaConfig;
+  /**
+   * ID of the key chain to use for signing. Defaults to the tenant's default key chain.
+   */
+  keyChainId?: string;
 };
 
 export type CreateAttributeProviderDto = {
@@ -1657,7 +1783,7 @@ export type PresentationConfig = {
   /**
    * The registration certificate request containing the necessary details.
    */
-  registrationCert?: RegistrationCertificateRequest;
+  registration_cert?: RegistrationCertificateRequest;
   /**
    * Optional webhook URL to receive the response.
    */
@@ -1698,6 +1824,13 @@ export type ResolveIssuerMetadataDto = {
   issuerUrl: string;
 };
 
+export type ResolveSchemaMetadataDto = {
+  /**
+   * Schema metadata URL to resolve server-side. The response must contain a signedJwt field.
+   */
+  schemaMetadataUrl: string;
+};
+
 export type PresentationConfigCreateDto = {
   /**
    * Unique identifier for the VP request.
@@ -1719,7 +1852,7 @@ export type PresentationConfigCreateDto = {
   /**
    * The registration certificate request containing the necessary details.
    */
-  registrationCert?: RegistrationCertificateRequest;
+  registration_cert?: RegistrationCertificateRequest;
   /**
    * Optional webhook URL to receive the response.
    */
@@ -1766,7 +1899,7 @@ export type PresentationConfigUpdateDto = {
   /**
    * The registration certificate request containing the necessary details.
    */
-  registrationCert?: RegistrationCertificateRequest;
+  registration_cert?: RegistrationCertificateRequest;
   /**
    * Optional webhook URL to receive the response.
    */
@@ -1901,6 +2034,202 @@ export type CreateAccessCertificateDto = {
    * The ID of the key to create an access certificate for
    */
   keyId: string;
+};
+
+export type MetadataSchemaDto = {
+  /**
+   * Unique identifier for this schema entry
+   */
+  id: string;
+  /**
+   * The credential format identifier
+   */
+  formatIdentifier: "dc+sd-jwt" | "mso_mdoc";
+  /**
+   * URI to the schema definition
+   */
+  uri?: string;
+  /**
+   * Inline schema content (JSON Schema)
+   */
+  schemaContent?: {
+    [key: string]: unknown;
+  };
+  /**
+   * Subresource Integrity hash for the schema
+   */
+  integrity?: string;
+};
+
+export type TrustAuthorityDto = {
+  /**
+   * Unique identifier for this trust authority entry
+   */
+  id: string;
+  /**
+   * Type of trust framework
+   */
+  frameworkType: "etsi_tl";
+  /**
+   * URI or identifier for the trust list / authority
+   */
+  value: string;
+  /**
+   * Verification method for the trust list signature (e.g., JWK)
+   */
+  verificationMethod?: {
+    [key: string]: unknown;
+  };
+};
+
+export type AccessCertificateRefDto = {
+  id: string;
+  relyingPartyId: string;
+  certificate: string;
+  revoked: string;
+  createdAt: string;
+};
+
+export type SchemaMetadataResponseDto = {
+  /**
+   * The unique, server-assigned identifier (UUID) for the schema metadata
+   */
+  id: string;
+  /**
+   * Version of this schema metadata (SemVer)
+   */
+  version: string;
+  /**
+   * URI of the human-readable Rulebook document
+   */
+  rulebookURI?: string;
+  /**
+   * Subresource Integrity hash for the rulebook URI
+   */
+  rulebookIntegrity?: string;
+  /**
+   * Level of security (LoS) of this attestation
+   */
+  attestationLoS:
+    | "iso_18045_high"
+    | "iso_18045_moderate"
+    | "iso_18045_enhanced-basic"
+    | "iso_18045_basic";
+  /**
+   * Required binding type between attestation and holder
+   */
+  bindingType: "claim" | "key" | "biometric" | "none";
+  /**
+   * Credential formats in which this attestation is available
+   */
+  supportedFormats: Array<"dc+sd-jwt" | "mso_mdoc">;
+  /**
+   * Format-specific schema URIs for this schema metadata
+   */
+  schemaURIs: Array<MetadataSchemaDto>;
+  /**
+   * Trust frameworks / trust anchors applicable to this schema metadata
+   */
+  trustedAuthorities: Array<TrustAuthorityDto>;
+  /**
+   * Domain category for filtering
+   */
+  category?:
+    | "identity"
+    | "health"
+    | "finance"
+    | "education"
+    | "mobility"
+    | "employment"
+    | "other";
+  /**
+   * Free-form tags for filtering and search
+   */
+  tags?: Array<string>;
+  /**
+   * The original signed JWT
+   */
+  signedJwt: string;
+  /**
+   * Issuer from the JWT (`iss` claim)
+   */
+  issuer: string;
+  /**
+   * Serial number of the access certificate that signed this schema metadata
+   */
+  signerCertificateSerial: string;
+  /**
+   * The access certificate used to sign this schema metadata
+   */
+  signerCertificate?: AccessCertificateRefDto;
+  /**
+   * Timestamp when the JWT was issued (from the `iat` claim)
+   */
+  issuedAt: string;
+  /**
+   * Server creation timestamp
+   */
+  createdAt: string;
+  /**
+   * Last update timestamp
+   */
+  updatedAt: string;
+  /**
+   * Whether this version is deprecated
+   */
+  deprecated?: boolean;
+  /**
+   * Deprecation message shown to consumers
+   */
+  deprecationMessage?: string;
+  /**
+   * The version that supersedes this one
+   */
+  supersededByVersion?: string;
+};
+
+export type SubmitSchemaMetadataDto = {
+  /**
+   * The signed schema metadata JWS (compact serialization). Sign via `POST /api/issuer/credentials/schema-metadata/sign`.
+   */
+  signedJwt: string;
+  /**
+   * Reservation token returned by `/schema-metadata/reserve`. Required when the JWT's `id` is a registrar-reserved URL.
+   */
+  reservationToken?: string;
+};
+
+export type UpdateSchemaMetadataDto = {
+  /**
+   * Domain category for filtering
+   */
+  category?:
+    | "identity"
+    | "health"
+    | "finance"
+    | "education"
+    | "mobility"
+    | "employment"
+    | "other";
+  /**
+   * Free-form tags for filtering and search
+   */
+  tags?: Array<string>;
+};
+
+export type DeprecateSchemaMetadataDto = {
+  /**
+   * Whether to mark this version as deprecated
+   */
+  deprecated: boolean;
+  /**
+   * Deprecation message shown to consumers
+   */
+  message?: string;
+  /**
+   * The version that supersedes this one
+   */
+  supersededByVersion?: string;
 };
 
 export type DeferredCredentialRequestDto = {
@@ -2735,7 +3064,7 @@ export type PresentationConfigWritable = {
   /**
    * The registration certificate request containing the necessary details.
    */
-  registrationCert?: RegistrationCertificateRequest;
+  registration_cert?: RegistrationCertificateRequest;
   /**
    * Optional webhook URL to receive the response.
    */
@@ -3462,6 +3791,80 @@ export type CredentialConfigControllerUpdateCredentialConfigurationResponses = {
 export type CredentialConfigControllerUpdateCredentialConfigurationResponse =
   CredentialConfigControllerUpdateCredentialConfigurationResponses[keyof CredentialConfigControllerUpdateCredentialConfigurationResponses];
 
+export type CredentialConfigControllerGetSchemaMetadataData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: {
+    /**
+     * Return a signed JWS instead of a plain JSON object
+     */
+    signed?: boolean;
+  };
+  url: "/api/issuer/credentials/{id}/schema-metadata";
+};
+
+export type CredentialConfigControllerGetSchemaMetadataErrors = {
+  /**
+   * Invalid schema metadata or missing certificate for signing
+   */
+  400: unknown;
+  /**
+   * Credential config not found or no schemaMeta configured
+   */
+  404: unknown;
+};
+
+export type CredentialConfigControllerGetSchemaMetadataResponses = {
+  /**
+   * SchemaMeta document
+   */
+  200: unknown;
+};
+
+export type CredentialConfigControllerSignSchemaMetaConfigData = {
+  body: SignSchemaMetaConfigDto;
+  path?: never;
+  query?: never;
+  url: "/api/issuer/credentials/schema-metadata/sign";
+};
+
+export type CredentialConfigControllerSignSchemaMetaConfigErrors = {
+  /**
+   * Invalid schema metadata or missing certificate for signing
+   */
+  400: unknown;
+};
+
+export type CredentialConfigControllerSignSchemaMetaConfigResponses = {
+  /**
+   * Registrar metadata entry for the freshly submitted schema metadata.
+   */
+  201: unknown;
+};
+
+export type CredentialConfigControllerSignVersionSchemaMetaConfigData = {
+  body: SignVersionSchemaMetaConfigDto;
+  path?: never;
+  query?: never;
+  url: "/api/issuer/credentials/schema-metadata/sign-version";
+};
+
+export type CredentialConfigControllerSignVersionSchemaMetaConfigErrors = {
+  /**
+   * config.id is required; or invalid schema metadata
+   */
+  400: unknown;
+};
+
+export type CredentialConfigControllerSignVersionSchemaMetaConfigResponses = {
+  /**
+   * Registrar metadata entry for the newly submitted version.
+   */
+  201: unknown;
+};
+
 export type AttributeProviderControllerGetAllData = {
   body?: never;
   path?: never;
@@ -3707,6 +4110,42 @@ export type PresentationManagementControllerResolveIssuerMetadataResponses = {
    */
   200: unknown;
 };
+
+export type PresentationManagementControllerResolveSchemaMetadataData = {
+  body: ResolveSchemaMetadataDto;
+  path?: never;
+  query?: never;
+  url: "/api/verifier/config/schema-metadata/resolve";
+};
+
+export type PresentationManagementControllerResolveSchemaMetadataErrors = {
+  /**
+   * Invalid URL, invalid response, or invalid schema metadata JWT
+   */
+  400: unknown;
+};
+
+export type PresentationManagementControllerResolveSchemaMetadataResponses = {
+  /**
+   * Resolved schema metadata import payload
+   */
+  200: unknown;
+};
+
+export type PresentationManagementControllerListSchemaMetadataCatalogData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/verifier/config/schema-metadata/catalog";
+};
+
+export type PresentationManagementControllerListSchemaMetadataCatalogResponses =
+  {
+    /**
+     * Catalog entries from the registrar
+     */
+    200: unknown;
+  };
 
 export type PresentationManagementControllerDeleteConfigurationData = {
   body?: never;
@@ -3973,6 +4412,201 @@ export type RegistrarControllerCreateAccessCertificateResponses = {
 
 export type RegistrarControllerCreateAccessCertificateResponse =
   RegistrarControllerCreateAccessCertificateResponses[keyof RegistrarControllerCreateAccessCertificateResponses];
+
+export type SchemaMetadataControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    attestationId?: string;
+    version?: string;
+  };
+  url: "/api/schema-metadata";
+};
+
+export type SchemaMetadataControllerFindAllResponses = {
+  200: Array<SchemaMetadataResponseDto>;
+};
+
+export type SchemaMetadataControllerFindAllResponse =
+  SchemaMetadataControllerFindAllResponses[keyof SchemaMetadataControllerFindAllResponses];
+
+export type SchemaMetadataControllerSubmitData = {
+  body: SubmitSchemaMetadataDto;
+  path?: never;
+  query?: never;
+  url: "/api/schema-metadata";
+};
+
+export type SchemaMetadataControllerSubmitResponses = {
+  201: SchemaMetadataResponseDto;
+};
+
+export type SchemaMetadataControllerSubmitResponse =
+  SchemaMetadataControllerSubmitResponses[keyof SchemaMetadataControllerSubmitResponses];
+
+export type SchemaMetadataControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/schema-metadata/{id}";
+};
+
+export type SchemaMetadataControllerFindOneResponses = {
+  200: SchemaMetadataResponseDto;
+};
+
+export type SchemaMetadataControllerFindOneResponse =
+  SchemaMetadataControllerFindOneResponses[keyof SchemaMetadataControllerFindOneResponses];
+
+export type SchemaMetadataControllerRemoveData = {
+  body?: never;
+  path: {
+    id: string;
+    version: string;
+  };
+  query?: never;
+  url: "/api/schema-metadata/{id}/versions/{version}";
+};
+
+export type SchemaMetadataControllerRemoveResponses = {
+  /**
+   * Deleted
+   */
+  200: unknown;
+};
+
+export type SchemaMetadataControllerUpdateData = {
+  body: UpdateSchemaMetadataDto;
+  path: {
+    id: string;
+    version: string;
+  };
+  query?: never;
+  url: "/api/schema-metadata/{id}/versions/{version}";
+};
+
+export type SchemaMetadataControllerUpdateResponses = {
+  200: SchemaMetadataResponseDto;
+};
+
+export type SchemaMetadataControllerUpdateResponse =
+  SchemaMetadataControllerUpdateResponses[keyof SchemaMetadataControllerUpdateResponses];
+
+export type SchemaMetadataControllerGetLatestData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/schema-metadata/{id}/latest";
+};
+
+export type SchemaMetadataControllerGetLatestResponses = {
+  200: SchemaMetadataResponseDto;
+};
+
+export type SchemaMetadataControllerGetLatestResponse =
+  SchemaMetadataControllerGetLatestResponses[keyof SchemaMetadataControllerGetLatestResponses];
+
+export type SchemaMetadataControllerGetVersionsData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/schema-metadata/{id}/versions";
+};
+
+export type SchemaMetadataControllerGetVersionsResponses = {
+  200: Array<SchemaMetadataResponseDto>;
+};
+
+export type SchemaMetadataControllerGetVersionsResponse =
+  SchemaMetadataControllerGetVersionsResponses[keyof SchemaMetadataControllerGetVersionsResponses];
+
+export type SchemaMetadataControllerGetJwtData = {
+  body?: never;
+  path: {
+    id: string;
+    version: string;
+  };
+  query?: never;
+  url: "/api/schema-metadata/{id}/versions/{version}/jwt";
+};
+
+export type SchemaMetadataControllerGetJwtResponses = {
+  /**
+   * Compact-serialization JWS string
+   */
+  200: string;
+};
+
+export type SchemaMetadataControllerGetJwtResponse =
+  SchemaMetadataControllerGetJwtResponses[keyof SchemaMetadataControllerGetJwtResponses];
+
+export type SchemaMetadataControllerExportData = {
+  body?: never;
+  path: {
+    id: string;
+    version: string;
+  };
+  query?: never;
+  url: "/api/schema-metadata/{id}/versions/{version}/export";
+};
+
+export type SchemaMetadataControllerExportResponses = {
+  /**
+   * Registrar-defined catalog document
+   */
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type SchemaMetadataControllerExportResponse =
+  SchemaMetadataControllerExportResponses[keyof SchemaMetadataControllerExportResponses];
+
+export type SchemaMetadataControllerGetSchemaData = {
+  body?: never;
+  path: {
+    id: string;
+    version: string;
+    format: string;
+  };
+  query?: never;
+  url: "/api/schema-metadata/{id}/versions/{version}/schemas/{format}";
+};
+
+export type SchemaMetadataControllerGetSchemaResponses = {
+  /**
+   * JSON Schema document for the requested format
+   */
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type SchemaMetadataControllerGetSchemaResponse =
+  SchemaMetadataControllerGetSchemaResponses[keyof SchemaMetadataControllerGetSchemaResponses];
+
+export type SchemaMetadataControllerDeprecateVersionData = {
+  body: DeprecateSchemaMetadataDto;
+  path: {
+    id: string;
+    version: string;
+  };
+  query?: never;
+  url: "/api/schema-metadata/{id}/versions/{version}/deprecation";
+};
+
+export type SchemaMetadataControllerDeprecateVersionResponses = {
+  200: SchemaMetadataResponseDto;
+};
+
+export type SchemaMetadataControllerDeprecateVersionResponse =
+  SchemaMetadataControllerDeprecateVersionResponses[keyof SchemaMetadataControllerDeprecateVersionResponses];
 
 export type CredentialOfferControllerGetOfferData = {
   body: OfferRequestDto;

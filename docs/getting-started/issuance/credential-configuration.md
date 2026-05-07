@@ -59,6 +59,12 @@ For a complete configuration example, see the [Complete Configuration Example](#
 - `iaeActions`: **OPTIONAL** - Sequence of Interactive Authorization actions required before credential issuance. See [Interactive Authorization Actions](#interactive-authorization-actions) for details.
 - `schema`: **OPTIONAL** - JSON schema for validating the credential claims.
 
+!!! info "Schema Metadata is managed separately"
+
+    TS11 Schema Metadata is managed in the dedicated Schema Metadata flow, not in
+    the Credential Configuration editor. Use [Schema Metadata](schema-metadata.md)
+    to create and version schema metadata entries.
+
 ---
 
 ## Fetching Claims

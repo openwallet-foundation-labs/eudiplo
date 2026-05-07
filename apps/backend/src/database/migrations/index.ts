@@ -24,3 +24,5 @@ export { AddRefreshTokenToChainedAsSession1754000000000 } from "./1754000000000-
 export { AddRegistrationCertificateDefaultsToRegistrarConfig1755000000000 } from "./1755000000000-AddRegistrationCertificateDefaultsToRegistrarConfig";
 export { AddRegistrationCertCacheToPresentationConfig1756000000000 } from "./1756000000000-AddRegistrationCertCacheToPresentationConfig";
 export { AddTxCodeAttemptTracking1757000000000 } from "./1757000000000-AddTxCodeAttemptTracking";
+export { AddSessionSingleUseTracking1760000000000 } from "./1760000000000-AddSessionSingleUseTracking";
+export { AddSchemaMetaToCredentialConfig1761000000000 } from "./1761000000000-AddSchemaMetaToCredentialConfig";

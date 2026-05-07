@@ -259,7 +259,7 @@
           Security
         </ng-template>
         <div fxLayout="column" fxLayoutGap="24px" class="tab-content">
-          @if (config.registrationCert) {
+          @if (config.registration_cert) {
             <mat-card>
               <mat-card-header>
                 <mat-card-title>
@@ -316,14 +316,14 @@
                   </button>
                 </div>
 
-                @if (registrationCertCache?.jwt) {
+                @if (registrationCertJwt) {
                   <mat-divider></mat-divider>
                   <mat-list class="config-list">
                     <mat-list-item>
                       <mat-icon matListItemIcon>key</mat-icon>
-                      <span matListItemTitle>Cached JWT</span>
+                      <span matListItemTitle>JWT</span>
                       <span matListItemLine class="jwt-preview"
-                        >{{ registrationCertCache?.jwt | slice: 0 : 50 }}...</span
+                        >{{ registrationCertJwt | slice: 0 : 50 }}...</span
                       >
                     </mat-list-item>
                     @if (registrationCertCache?.issuedAt) {
@@ -349,10 +349,28 @@
                     <mat-expansion-panel-header>
                       <mat-panel-title>
                         <mat-icon>code</mat-icon>
-                        Full cached JWT
+                        Full JWT
                       </mat-panel-title>
                     </mat-expansion-panel-header>
-                    <pre class="config-value">{{ registrationCertCache?.jwt }}</pre>
+                    <pre class="config-value">{{ registrationCertJwt }}</pre>
+                  </mat-expansion-panel>
+                  <mat-expansion-panel>
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        <mat-icon>article</mat-icon>
+                        Parsed JWT header
+                      </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <pre class="config-value">{{ parsedRegistrationCertHeader }}</pre>
+                  </mat-expansion-panel>
+                  <mat-expansion-panel>
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        <mat-icon>description</mat-icon>
+                        Parsed JWT payload
+                      </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <pre class="config-value">{{ parsedRegistrationCertPayload }}</pre>
                   </mat-expansion-panel>
                 }
               </mat-card-content>

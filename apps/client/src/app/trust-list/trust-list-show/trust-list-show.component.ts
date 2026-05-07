@@ -12,6 +12,8 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
+  CredentialConfig,
+  SchemaMetaConfig,
   TrustList,
   TrustListVersion,
   trustListControllerDeleteTrustList,
@@ -21,6 +23,7 @@ import {
 } from '@eudiplo/sdk-core';
 import { ApiService } from '../../core';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
+import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
 
 interface EntityInfo {
   name: string;
@@ -75,11 +78,13 @@ export class TrustListShowComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly apiService = inject(ApiService);
+  private readonly credentialConfigService = inject(CredentialConfigService);
 
   trustList?: TrustList;
   entities: TrustListEntity[] = [];
   versions: TrustListVersion[] = [];
   publicUrl = '';
+  relatedCredentialConfigs: CredentialConfig[] = [];
   private readonly id: string;
 
   constructor() {
@@ -88,11 +93,12 @@ export class TrustListShowComponent implements OnInit {
 
   ngOnInit(): void {
     trustListControllerGetTrustList({ path: { id: this.id } }).then(
-      (res) => {
+      async (res) => {
         this.trustList = res.data;
         this.parseEntities();
         this.loadVersions(this.id);
         this.buildPublicUrl();
+        await this.loadRelatedCredentialConfigs();
       },
       () => {
         this.snackBar.open('Error loading trust list', 'Close', { duration: 3000 });
@@ -138,6 +144,24 @@ export class TrustListShowComponent implements OnInit {
       const tenantId = this.trustList.tenantId;
       this.publicUrl = `${baseUrl}/issuers/${tenantId}/trust-list/${this.trustList.id}`;
     }
+  }
+
+  private async loadRelatedCredentialConfigs(): Promise<void> {
+    if (!this.trustList) return;
+
+    const allConfigs = await this.credentialConfigService.loadConfigurations();
+    const trustListId = this.trustList.id;
+    const trustListPathSegment = `/trust-list/${trustListId}`;
+
+    this.relatedCredentialConfigs = allConfigs.filter((config) => {
+      const authorities =
+        (config.schemaMeta as SchemaMetaConfig | undefined)?.trustedAuthorities ?? [];
+      return authorities.some((ta) => {
+        if (ta.frameworkType !== 'etsi_tl') return false;
+        const value = ta.value ?? '';
+        return value === trustListId || value.includes(trustListPathSegment);
+      });
+    });
   }
 
   copyToClipboard(text: string, label: string): void {

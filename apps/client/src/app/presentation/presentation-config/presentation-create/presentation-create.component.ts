@@ -20,6 +20,7 @@ import { PresentationManagementService } from '../presentation-management.servic
 import { MatDialog } from '@angular/material/dialog';
 import { JsonViewDialogComponent } from '../../../issuance/credential-config/credential-config-create/json-view-dialog/json-view-dialog.component';
 import { IssuerMetadataBrowserComponent } from '../issuer-metadata-browser/issuer-metadata-browser.component';
+import { SchemaMetadataBrowserComponent } from '../schema-metadata-browser/schema-metadata-browser.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDividerModule } from '@angular/material/divider';
@@ -180,9 +181,9 @@ export class PresentationCreateComponent implements OnInit {
             formData.dcql_query = JSON.stringify(formData.dcql_query, null, 2);
           }
 
-          if (formData.registrationCert && typeof formData.registrationCert === 'object') {
-            this.loadRegistrationCertIntoForm(formData.registrationCert);
-            delete formData.registrationCert;
+          if (formData.registration_cert && typeof formData.registration_cert === 'object') {
+            this.loadRegistrationCertIntoForm(formData.registration_cert);
+            delete formData.registration_cert;
           }
 
           this.registrationCertCache = formData.registrationCertCache ?? null;
@@ -291,14 +292,14 @@ export class PresentationCreateComponent implements OnInit {
       }
     }
 
-    formValue.registrationCert = this.buildRegistrationCertFromForm();
+    formValue.registration_cert = this.buildRegistrationCertFromForm();
 
     if (!formValue.webhook.url) {
       formValue.webhook = null; // Set to null to clear the webhook
     }
 
-    if (!formValue.registrationCert) {
-      formValue.registrationCert = null; // Set to null to clear registrationCert
+    if (!formValue.registration_cert) {
+      formValue.registration_cert = null; // Set to null to clear registration_cert
     }
 
     if (!formValue.transaction_data) {
@@ -384,6 +385,14 @@ export class PresentationCreateComponent implements OnInit {
    */
   private getCompleteConfiguration(): any {
     const formValue = { ...this.form.getRawValue() };
+
+    delete formValue.registrationCertImportJwt;
+    delete formValue.registrationCertImportId;
+    delete formValue.registrationCertBodyPrivacyPolicy;
+    delete formValue.registrationCertBodySupportUri;
+    delete formValue.registrationCertBodyIntermediary;
+    delete formValue.registrationCertBodyPurpose;
+
     // Parse dcql_query if it's a string
     if (formValue.dcql_query && typeof formValue.dcql_query === 'string') {
       try {
@@ -393,16 +402,36 @@ export class PresentationCreateComponent implements OnInit {
       }
     }
 
-    formValue.registrationCert = this.buildRegistrationCertFromForm();
+    if (formValue.transaction_data && typeof formValue.transaction_data === 'string') {
+      try {
+        formValue.transaction_data = extractSchema(formValue.transaction_data);
+      } catch {
+        // Ignore JSON parse errors
+      }
+    }
+
+    formValue.registration_cert = this.getExportRegistrationCert();
     if (!formValue.webhook?.url) {
       formValue.webhook = undefined;
     }
-    if (!formValue.registrationCert) {
-      formValue.registrationCert = undefined; // Remove registrationCert if not provided
+    if (!formValue.registration_cert) {
+      formValue.registration_cert = undefined; // Remove registrationCert if not provided
     }
 
     if (!formValue.redirectUri) {
       formValue.redirectUri = undefined;
+    }
+
+    if (!formValue.accessKeyChainId) {
+      formValue.accessKeyChainId = undefined;
+    }
+
+    if (
+      formValue.transaction_data == null ||
+      (Array.isArray(formValue.transaction_data) && formValue.transaction_data.length === 0) ||
+      formValue.transaction_data === ''
+    ) {
+      formValue.transaction_data = undefined;
     }
 
     // Clean up empty optional fields
@@ -410,6 +439,51 @@ export class PresentationCreateComponent implements OnInit {
       formValue.attached = undefined;
     }
     return formValue;
+  }
+
+  private getExportRegistrationCert(): any {
+    const body = this.getRegistrationCertBodyFromForm();
+    const importId = `${this.form.get('registrationCertImportId')?.value ?? ''}`.trim();
+    const cachedJwt = this.registrationCertCache?.jwt;
+    if (typeof cachedJwt === 'string' && cachedJwt.trim().length > 0) {
+      return {
+        ...(body ? { body } : {}),
+        ...(importId ? { id: importId } : {}),
+        jwt: cachedJwt.trim(),
+      };
+    }
+
+    return this.buildRegistrationCertFromForm();
+  }
+
+  private getRegistrationCertBodyFromForm(): any {
+    const purpose = this.registrationCertPurposeArray.controls
+      .map((ctrl) => ({
+        lang: ctrl.get('lang')?.value?.trim(),
+        content: ctrl.get('content')?.value?.trim(),
+      }))
+      .filter((entry) => entry.lang && entry.content);
+
+    if (purpose.length === 0) {
+      return null;
+    }
+
+    const privacyPolicy = this.form.get('registrationCertBodyPrivacyPolicy')?.value?.trim();
+    const supportUri = this.form.get('registrationCertBodySupportUri')?.value?.trim();
+    const intermediary = this.form.get('registrationCertBodyIntermediary')?.value?.trim();
+
+    const body: any = { purpose };
+    if (privacyPolicy) {
+      body.privacy_policy = privacyPolicy;
+    }
+    if (supportUri) {
+      body.support_uri = supportUri;
+    }
+    if (intermediary) {
+      body.intermediary = intermediary;
+    }
+
+    return body;
   }
 
   /**
@@ -451,9 +525,9 @@ export class PresentationCreateComponent implements OnInit {
       if (formData.dcql_query) {
         formData.dcql_query = extractSchema(formData.dcql_query);
       }
-      if (formData.registrationCert) {
-        this.loadRegistrationCertIntoForm(extractSchema(formData.registrationCert));
-        delete formData.registrationCert;
+      if (formData.registration_cert) {
+        this.loadRegistrationCertIntoForm(extractSchema(formData.registration_cert));
+        delete formData.registration_cert;
       }
 
       this.form.patchValue(formData);
@@ -510,6 +584,44 @@ export class PresentationCreateComponent implements OnInit {
     });
   }
 
+  /**
+   * Open the schema metadata browser dialog to import DCQL from schema metadata.
+   */
+  importFromSchemaMetadata(): void {
+    const dialogRef = this.dialog.open(SchemaMetadataBrowserComponent, {
+      data: {},
+      disableClose: false,
+      minWidth: '60vw',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        const dcqlQuery = result.dcqlQuery ? result.dcqlQuery : result;
+        this.form.get('dcql_query')?.setValue(JSON.stringify(dcqlQuery, null, 2));
+
+        const idControl = this.form.get('id');
+        const descriptionControl = this.form.get('description');
+
+        const currentId = `${idControl?.value ?? ''}`.trim();
+        const currentDescription = `${descriptionControl?.value ?? ''}`.trim();
+
+        if (!currentId && typeof result.suggestedPresentationId === 'string') {
+          idControl?.setValue(result.suggestedPresentationId);
+        }
+
+        if (!currentDescription && typeof result.suggestedDescription === 'string') {
+          descriptionControl?.setValue(result.suggestedDescription);
+        }
+
+        this.snackBar.open('DCQL query imported from schema metadata', 'OK', {
+          duration: 3000,
+        });
+      }
+    });
+  }
+
   get registrationCertPurposeArray(): FormArray {
     return this.form.get('registrationCertBodyPurpose') as FormArray;
   }
@@ -540,7 +652,7 @@ export class PresentationCreateComponent implements OnInit {
   get registrationCertStatus(): 'none' | 'active' | 'expiring' | 'expired' | 'pending' {
     if (this.create) return 'none';
     return getRegistrationCertStatus({
-      registrationCert: this.buildRegistrationCertFromForm() as any,
+      registration_cert: this.buildRegistrationCertFromForm() as any,
       registrationCertCache: this.registrationCertCache,
     });
   }
@@ -589,30 +701,9 @@ export class PresentationCreateComponent implements OnInit {
       return null;
     }
 
-    const purpose = this.registrationCertPurposeArray.controls
-      .map((ctrl) => ({
-        lang: ctrl.get('lang')?.value?.trim(),
-        content: ctrl.get('content')?.value?.trim(),
-      }))
-      .filter((entry) => entry.lang && entry.content);
-
-    if (purpose.length === 0) {
+    const body = this.getRegistrationCertBodyFromForm();
+    if (!body) {
       return null;
-    }
-
-    const privacyPolicy = this.form.get('registrationCertBodyPrivacyPolicy')?.value?.trim();
-    const supportUri = this.form.get('registrationCertBodySupportUri')?.value?.trim();
-    const intermediary = this.form.get('registrationCertBodyIntermediary')?.value?.trim();
-
-    const body: any = { purpose };
-    if (privacyPolicy) {
-      body.privacy_policy = privacyPolicy;
-    }
-    if (supportUri) {
-      body.support_uri = supportUri;
-    }
-    if (intermediary) {
-      body.intermediary = intermediary;
     }
 
     return { body };

@@ -62,6 +62,8 @@ export async function prepareMdocPresentation(
     issuerCert: string,
     clientId: string,
     responseUri: string,
+    responseMode: string = "direct_post.jwt",
+    jwkThumbprint?: Uint8Array,
 ) {
     // Use the EU PID docType and namespace to match the pid-de fixture
     const docType = "eu.europa.ec.eudi.pid.1";
@@ -120,9 +122,12 @@ export async function prepareMdocPresentation(
 
     const sessionTranscript = await SessionTranscript.forOid4Vp(
         {
+            protocol: "openid4vp",
             clientId,
             responseUri,
             nonce,
+            responseMode,
+            ...(jwkThumbprint ? { jwkThumbprint } : {}),
         },
         mdocContext,
     );
