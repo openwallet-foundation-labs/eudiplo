@@ -137,6 +137,9 @@
                             <a href="#AppDataSource" title="src/database/data-source.ts" ><b>AppDataSource</b>&nbsp;&nbsp;&nbsp;(src/.../data-source.ts)</a>
                         </li>
                         <li>
+                            <a href="#ATTESTATION_LOS_VALUES" title="src/registrar/dto/schema-metadata.dto.ts" ><b>ATTESTATION_LOS_VALUES</b>&nbsp;&nbsp;&nbsp;(src/.../schema-metadata.dto.ts)</a>
+                        </li>
+                        <li>
                             <a href="#AUTH_VALIDATION_SCHEMA" title="src/auth/auth-validation.schema.ts" ><b>AUTH_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../auth-validation.schema.ts)</a>
                         </li>
                         <li>
@@ -144,6 +147,12 @@
                         </li>
                         <li>
                             <a href="#BCRYPT_ROUNDS" title="src/auth/client/adapters/internal-clients.service.ts" ><b>BCRYPT_ROUNDS</b>&nbsp;&nbsp;&nbsp;(src/.../internal-clients.service.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#BINDING_TYPE_VALUES" title="src/registrar/dto/schema-metadata.dto.ts" ><b>BINDING_TYPE_VALUES</b>&nbsp;&nbsp;&nbsp;(src/.../schema-metadata.dto.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#CATEGORY_VALUES" title="src/registrar/dto/schema-metadata.dto.ts" ><b>CATEGORY_VALUES</b>&nbsp;&nbsp;&nbsp;(src/.../schema-metadata.dto.ts)</a>
                         </li>
                         <li>
                             <a href="#CLIENTS_PROVIDER" title="src/auth/client/client.provider.ts" ><b>CLIENTS_PROVIDER</b>&nbsp;&nbsp;&nbsp;(src/.../client.provider.ts)</a>
@@ -195,6 +204,9 @@
                         </li>
                         <li>
                             <a href="#FILE_STORAGE" title="src/storage/storage.types.ts" ><b>FILE_STORAGE</b>&nbsp;&nbsp;&nbsp;(src/.../storage.types.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#FORMAT_VALUES" title="src/registrar/dto/schema-metadata.dto.ts" ><b>FORMAT_VALUES</b>&nbsp;&nbsp;&nbsp;(src/.../schema-metadata.dto.ts)</a>
                         </li>
                         <li>
                             <a href="#IS_PUBLIC_KEY" title="src/auth/public.decorator.ts" ><b>IS_PUBLIC_KEY</b>&nbsp;&nbsp;&nbsp;(src/.../public.decorator.ts)</a>
@@ -421,6 +433,126 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>process.env.DB_TYPE as &quot;sqlite&quot; | &quot;postgres&quot; | undefined</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+</section>
+    <h3>src/registrar/dto/schema-metadata.dto.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ATTESTATION_LOS_VALUES"></a>
+                    <span class="name">
+                        <span ><b>ATTESTATION_LOS_VALUES</b></span>
+                        <a href="#ATTESTATION_LOS_VALUES"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[
+    &quot;iso_18045_high&quot;,
+    &quot;iso_18045_moderate&quot;,
+    &quot;iso_18045_enhanced-basic&quot;,
+    &quot;iso_18045_basic&quot;,
+] as const</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="BINDING_TYPE_VALUES"></a>
+                    <span class="name">
+                        <span ><b>BINDING_TYPE_VALUES</b></span>
+                        <a href="#BINDING_TYPE_VALUES"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[&quot;claim&quot;, &quot;key&quot;, &quot;biometric&quot;, &quot;none&quot;] as const</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="CATEGORY_VALUES"></a>
+                    <span class="name">
+                        <span ><b>CATEGORY_VALUES</b></span>
+                        <a href="#CATEGORY_VALUES"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[
+    &quot;identity&quot;,
+    &quot;health&quot;,
+    &quot;finance&quot;,
+    &quot;education&quot;,
+    &quot;mobility&quot;,
+    &quot;employment&quot;,
+    &quot;other&quot;,
+] as const</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="FORMAT_VALUES"></a>
+                    <span class="name">
+                        <span ><b>FORMAT_VALUES</b></span>
+                        <a href="#FORMAT_VALUES"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[&quot;dc+sd-jwt&quot;, &quot;mso_mdoc&quot;] as const</code>
                     </td>
                 </tr>
 
@@ -1704,10 +1836,12 @@ This is necessary because TypeORM transformers don&#39;t support dependency inje
                     throw new Error(&quot;tag is required for mac0 verification&quot;);
                 }
 
-                return (
-                    mac0.tag &#x3D;&#x3D;&#x3D;
-                    hmac(sha256, key.privateKey, mac0.toBeAuthenticated)
+                const expectedTag &#x3D; hmac(
+                    sha256,
+                    key.privateKey,
+                    mac0.toBeAuthenticated,
                 );
+                return bytesEqual(mac0.tag, expectedTag);
             },
         },
         sign1: {

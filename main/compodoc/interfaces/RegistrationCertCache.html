@@ -150,7 +150,7 @@
             </p>
             <p class="comment">
                 <p>Cached/materialized registration certificate state for a presentation config.</p>
-<p>Server-managed; recomputed when <a href="PresentationConfig.registrationCert">PresentationConfig.registrationCert</a> or
+<p>Server-managed; recomputed when <a href="PresentationConfig.registration_cert">PresentationConfig.registration_cert</a> or
 <a href="PresentationConfig.dcql_query">PresentationConfig.dcql_query</a> change, or when the JWT expires.</p>
 
             </p>
@@ -500,7 +500,7 @@
 
                             <tr>
                                 <td class="col-md-4">
-                                    <div class="io-description"><p>Canonical-JSON hash of the <a href="PresentationConfig.registrationCert">PresentationConfig.registrationCert</a> spec at cache time.</p>
+                                    <div class="io-description"><p>Canonical-JSON hash of the <a href="PresentationConfig.registration_cert">PresentationConfig.registration_cert</a> spec at cache time.</p>
 </div>
                                 </td>
                             </tr>
@@ -650,7 +650,7 @@ export class TransactionData {
 /**
  * Cached/materialized registration certificate state for a presentation config.
  *
- * Server-managed; recomputed when {@link PresentationConfig.registrationCert} or
+ * Server-managed; recomputed when {@link PresentationConfig.registration_cert} or
  * {@link PresentationConfig.dcql_query} change, or when the JWT expires.
  */
 export interface RegistrationCertCache {
@@ -660,7 +660,7 @@ export interface RegistrationCertCache {
     fingerprint: string;
     /** Canonical-JSON hash of the presentation&#x27;s &#x60;dcql_query.credentials&#x60; at cache time. */
     dcqlFingerprint: string;
-    /** Canonical-JSON hash of the {@link PresentationConfig.registrationCert} spec at cache time. */
+    /** Canonical-JSON hash of the {@link PresentationConfig.registration_cert} spec at cache time. */
     specFingerprint: string;
     /** JWT &#x60;iat&#x60; (seconds since epoch). */
     issuedAt?: number;
@@ -736,10 +736,10 @@ export class PresentationConfig {
     @ValidateNested()
     @Type(() &#x3D;&gt; RegistrationCertificateRequest)
     @Column(&quot;json&quot;, { nullable: true })
-    registrationCert?: RegistrationCertificateRequest | null;
+    registration_cert?: RegistrationCertificateRequest | null;
 
     /**
-     * Cached/materialized registration certificate derived from {@link registrationCert}.
+     * Cached/materialized registration certificate derived from {@link registration_cert}.
      *
      * This is a server-managed field (not user-editable). It stores the JWT that
      * was actually issued (or imported) together with fingerprints used to detect

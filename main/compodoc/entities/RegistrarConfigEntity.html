@@ -349,7 +349,7 @@ This is typically provided by the registrar service.</p>
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty({description: &#x27;The OIDC issuer URL for authentication (e.g., Keycloak realm URL)&#x27;, example: &#x27;https://auth.example.com/realms/my-realm&#x27;})<br />@IsUrl()<br />@Column(&#x27;varchar&#x27;)<br />
+                            @ApiProperty({description: &#x27;The OIDC issuer URL for authentication (e.g., Keycloak realm URL)&#x27;, example: &#x27;https://auth.example.com/realms/my-realm&#x27;})<br />@IsString()<br />@Column(&#x27;varchar&#x27;)<br />
                         </code>
                     </td>
                 </tr>
@@ -440,7 +440,7 @@ Note: Stored in plaintext for ease of use. Use a secrets manager for production.
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty({description: &#x27;The base URL of the registrar API&#x27;, example: &#x27;https://sandbox.eudi-wallet.org/api&#x27;})<br />@IsUrl()<br />@Column(&#x27;varchar&#x27;)<br />
+                            @ApiProperty({description: &#x27;The base URL of the registrar API&#x27;, example: &#x27;https://sandbox.eudi-wallet.org/api&#x27;})<br />@IsString()<br />@Column(&#x27;varchar&#x27;)<br />
                         </code>
                     </td>
                 </tr>
@@ -641,7 +641,7 @@ Presentation config values take precedence over these defaults.</p>
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty, ApiPropertyOptional } from &quot;@nestjs/swagger&quot;;
-import { IsObject, IsOptional, IsString, IsUrl } from &quot;class-validator&quot;;
+import { IsObject, IsOptional, IsString } from &quot;class-validator&quot;;
 import { Column, Entity, ManyToOne, PrimaryColumn } from &quot;typeorm&quot;;
 import { TenantEntity } from &quot;../../auth/tenant/entitites/tenant.entity&quot;;
 
@@ -699,7 +699,7 @@ export class RegistrarConfigEntity {
         description: &quot;The base URL of the registrar API&quot;,
         example: &quot;https://sandbox.eudi-wallet.org/api&quot;,
     })
-    @IsUrl()
+    @IsString()
     @Column(&quot;varchar&quot;)
     registrarUrl!: string;
 
@@ -713,7 +713,7 @@ export class RegistrarConfigEntity {
             &quot;The OIDC issuer URL for authentication (e.g., Keycloak realm URL)&quot;,
         example: &quot;https://auth.example.com/realms/my-realm&quot;,
     })
-    @IsUrl()
+    @IsString()
     @Column(&quot;varchar&quot;)
     oidcUrl!: string;
 

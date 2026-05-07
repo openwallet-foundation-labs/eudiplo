@@ -370,8 +370,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="88"
-                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:88</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="89"
+                                    class="link-to-prism">src/crypto/encryption/encryption.service.ts:89</a></div>
                         </td>
                     </tr>
 
@@ -694,6 +694,7 @@ export class EncryptionService {
         const publicKey: JWK &#x3D; { ...keyChain.activeKey };
         delete publicKey.d;
         publicKey.kid &#x3D; keyChain.id;
+        publicKey.use &#x3D; &quot;enc&quot;;
 
         return publicKey;
     }

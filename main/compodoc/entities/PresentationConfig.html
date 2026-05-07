@@ -215,7 +215,7 @@
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
                                     <span class="modifier">Optional</span>
-                                <a href="#registrationCert" >registrationCert</a>
+                                <a href="#registration_cert" >registration_cert</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
@@ -639,15 +639,15 @@ You can use the <code>{sessionId}</code> placeholder in the URI, which will be r
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="registrationCert"></a>
+                    <a name="registration_cert"></a>
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier"></span>
                             <span class="modifier">Optional</span>
-                        <span ><b>registrationCert</b></span>
-                        <a href="#registrationCert"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>registration_cert</b></span>
+                        <a href="#registration_cert"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
@@ -720,7 +720,7 @@ You can use the <code>{sessionId}</code> placeholder in the URI, which will be r
 
             <tr>
                 <td class="col-md-4">
-                    <div class="io-description"><p>Cached/materialized registration certificate derived from <a href="registrationCert">registrationCert</a>.</p>
+                    <div class="io-description"><p>Cached/materialized registration certificate derived from <a href="registration_cert">registration_cert</a>.</p>
 <p>This is a server-managed field (not user-editable). It stores the JWT that
 was actually issued (or imported) together with fingerprints used to detect
 configuration drift. The cache is invalidated automatically when either the
@@ -1097,7 +1097,7 @@ export class TransactionData {
 /**
  * Cached/materialized registration certificate state for a presentation config.
  *
- * Server-managed; recomputed when {@link PresentationConfig.registrationCert} or
+ * Server-managed; recomputed when {@link PresentationConfig.registration_cert} or
  * {@link PresentationConfig.dcql_query} change, or when the JWT expires.
  */
 export interface RegistrationCertCache {
@@ -1107,7 +1107,7 @@ export interface RegistrationCertCache {
     fingerprint: string;
     /** Canonical-JSON hash of the presentation&#x27;s &#x60;dcql_query.credentials&#x60; at cache time. */
     dcqlFingerprint: string;
-    /** Canonical-JSON hash of the {@link PresentationConfig.registrationCert} spec at cache time. */
+    /** Canonical-JSON hash of the {@link PresentationConfig.registration_cert} spec at cache time. */
     specFingerprint: string;
     /** JWT &#x60;iat&#x60; (seconds since epoch). */
     issuedAt?: number;
@@ -1183,10 +1183,10 @@ export class PresentationConfig {
     @ValidateNested()
     @Type(() &#x3D;&gt; RegistrationCertificateRequest)
     @Column(&quot;json&quot;, { nullable: true })
-    registrationCert?: RegistrationCertificateRequest | null;
+    registration_cert?: RegistrationCertificateRequest | null;
 
     /**
-     * Cached/materialized registration certificate derived from {@link registrationCert}.
+     * Cached/materialized registration certificate derived from {@link registration_cert}.
      *
      * This is a server-managed field (not user-editable). It stores the JWT that
      * was actually issued (or imported) together with fingerprints used to detect
