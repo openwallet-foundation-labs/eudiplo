@@ -187,8 +187,8 @@ importers:
         specifier: ^0.6.0
         version: 0.6.0
       '@owf/token-status-list':
-        specifier: 0.2.1-alpha-20260508112635
-        version: 0.2.1-alpha-20260508112635
+        specifier: 0.3.0-alpha-20260508181749
+        version: 0.3.0-alpha-20260508181749
       '@panva/hkdf':
         specifier: ^1.2.1
         version: 1.2.1
@@ -3776,8 +3776,8 @@ packages:
     peerDependencies:
       '@opentelemetry/api': ^1.1.0
 
-  '@owf/cose@0.2.1-alpha-20260508112635':
-    resolution: {integrity: sha512-tgdnLvMkB7E4f5FbcO4k6cjN7wwTS0EBzDFXKeEcrn/IKtDM9j+7IQFziRjpzRNOXh45kNWWh4sXAfQIVXqeug==}
+  '@owf/cose@0.3.0-alpha-20260508181749':
+    resolution: {integrity: sha512-WzAQCDKSGO1OWndSRLPA+EiSetMAPFSXVOIBhvgTAWza1V6F6Sx7n5t5/fYmAkqWupJqIQfSKiToS6JbF2hIMg==}
 
   '@owf/crypto@0.2.0':
     resolution: {integrity: sha512-pOaaJP900Ki/5zla+H4bresdDkMjmpY0vxSmHraJx3m19V00qZMXsGRJfClGlzwszfXJTciFN0dN2Qb8y1Q6OA==}
@@ -3791,14 +3791,14 @@ packages:
   '@owf/identity-common@0.2.0':
     resolution: {integrity: sha512-liOcJpoUxKkvAOko93VvrpC0w9ft+/D6lalrLoXrgrdd3/q3kGx2IeQ8fcrspw+F3IURfcvdDEH/RwEMx0DKMg==}
 
-  '@owf/identity-common@0.2.1-alpha-20260508112635':
-    resolution: {integrity: sha512-LxfFlEsDCbkPnhdXkM4gyoNlhnV80v/+vAqWDScZhps5IXYJ1hrfSa+4y6gDwGSAh6E80p5cMB9lqHL5Fh5D7g==}
+  '@owf/identity-common@0.3.0-alpha-20260508181749':
+    resolution: {integrity: sha512-ZrgivSEuI7ngTmN4Izz6CP+uMCGQXv1ucSwBbyp+g4T51EjRYtvGmM/tFc29VnRA2r9x+AH+R+ilzoy5GFGV0g==}
 
   '@owf/mdoc@0.6.0':
     resolution: {integrity: sha512-vJL62hzjcSweBjDD9eRUH1RIMSzZUtHKjVFMMo50oHPLO9ZVZbQABFe9IFoa5AgXkwfv27HjnFv/eRbkOrlsUA==}
 
-  '@owf/token-status-list@0.2.1-alpha-20260508112635':
-    resolution: {integrity: sha512-4vZF5UajowdMT4aLaC/hKcYwymIWGuA64z/DJQ7qmcGhVkFqk1OGMaJAovj+YhCFBGlo0qwBRhmS/UJG7JfHvg==}
+  '@owf/token-status-list@0.3.0-alpha-20260508181749':
+    resolution: {integrity: sha512-UIKFTeY4wcrIHaCPjKbcMt9sHq7461q296+LlEQgo5qrdM7S9U6O3uRxfAY6tWhuDflyjkreF04/YuJOv2BFgA==}
 
   '@oxc-project/types@0.113.0':
     resolution: {integrity: sha512-Tp3XmgxwNQ9pEN9vxgJBAqdRamHibi76iowQ38O2I4PMpcvNRQNVsU2n1x1nv9yh0XoTrGFzf7cZSGxmixxrhA==}
@@ -14777,9 +14777,9 @@ snapshots:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/core': 2.7.1(@opentelemetry/api@1.9.1)
 
-  '@owf/cose@0.2.1-alpha-20260508112635':
+  '@owf/cose@0.3.0-alpha-20260508181749':
     dependencies:
-      '@owf/identity-common': 0.2.1-alpha-20260508112635
+      '@owf/identity-common': 0.3.0-alpha-20260508181749
       cbor-x: 1.6.4
       zod: 4.4.3
       zod-validation-error: 5.0.0(zod@4.4.3)
@@ -14803,7 +14803,7 @@ snapshots:
 
   '@owf/identity-common@0.2.0': {}
 
-  '@owf/identity-common@0.2.1-alpha-20260508112635': {}
+  '@owf/identity-common@0.3.0-alpha-20260508181749': {}
 
   '@owf/mdoc@0.6.0':
     dependencies:
@@ -14811,10 +14811,10 @@ snapshots:
       zod: 4.4.3
       zod-validation-error: 5.0.0(zod@4.4.3)
 
-  '@owf/token-status-list@0.2.1-alpha-20260508112635':
+  '@owf/token-status-list@0.3.0-alpha-20260508181749':
     dependencies:
-      '@owf/cose': 0.2.1-alpha-20260508112635
-      '@owf/identity-common': 0.2.1-alpha-20260508112635
+      '@owf/cose': 0.3.0-alpha-20260508181749
+      '@owf/identity-common': 0.3.0-alpha-20260508181749
       cbor-x: 1.6.4
       pako: 2.1.0
       zod: 4.4.3
