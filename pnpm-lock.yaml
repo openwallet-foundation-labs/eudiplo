@@ -8,10 +8,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@owf/eudi-attestation-schema':
-        specifier: link:../identity-common-ts/packages/eudi-attestation-schema
-        version: link:../identity-common-ts/packages/eudi-attestation-schema
     devDependencies:
       '@adobe/jsonschema2md':
         specifier: ^8.0.10
