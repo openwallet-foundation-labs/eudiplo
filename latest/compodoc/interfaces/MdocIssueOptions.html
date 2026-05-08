@@ -335,7 +335,7 @@
 import type { Jwk } from &quot;@openid4vc/oauth2&quot;;
 import { CoseKey, DeviceKey, Issuer, SignatureAlgorithm } from &quot;@owf/mdoc&quot;;
 import { X509Certificate } from &quot;@peculiar/x509&quot;;
-import { exportJWK } from &quot;jose&quot;;
+import { exportJWK, importX509 } from &quot;jose&quot;;
 import { CertService } from &quot;../../../../../crypto/key/cert/cert.service&quot;;
 import { KeyUsageType } from &quot;../../../../../crypto/key/entities/key-chain.entity&quot;;
 import { KeyChainService } from &quot;../../../../../crypto/key/key-chain.service&quot;;
@@ -429,6 +429,29 @@ export class MdocIssuerService {
             return new Uint8Array(x509Cert.rawData);
         });
 
+        // Diagnostic: log the leaf cert that will be embedded in the mDOC.
+        try {
+            const leaf &#x3D; new X509Certificate(certificate.crt[0]);
+            const thumb &#x3D; Buffer.from(
+                await crypto.subtle.digest(&quot;SHA-256&quot;, leaf.rawData),
+            )
+                .toString(&quot;hex&quot;)
+                .toUpperCase()
+                .replace(/(.{2})/g, &quot;$1:&quot;)
+                .slice(0, -1);
+            this.logger.log(
+                &#x60;mDOC issuance: tenant&#x3D;${session.tenantId} keyChainId&#x3D;${certificate.keyId} leaf.subject&#x3D;&quot;${leaf.subject}&quot; thumbprint&#x3D;${thumb}&#x60;,
+            );
+        } catch {
+            // ignore diagnostic failures
+        }
+
+        // Ensure the private key used for signing matches the embedded leaf certificate.
+        await this.assertSigningKeyMatchesLeafCertificate(
+            privateKey as Jwk,
+            certificate.crt[0],
+        );
+
         // Set validity dates
         const signed &#x3D; new Date();
         const validFrom &#x3D; new Date(signed);
@@ -459,6 +482,49 @@ export class MdocIssuerService {
 
         // Return the encoded credential for OID4VCI
         return issuerSigned.encodedForOid4Vci;
+    }
+
+    private async assertSigningKeyMatchesLeafCertificate(
+        privateJwk: Jwk,
+        leafCertificatePem?: string,
+    ): Promise&lt;void&gt; {
+        if (!leafCertificatePem) {
+            throw new Error(
+                &quot;mDOC issuance failed: no leaf certificate configured on the selected attestation key chain&quot;,
+            );
+        }
+
+        const certPublicKey &#x3D; await importX509(leafCertificatePem, &quot;ES256&quot;, {
+            extractable: true,
+        });
+        const certPublicJwk &#x3D; (await exportJWK(certPublicKey)) as Jwk;
+
+        const privateJwkPublicPart &#x3D; {
+            kty: privateJwk.kty,
+            crv: privateJwk.crv,
+            x: privateJwk.x,
+            y: privateJwk.y,
+        };
+        const certJwkPublicPart &#x3D; {
+            kty: certPublicJwk.kty,
+            crv: certPublicJwk.crv,
+            x: certPublicJwk.x,
+            y: certPublicJwk.y,
+        };
+
+        if (
+            privateJwkPublicPart.kty !&#x3D;&#x3D; certJwkPublicPart.kty ||
+            privateJwkPublicPart.crv !&#x3D;&#x3D; certJwkPublicPart.crv ||
+            privateJwkPublicPart.x !&#x3D;&#x3D; certJwkPublicPart.x ||
+            privateJwkPublicPart.y !&#x3D;&#x3D; certJwkPublicPart.y
+        ) {
+            this.logger.error(
+                &quot;mDOC issuance key mismatch: active signing key does not match leaf certificate public key&quot;,
+            );
+            throw new Error(
+                &quot;mDOC issuance failed: signing key does not match the embedded attestation certificate. Regenerate or re-import the certificate for this key chain.&quot;,
+            );
+        }
     }
 
     /**

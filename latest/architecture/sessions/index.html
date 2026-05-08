@@ -707,6 +707,8 @@
       
         
       
+        
+      
     
     
     
@@ -778,6 +780,34 @@
     
   
     Credential Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/issuance/schema-metadata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schema Metadata
   
 
     
@@ -1669,8 +1699,41 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="OID4VP Security Fields">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#single-use-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Single-Use Validation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Single-Use Validation">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#audit-trail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit Trail
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#cleanup-modes" class="md-nav__link">
@@ -2607,8 +2670,41 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="OID4VP Security Fields">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#single-use-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Single-Use Validation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Single-Use Validation">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#audit-trail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit Trail
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#cleanup-modes" class="md-nav__link">
@@ -2758,6 +2854,48 @@ and are <strong>not exposed</strong> through the session management API. They ex
 the OID4VP protocol flow.</p>
 <p>For details on how these fields are used in practice, see
 <a href="../../getting-started/presentation/#direct-post-security-model-oid4vp-133">Credential Presentation — Direct Post Security Model</a>.</p>
+<h2 id="single-use-validation">Single-Use Validation<a class="headerlink" href="#single-use-validation" title="Permanent link">¶</a></h2>
+<p>All credential offers (OID4VCI) and presentation requests (OID4VP) are <strong>enforced as single-use</strong> to prevent replay attacks. Once an offer or request is consumed, it cannot be reused:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>consumed</code></td>
+<td><code>boolean</code></td>
+<td>Flag indicating if the offer/request has been used</td>
+</tr>
+<tr>
+<td><code>consumedAt</code></td>
+<td><code>datetime \| null</code></td>
+<td>Timestamp when the offer/request was first consumed</td>
+</tr>
+</tbody>
+</table>
+<h3 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">¶</a></h3>
+<p><strong>For OID4VCI (Credential Issuance):</strong></p>
+<ul>
+<li>Token replay with the same authorization or pre-authorized code is rejected with <code>invalid_grant</code></li>
+<li>The session is marked as consumed when the credential endpoint successfully processes the request</li>
+<li>Refresh tokens are exempt and can be renewed</li>
+</ul>
+<p><strong>For OID4VP (Credential Presentation):</strong></p>
+<ul>
+<li>When a wallet submits a presentation response, the session is marked as consumed</li>
+<li>Any subsequent presentation attempts with the same request are rejected with a <code>400 Bad Request</code> error</li>
+</ul>
+<h3 id="audit-trail">Audit Trail<a class="headerlink" href="#audit-trail" title="Permanent link">¶</a></h3>
+<p>The <code>consumedAt</code> timestamp provides an audit trail for compliance and security monitoring. This allows you to:</p>
+<ul>
+<li>Verify when an offer/request was actually used</li>
+<li>Detect and investigate suspicious patterns (e.g., multiple consumption attempts)</li>
+<li>Maintain security event logs</li>
+</ul>
 <h3 id="cleanup-modes">Cleanup Modes<a class="headerlink" href="#cleanup-modes" title="Permanent link">¶</a></h3>
 <p>EUDIPLO supports two cleanup modes:</p>
 <ul>

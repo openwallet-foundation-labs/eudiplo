@@ -170,8 +170,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="69"
-                                    class="link-to-prism">src/database/database.module.ts:69</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="72"
+                                    class="link-to-prism">src/database/database.module.ts:72</a></div>
                         </td>
                     </tr>
 
@@ -197,6 +197,8 @@ import { Logger, Module, OnModuleInit } from &quot;@nestjs/common&quot;;
 import { ConfigModule, ConfigService } from &quot;@nestjs/config&quot;;
 import { TypeOrmModule, TypeOrmModuleOptions } from &quot;@nestjs/typeorm&quot;;
 import { DataSource } from &quot;typeorm&quot;;
+import { PostgresConnectionOptions } from &quot;typeorm/driver/postgres/PostgresConnectionOptions.js&quot;;
+import { SqliteConnectionOptions } from &quot;typeorm/driver/sqlite/SqliteConnectionOptions.js&quot;;
 import * as migrations from &quot;./migrations&quot;;
 
 @Module({
@@ -239,8 +241,9 @@ import * as migrations from &quot;./migrations&quot;;
                             configService.getOrThrow&lt;string&gt;(&quot;DB_PASSWORD&quot;),
                         database:
                             configService.getOrThrow&lt;string&gt;(&quot;DB_DATABASE&quot;),
+                        ssl: configService.get&lt;boolean&gt;(&quot;DB_SSL&quot;, false),
                         ...commonOptions,
-                    };
+                    } as PostgresConnectionOptions;
                 }
 
                 return {
@@ -250,7 +253,7 @@ import * as migrations from &quot;./migrations&quot;;
                         &quot;service.db&quot;,
                     ),
                     ...commonOptions,
-                };
+                } as SqliteConnectionOptions;
             },
         }),
     ],

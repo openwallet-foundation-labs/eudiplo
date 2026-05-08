@@ -715,6 +715,8 @@
       
         
       
+        
+      
     
     
     
@@ -784,6 +786,34 @@
     
   
     Credential Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="schema-metadata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schema Metadata
   
 
     
@@ -2478,6 +2508,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#schema-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema Metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#issuance-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2493,6 +2534,17 @@
     <span class="md-ellipsis">
       
         Creating Credential Offers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#single-use-offers-replay-prevention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Single-Use Offers (Replay Prevention)
       
     </span>
   </a>
@@ -2757,20 +2809,24 @@
 
 
 <h1 id="configuring-credential-issuance-flows">Configuring Credential Issuance Flows<a class="headerlink" href="#configuring-credential-issuance-flows" title="Permanent link">¶</a></h1>
-<p>The issuance system uses a <strong>two-layer configuration approach</strong>:</p>
+<p>The issuance system uses a <strong>three-part configuration approach</strong>:</p>
 <ol>
 <li><strong>Credential Configurations</strong> - Define the structure, format, and metadata of
    individual credentials</li>
-<li><strong>Issuance Configuration</strong> - Define the issuance configuration that get used to
-   group multiple credentials and publish the issuer metadata</li>
+<li><strong>Schema Metadata (TS11)</strong> - Define schema-level metadata in a dedicated,
+   reusable registrar-managed resource</li>
+<li><strong>Issuance Configuration</strong> - Define the issuance configuration that gets used to
+   group multiple credentials and publish issuer metadata</li>
 </ol>
 <hr>
 <h2 id="api-endpoints">API Endpoints<a class="headerlink" href="#api-endpoints" title="Permanent link">¶</a></h2>
-<p>The system uses two separate endpoints for the two-layer configuration:</p>
+<p>The system uses separate endpoints for each configuration layer:</p>
 <h3 id="credential-configurations">Credential Configurations<a class="headerlink" href="#credential-configurations" title="Permanent link">¶</a></h3>
 <p>To manage individual credential configurations, use the
 <code>/issuer/credentials</code> endpoint. This endpoint handles the definition
 of credential types, their formats, claims, and display properties.</p>
+<h3 id="schema-metadata">Schema Metadata<a class="headerlink" href="#schema-metadata" title="Permanent link">¶</a></h3>
+<p>Schema metadata is managed in a dedicated flow. See <a href="schema-metadata/">Schema Metadata</a> for setup and version management.</p>
 <h3 id="issuance-configuration">Issuance Configuration<a class="headerlink" href="#issuance-configuration" title="Permanent link">¶</a></h3>
 <p>The endpoints to manage issuance configuration can be found in the <a href="../../api/openapi/#issuer">API documentation</a> section.</p>
 <p>Based on your passed access token, endpoints will be scoped to the tenant ID of the
@@ -2789,6 +2845,20 @@ When creating an offer, you can:</p>
 <li><strong>Optionally pass notification webhooks</strong> - Use the <code>notifyWebhook</code> parameter to
    get notified about issuance status changes</li>
 </ol>
+<h3 id="single-use-offers-replay-prevention">Single-Use Offers (Replay Prevention)<a class="headerlink" href="#single-use-offers-replay-prevention" title="Permanent link">¶</a></h3>
+<p>All credential offers are <strong>single-use and non-replayable</strong>. Once a wallet completes the issuance flow with a credential offer:</p>
+<ul>
+<li>Token replay with the same authorization or pre-authorized code is rejected with an <code>invalid_grant</code> error</li>
+<li>The offer is marked as consumed at the credential endpoint and cannot be used again after successful credential processing</li>
+<li>The <code>consumedAt</code> timestamp records when the offer was first used</li>
+</ul>
+<p><strong>Important Considerations:</strong></p>
+<ul>
+<li><strong>Create a new offer for each issuance</strong>: If a user needs credentials again, create a fresh credential offer via the API</li>
+<li><strong>Offer expiration</strong>: Combine single-use enforcement with TTL-based session cleanup (configured per-tenant) to ensure expired offers don't accumulate</li>
+<li><strong>Refresh tokens</strong>: Refresh tokens remain valid and can be used to obtain new access tokens for additional operations on the issued credentials</li>
+</ul>
+<p>This design prevents credential offer replay attacks where an attacker could reuse an intercepted offer to obtain credentials fraudulently.</p>
 <hr>
 <h2 id="credential-issuance-flow">Credential Issuance Flow<a class="headerlink" href="#credential-issuance-flow" title="Permanent link">¶</a></h2>
 <p>This flow describes how a backend service starts an issuance flow of an
@@ -3141,6 +3211,8 @@ with the wallet. It also shows the interactions with <a href="../../architecture
 <li><strong><a href="credential-configuration/">Credential Configuration</a></strong> - Learn how to
   define individual credential types, their structure, claims, and display
   properties</li>
+<li><strong><a href="schema-metadata/">Schema Metadata</a></strong> - Manage TS11 schema metadata as a
+  dedicated, reusable registrar-backed resource</li>
 <li><strong><a href="issuance-configuration/">Issuance Configuration</a></strong> - Understand how to
   create issuance configurations that group multiple credentials and define
   issuance parameters such as authorization and webhooks</li>
@@ -3155,6 +3227,8 @@ with the wallet. It also shows the interactions with <a href="../../architecture
    Attribute Providers using the <a href="attribute-provider/">Attribute Providers</a> guide</li>
 <li><strong>Create a credential configuration</strong> - Define your credential type using the
    <a href="credential-configuration/">Credential Configuration</a> guide</li>
+<li><strong>Create schema metadata</strong> (recommended) - Manage TS11 schema metadata using the
+   <a href="schema-metadata/">Schema Metadata</a> guide</li>
 <li><strong>Create an issuance configuration</strong> - Define the issuance configuration using
    the <a href="issuance-configuration/">Issuance Configuration</a> guide</li>
 <li><strong>Issue credentials</strong> - Start the issuance flow by creating credential offers</li>

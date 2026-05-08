@@ -179,6 +179,11 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
+                                <a href="#assertSigningKeyMatchesLeafCertificate" >assertSigningKeyMatchesLeafCertificate</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
                                 <a href="#getDefaultNamespace" >getDefaultNamespace</a>
                             </li>
                             <li>
@@ -267,6 +272,88 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="assertSigningKeyMatchesLeafCertificate"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>assertSigningKeyMatchesLeafCertificate</b></span>
+                        <a href="#assertSigningKeyMatchesLeafCertificate"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>assertSigningKeyMatchesLeafCertificate(privateJwk: <a href="../interfaces/Jwk.html" target="_self">Jwk</a>, leafCertificatePem?: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="154"
+                                    class="link-to-prism">src/issuer/configuration/credentials/issuer/mdoc-issuer/mdoc-issuer.service.ts:154</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>privateJwk</td>
+                                            <td>
+                                                            <code><a href="../interfaces/Jwk.html" target="_self" >Jwk</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>leafCertificatePem</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;void&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="getDefaultNamespace"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
@@ -285,8 +372,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="134"
-                                    class="link-to-prism">src/issuer/configuration/credentials/issuer/mdoc-issuer/mdoc-issuer.service.ts:134</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="200"
+                                    class="link-to-prism">src/issuer/configuration/credentials/issuer/mdoc-issuer/mdoc-issuer.service.ts:200</a></div>
                         </td>
                     </tr>
 
@@ -462,7 +549,7 @@
 import type { Jwk } from &quot;@openid4vc/oauth2&quot;;
 import { CoseKey, DeviceKey, Issuer, SignatureAlgorithm } from &quot;@owf/mdoc&quot;;
 import { X509Certificate } from &quot;@peculiar/x509&quot;;
-import { exportJWK } from &quot;jose&quot;;
+import { exportJWK, importX509 } from &quot;jose&quot;;
 import { CertService } from &quot;../../../../../crypto/key/cert/cert.service&quot;;
 import { KeyUsageType } from &quot;../../../../../crypto/key/entities/key-chain.entity&quot;;
 import { KeyChainService } from &quot;../../../../../crypto/key/key-chain.service&quot;;
@@ -556,6 +643,29 @@ export class MdocIssuerService {
             return new Uint8Array(x509Cert.rawData);
         });
 
+        // Diagnostic: log the leaf cert that will be embedded in the mDOC.
+        try {
+            const leaf &#x3D; new X509Certificate(certificate.crt[0]);
+            const thumb &#x3D; Buffer.from(
+                await crypto.subtle.digest(&quot;SHA-256&quot;, leaf.rawData),
+            )
+                .toString(&quot;hex&quot;)
+                .toUpperCase()
+                .replace(/(.{2})/g, &quot;$1:&quot;)
+                .slice(0, -1);
+            this.logger.log(
+                &#x60;mDOC issuance: tenant&#x3D;${session.tenantId} keyChainId&#x3D;${certificate.keyId} leaf.subject&#x3D;&quot;${leaf.subject}&quot; thumbprint&#x3D;${thumb}&#x60;,
+            );
+        } catch {
+            // ignore diagnostic failures
+        }
+
+        // Ensure the private key used for signing matches the embedded leaf certificate.
+        await this.assertSigningKeyMatchesLeafCertificate(
+            privateKey as Jwk,
+            certificate.crt[0],
+        );
+
         // Set validity dates
         const signed &#x3D; new Date();
         const validFrom &#x3D; new Date(signed);
@@ -586,6 +696,49 @@ export class MdocIssuerService {
 
         // Return the encoded credential for OID4VCI
         return issuerSigned.encodedForOid4Vci;
+    }
+
+    private async assertSigningKeyMatchesLeafCertificate(
+        privateJwk: Jwk,
+        leafCertificatePem?: string,
+    ): Promise&lt;void&gt; {
+        if (!leafCertificatePem) {
+            throw new Error(
+                &quot;mDOC issuance failed: no leaf certificate configured on the selected attestation key chain&quot;,
+            );
+        }
+
+        const certPublicKey &#x3D; await importX509(leafCertificatePem, &quot;ES256&quot;, {
+            extractable: true,
+        });
+        const certPublicJwk &#x3D; (await exportJWK(certPublicKey)) as Jwk;
+
+        const privateJwkPublicPart &#x3D; {
+            kty: privateJwk.kty,
+            crv: privateJwk.crv,
+            x: privateJwk.x,
+            y: privateJwk.y,
+        };
+        const certJwkPublicPart &#x3D; {
+            kty: certPublicJwk.kty,
+            crv: certPublicJwk.crv,
+            x: certPublicJwk.x,
+            y: certPublicJwk.y,
+        };
+
+        if (
+            privateJwkPublicPart.kty !&#x3D;&#x3D; certJwkPublicPart.kty ||
+            privateJwkPublicPart.crv !&#x3D;&#x3D; certJwkPublicPart.crv ||
+            privateJwkPublicPart.x !&#x3D;&#x3D; certJwkPublicPart.x ||
+            privateJwkPublicPart.y !&#x3D;&#x3D; certJwkPublicPart.y
+        ) {
+            this.logger.error(
+                &quot;mDOC issuance key mismatch: active signing key does not match leaf certificate public key&quot;,
+            );
+            throw new Error(
+                &quot;mDOC issuance failed: signing key does not match the embedded attestation certificate. Regenerate or re-import the certificate for this key chain.&quot;,
+            );
+        }
     }
 
     /**
