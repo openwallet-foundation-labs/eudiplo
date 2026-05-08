@@ -2113,6 +2113,12 @@ export const WebhookEndpointEntitySchema = {
 export const SchemaUriEntrySchema = {
   type: "object",
   properties: {
+    credentialConfigId: {
+      type: "string",
+      description:
+        "Credential config ID to resolve and upload its schema content. When set, uri can be omitted and is resolved server-side.",
+      example: "pid_de_credential_config",
+    },
     format: {
       type: "string",
       description:
@@ -2122,28 +2128,45 @@ export const SchemaUriEntrySchema = {
     uri: {
       type: "string",
       description: "URI pointing to the schema document for this format",
-      example: "https://example.com/schemas/my-credential.dc+sd-jwt.json",
+    },
+    metadata: {
+      type: "object",
+      description:
+        "Schema-format specific metadata (for example { vct: 'urn:example:vct' } for dc+sd-jwt).",
+      additionalProperties: true,
     },
   },
+  required: ["metadata"],
 } as const;
 
 export const TrustAuthorityEntrySchema = {
   type: "object",
   properties: {
+    trustListId: {
+      type: "string",
+      description:
+        "Trust list ID to resolve from the database. When set, frameworkType, value, and verificationMethod are derived automatically.",
+    },
     frameworkType: {
       enum: ["aki", "etsi_tl", "openid_federation"],
       type: "string",
-      description: "Trust framework type",
+      description: "Trust framework type (ignored when trustListId is set)",
     },
     value: {
       type: "string",
-      description: "URI of the trust list or trust anchor",
-      example: "https://example.com/trust-lists/members.jws",
+      description:
+        "URI of the trust list or trust anchor (ignored when trustListId is set)",
     },
     isLoTE: {
       type: "boolean",
       description:
         "Whether this trust authority is a List of Trusted Entities (LoTE)",
+    },
+    verificationMethod: {
+      type: "object",
+      description:
+        "Optional verification material for external trusted authorities (for example a JWK). For internal trust-list URLs, EUDIPLO resolves verification material from the database.",
+      additionalProperties: true,
     },
   },
 } as const;
@@ -3111,6 +3134,236 @@ export const UpdateWebhookEndpointDtoSchema = {
   },
 } as const;
 
+export const TrustListEntityInfoSchema = {
+  type: "object",
+  properties: {
+    name: {
+      type: "string",
+    },
+    lang: {
+      type: "string",
+    },
+    uri: {
+      type: "string",
+    },
+    country: {
+      type: "string",
+    },
+    locality: {
+      type: "string",
+    },
+    postalCode: {
+      type: "string",
+    },
+    streetAddress: {
+      type: "string",
+    },
+    contactUri: {
+      type: "string",
+    },
+  },
+  required: ["name"],
+} as const;
+
+export const InternalTrustListEntitySchema = {
+  type: "object",
+  properties: {
+    type: {
+      type: "string",
+      enum: ["internal"],
+    },
+    issuerKeyChainId: {
+      type: "string",
+    },
+    revocationKeyChainId: {
+      type: "string",
+    },
+    info: {
+      $ref: "#/components/schemas/TrustListEntityInfo",
+    },
+  },
+  required: ["type", "issuerKeyChainId", "revocationKeyChainId", "info"],
+} as const;
+
+export const ExternalTrustListEntitySchema = {
+  type: "object",
+  properties: {
+    type: {
+      type: "string",
+      enum: ["external"],
+    },
+    issuerCertPem: {
+      type: "string",
+    },
+    revocationCertPem: {
+      type: "string",
+    },
+    info: {
+      $ref: "#/components/schemas/TrustListEntityInfo",
+    },
+  },
+  required: ["type", "issuerCertPem", "revocationCertPem", "info"],
+} as const;
+
+export const TrustListCreateDtoSchema = {
+  type: "object",
+  properties: {
+    description: {
+      type: "string",
+    },
+    data: {
+      type: "object",
+      description: "The full trust list JSON (generated LoTE structure)",
+    },
+    entities: {
+      type: "array",
+      items: {
+        oneOf: [
+          {
+            $ref: "#/components/schemas/InternalTrustListEntity",
+          },
+          {
+            $ref: "#/components/schemas/ExternalTrustListEntity",
+          },
+        ],
+        discriminator: {
+          propertyName: "type",
+          mapping: {
+            internal: "#/components/schemas/InternalTrustListEntity",
+            external: "#/components/schemas/ExternalTrustListEntity",
+          },
+        },
+      },
+    },
+    id: {
+      type: "string",
+    },
+    keyChainId: {
+      type: "string",
+    },
+  },
+  required: ["entities"],
+} as const;
+
+export const TrustListSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+      description: "Unique identifier for the trust list",
+    },
+    description: {
+      type: "string",
+    },
+    tenantId: {
+      type: "string",
+      description: "The tenant ID for which the VP request is made.",
+    },
+    tenant: {
+      description: "The tenant that owns this object.",
+      allOf: [
+        {
+          $ref: "#/components/schemas/TenantEntity",
+        },
+      ],
+    },
+    keyChainId: {
+      type: "string",
+    },
+    keyChain: {
+      $ref: "#/components/schemas/KeyChainEntity",
+    },
+    data: {
+      type: "object",
+      description: "The full trust list JSON (generated LoTE structure)",
+    },
+    entityConfig: {
+      description:
+        "The original entity configuration used to create this trust list.\nStored for round-tripping when editing.",
+      type: "array",
+      items: {
+        type: "object",
+      },
+    },
+    sequenceNumber: {
+      type: "number",
+      description:
+        "The sequence number for versioning (incremented on updates)",
+    },
+    jwt: {
+      type: "string",
+      description: "The signed JWT representation of this trust list",
+    },
+    createdAt: {
+      format: "date-time",
+      type: "string",
+    },
+    updatedAt: {
+      format: "date-time",
+      type: "string",
+    },
+  },
+  required: [
+    "id",
+    "tenantId",
+    "tenant",
+    "keyChainId",
+    "keyChain",
+    "sequenceNumber",
+    "jwt",
+    "createdAt",
+    "updatedAt",
+  ],
+} as const;
+
+export const TrustListVersionSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+    },
+    trustListId: {
+      type: "string",
+    },
+    trustList: {
+      $ref: "#/components/schemas/TrustList",
+    },
+    tenantId: {
+      type: "string",
+    },
+    sequenceNumber: {
+      type: "number",
+      description: "The sequence number at the time this version was created",
+    },
+    data: {
+      type: "object",
+      description: "The full trust list JSON at this version",
+    },
+    entityConfig: {
+      type: "object",
+      description: "The entity configuration at this version",
+    },
+    jwt: {
+      type: "string",
+      description: "The signed JWT at this version",
+    },
+    createdAt: {
+      format: "date-time",
+      type: "string",
+    },
+  },
+  required: [
+    "id",
+    "trustListId",
+    "trustList",
+    "tenantId",
+    "sequenceNumber",
+    "data",
+    "jwt",
+    "createdAt",
+  ],
+} as const;
+
 export const DCQLSchema = {
   type: "object",
   properties: {
@@ -3684,6 +3937,58 @@ export const CreateAccessCertificateDtoSchema = {
   required: ["keyId"],
 } as const;
 
+export const VocabularyEntryDtoSchema = {
+  type: "object",
+  properties: {
+    code: {
+      type: "string",
+      description:
+        "Stable machine-readable value to submit in schema metadata category/tags fields.",
+    },
+    label: {
+      type: "string",
+      description: "Display label for UI rendering.",
+    },
+    status: {
+      type: "string",
+      description: "Vocabulary lifecycle status.",
+      enum: ["active", "deprecated"],
+    },
+    replacedBy: {
+      type: "string",
+      description: "Replacement code when status is deprecated.",
+    },
+  },
+  required: ["code", "label", "status"],
+} as const;
+
+export const SchemaMetadataVocabulariesDtoSchema = {
+  type: "object",
+  properties: {
+    version: {
+      type: "string",
+      description: "Vocabulary publication version for cache invalidation.",
+    },
+    categories: {
+      description:
+        "Allowed category values that can be used when updating schema metadata category.",
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/VocabularyEntryDto",
+      },
+    },
+    tags: {
+      description:
+        "Allowed tag values that can be used when updating schema metadata tags.",
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/VocabularyEntryDto",
+      },
+    },
+  },
+  required: ["version", "categories", "tags"],
+} as const;
+
 export const MetadataSchemaDtoSchema = {
   type: "object",
   properties: {
@@ -3902,23 +4207,6 @@ export const SchemaMetadataResponseDtoSchema = {
   ],
 } as const;
 
-export const SubmitSchemaMetadataDtoSchema = {
-  type: "object",
-  properties: {
-    signedJwt: {
-      type: "string",
-      description:
-        "The signed schema metadata JWS (compact serialization). Sign via `POST /api/issuer/credentials/schema-metadata/sign`.",
-    },
-    reservationToken: {
-      type: "string",
-      description:
-        "Reservation token returned by `/schema-metadata/reserve`. Required when the JWT's `id` is a registrar-reserved URL.",
-    },
-  },
-  required: ["signedJwt"],
-} as const;
-
 export const UpdateSchemaMetadataDtoSchema = {
   type: "object",
   properties: {
@@ -3936,10 +4224,22 @@ export const UpdateSchemaMetadataDtoSchema = {
       ],
     },
     tags: {
-      description: "Free-form tags for filtering and search",
       type: "array",
+      description: "Predefined tags for filtering and search",
       items: {
         type: "string",
+        enum: [
+          "pid",
+          "eudi",
+          "kyc",
+          "aml",
+          "age-verification",
+          "residency",
+          "membership",
+          "education",
+          "employment",
+          "mobility",
+        ],
       },
     },
   },
@@ -4354,236 +4654,6 @@ export const AuthorizationResponseSchema = {
         "State value from the authorization request (for correlation).",
     },
   },
-} as const;
-
-export const TrustListEntityInfoSchema = {
-  type: "object",
-  properties: {
-    name: {
-      type: "string",
-    },
-    lang: {
-      type: "string",
-    },
-    uri: {
-      type: "string",
-    },
-    country: {
-      type: "string",
-    },
-    locality: {
-      type: "string",
-    },
-    postalCode: {
-      type: "string",
-    },
-    streetAddress: {
-      type: "string",
-    },
-    contactUri: {
-      type: "string",
-    },
-  },
-  required: ["name"],
-} as const;
-
-export const InternalTrustListEntitySchema = {
-  type: "object",
-  properties: {
-    type: {
-      type: "string",
-      enum: ["internal"],
-    },
-    issuerKeyChainId: {
-      type: "string",
-    },
-    revocationKeyChainId: {
-      type: "string",
-    },
-    info: {
-      $ref: "#/components/schemas/TrustListEntityInfo",
-    },
-  },
-  required: ["type", "issuerKeyChainId", "revocationKeyChainId", "info"],
-} as const;
-
-export const ExternalTrustListEntitySchema = {
-  type: "object",
-  properties: {
-    type: {
-      type: "string",
-      enum: ["external"],
-    },
-    issuerCertPem: {
-      type: "string",
-    },
-    revocationCertPem: {
-      type: "string",
-    },
-    info: {
-      $ref: "#/components/schemas/TrustListEntityInfo",
-    },
-  },
-  required: ["type", "issuerCertPem", "revocationCertPem", "info"],
-} as const;
-
-export const TrustListCreateDtoSchema = {
-  type: "object",
-  properties: {
-    description: {
-      type: "string",
-    },
-    data: {
-      type: "object",
-      description: "The full trust list JSON (generated LoTE structure)",
-    },
-    entities: {
-      type: "array",
-      items: {
-        oneOf: [
-          {
-            $ref: "#/components/schemas/InternalTrustListEntity",
-          },
-          {
-            $ref: "#/components/schemas/ExternalTrustListEntity",
-          },
-        ],
-        discriminator: {
-          propertyName: "type",
-          mapping: {
-            internal: "#/components/schemas/InternalTrustListEntity",
-            external: "#/components/schemas/ExternalTrustListEntity",
-          },
-        },
-      },
-    },
-    id: {
-      type: "string",
-    },
-    keyChainId: {
-      type: "string",
-    },
-  },
-  required: ["entities"],
-} as const;
-
-export const TrustListSchema = {
-  type: "object",
-  properties: {
-    id: {
-      type: "string",
-      description: "Unique identifier for the trust list",
-    },
-    description: {
-      type: "string",
-    },
-    tenantId: {
-      type: "string",
-      description: "The tenant ID for which the VP request is made.",
-    },
-    tenant: {
-      description: "The tenant that owns this object.",
-      allOf: [
-        {
-          $ref: "#/components/schemas/TenantEntity",
-        },
-      ],
-    },
-    keyChainId: {
-      type: "string",
-    },
-    keyChain: {
-      $ref: "#/components/schemas/KeyChainEntity",
-    },
-    data: {
-      type: "object",
-      description: "The full trust list JSON (generated LoTE structure)",
-    },
-    entityConfig: {
-      description:
-        "The original entity configuration used to create this trust list.\nStored for round-tripping when editing.",
-      type: "array",
-      items: {
-        type: "object",
-      },
-    },
-    sequenceNumber: {
-      type: "number",
-      description:
-        "The sequence number for versioning (incremented on updates)",
-    },
-    jwt: {
-      type: "string",
-      description: "The signed JWT representation of this trust list",
-    },
-    createdAt: {
-      format: "date-time",
-      type: "string",
-    },
-    updatedAt: {
-      format: "date-time",
-      type: "string",
-    },
-  },
-  required: [
-    "id",
-    "tenantId",
-    "tenant",
-    "keyChainId",
-    "keyChain",
-    "sequenceNumber",
-    "jwt",
-    "createdAt",
-    "updatedAt",
-  ],
-} as const;
-
-export const TrustListVersionSchema = {
-  type: "object",
-  properties: {
-    id: {
-      type: "string",
-    },
-    trustListId: {
-      type: "string",
-    },
-    trustList: {
-      $ref: "#/components/schemas/TrustList",
-    },
-    tenantId: {
-      type: "string",
-    },
-    sequenceNumber: {
-      type: "number",
-      description: "The sequence number at the time this version was created",
-    },
-    data: {
-      type: "object",
-      description: "The full trust list JSON at this version",
-    },
-    entityConfig: {
-      type: "object",
-      description: "The entity configuration at this version",
-    },
-    jwt: {
-      type: "string",
-      description: "The signed JWT at this version",
-    },
-    createdAt: {
-      format: "date-time",
-      type: "string",
-    },
-  },
-  required: [
-    "id",
-    "trustListId",
-    "trustList",
-    "tenantId",
-    "sequenceNumber",
-    "data",
-    "jwt",
-    "createdAt",
-  ],
 } as const;
 
 export const KmsProviderCapabilitiesDtoSchema = {

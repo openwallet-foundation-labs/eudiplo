@@ -1202,6 +1202,10 @@ export type WebhookEndpointEntity = {
 
 export type SchemaUriEntry = {
   /**
+   * Credential config ID to resolve and upload its schema content. When set, uri can be omitted and is resolved server-side.
+   */
+  credentialConfigId?: string;
+  /**
    * Attestation format this schema URI applies to (e.g. dc+sd-jwt, mso_mdoc)
    */
   format?: string;
@@ -1209,21 +1213,37 @@ export type SchemaUriEntry = {
    * URI pointing to the schema document for this format
    */
   uri?: string;
+  /**
+   * Schema-format specific metadata (for example { vct: 'urn:example:vct' } for dc+sd-jwt).
+   */
+  metadata: {
+    [key: string]: unknown;
+  };
 };
 
 export type TrustAuthorityEntry = {
   /**
-   * Trust framework type
+   * Trust list ID to resolve from the database. When set, frameworkType, value, and verificationMethod are derived automatically.
+   */
+  trustListId?: string;
+  /**
+   * Trust framework type (ignored when trustListId is set)
    */
   frameworkType?: "aki" | "etsi_tl" | "openid_federation";
   /**
-   * URI of the trust list or trust anchor
+   * URI of the trust list or trust anchor (ignored when trustListId is set)
    */
   value?: string;
   /**
    * Whether this trust authority is a List of Trusted Entities (LoTE)
    */
   isLoTE?: boolean;
+  /**
+   * Optional verification material for external trusted authorities (for example a JWK). For internal trust-list URLs, EUDIPLO resolves verification material from the database.
+   */
+  verificationMethod?: {
+    [key: string]: unknown;
+  };
 };
 
 export type SchemaMetaConfig = {
@@ -1703,6 +1723,120 @@ export type UpdateWebhookEndpointDto = {
   url?: string;
 };
 
+export type TrustListEntityInfo = {
+  name: string;
+  lang?: string;
+  uri?: string;
+  country?: string;
+  locality?: string;
+  postalCode?: string;
+  streetAddress?: string;
+  contactUri?: string;
+};
+
+export type InternalTrustListEntity = {
+  type: "internal";
+  issuerKeyChainId: string;
+  revocationKeyChainId: string;
+  info: TrustListEntityInfo;
+};
+
+export type ExternalTrustListEntity = {
+  type: "external";
+  issuerCertPem: string;
+  revocationCertPem: string;
+  info: TrustListEntityInfo;
+};
+
+export type TrustListCreateDto = {
+  description?: string;
+  /**
+   * The full trust list JSON (generated LoTE structure)
+   */
+  data?: {
+    [key: string]: unknown;
+  };
+  entities: Array<
+    | ({
+        type: "internal";
+      } & InternalTrustListEntity)
+    | ({
+        type: "external";
+      } & ExternalTrustListEntity)
+  >;
+  id?: string;
+  keyChainId?: string;
+};
+
+export type TrustList = {
+  /**
+   * Unique identifier for the trust list
+   */
+  id: string;
+  description?: string;
+  /**
+   * The tenant ID for which the VP request is made.
+   */
+  tenantId: string;
+  /**
+   * The tenant that owns this object.
+   */
+  tenant: TenantEntity;
+  keyChainId: string;
+  keyChain: KeyChainEntity;
+  /**
+   * The full trust list JSON (generated LoTE structure)
+   */
+  data?: {
+    [key: string]: unknown;
+  };
+  /**
+   * The original entity configuration used to create this trust list.
+   * Stored for round-tripping when editing.
+   */
+  entityConfig?: Array<{
+    [key: string]: unknown;
+  }>;
+  /**
+   * The sequence number for versioning (incremented on updates)
+   */
+  sequenceNumber: number;
+  /**
+   * The signed JWT representation of this trust list
+   */
+  jwt: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type TrustListVersion = {
+  id: string;
+  trustListId: string;
+  trustList: TrustList;
+  tenantId: string;
+  /**
+   * The sequence number at the time this version was created
+   */
+  sequenceNumber: number;
+  /**
+   * The full trust list JSON at this version
+   */
+  data: {
+    [key: string]: unknown;
+  };
+  /**
+   * The entity configuration at this version
+   */
+  entityConfig?: {
+    [key: string]: unknown;
+  };
+  /**
+   * The signed JWT at this version
+   */
+  jwt: string;
+  createdAt: string;
+};
+
 export type Dcql = {
   credentials: Array<CredentialQuery>;
   credential_sets?: Array<CredentialSetQuery>;
@@ -2036,6 +2170,40 @@ export type CreateAccessCertificateDto = {
   keyId: string;
 };
 
+export type VocabularyEntryDto = {
+  /**
+   * Stable machine-readable value to submit in schema metadata category/tags fields.
+   */
+  code: string;
+  /**
+   * Display label for UI rendering.
+   */
+  label: string;
+  /**
+   * Vocabulary lifecycle status.
+   */
+  status: "active" | "deprecated";
+  /**
+   * Replacement code when status is deprecated.
+   */
+  replacedBy?: string;
+};
+
+export type SchemaMetadataVocabulariesDto = {
+  /**
+   * Vocabulary publication version for cache invalidation.
+   */
+  version: string;
+  /**
+   * Allowed category values that can be used when updating schema metadata category.
+   */
+  categories: Array<VocabularyEntryDto>;
+  /**
+   * Allowed tag values that can be used when updating schema metadata tags.
+   */
+  tags: Array<VocabularyEntryDto>;
+};
+
 export type MetadataSchemaDto = {
   /**
    * Unique identifier for this schema entry
@@ -2188,17 +2356,6 @@ export type SchemaMetadataResponseDto = {
   supersededByVersion?: string;
 };
 
-export type SubmitSchemaMetadataDto = {
-  /**
-   * The signed schema metadata JWS (compact serialization). Sign via `POST /api/issuer/credentials/schema-metadata/sign`.
-   */
-  signedJwt: string;
-  /**
-   * Reservation token returned by `/schema-metadata/reserve`. Required when the JWT's `id` is a registrar-reserved URL.
-   */
-  reservationToken?: string;
-};
-
 export type UpdateSchemaMetadataDto = {
   /**
    * Domain category for filtering
@@ -2212,9 +2369,20 @@ export type UpdateSchemaMetadataDto = {
     | "employment"
     | "other";
   /**
-   * Free-form tags for filtering and search
+   * Predefined tags for filtering and search
    */
-  tags?: Array<string>;
+  tags?: Array<
+    | "pid"
+    | "eudi"
+    | "kyc"
+    | "aml"
+    | "age-verification"
+    | "residency"
+    | "membership"
+    | "education"
+    | "employment"
+    | "mobility"
+  >;
 };
 
 export type DeprecateSchemaMetadataDto = {
@@ -2523,120 +2691,6 @@ export type AuthorizationResponse = {
    * State value from the authorization request (for correlation).
    */
   state?: string;
-};
-
-export type TrustListEntityInfo = {
-  name: string;
-  lang?: string;
-  uri?: string;
-  country?: string;
-  locality?: string;
-  postalCode?: string;
-  streetAddress?: string;
-  contactUri?: string;
-};
-
-export type InternalTrustListEntity = {
-  type: "internal";
-  issuerKeyChainId: string;
-  revocationKeyChainId: string;
-  info: TrustListEntityInfo;
-};
-
-export type ExternalTrustListEntity = {
-  type: "external";
-  issuerCertPem: string;
-  revocationCertPem: string;
-  info: TrustListEntityInfo;
-};
-
-export type TrustListCreateDto = {
-  description?: string;
-  /**
-   * The full trust list JSON (generated LoTE structure)
-   */
-  data?: {
-    [key: string]: unknown;
-  };
-  entities: Array<
-    | ({
-        type: "internal";
-      } & InternalTrustListEntity)
-    | ({
-        type: "external";
-      } & ExternalTrustListEntity)
-  >;
-  id?: string;
-  keyChainId?: string;
-};
-
-export type TrustList = {
-  /**
-   * Unique identifier for the trust list
-   */
-  id: string;
-  description?: string;
-  /**
-   * The tenant ID for which the VP request is made.
-   */
-  tenantId: string;
-  /**
-   * The tenant that owns this object.
-   */
-  tenant: TenantEntity;
-  keyChainId: string;
-  keyChain: KeyChainEntity;
-  /**
-   * The full trust list JSON (generated LoTE structure)
-   */
-  data?: {
-    [key: string]: unknown;
-  };
-  /**
-   * The original entity configuration used to create this trust list.
-   * Stored for round-tripping when editing.
-   */
-  entityConfig?: Array<{
-    [key: string]: unknown;
-  }>;
-  /**
-   * The sequence number for versioning (incremented on updates)
-   */
-  sequenceNumber: number;
-  /**
-   * The signed JWT representation of this trust list
-   */
-  jwt: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type TrustListVersion = {
-  id: string;
-  trustListId: string;
-  trustList: TrustList;
-  tenantId: string;
-  /**
-   * The sequence number at the time this version was created
-   */
-  sequenceNumber: number;
-  /**
-   * The full trust list JSON at this version
-   */
-  data: {
-    [key: string]: unknown;
-  };
-  /**
-   * The entity configuration at this version
-   */
-  entityConfig?: {
-    [key: string]: unknown;
-  };
-  /**
-   * The signed JWT at this version
-   */
-  jwt: string;
-  createdAt: string;
 };
 
 export type KmsProviderCapabilitiesDto = {
@@ -3754,8 +3808,13 @@ export type CredentialConfigControllerDeleteIssuanceConfigurationData = {
 };
 
 export type CredentialConfigControllerDeleteIssuanceConfigurationResponses = {
-  200: unknown;
+  200: {
+    [key: string]: unknown;
+  };
 };
+
+export type CredentialConfigControllerDeleteIssuanceConfigurationResponse =
+  CredentialConfigControllerDeleteIssuanceConfigurationResponses[keyof CredentialConfigControllerDeleteIssuanceConfigurationResponses];
 
 export type CredentialConfigControllerGetConfigByIdData = {
   body?: never;
@@ -3790,38 +3849,6 @@ export type CredentialConfigControllerUpdateCredentialConfigurationResponses = {
 
 export type CredentialConfigControllerUpdateCredentialConfigurationResponse =
   CredentialConfigControllerUpdateCredentialConfigurationResponses[keyof CredentialConfigControllerUpdateCredentialConfigurationResponses];
-
-export type CredentialConfigControllerGetSchemaMetadataData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: {
-    /**
-     * Return a signed JWS instead of a plain JSON object
-     */
-    signed?: boolean;
-  };
-  url: "/api/issuer/credentials/{id}/schema-metadata";
-};
-
-export type CredentialConfigControllerGetSchemaMetadataErrors = {
-  /**
-   * Invalid schema metadata or missing certificate for signing
-   */
-  400: unknown;
-  /**
-   * Credential config not found or no schemaMeta configured
-   */
-  404: unknown;
-};
-
-export type CredentialConfigControllerGetSchemaMetadataResponses = {
-  /**
-   * SchemaMeta document
-   */
-  200: unknown;
-};
 
 export type CredentialConfigControllerSignSchemaMetaConfigData = {
   body: SignSchemaMetaConfigDto;
@@ -4061,6 +4088,128 @@ export type WebhookEndpointControllerUpdateResponses = {
    */
   200: unknown;
 };
+
+export type TrustListControllerGetAllTrustListsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/trust-list";
+};
+
+export type TrustListControllerGetAllTrustListsResponses = {
+  200: Array<TrustList>;
+};
+
+export type TrustListControllerGetAllTrustListsResponse =
+  TrustListControllerGetAllTrustListsResponses[keyof TrustListControllerGetAllTrustListsResponses];
+
+export type TrustListControllerCreateTrustListData = {
+  body: TrustListCreateDto;
+  path?: never;
+  query?: never;
+  url: "/api/trust-list";
+};
+
+export type TrustListControllerCreateTrustListResponses = {
+  201: TrustList;
+};
+
+export type TrustListControllerCreateTrustListResponse =
+  TrustListControllerCreateTrustListResponses[keyof TrustListControllerCreateTrustListResponses];
+
+export type TrustListControllerDeleteTrustListData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/trust-list/{id}";
+};
+
+export type TrustListControllerDeleteTrustListResponses = {
+  200: unknown;
+};
+
+export type TrustListControllerGetTrustListData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/trust-list/{id}";
+};
+
+export type TrustListControllerGetTrustListResponses = {
+  200: TrustList;
+};
+
+export type TrustListControllerGetTrustListResponse =
+  TrustListControllerGetTrustListResponses[keyof TrustListControllerGetTrustListResponses];
+
+export type TrustListControllerUpdateTrustListData = {
+  body: TrustListCreateDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/trust-list/{id}";
+};
+
+export type TrustListControllerUpdateTrustListResponses = {
+  200: TrustList;
+};
+
+export type TrustListControllerUpdateTrustListResponse =
+  TrustListControllerUpdateTrustListResponses[keyof TrustListControllerUpdateTrustListResponses];
+
+export type TrustListControllerExportTrustListData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/trust-list/{id}/export";
+};
+
+export type TrustListControllerExportTrustListResponses = {
+  200: TrustListCreateDto;
+};
+
+export type TrustListControllerExportTrustListResponse =
+  TrustListControllerExportTrustListResponses[keyof TrustListControllerExportTrustListResponses];
+
+export type TrustListControllerGetTrustListVersionsData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/trust-list/{id}/versions";
+};
+
+export type TrustListControllerGetTrustListVersionsResponses = {
+  200: Array<TrustListVersion>;
+};
+
+export type TrustListControllerGetTrustListVersionsResponse =
+  TrustListControllerGetTrustListVersionsResponses[keyof TrustListControllerGetTrustListVersionsResponses];
+
+export type TrustListControllerGetTrustListVersionData = {
+  body?: never;
+  path: {
+    id: string;
+    versionId: string;
+  };
+  query?: never;
+  url: "/api/trust-list/{id}/versions/{versionId}";
+};
+
+export type TrustListControllerGetTrustListVersionResponses = {
+  200: TrustListVersion;
+};
+
+export type TrustListControllerGetTrustListVersionResponse =
+  TrustListControllerGetTrustListVersionResponses[keyof TrustListControllerGetTrustListVersionResponses];
 
 export type PresentationManagementControllerConfigurationData = {
   body?: never;
@@ -4413,6 +4562,20 @@ export type RegistrarControllerCreateAccessCertificateResponses = {
 export type RegistrarControllerCreateAccessCertificateResponse =
   RegistrarControllerCreateAccessCertificateResponses[keyof RegistrarControllerCreateAccessCertificateResponses];
 
+export type SchemaMetadataControllerGetVocabulariesData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/schema-metadata/vocabularies";
+};
+
+export type SchemaMetadataControllerGetVocabulariesResponses = {
+  200: SchemaMetadataVocabulariesDto;
+};
+
+export type SchemaMetadataControllerGetVocabulariesResponse =
+  SchemaMetadataControllerGetVocabulariesResponses[keyof SchemaMetadataControllerGetVocabulariesResponses];
+
 export type SchemaMetadataControllerFindAllData = {
   body?: never;
   path?: never;
@@ -4429,20 +4592,6 @@ export type SchemaMetadataControllerFindAllResponses = {
 
 export type SchemaMetadataControllerFindAllResponse =
   SchemaMetadataControllerFindAllResponses[keyof SchemaMetadataControllerFindAllResponses];
-
-export type SchemaMetadataControllerSubmitData = {
-  body: SubmitSchemaMetadataDto;
-  path?: never;
-  query?: never;
-  url: "/api/schema-metadata";
-};
-
-export type SchemaMetadataControllerSubmitResponses = {
-  201: SchemaMetadataResponseDto;
-};
-
-export type SchemaMetadataControllerSubmitResponse =
-  SchemaMetadataControllerSubmitResponses[keyof SchemaMetadataControllerSubmitResponses];
 
 export type SchemaMetadataControllerFindOneData = {
   body?: never;
@@ -4677,128 +4826,6 @@ export type DeferredControllerFailDeferredResponses = {
 export type DeferredControllerFailDeferredResponse =
   DeferredControllerFailDeferredResponses[keyof DeferredControllerFailDeferredResponses];
 
-export type TrustListControllerGetAllTrustListsData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/api/trust-list";
-};
-
-export type TrustListControllerGetAllTrustListsResponses = {
-  200: Array<TrustList>;
-};
-
-export type TrustListControllerGetAllTrustListsResponse =
-  TrustListControllerGetAllTrustListsResponses[keyof TrustListControllerGetAllTrustListsResponses];
-
-export type TrustListControllerCreateTrustListData = {
-  body: TrustListCreateDto;
-  path?: never;
-  query?: never;
-  url: "/api/trust-list";
-};
-
-export type TrustListControllerCreateTrustListResponses = {
-  201: TrustList;
-};
-
-export type TrustListControllerCreateTrustListResponse =
-  TrustListControllerCreateTrustListResponses[keyof TrustListControllerCreateTrustListResponses];
-
-export type TrustListControllerDeleteTrustListData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/trust-list/{id}";
-};
-
-export type TrustListControllerDeleteTrustListResponses = {
-  200: unknown;
-};
-
-export type TrustListControllerGetTrustListData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/trust-list/{id}";
-};
-
-export type TrustListControllerGetTrustListResponses = {
-  200: TrustList;
-};
-
-export type TrustListControllerGetTrustListResponse =
-  TrustListControllerGetTrustListResponses[keyof TrustListControllerGetTrustListResponses];
-
-export type TrustListControllerUpdateTrustListData = {
-  body: TrustListCreateDto;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/trust-list/{id}";
-};
-
-export type TrustListControllerUpdateTrustListResponses = {
-  200: TrustList;
-};
-
-export type TrustListControllerUpdateTrustListResponse =
-  TrustListControllerUpdateTrustListResponses[keyof TrustListControllerUpdateTrustListResponses];
-
-export type TrustListControllerExportTrustListData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/trust-list/{id}/export";
-};
-
-export type TrustListControllerExportTrustListResponses = {
-  200: TrustListCreateDto;
-};
-
-export type TrustListControllerExportTrustListResponse =
-  TrustListControllerExportTrustListResponses[keyof TrustListControllerExportTrustListResponses];
-
-export type TrustListControllerGetTrustListVersionsData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/trust-list/{id}/versions";
-};
-
-export type TrustListControllerGetTrustListVersionsResponses = {
-  200: Array<TrustListVersion>;
-};
-
-export type TrustListControllerGetTrustListVersionsResponse =
-  TrustListControllerGetTrustListVersionsResponses[keyof TrustListControllerGetTrustListVersionsResponses];
-
-export type TrustListControllerGetTrustListVersionData = {
-  body?: never;
-  path: {
-    id: string;
-    versionId: string;
-  };
-  query?: never;
-  url: "/api/trust-list/{id}/versions/{versionId}";
-};
-
-export type TrustListControllerGetTrustListVersionResponses = {
-  200: TrustListVersion;
-};
-
-export type TrustListControllerGetTrustListVersionResponse =
-  TrustListControllerGetTrustListVersionResponses[keyof TrustListControllerGetTrustListVersionResponses];
-
 export type KeyChainControllerGetProvidersData = {
   body?: never;
   path?: never;
@@ -4819,7 +4846,17 @@ export type KeyChainControllerGetProvidersResponse =
 export type KeyChainControllerGetAllData = {
   body?: never;
   path?: never;
-  query?: never;
+  query?: {
+    /**
+     * Optional usage type filter
+     */
+    usageType?:
+      | "access"
+      | "attestation"
+      | "trustList"
+      | "statusList"
+      | "encrypt";
+  };
   url: "/api/key-chain";
 };
 

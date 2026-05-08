@@ -7,6 +7,7 @@ config({ path: join(__dirname, "..", "..", ".env") });
 config({ path: join(__dirname, "..", "..", "..", "..", ".env") });
 
 const dbType = process.env.DB_TYPE as "sqlite" | "postgres" | undefined;
+const dbSsl = process.env.DB_SSL === "true";
 
 const commonOptions: Partial<DataSourceOptions> = {
     synchronize: false,
@@ -27,6 +28,7 @@ if (dbType === "postgres") {
         username: process.env.DB_USERNAME || "postgres",
         password: process.env.DB_PASSWORD || "postgres",
         database: process.env.DB_DATABASE || "eudiplo",
+        ssl: dbSsl,
         ...commonOptions,
     } as DataSourceOptions;
 } else {

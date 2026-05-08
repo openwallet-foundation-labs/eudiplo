@@ -18,10 +18,22 @@
       ]
     },
     "tags": {
-      "description": "Free-form tags for filtering and search",
       "type": "array",
+      "description": "Predefined tags for filtering and search",
       "items": {
-        "type": "string"
+        "type": "string",
+        "enum": [
+          "pid",
+          "eudi",
+          "kyc",
+          "aml",
+          "age-verification",
+          "residency",
+          "membership",
+          "education",
+          "employment",
+          "mobility"
+        ]
       }
     }
   },

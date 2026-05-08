@@ -18,7 +18,7 @@ export type BuiltTrustStore = {
 @Injectable()
 export class TrustStoreService {
     private readonly logger = new Logger(TrustStoreService.name);
-    private cache: BuiltTrustStore | null = null;
+    private readonly cache = new Map<string, BuiltTrustStore>();
 
     constructor(
         private readonly trustListJwt: TrustListJwtService,
@@ -29,8 +29,12 @@ export class TrustStoreService {
         source: TrustListSource,
         cacheTtlMs = 5 * 60 * 1000,
     ): Promise<BuiltTrustStore> {
-        if (this.cache && Date.now() - this.cache.fetchedAt < cacheTtlMs)
-            return this.cache;
+        const cacheKey = this.buildCacheKey(source);
+        const cached = this.cache.get(cacheKey);
+
+        if (cached && Date.now() - cached.fetchedAt < cacheTtlMs) {
+            return cached;
+        }
 
         const entities: TrustedEntity[] = [];
         let nextUpdate: string | undefined;
@@ -77,7 +81,7 @@ export class TrustStoreService {
             nextUpdate,
             entities,
         };
-        this.cache = store;
+        this.cache.set(cacheKey, store);
 
         this.logger.debug(
             `Built trust store with ${entities.length} trusted entit${entities.length === 1 ? "y" : "ies"}`,
@@ -90,6 +94,16 @@ export class TrustStoreService {
      * Useful for testing or when trust lists are known to have changed.
      */
     clearCache(): void {
-        this.cache = null;
+        this.cache.clear();
+    }
+
+    private buildCacheKey(source: TrustListSource): string {
+        return JSON.stringify({
+            lotes: source.lotes.map((ref) => ({
+                url: ref.url,
+                verifierKey: ref.verifierKey ?? null,
+            })),
+            acceptedServiceTypes: source.acceptedServiceTypes ?? [],
+        });
     }
 }

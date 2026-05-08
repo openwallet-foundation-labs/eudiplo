@@ -7,6 +7,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -17,9 +18,11 @@ import type {
   CredentialConfig,
   SchemaMetaConfig,
   UpdateSchemaMetadataDto,
+  VocabularyEntryDto,
 } from '@eudiplo/sdk-core';
 import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
 import { SchemaMetadata, SchemaMetadataService } from '../schema-metadata.service';
+import { getApiErrorMessage } from '../../utils/error-message';
 
 const SEMVER_REGEX =
   /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
@@ -35,6 +38,7 @@ const SEMVER_REGEX =
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatSelectModule,
     MatSnackBarModule,
     MatTooltipModule,
     FlexLayoutModule,
@@ -46,6 +50,11 @@ const SEMVER_REGEX =
 })
 export class SchemaMetadataShowComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly schemaMetadataService = inject(SchemaMetadataService);
+  private readonly credentialConfigService = inject(CredentialConfigService);
+  private readonly snackBar = inject(MatSnackBar);
 
   id = '';
   item?: SchemaMetadata;
@@ -53,6 +62,11 @@ export class SchemaMetadataShowComponent implements OnInit {
   loading = false;
   showPublishForm = false;
   publishing = false;
+
+  /** Predefined vocabulary entries for category selection */
+  categoryVocabularies: VocabularyEntryDto[] = [];
+  /** Predefined vocabulary entries for tag selection */
+  tagVocabularies: VocabularyEntryDto[] = [];
 
   /** Credential configs that reference this schema metadata via schemaMeta.id */
   relatedCredentialConfigs: CredentialConfig[] = [];
@@ -65,7 +79,7 @@ export class SchemaMetadataShowComponent implements OnInit {
 
   metadataForm = new FormGroup({
     category: new FormControl(''),
-    tagsCsv: new FormControl(''),
+    tags: new FormControl<string[]>([]),
   });
 
   publishForm = new FormGroup({
@@ -73,14 +87,6 @@ export class SchemaMetadataShowComponent implements OnInit {
     rulebookURI: new FormControl(''),
     deprecateCurrent: new FormControl(true),
   });
-
-  constructor(
-    private readonly route: ActivatedRoute,
-    private readonly router: Router,
-    private readonly schemaMetadataService: SchemaMetadataService,
-    private readonly credentialConfigService: CredentialConfigService,
-    private readonly snackBar: MatSnackBar
-  ) {}
 
   ngOnInit(): void {
     combineLatest([this.route.paramMap, this.route.queryParamMap])
@@ -96,10 +102,16 @@ export class SchemaMetadataShowComponent implements OnInit {
     if (!this.id) return;
     this.loading = true;
     try {
-      const [latestItem, versions] = await Promise.all([
+      const [latestItem, versions, vocabularies] = await Promise.all([
         this.schemaMetadataService.getById(this.id),
         this.schemaMetadataService.getVersions(this.id),
+        this.schemaMetadataService.getVocabularies(),
       ]);
+
+      this.categoryVocabularies = Array.isArray(vocabularies?.categories)
+        ? vocabularies.categories
+        : [];
+      this.tagVocabularies = Array.isArray(vocabularies?.tags) ? vocabularies.tags : [];
 
       this.availableVersions = versions
         .map((entry) => entry.version)
@@ -126,7 +138,7 @@ export class SchemaMetadataShowComponent implements OnInit {
 
       this.metadataForm.patchValue({
         category: this.item.category || '',
-        tagsCsv: (this.item.tags || []).join(', '),
+        tags: (this.item.tags ?? []) as string[],
       });
       this.publishForm.patchValue({
         newVersion: this.bumpMinorVersion(this.item.version),
@@ -161,14 +173,20 @@ export class SchemaMetadataShowComponent implements OnInit {
     }
   }
 
+  vocabularyLabel(entry: VocabularyEntryDto): string {
+    if (entry.status === 'deprecated' && entry.replacedBy) {
+      return `${entry.label} (${entry.code}) - deprecated, use ${entry.replacedBy}`;
+    }
+    if (entry.status === 'deprecated') {
+      return `${entry.label} (${entry.code}) - deprecated`;
+    }
+    return `${entry.label} (${entry.code})`;
+  }
+
   async saveMetadata(): Promise<void> {
     if (!this.id) return;
     try {
-      const tagsCsv = this.metadataForm.get('tagsCsv')?.value || '';
-      const tags = tagsCsv
-        .split(',')
-        .map((t) => t.trim())
-        .filter((t) => !!t);
+      const tags = (this.metadataForm.get('tags')?.value ?? []) as UpdateSchemaMetadataDto['tags'];
 
       this.item = await this.schemaMetadataService.updateMetadata(
         this.id,
@@ -234,42 +252,6 @@ export class SchemaMetadataShowComponent implements OnInit {
     }
   }
 
-  private getErrorMessage(error: unknown, fallback: string): string {
-    if (typeof error === 'object' && error !== null) {
-      const asRecord = error as Record<string, unknown>;
-
-      // SDK/network errors often wrap backend payloads in an `error` field.
-      const nested = asRecord['error'];
-      if (typeof nested === 'object' && nested !== null) {
-        const nestedRecord = nested as Record<string, unknown>;
-        const nestedMessage = nestedRecord['message'];
-
-        if (typeof nestedMessage === 'string' && nestedMessage.trim()) {
-          return nestedMessage;
-        }
-        if (typeof nestedMessage === 'object' && nestedMessage !== null) {
-          const innerMessage = (nestedMessage as Record<string, unknown>)['message'];
-          if (typeof innerMessage === 'string' && innerMessage.trim()) {
-            return innerMessage;
-          }
-        }
-      }
-
-      const topLevelMessage = asRecord['message'];
-      if (typeof topLevelMessage === 'string' && topLevelMessage.trim()) {
-        return topLevelMessage;
-      }
-      if (typeof topLevelMessage === 'object' && topLevelMessage !== null) {
-        const innerMessage = (topLevelMessage as Record<string, unknown>)['message'];
-        if (typeof innerMessage === 'string' && innerMessage.trim()) {
-          return innerMessage;
-        }
-      }
-    }
-
-    return fallback;
-  }
-
   async copyJwtUrl(): Promise<void> {
     if (!this.jwtUrl) return;
     try {
@@ -331,6 +313,51 @@ export class SchemaMetadataShowComponent implements OnInit {
     return null;
   }
 
+  private deriveSchemaUriMetadata(config: CredentialConfig): Record<string, unknown> {
+    const format = config.config?.format;
+    if (format === 'dc+sd-jwt') {
+      const vct =
+        typeof config.vct === 'string'
+          ? config.vct
+          : config.vct &&
+              typeof config.vct === 'object' &&
+              'vct' in config.vct &&
+              typeof (config.vct as { vct?: unknown }).vct === 'string'
+            ? (config.vct as { vct: string }).vct
+            : undefined;
+
+      if (!vct) {
+        throw new Error(
+          `Credential config ${config.id}: missing vct required for schemaURIs metadata`
+        );
+      }
+      return { vct };
+    }
+
+    if (format === 'mso_mdoc') {
+      const docType =
+        config.config?.docType ||
+        ((config.config as { doctype?: string } | undefined)?.doctype ?? undefined);
+
+      if (!docType) {
+        throw new Error(
+          `Credential config ${config.id}: missing docType required for schemaURIs metadata`
+        );
+      }
+      return { doctype_value: docType };
+    }
+
+    return {};
+  }
+
+  private findRelatedCredentialConfigForSchemaUri(uri?: string): CredentialConfig | undefined {
+    if (!uri) {
+      return undefined;
+    }
+
+    return this.relatedCredentialConfigs.find((cfg) => uri.includes(`/schema/${cfg.id}/`));
+  }
+
   togglePublishForm(): void {
     this.showPublishForm = !this.showPublishForm;
   }
@@ -363,6 +390,18 @@ export class SchemaMetadataShowComponent implements OnInit {
       schemaURIs: (this.item.schemaURIs ?? []).map((s) => ({
         format: s.formatIdentifier,
         uri: s.uri,
+        metadata: this.deriveSchemaUriMetadata(
+          (() => {
+            const cfg = this.findRelatedCredentialConfigForSchemaUri(s.uri);
+            if (!cfg) {
+              throw new Error(
+                `Unable to derive schemaURIs metadata for ${s.uri ?? 'unknown URI'}. ` +
+                  'Ensure the schema is linked to a credential config in EUDIPLO.'
+              );
+            }
+            return cfg;
+          })()
+        ),
       })),
       trustedAuthorities: (this.item.trustedAuthorities ?? []).map((t) => ({
         frameworkType: t.frameworkType,
@@ -391,7 +430,7 @@ export class SchemaMetadataShowComponent implements OnInit {
       });
     } catch (error) {
       console.error('Failed to publish new version:', error);
-      this.snackBar.open(this.getErrorMessage(error, 'Failed to publish new version'), 'Close', {
+      this.snackBar.open(getApiErrorMessage(error, 'Failed to publish new version'), 'Close', {
         duration: 6000,
       });
     } finally {

@@ -7,6 +7,7 @@ import { SessionModule } from "../../session/session.module";
 import { WebhookService } from "../../shared/utils/webhook/webhook.service";
 import { PresentationsModule } from "../../verifier/presentations/presentations.module";
 import { StatusListModule } from "../lifecycle/status/status-list.module";
+import { TrustListModule } from "../trust-list/trustlist.module";
 import { AttributeProviderController } from "./attribute-provider/attribute-provider.controller";
 import { AttributeProviderService } from "./attribute-provider/attribute-provider.service";
 import { AttributeProviderEntity } from "./attribute-provider/entities/attribute-provider.entity";
@@ -36,6 +37,7 @@ import { WebhookEndpointService } from "./webhook-endpoint/webhook-endpoint.serv
     imports: [
         CryptoModule,
         StatusListModule,
+        TrustListModule,
         HttpModule,
         SessionModule,
         PresentationsModule,

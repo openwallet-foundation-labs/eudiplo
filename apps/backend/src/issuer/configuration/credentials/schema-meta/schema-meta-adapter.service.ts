@@ -1,8 +1,5 @@
-import {
-    BadRequestException,
-    Injectable,
-    NotFoundException,
-} from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import {
     type SchemaMeta,
     type SignedSchemaMeta,
@@ -16,11 +13,8 @@ import { Signer } from "@sd-jwt/types";
 import { PinoLogger } from "nestjs-pino";
 import { KeyUsageType } from "../../../../crypto/key/entities/key-chain.entity";
 import { KeyChainService } from "../../../../crypto/key/key-chain.service";
+import { TrustListService } from "../../../trust-list/trustlist.service";
 import { SchemaMetaConfig } from "../dto/schema-meta-config.dto";
-import {
-    CredentialConfig,
-    CredentialFormat,
-} from "../entities/credential.entity";
 
 /**
  * Adapter service that translates a CredentialConfig's schemaMeta configuration
@@ -32,112 +26,160 @@ import {
 export class SchemaMetaAdapterService {
     constructor(
         private readonly keyChainService: KeyChainService,
+        private readonly trustListService: TrustListService,
         private readonly logger: PinoLogger,
+        private readonly configService: ConfigService,
     ) {
         this.logger.setContext("SchemaMetaAdapterService");
     }
 
-    /**
-     * Generates a plain (unsigned) SchemaMeta object from the credential config.
-     * Throws if no schemaMeta configuration is present on the credential.
-     *
-     * Integrity hashes for `rulebookURI` and every `schemaURIs[].uri` are
-     * always computed server-side at generation time so the signed object
-     * reflects the live resources rather than any stale or attacker-supplied
-     * value.
-     */
-    async generateSchemaMeta(
-        credentialConfig: CredentialConfig,
-    ): Promise<SchemaMeta> {
-        const { schemaMeta: config, vct, id: credId } = credentialConfig;
+    private toPublicJwk(
+        jwk?: Record<string, unknown>,
+    ): Record<string, unknown> | undefined {
+        if (!jwk || typeof jwk !== "object") {
+            return undefined;
+        }
+        const { d, p, q, dp, dq, qi, oth, k, ...publicJwk } = jwk as Record<
+            string,
+            unknown
+        >;
+        void d;
+        void p;
+        void q;
+        void dp;
+        void dq;
+        void qi;
+        void oth;
+        void k;
+        return publicJwk;
+    }
 
-        if (!config) {
-            throw new NotFoundException(
-                "No schema metadata configuration found for this credential. " +
-                    "Set the `schemaMeta` field on the credential configuration to enable TS11 schema metadata generation.",
+    private parseInternalTrustListRef(
+        value: string,
+    ): { tenantId: string; trustListId: string } | undefined {
+        const match = /\/issuers\/([^/]+)\/trust-list\/([^/?#]+)/.exec(value);
+        if (!match) {
+            return undefined;
+        }
+        return {
+            tenantId: decodeURIComponent(match[1] ?? ""),
+            trustListId: decodeURIComponent(match[2] ?? ""),
+        };
+    }
+
+    private async resolveInternalVerificationMethod(
+        tenantId: string,
+        value: string,
+    ): Promise<Record<string, unknown> | undefined> {
+        const ref = this.parseInternalTrustListRef(value);
+        if (!ref || ref.tenantId !== tenantId) {
+            return undefined;
+        }
+
+        try {
+            const trustList = await this.trustListService.findOne(
+                ref.tenantId,
+                ref.trustListId,
             );
-        }
+            if (!trustList.keyChainId) {
+                return undefined;
+            }
 
-        // Derive the attestation format from the stored credential format.
-        const credFormat = credentialConfig.config?.format;
-        const format =
-            credFormat === CredentialFormat.MSO_MDOC
-                ? ("mso_mdoc" as const)
-                : ("dc+sd-jwt" as const);
-
-        const rulebookIntegrity = await this.computeSri(
-            config.rulebookURI,
-            "rulebookURI",
-        );
-        const schemaURIsWithIntegrity = await Promise.all(
-            (config.schemaURIs ?? []).map(async (entry) => ({
-                ...entry,
-                integrity: await this.computeSri(
-                    entry.uri,
-                    `schemaURIs[${entry.format}]`,
-                ),
-            })),
-        );
-
-        // Build the core SchemaMeta object.
-        let builder = schemaMetaBuilder()
-            .version(config.version)
-            .rulebookURI(config.rulebookURI)
-            .rulebookIntegrity(rulebookIntegrity)
-            .attestationLoS(config.attestationLoS)
-            .bindingType(config.bindingType)
-            .addFormat(format);
-
-        // Optional: explicit id override; otherwise fall back to vct / docType / entity id.
-        const attestationId =
-            config.id ??
-            (typeof vct === "string"
-                ? vct
-                : typeof vct === "object" && vct !== null
-                  ? (vct as { value?: string }).value
-                  : undefined) ??
-            credentialConfig.config?.docType ??
-            credId;
-
-        if (attestationId) {
-            builder = builder.id(attestationId);
-        }
-
-        // Add schema URIs.
-        for (const entry of schemaURIsWithIntegrity) {
-            const uriBuilder = schemaURIBuilder()
-                .format(entry.format as any)
-                .uri(entry.uri)
-                .integrity(entry.integrity);
-            builder = builder.addSchemaURI(uriBuilder.build());
-        }
-
-        // Add trusted authorities.
-        for (const ta of config.trustedAuthorities ?? []) {
-            const taObj = trustAuthorityBuilder()
-                .frameworkType(ta.frameworkType as any)
-                .value(ta.value)
-                .build();
-            builder = builder.addTrustAuthority(taObj);
-        }
-
-        const result = builder.build();
-
-        // Validate the generated object.
-        const validation = validateSchemaMeta(result);
-        if (!validation.valid) {
-            const errors = validation.errors
-                .map((e) => `${e.path}: ${e.message}`)
-                .join("; ");
-            throw new BadRequestException(
-                `Generated SchemaMeta is invalid: ${errors}`,
+            const keyChain = await this.keyChainService.getEntity(
+                ref.tenantId,
+                trustList.keyChainId,
             );
-        }
+            const publicKeyJwk = this.toPublicJwk(
+                keyChain.activeKey as Record<string, unknown> | undefined,
+            );
+            if (!publicKeyJwk) {
+                return undefined;
+            }
 
+            return {
+                type: "JsonWebKey2020",
+                publicKeyJwk,
+            };
+        } catch {
+            return undefined;
+        }
+    }
+
+    private async buildTrustedAuthorities(
+        tenantId: string,
+        authorities: SchemaMetaConfig["trustedAuthorities"],
+    ): Promise<Array<Record<string, unknown>>> {
+        const result: Array<Record<string, unknown>> = [];
+        for (const ta of authorities ?? []) {
+            let built: Record<string, unknown>;
+
+            if (ta.trustListId) {
+                // Resolve trust list directly by ID — no URL needed from the client.
+                const trustList = await this.trustListService.findOne(
+                    tenantId,
+                    ta.trustListId,
+                );
+                if (!trustList.keyChainId) {
+                    throw new BadRequestException(
+                        `Trust list ${ta.trustListId} has no key chain configured.`,
+                    );
+                }
+                const keyChain = await this.keyChainService.getEntity(
+                    tenantId,
+                    trustList.keyChainId,
+                );
+                const publicKeyJwk = this.toPublicJwk(
+                    keyChain.activeKey as Record<string, unknown> | undefined,
+                );
+                if (!publicKeyJwk) {
+                    throw new BadRequestException(
+                        `Trust list ${ta.trustListId} key chain has no active key.`,
+                    );
+                }
+                const publicUrl = this.configService
+                    .getOrThrow<string>("PUBLIC_URL")
+                    .replace(/\/$/, "");
+                const trustListUrl = `${publicUrl}/issuers/${tenantId}/trust-list/${trustList.id}`;
+                const base = trustAuthorityBuilder()
+                    .frameworkType("etsi_tl" as any)
+                    .value(trustListUrl)
+                    .isLoTE(ta.isLoTE ?? true);
+                built = base.build() as Record<string, unknown>;
+                built["verificationMethod"] = {
+                    type: "JsonWebKey2020",
+                    publicKeyJwk,
+                };
+            } else {
+                const base = trustAuthorityBuilder()
+                    .frameworkType((ta.frameworkType ?? "etsi_tl") as any)
+                    .value(ta.value!);
+                if (ta.isLoTE !== undefined) {
+                    base.isLoTE(ta.isLoTE);
+                }
+                built = base.build() as Record<string, unknown>;
+
+                const verificationMethod =
+                    ta.verificationMethod ??
+                    (await this.resolveInternalVerificationMethod(
+                        tenantId,
+                        ta.value!,
+                    ));
+
+                if (!verificationMethod) {
+                    throw new BadRequestException(
+                        `Trusted authority ${ta.value} requires verificationMethod for external authorities. ` +
+                            `For internal trust-list URLs, ensure the referenced trust list and key chain exist.`,
+                    );
+                }
+
+                built["verificationMethod"] = verificationMethod;
+            }
+
+            result.push(built);
+        }
         return result;
     }
 
-    /**
     /**
      * Fetches the resource at `url` and returns its W3C Subresource Integrity
      * hash in `sha256-<base64>` form. Computing this server-side prevents
@@ -250,14 +292,29 @@ export class SchemaMetaAdapterService {
             config.rulebookURI,
             "rulebookURI",
         );
+        const rawSchemaUris = config.schemaURIs ?? [];
+        for (const entry of rawSchemaUris) {
+            if (!entry.format || !entry.uri || !entry.metadata) {
+                throw new BadRequestException(
+                    "Each schemaURIs entry must include format, uri, and metadata after preprocessing.",
+                );
+            }
+        }
+
         const schemaURIsWithIntegrity = await Promise.all(
-            (config.schemaURIs ?? []).map(async (entry) => ({
-                ...entry,
+            rawSchemaUris.map(async (entry) => ({
+                format: entry.format as string,
+                uri: entry.uri as string,
+                metadata: entry.metadata,
                 integrity: await this.computeSri(
-                    entry.uri,
-                    `schemaURIs[${entry.format}]`,
+                    entry.uri as string,
+                    `schemaURIs[${entry.format as string}]`,
                 ),
             })),
+        );
+        const trustedAuthorities = await this.buildTrustedAuthorities(
+            tenantId,
+            config.trustedAuthorities,
         );
 
         let builder = schemaMetaBuilder()
@@ -267,18 +324,6 @@ export class SchemaMetaAdapterService {
             .attestationLoS(config.attestationLoS)
             .bindingType(config.bindingType);
 
-        // Derive supportedFormats from the schemaURIs entries (deduplicated),
-        // since the raw config does not carry an explicit format list.
-        const formats = new Set<string>();
-        for (const entry of schemaURIsWithIntegrity) {
-            if (entry.format) {
-                formats.add(entry.format);
-            }
-        }
-        for (const fmt of formats) {
-            builder = builder.addFormat(fmt as any);
-        }
-
         if (config.id) {
             builder = builder.id(config.id);
         }
@@ -286,18 +331,26 @@ export class SchemaMetaAdapterService {
             const uriBuilder = schemaURIBuilder()
                 .format(entry.format as any)
                 .uri(entry.uri)
+                .meta(entry.metadata)
                 .integrity(entry.integrity);
-            builder = builder.addSchemaURI(uriBuilder.build());
+
+            const builtSchemaUri = uriBuilder.build() as Record<
+                string,
+                unknown
+            >;
+
+            builder = builder.addSchemaURI(builtSchemaUri as any);
         }
-        for (const ta of config.trustedAuthorities ?? []) {
-            const taObj = trustAuthorityBuilder()
-                .frameworkType(ta.frameworkType as any)
-                .value(ta.value)
-                .build();
-            builder = builder.addTrustAuthority(taObj);
+        for (const taObj of trustedAuthorities) {
+            builder = builder.addTrustAuthority(taObj as any);
         }
 
         const result = builder.build();
+
+        if (trustedAuthorities.length > 0) {
+            (result as Record<string, unknown>)["trustedAuthorities"] =
+                trustedAuthorities;
+        }
 
         const validation = validateSchemaMeta(result);
         if (!validation.valid) {
@@ -312,33 +365,5 @@ export class SchemaMetaAdapterService {
         this.logger.info({ tenantId }, "Signing raw SchemaMetaConfig");
 
         return this.signWithKeyChain(tenantId, result, keyChainId);
-    }
-
-    /**
-     * Generates a signed SchemaMeta JWT (JWS) for the given credential config.
-     *
-     * The signing key is resolved from the credential's keyChainId or the tenant's
-     * default key chain. The certificate chain from the key chain is included in the
-     * JWS x5c header.
-     *
-     * @experimental Signing requires a certificate chain; ensure the key chain
-     *   has a certificate configured before calling this method.
-     */
-    async generateSignedSchemaMeta(
-        tenantId: string,
-        credentialConfig: CredentialConfig,
-    ): Promise<SignedSchemaMeta> {
-        const schemaMetaObj = await this.generateSchemaMeta(credentialConfig);
-
-        const keyChainId =
-            credentialConfig.keyChainId ??
-            (await this.keyChainService.getKid(tenantId));
-
-        this.logger.info(
-            { tenantId, credentialId: credentialConfig.id },
-            "Signing SchemaMeta",
-        );
-
-        return this.signWithKeyChain(tenantId, schemaMetaObj, keyChainId);
     }
 }

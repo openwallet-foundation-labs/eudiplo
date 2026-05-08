@@ -13,5 +13,6 @@ import { TrustListService } from "./trustlist.service";
     ],
     providers: [TrustListService],
     controllers: [TrustListController, TrustListPublicController],
+    exports: [TrustListService],
 })
 export class TrustListModule {}

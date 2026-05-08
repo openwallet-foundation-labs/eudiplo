@@ -37,6 +37,14 @@ export class SchemaMetadataListComponent implements OnInit {
   groupedItems: GroupedSchemaMetadata[] = [];
   loading = false;
 
+  get schemaMetadataCount(): number {
+    return this.groupedItems.length;
+  }
+
+  get schemaMetadataVersionCount(): number {
+    return this.items.length;
+  }
+
   displayedColumns: (keyof GroupedSchemaMetadata | 'actions')[] = [
     'id',
     'versions',

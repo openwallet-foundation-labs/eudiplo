@@ -6,8 +6,9 @@ import {
     Param,
     Post,
     Put,
+    Query,
 } from "@nestjs/common";
-import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Role } from "../../auth/roles/role.enum";
 import { Secured } from "../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../auth/token.decorator";
@@ -17,6 +18,7 @@ import { KeyChainImportDto } from "./dto/key-chain-import.dto";
 import { KeyChainResponseDto } from "./dto/key-chain-response.dto";
 import { KeyChainUpdateDto } from "./dto/key-chain-update.dto";
 import { KmsProvidersResponseDto } from "./dto/kms-providers-response.dto";
+import { KeyUsageType } from "./entities/key-chain.entity";
 import { KeyChainService } from "./key-chain.service";
 
 /**
@@ -57,8 +59,17 @@ export class KeyChainController {
         description: "List of key chains",
         type: [KeyChainResponseDto],
     })
-    getAll(@Token() token: TokenPayload): Promise<KeyChainResponseDto[]> {
-        return this.keyChainService.getAll(token.entity!.id);
+    @ApiQuery({
+        name: "usageType",
+        required: false,
+        enum: KeyUsageType,
+        description: "Optional usage type filter",
+    })
+    getAll(
+        @Token() token: TokenPayload,
+        @Query("usageType") usageType?: KeyUsageType,
+    ): Promise<KeyChainResponseDto[]> {
+        return this.keyChainService.getAll(token.entity!.id, usageType);
     }
 
     /**

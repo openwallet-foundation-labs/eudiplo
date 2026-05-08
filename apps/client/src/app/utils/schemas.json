@@ -2441,6 +2441,11 @@
       "title": "SchemaUriEntry",
       "type": "object",
       "properties": {
+        "credentialConfigId": {
+          "type": "string",
+          "description": "Credential config ID to resolve and upload its schema content. When set, uri can be omitted and is resolved server-side.",
+          "example": "pid_de_credential_config"
+        },
         "format": {
           "type": "string",
           "description": "Attestation format this schema URI applies to (e.g. dc+sd-jwt, mso_mdoc)",
@@ -2448,8 +2453,7 @@
         },
         "uri": {
           "type": "string",
-          "description": "URI pointing to the schema document for this format",
-          "example": "https://example.com/schemas/my-credential.dc+sd-jwt.json"
+          "description": "URI pointing to the schema document for this format"
         }
       },
       "additionalProperties": false
@@ -2464,19 +2468,27 @@
       "title": "TrustAuthorityEntry",
       "type": "object",
       "properties": {
+        "trustListId": {
+          "type": "string",
+          "description": "Trust list ID to resolve from the database. When set, frameworkType, value, and verificationMethod are derived automatically."
+        },
         "frameworkType": {
           "enum": ["aki", "etsi_tl", "openid_federation"],
           "type": "string",
-          "description": "Trust framework type"
+          "description": "Trust framework type (ignored when trustListId is set)"
         },
         "value": {
           "type": "string",
-          "description": "URI of the trust list or trust anchor",
-          "example": "https://example.com/trust-lists/members.jws"
+          "description": "URI of the trust list or trust anchor (ignored when trustListId is set)"
         },
         "isLoTE": {
           "type": "boolean",
           "description": "Whether this trust authority is a List of Trusted Entities (LoTE)"
+        },
+        "verificationMethod": {
+          "type": "object",
+          "description": "Optional verification material for external trusted authorities (for example a JWK). For internal trust-list URLs, EUDIPLO resolves verification material from the database.",
+          "additionalProperties": true
         }
       },
       "additionalProperties": false
@@ -3546,6 +3558,276 @@
     }
   },
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListEntityInfo.schema.json",
+    "fileMatch": ["a://b/TrustListEntityInfo*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListEntityInfo.schema.json",
+      "title": "TrustListEntityInfo",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "lang": {
+          "type": "string"
+        },
+        "uri": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "locality": {
+          "type": "string"
+        },
+        "postalCode": {
+          "type": "string"
+        },
+        "streetAddress": {
+          "type": "string"
+        },
+        "contactUri": {
+          "type": "string"
+        }
+      },
+      "required": ["name"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InternalTrustListEntity.schema.json",
+    "fileMatch": ["a://b/InternalTrustListEntity*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InternalTrustListEntity.schema.json",
+      "title": "InternalTrustListEntity",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["internal"]
+        },
+        "issuerKeyChainId": {
+          "type": "string"
+        },
+        "revocationKeyChainId": {
+          "type": "string"
+        },
+        "info": {
+          "$ref": "./TrustListEntityInfo.schema.json"
+        }
+      },
+      "required": ["type", "issuerKeyChainId", "revocationKeyChainId", "info"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ExternalTrustListEntity.schema.json",
+    "fileMatch": ["a://b/ExternalTrustListEntity*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ExternalTrustListEntity.schema.json",
+      "title": "ExternalTrustListEntity",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["external"]
+        },
+        "issuerCertPem": {
+          "type": "string"
+        },
+        "revocationCertPem": {
+          "type": "string"
+        },
+        "info": {
+          "$ref": "./TrustListEntityInfo.schema.json"
+        }
+      },
+      "required": ["type", "issuerCertPem", "revocationCertPem", "info"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListCreateDto.schema.json",
+    "fileMatch": ["a://b/TrustListCreateDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListCreateDto.schema.json",
+      "title": "TrustListCreateDto",
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object",
+          "description": "The full trust list JSON (generated LoTE structure)"
+        },
+        "entities": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "./InternalTrustListEntity.schema.json"
+              },
+              {
+                "$ref": "./ExternalTrustListEntity.schema.json"
+              }
+            ],
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "internal": "#/components/schemas/InternalTrustListEntity",
+                "external": "#/components/schemas/ExternalTrustListEntity"
+              }
+            }
+          }
+        },
+        "id": {
+          "type": "string"
+        },
+        "keyChainId": {
+          "type": "string"
+        }
+      },
+      "required": ["entities"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustList.schema.json",
+    "fileMatch": ["a://b/TrustList*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustList.schema.json",
+      "title": "TrustList",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the trust list"
+        },
+        "description": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string",
+          "description": "The tenant ID for which the VP request is made."
+        },
+        "tenant": {
+          "description": "The tenant that owns this object.",
+          "allOf": [
+            {
+              "$ref": "./TenantEntity.schema.json"
+            }
+          ]
+        },
+        "keyChainId": {
+          "type": "string"
+        },
+        "keyChain": {
+          "$ref": "./KeyChainEntity.schema.json"
+        },
+        "data": {
+          "type": "object",
+          "description": "The full trust list JSON (generated LoTE structure)"
+        },
+        "entityConfig": {
+          "description": "The original entity configuration used to create this trust list.\nStored for round-tripping when editing.",
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "sequenceNumber": {
+          "type": "number",
+          "description": "The sequence number for versioning (incremented on updates)"
+        },
+        "jwt": {
+          "type": "string",
+          "description": "The signed JWT representation of this trust list"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "tenantId",
+        "tenant",
+        "keyChainId",
+        "keyChain",
+        "sequenceNumber",
+        "jwt",
+        "createdAt",
+        "updatedAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListVersion.schema.json",
+    "fileMatch": ["a://b/TrustListVersion*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListVersion.schema.json",
+      "title": "TrustListVersion",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "trustListId": {
+          "type": "string"
+        },
+        "trustList": {
+          "$ref": "./TrustList.schema.json"
+        },
+        "tenantId": {
+          "type": "string"
+        },
+        "sequenceNumber": {
+          "type": "number",
+          "description": "The sequence number at the time this version was created"
+        },
+        "data": {
+          "type": "object",
+          "description": "The full trust list JSON at this version"
+        },
+        "entityConfig": {
+          "type": "object",
+          "description": "The entity configuration at this version"
+        },
+        "jwt": {
+          "type": "string",
+          "description": "The signed JWT at this version"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "trustListId",
+        "trustList",
+        "tenantId",
+        "sequenceNumber",
+        "data",
+        "jwt",
+        "createdAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/DCQL.schema.json",
     "fileMatch": ["a://b/DCQL*.schema.json"],
     "schema": {
@@ -4193,6 +4475,69 @@
     }
   },
   {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/VocabularyEntryDto.schema.json",
+    "fileMatch": ["a://b/VocabularyEntryDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/VocabularyEntryDto.schema.json",
+      "title": "VocabularyEntryDto",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Stable machine-readable value to submit in schema metadata category/tags fields."
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label for UI rendering."
+        },
+        "status": {
+          "type": "string",
+          "description": "Vocabulary lifecycle status.",
+          "enum": ["active", "deprecated"]
+        },
+        "replacedBy": {
+          "type": "string",
+          "description": "Replacement code when status is deprecated."
+        }
+      },
+      "required": ["code", "label", "status"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/SchemaMetadataVocabulariesDto.schema.json",
+    "fileMatch": ["a://b/SchemaMetadataVocabulariesDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/SchemaMetadataVocabulariesDto.schema.json",
+      "title": "SchemaMetadataVocabulariesDto",
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "Vocabulary publication version for cache invalidation."
+        },
+        "categories": {
+          "description": "Allowed category values that can be used when updating schema metadata category.",
+          "type": "array",
+          "items": {
+            "$ref": "./VocabularyEntryDto.schema.json"
+          }
+        },
+        "tags": {
+          "description": "Allowed tag values that can be used when updating schema metadata tags.",
+          "type": "array",
+          "items": {
+            "$ref": "./VocabularyEntryDto.schema.json"
+          }
+        }
+      },
+      "required": ["version", "categories", "tags"],
+      "additionalProperties": false
+    }
+  },
+  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/MetadataSchemaDto.schema.json",
     "fileMatch": ["a://b/MetadataSchemaDto*.schema.json"],
     "schema": {
@@ -4427,28 +4772,6 @@
     }
   },
   {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/SubmitSchemaMetadataDto.schema.json",
-    "fileMatch": ["a://b/SubmitSchemaMetadataDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/SubmitSchemaMetadataDto.schema.json",
-      "title": "SubmitSchemaMetadataDto",
-      "type": "object",
-      "properties": {
-        "signedJwt": {
-          "type": "string",
-          "description": "The signed schema metadata JWS (compact serialization). Sign via `POST /api/issuer/credentials/schema-metadata/sign`."
-        },
-        "reservationToken": {
-          "type": "string",
-          "description": "Reservation token returned by `/schema-metadata/reserve`. Required when the JWT's `id` is a registrar-reserved URL."
-        }
-      },
-      "required": ["signedJwt"],
-      "additionalProperties": false
-    }
-  },
-  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/UpdateSchemaMetadataDto.schema.json",
     "fileMatch": ["a://b/UpdateSchemaMetadataDto*.schema.json"],
     "schema": {
@@ -4463,10 +4786,22 @@
           "enum": ["identity", "health", "finance", "education", "mobility", "employment", "other"]
         },
         "tags": {
-          "description": "Free-form tags for filtering and search",
           "type": "array",
+          "description": "Predefined tags for filtering and search",
           "items": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "pid",
+              "eudi",
+              "kyc",
+              "aml",
+              "age-verification",
+              "residency",
+              "membership",
+              "education",
+              "employment",
+              "mobility"
+            ]
           }
         }
       },
@@ -5006,276 +5341,6 @@
           "description": "State value from the authorization request (for correlation)."
         }
       },
-      "additionalProperties": false
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListEntityInfo.schema.json",
-    "fileMatch": ["a://b/TrustListEntityInfo*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListEntityInfo.schema.json",
-      "title": "TrustListEntityInfo",
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "lang": {
-          "type": "string"
-        },
-        "uri": {
-          "type": "string"
-        },
-        "country": {
-          "type": "string"
-        },
-        "locality": {
-          "type": "string"
-        },
-        "postalCode": {
-          "type": "string"
-        },
-        "streetAddress": {
-          "type": "string"
-        },
-        "contactUri": {
-          "type": "string"
-        }
-      },
-      "required": ["name"],
-      "additionalProperties": false
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InternalTrustListEntity.schema.json",
-    "fileMatch": ["a://b/InternalTrustListEntity*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/InternalTrustListEntity.schema.json",
-      "title": "InternalTrustListEntity",
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["internal"]
-        },
-        "issuerKeyChainId": {
-          "type": "string"
-        },
-        "revocationKeyChainId": {
-          "type": "string"
-        },
-        "info": {
-          "$ref": "./TrustListEntityInfo.schema.json"
-        }
-      },
-      "required": ["type", "issuerKeyChainId", "revocationKeyChainId", "info"],
-      "additionalProperties": false
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ExternalTrustListEntity.schema.json",
-    "fileMatch": ["a://b/ExternalTrustListEntity*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ExternalTrustListEntity.schema.json",
-      "title": "ExternalTrustListEntity",
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["external"]
-        },
-        "issuerCertPem": {
-          "type": "string"
-        },
-        "revocationCertPem": {
-          "type": "string"
-        },
-        "info": {
-          "$ref": "./TrustListEntityInfo.schema.json"
-        }
-      },
-      "required": ["type", "issuerCertPem", "revocationCertPem", "info"],
-      "additionalProperties": false
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListCreateDto.schema.json",
-    "fileMatch": ["a://b/TrustListCreateDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListCreateDto.schema.json",
-      "title": "TrustListCreateDto",
-      "type": "object",
-      "properties": {
-        "description": {
-          "type": "string"
-        },
-        "data": {
-          "type": "object",
-          "description": "The full trust list JSON (generated LoTE structure)"
-        },
-        "entities": {
-          "type": "array",
-          "items": {
-            "oneOf": [
-              {
-                "$ref": "./InternalTrustListEntity.schema.json"
-              },
-              {
-                "$ref": "./ExternalTrustListEntity.schema.json"
-              }
-            ],
-            "discriminator": {
-              "propertyName": "type",
-              "mapping": {
-                "internal": "#/components/schemas/InternalTrustListEntity",
-                "external": "#/components/schemas/ExternalTrustListEntity"
-              }
-            }
-          }
-        },
-        "id": {
-          "type": "string"
-        },
-        "keyChainId": {
-          "type": "string"
-        }
-      },
-      "required": ["entities"],
-      "additionalProperties": false
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustList.schema.json",
-    "fileMatch": ["a://b/TrustList*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustList.schema.json",
-      "title": "TrustList",
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the trust list"
-        },
-        "description": {
-          "type": "string"
-        },
-        "tenantId": {
-          "type": "string",
-          "description": "The tenant ID for which the VP request is made."
-        },
-        "tenant": {
-          "description": "The tenant that owns this object.",
-          "allOf": [
-            {
-              "$ref": "./TenantEntity.schema.json"
-            }
-          ]
-        },
-        "keyChainId": {
-          "type": "string"
-        },
-        "keyChain": {
-          "$ref": "./KeyChainEntity.schema.json"
-        },
-        "data": {
-          "type": "object",
-          "description": "The full trust list JSON (generated LoTE structure)"
-        },
-        "entityConfig": {
-          "description": "The original entity configuration used to create this trust list.\nStored for round-tripping when editing.",
-          "type": "array",
-          "items": {
-            "type": "object"
-          }
-        },
-        "sequenceNumber": {
-          "type": "number",
-          "description": "The sequence number for versioning (incremented on updates)"
-        },
-        "jwt": {
-          "type": "string",
-          "description": "The signed JWT representation of this trust list"
-        },
-        "createdAt": {
-          "format": "date-time",
-          "type": "string"
-        },
-        "updatedAt": {
-          "format": "date-time",
-          "type": "string"
-        }
-      },
-      "required": [
-        "id",
-        "tenantId",
-        "tenant",
-        "keyChainId",
-        "keyChain",
-        "sequenceNumber",
-        "jwt",
-        "createdAt",
-        "updatedAt"
-      ],
-      "additionalProperties": false
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListVersion.schema.json",
-    "fileMatch": ["a://b/TrustListVersion*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TrustListVersion.schema.json",
-      "title": "TrustListVersion",
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "trustListId": {
-          "type": "string"
-        },
-        "trustList": {
-          "$ref": "./TrustList.schema.json"
-        },
-        "tenantId": {
-          "type": "string"
-        },
-        "sequenceNumber": {
-          "type": "number",
-          "description": "The sequence number at the time this version was created"
-        },
-        "data": {
-          "type": "object",
-          "description": "The full trust list JSON at this version"
-        },
-        "entityConfig": {
-          "type": "object",
-          "description": "The entity configuration at this version"
-        },
-        "jwt": {
-          "type": "string",
-          "description": "The signed JWT at this version"
-        },
-        "createdAt": {
-          "format": "date-time",
-          "type": "string"
-        }
-      },
-      "required": [
-        "id",
-        "trustListId",
-        "trustList",
-        "tenantId",
-        "sequenceNumber",
-        "data",
-        "jwt",
-        "createdAt"
-      ],
       "additionalProperties": false
     }
   },

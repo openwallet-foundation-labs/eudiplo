@@ -423,6 +423,64 @@ export const OmitTypeClassSchema = {
     ],
 } as const;
 
+export const VocabularyEntryDtoSchema = {
+    type: "object",
+    properties: {
+        code: {
+            type: "string",
+            description:
+                "Stable machine-readable value to submit in schema metadata category/tags fields.",
+            example: "identity",
+        },
+        label: {
+            type: "string",
+            description: "Display label for UI rendering.",
+            example: "Identity",
+        },
+        status: {
+            type: "string",
+            description: "Vocabulary lifecycle status.",
+            enum: ["active", "deprecated"],
+            example: "active",
+        },
+        replacedBy: {
+            type: "string",
+            description: "Replacement code when status is deprecated.",
+            example: "compliance-aml",
+        },
+    },
+    required: ["code", "label", "status"],
+} as const;
+
+export const SchemaMetadataVocabulariesDtoSchema = {
+    type: "object",
+    properties: {
+        version: {
+            type: "string",
+            description:
+                "Vocabulary publication version for cache invalidation.",
+            example: "2026-05-07",
+        },
+        categories: {
+            description:
+                "Allowed category values that can be used when updating schema metadata category.",
+            type: "array",
+            items: {
+                $ref: "#/components/schemas/VocabularyEntryDto",
+            },
+        },
+        tags: {
+            description:
+                "Allowed tag values that can be used when updating schema metadata tags.",
+            type: "array",
+            items: {
+                $ref: "#/components/schemas/VocabularyEntryDto",
+            },
+        },
+    },
+    required: ["version", "categories", "tags"],
+} as const;
+
 export const ReserveSchemaIdDtoSchema = {
     type: "object",
     properties: {
@@ -452,6 +510,19 @@ export const ReservationResponseDtoSchema = {
         },
     },
     required: ["reservedId", "expiresAt"],
+} as const;
+
+export const SubmitSchemaMetadataDtoSchema = {
+    type: "object",
+    properties: {
+        jwt: {
+            type: "string",
+            description: "The signed schema metadata JWT",
+            example:
+                "eyJhbGciOiJFUzI1NiIsInR5cCI6ImF0dGVzdGF0aW9uLXNjaGVtYStqd3QiLCJ4NWMiOlsiLi4uIl19...",
+        },
+    },
+    required: ["jwt"],
 } as const;
 
 export const TrustAuthoritySchema = {
@@ -703,6 +774,60 @@ export const MetadataSchemaSchema = {
     required: ["id", "formatIdentifier", "schemaMetadata"],
 } as const;
 
+export const UploadAssetResponseDtoSchema = {
+    type: "object",
+    properties: {
+        type: {
+            type: "string",
+            description: "Asset type bucket.",
+            enum: ["trustlists", "rulebooks", "schemas"],
+            example: "schemas",
+        },
+        url: {
+            type: "string",
+            description: "Stable URL that can be embedded into the signed JWT.",
+            example:
+                "http://localhost:3001/schema-metadata/assets/schemas/w12xYzABcdEfgH1I.json",
+        },
+        assetId: {
+            type: "string",
+            description: "Generated identifier for the uploaded asset.",
+            example: "w12xYzABcdEfgH1I",
+        },
+        fileName: {
+            type: "string",
+            description: "Stored file name in the catalog.",
+            example: "w12xYzABcdEfgH1I.json",
+        },
+        contentType: {
+            type: "string",
+            description:
+                "Detected or declared content type of the uploaded file.",
+            example: "application/schema+json",
+        },
+        size: {
+            type: "number",
+            description: "Uploaded file size in bytes.",
+            example: 19842,
+        },
+        integrity: {
+            type: "string",
+            description:
+                "Server-calculated Subresource Integrity value for the uploaded content.",
+            example: "sha256-u2x9pQ6M6Kx1W+9Yb4O2v2Ekr1m2X8xFq9f9d4G3k8A=",
+        },
+    },
+    required: [
+        "type",
+        "url",
+        "assetId",
+        "fileName",
+        "contentType",
+        "size",
+        "integrity",
+    ],
+} as const;
+
 export const SetVersionDeprecationDtoSchema = {
     type: "object",
     properties: {
@@ -745,12 +870,24 @@ export const UpdateSchemaMetadataDtoSchema = {
             example: "identity",
         },
         tags: {
-            description: "Free-form tags for filtering and search.",
-            example: ["pid", "eudi"],
             type: "array",
             items: {
                 type: "string",
+                enum: [
+                    "pid",
+                    "eudi",
+                    "kyc",
+                    "aml",
+                    "age-verification",
+                    "residency",
+                    "membership",
+                    "education",
+                    "employment",
+                    "mobility",
+                ],
             },
+            description: "Predefined tags for filtering and search.",
+            example: ["pid", "eudi"],
         },
     },
 } as const;

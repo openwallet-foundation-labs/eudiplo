@@ -1,5 +1,15 @@
 <div fxLayout="row" fxLayoutAlign="space-between center">
-  <h2>Schema Metadata</h2>
+  <div fxLayout="column" fxLayoutGap="4px">
+    <h2>Schema Metadata</h2>
+    @if (!loading) {
+      <p>
+        {{ schemaMetadataCount }}
+        {{ schemaMetadataCount === 1 ? 'schema metadata entry' : 'schema metadata entries' }}
+        ({{ schemaMetadataVersionCount }}
+        {{ schemaMetadataVersionCount === 1 ? 'version' : 'versions' }})
+      </p>
+    }
+  </div>
   <div fxLayout="row" fxLayoutGap="8px">
     <button matIconButton [routerLink]="['create']" matTooltip="Submit signed schema metadata">
       <mat-icon>add</mat-icon>

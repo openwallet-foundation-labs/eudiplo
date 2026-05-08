@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, isDevMode } from '@angular/core';
+import { Component, OnInit, inject, isDevMode } from '@angular/core';
 import {
   FormArray,
   FormBuilder,
@@ -22,9 +22,9 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import {
   CredentialConfig,
   TrustList,
+  type VocabularyEntryDto,
   trustListControllerGetAllTrustLists,
 } from '@eudiplo/sdk-core';
-import { ApiService } from '../../core';
 import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
 import { SchemaMetadataService } from '../schema-metadata.service';
 
@@ -33,6 +33,7 @@ const SEMVER_REGEX =
 
 @Component({
   selector: 'app-schema-metadata-create',
+  standalone: true,
   imports: [
     CommonModule,
     MatButtonModule,
@@ -52,6 +53,9 @@ const SEMVER_REGEX =
   styleUrl: './schema-metadata-create.component.scss',
 })
 export class SchemaMetadataCreateComponent implements OnInit {
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
   loading = false;
   readonly demoDefaultsEnabled = isDevMode();
   /** Credential config ID passed via query param — linked back to the schema metadata on submit */
@@ -61,6 +65,10 @@ export class SchemaMetadataCreateComponent implements OnInit {
   credentialConfigs: CredentialConfig[] = [];
   /** All trust lists (for importing trusted authorities) */
   trustLists: TrustList[] = [];
+  /** Predefined vocabulary entries for category selection */
+  categoryVocabularies: VocabularyEntryDto[] = [];
+  /** Predefined vocabulary entries for tag selection */
+  tagVocabularies: VocabularyEntryDto[] = [];
 
   readonly attestationLoSOptions = [
     { value: 'iso_18045_high', label: 'High (ISO 18045)' },
@@ -92,23 +100,22 @@ export class SchemaMetadataCreateComponent implements OnInit {
     rulebookURI: new FormControl('', [Validators.required]),
     attestationLoS: new FormControl('', [Validators.required]),
     bindingType: new FormControl('', [Validators.required]),
+    category: new FormControl(''),
+    tags: new FormControl<string[]>([]),
     schemaURIs: new FormArray<FormGroup>([], Validators.required),
     trustedAuthorities: new FormArray<FormGroup>([], Validators.required),
   });
 
   /** For selecting a config whose schemaURIs to import */
-  importSchemaConfigId = new FormControl('');
-  /** For selecting a trust list to import as trusted authority */
-  importTrustListId = new FormControl('');
+  importSchemaConfigIds = new FormControl<string[]>([]);
+  /** For selecting trust lists to include as trusted authorities */
+  importTrustListIds = new FormControl<string[]>([]);
 
   constructor(
     private readonly fb: FormBuilder,
     private readonly schemaMetadataService: SchemaMetadataService,
     private readonly credentialConfigService: CredentialConfigService,
-    private readonly apiService: ApiService,
-    private readonly snackBar: MatSnackBar,
-    private readonly router: Router,
-    private readonly route: ActivatedRoute
+    private readonly snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -129,24 +136,12 @@ export class SchemaMetadataCreateComponent implements OnInit {
       bindingType: 'key',
     });
 
-    // schemaURIs: skip when credentialConfigId is provided — the backend
-    // auto-derives the URI from the credential config UUID and format.
-    // For demo convenience (without credentialConfigId), prefill the
-    // format only and let the user provide/import the URI.
+    // schemaURIs are imported from credential configs only.
     this.schemaURIs.clear();
-    if (!this.credentialConfigId) {
-      this.schemaURIs.push(this.createSchemaURIGroup('dc+sd-jwt', ''));
-    }
+    this.importSchemaConfigIds.setValue([]);
 
-    const baseUrl = (this.apiService.getBaseUrl() ?? '').replace(/\/$/, '');
     this.trustedAuthorities.clear();
-    this.trustedAuthorities.push(
-      this.createTrustedAuthorityGroup(
-        'etsi_tl',
-        `${baseUrl}/issuers/playground/trust-list/580831bc-ef11-43f4-a3be-a2b6bf1b29a3`,
-        true
-      )
-    );
+    this.importTrustListIds.setValue([]);
   }
 
   get schemaURIs(): FormArray<FormGroup> {
@@ -167,10 +162,26 @@ export class SchemaMetadataCreateComponent implements OnInit {
     return tl.description ? `${tl.description} (${tl.id})` : tl.id;
   }
 
-  private createSchemaURIGroup(format = '', uri = '', imported = false): FormGroup {
+  vocabularyLabel(entry: VocabularyEntryDto): string {
+    if (entry.status === 'deprecated' && entry.replacedBy) {
+      return `${entry.label} (${entry.code}) - deprecated, use ${entry.replacedBy}`;
+    }
+    if (entry.status === 'deprecated') {
+      return `${entry.label} (${entry.code}) - deprecated`;
+    }
+    return `${entry.label} (${entry.code})`;
+  }
+
+  private createSchemaURIGroup(
+    format = '',
+    uri = '',
+    imported = false,
+    credentialConfigId = ''
+  ): FormGroup {
     const group = this.fb.group({
       format: [format, Validators.required],
       uri: [uri, Validators.required],
+      credentialConfigId: [credentialConfigId],
       imported: [imported],
     });
     if (imported) {
@@ -184,12 +195,14 @@ export class SchemaMetadataCreateComponent implements OnInit {
     frameworkType = '',
     value = '',
     isLoTE = false,
+    verificationMethod = '',
     imported = false
   ): FormGroup {
     const group = this.fb.group({
       frameworkType: [frameworkType, Validators.required],
       value: [value, Validators.required],
       isLoTE: [isLoTE],
+      verificationMethod: [verificationMethod],
       imported: [imported],
     });
     if (imported) {
@@ -198,115 +211,109 @@ export class SchemaMetadataCreateComponent implements OnInit {
     }
     return group;
   }
+  private createTrustListGroup(trustListId: string, label: string, isLoTE = true): FormGroup {
+    return this.fb.group({
+      trustListId: [trustListId],
+      label: [label],
+      isLoTE: [isLoTE],
+      imported: [true],
+    });
+  }
+  syncSchemaURIsFromSelection(): void {
+    const selectedIds = this.importSchemaConfigIds.value ?? [];
+    this.schemaURIs.clear();
 
-  addSchemaURI(): void {
-    this.schemaURIs.push(this.createSchemaURIGroup());
+    for (const id of selectedIds) {
+      const config = this.credentialConfigs.find((c) => c.id === id);
+      if (!config) continue;
+
+      const format = config.config?.format ?? '';
+      const uri = typeof config.vct === 'string' ? config.vct : (config.config?.docType ?? '');
+      this.schemaURIs.push(this.createSchemaURIGroup(format, uri, true, id));
+    }
   }
 
-  removeSchemaURI(index: number): void {
-    this.schemaURIs.removeAt(index);
-  }
+  private deriveSchemaUriMetadata(config: CredentialConfig): Record<string, unknown> {
+    const format = config.config?.format;
+    if (format === 'dc+sd-jwt') {
+      const vct =
+        typeof config.vct === 'string'
+          ? config.vct
+          : config.vct &&
+              typeof config.vct === 'object' &&
+              'vct' in config.vct &&
+              typeof (config.vct as { vct?: unknown }).vct === 'string'
+            ? (config.vct as { vct: string }).vct
+            : undefined;
 
-  addTrustedAuthority(): void {
-    this.trustedAuthorities.push(this.createTrustedAuthorityGroup());
-  }
-
-  removeTrustedAuthority(index: number): void {
-    this.trustedAuthorities.removeAt(index);
-  }
-
-  /**
-   * Build the public URL of a credential config's inline JSON schema.
-   * Mirrors the backend route `GET /issuers/:tenantId/credentials-metadata/schema/:id/:format`.
-   */
-  private buildSchemaUrl(config: CredentialConfig): string {
-    const baseUrl = (this.apiService.getBaseUrl() ?? '').replace(/\/$/, '');
-    const tenantId = (config as { tenantId?: string }).tenantId ?? config.tenant?.id ?? '';
-    const format = config.config?.format ?? '';
-    return `${baseUrl}/issuers/${tenantId}/credentials-metadata/schema/${config.id}/${format}`;
-  }
-
-  /** Import schemaURIs from the selected credential config. */
-  importSchemaURIsFromConfig(): void {
-    const configId = this.importSchemaConfigId.value;
-    if (!configId) return;
-    const config = this.credentialConfigs.find((c) => c.id === configId);
-    if (!config) return;
-    const format = config.config?.format ?? '';
-
-    // 1. Use explicitly configured schemaURIs if present.
-    if (config.schemaMeta?.schemaURIs?.length) {
-      for (const entry of config.schemaMeta.schemaURIs) {
-        this.schemaURIs.push(
-          this.createSchemaURIGroup(entry.format ?? format, entry.uri ?? '', true)
+      if (!vct) {
+        throw new Error(
+          `Credential config ${config.id}: missing vct required for schemaURIs metadata`
         );
       }
-      this.importSchemaConfigId.setValue('');
-      this.snackBar.open('Schema URIs imported from credential config', 'Close', {
-        duration: 2500,
-      });
-      return;
+      return { vct };
     }
 
-    // 2. Fall back to the inline JSON schema served by the backend.
-    if (config.schema) {
-      this.schemaURIs.push(this.createSchemaURIGroup(format, this.buildSchemaUrl(config), true));
-      this.importSchemaConfigId.setValue('');
-      this.snackBar.open('Schema URI added from credential config', 'Close', { duration: 2500 });
-      return;
+    if (format === 'mso_mdoc') {
+      const docType =
+        config.config?.docType ||
+        ((config.config as { doctype?: string } | undefined)?.doctype ?? undefined);
+
+      if (!docType) {
+        throw new Error(
+          `Credential config ${config.id}: missing docType required for schemaURIs metadata`
+        );
+      }
+      return { doctype_value: docType };
     }
 
-    // 3. No schema available at all.
-    this.snackBar.open('Selected credential config has no JSON schema configured', 'Close', {
-      duration: 4000,
-    });
+    return {};
   }
 
-  /** URL of an exported trust list — must match the backend route. */
-  private getTrustListUrl(tl: TrustList): string {
-    const baseUrl = (this.apiService.getBaseUrl() ?? '').replace(/\/$/, '');
-    return `${baseUrl}/issuers/${tl.tenantId}/trust-list/${tl.id}`;
-  }
+  syncTrustedAuthoritiesFromSelection(): void {
+    const selectedIds = this.importTrustListIds.value ?? [];
 
-  /** Import a trust list as a trusted authority entry. */
-  importTrustList(): void {
-    const trustListId = this.importTrustListId.value;
-    if (!trustListId) return;
-    const tl = this.trustLists.find((t) => t.id === trustListId);
-    if (!tl) return;
-    // ETSI TL imports default to LoTE=true.
-    this.trustedAuthorities.push(
-      this.createTrustedAuthorityGroup('etsi_tl', this.getTrustListUrl(tl), true, true)
-    );
-    this.importTrustListId.setValue('');
-    this.snackBar.open('Trust list added as ETSI TL (LoTE enabled by default)', 'Close', {
-      duration: 4000,
-    });
+    const existingLoTE = new Map<string, boolean>();
+    for (const group of this.trustedAuthorities.controls) {
+      const trustListId = group.get('trustListId')?.value as string | undefined;
+      const isLoTE = group.get('isLoTE')?.value as boolean | undefined;
+      if (trustListId) {
+        existingLoTE.set(trustListId, isLoTE ?? true);
+      }
+    }
+
+    this.trustedAuthorities.clear();
+    for (const id of selectedIds) {
+      const tl = this.trustLists.find((t) => t.id === id);
+      if (!tl) continue;
+
+      const label = tl.description ? `${tl.description} (${tl.id})` : tl.id;
+      const isLoTE = existingLoTE.get(id) ?? true;
+      this.trustedAuthorities.push(this.createTrustListGroup(id, label, isLoTE));
+    }
   }
 
   async loadData(): Promise<void> {
     try {
-      const [configs, tlResponse] = await Promise.all([
+      const [configs, tlResponse, vocabularies] = await Promise.all([
         this.credentialConfigService.loadConfigurations(),
         trustListControllerGetAllTrustLists(),
+        this.schemaMetadataService.getVocabularies(),
       ]);
       this.credentialConfigs = configs;
       this.trustLists = Array.isArray(tlResponse.data) ? tlResponse.data : [];
+      this.categoryVocabularies = Array.isArray(vocabularies?.categories)
+        ? vocabularies.categories
+        : [];
+      this.tagVocabularies = Array.isArray(vocabularies?.tags) ? vocabularies.tags : [];
 
-      // Auto-populate schemaURIs from the linked credential config when
-      // credentialConfigId is provided via query param (navigated from config detail page).
-      if (this.credentialConfigId && this.schemaURIs.length === 0) {
-        const linked = configs.find((c) => c.id === this.credentialConfigId);
-        if (linked) {
-          this.schemaURIs.push(
-            this.createSchemaURIGroup(
-              linked.config?.format ?? '',
-              this.buildSchemaUrl(linked),
-              true
-            )
-          );
-        }
+      // Auto-select linked credential config when provided via query param.
+      if (this.credentialConfigId && configs.some((c) => c.id === this.credentialConfigId)) {
+        this.importSchemaConfigIds.setValue([this.credentialConfigId]);
       }
+
+      this.syncSchemaURIsFromSelection();
+      this.syncTrustedAuthoritiesFromSelection();
     } catch {
       // non-fatal — selects will simply be empty
     }
@@ -320,22 +327,75 @@ export class SchemaMetadataCreateComponent implements OnInit {
    */
   private buildConfig(): Record<string, unknown> {
     const raw = this.composeForm.getRawValue();
+
+    // Trust list references use trustListId; manual entries use frameworkType + value.
+    const trustedAuthorities = (raw.trustedAuthorities as Record<string, unknown>[]).map(
+      (e: Record<string, unknown>, index: number) => {
+        if (e['trustListId']) {
+          return {
+            trustListId: e['trustListId'],
+            isLoTE: e['isLoTE'],
+          };
+        }
+
+        const verificationMethodRaw = e['verificationMethod'];
+        let verificationMethod: Record<string, unknown> | undefined;
+
+        if (typeof verificationMethodRaw === 'string' && verificationMethodRaw.trim().length > 0) {
+          try {
+            const parsed = JSON.parse(verificationMethodRaw);
+            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+              verificationMethod = parsed as Record<string, unknown>;
+            } else {
+              throw new Error('verificationMethod must be a JSON object');
+            }
+          } catch (error) {
+            throw new Error(
+              `Trusted authority #${index + 1}: verification method must be valid JSON object (${error instanceof Error ? error.message : 'invalid JSON'})`
+            );
+          }
+        }
+
+        return {
+          frameworkType: e['frameworkType'],
+          value: e['value'],
+          ...(e['isLoTE'] !== undefined ? { isLoTE: e['isLoTE'] } : {}),
+          ...(verificationMethod ? { verificationMethod } : {}),
+        };
+      }
+    );
+
     return {
       version: raw.version!,
       rulebookURI: raw.rulebookURI!,
       attestationLoS: raw.attestationLoS,
       bindingType: raw.bindingType,
-      schemaURIs: (raw.schemaURIs as Record<string, unknown>[]).map((e) => ({
-        format: e['format'],
-        uri: e['uri'],
-        // `imported` is a UI-only flag — exclude from payload
-      })),
-      trustedAuthorities: (raw.trustedAuthorities as Record<string, unknown>[]).map((e) => ({
-        frameworkType: e['frameworkType'],
-        value: e['value'],
-        ...(e['isLoTE'] !== undefined ? { isLoTE: e['isLoTE'] } : {}),
-        // `imported` is a UI-only flag — exclude from payload
-      })),
+      ...(raw.category ? { category: raw.category } : {}),
+      ...(Array.isArray(raw.tags) && raw.tags.length > 0 ? { tags: raw.tags } : {}),
+      // Send credential config references so backend can resolve/upload schema sources reliably.
+      schemaURIs: (raw.schemaURIs as Record<string, unknown>[]).map((e) => {
+        if (typeof e['credentialConfigId'] === 'string' && e['credentialConfigId']) {
+          const cfg = this.credentialConfigs.find((c) => c.id === e['credentialConfigId']);
+          if (!cfg) {
+            throw new Error(
+              `Credential config ${String(e['credentialConfigId'])} not found for schemaURIs metadata`
+            );
+          }
+
+          return {
+            credentialConfigId: e['credentialConfigId'],
+            metadata: this.deriveSchemaUriMetadata(cfg),
+          };
+        }
+
+        const format = typeof e['format'] === 'string' ? e['format'] : undefined;
+        throw new Error(
+          `Schema URI metadata is required. Unable to derive metadata for manual schema entry${
+            format ? ` (format: ${format})` : ''
+          }.`
+        );
+      }),
+      trustedAuthorities,
     };
   }
 

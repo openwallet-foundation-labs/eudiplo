@@ -53,9 +53,6 @@ import type {
   CredentialConfigControllerGetConfigByIdResponses,
   CredentialConfigControllerGetConfigsData,
   CredentialConfigControllerGetConfigsResponses,
-  CredentialConfigControllerGetSchemaMetadataData,
-  CredentialConfigControllerGetSchemaMetadataErrors,
-  CredentialConfigControllerGetSchemaMetadataResponses,
   CredentialConfigControllerSignSchemaMetaConfigData,
   CredentialConfigControllerSignSchemaMetaConfigErrors,
   CredentialConfigControllerSignSchemaMetaConfigResponses,
@@ -152,10 +149,10 @@ import type {
   SchemaMetadataControllerGetSchemaResponses,
   SchemaMetadataControllerGetVersionsData,
   SchemaMetadataControllerGetVersionsResponses,
+  SchemaMetadataControllerGetVocabulariesData,
+  SchemaMetadataControllerGetVocabulariesResponses,
   SchemaMetadataControllerRemoveData,
   SchemaMetadataControllerRemoveResponses,
-  SchemaMetadataControllerSubmitData,
-  SchemaMetadataControllerSubmitResponses,
   SchemaMetadataControllerUpdateData,
   SchemaMetadataControllerUpdateResponses,
   SessionConfigControllerGetConfigData,
@@ -1096,29 +1093,6 @@ export const credentialConfigControllerUpdateCredentialConfiguration = <
   });
 
 /**
- * Get TS11 schema metadata for a credential configuration
- *
- * Generates a SchemaMeta document per the EUDI Catalogue of Attestations (TS11) specification. The credential configuration must have a schemaMeta field set. Pass ?signed=true to receive a signed JWS; requires a certificate chain on the key chain.
- */
-export const credentialConfigControllerGetSchemaMetadata = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<
-    CredentialConfigControllerGetSchemaMetadataData,
-    ThrowOnError
-  >,
-) =>
-  (options.client ?? client).get<
-    CredentialConfigControllerGetSchemaMetadataResponses,
-    CredentialConfigControllerGetSchemaMetadataErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/issuer/credentials/{id}/schema-metadata",
-    ...options,
-  });
-
-/**
  * Reserve, sign and submit a TS11 SchemaMetaConfig to the registrar
  *
  * Reserves an attestation ID at the configured registrar, injects it as id, signs the SchemaMetaConfig with the tenant key chain and submits the JWS to the registrar. Optionally pass credentialConfigId to link the created entry back to a credential config.
@@ -1366,6 +1340,159 @@ export const webhookEndpointControllerUpdate = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Returns all trust lists for the tenant
+ */
+export const trustListControllerGetAllTrustLists = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<TrustListControllerGetAllTrustListsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    TrustListControllerGetAllTrustListsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/trust-list",
+    ...options,
+  });
+
+/**
+ * Creates a new trust list for the tenant
+ */
+export const trustListControllerCreateTrustList = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<TrustListControllerCreateTrustListData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    TrustListControllerCreateTrustListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/trust-list",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Deletes a trust list
+ */
+export const trustListControllerDeleteTrustList = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<TrustListControllerDeleteTrustListData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    TrustListControllerDeleteTrustListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/trust-list/{id}",
+    ...options,
+  });
+
+/**
+ * Returns the trust list by id for the tenant
+ */
+export const trustListControllerGetTrustList = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<TrustListControllerGetTrustListData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    TrustListControllerGetTrustListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/trust-list/{id}",
+    ...options,
+  });
+
+/**
+ * Updates a trust list with new entities
+ * Creates a new version for audit and regenerates the JWT
+ */
+export const trustListControllerUpdateTrustList = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<TrustListControllerUpdateTrustListData, ThrowOnError>,
+) =>
+  (options.client ?? client).put<
+    TrustListControllerUpdateTrustListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/trust-list/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Exports the trust list in LoTE format
+ */
+export const trustListControllerExportTrustList = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<TrustListControllerExportTrustListData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    TrustListControllerExportTrustListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/trust-list/{id}/export",
+    ...options,
+  });
+
+/**
+ * Returns the version history for a trust list
+ */
+export const trustListControllerGetTrustListVersions = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<TrustListControllerGetTrustListVersionsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    TrustListControllerGetTrustListVersionsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/trust-list/{id}/versions",
+    ...options,
+  });
+
+/**
+ * Returns a specific version of a trust list
+ */
+export const trustListControllerGetTrustListVersion = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<TrustListControllerGetTrustListVersionData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    TrustListControllerGetTrustListVersionResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/trust-list/{id}/versions/{versionId}",
+    ...options,
   });
 
 /**
@@ -1767,6 +1894,24 @@ export const registrarControllerCreateAccessCertificate = <
   });
 
 /**
+ * Get predefined schema metadata vocabularies
+ */
+export const schemaMetadataControllerGetVocabularies = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<SchemaMetadataControllerGetVocabulariesData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    SchemaMetadataControllerGetVocabulariesResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/schema-metadata/vocabularies",
+    ...options,
+  });
+
+/**
  * List schema metadata
  */
 export const schemaMetadataControllerFindAll = <
@@ -1782,28 +1927,6 @@ export const schemaMetadataControllerFindAll = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/schema-metadata",
     ...options,
-  });
-
-/**
- * Submit signed schema metadata
- */
-export const schemaMetadataControllerSubmit = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<SchemaMetadataControllerSubmitData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    SchemaMetadataControllerSubmitResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/schema-metadata",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
   });
 
 /**
@@ -2044,159 +2167,6 @@ export const deferredControllerFailDeferred = <
       "Content-Type": "application/json",
       ...options.headers,
     },
-  });
-
-/**
- * Returns all trust lists for the tenant
- */
-export const trustListControllerGetAllTrustLists = <
-  ThrowOnError extends boolean = true,
->(
-  options?: Options<TrustListControllerGetAllTrustListsData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    TrustListControllerGetAllTrustListsResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/trust-list",
-    ...options,
-  });
-
-/**
- * Creates a new trust list for the tenant
- */
-export const trustListControllerCreateTrustList = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<TrustListControllerCreateTrustListData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    TrustListControllerCreateTrustListResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/trust-list",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Deletes a trust list
- */
-export const trustListControllerDeleteTrustList = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<TrustListControllerDeleteTrustListData, ThrowOnError>,
-) =>
-  (options.client ?? client).delete<
-    TrustListControllerDeleteTrustListResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/trust-list/{id}",
-    ...options,
-  });
-
-/**
- * Returns the trust list by id for the tenant
- */
-export const trustListControllerGetTrustList = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<TrustListControllerGetTrustListData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    TrustListControllerGetTrustListResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/trust-list/{id}",
-    ...options,
-  });
-
-/**
- * Updates a trust list with new entities
- * Creates a new version for audit and regenerates the JWT
- */
-export const trustListControllerUpdateTrustList = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<TrustListControllerUpdateTrustListData, ThrowOnError>,
-) =>
-  (options.client ?? client).put<
-    TrustListControllerUpdateTrustListResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/trust-list/{id}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Exports the trust list in LoTE format
- */
-export const trustListControllerExportTrustList = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<TrustListControllerExportTrustListData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    TrustListControllerExportTrustListResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/trust-list/{id}/export",
-    ...options,
-  });
-
-/**
- * Returns the version history for a trust list
- */
-export const trustListControllerGetTrustListVersions = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<TrustListControllerGetTrustListVersionsData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    TrustListControllerGetTrustListVersionsResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/trust-list/{id}/versions",
-    ...options,
-  });
-
-/**
- * Returns a specific version of a trust list
- */
-export const trustListControllerGetTrustListVersion = <
-  ThrowOnError extends boolean = true,
->(
-  options: Options<TrustListControllerGetTrustListVersionData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    TrustListControllerGetTrustListVersionResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/trust-list/{id}/versions/{versionId}",
-    ...options,
   });
 
 /**

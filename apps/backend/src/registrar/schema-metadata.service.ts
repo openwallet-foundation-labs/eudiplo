@@ -6,23 +6,29 @@ import {
     Logger,
     NotFoundException,
 } from "@nestjs/common";
-import { DeprecateSchemaMetadataDto } from "./dto/schema-metadata.dto";
+import {
+    DeprecateSchemaMetadataDto,
+    UpdateSchemaMetadataDto,
+} from "./dto/schema-metadata.dto";
 import {
     type ReservationResponseDto,
     type SchemaMetadata,
+    type SchemaMetadataVocabulariesDto,
     schemaMetadataControllerExport,
     schemaMetadataControllerFindAll,
     schemaMetadataControllerFindOne,
     schemaMetadataControllerGetLatestVersionInfo,
     schemaMetadataControllerGetSchema,
     schemaMetadataControllerGetSignedJwt,
+    schemaMetadataControllerGetVocabularies,
     schemaMetadataControllerListVersions,
     schemaMetadataControllerRemove,
     schemaMetadataControllerReserveSchemaId,
     schemaMetadataControllerSetVersionDeprecation,
     schemaMetadataControllerSubmitSchemaMetadata,
     schemaMetadataControllerUpdateMetadata,
-    type UpdateSchemaMetadataDto,
+    schemaMetadataControllerUploadAsset,
+    type UploadAssetResponseDto,
 } from "./generated";
 import { RegistrarAuthService } from "./registrar-auth.service";
 
@@ -31,11 +37,83 @@ type SchemaMetadataFilters = {
     version?: string;
 };
 
+type UploadAssetType = "trustlists" | "rulebooks" | "schemas";
+
 @Injectable()
 export class SchemaMetadataService {
     private readonly logger = new Logger(SchemaMetadataService.name);
 
     constructor(private readonly authService: RegistrarAuthService) {}
+
+    async uploadAsset(
+        tenantId: string,
+        type: UploadAssetType,
+        file: Blob | File,
+    ): Promise<UploadAssetResponseDto> {
+        const client = await this.authService.getClient(tenantId);
+        const res = await schemaMetadataControllerUploadAsset({
+            client,
+            path: { type },
+            body: { file },
+        });
+
+        if (res.error) {
+            this.throwUpstreamError(
+                tenantId,
+                `upload ${type} asset`,
+                res.error,
+            );
+        }
+
+        return res.data!;
+    }
+
+    async uploadAssetFromUrl(
+        tenantId: string,
+        type: UploadAssetType,
+        sourceUrl: string,
+        fallbackFileName: string,
+    ): Promise<UploadAssetResponseDto> {
+        let response: Response;
+        try {
+            response = await fetch(sourceUrl);
+        } catch (error) {
+            throw new BadRequestException(
+                `Failed to fetch ${type} source (${sourceUrl}) for registrar upload: ${
+                    error instanceof Error ? error.message : String(error)
+                }`,
+            );
+        }
+
+        if (!response.ok) {
+            throw new BadRequestException(
+                `Failed to fetch ${type} source (${sourceUrl}) for registrar upload: HTTP ${response.status}`,
+            );
+        }
+
+        const contentType =
+            response.headers.get("content-type") || "application/octet-stream";
+        const bytes = await response.arrayBuffer();
+
+        const parsedName = (() => {
+            try {
+                const pathname = new URL(sourceUrl).pathname;
+                const last = pathname.split("/").filter(Boolean).pop();
+                return last || fallbackFileName;
+            } catch {
+                return fallbackFileName;
+            }
+        })();
+
+        const file =
+            typeof File === "function"
+                ? new File([bytes], parsedName, { type: contentType })
+                : (new Blob([bytes], {
+                      type: contentType,
+                  }) as Blob | File);
+
+        return this.uploadAsset(tenantId, type, file);
+    }
 
     async reserveSchemaId(
         tenantId: string,
@@ -47,10 +125,25 @@ export class SchemaMetadataService {
             body: nameHint ? { nameHint } : {},
         });
 
-        console.log(res.data);
-
         if (res.error) {
             this.throwUpstreamError(tenantId, "reserve schema id", res.error);
+        }
+
+        return res.data!;
+    }
+
+    async getVocabularies(
+        tenantId: string,
+    ): Promise<SchemaMetadataVocabulariesDto> {
+        const client = await this.authService.getClient(tenantId);
+        const res = await schemaMetadataControllerGetVocabularies({ client });
+
+        if (res.error) {
+            this.throwUpstreamError(
+                tenantId,
+                "get schema metadata vocabularies",
+                res.error,
+            );
         }
 
         return res.data!;
@@ -83,20 +176,11 @@ export class SchemaMetadataService {
     async submitSignedSchemaMetadata(
         tenantId: string,
         signedJwt: string,
-        reservationToken?: string,
     ): Promise<SchemaMetadata> {
         const client = await this.authService.getClient(tenantId);
         const res = await schemaMetadataControllerSubmitSchemaMetadata({
             client,
-            body: signedJwt as unknown as never,
-            // The default JSON body serializer would JSON.stringify the JWS,
-            // wrapping it in quotes and breaking the registrar's protected
-            // header parsing. Disable serialization so the compact JWS is
-            // sent verbatim with the SDK's `Content-Type: application/jwt`.
-            bodySerializer: null,
-            headers: reservationToken
-                ? { "X-Reservation-Token": reservationToken }
-                : undefined,
+            body: { jwt: signedJwt },
         });
 
         if (res.error) {

@@ -7,16 +7,9 @@ import {
     Param,
     Patch,
     Post,
-    Query,
 } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import {
-    ApiBody,
-    ApiOperation,
-    ApiQuery,
-    ApiResponse,
-    ApiTags,
-} from "@nestjs/swagger";
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { SchemaURIMeta } from "@owf/eudi-attestation-schema";
 import { Role } from "../../../auth/roles/role.enum";
 import { Secured } from "../../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../../auth/token.decorator";
@@ -41,8 +34,190 @@ export class CredentialConfigController {
         private readonly credentialsService: CredentialConfigService,
         private readonly schemaMetaAdapterService: SchemaMetaAdapterService,
         private readonly registrarService: RegistrarService,
-        private readonly configService: ConfigService,
     ) {}
+
+    private deriveSchemaUriMetadata(
+        credentialConfig: Awaited<
+            ReturnType<CredentialConfigService["getById"]>
+        >,
+        format: string,
+    ): SchemaURIMeta {
+        if (format === "dc+sd-jwt") {
+            const configuredVct =
+                typeof credentialConfig.vct === "string"
+                    ? credentialConfig.vct
+                    : credentialConfig.vct &&
+                        typeof credentialConfig.vct === "object" &&
+                        "vct" in credentialConfig.vct &&
+                        typeof (credentialConfig.vct as { vct?: unknown })
+                            .vct === "string"
+                      ? (credentialConfig.vct as { vct: string }).vct
+                      : undefined;
+
+            if (!configuredVct) {
+                throw new BadRequestException(
+                    "schemaURIs metadata is required: unable to derive vct for dc+sd-jwt from credential config.",
+                );
+            }
+
+            return { vct: configuredVct };
+        }
+
+        if (format === "mso_mdoc") {
+            const docType =
+                credentialConfig.config?.docType ??
+                (credentialConfig.config as { doctype?: string } | undefined)
+                    ?.doctype;
+
+            if (!docType) {
+                throw new BadRequestException(
+                    "schemaURIs metadata is required: unable to derive docType for mso_mdoc from credential config.",
+                );
+            }
+
+            return { doctype_value: docType };
+        }
+
+        throw new BadRequestException(
+            `schemaURIs metadata is required: unsupported format '${format}'. Provide schemaURIs[].metadata explicitly.`,
+        );
+    }
+
+    private async uploadSchemaAssetFromCredentialConfig(
+        tenantId: string,
+        credentialConfigId: string,
+        fallbackFormat?: string,
+    ): Promise<{
+        format: string;
+        uri: string;
+        metadata: SchemaURIMeta;
+    }> {
+        const existing = await this.credentialsService.getById(
+            tenantId,
+            credentialConfigId,
+        );
+        const format = existing.config?.format ?? fallbackFormat ?? "dc+sd-jwt";
+
+        if (!existing.schema) {
+            throw new BadRequestException(
+                `Credential config ${credentialConfigId} has no inline schema to upload. Provide schemaURIs explicitly or set the credential schema first.`,
+            );
+        }
+
+        const fileName = `schema-${credentialConfigId}-${format}.json`;
+        const schemaContent = JSON.stringify(existing.schema, null, 2);
+        const schemaAsset =
+            typeof File === "function"
+                ? new File([schemaContent], fileName, {
+                      type: "application/schema+json",
+                  })
+                : new Blob([schemaContent], {
+                      type: "application/schema+json",
+                  });
+
+        const uploadedSchema =
+            await this.registrarService.uploadSchemaMetadataAsset(
+                tenantId,
+                "schemas",
+                schemaAsset,
+            );
+
+        return {
+            format,
+            uri: uploadedSchema.url,
+            metadata: this.deriveSchemaUriMetadata(existing, format),
+        };
+    }
+
+    private async uploadSchemaMetaAssetsToRegistrar(
+        tenantId: string,
+        config: SignSchemaMetaConfigDto["config"],
+        options?: { schemaUrisAlreadyHosted?: boolean },
+    ): Promise<SignSchemaMetaConfigDto["config"]> {
+        const uploadedRulebook =
+            await this.registrarService.uploadSchemaMetadataAssetFromUrl(
+                tenantId,
+                "rulebooks",
+                config.rulebookURI,
+                `rulebook-${config.version}.md`,
+            );
+
+        const uploadedSchemaURIs = options?.schemaUrisAlreadyHosted
+            ? (config.schemaURIs ?? [])
+            : await Promise.all(
+                  (config.schemaURIs ?? []).map(async (entry) => {
+                      if (entry.credentialConfigId) {
+                          return this.uploadSchemaAssetFromCredentialConfig(
+                              tenantId,
+                              entry.credentialConfigId,
+                              entry.format,
+                          );
+                      }
+
+                      if (!entry.uri) {
+                          throw new BadRequestException(
+                              "schemaURIs entry requires either credentialConfigId or uri",
+                          );
+                      }
+
+                      const uploadedSchema =
+                          await this.registrarService.uploadSchemaMetadataAssetFromUrl(
+                              tenantId,
+                              "schemas",
+                              entry.uri,
+                              `schema-${entry.format}.json`,
+                          );
+                      return {
+                          ...entry,
+                          uri: uploadedSchema.url,
+                      };
+                  }),
+              );
+
+        return {
+            ...config,
+            rulebookURI: uploadedRulebook.url,
+            schemaURIs: uploadedSchemaURIs,
+        };
+    }
+
+    private async ensureSchemaUrisFromCredentialConfig(
+        tenantId: string,
+        config: SignSchemaMetaConfigDto["config"],
+        credentialConfigId?: string,
+    ): Promise<{
+        config: SignSchemaMetaConfigDto["config"];
+        alreadyHosted: boolean;
+    }> {
+        if (config.schemaURIs?.length || !credentialConfigId) {
+            return { config, alreadyHosted: false };
+        }
+
+        const existing = await this.credentialsService.getById(
+            tenantId,
+            credentialConfigId,
+        );
+        const format = existing.config?.format ?? "dc+sd-jwt";
+        const uploadedSchema = await this.uploadSchemaAssetFromCredentialConfig(
+            tenantId,
+            credentialConfigId,
+            format,
+        );
+
+        return {
+            config: {
+                ...config,
+                schemaURIs: [
+                    {
+                        format: uploadedSchema.format,
+                        uri: uploadedSchema.uri,
+                        metadata: uploadedSchema.metadata,
+                    },
+                ],
+            },
+            alreadyHosted: true,
+        };
+    }
 
     @Get()
     getConfigs(@Token() user: TokenPayload) {
@@ -69,48 +244,6 @@ export class CredentialConfigController {
         @Token() user: TokenPayload,
     ) {
         return this.credentialsService.update(user.entity!.id, id, config);
-    }
-
-    @Get(":id/schema-metadata")
-    @ApiOperation({
-        summary: "Get TS11 schema metadata for a credential configuration",
-        description:
-            "Generates a SchemaMeta document per the EUDI Catalogue of Attestations (TS11) specification. " +
-            "The credential configuration must have a schemaMeta field set. " +
-            "Pass ?signed=true to receive a signed JWS; requires a certificate chain on the key chain.",
-    })
-    @ApiQuery({
-        name: "signed",
-        required: false,
-        type: Boolean,
-        description: "Return a signed JWS instead of a plain JSON object",
-    })
-    @ApiResponse({ status: 200, description: "SchemaMeta document" })
-    @ApiResponse({
-        status: 404,
-        description: "Credential config not found or no schemaMeta configured",
-    })
-    @ApiResponse({
-        status: 400,
-        description:
-            "Invalid schema metadata or missing certificate for signing",
-    })
-    async getSchemaMetadata(
-        @Param("id") id: string,
-        @Token() user: TokenPayload,
-        @Query("signed") signed?: string,
-    ) {
-        const config = await this.credentialsService.getById(
-            user.entity!.id,
-            id,
-        );
-        if (signed === "true") {
-            return this.schemaMetaAdapterService.generateSignedSchemaMeta(
-                user.entity!.id,
-                config,
-            );
-        }
-        return this.schemaMetaAdapterService.generateSchemaMeta(config);
     }
 
     /**
@@ -149,27 +282,20 @@ export class CredentialConfigController {
     ) {
         const tenantId = user.entity!.id;
 
-        // Auto-derive schemaURIs from the credential config's UUID and format
-        // when credentialConfigId is supplied but schemaURIs are absent.
-        let configToSign = body.config;
-        if (body.credentialConfigId && !body.config.schemaURIs?.length) {
-            const existing = await this.credentialsService.getById(
+        const { config: derivedConfig, alreadyHosted } =
+            await this.ensureSchemaUrisFromCredentialConfig(
                 tenantId,
+                body.config,
                 body.credentialConfigId,
             );
-            const format = existing.config?.format ?? "dc+sd-jwt";
-            const publicUrl =
-                this.configService.getOrThrow<string>("PUBLIC_URL");
-            configToSign = {
-                ...body.config,
-                schemaURIs: [
-                    {
-                        format,
-                        uri: `${publicUrl}/issuers/${tenantId}/credentials-metadata/schema/${body.credentialConfigId}/${format}`,
-                    },
-                ],
-            };
-        }
+
+        let configToSign = derivedConfig;
+
+        configToSign = await this.uploadSchemaMetaAssetsToRegistrar(
+            tenantId,
+            configToSign,
+            { schemaUrisAlreadyHosted: alreadyHosted },
+        );
 
         const { reservedId } =
             await this.registrarService.reserveSchemaId(tenantId);
@@ -194,7 +320,8 @@ export class CredentialConfigController {
                 body.credentialConfigId,
             );
             const schemaMetaForLink = {
-                ...(existing.schemaMeta ?? configToSign),
+                ...(existing.schemaMeta ?? {}),
+                ...configToSign,
                 id: reservedId,
             };
             await this.credentialsService.update(
@@ -247,10 +374,15 @@ export class CredentialConfigController {
             );
         }
 
+        const configToSign = await this.uploadSchemaMetaAssetsToRegistrar(
+            tenantId,
+            body.config,
+        );
+
         const signed =
             await this.schemaMetaAdapterService.signRawSchemaMetaConfig(
                 tenantId,
-                body.config,
+                configToSign,
                 body.keyChainId,
             );
 
@@ -261,7 +393,7 @@ export class CredentialConfigController {
     deleteIssuanceConfiguration(
         @Param("id") id: string,
         @Token() user: TokenPayload,
-    ) {
+    ): Promise<unknown> {
         return this.credentialsService.delete(user.entity!.id, id);
     }
 }

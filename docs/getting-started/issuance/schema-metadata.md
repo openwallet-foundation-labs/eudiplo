@@ -46,12 +46,19 @@ validate and interpret your issued credentials.
     - `rulebookURI`
     - `attestationLoS`
     - `bindingType`
-    - `schemaURIs`
-    - `trustedAuthorities`
+    - Select one or more **credential configs** in **Schema URIs**
+    - Select one or more **trust lists** in **Trusted Authorities**
 5. Submit and review the created entry.
 
 If you start creation from a linked credential configuration, EUDIPLO can associate the
 created schema metadata with that credential configuration using the registrar-assigned ID.
+
+### Current Import Behavior
+
+- In the UI, Schema URIs and Trusted Authorities are selected from existing entities.
+- Manual entry of schema format/URI and trust list URLs is not required in the current flow.
+- On submit, EUDIPLO sends references (`credentialConfigId`, `trustListId`) and resolves details server-side.
+- The backend uploads schema assets to the registrar, resolves trust list verification data, and computes integrity values during signing.
 
 ---
 

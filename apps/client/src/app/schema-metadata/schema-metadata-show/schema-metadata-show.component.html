@@ -228,12 +228,25 @@
         <form [formGroup]="metadataForm" fxLayout="column" fxLayoutGap="12px">
           <mat-form-field appearance="outline">
             <mat-label>Category</mat-label>
-            <input matInput formControlName="category" placeholder="identity, health, finance..." />
+            <mat-select formControlName="category">
+              <mat-option value="">— None —</mat-option>
+              @for (entry of categoryVocabularies; track entry.code) {
+                <mat-option [value]="entry.code" [disabled]="entry.status === 'deprecated'">
+                  {{ vocabularyLabel(entry) }}
+                </mat-option>
+              }
+            </mat-select>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Tags (comma-separated)</mat-label>
-            <input matInput formControlName="tagsCsv" placeholder="eidas, lote" />
+            <mat-label>Tags</mat-label>
+            <mat-select formControlName="tags" multiple>
+              @for (entry of tagVocabularies; track entry.code) {
+                <mat-option [value]="entry.code" [disabled]="entry.status === 'deprecated'">
+                  {{ vocabularyLabel(entry) }}
+                </mat-option>
+              }
+            </mat-select>
           </mat-form-field>
 
           <div fxLayout="row" fxLayoutAlign="end center">

@@ -151,6 +151,40 @@ export type OmitTypeClass = {
     createdAt: string;
 };
 
+export type VocabularyEntryDto = {
+    /**
+     * Stable machine-readable value to submit in schema metadata category/tags fields.
+     */
+    code: string;
+    /**
+     * Display label for UI rendering.
+     */
+    label: string;
+    /**
+     * Vocabulary lifecycle status.
+     */
+    status: "active" | "deprecated";
+    /**
+     * Replacement code when status is deprecated.
+     */
+    replacedBy?: string;
+};
+
+export type SchemaMetadataVocabulariesDto = {
+    /**
+     * Vocabulary publication version for cache invalidation.
+     */
+    version: string;
+    /**
+     * Allowed category values that can be used when updating schema metadata category.
+     */
+    categories: Array<VocabularyEntryDto>;
+    /**
+     * Allowed tag values that can be used when updating schema metadata tags.
+     */
+    tags: Array<VocabularyEntryDto>;
+};
+
 export type ReserveSchemaIdDto = {
     /**
      * Optional human-readable name hint for the schema (used in documentation only)
@@ -167,6 +201,13 @@ export type ReservationResponseDto = {
      * When this reservation expires (ISO 8601)
      */
     expiresAt: string;
+};
+
+export type SubmitSchemaMetadataDto = {
+    /**
+     * The signed schema metadata JWT
+     */
+    jwt: string;
 };
 
 export type TrustAuthority = {
@@ -319,6 +360,37 @@ export type MetadataSchema = {
     schemaMetadata: SchemaMetadata;
 };
 
+export type UploadAssetResponseDto = {
+    /**
+     * Asset type bucket.
+     */
+    type: "trustlists" | "rulebooks" | "schemas";
+    /**
+     * Stable URL that can be embedded into the signed JWT.
+     */
+    url: string;
+    /**
+     * Generated identifier for the uploaded asset.
+     */
+    assetId: string;
+    /**
+     * Stored file name in the catalog.
+     */
+    fileName: string;
+    /**
+     * Detected or declared content type of the uploaded file.
+     */
+    contentType: string;
+    /**
+     * Uploaded file size in bytes.
+     */
+    size: number;
+    /**
+     * Server-calculated Subresource Integrity value for the uploaded content.
+     */
+    integrity: string;
+};
+
 export type SetVersionDeprecationDto = {
     /**
      * Whether the selected version should be marked as deprecated.
@@ -347,9 +419,20 @@ export type UpdateSchemaMetadataDto = {
         | "employment"
         | "other";
     /**
-     * Free-form tags for filtering and search.
+     * Predefined tags for filtering and search.
      */
-    tags?: Array<string>;
+    tags?: Array<
+        | "pid"
+        | "eudi"
+        | "kyc"
+        | "aml"
+        | "age-verification"
+        | "residency"
+        | "membership"
+        | "education"
+        | "employment"
+        | "mobility"
+    >;
 };
 
 export type HealthControllerCheckData = {
@@ -643,6 +726,23 @@ export type StatusListControllerCrlFileResponses = {
 export type StatusListControllerCrlFileResponse =
     StatusListControllerCrlFileResponses[keyof StatusListControllerCrlFileResponses];
 
+export type SchemaMetadataControllerGetVocabulariesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: "/schema-metadata/vocabularies";
+};
+
+export type SchemaMetadataControllerGetVocabulariesResponses = {
+    /**
+     * Vocabulary lists returned successfully.
+     */
+    200: SchemaMetadataVocabulariesDto;
+};
+
+export type SchemaMetadataControllerGetVocabulariesResponse =
+    SchemaMetadataControllerGetVocabulariesResponses[keyof SchemaMetadataControllerGetVocabulariesResponses];
+
 export type SchemaMetadataControllerReserveSchemaIdData = {
     /**
      * Optional name hint for the generated ID
@@ -698,9 +798,9 @@ export type SchemaMetadataControllerFindAllResponse =
 
 export type SchemaMetadataControllerSubmitSchemaMetadataData = {
     /**
-     * The signed schema metadata JWT
+     * JSON payload containing the signed schema metadata JWT
      */
-    body: string;
+    body: SubmitSchemaMetadataDto;
     path?: never;
     query?: never;
     url: "/schema-metadata";
@@ -734,6 +834,70 @@ export type SchemaMetadataControllerSubmitSchemaMetadataResponses = {
 
 export type SchemaMetadataControllerSubmitSchemaMetadataResponse =
     SchemaMetadataControllerSubmitSchemaMetadataResponses[keyof SchemaMetadataControllerSubmitSchemaMetadataResponses];
+
+export type SchemaMetadataControllerUploadAssetData = {
+    body: {
+        file: Blob | File;
+    };
+    path: {
+        /**
+         * Asset bucket to upload into.
+         */
+        type: "trustlists" | "rulebooks" | "schemas";
+    };
+    query?: never;
+    url: "/schema-metadata/assets/{type}";
+};
+
+export type SchemaMetadataControllerUploadAssetErrors = {
+    /**
+     * Invalid upload payload, type, or file format.
+     */
+    400: unknown;
+};
+
+export type SchemaMetadataControllerUploadAssetResponses = {
+    /**
+     * Asset uploaded successfully.
+     */
+    201: UploadAssetResponseDto;
+};
+
+export type SchemaMetadataControllerUploadAssetResponse =
+    SchemaMetadataControllerUploadAssetResponses[keyof SchemaMetadataControllerUploadAssetResponses];
+
+export type SchemaMetadataControllerGetUploadedAssetData = {
+    body?: never;
+    path: {
+        /**
+         * Asset bucket.
+         */
+        type: "trustlists" | "rulebooks" | "schemas";
+        /**
+         * Stored asset file name returned by upload endpoint.
+         */
+        fileName: string;
+    };
+    query?: never;
+    url: "/schema-metadata/assets/{type}/{fileName}";
+};
+
+export type SchemaMetadataControllerGetUploadedAssetErrors = {
+    /**
+     * Uploaded asset not found.
+     */
+    404: unknown;
+};
+
+export type SchemaMetadataControllerGetUploadedAssetResponses = {
+    /**
+     * Uploaded asset file contents.
+     */
+    200: Blob | File;
+};
+
+export type SchemaMetadataControllerGetUploadedAssetResponse =
+    SchemaMetadataControllerGetUploadedAssetResponses[keyof SchemaMetadataControllerGetUploadedAssetResponses];
 
 export type SchemaMetadataControllerGetLatestVersionInfoData = {
     body?: never;

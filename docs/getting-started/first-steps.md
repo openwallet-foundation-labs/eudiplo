@@ -124,7 +124,7 @@ If you use TS11 schema metadata, create it in the dedicated flow:
 
 1. Navigate to **Schema Metadata** in the sidebar
 2. Click **+ Create**
-3. Fill in version, rulebook URI, schema URIs, and trust authorities
+3. Fill in version and rulebook URI, then select credential configs and trust lists
 4. Save the schema metadata entry
 
 For details, see [Schema Metadata](./issuance/schema-metadata.md).

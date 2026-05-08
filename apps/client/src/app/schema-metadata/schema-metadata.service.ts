@@ -8,12 +8,14 @@ import {
   schemaMetadataControllerFindOne,
   schemaMetadataControllerGetJwt,
   schemaMetadataControllerGetLatest,
+  schemaMetadataControllerGetVocabularies,
   schemaMetadataControllerGetVersions,
   schemaMetadataControllerRemove,
   schemaMetadataControllerUpdate,
   type DeprecateSchemaMetadataDto,
   type SchemaMetaConfig,
   type SchemaMetadataResponseDto,
+  type SchemaMetadataVocabulariesDto,
   type UpdateSchemaMetadataDto,
 } from '@eudiplo/sdk-core';
 
@@ -21,11 +23,18 @@ import {
  * Re-exports of schema-metadata DTOs from the generated SDK.
  */
 export type SchemaMetadata = SchemaMetadataResponseDto;
+export type SchemaMetadataVocabularies = SchemaMetadataVocabulariesDto;
 
 @Injectable({
   providedIn: 'root',
 })
 export class SchemaMetadataService {
+  async getVocabularies(): Promise<SchemaMetadataVocabularies> {
+    const response = await schemaMetadataControllerGetVocabularies();
+
+    return response.data as SchemaMetadataVocabularies;
+  }
+
   async list(params?: { attestationId?: string; version?: string }): Promise<SchemaMetadata[]> {
     const response = await schemaMetadataControllerFindAll({
       query: {

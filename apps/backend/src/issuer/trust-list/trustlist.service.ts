@@ -286,6 +286,21 @@ export class TrustListService {
                         tenant.id,
                         entity.revocationKeyChainId,
                     );
+                try {
+                    const leaf = new X509Certificate(issuerCert.crt[0]);
+                    // X509Certificate.fingerprint returns SHA-1 by default; compute SHA-256 for parity with verifier logs.
+                    const der = leaf.raw;
+                    const _thumb = Array.from(
+                        new Uint8Array(
+                            await crypto.subtle.digest("SHA-256", der),
+                        ),
+                    )
+                        .map((b) => b.toString(16).padStart(2, "0"))
+                        .join(":")
+                        .toUpperCase();
+                } catch {
+                    // ignore diagnostic failures
+                }
                 entries.push(
                     this.createEntityFromCert(
                         issuerCert,
