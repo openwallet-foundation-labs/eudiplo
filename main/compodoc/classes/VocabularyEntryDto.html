@@ -114,7 +114,7 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item">Classes</li>
-  <li class="breadcrumb-item" >SubmitSchemaMetadataDto</li>
+  <li class="breadcrumb-item" >VocabularyEntryDto</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -142,13 +142,6 @@
         </p>
 
 
-            <p class="comment">
-                <h3>Description</h3>
-            </p>
-            <p class="comment">
-                <p>Request body for <code>POST /registrar/schema-metadata</code>.</p>
-
-            </p>
 
 
 
@@ -167,15 +160,20 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier">Optional</span>
-                                <a href="#reservationToken" >reservationToken</a>
+                                <a href="#code" >code</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                <a href="#label" >label</a>
+                            </li>
+                            <li>
                                     <span class="modifier"></span>
-                                <a href="#signedJwt" >signedJwt</a>
+                                    <span class="modifier">Optional</span>
+                                <a href="#replacedBy" >replacedBy</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                <a href="#status" >status</a>
                             </li>
                         </ul>
                     </td>
@@ -200,14 +198,11 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="reservationToken"></a>
+                    <a name="code"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier">Optional</span>
-                        <span ><b>reservationToken</b></span>
-                        <a href="#reservationToken"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>code</b></span>
+                        <a href="#code"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
@@ -222,13 +217,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiPropertyOptional({description: &#x27;Reservation token returned by &#x60;/schema-metadata/reserve&#x60;. Required when the JWT&#x27;s &#x60;id&#x60; is a registrar-reserved URL.&#x27;})<br />@IsOptional()<br />@IsString()<br />
+                            @ApiProperty({description: &#x27;Stable machine-readable value to submit in schema metadata category/tags fields.&#x27;})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="113" class="link-to-prism">src/registrar/dto/schema-metadata.dto.ts:113</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="144" class="link-to-prism">src/registrar/dto/schema-metadata.dto.ts:144</a></div>
                         </td>
                     </tr>
 
@@ -239,12 +234,11 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="signedJwt"></a>
+                    <a name="label"></a>
                     <span class="name">
                             <span class="modifier"></span>
-                            <span class="modifier"></span>
-                        <span ><b>signedJwt</b></span>
-                        <a href="#signedJwt"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>label</b></span>
+                        <a href="#label"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
@@ -259,13 +253,86 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiProperty({description: &#x27;The signed schema metadata JWS (compact serialization). Sign via &#x60;POST /api/issuer/credentials/schema-metadata/sign&#x60;.&#x27;})<br />@IsString()<br />
+                            @ApiProperty({description: &#x27;Display label for UI rendering.&#x27;})<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="105" class="link-to-prism">src/registrar/dto/schema-metadata.dto.ts:105</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="149" class="link-to-prism">src/registrar/dto/schema-metadata.dto.ts:149</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="replacedBy"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>replacedBy</b></span>
+                        <a href="#replacedBy"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @ApiPropertyOptional({description: &#x27;Replacement code when status is deprecated.&#x27;})<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="160" class="link-to-prism">src/registrar/dto/schema-metadata.dto.ts:160</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="status"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                        <span ><b>status</b></span>
+                        <a href="#status"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#VocabularyStatus" target="_self" >VocabularyStatus</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @ApiProperty({description: &#x27;Vocabulary lifecycle status.&#x27;, enum: VOCABULARY_STATUS_VALUES})<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="155" class="link-to-prism">src/registrar/dto/schema-metadata.dto.ts:155</a></div>
                         </td>
                     </tr>
 
@@ -723,7 +790,7 @@ export class DeprecateSchemaMetadataDto {
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
             var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
-            var COMPODOC_CURRENT_PAGE_URL = 'SubmitSchemaMetadataDto.html';
+            var COMPODOC_CURRENT_PAGE_URL = 'VocabularyEntryDto.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 

@@ -165,15 +165,21 @@ into a TS11 SchemaMeta object using the @owf/eudi-attestation-schema library.</p
                             <li>
                                     <span class="modifier">Private</span>
                                     <span class="modifier">Async</span>
+                                <a href="#buildTrustedAuthorities" >buildTrustedAuthorities</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                    <span class="modifier">Async</span>
                                 <a href="#computeSri" >computeSri</a>
                             </li>
                             <li>
-                                    <span class="modifier">Async</span>
-                                <a href="#generateSchemaMeta" >generateSchemaMeta</a>
+                                    <span class="modifier">Private</span>
+                                <a href="#parseInternalTrustListRef" >parseInternalTrustListRef</a>
                             </li>
                             <li>
+                                    <span class="modifier">Private</span>
                                     <span class="modifier">Async</span>
-                                <a href="#generateSignedSchemaMeta" >generateSignedSchemaMeta</a>
+                                <a href="#resolveInternalVerificationMethod" >resolveInternalVerificationMethod</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
@@ -183,6 +189,10 @@ into a TS11 SchemaMeta object using the @owf/eudi-attestation-schema library.</p
                                     <span class="modifier">Private</span>
                                     <span class="modifier">Async</span>
                                 <a href="#signWithKeyChain" >signWithKeyChain</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#toPublicJwk" >toPublicJwk</a>
                             </li>
                         </ul>
                     </td>
@@ -202,12 +212,12 @@ into a TS11 SchemaMeta object using the @owf/eudi-attestation-schema library.</p
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(keyChainService: <a href="../injectables/KeyChainService.html" target="_self">KeyChainService</a>, logger: PinoLogger)</code>
+<code>constructor(keyChainService: <a href="../injectables/KeyChainService.html" target="_self">KeyChainService</a>, trustListService: <a href="../injectables/TrustListService.html" target="_self">TrustListService</a>, logger: PinoLogger, configService: ConfigService)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="32" class="link-to-prism">src/issuer/configuration/credentials/schema-meta/schema-meta-adapter.service.ts:32</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/issuer/configuration/credentials/schema-meta/schema-meta-adapter.service.ts:26</a></div>
                             </td>
                         </tr>
 
@@ -237,10 +247,34 @@ into a TS11 SchemaMeta object using the @owf/eudi-attestation-schema library.</p
                                                     
                                                 </tr>
                                                 <tr>
+                                                        <td>trustListService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/TrustListService.html" target="_self" >TrustListService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
                                                         <td>logger</td>
                                                   
                                                         <td>
                                                                     <code>PinoLogger</code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
+                                                <tr>
+                                                        <td>configService</td>
+                                                  
+                                                        <td>
+                                                                    <code>ConfigService</code>
                                                         </td>
                                                   
                                                     <td>
@@ -266,6 +300,88 @@ into a TS11 SchemaMeta object using the @owf/eudi-attestation-schema library.</p
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="buildTrustedAuthorities"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                            <span class="modifier">Async</span>
+                        <span ><b>buildTrustedAuthorities</b></span>
+                        <a href="#buildTrustedAuthorities"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>buildTrustedAuthorities(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, authorities: <a href="../classes/SchemaMetaConfig.html" target="_self">SchemaMetaConfig</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="108"
+                                    class="link-to-prism">src/issuer/configuration/credentials/schema-meta/schema-meta-adapter.service.ts:108</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>tenantId</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>authorities</td>
+                                            <td>
+                                                            <code><a href="../classes/SchemaMetaConfig.html" target="_self" >SchemaMetaConfig</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Promise&lt;Array&lt;Record&lt;string, unknown&gt;&gt;&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="computeSri"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
@@ -285,16 +401,15 @@ into a TS11 SchemaMeta object using the @owf/eudi-attestation-schema library.</p
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="147"
-                                    class="link-to-prism">src/issuer/configuration/credentials/schema-meta/schema-meta-adapter.service.ts:147</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="189"
+                                    class="link-to-prism">src/issuer/configuration/credentials/schema-meta/schema-meta-adapter.service.ts:189</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>/**
-Fetches the resource at <code>url</code> and returns its W3C Subresource Integrity
+                        <div class="io-description"><p>Fetches the resource at <code>url</code> and returns its W3C Subresource Integrity
 hash in <code>sha256-&lt;base64&gt;</code> form. Computing this server-side prevents
 stale or attacker-supplied integrity values from being signed and
 sidesteps browser CORS limitations the UI would otherwise hit.</p>
@@ -354,39 +469,32 @@ sidesteps browser CORS limitations the UI would otherwise hit.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="generateSchemaMeta"></a>
+                    <a name="parseInternalTrustListRef"></a>
                     <span class="name">
-                            <span class="modifier">Async</span>
-                        <span ><b>generateSchemaMeta</b></span>
-                        <a href="#generateSchemaMeta"><span class="icon ion-ios-link"></span></a>
+                            <span class="modifier">Private</span>
+                        <span ><b>parseInternalTrustListRef</b></span>
+                        <a href="#parseInternalTrustListRef"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>generateSchemaMeta(credentialConfig: <a href="../classes/CredentialConfig.html" target="_self">CredentialConfig</a>)</code>
+                    <code>parseInternalTrustListRef(value: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="49"
-                                    class="link-to-prism">src/issuer/configuration/credentials/schema-meta/schema-meta-adapter.service.ts:49</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="57"
+                                    class="link-to-prism">src/issuer/configuration/credentials/schema-meta/schema-meta-adapter.service.ts:57</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Generates a plain (unsigned) SchemaMeta object from the credential config.
-Throws if no schemaMeta configuration is present on the credential.</p>
-<p>Integrity hashes for <code>rulebookURI</code> and every <code>schemaURIs[].uri</code> are
-always computed server-side at generation time so the signed object
-reflects the live resources rather than any stale or attacker-supplied
-value.</p>
-</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -401,9 +509,9 @@ value.</p>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                                <td>credentialConfig</td>
+                                                <td>value</td>
                                             <td>
-                                                            <code><a href="../classes/CredentialConfig.html" target="_self" >CredentialConfig</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -416,7 +524,7 @@ value.</p>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;SchemaMeta&gt;</code>
+                            <b>Returns : </b>    <code>literal type | undefined</code>
 
                         </div>
                             <div class="io-description">
@@ -430,38 +538,33 @@ value.</p>
         <tbody>
             <tr>
                 <td class="col-md-4">
-                    <a name="generateSignedSchemaMeta"></a>
+                    <a name="resolveInternalVerificationMethod"></a>
                     <span class="name">
+                            <span class="modifier">Private</span>
                             <span class="modifier">Async</span>
-                        <span ><b>generateSignedSchemaMeta</b></span>
-                        <a href="#generateSignedSchemaMeta"><span class="icon ion-ios-link"></span></a>
+                        <span ><b>resolveInternalVerificationMethod</b></span>
+                        <a href="#resolveInternalVerificationMethod"><span class="icon ion-ios-link"></span></a>
                     </span>
                 </td>
             </tr>
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>generateSignedSchemaMeta(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, credentialConfig: <a href="../classes/CredentialConfig.html" target="_self">CredentialConfig</a>)</code>
+                    <code>resolveInternalVerificationMethod(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, value: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="327"
-                                    class="link-to-prism">src/issuer/configuration/credentials/schema-meta/schema-meta-adapter.service.ts:327</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="70"
+                                    class="link-to-prism">src/issuer/configuration/credentials/schema-meta/schema-meta-adapter.service.ts:70</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
-                        <div class="io-description"><p>Generates a signed SchemaMeta JWT (JWS) for the given credential config.</p>
-<p>The signing key is resolved from the credential&#39;s keyChainId or the tenant&#39;s
-default key chain. The certificate chain from the key chain is included in the
-JWS x5c header.</p>
-<p>  has a certificate configured before calling this method.</p>
-</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -488,9 +591,9 @@ JWS x5c header.</p>
 
                                         </tr>
                                         <tr>
-                                                <td>credentialConfig</td>
+                                                <td>value</td>
                                             <td>
-                                                            <code><a href="../classes/CredentialConfig.html" target="_self" >CredentialConfig</a></code>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
                                             </td>
 
                                             <td>
@@ -503,7 +606,7 @@ JWS x5c header.</p>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>Promise&lt;SignedSchemaMeta&gt;</code>
+                            <b>Returns : </b>    <code>Promise&lt;Record | undefined&gt;</code>
 
                         </div>
                             <div class="io-description">
@@ -535,8 +638,8 @@ JWS x5c header.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="241"
-                                    class="link-to-prism">src/issuer/configuration/credentials/schema-meta/schema-meta-adapter.service.ts:241</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="283"
+                                    class="link-to-prism">src/issuer/configuration/credentials/schema-meta/schema-meta-adapter.service.ts:283</a></div>
                         </td>
                     </tr>
 
@@ -632,8 +735,8 @@ independent of any stored credential configuration.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="176"
-                                    class="link-to-prism">src/issuer/configuration/credentials/schema-meta/schema-meta-adapter.service.ts:176</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="218"
+                                    class="link-to-prism">src/issuer/configuration/credentials/schema-meta/schema-meta-adapter.service.ts:218</a></div>
                         </td>
                     </tr>
 
@@ -708,17 +811,83 @@ materialised here (an external KMS may not expose it at all).</p>
             </tr>
         </tbody>
     </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="toPublicJwk"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>toPublicJwk</b></span>
+                        <a href="#toPublicJwk"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>toPublicJwk(jwk?: Record<string | unknown>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="36"
+                                    class="link-to-prism">src/issuer/configuration/credentials/schema-meta/schema-meta-adapter.service.ts:36</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>jwk</td>
+                                            <td>
+                                                        <code>Record&lt;string | unknown&gt;</code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Record | undefined</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>
 
     </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import {
-    BadRequestException,
-    Injectable,
-    NotFoundException,
-} from &quot;@nestjs/common&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { BadRequestException, Injectable } from &quot;@nestjs/common&quot;;
+import { ConfigService } from &quot;@nestjs/config&quot;;
 import {
     type SchemaMeta,
     type SignedSchemaMeta,
@@ -732,11 +901,8 @@ import { Signer } from &quot;@sd-jwt/types&quot;;
 import { PinoLogger } from &quot;nestjs-pino&quot;;
 import { KeyUsageType } from &quot;../../../../crypto/key/entities/key-chain.entity&quot;;
 import { KeyChainService } from &quot;../../../../crypto/key/key-chain.service&quot;;
+import { TrustListService } from &quot;../../../trust-list/trustlist.service&quot;;
 import { SchemaMetaConfig } from &quot;../dto/schema-meta-config.dto&quot;;
-import {
-    CredentialConfig,
-    CredentialFormat,
-} from &quot;../entities/credential.entity&quot;;
 
 /**
  * Adapter service that translates a CredentialConfig&#x27;s schemaMeta configuration
@@ -748,112 +914,160 @@ import {
 export class SchemaMetaAdapterService {
     constructor(
         private readonly keyChainService: KeyChainService,
+        private readonly trustListService: TrustListService,
         private readonly logger: PinoLogger,
+        private readonly configService: ConfigService,
     ) {
         this.logger.setContext(&quot;SchemaMetaAdapterService&quot;);
     }
 
-    /**
-     * Generates a plain (unsigned) SchemaMeta object from the credential config.
-     * Throws if no schemaMeta configuration is present on the credential.
-     *
-     * Integrity hashes for &#x60;rulebookURI&#x60; and every &#x60;schemaURIs[].uri&#x60; are
-     * always computed server-side at generation time so the signed object
-     * reflects the live resources rather than any stale or attacker-supplied
-     * value.
-     */
-    async generateSchemaMeta(
-        credentialConfig: CredentialConfig,
-    ): Promise&lt;SchemaMeta&gt; {
-        const { schemaMeta: config, vct, id: credId } &#x3D; credentialConfig;
+    private toPublicJwk(
+        jwk?: Record&lt;string, unknown&gt;,
+    ): Record&lt;string, unknown&gt; | undefined {
+        if (!jwk || typeof jwk !&#x3D;&#x3D; &quot;object&quot;) {
+            return undefined;
+        }
+        const { d, p, q, dp, dq, qi, oth, k, ...publicJwk } &#x3D; jwk as Record&lt;
+            string,
+            unknown
+        &gt;;
+        void d;
+        void p;
+        void q;
+        void dp;
+        void dq;
+        void qi;
+        void oth;
+        void k;
+        return publicJwk;
+    }
 
-        if (!config) {
-            throw new NotFoundException(
-                &quot;No schema metadata configuration found for this credential. &quot; +
-                    &quot;Set the &#x60;schemaMeta&#x60; field on the credential configuration to enable TS11 schema metadata generation.&quot;,
+    private parseInternalTrustListRef(
+        value: string,
+    ): { tenantId: string; trustListId: string } | undefined {
+        const match &#x3D; /\/issuers\/([^/]+)\/trust-list\/([^/?#]+)/.exec(value);
+        if (!match) {
+            return undefined;
+        }
+        return {
+            tenantId: decodeURIComponent(match[1] ?? &quot;&quot;),
+            trustListId: decodeURIComponent(match[2] ?? &quot;&quot;),
+        };
+    }
+
+    private async resolveInternalVerificationMethod(
+        tenantId: string,
+        value: string,
+    ): Promise&lt;Record&lt;string, unknown&gt; | undefined&gt; {
+        const ref &#x3D; this.parseInternalTrustListRef(value);
+        if (!ref || ref.tenantId !&#x3D;&#x3D; tenantId) {
+            return undefined;
+        }
+
+        try {
+            const trustList &#x3D; await this.trustListService.findOne(
+                ref.tenantId,
+                ref.trustListId,
             );
-        }
+            if (!trustList.keyChainId) {
+                return undefined;
+            }
 
-        // Derive the attestation format from the stored credential format.
-        const credFormat &#x3D; credentialConfig.config?.format;
-        const format &#x3D;
-            credFormat &#x3D;&#x3D;&#x3D; CredentialFormat.MSO_MDOC
-                ? (&quot;mso_mdoc&quot; as const)
-                : (&quot;dc+sd-jwt&quot; as const);
-
-        const rulebookIntegrity &#x3D; await this.computeSri(
-            config.rulebookURI,
-            &quot;rulebookURI&quot;,
-        );
-        const schemaURIsWithIntegrity &#x3D; await Promise.all(
-            (config.schemaURIs ?? []).map(async (entry) &#x3D;&gt; ({
-                ...entry,
-                integrity: await this.computeSri(
-                    entry.uri,
-                    &#x60;schemaURIs[${entry.format}]&#x60;,
-                ),
-            })),
-        );
-
-        // Build the core SchemaMeta object.
-        let builder &#x3D; schemaMetaBuilder()
-            .version(config.version)
-            .rulebookURI(config.rulebookURI)
-            .rulebookIntegrity(rulebookIntegrity)
-            .attestationLoS(config.attestationLoS)
-            .bindingType(config.bindingType)
-            .addFormat(format);
-
-        // Optional: explicit id override; otherwise fall back to vct / docType / entity id.
-        const attestationId &#x3D;
-            config.id ??
-            (typeof vct &#x3D;&#x3D;&#x3D; &quot;string&quot;
-                ? vct
-                : typeof vct &#x3D;&#x3D;&#x3D; &quot;object&quot; &amp;&amp; vct !&#x3D;&#x3D; null
-                  ? (vct as { value?: string }).value
-                  : undefined) ??
-            credentialConfig.config?.docType ??
-            credId;
-
-        if (attestationId) {
-            builder &#x3D; builder.id(attestationId);
-        }
-
-        // Add schema URIs.
-        for (const entry of schemaURIsWithIntegrity) {
-            const uriBuilder &#x3D; schemaURIBuilder()
-                .format(entry.format as any)
-                .uri(entry.uri)
-                .integrity(entry.integrity);
-            builder &#x3D; builder.addSchemaURI(uriBuilder.build());
-        }
-
-        // Add trusted authorities.
-        for (const ta of config.trustedAuthorities ?? []) {
-            const taObj &#x3D; trustAuthorityBuilder()
-                .frameworkType(ta.frameworkType as any)
-                .value(ta.value)
-                .build();
-            builder &#x3D; builder.addTrustAuthority(taObj);
-        }
-
-        const result &#x3D; builder.build();
-
-        // Validate the generated object.
-        const validation &#x3D; validateSchemaMeta(result);
-        if (!validation.valid) {
-            const errors &#x3D; validation.errors
-                .map((e) &#x3D;&gt; &#x60;${e.path}: ${e.message}&#x60;)
-                .join(&quot;; &quot;);
-            throw new BadRequestException(
-                &#x60;Generated SchemaMeta is invalid: ${errors}&#x60;,
+            const keyChain &#x3D; await this.keyChainService.getEntity(
+                ref.tenantId,
+                trustList.keyChainId,
             );
-        }
+            const publicKeyJwk &#x3D; this.toPublicJwk(
+                keyChain.activeKey as Record&lt;string, unknown&gt; | undefined,
+            );
+            if (!publicKeyJwk) {
+                return undefined;
+            }
 
+            return {
+                type: &quot;JsonWebKey2020&quot;,
+                publicKeyJwk,
+            };
+        } catch {
+            return undefined;
+        }
+    }
+
+    private async buildTrustedAuthorities(
+        tenantId: string,
+        authorities: SchemaMetaConfig[&quot;trustedAuthorities&quot;],
+    ): Promise&lt;Array&lt;Record&lt;string, unknown&gt;&gt;&gt; {
+        const result: Array&lt;Record&lt;string, unknown&gt;&gt; &#x3D; [];
+        for (const ta of authorities ?? []) {
+            let built: Record&lt;string, unknown&gt;;
+
+            if (ta.trustListId) {
+                // Resolve trust list directly by ID — no URL needed from the client.
+                const trustList &#x3D; await this.trustListService.findOne(
+                    tenantId,
+                    ta.trustListId,
+                );
+                if (!trustList.keyChainId) {
+                    throw new BadRequestException(
+                        &#x60;Trust list ${ta.trustListId} has no key chain configured.&#x60;,
+                    );
+                }
+                const keyChain &#x3D; await this.keyChainService.getEntity(
+                    tenantId,
+                    trustList.keyChainId,
+                );
+                const publicKeyJwk &#x3D; this.toPublicJwk(
+                    keyChain.activeKey as Record&lt;string, unknown&gt; | undefined,
+                );
+                if (!publicKeyJwk) {
+                    throw new BadRequestException(
+                        &#x60;Trust list ${ta.trustListId} key chain has no active key.&#x60;,
+                    );
+                }
+                const publicUrl &#x3D; this.configService
+                    .getOrThrow&lt;string&gt;(&quot;PUBLIC_URL&quot;)
+                    .replace(/\/$/, &quot;&quot;);
+                const trustListUrl &#x3D; &#x60;${publicUrl}/issuers/${tenantId}/trust-list/${trustList.id}&#x60;;
+                const base &#x3D; trustAuthorityBuilder()
+                    .frameworkType(&quot;etsi_tl&quot; as any)
+                    .value(trustListUrl)
+                    .isLoTE(ta.isLoTE ?? true);
+                built &#x3D; base.build() as Record&lt;string, unknown&gt;;
+                built[&quot;verificationMethod&quot;] &#x3D; {
+                    type: &quot;JsonWebKey2020&quot;,
+                    publicKeyJwk,
+                };
+            } else {
+                const base &#x3D; trustAuthorityBuilder()
+                    .frameworkType((ta.frameworkType ?? &quot;etsi_tl&quot;) as any)
+                    .value(ta.value!);
+                if (ta.isLoTE !&#x3D;&#x3D; undefined) {
+                    base.isLoTE(ta.isLoTE);
+                }
+                built &#x3D; base.build() as Record&lt;string, unknown&gt;;
+
+                const verificationMethod &#x3D;
+                    ta.verificationMethod ??
+                    (await this.resolveInternalVerificationMethod(
+                        tenantId,
+                        ta.value!,
+                    ));
+
+                if (!verificationMethod) {
+                    throw new BadRequestException(
+                        &#x60;Trusted authority ${ta.value} requires verificationMethod for external authorities. &#x60; +
+                            &#x60;For internal trust-list URLs, ensure the referenced trust list and key chain exist.&#x60;,
+                    );
+                }
+
+                built[&quot;verificationMethod&quot;] &#x3D; verificationMethod;
+            }
+
+            result.push(built);
+        }
         return result;
     }
 
-    /**
     /**
      * Fetches the resource at &#x60;url&#x60; and returns its W3C Subresource Integrity
      * hash in &#x60;sha256-&lt;base64&gt;&#x60; form. Computing this server-side prevents
@@ -966,14 +1180,29 @@ export class SchemaMetaAdapterService {
             config.rulebookURI,
             &quot;rulebookURI&quot;,
         );
+        const rawSchemaUris &#x3D; config.schemaURIs ?? [];
+        for (const entry of rawSchemaUris) {
+            if (!entry.format || !entry.uri || !entry.metadata) {
+                throw new BadRequestException(
+                    &quot;Each schemaURIs entry must include format, uri, and metadata after preprocessing.&quot;,
+                );
+            }
+        }
+
         const schemaURIsWithIntegrity &#x3D; await Promise.all(
-            (config.schemaURIs ?? []).map(async (entry) &#x3D;&gt; ({
-                ...entry,
+            rawSchemaUris.map(async (entry) &#x3D;&gt; ({
+                format: entry.format as string,
+                uri: entry.uri as string,
+                metadata: entry.metadata,
                 integrity: await this.computeSri(
-                    entry.uri,
-                    &#x60;schemaURIs[${entry.format}]&#x60;,
+                    entry.uri as string,
+                    &#x60;schemaURIs[${entry.format as string}]&#x60;,
                 ),
             })),
+        );
+        const trustedAuthorities &#x3D; await this.buildTrustedAuthorities(
+            tenantId,
+            config.trustedAuthorities,
         );
 
         let builder &#x3D; schemaMetaBuilder()
@@ -983,18 +1212,6 @@ export class SchemaMetaAdapterService {
             .attestationLoS(config.attestationLoS)
             .bindingType(config.bindingType);
 
-        // Derive supportedFormats from the schemaURIs entries (deduplicated),
-        // since the raw config does not carry an explicit format list.
-        const formats &#x3D; new Set&lt;string&gt;();
-        for (const entry of schemaURIsWithIntegrity) {
-            if (entry.format) {
-                formats.add(entry.format);
-            }
-        }
-        for (const fmt of formats) {
-            builder &#x3D; builder.addFormat(fmt as any);
-        }
-
         if (config.id) {
             builder &#x3D; builder.id(config.id);
         }
@@ -1002,18 +1219,26 @@ export class SchemaMetaAdapterService {
             const uriBuilder &#x3D; schemaURIBuilder()
                 .format(entry.format as any)
                 .uri(entry.uri)
+                .meta(entry.metadata)
                 .integrity(entry.integrity);
-            builder &#x3D; builder.addSchemaURI(uriBuilder.build());
+
+            const builtSchemaUri &#x3D; uriBuilder.build() as Record&lt;
+                string,
+                unknown
+            &gt;;
+
+            builder &#x3D; builder.addSchemaURI(builtSchemaUri as any);
         }
-        for (const ta of config.trustedAuthorities ?? []) {
-            const taObj &#x3D; trustAuthorityBuilder()
-                .frameworkType(ta.frameworkType as any)
-                .value(ta.value)
-                .build();
-            builder &#x3D; builder.addTrustAuthority(taObj);
+        for (const taObj of trustedAuthorities) {
+            builder &#x3D; builder.addTrustAuthority(taObj as any);
         }
 
         const result &#x3D; builder.build();
+
+        if (trustedAuthorities.length &gt; 0) {
+            (result as Record&lt;string, unknown&gt;)[&quot;trustedAuthorities&quot;] &#x3D;
+                trustedAuthorities;
+        }
 
         const validation &#x3D; validateSchemaMeta(result);
         if (!validation.valid) {
@@ -1028,34 +1253,6 @@ export class SchemaMetaAdapterService {
         this.logger.info({ tenantId }, &quot;Signing raw SchemaMetaConfig&quot;);
 
         return this.signWithKeyChain(tenantId, result, keyChainId);
-    }
-
-    /**
-     * Generates a signed SchemaMeta JWT (JWS) for the given credential config.
-     *
-     * The signing key is resolved from the credential&#x27;s keyChainId or the tenant&#x27;s
-     * default key chain. The certificate chain from the key chain is included in the
-     * JWS x5c header.
-     *
-     * @experimental Signing requires a certificate chain; ensure the key chain
-     *   has a certificate configured before calling this method.
-     */
-    async generateSignedSchemaMeta(
-        tenantId: string,
-        credentialConfig: CredentialConfig,
-    ): Promise&lt;SignedSchemaMeta&gt; {
-        const schemaMetaObj &#x3D; await this.generateSchemaMeta(credentialConfig);
-
-        const keyChainId &#x3D;
-            credentialConfig.keyChainId ??
-            (await this.keyChainService.getKid(tenantId));
-
-        this.logger.info(
-            { tenantId, credentialId: credentialConfig.id },
-            &quot;Signing SchemaMeta&quot;,
-        );
-
-        return this.signWithKeyChain(tenantId, schemaMetaObj, keyChainId);
     }
 }
 </code></pre>

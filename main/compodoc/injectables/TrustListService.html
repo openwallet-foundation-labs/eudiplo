@@ -592,8 +592,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="396"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:396</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="411"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:411</a></div>
                         </td>
                     </tr>
 
@@ -687,8 +687,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="426"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:426</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="441"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:441</a></div>
                         </td>
                     </tr>
 
@@ -782,8 +782,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="411"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:411</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="426"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:426</a></div>
                         </td>
                     </tr>
 
@@ -875,8 +875,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="480"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:480</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="495"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:495</a></div>
                         </td>
                     </tr>
 
@@ -1207,8 +1207,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="521"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:521</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="536"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:536</a></div>
                         </td>
                     </tr>
 
@@ -1277,8 +1277,8 @@ Uses the first certificate (leaf) from the chain.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="530"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:530</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="545"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:545</a></div>
                         </td>
                     </tr>
 
@@ -1348,8 +1348,8 @@ Uses the first certificate (leaf) from the chain.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="370"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:370</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="385"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:385</a></div>
                         </td>
                     </tr>
 
@@ -1423,8 +1423,8 @@ Uses the first certificate (leaf) from the chain.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="356"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:356</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="371"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:371</a></div>
                         </td>
                     </tr>
 
@@ -1834,8 +1834,8 @@ Uses the first certificate (leaf) from the chain.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="320"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:320</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="335"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:335</a></div>
                         </td>
                     </tr>
 
@@ -2001,8 +2001,8 @@ Increments the sequence number and stores a version for audit</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="337"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:337</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="352"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.service.ts:352</a></div>
                         </td>
                     </tr>
 
@@ -2399,6 +2399,21 @@ export class TrustListService {
                         tenant.id,
                         entity.revocationKeyChainId,
                     );
+                try {
+                    const leaf &#x3D; new X509Certificate(issuerCert.crt[0]);
+                    // X509Certificate.fingerprint returns SHA-1 by default; compute SHA-256 for parity with verifier logs.
+                    const der &#x3D; leaf.raw;
+                    const _thumb &#x3D; Array.from(
+                        new Uint8Array(
+                            await crypto.subtle.digest(&quot;SHA-256&quot;, der),
+                        ),
+                    )
+                        .map((b) &#x3D;&gt; b.toString(16).padStart(2, &quot;0&quot;))
+                        .join(&quot;:&quot;)
+                        .toUpperCase();
+                } catch {
+                    // ignore diagnostic failures
+                }
                 entries.push(
                     this.createEntityFromCert(
                         issuerCert,

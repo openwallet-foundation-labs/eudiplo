@@ -333,8 +333,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="149"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.controller.ts:149</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="148"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.controller.ts:148</a></div>
                         </td>
                     </tr>
 
@@ -423,8 +423,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="75"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.controller.ts:75</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="74"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.controller.ts:74</a></div>
                         </td>
                     </tr>
 
@@ -513,8 +513,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="51"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.controller.ts:51</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="50"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.controller.ts:50</a></div>
                         </td>
                     </tr>
 
@@ -591,8 +591,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="62"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.controller.ts:62</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="61"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.controller.ts:61</a></div>
                         </td>
                     </tr>
 
@@ -681,8 +681,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="109"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.controller.ts:109</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="108"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.controller.ts:108</a></div>
                         </td>
                     </tr>
 
@@ -783,8 +783,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="90"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.controller.ts:90</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="89"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.controller.ts:89</a></div>
                         </td>
                     </tr>
 
@@ -873,8 +873,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="130"
-                                    class="link-to-prism">src/issuer/trust-list/trustlist.controller.ts:130</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="129"
+                                    class="link-to-prism">src/issuer/trust-list/trustlist.controller.ts:129</a></div>
                         </td>
                     </tr>
 
@@ -987,7 +987,6 @@ export class TrustListController {
         @Body() body: TrustListCreateDto,
         @Token() token: TokenPayload,
     ) {
-        console.log(body);
         return this.trustListService
             .create(body, token.entity!)
             .catch((err) &#x3D;&gt; {

@@ -228,7 +228,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="199" class="link-to-prism">src/issuer/configuration/credentials/dto/schema-meta-config.dto.ts:199</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="245" class="link-to-prism">src/issuer/configuration/credentials/dto/schema-meta-config.dto.ts:245</a></div>
                         </td>
                     </tr>
 
@@ -267,7 +267,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="207" class="link-to-prism">src/issuer/configuration/credentials/dto/schema-meta-config.dto.ts:207</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="253" class="link-to-prism">src/issuer/configuration/credentials/dto/schema-meta-config.dto.ts:253</a></div>
                         </td>
                     </tr>
 
@@ -287,11 +287,13 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty, ApiPropertyOptional } from &quot;@nestjs/swagger&quot;;
+import { SchemaURIMeta } from &quot;@owf/eudi-attestation-schema&quot;;
 import { Type } from &quot;class-transformer&quot;;
 import {
     IsArray,
     IsBoolean,
     IsEnum,
+    IsObject,
     IsOptional,
     IsString,
     ValidateNested,
@@ -332,17 +334,38 @@ export enum SchemaMetaFrameworkType {
 export class SchemaUriEntry {
     @ApiPropertyOptional({
         description:
+            &quot;Credential config ID to resolve and upload its schema content. &quot; +
+            &quot;When set, uri can be omitted and is resolved server-side.&quot;,
+        example: &quot;pid_de_credential_config&quot;,
+    })
+    @IsOptional()
+    @IsString()
+    credentialConfigId?: string;
+
+    @ApiPropertyOptional({
+        description:
             &quot;Attestation format this schema URI applies to (e.g. dc+sd-jwt, mso_mdoc)&quot;,
         example: &quot;dc+sd-jwt&quot;,
     })
+    @IsOptional()
     @IsString()
-    format!: string;
+    format?: string;
 
     @ApiPropertyOptional({
         description: &quot;URI pointing to the schema document for this format&quot;,
     })
+    @IsOptional()
     @IsString()
-    uri!: string;
+    uri?: string;
+
+    @ApiProperty({
+        description:
+            &quot;Schema-format specific metadata (for example { vct: &#x27;urn:example:vct&#x27; } for dc+sd-jwt).&quot;,
+        type: &quot;object&quot;,
+        additionalProperties: true,
+    })
+    @IsObject()
+    metadata!: SchemaURIMeta;
 }
 
 /**
@@ -350,17 +373,29 @@ export class SchemaUriEntry {
  */
 export class TrustAuthorityEntry {
     @ApiPropertyOptional({
-        enum: SchemaMetaFrameworkType,
-        description: &quot;Trust framework type&quot;,
+        description:
+            &quot;Trust list ID to resolve from the database. &quot; +
+            &quot;When set, frameworkType, value, and verificationMethod are derived automatically.&quot;,
     })
-    @IsEnum(SchemaMetaFrameworkType)
-    frameworkType!: SchemaMetaFrameworkType;
+    @IsOptional()
+    @IsString()
+    trustListId?: string;
 
     @ApiPropertyOptional({
-        description: &quot;URI of the trust list or trust anchor&quot;,
+        enum: SchemaMetaFrameworkType,
+        description: &quot;Trust framework type (ignored when trustListId is set)&quot;,
     })
+    @IsOptional()
+    @IsEnum(SchemaMetaFrameworkType)
+    frameworkType?: SchemaMetaFrameworkType;
+
+    @ApiPropertyOptional({
+        description:
+            &quot;URI of the trust list or trust anchor (ignored when trustListId is set)&quot;,
+    })
+    @IsOptional()
     @IsString()
-    value!: string;
+    value?: string;
 
     @ApiPropertyOptional({
         description:
@@ -369,6 +404,17 @@ export class TrustAuthorityEntry {
     @IsOptional()
     @IsBoolean()
     isLoTE?: boolean;
+
+    @ApiPropertyOptional({
+        description:
+            &quot;Optional verification material for external trusted authorities (for example a JWK). &quot; +
+            &quot;For internal trust-list URLs, EUDIPLO resolves verification material from the database.&quot;,
+        type: &quot;object&quot;,
+        additionalProperties: true,
+    })
+    @IsOptional()
+    @IsObject()
+    verificationMethod?: Record&lt;string, unknown&gt;;
 }
 
 /**

@@ -429,6 +429,23 @@ export class MdocIssuerService {
             return new Uint8Array(x509Cert.rawData);
         });
 
+        // Diagnostic: log the leaf cert that will be embedded in the mDOC.
+        try {
+            const leaf &#x3D; new X509Certificate(certificate.crt[0]);
+            const thumb &#x3D; Buffer.from(
+                await crypto.subtle.digest(&quot;SHA-256&quot;, leaf.rawData),
+            )
+                .toString(&quot;hex&quot;)
+                .toUpperCase()
+                .replace(/(.{2})/g, &quot;$1:&quot;)
+                .slice(0, -1);
+            this.logger.log(
+                &#x60;mDOC issuance: tenant&#x3D;${session.tenantId} keyChainId&#x3D;${certificate.keyId} leaf.subject&#x3D;&quot;${leaf.subject}&quot; thumbprint&#x3D;${thumb}&#x60;,
+            );
+        } catch {
+            // ignore diagnostic failures
+        }
+
         // Ensure the private key used for signing matches the embedded leaf certificate.
         await this.assertSigningKeyMatchesLeafCertificate(
             privateKey as Jwk,

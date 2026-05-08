@@ -291,8 +291,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="137"
-                                    class="link-to-prism">src/issuer/configuration/credentials/issuer/mdoc-issuer/mdoc-issuer.service.ts:137</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="154"
+                                    class="link-to-prism">src/issuer/configuration/credentials/issuer/mdoc-issuer/mdoc-issuer.service.ts:154</a></div>
                         </td>
                     </tr>
 
@@ -372,8 +372,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="183"
-                                    class="link-to-prism">src/issuer/configuration/credentials/issuer/mdoc-issuer/mdoc-issuer.service.ts:183</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="200"
+                                    class="link-to-prism">src/issuer/configuration/credentials/issuer/mdoc-issuer/mdoc-issuer.service.ts:200</a></div>
                         </td>
                     </tr>
 
@@ -642,6 +642,23 @@ export class MdocIssuerService {
             const x509Cert &#x3D; new X509Certificate(certPem);
             return new Uint8Array(x509Cert.rawData);
         });
+
+        // Diagnostic: log the leaf cert that will be embedded in the mDOC.
+        try {
+            const leaf &#x3D; new X509Certificate(certificate.crt[0]);
+            const thumb &#x3D; Buffer.from(
+                await crypto.subtle.digest(&quot;SHA-256&quot;, leaf.rawData),
+            )
+                .toString(&quot;hex&quot;)
+                .toUpperCase()
+                .replace(/(.{2})/g, &quot;$1:&quot;)
+                .slice(0, -1);
+            this.logger.log(
+                &#x60;mDOC issuance: tenant&#x3D;${session.tenantId} keyChainId&#x3D;${certificate.keyId} leaf.subject&#x3D;&quot;${leaf.subject}&quot; thumbprint&#x3D;${thumb}&#x60;,
+            );
+        } catch {
+            // ignore diagnostic failures
+        }
 
         // Ensure the private key used for signing matches the embedded leaf certificate.
         await this.assertSigningKeyMatchesLeafCertificate(

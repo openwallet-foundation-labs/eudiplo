@@ -155,6 +155,7 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier">Private</span>
+                                    <span class="modifier">Readonly</span>
                                 <a href="#cache" >cache</a>
                             </li>
                             <li>
@@ -174,6 +175,10 @@
                 <tr>
                     <td class="col-md-4">
                         <ul class="index-list">
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#buildCacheKey" >buildCacheKey</a>
+                            </li>
                             <li>
                                 <a href="#clearCache" >clearCache</a>
                             </li>
@@ -263,6 +268,75 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="buildCacheKey"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>buildCacheKey</b></span>
+                        <a href="#buildCacheKey"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>buildCacheKey(source: <a href="../miscellaneous/typealiases.html#TrustListSource" target="_self">TrustListSource</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="100"
+                                    class="link-to-prism">src/shared/trust/trust-store.service.ts:100</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>source</td>
+                                            <td>
+                                                            <code><a href="../miscellaneous/typealiases.html#TrustListSource" target="_self" >TrustListSource</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="clearCache"></a>
                     <span class="name">
                         <span ><b>clearCache</b></span>
@@ -279,8 +353,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="92"
-                                    class="link-to-prism">src/shared/trust/trust-store.service.ts:92</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="96"
+                                    class="link-to-prism">src/shared/trust/trust-store.service.ts:96</a></div>
                         </td>
                     </tr>
 
@@ -399,6 +473,7 @@ Useful for testing or when trust lists are known to have changed.</p>
                     <a name="cache"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
+                            <span class="modifier">Readonly</span>
                         <span ><b>cache</b></span>
                         <a href="#cache"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -406,13 +481,13 @@ Useful for testing or when trust lists are known to have changed.</p>
             </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="../miscellaneous/typealiases.html#BuiltTrustStore" target="_self" >BuiltTrustStore | null</a></code>
+                        <i>Type : </i>    <code>unknown</code>
 
                     </td>
                 </tr>
                 <tr>
                     <td class="col-md-4">
-                        <i>Default value : </i><code>null</code>
+                        <i>Default value : </i><code>new Map&lt;string, BuiltTrustStore&gt;()</code>
                     </td>
                 </tr>
                     <tr>
@@ -483,7 +558,7 @@ export type BuiltTrustStore &#x3D; {
 @Injectable()
 export class TrustStoreService {
     private readonly logger &#x3D; new Logger(TrustStoreService.name);
-    private cache: BuiltTrustStore | null &#x3D; null;
+    private readonly cache &#x3D; new Map&lt;string, BuiltTrustStore&gt;();
 
     constructor(
         private readonly trustListJwt: TrustListJwtService,
@@ -494,8 +569,12 @@ export class TrustStoreService {
         source: TrustListSource,
         cacheTtlMs &#x3D; 5 * 60 * 1000,
     ): Promise&lt;BuiltTrustStore&gt; {
-        if (this.cache &amp;&amp; Date.now() - this.cache.fetchedAt &lt; cacheTtlMs)
-            return this.cache;
+        const cacheKey &#x3D; this.buildCacheKey(source);
+        const cached &#x3D; this.cache.get(cacheKey);
+
+        if (cached &amp;&amp; Date.now() - cached.fetchedAt &lt; cacheTtlMs) {
+            return cached;
+        }
 
         const entities: TrustedEntity[] &#x3D; [];
         let nextUpdate: string | undefined;
@@ -542,7 +621,7 @@ export class TrustStoreService {
             nextUpdate,
             entities,
         };
-        this.cache &#x3D; store;
+        this.cache.set(cacheKey, store);
 
         this.logger.debug(
             &#x60;Built trust store with ${entities.length} trusted entit${entities.length &#x3D;&#x3D;&#x3D; 1 ? &quot;y&quot; : &quot;ies&quot;}&#x60;,
@@ -555,7 +634,17 @@ export class TrustStoreService {
      * Useful for testing or when trust lists are known to have changed.
      */
     clearCache(): void {
-        this.cache &#x3D; null;
+        this.cache.clear();
+    }
+
+    private buildCacheKey(source: TrustListSource): string {
+        return JSON.stringify({
+            lotes: source.lotes.map((ref) &#x3D;&gt; ({
+                url: ref.url,
+                verifierKey: ref.verifierKey ?? null,
+            })),
+            acceptedServiceTypes: source.acceptedServiceTypes ?? [],
+        });
     }
 }
 </code></pre>

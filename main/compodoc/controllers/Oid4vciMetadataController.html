@@ -160,14 +160,6 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                    <span class="modifier"></span>
-                                <a href="#schema" >schema</a>
-                            </li>
-                            <li>
-                                    <span class="modifier"></span>
                                 <a href="#vct" >vct</a>
                             </li>
                         </ul>
@@ -187,133 +179,6 @@
     <h3 id="methods">
         Methods
     </h3>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="schema"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                            <span class="modifier"></span>
-                        <span ><b>schema</b></span>
-                        <a href="#schema"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                        <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>schema(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, format: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
-                </td>
-            </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <b>Decorators : </b>
-                    <br />
-                    <code>@Get(&#x27;schema/:id/:format&#x27;)<br />@Header(&#x27;Content-Type&#x27;, &#x27;application/schema+json&#x27;)<br />@ApiOperation({summary: &#x27;Get the inline JSON Schema of a credential configuration&#x27;})<br />@ApiResponse({status: 200, description: &#x27;JSON Schema document&#x27;})<br />@ApiResponse({status: 409, description: &#x27;Credential not found, format mismatch, or no inline schema configured&#x27;})<br /></code>
-                </td>
-            </tr>
-
-                    <tr>
-                        <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="39"
-                                    class="link-to-prism">src/issuer/issuance/oid4vci/metadata/oid4vci-metadata.controller.ts:39</a></div>
-                        </td>
-                    </tr>
-
-
-            <tr>
-                <td class="col-md-4">
-                        <div class="io-description"><p>Retrieves the inline JSON Schema for a credential configuration.
-Used to reference the credential&#39;s schema by URL (e.g. from a TS11 SchemaMeta document).</p>
-<b>Example :</b><div><pre class="line-numbers"><code class="language-none">            (one of `dc+sd-jwt`, `mso_mdoc`).</code></pre></div></div>
-
-                            <div class="io-description">
-                                <b>Parameters :</b>
-                                
-                                <table class="params">
-                                    <thead>
-                                        <tr>
-                                            <td>Name</td>
-                                                <td>Type</td>
-                                            <td>Optional</td>
-                                                <td>Description</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                                <td>id</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The identifier of the credential configuration.</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>tenantId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The tenant identifier.</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td>format</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                            <td>
-                                                    <ul>
-<li>The credential format. Must match the credential&#39;s configured format
-(one of <code>dc+sd-jwt</code>, <code>mso_mdoc</code>).</li>
-</ul>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
-
-                        </div>
-                            <div class="io-description">
-                                
-                            </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
     <table class="table table-sm table-bordered">
         <tbody>
             <tr>
@@ -417,8 +282,8 @@ Used to reference the credential&#39;s schema by URL (e.g. from a TS11 SchemaMet
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Header, Param } from &quot;@nestjs/common&quot;;
-import { ApiOperation, ApiResponse, ApiTags } from &quot;@nestjs/swagger&quot;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Controller, Get, Param } from &quot;@nestjs/common&quot;;
+import { ApiTags } from &quot;@nestjs/swagger&quot;;
 import { CredentialsService } from &quot;../../../configuration/credentials/credentials.service&quot;;
 
 @ApiTags(&quot;OID4VCI&quot;)
@@ -433,34 +298,6 @@ export class Oid4vciMetadataController {
     @Get(&quot;vct/:id&quot;)
     vct(@Param(&quot;id&quot;) id: string, @Param(&quot;tenantId&quot;) tenantId: string) {
         return this.credentialsService.getVCT(id, tenantId);
-    }
-
-    /**
-     * Retrieves the inline JSON Schema for a credential configuration.
-     * Used to reference the credential&#x27;s schema by URL (e.g. from a TS11 SchemaMeta document).
-     *
-     * @param id - The identifier of the credential configuration.
-     * @param tenantId - The tenant identifier.
-     * @param format - The credential format. Must match the credential&#x27;s configured format
-     *                 (one of &#x60;dc+sd-jwt&#x60;, &#x60;mso_mdoc&#x60;).
-     */
-    @Get(&quot;schema/:id/:format&quot;)
-    @Header(&quot;Content-Type&quot;, &quot;application/schema+json&quot;)
-    @ApiOperation({
-        summary: &quot;Get the inline JSON Schema of a credential configuration&quot;,
-    })
-    @ApiResponse({ status: 200, description: &quot;JSON Schema document&quot; })
-    @ApiResponse({
-        status: 409,
-        description:
-            &quot;Credential not found, format mismatch, or no inline schema configured&quot;,
-    })
-    schema(
-        @Param(&quot;id&quot;) id: string,
-        @Param(&quot;tenantId&quot;) tenantId: string,
-        @Param(&quot;format&quot;) format: string,
-    ) {
-        return this.credentialsService.getSchema(id, tenantId, format);
     }
 }
 </code></pre>

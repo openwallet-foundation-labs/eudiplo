@@ -226,7 +226,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="185" class="link-to-prism">src/registrar/dto/schema-metadata.dto.ts:185</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="252" class="link-to-prism">src/registrar/dto/schema-metadata.dto.ts:252</a></div>
                         </td>
                     </tr>
 
@@ -262,7 +262,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="191" class="link-to-prism">src/registrar/dto/schema-metadata.dto.ts:191</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="258" class="link-to-prism">src/registrar/dto/schema-metadata.dto.ts:258</a></div>
                         </td>
                     </tr>
 
@@ -298,7 +298,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="179" class="link-to-prism">src/registrar/dto/schema-metadata.dto.ts:179</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="246" class="link-to-prism">src/registrar/dto/schema-metadata.dto.ts:246</a></div>
                         </td>
                     </tr>
 
@@ -334,7 +334,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="182" class="link-to-prism">src/registrar/dto/schema-metadata.dto.ts:182</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="249" class="link-to-prism">src/registrar/dto/schema-metadata.dto.ts:249</a></div>
                         </td>
                     </tr>
 
@@ -370,7 +370,7 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="188" class="link-to-prism">src/registrar/dto/schema-metadata.dto.ts:188</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="255" class="link-to-prism">src/registrar/dto/schema-metadata.dto.ts:255</a></div>
                         </td>
                     </tr>
 
@@ -423,6 +423,23 @@ const CATEGORY_VALUES &#x3D; [
     &quot;other&quot;,
 ] as const;
 export type SchemaMetadataCategory &#x3D; (typeof CATEGORY_VALUES)[number];
+
+const TAG_VALUES &#x3D; [
+    &quot;pid&quot;,
+    &quot;eudi&quot;,
+    &quot;kyc&quot;,
+    &quot;aml&quot;,
+    &quot;age-verification&quot;,
+    &quot;residency&quot;,
+    &quot;membership&quot;,
+    &quot;education&quot;,
+    &quot;employment&quot;,
+    &quot;mobility&quot;,
+] as const;
+export type SchemaMetadataTag &#x3D; (typeof TAG_VALUES)[number];
+
+const VOCABULARY_STATUS_VALUES &#x3D; [&quot;active&quot;, &quot;deprecated&quot;] as const;
+export type VocabularyStatus &#x3D; (typeof VOCABULARY_STATUS_VALUES)[number];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Request bodies
@@ -500,13 +517,63 @@ export class UpdateSchemaMetadataDto {
     category?: SchemaMetadataCategory;
 
     @ApiPropertyOptional({
-        description: &quot;Free-form tags for filtering and search&quot;,
+        description: &quot;Predefined tags for filtering and search&quot;,
         type: [String],
+        enum: TAG_VALUES,
     })
     @IsOptional()
     @IsArray()
-    @IsString({ each: true })
-    tags?: string[];
+    @IsEnum(TAG_VALUES, { each: true })
+    tags?: SchemaMetadataTag[];
+}
+
+export class VocabularyEntryDto {
+    @ApiProperty({
+        description:
+            &quot;Stable machine-readable value to submit in schema metadata category/tags fields.&quot;,
+    })
+    code!: string;
+
+    @ApiProperty({
+        description: &quot;Display label for UI rendering.&quot;,
+    })
+    label!: string;
+
+    @ApiProperty({
+        description: &quot;Vocabulary lifecycle status.&quot;,
+        enum: VOCABULARY_STATUS_VALUES,
+    })
+    status!: VocabularyStatus;
+
+    @ApiPropertyOptional({
+        description: &quot;Replacement code when status is deprecated.&quot;,
+    })
+    replacedBy?: string;
+}
+
+export class SchemaMetadataVocabulariesDto {
+    @ApiProperty({
+        description: &quot;Vocabulary publication version for cache invalidation.&quot;,
+    })
+    version!: string;
+
+    @ApiProperty({
+        description:
+            &quot;Allowed category values that can be used when updating schema metadata category.&quot;,
+        type: [VocabularyEntryDto],
+    })
+    @ValidateNested({ each: true })
+    @Type(() &#x3D;&gt; VocabularyEntryDto)
+    categories!: VocabularyEntryDto[];
+
+    @ApiProperty({
+        description:
+            &quot;Allowed tag values that can be used when updating schema metadata tags.&quot;,
+        type: [VocabularyEntryDto],
+    })
+    @ValidateNested({ each: true })
+    @Type(() &#x3D;&gt; VocabularyEntryDto)
+    tags!: VocabularyEntryDto[];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

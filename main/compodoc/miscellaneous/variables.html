@@ -179,6 +179,9 @@
                             <a href="#DB_VALIDATION_SCHEMA" title="src/database/database-validation.schema.ts" ><b>DB_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../database-validation.schema.ts)</a>
                         </li>
                         <li>
+                            <a href="#dbSsl" title="src/database/data-source.ts" ><b>dbSsl</b>&nbsp;&nbsp;&nbsp;(src/.../data-source.ts)</a>
+                        </li>
+                        <li>
                             <a href="#dbType" title="src/database/data-source.ts" ><b>dbType</b>&nbsp;&nbsp;&nbsp;(src/.../data-source.ts)</a>
                         </li>
                         <li>
@@ -266,6 +269,9 @@
                             <a href="#STORAGE_VALIDATION_SCHEMA" title="src/storage/storage-validation.schema.ts" ><b>STORAGE_VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../storage-validation.schema.ts)</a>
                         </li>
                         <li>
+                            <a href="#TAG_VALUES" title="src/registrar/dto/schema-metadata.dto.ts" ><b>TAG_VALUES</b>&nbsp;&nbsp;&nbsp;(src/.../schema-metadata.dto.ts)</a>
+                        </li>
+                        <li>
                             <a href="#toBuffer" title="src/shared/utils/buffer.util.ts" ><b>toBuffer</b>&nbsp;&nbsp;&nbsp;(src/.../buffer.util.ts)</a>
                         </li>
                         <li>
@@ -276,6 +282,9 @@
                         </li>
                         <li>
                             <a href="#VALIDATION_SCHEMA" title="src/shared/utils/config-printer/combined.schema.ts" ><b>VALIDATION_SCHEMA</b>&nbsp;&nbsp;&nbsp;(src/.../combined.schema.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#VOCABULARY_STATUS_VALUES" title="src/registrar/dto/schema-metadata.dto.ts" ><b>VOCABULARY_STATUS_VALUES</b>&nbsp;&nbsp;&nbsp;(src/.../schema-metadata.dto.ts)</a>
                         </li>
                         <li>
                             <a href="#webCrypto" title="src/verifier/presentations/mdoc-context.ts" ><b>webCrypto</b>&nbsp;&nbsp;&nbsp;(src/.../mdoc-context.ts)</a>
@@ -407,6 +416,32 @@
                     <td class="col-md-4">
                         <i>Type : </i>    <code>DataSourceOptions</code>
 
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="dbSsl"></a>
+                    <span class="name">
+                        <span ><b>dbSsl</b></span>
+                        <a href="#dbSsl"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>process.env.DB_SSL &#x3D;&#x3D;&#x3D; &quot;true&quot;</code>
                     </td>
                 </tr>
 
@@ -553,6 +588,69 @@
                 <tr>
                     <td class="col-md-4">
                         <i>Default value : </i><code>[&quot;dc+sd-jwt&quot;, &quot;mso_mdoc&quot;] as const</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="TAG_VALUES"></a>
+                    <span class="name">
+                        <span ><b>TAG_VALUES</b></span>
+                        <a href="#TAG_VALUES"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[
+    &quot;pid&quot;,
+    &quot;eudi&quot;,
+    &quot;kyc&quot;,
+    &quot;aml&quot;,
+    &quot;age-verification&quot;,
+    &quot;residency&quot;,
+    &quot;membership&quot;,
+    &quot;education&quot;,
+    &quot;employment&quot;,
+    &quot;mobility&quot;,
+] as const</code>
+                    </td>
+                </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="VOCABULARY_STATUS_VALUES"></a>
+                    <span class="name">
+                        <span ><b>VOCABULARY_STATUS_VALUES</b></span>
+                        <a href="#VOCABULARY_STATUS_VALUES"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>unknown</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[&quot;active&quot;, &quot;deprecated&quot;] as const</code>
                     </td>
                 </tr>
 
@@ -1149,6 +1247,10 @@ This decorator can be used to determine the media type of the request.</p>
         })
         .description(&quot;Database name&quot;)
         .meta({ group: &quot;database&quot;, order: 50 }),
+    DB_SSL: Joi.boolean()
+        .default(false)
+        .description(&quot;Enable SSL/TLS for PostgreSQL database connections&quot;)
+        .meta({ group: &quot;database&quot;, order: 55 }),
     DB_SYNCHRONIZE: Joi.boolean()
         .default(true)
         .description(

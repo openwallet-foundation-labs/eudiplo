@@ -168,6 +168,8 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
                                 <a href="#frameworkType" >frameworkType</a>
                             </li>
                             <li>
@@ -180,7 +182,23 @@
                             <li>
                                     <span class="modifier"></span>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#trustListId" >trustListId</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
                                 <a href="#value" >value</a>
+                            </li>
+                            <li>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier"></span>
+                                    <span class="modifier">Optional</span>
+                                <a href="#verificationMethod" >verificationMethod</a>
                             </li>
                         </ul>
                     </td>
@@ -209,6 +227,8 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
                         <span ><b>frameworkType</b></span>
                         <a href="#frameworkType"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -225,13 +245,13 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiPropertyOptional({enum: SchemaMetaFrameworkType, description: &#x27;Trust framework type&#x27;})<br />@IsEnum(SchemaMetaFrameworkType)<br />
+                            @ApiPropertyOptional({enum: SchemaMetaFrameworkType, description: &#x27;Trust framework type (ignored when trustListId is set)&#x27;})<br />@IsOptional()<br />@IsEnum(SchemaMetaFrameworkType)<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="69" class="link-to-prism">src/issuer/configuration/credentials/dto/schema-meta-config.dto.ts:69</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="102" class="link-to-prism">src/issuer/configuration/credentials/dto/schema-meta-config.dto.ts:102</a></div>
                         </td>
                     </tr>
 
@@ -270,7 +290,46 @@
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="83" class="link-to-prism">src/issuer/configuration/credentials/dto/schema-meta-config.dto.ts:83</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="118" class="link-to-prism">src/issuer/configuration/credentials/dto/schema-meta-config.dto.ts:118</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="trustListId"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>trustListId</b></span>
+                        <a href="#trustListId"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @ApiPropertyOptional({description: undefined})<br />@IsOptional()<br />@IsString()<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="94" class="link-to-prism">src/issuer/configuration/credentials/dto/schema-meta-config.dto.ts:94</a></div>
                         </td>
                     </tr>
 
@@ -285,6 +344,8 @@
                     <span class="name">
                             <span class="modifier"></span>
                             <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
                         <span ><b>value</b></span>
                         <a href="#value"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -301,13 +362,52 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @ApiPropertyOptional({description: &#x27;URI of the trust list or trust anchor&#x27;})<br />@IsString()<br />
+                            @ApiPropertyOptional({description: &#x27;URI of the trust list or trust anchor (ignored when trustListId is set)&#x27;})<br />@IsOptional()<br />@IsString()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="75" class="link-to-prism">src/issuer/configuration/credentials/dto/schema-meta-config.dto.ts:75</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="110" class="link-to-prism">src/issuer/configuration/credentials/dto/schema-meta-config.dto.ts:110</a></div>
+                        </td>
+                    </tr>
+
+
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="verificationMethod"></a>
+                    <span class="name">
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier"></span>
+                            <span class="modifier">Optional</span>
+                        <span ><b>verificationMethod</b></span>
+                        <a href="#verificationMethod"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>Record&lt;string | unknown&gt;</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <b>Decorators : </b>
+                        <br />
+                        <code>
+                            @ApiPropertyOptional({description: undefined, type: &#x27;object&#x27;, additionalProperties: true})<br />@IsOptional()<br />@IsObject()<br />
+                        </code>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                                <div class="io-line">Defined in <a href="" data-line="129" class="link-to-prism">src/issuer/configuration/credentials/dto/schema-meta-config.dto.ts:129</a></div>
                         </td>
                     </tr>
 
@@ -327,11 +427,13 @@
 
     <div class="tab-pane fade  tab-source-code" id="source">
         <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { ApiProperty, ApiPropertyOptional } from &quot;@nestjs/swagger&quot;;
+import { SchemaURIMeta } from &quot;@owf/eudi-attestation-schema&quot;;
 import { Type } from &quot;class-transformer&quot;;
 import {
     IsArray,
     IsBoolean,
     IsEnum,
+    IsObject,
     IsOptional,
     IsString,
     ValidateNested,
@@ -372,17 +474,38 @@ export enum SchemaMetaFrameworkType {
 export class SchemaUriEntry {
     @ApiPropertyOptional({
         description:
+            &quot;Credential config ID to resolve and upload its schema content. &quot; +
+            &quot;When set, uri can be omitted and is resolved server-side.&quot;,
+        example: &quot;pid_de_credential_config&quot;,
+    })
+    @IsOptional()
+    @IsString()
+    credentialConfigId?: string;
+
+    @ApiPropertyOptional({
+        description:
             &quot;Attestation format this schema URI applies to (e.g. dc+sd-jwt, mso_mdoc)&quot;,
         example: &quot;dc+sd-jwt&quot;,
     })
+    @IsOptional()
     @IsString()
-    format!: string;
+    format?: string;
 
     @ApiPropertyOptional({
         description: &quot;URI pointing to the schema document for this format&quot;,
     })
+    @IsOptional()
     @IsString()
-    uri!: string;
+    uri?: string;
+
+    @ApiProperty({
+        description:
+            &quot;Schema-format specific metadata (for example { vct: &#x27;urn:example:vct&#x27; } for dc+sd-jwt).&quot;,
+        type: &quot;object&quot;,
+        additionalProperties: true,
+    })
+    @IsObject()
+    metadata!: SchemaURIMeta;
 }
 
 /**
@@ -390,17 +513,29 @@ export class SchemaUriEntry {
  */
 export class TrustAuthorityEntry {
     @ApiPropertyOptional({
-        enum: SchemaMetaFrameworkType,
-        description: &quot;Trust framework type&quot;,
+        description:
+            &quot;Trust list ID to resolve from the database. &quot; +
+            &quot;When set, frameworkType, value, and verificationMethod are derived automatically.&quot;,
     })
-    @IsEnum(SchemaMetaFrameworkType)
-    frameworkType!: SchemaMetaFrameworkType;
+    @IsOptional()
+    @IsString()
+    trustListId?: string;
 
     @ApiPropertyOptional({
-        description: &quot;URI of the trust list or trust anchor&quot;,
+        enum: SchemaMetaFrameworkType,
+        description: &quot;Trust framework type (ignored when trustListId is set)&quot;,
     })
+    @IsOptional()
+    @IsEnum(SchemaMetaFrameworkType)
+    frameworkType?: SchemaMetaFrameworkType;
+
+    @ApiPropertyOptional({
+        description:
+            &quot;URI of the trust list or trust anchor (ignored when trustListId is set)&quot;,
+    })
+    @IsOptional()
     @IsString()
-    value!: string;
+    value?: string;
 
     @ApiPropertyOptional({
         description:
@@ -409,6 +544,17 @@ export class TrustAuthorityEntry {
     @IsOptional()
     @IsBoolean()
     isLoTE?: boolean;
+
+    @ApiPropertyOptional({
+        description:
+            &quot;Optional verification material for external trusted authorities (for example a JWK). &quot; +
+            &quot;For internal trust-list URLs, EUDIPLO resolves verification material from the database.&quot;,
+        type: &quot;object&quot;,
+        additionalProperties: true,
+    })
+    @IsOptional()
+    @IsObject()
+    verificationMethod?: Record&lt;string, unknown&gt;;
 }
 
 /**
