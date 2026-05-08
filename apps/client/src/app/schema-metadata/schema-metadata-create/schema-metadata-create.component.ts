@@ -228,7 +228,7 @@ export class SchemaMetadataCreateComponent implements OnInit {
       if (!config) continue;
 
       const format = config.config?.format ?? '';
-      const uri = typeof config.vct === 'string' ? config.vct : config.config?.docType ?? '';
+      const uri = typeof config.vct === 'string' ? config.vct : (config.config?.docType ?? '');
       this.schemaURIs.push(this.createSchemaURIGroup(format, uri, true, id));
     }
   }
@@ -341,10 +341,7 @@ export class SchemaMetadataCreateComponent implements OnInit {
         const verificationMethodRaw = e['verificationMethod'];
         let verificationMethod: Record<string, unknown> | undefined;
 
-        if (
-          typeof verificationMethodRaw === 'string' &&
-          verificationMethodRaw.trim().length > 0
-        ) {
+        if (typeof verificationMethodRaw === 'string' && verificationMethodRaw.trim().length > 0) {
           try {
             const parsed = JSON.parse(verificationMethodRaw);
             if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
