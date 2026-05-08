@@ -34,7 +34,6 @@ export class TrustListController {
         @Body() body: TrustListCreateDto,
         @Token() token: TokenPayload,
     ) {
-        console.log(body);
         return this.trustListService
             .create(body, token.entity!)
             .catch((err) => {

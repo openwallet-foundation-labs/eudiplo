@@ -4,6 +4,11 @@
   "title": "SchemaUriEntry",
   "type": "object",
   "properties": {
+    "credentialConfigId": {
+      "type": "string",
+      "description": "Credential config ID to resolve and upload its schema content. When set, uri can be omitted and is resolved server-side.",
+      "example": "pid_de_credential_config"
+    },
     "format": {
       "type": "string",
       "description": "Attestation format this schema URI applies to (e.g. dc+sd-jwt, mso_mdoc)",
@@ -11,8 +16,7 @@
     },
     "uri": {
       "type": "string",
-      "description": "URI pointing to the schema document for this format",
-      "example": "https://example.com/schemas/my-credential.dc+sd-jwt.json"
+      "description": "URI pointing to the schema document for this format"
     }
   },
   "additionalProperties": false

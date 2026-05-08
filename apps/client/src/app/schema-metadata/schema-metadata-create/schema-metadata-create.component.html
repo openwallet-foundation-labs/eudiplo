@@ -69,147 +69,86 @@
         </mat-form-field>
       </div>
 
+      <div fxLayout="row" fxLayoutGap="12px" fxLayout.lt-md="column">
+        <mat-form-field fxFlex appearance="outline">
+          <mat-label>Category (optional)</mat-label>
+          <mat-select formControlName="category" [disabled]="categoryVocabularies.length === 0">
+            @for (entry of categoryVocabularies; track entry.code) {
+              <mat-option [value]="entry.code" [disabled]="entry.status === 'deprecated'">
+                {{ vocabularyLabel(entry) }}
+              </mat-option>
+            }
+          </mat-select>
+          @if (categoryVocabularies.length === 0) {
+            <mat-hint>No predefined categories available.</mat-hint>
+          }
+        </mat-form-field>
+
+        <mat-form-field fxFlex appearance="outline">
+          <mat-label>Tags (optional)</mat-label>
+          <mat-select formControlName="tags" multiple [disabled]="tagVocabularies.length === 0">
+            @for (entry of tagVocabularies; track entry.code) {
+              <mat-option [value]="entry.code" [disabled]="entry.status === 'deprecated'">
+                {{ vocabularyLabel(entry) }}
+              </mat-option>
+            }
+          </mat-select>
+          @if (tagVocabularies.length === 0) {
+            <mat-hint>No predefined tags available.</mat-hint>
+          }
+        </mat-form-field>
+      </div>
+
       <!-- Schema URIs -->
       <div>
-        <div fxLayout="row" fxLayoutAlign="space-between center" class="section-header">
+        <div class="section-header">
           <strong>Schema URIs</strong>
-          <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="start center">
-            @if (credentialConfigs.length > 0) {
-              <mat-form-field appearance="outline" class="import-field">
-                <mat-label>Import from credential config</mat-label>
-                <mat-select [formControl]="importSchemaConfigId">
-                  @for (c of credentialConfigs; track c.id) {
-                    <mat-option [value]="c.id">{{ configLabel(c) }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-              <button
-                mat-stroked-button
-                type="button"
-                (click)="importSchemaURIsFromConfig()"
-                [disabled]="!importSchemaConfigId.value"
-              >
-                <mat-icon>download</mat-icon> Import
-              </button>
-            }
-            <button mat-stroked-button type="button" (click)="addSchemaURI()">
-              <mat-icon>add</mat-icon> Add
-            </button>
-          </div>
         </div>
-
-        @for (group of schemaURIs.controls; track $index) {
-          <div
-            [formGroup]="group"
-            fxLayout="row"
-            fxLayoutGap="8px"
-            fxLayoutAlign="start center"
-            fxLayout.lt-md="column"
-            class="array-row"
+        <mat-form-field appearance="outline" class="import-field">
+          <mat-label>Select credential configs</mat-label>
+          <mat-select
+            [formControl]="importSchemaConfigIds"
+            multiple
+            [disabled]="credentialConfigs.length === 0"
+            (selectionChange)="syncSchemaURIsFromSelection()"
           >
-            <mat-form-field appearance="outline" class="format-field">
-              <mat-label>Format</mat-label>
-              <mat-select formControlName="format">
-                @for (opt of schemaFormatOptions; track opt.value) {
-                  <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field fxFlex appearance="outline">
-              <mat-label>URI</mat-label>
-              <input matInput formControlName="uri" placeholder="https://..." />
-              @if (group.get('imported')?.value) {
-                <mat-icon matSuffix matTooltip="Imported — value is fixed">lock</mat-icon>
-              }
-            </mat-form-field>
-            <button
-              mat-icon-button
-              type="button"
-              color="warn"
-              (click)="removeSchemaURI($index)"
-              class="no-shrink"
-            >
-              <mat-icon>delete</mat-icon>
-            </button>
-          </div>
-        }
-
-        @if (schemaURIs.length === 0) {
-          <p class="hint-text error-text">
-            At least one schema URI is required. Use "Add" or import from a credential config.
-          </p>
-        }
+            @for (c of credentialConfigs; track c.id) {
+              <mat-option [value]="c.id">{{ configLabel(c) }}</mat-option>
+            }
+          </mat-select>
+          @if (credentialConfigs.length === 0) {
+            <mat-hint>No credential configs available.</mat-hint>
+          }
+          @if (schemaURIs.length === 0) {
+            <mat-error>At least one schema URI is required. Select a credential config.</mat-error>
+          }
+        </mat-form-field>
       </div>
 
       <!-- Trusted Authorities -->
       <div>
-        <div fxLayout="row" fxLayoutAlign="space-between center" class="section-header">
+        <div class="section-header">
           <strong>Trusted Authorities</strong>
-          <div fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="start center">
-            @if (trustLists.length > 0) {
-              <mat-form-field appearance="outline" class="import-field">
-                <mat-label>Add from trust list</mat-label>
-                <mat-select [formControl]="importTrustListId">
-                  @for (tl of trustLists; track tl.id) {
-                    <mat-option [value]="tl.id">{{ trustListLabel(tl) }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-              <button
-                mat-stroked-button
-                type="button"
-                (click)="importTrustList()"
-                [disabled]="!importTrustListId.value"
-              >
-                <mat-icon>playlist_add</mat-icon> Add
-              </button>
-            }
-            <button mat-stroked-button type="button" (click)="addTrustedAuthority()">
-              <mat-icon>add</mat-icon> Add
-            </button>
-          </div>
         </div>
-
-        @for (group of trustedAuthorities.controls; track $index) {
-          <div
-            [formGroup]="group"
-            fxLayout="row"
-            fxLayoutGap="8px"
-            fxLayoutAlign="start center"
-            fxLayout.lt-md="column"
-            class="array-row"
+        <mat-form-field appearance="outline" class="import-field">
+          <mat-label>Select trust lists</mat-label>
+          <mat-select
+            [formControl]="importTrustListIds"
+            multiple
+            [disabled]="trustLists.length === 0"
+            (selectionChange)="syncTrustedAuthoritiesFromSelection()"
           >
-            <mat-form-field appearance="outline" class="framework-field">
-              <mat-label>Framework Type</mat-label>
-              <mat-select formControlName="frameworkType">
-                @for (opt of frameworkTypeOptions; track opt.value) {
-                  <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field fxFlex appearance="outline">
-              <mat-label>Value (URI)</mat-label>
-              <input matInput formControlName="value" placeholder="https://..." />
-              @if (group.get('imported')?.value) {
-                <mat-icon matSuffix matTooltip="Imported — value is fixed">lock</mat-icon>
-              }
-            </mat-form-field>
-            <mat-checkbox formControlName="isLoTE" class="no-shrink">LoTE</mat-checkbox>
-            <button
-              mat-icon-button
-              type="button"
-              color="warn"
-              (click)="removeTrustedAuthority($index)"
-              class="no-shrink"
-            >
-              <mat-icon>delete</mat-icon>
-            </button>
-          </div>
-        }
-
-        @if (trustedAuthorities.length === 0) {
-          <p class="hint-text error-text">At least one trusted authority is required.</p>
-        }
+            @for (tl of trustLists; track tl.id) {
+              <mat-option [value]="tl.id">{{ trustListLabel(tl) }}</mat-option>
+            }
+          </mat-select>
+          @if (trustLists.length === 0) {
+            <mat-hint>No trust lists available.</mat-hint>
+          }
+          @if (trustedAuthorities.length === 0) {
+            <mat-error>At least one trusted authority is required. Select a trust list.</mat-error>
+          }
+        </mat-form-field>
       </div>
     </form>
   </mat-card-content>

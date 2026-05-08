@@ -3,6 +3,8 @@ import { Logger, Module, OnModuleInit } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { DataSource } from "typeorm";
+import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions.js";
+import { SqliteConnectionOptions } from "typeorm/driver/sqlite/SqliteConnectionOptions.js";
 import * as migrations from "./migrations";
 
 @Module({
@@ -45,8 +47,9 @@ import * as migrations from "./migrations";
                             configService.getOrThrow<string>("DB_PASSWORD"),
                         database:
                             configService.getOrThrow<string>("DB_DATABASE"),
+                        ssl: configService.get<boolean>("DB_SSL", false),
                         ...commonOptions,
-                    };
+                    } as PostgresConnectionOptions;
                 }
 
                 return {
@@ -56,7 +59,7 @@ import * as migrations from "./migrations";
                         "service.db",
                     ),
                     ...commonOptions,
-                };
+                } as SqliteConnectionOptions;
             },
         }),
     ],

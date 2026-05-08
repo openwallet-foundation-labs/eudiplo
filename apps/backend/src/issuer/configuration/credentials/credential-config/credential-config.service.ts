@@ -89,23 +89,25 @@ export class CredentialConfigService {
         // Replace image references with actual URLs
         await this.replaceImageReferences(tenantId, config);
 
-        // Check if keyChainId is provided and if the key chain exists.
-        if (config.keyChainId) {
-            const cert = await this.certService.find({
-                tenantId,
-                type: KeyUsageType.Attestation,
-                keyId: config.keyChainId,
-            });
-            if (!cert) {
-                throw new Error(
-                    `Key chain ID ${config.keyChainId} must be defined in the crypto service`,
-                );
-            }
-            // Note: keyChainId is stored directly on the entity, keyChain relation is loaded lazily
-        }
+        await this.validateAttestationKeyChain(tenantId, config.keyChainId);
 
         // Skip IAE validation during import - presentation configs are imported later
         await this.store(tenantId, config, true);
+    }
+
+    private async validateAttestationKeyChain(
+        tenantId: string,
+        keyChainId?: string | null,
+    ): Promise<void> {
+        if (!keyChainId) {
+            return;
+        }
+
+        await this.certService.find({
+            tenantId,
+            type: KeyUsageType.Attestation,
+            keyId: keyChainId,
+        });
     }
 
     /**
@@ -238,6 +240,7 @@ export class CredentialConfigService {
         skipValidation = false,
     ) {
         await this.replaceImageReferences(tenantId, config);
+        await this.validateAttestationKeyChain(tenantId, config.keyChainId);
         if (!skipValidation) {
             await this.validateIaeActions(tenantId, config);
         }
@@ -262,6 +265,11 @@ export class CredentialConfigService {
         await this.replaceImageReferences(tenantId, config);
         await this.validateIaeActions(tenantId, config);
         const existing = await this.getById(tenantId, id);
+        const keyChainId =
+            config.keyChainId !== undefined
+                ? (config.keyChainId ?? undefined)
+                : existing.keyChainId;
+        await this.validateAttestationKeyChain(tenantId, keyChainId);
         return this.credentialConfigRepository.save({
             ...existing,
             ...config,

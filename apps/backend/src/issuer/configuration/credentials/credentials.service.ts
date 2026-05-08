@@ -552,37 +552,4 @@ export class CredentialsService {
         credentialConfig.vct.vct = `${host}/issuers/${tenantId}/credentials-metadata/vct/${credentialConfig.id}`;
         return credentialConfig.vct;
     }
-
-    /**
-     * Retrieves the inline JSON Schema for a credential configuration.
-     * The format path parameter must match the credential's configured format.
-     *
-     * @param credentialId
-     * @param tenantId
-     * @param format - one of "dc+sd-jwt" | "mso_mdoc"
-     */
-    async getSchema(
-        credentialId: string,
-        tenantId: string,
-        format: string,
-    ): Promise<unknown> {
-        const credentialConfig = await this.credentialConfigRepo
-            .findOneByOrFail({ id: credentialId, tenantId })
-            .catch(() => {
-                throw new ConflictException(
-                    `Credential configuration with id ${credentialId} not found`,
-                );
-            });
-        if (credentialConfig.config.format !== format) {
-            throw new ConflictException(
-                `Credential configuration ${credentialId} is of format ${credentialConfig.config.format}, not ${format}`,
-            );
-        }
-        if (!credentialConfig.schema) {
-            throw new ConflictException(
-                `Credential configuration ${credentialId} has no inline JSON schema configured`,
-            );
-        }
-        return credentialConfig.schema;
-    }
 }

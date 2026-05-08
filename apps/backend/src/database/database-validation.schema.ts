@@ -46,6 +46,10 @@ export const DB_VALIDATION_SCHEMA = Joi.object({
         })
         .description("Database name")
         .meta({ group: "database", order: 50 }),
+    DB_SSL: Joi.boolean()
+        .default(false)
+        .description("Enable SSL/TLS for PostgreSQL database connections")
+        .meta({ group: "database", order: 55 }),
     DB_SYNCHRONIZE: Joi.boolean()
         .default(true)
         .description(

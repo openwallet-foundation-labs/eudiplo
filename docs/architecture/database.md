@@ -36,6 +36,24 @@ DB_PORT=5432
 DB_USERNAME=your-username
 DB_PASSWORD=your-password
 DB_DATABASE=your-database
+DB_SSL=false
+```
+
+Set `DB_SSL=true` when your PostgreSQL server requires TLS encryption
+(for example managed cloud databases that reject non-encrypted connections).
+If your server accepts plaintext connections in a trusted internal network,
+you can keep `DB_SSL=false`.
+
+Example for a TLS-required PostgreSQL deployment:
+
+```env
+DB_TYPE=postgres
+DB_HOST=your-managed-postgres-host
+DB_PORT=5432
+DB_USERNAME=your-username
+DB_PASSWORD=your-password
+DB_DATABASE=your-database
+DB_SSL=true
 ```
 
 This mode is suitable for:

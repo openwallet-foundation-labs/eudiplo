@@ -5,7 +5,6 @@ import {
     Get,
     Param,
     Patch,
-    Post,
     Query,
 } from "@nestjs/common";
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
@@ -15,7 +14,7 @@ import { Token, TokenPayload } from "../auth/token.decorator";
 import {
     DeprecateSchemaMetadataDto,
     SchemaMetadataResponseDto,
-    SubmitSchemaMetadataDto,
+    SchemaMetadataVocabulariesDto,
     UpdateSchemaMetadataDto,
 } from "./dto/schema-metadata.dto";
 import { SchemaMetadataService } from "./schema-metadata.service";
@@ -40,6 +39,15 @@ export class SchemaMetadataController {
         private readonly schemaMetadataService: SchemaMetadataService,
     ) {}
 
+    @Get("vocabularies")
+    @ApiOperation({ summary: "Get predefined schema metadata vocabularies" })
+    @ApiResponse({ status: 200, type: SchemaMetadataVocabulariesDto })
+    getVocabularies(
+        @Token() token: TokenPayload,
+    ): Promise<SchemaMetadataVocabulariesDto> {
+        return this.schemaMetadataService.getVocabularies(token.entity!.id);
+    }
+
     @Get()
     @ApiOperation({ summary: "List schema metadata" })
     @ApiResponse({ status: 200, type: [SchemaMetadataResponseDto] })
@@ -52,21 +60,6 @@ export class SchemaMetadataController {
             attestationId,
             version,
         });
-    }
-
-    @Post()
-    @ApiOperation({ summary: "Submit signed schema metadata" })
-    @ApiBody({ type: SubmitSchemaMetadataDto })
-    @ApiResponse({ status: 201, type: SchemaMetadataResponseDto })
-    submit(
-        @Token() token: TokenPayload,
-        @Body() body: SubmitSchemaMetadataDto,
-    ): Promise<SchemaMetadataResponseDto> {
-        return this.schemaMetadataService.submitSignedSchemaMetadata(
-            token.entity!.id,
-            body.signedJwt,
-            body.reservationToken,
-        );
     }
 
     @Get(":id")

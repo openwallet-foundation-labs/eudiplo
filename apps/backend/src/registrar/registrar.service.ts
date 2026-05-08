@@ -145,63 +145,32 @@ export class RegistrarService {
         return this.schemaMetadataSvc.findAll(tenantId, filters);
     }
 
-    submitSchemaMetadata(
-        tenantId: string,
-        signedJwt: string,
-        reservationToken?: string,
-    ) {
+    submitSchemaMetadata(tenantId: string, signedJwt: string) {
         return this.schemaMetadataSvc.submitSignedSchemaMetadata(
             tenantId,
             signedJwt,
-            reservationToken,
         );
     }
 
-    findOneSchemaMetadata(tenantId: string, id: string) {
-        return this.schemaMetadataSvc.findOne(tenantId, id);
-    }
-
-    updateSchemaMetadata(
+    uploadSchemaMetadataAssetFromUrl(
         tenantId: string,
-        id: string,
-        version: string,
-        dto: { category?: string; tags?: string[] },
+        type: "trustlists" | "rulebooks" | "schemas",
+        sourceUrl: string,
+        fallbackFileName: string,
     ) {
-        return this.schemaMetadataSvc.updateMetadata(
+        return this.schemaMetadataSvc.uploadAssetFromUrl(
             tenantId,
-            id,
-            version,
-            dto as any,
+            type,
+            sourceUrl,
+            fallbackFileName,
         );
     }
 
-    removeSchemaMetadata(tenantId: string, id: string, version: string) {
-        return this.schemaMetadataSvc.remove(tenantId, id, version);
-    }
-
-    getSchemaMetadataJwt(tenantId: string, id: string, version: string) {
-        return this.schemaMetadataSvc.getSignedJwt(tenantId, id, version);
-    }
-
-    exportSchemaMetadata(tenantId: string, id: string, version: string) {
-        return this.schemaMetadataSvc.exportCatalogFormat(
-            tenantId,
-            id,
-            version,
-        );
-    }
-
-    getSchemaMetadataSchema(
+    uploadSchemaMetadataAsset(
         tenantId: string,
-        id: string,
-        version: string,
-        format: string,
+        type: "trustlists" | "rulebooks" | "schemas",
+        file: Blob | File,
     ) {
-        return this.schemaMetadataSvc.getSchemaByFormat(
-            tenantId,
-            id,
-            version,
-            format,
-        );
+        return this.schemaMetadataSvc.uploadAsset(tenantId, type, file);
     }
 }

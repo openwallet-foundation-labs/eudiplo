@@ -44,6 +44,7 @@ import {
 } from '../../../utils/schemas';
 import { EditorComponent, extractSchema } from '../../../utils/editor/editor.component';
 import { ImageFieldComponent } from '../../../utils/image-field/image-field.component';
+import { getApiErrorMessage } from '../../../utils/error-message';
 
 @Component({
   selector: 'app-credential-config-create',
@@ -195,8 +196,8 @@ export class CredentialConfigCreateComponent implements OnInit {
     }
   }
   ngOnInit() {
-    // Load all key chains for signing certificate selection
-    keyChainControllerGetAll({}).then(
+    // Load only attestation key chains for signing certificate selection
+    keyChainControllerGetAll({ query: { usageType: 'attestation' } }).then(
       (res) => (this.keyChains = res.data || []),
       (error) => {
         console.error('Failed to load key chains:', error);
@@ -303,9 +304,13 @@ export class CredentialConfigCreateComponent implements OnInit {
           },
           (error) => {
             console.error('Error saving configuration:', error);
-            this.snackBar.open(`Failed to save configuration: ${error.message}`, 'Close', {
+            this.snackBar.open(
+              getApiErrorMessage(error, 'Failed to save configuration'),
+              'Close',
+              {
               duration: 3000,
-            });
+              }
+            );
           }
         )
         .finally(() => {

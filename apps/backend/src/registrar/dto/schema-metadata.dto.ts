@@ -33,6 +33,23 @@ const CATEGORY_VALUES = [
 ] as const;
 export type SchemaMetadataCategory = (typeof CATEGORY_VALUES)[number];
 
+const TAG_VALUES = [
+    "pid",
+    "eudi",
+    "kyc",
+    "aml",
+    "age-verification",
+    "residency",
+    "membership",
+    "education",
+    "employment",
+    "mobility",
+] as const;
+export type SchemaMetadataTag = (typeof TAG_VALUES)[number];
+
+const VOCABULARY_STATUS_VALUES = ["active", "deprecated"] as const;
+export type VocabularyStatus = (typeof VOCABULARY_STATUS_VALUES)[number];
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Request bodies
 // ─────────────────────────────────────────────────────────────────────────────
@@ -109,13 +126,63 @@ export class UpdateSchemaMetadataDto {
     category?: SchemaMetadataCategory;
 
     @ApiPropertyOptional({
-        description: "Free-form tags for filtering and search",
+        description: "Predefined tags for filtering and search",
         type: [String],
+        enum: TAG_VALUES,
     })
     @IsOptional()
     @IsArray()
-    @IsString({ each: true })
-    tags?: string[];
+    @IsEnum(TAG_VALUES, { each: true })
+    tags?: SchemaMetadataTag[];
+}
+
+export class VocabularyEntryDto {
+    @ApiProperty({
+        description:
+            "Stable machine-readable value to submit in schema metadata category/tags fields.",
+    })
+    code!: string;
+
+    @ApiProperty({
+        description: "Display label for UI rendering.",
+    })
+    label!: string;
+
+    @ApiProperty({
+        description: "Vocabulary lifecycle status.",
+        enum: VOCABULARY_STATUS_VALUES,
+    })
+    status!: VocabularyStatus;
+
+    @ApiPropertyOptional({
+        description: "Replacement code when status is deprecated.",
+    })
+    replacedBy?: string;
+}
+
+export class SchemaMetadataVocabulariesDto {
+    @ApiProperty({
+        description: "Vocabulary publication version for cache invalidation.",
+    })
+    version!: string;
+
+    @ApiProperty({
+        description:
+            "Allowed category values that can be used when updating schema metadata category.",
+        type: [VocabularyEntryDto],
+    })
+    @ValidateNested({ each: true })
+    @Type(() => VocabularyEntryDto)
+    categories!: VocabularyEntryDto[];
+
+    @ApiProperty({
+        description:
+            "Allowed tag values that can be used when updating schema metadata tags.",
+        type: [VocabularyEntryDto],
+    })
+    @ValidateNested({ each: true })
+    @Type(() => VocabularyEntryDto)
+    tags!: VocabularyEntryDto[];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

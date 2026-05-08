@@ -480,9 +480,12 @@ export class KeyChainService {
     /**
      * Get all key chains for a tenant.
      */
-    async getAll(tenantId: string): Promise<KeyChainResponseDto[]> {
+    async getAll(
+        tenantId: string,
+        usageType?: KeyUsageType,
+    ): Promise<KeyChainResponseDto[]> {
         const keyChains = await this.keyChainRepository.find({
-            where: { tenantId },
+            where: { tenantId, ...(usageType ? { usageType } : {}) },
         });
 
         return keyChains.map((kc) => this.toResponseDto(kc));
