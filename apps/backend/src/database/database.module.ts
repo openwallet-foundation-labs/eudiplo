@@ -6,6 +6,7 @@ import { DataSource } from "typeorm";
 import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions.js";
 import { SqliteConnectionOptions } from "typeorm/driver/sqlite/SqliteConnectionOptions.js";
 import * as migrations from "./migrations";
+import { buildPostgresSslOptions } from "./postgres-ssl-options";
 
 @Module({
     imports: [
@@ -47,7 +48,9 @@ import * as migrations from "./migrations";
                             configService.getOrThrow<string>("DB_PASSWORD"),
                         database:
                             configService.getOrThrow<string>("DB_DATABASE"),
-                        ssl: configService.get<boolean>("DB_SSL", false),
+                        ssl: buildPostgresSslOptions((key: string) =>
+                            configService.get(key),
+                        ),
                         ...commonOptions,
                     } as PostgresConnectionOptions;
                 }
