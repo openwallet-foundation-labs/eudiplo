@@ -212,6 +212,9 @@
                             <a href="#FORMAT_VALUES" title="src/registrar/dto/schema-metadata.dto.ts" ><b>FORMAT_VALUES</b>&nbsp;&nbsp;&nbsp;(src/.../schema-metadata.dto.ts)</a>
                         </li>
                         <li>
+                            <a href="#GLOBAL_PREFIX_EXCLUSIONS" title="src/main.ts" ><b>GLOBAL_PREFIX_EXCLUSIONS</b>&nbsp;&nbsp;&nbsp;(src/.../main.ts)</a>
+                        </li>
+                        <li>
                             <a href="#IS_PUBLIC_KEY" title="src/auth/public.decorator.ts" ><b>IS_PUBLIC_KEY</b>&nbsp;&nbsp;&nbsp;(src/.../public.decorator.ts)</a>
                         </li>
                         <li>
@@ -234,9 +237,6 @@
                         </li>
                         <li>
                             <a href="#otelSDK" title="src/tracing.ts" ><b>otelSDK</b>&nbsp;&nbsp;&nbsp;(src/.../tracing.ts)</a>
-                        </li>
-                        <li>
-                            <a href="#PROTOCOL_ROUTE_EXCLUSIONS" title="src/main.ts" ><b>PROTOCOL_ROUTE_EXCLUSIONS</b>&nbsp;&nbsp;&nbsp;(src/.../main.ts)</a>
                         </li>
                         <li>
                             <a href="#Public" title="src/auth/public.decorator.ts" ><b>Public</b>&nbsp;&nbsp;&nbsp;(src/.../public.decorator.ts)</a>
@@ -1668,6 +1668,76 @@ This is necessary because TypeORM transformers don&#39;t support dependency inje
         </tbody>
     </table>
 </section>
+    <h3>src/main.ts</h3>
+    <section data-compodoc="block-properties">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="GLOBAL_PREFIX_EXCLUSIONS"></a>
+                    <span class="name">
+                        <span ><b>GLOBAL_PREFIX_EXCLUSIONS</b></span>
+                        <a href="#GLOBAL_PREFIX_EXCLUSIONS"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Type : </i>    <code>literal type[]</code>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-md-4">
+                        <i>Default value : </i><code>[
+    // Infrastructure
+    { path: &quot;/&quot;, method: RequestMethod.GET },
+    { path: &quot;health&quot;, method: RequestMethod.ALL },
+    // Admin authentication
+    { path: &quot;api/oauth2/{*path}&quot;, method: RequestMethod.ALL },
+    // Discovery
+    { path: &quot;.well-known/{*path}&quot;, method: RequestMethod.ALL },
+    // OID4VCI Protocol
+    { path: &quot;issuers/:tenantId/vci/{*path}&quot;, method: RequestMethod.ALL },
+    { path: &quot;issuers/:tenantId/authorize&quot;, method: RequestMethod.ALL },
+    { path: &quot;issuers/:tenantId/authorize/{*path}&quot;, method: RequestMethod.ALL },
+    {
+        path: &quot;issuers/:tenantId/credentials-metadata/{*path}&quot;,
+        method: RequestMethod.ALL,
+    },
+    { path: &quot;issuers/:tenantId/chained-as/{*path}&quot;, method: RequestMethod.ALL },
+    // OID4VP Protocol
+    { path: &quot;presentations/:sessionId/oid4vp&quot;, method: RequestMethod.ALL },
+    {
+        path: &quot;presentations/:sessionId/oid4vp/{*path}&quot;,
+        method: RequestMethod.ALL,
+    },
+    // Public Status &amp; Trust Lists
+    {
+        path: &quot;issuers/:tenantId/status-management/{*path}&quot;,
+        method: RequestMethod.ALL,
+    },
+    { path: &quot;issuers/:tenantId/trust-list/{*path}&quot;, method: RequestMethod.ALL },
+    // Public Storage (credential images, logos)
+    { path: &quot;storage/:key&quot;, method: RequestMethod.GET },
+]</code>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>Routes excluded from the automatic <code>/api</code> global prefix.
+Wallet-facing and infrastructure endpoints stay at the root path for protocol
+compliance and discoverability. The integrated OAuth2 token endpoint is
+already mounted under <code>/api</code> so firewalls can treat it as part of the admin
+surface without receiving a duplicate <code>/api/api</code> prefix.</p>
+</div>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+</section>
     <h3>src/auth/public.decorator.ts</h3>
     <section data-compodoc="block-properties">
     <h3></h3>    <table class="table table-sm table-bordered">
@@ -2214,73 +2284,6 @@ OpenTelemetry Collector. Configure the collector endpoint via:</p>
 <p>  OTEL_EXPORTER_OTLP_ENDPOINT  (default: <a href="http://localhost:4318">http://localhost:4318</a>)</p>
 <p>To disable OTel entirely (e.g. local dev without collector), set:</p>
 <p>  OTEL_SDK_DISABLED=true</p>
-</div>
-                </td>
-            </tr>
-
-        </tbody>
-    </table>
-</section>
-    <h3>src/main.ts</h3>
-    <section data-compodoc="block-properties">
-    <h3></h3>    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="PROTOCOL_ROUTE_EXCLUSIONS"></a>
-                    <span class="name">
-                        <span ><b>PROTOCOL_ROUTE_EXCLUSIONS</b></span>
-                        <a href="#PROTOCOL_ROUTE_EXCLUSIONS"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>    <code>literal type[]</code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Default value : </i><code>[
-    // Infrastructure
-    { path: &quot;/&quot;, method: RequestMethod.GET },
-    { path: &quot;health&quot;, method: RequestMethod.ALL },
-    // OAuth2 &amp; Discovery
-    { path: &quot;oauth2/{*path}&quot;, method: RequestMethod.ALL },
-    { path: &quot;.well-known/{*path}&quot;, method: RequestMethod.ALL },
-    // OID4VCI Protocol
-    { path: &quot;issuers/:tenantId/vci/{*path}&quot;, method: RequestMethod.ALL },
-    { path: &quot;issuers/:tenantId/authorize&quot;, method: RequestMethod.ALL },
-    { path: &quot;issuers/:tenantId/authorize/{*path}&quot;, method: RequestMethod.ALL },
-    {
-        path: &quot;issuers/:tenantId/credentials-metadata/{*path}&quot;,
-        method: RequestMethod.ALL,
-    },
-    { path: &quot;issuers/:tenantId/chained-as/{*path}&quot;, method: RequestMethod.ALL },
-    // OID4VP Protocol
-    { path: &quot;presentations/:sessionId/oid4vp&quot;, method: RequestMethod.ALL },
-    {
-        path: &quot;presentations/:sessionId/oid4vp/{*path}&quot;,
-        method: RequestMethod.ALL,
-    },
-    // Public Status &amp; Trust Lists
-    {
-        path: &quot;issuers/:tenantId/status-management/{*path}&quot;,
-        method: RequestMethod.ALL,
-    },
-    { path: &quot;issuers/:tenantId/trust-list/{*path}&quot;, method: RequestMethod.ALL },
-    // Public Storage (credential images, logos)
-    { path: &quot;storage/:key&quot;, method: RequestMethod.GET },
-]</code>
-                    </td>
-                </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Protocol routes excluded from the <code>/api</code> global prefix.
-These are wallet-facing and infrastructure endpoints that must remain
-at the root path for protocol compliance and discoverability.</p>
 </div>
                 </td>
             </tr>

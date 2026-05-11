@@ -518,7 +518,7 @@ export class AuthService {
 
         return {
             issuer: oidc ?? publicUrl,
-            token_endpoint: &#x60;${publicUrl}/oauth2/token&#x60;,
+            token_endpoint: &#x60;${publicUrl}/api/oauth2/token&#x60;,
             jwks_uri: &#x60;${publicUrl}/.well-known/jwks.json&#x60;,
             response_types_supported: [&quot;token&quot;],
             grant_types_supported: [&quot;client_credentials&quot;],

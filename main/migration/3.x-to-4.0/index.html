@@ -3412,11 +3412,15 @@
 <td><code>GET /docs-json</code> (OpenAPI spec)</td>
 <td><code>GET /api/docs-json</code></td>
 </tr>
+<tr>
+<td><code>POST /oauth2/token</code></td>
+<td><code>POST /api/oauth2/token</code></td>
+</tr>
 </tbody>
 </table>
 <div class="admonition note">
 <p class="admonition-title">Protocol endpoints unchanged</p>
-<p>OID4VCI and OID4VP protocol endpoints (e.g., <code>/.well-known/openid-credential-issuer</code>, <code>/authorize</code>, <code>/token</code>, <code>/credential</code>) are <strong>not</strong> affected. Only management/admin endpoints have the new prefix.</p>
+<p>OID4VCI and OID4VP protocol endpoints (e.g., <code>/.well-known/openid-credential-issuer</code>, <code>/authorize</code>, <code>/token</code>, <code>/credential</code>) are <strong>not</strong> affected. The integrated OAuth2 client credentials endpoint moved to <code>/api/oauth2/token</code> because it belongs to the management/admin surface.</p>
 </div>
 <h3 id="code-examples">Code Examples<a class="headerlink" href="#code-examples" title="Permanent link">¶</a></h3>
 <p><strong>Before (3.x):</strong></p>
