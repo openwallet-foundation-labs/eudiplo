@@ -10,14 +10,20 @@ import { InjectRepository } from "@nestjs/typeorm";
 import type { UpDownCounter } from "@opentelemetry/api";
 import { plainToClass } from "class-transformer";
 import { validate } from "class-validator";
+import { Request } from "express";
 import { MetricService } from "nestjs-otel";
 import { Repository } from "typeorm";
+import {
+    AuditLogActor,
+    AuditLogService,
+} from "../../audit-log/audit-log.service";
 import { EncryptionService } from "../../crypto/encryption/encryption.service";
 import { RegistrarService } from "../../registrar/registrar.service";
 import { ConfigImportOrchestratorService } from "../../shared/utils/config-import/config-import-orchestrator.service";
 import { FilesService } from "../../storage/files.service";
 import { CLIENTS_PROVIDER, ClientsProvider } from "../client/client.provider";
 import { Role } from "../roles/role.enum";
+import { TokenPayload } from "../token.decorator";
 import { CreateTenantDto } from "./dto/create-tenant.dto";
 import { ImportTenantDto } from "./dto/import-tenant.dto";
 import { TenantEntity } from "./entitites/tenant.entity";
@@ -43,6 +49,7 @@ export class TenantService implements OnApplicationBootstrap {
         metricService: MetricService,
         private readonly filesService: FilesService,
         private readonly configImportOrchestrator: ConfigImportOrchestratorService,
+        private readonly tenantActionLogService: AuditLogService,
     ) {
         this.tenantTotal = metricService.getUpDownCounter("tenant_total", {
             description: "Total number of tenants",
@@ -143,7 +150,11 @@ export class TenantService implements OnApplicationBootstrap {
      * @param data
      * @returns The created tenant with optional client credentials (if roles were specified)
      */
-    async createTenant(data: ImportTenantDto | CreateTenantDto) {
+    async createTenant(
+        data: ImportTenantDto | CreateTenantDto,
+        actorToken?: TokenPayload,
+        req?: Request,
+    ) {
         const tenant = await this.tenantRepository.save(data);
         await this.setUpTenant(tenant);
 
@@ -167,10 +178,22 @@ export class TenantService implements OnApplicationBootstrap {
             };
         }
 
-        return {
+        const result = {
             ...tenant,
             client: clientCredentials,
         };
+
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId: tenant.id,
+                actionType: "tenant_created",
+                actor: this.resolveActor(actorToken),
+                after: this.sanitizeTenantForLog(tenant),
+                requestMeta: this.extractRequestMeta(req),
+            });
+        }
+
+        return result;
     }
 
     /**
@@ -207,19 +230,126 @@ export class TenantService implements OnApplicationBootstrap {
     async updateTenant(
         id: string,
         data: Partial<Omit<TenantEntity, "id" | "clients" | "status">>,
+        actorToken?: TokenPayload,
+        req?: Request,
     ): Promise<TenantEntity> {
+        const existing = await this.getTenant(id);
         await this.tenantRepository.update({ id }, data);
-        return this.getTenant(id);
+        const updated = await this.getTenant(id);
+
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId: id,
+                actionType: "tenant_updated",
+                actor: this.resolveActor(actorToken),
+                changedFields: this.getChangedFields(existing, updated),
+                before: this.sanitizeTenantForLog(existing),
+                after: this.sanitizeTenantForLog(updated),
+                requestMeta: this.extractRequestMeta(req),
+            });
+        }
+
+        return updated;
     }
 
     /**
      * Deletes a tenant by ID
      * @param tenantId The ID of the tenant to delete
      */
-    async deleteTenant(tenantId: string) {
+    async deleteTenant(
+        tenantId: string,
+        actorToken?: TokenPayload,
+        req?: Request,
+    ) {
+        const existingTenant = await this.tenantRepository.findOne({
+            where: { id: tenantId },
+        });
+
         //delete all files associated with the tenant
         await this.filesService.deleteByTenant(tenantId);
         //because of cascading, all related entities will be deleted.
         await this.tenantRepository.delete({ id: tenantId });
+
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId,
+                actionType: "tenant_deleted",
+                actor: this.resolveActor(actorToken),
+                before: existingTenant
+                    ? this.sanitizeTenantForLog(existingTenant)
+                    : undefined,
+                requestMeta: this.extractRequestMeta(req),
+            });
+        }
+    }
+
+    private sanitizeTenantForLog(
+        tenant: TenantEntity,
+    ): Record<string, unknown> {
+        return {
+            id: tenant.id,
+            name: tenant.name,
+            description: tenant.description,
+            status: tenant.status,
+            sessionConfig: tenant.sessionConfig,
+            statusListConfig: tenant.statusListConfig,
+        };
+    }
+
+    private resolveActor(token: TokenPayload): AuditLogActor {
+        const clientId = token.client?.clientId || token.authorizedParty;
+
+        if (token.subject && clientId && token.subject !== clientId) {
+            return {
+                type: "user",
+                id: token.subject,
+                display: clientId,
+            };
+        }
+
+        if (clientId) {
+            return {
+                type: "client",
+                id: clientId,
+                display: clientId,
+            };
+        }
+
+        if (token.subject) {
+            return {
+                type: "user",
+                id: token.subject,
+            };
+        }
+
+        return { type: "system" };
+    }
+
+    private extractRequestMeta(req?: Request) {
+        if (!req) return undefined;
+
+        return {
+            requestId: req.headers["x-request-id"]
+                ? String(req.headers["x-request-id"])
+                : undefined,
+        };
+    }
+
+    private getChangedFields(
+        before: TenantEntity,
+        after: TenantEntity,
+    ): string[] {
+        const fields: Array<keyof TenantEntity> = [
+            "name",
+            "description",
+            "sessionConfig",
+            "statusListConfig",
+        ];
+
+        return fields.filter((field) => {
+            const beforeValue = before[field] ?? null;
+            const afterValue = after[field] ?? null;
+            return JSON.stringify(beforeValue) !== JSON.stringify(afterValue);
+        }) as string[];
     }
 }

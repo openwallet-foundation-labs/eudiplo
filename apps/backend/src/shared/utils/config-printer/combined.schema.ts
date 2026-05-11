@@ -1,3 +1,4 @@
+import { AUDIT_LOG_VALIDATION_SCHEMA } from "../../../audit-log/audit-log-validation.schema";
 import { AUTH_VALIDATION_SCHEMA } from "../../../auth/auth-validation.schema";
 import { CRYPTO_VALIDATION_SCHEMA } from "../../../crypto/key/crypto-implementation/crypto-validation.schema";
 import { DB_VALIDATION_SCHEMA } from "../../../database/database-validation.schema";
@@ -24,4 +25,5 @@ export const VALIDATION_SCHEMA = BASE_VALIDATION_SCHEMA.concat(
     .concat(SESSION_VALIDATION_SCHEMA)
     .concat(STORAGE_VALIDATION_SCHEMA)
     .concat(STATUS_LIST_VALIDATION_SCHEMA)
+    .concat(AUDIT_LOG_VALIDATION_SCHEMA)
     .concat(ENCRYPTION_VALIDATION_SCHEMA);

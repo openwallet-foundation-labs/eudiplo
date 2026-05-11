@@ -1,6 +1,7 @@
 import { HttpModule } from "@nestjs/axios";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { AuditLogModule } from "../../audit-log/audit-log.module";
 import { CryptoModule } from "../../crypto/crypto.module";
 import { RegistrarModule } from "../../registrar/registrar.module";
 import { SessionModule } from "../../session/session.module";
@@ -48,6 +49,7 @@ import { WebhookEndpointService } from "./webhook-endpoint/webhook-endpoint.serv
             AttributeProviderEntity,
             WebhookEndpointEntity,
         ]),
+        AuditLogModule,
     ],
     controllers: [
         IssuanceConfigController,

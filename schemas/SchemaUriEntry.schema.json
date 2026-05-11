@@ -17,7 +17,15 @@
     "uri": {
       "type": "string",
       "description": "URI pointing to the schema document for this format"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Schema-format specific metadata (for example { vct: 'urn:example:vct' } for dc+sd-jwt).",
+      "additionalProperties": true
     }
   },
+  "required": [
+    "metadata"
+  ],
   "additionalProperties": false
 }

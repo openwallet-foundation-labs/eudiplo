@@ -236,6 +236,42 @@ export type UpdateTenantDto = {
   >;
 };
 
+export type AuditLogResponseDto = {
+  id: string;
+  tenantId: string;
+  actionType:
+    | "tenant_created"
+    | "tenant_updated"
+    | "tenant_deleted"
+    | "presentation_config_created"
+    | "presentation_config_updated"
+    | "presentation_config_deleted"
+    | "issuance_config_updated"
+    | "credential_config_created"
+    | "credential_config_updated"
+    | "credential_config_deleted"
+    | "status_list_config_updated"
+    | "status_list_config_reset"
+    | "webhook_endpoint_created"
+    | "webhook_endpoint_updated"
+    | "webhook_endpoint_deleted"
+    | "attribute_provider_created"
+    | "attribute_provider_updated"
+    | "attribute_provider_deleted";
+  actorType: "user" | "client" | "system";
+  actorId?: string;
+  actorDisplay?: string;
+  changedFields?: Array<string>;
+  before?: {
+    [key: string]: unknown;
+  };
+  after?: {
+    [key: string]: unknown;
+  };
+  requestId?: string;
+  timestamp: string;
+};
+
 export type ClientSecretResponseDto = {
   secret: string;
 };
@@ -3187,6 +3223,30 @@ export type AppControllerGetFrontendConfigResponses = {
 export type AppControllerGetFrontendConfigResponse =
   AppControllerGetFrontendConfigResponses[keyof AppControllerGetFrontendConfigResponses];
 
+export type AuthControllerGetOAuth2TokenData = {
+  body: ClientCredentialsDto;
+  path?: never;
+  query?: never;
+  url: "/api/oauth2/token";
+};
+
+export type AuthControllerGetOAuth2TokenErrors = {
+  /**
+   * Invalid client credentials
+   */
+  401: unknown;
+};
+
+export type AuthControllerGetOAuth2TokenResponses = {
+  /**
+   * OAuth2 token response
+   */
+  200: TokenResponse;
+};
+
+export type AuthControllerGetOAuth2TokenResponse =
+  AuthControllerGetOAuth2TokenResponses[keyof AuthControllerGetOAuth2TokenResponses];
+
 export type TenantControllerGetTenantsData = {
   body?: never;
   path?: never;
@@ -3261,6 +3321,25 @@ export type TenantControllerUpdateTenantResponses = {
 
 export type TenantControllerUpdateTenantResponse =
   TenantControllerUpdateTenantResponses[keyof TenantControllerUpdateTenantResponses];
+
+export type AuditLogControllerGetAuditLogsData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Maximum number of entries to return (1–500)
+     */
+    limit?: number;
+  };
+  url: "/api/admin/audit-logs";
+};
+
+export type AuditLogControllerGetAuditLogsResponses = {
+  200: Array<AuditLogResponseDto>;
+};
+
+export type AuditLogControllerGetAuditLogsResponse =
+  AuditLogControllerGetAuditLogsResponses[keyof AuditLogControllerGetAuditLogsResponses];
 
 export type ClientControllerGetClientsData = {
   body?: never;

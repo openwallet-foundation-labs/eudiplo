@@ -10,10 +10,16 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
+import { Request } from "express";
 import { base64url, decodeJwt } from "jose";
 import { Span, TraceService } from "nestjs-otel";
 import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
+import {
+    AuditLogActor,
+    AuditLogService,
+} from "../../audit-log/audit-log.service";
+import { TokenPayload } from "../../auth/token.decorator";
 import { ServiceTypeIdentifier } from "../../issuer/trust-list/trustlist.service";
 import { RegistrarService } from "../../registrar/registrar.service";
 import { Session } from "../../session/entities/session.entity";
@@ -83,6 +89,7 @@ export class PresentationsService {
         private readonly mdocverifierService: MdocverifierService,
         private readonly configService: ConfigService,
         private readonly registrarService: RegistrarService,
+        private readonly tenantActionLogService: AuditLogService,
         private readonly logger: PinoLogger,
         private readonly traceService: TraceService,
     ) {
@@ -155,6 +162,8 @@ export class PresentationsService {
     async storePresentationConfig(
         tenantId: string,
         vprequest: PresentationConfigCreateDto,
+        actorToken?: TokenPayload,
+        req?: Request,
     ) {
         const merged = {
             ...vprequest,
@@ -167,6 +176,17 @@ export class PresentationsService {
 
         if (saved.registration_cert) {
             this.scheduleRegistrationCertRefresh(saved.id, tenantId);
+        }
+
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId,
+                actionType: "presentation_config_created",
+                actor: this.resolveActor(actorToken),
+                changedFields: this.getChangedFields(undefined, saved),
+                after: this.sanitizePresentationConfigForLog(saved),
+                requestMeta: this.extractRequestMeta(req),
+            });
         }
 
         return saved;
@@ -183,6 +203,8 @@ export class PresentationsService {
         id: string,
         tenantId: string,
         vprequest: PresentationConfigUpdateDto,
+        actorToken?: TokenPayload,
+        req?: Request,
     ) {
         // Verify the config exists
         const existing = await this.getPresentationConfig(id, tenantId);
@@ -214,6 +236,18 @@ export class PresentationsService {
 
         if (saved.registration_cert && cacheRelevantChanged) {
             this.scheduleRegistrationCertRefresh(saved.id, tenantId);
+        }
+
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId,
+                actionType: "presentation_config_updated",
+                actor: this.resolveActor(actorToken),
+                changedFields: this.getChangedFields(existing, saved),
+                before: this.sanitizePresentationConfigForLog(existing),
+                after: this.sanitizePresentationConfigForLog(saved),
+                requestMeta: this.extractRequestMeta(req),
+            });
         }
 
         return saved;
@@ -511,8 +545,105 @@ export class PresentationsService {
      * @param tenantId - The ID of the tenant for which to delete the configuration.
      * @returns A promise that resolves when the deletion is complete.
      */
-    deletePresentationConfig(id: string, tenantId: string) {
-        return this.vpRequestRepository.delete({ id, tenantId });
+    async deletePresentationConfig(
+        id: string,
+        tenantId: string,
+        actorToken?: TokenPayload,
+        req?: Request,
+    ) {
+        const existing = await this.getPresentationConfig(id, tenantId);
+        const result = await this.vpRequestRepository.delete({ id, tenantId });
+
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId,
+                actionType: "presentation_config_deleted",
+                actor: this.resolveActor(actorToken),
+                before: this.sanitizePresentationConfigForLog(existing),
+                requestMeta: this.extractRequestMeta(req),
+            });
+        }
+
+        return result;
+    }
+
+    private sanitizePresentationConfigForLog(
+        config: PresentationConfig,
+    ): Record<string, unknown> {
+        return {
+            id: config.id,
+            description: config.description,
+            lifeTime: config.lifeTime,
+            dcql_query: config.dcql_query,
+            transaction_data: config.transaction_data,
+            registration_cert: config.registration_cert,
+            registrationCertCache: config.registrationCertCache,
+            webhook: config.webhook,
+            attached: config.attached,
+            redirectUri: config.redirectUri,
+            accessKeyChainId: config.accessKeyChainId,
+        };
+    }
+
+    private getChangedFields(
+        before?: PresentationConfig,
+        after?: PresentationConfig,
+    ): string[] {
+        const beforePayload = before
+            ? this.sanitizePresentationConfigForLog(before)
+            : {};
+        const afterPayload = after
+            ? this.sanitizePresentationConfigForLog(after)
+            : {};
+        const fields = new Set([
+            ...Object.keys(beforePayload),
+            ...Object.keys(afterPayload),
+        ]);
+
+        return [...fields].filter((field) => {
+            const beforeValue = beforePayload[field] ?? null;
+            const afterValue = afterPayload[field] ?? null;
+            return JSON.stringify(beforeValue) !== JSON.stringify(afterValue);
+        });
+    }
+
+    private resolveActor(token: TokenPayload): AuditLogActor {
+        const clientId = token.client?.clientId || token.authorizedParty;
+
+        if (token.subject && clientId && token.subject !== clientId) {
+            return {
+                type: "user",
+                id: token.subject,
+                display: clientId,
+            };
+        }
+
+        if (clientId) {
+            return {
+                type: "client",
+                id: clientId,
+                display: clientId,
+            };
+        }
+
+        if (token.subject) {
+            return {
+                type: "user",
+                id: token.subject,
+            };
+        }
+
+        return { type: "system" };
+    }
+
+    private extractRequestMeta(req?: Request) {
+        if (!req) return undefined;
+
+        return {
+            requestId: req.headers["x-request-id"]
+                ? String(req.headers["x-request-id"])
+                : undefined,
+        };
     }
 
     /**

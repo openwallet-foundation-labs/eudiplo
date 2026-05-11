@@ -108,6 +108,21 @@ Use it only for debugging and disable it in production.
 `LOG_SESSION_STORE` requires `LOG_ENABLE_SESSION_LOGGER=true` to have any
 effect, since the session logger is the source of the persisted events.
 
+## Which Log For Which Audit Trail?
+
+Use the following distinction to avoid mixing internal management history with
+issuance/presentation flow evidence:
+
+| Purpose                                                           | Log Type                   | Database Table      | API Access                   | Main Scope                          |
+| ----------------------------------------------------------------- | -------------------------- | ------------------- | ---------------------------- | ----------------------------------- |
+| Internal tenant management history (admin/config changes)         | Tenant activity audit logs | `tenant_action_log` | `GET /api/admin/audit-logs`  | Tenant-level management actions     |
+| Issuance and presentation flow evidence (operational audit trail) | Session flow logs          | `session_log_entry` | `GET /api/session/{id}/logs` | Per-session protocol/runtime events |
+
+Rule of thumb:
+
+1. Use tenant activity logs to answer "who changed tenant/config state and when?"
+2. Use session flow logs to answer "what happened during issuance/presentation for this session?"
+
 ## Disabling Specific Logger Services
 
 ### HTTP Request/Response Logging
@@ -124,19 +139,33 @@ LOG_ENABLE_HTTP_LOGGER=true
 
 **Note:** This controls the built-in HTTP logging from the Pino HTTP logger. Session-specific logging is controlled separately.
 
-### Audit Logging (AuditLogService)
+### Tenant Activity Audit Logs
 
-To disable all audit logging (useful during debugging when you want to focus on other components):
+Tenant activity logs are stored in the `tenant_action_log` table and exposed via
+`GET /api/admin/audit-logs` (tenant-scoped). These entries are separate from
+session flow logs (`session_log_entry`) and are used for configuration/admin
+change history (tenant/config create/update/delete events).
+
+Retention is managed by `AuditLogService` with a daily cleanup job (03:00):
 
 ```bash
-# Disable AuditLogService logs
-LOG_ENABLE_SESSION_LOGGER=false
+# Time-based retention (days). 0 disables time-based pruning.
+AUDIT_LOG_RETENTION_DAYS=90
 
-# Enable AuditLogService logs
-LOG_ENABLE_SESSION_LOGGER=true
+# Count-based retention per tenant. 0 disables count-based pruning.
+AUDIT_LOG_MAX_ENTRIES_PER_TENANT=5000
 ```
 
-**Note:** `AuditLogService` persists compliance events (flow_start, flow_complete, flow_error, credential_issuance, credential_verification) to the database only. For observability, logs are sent to Loki via the OpenTelemetry transport.
+How pruning works:
+
+1. If `AUDIT_LOG_RETENTION_DAYS > 0`, entries older than that threshold are deleted.
+2. If `AUDIT_LOG_MAX_ENTRIES_PER_TENANT > 0`, only the newest N entries are kept per tenant.
+
+Recommended setup:
+
+1. Development: keep both values at `0` unless you need to test cleanup behavior.
+2. Production: enable at least one guardrail (time-based or count-based).
+3. High-volume tenants: configure both values to bound storage growth.
 
 ## Development Scenarios
 
@@ -182,15 +211,17 @@ LOG_FILE_PATH=/var/log/eudiplo/session.log
 
 This will only show warnings, errors, and important session events without HTTP noise, and write all logs to a file for later analysis.
 
-## Log Structure
+## Session Log Structure
 
-Audit logs are persisted to the database with structured data. Debug/observability logs are exported to Loki via OpenTelemetry and include trace correlation:
+Session flow logs are persisted to the database when `LOG_SESSION_STORE` is
+enabled. Debug/observability logs are exported to Loki via OpenTelemetry and
+include trace correlation:
 
 ```json
 {
     "level": "info",
     "time": "2025-07-20T10:30:45.123Z",
-    "context": "AuditLogService",
+    "context": "SessionLoggerService",
     "sessionId": "session_123",
     "tenantId": "tenant_456",
     "flowType": "OID4VCI",

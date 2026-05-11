@@ -14,7 +14,7 @@ Issuance configurations define the parameters and settings for the issuance of c
 
 !!! Info
 
-    The auto generated schema reference can be found in the [API Documentation](../../../api/openapi/#issuancedto)
+    The auto generated schema reference can be found in the [API Documentation](../../api/openapi.md)
 
 ## Configuration Fields
 

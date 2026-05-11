@@ -234,7 +234,7 @@ against the credential issuer (e.g., Paradym/Credo).
 The Status Management API provides endpoints for managing status lists and
 updating credential status entries.
 
-**Full API Reference**: [Status Management API](../api/openapi.md#tag/status-management)
+**Full API Reference**: [Status Management API](../api/openapi.md)
 
 Key operations include:
 

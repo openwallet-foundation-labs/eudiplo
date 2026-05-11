@@ -2,7 +2,13 @@ import { readFileSync } from "node:fs";
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
+import { Request } from "express";
 import { Repository } from "typeorm";
+import {
+    AuditLogActor,
+    AuditLogService,
+} from "../../../audit-log/audit-log.service";
+import { TokenPayload } from "../../../auth/token.decorator";
 import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
 import {
     ConfigImportOrchestratorService,
@@ -31,6 +37,7 @@ export class IssuanceService {
         private readonly filesService: FilesService,
         private readonly configImportService: ConfigImportService,
         private readonly configImportOrchestrator: ConfigImportOrchestratorService,
+        private readonly tenantActionLogService: AuditLogService,
     ) {
         this.configImportOrchestrator.register(
             "issuance",
@@ -117,7 +124,12 @@ export class IssuanceService {
      * @param value
      * @returns
      */
-    async storeIssuanceConfiguration(tenantId: string, value: IssuanceDto) {
+    async storeIssuanceConfiguration(
+        tenantId: string,
+        value: IssuanceDto,
+        actorToken?: TokenPayload,
+        req?: Request,
+    ) {
         if (value.display) {
             value.display = await this.replaceUrl(value.display, tenantId);
         }
@@ -136,10 +148,110 @@ export class IssuanceService {
             Object.entries(value).filter(([, v]) => v !== undefined),
         );
 
-        return this.issuanceConfigRepo.save({
+        const before =
+            "tenantId" in existingConfig
+                ? this.sanitizeIssuanceConfigForLog(
+                      existingConfig as IssuanceConfig,
+                  )
+                : undefined;
+
+        const saved = await this.issuanceConfigRepo.save({
             ...existingConfig,
             ...filteredValue,
             tenantId,
         });
+
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId,
+                actionType: "issuance_config_updated",
+                actor: this.resolveActor(actorToken),
+                changedFields: this.getChangedFields(
+                    before,
+                    this.sanitizeIssuanceConfigForLog(saved),
+                ),
+                before,
+                after: this.sanitizeIssuanceConfigForLog(saved),
+                requestMeta: this.extractRequestMeta(req),
+            });
+        }
+
+        return saved;
+    }
+
+    private sanitizeIssuanceConfigForLog(
+        config: IssuanceConfig,
+    ): Record<string, unknown> {
+        return {
+            display: config.display,
+            authServers: config.authServers,
+            batchSize: config.batchSize,
+            dPopRequired: config.dPopRequired,
+            walletAttestationRequired: config.walletAttestationRequired,
+            walletProviderTrustLists: config.walletProviderTrustLists,
+            signingKeyId: config.signingKeyId,
+            preferredAuthServer: config.preferredAuthServer,
+            chainedAs: config.chainedAs,
+            credentialResponseEncryption: config.credentialResponseEncryption,
+            credentialRequestEncryption: config.credentialRequestEncryption,
+            refreshTokenEnabled: config.refreshTokenEnabled,
+            refreshTokenExpiresInSeconds: config.refreshTokenExpiresInSeconds,
+            txCodeMaxAttempts: config.txCodeMaxAttempts,
+        };
+    }
+
+    private getChangedFields(
+        before?: Record<string, unknown>,
+        after?: Record<string, unknown>,
+    ): string[] {
+        const fields = new Set([
+            ...Object.keys(before ?? {}),
+            ...Object.keys(after ?? {}),
+        ]);
+
+        return [...fields].filter((field) => {
+            const beforeValue = before?.[field] ?? null;
+            const afterValue = after?.[field] ?? null;
+            return JSON.stringify(beforeValue) !== JSON.stringify(afterValue);
+        });
+    }
+
+    private resolveActor(token: TokenPayload): AuditLogActor {
+        const clientId = token.client?.clientId || token.authorizedParty;
+
+        if (token.subject && clientId && token.subject !== clientId) {
+            return {
+                type: "user",
+                id: token.subject,
+                display: clientId,
+            };
+        }
+
+        if (clientId) {
+            return {
+                type: "client",
+                id: clientId,
+                display: clientId,
+            };
+        }
+
+        if (token.subject) {
+            return {
+                type: "user",
+                id: token.subject,
+            };
+        }
+
+        return { type: "system" };
+    }
+
+    private extractRequestMeta(req?: Request) {
+        if (!req) return undefined;
+
+        return {
+            requestId: req.headers["x-request-id"]
+                ? String(req.headers["x-request-id"])
+                : undefined,
+        };
     }
 }

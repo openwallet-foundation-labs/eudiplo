@@ -13,7 +13,7 @@ For a complete configuration example, see the [Complete Configuration Example](#
 
 !!! Info
 
-    The data object for the import can be found in the [API Documentation](../../../api/openapi/#credentialconfigcreate)
+    The data object for the import can be found in the [API Documentation](../../api/openapi.md)
 
 ---
 
