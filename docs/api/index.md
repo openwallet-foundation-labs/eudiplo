@@ -20,14 +20,27 @@ When running EUDIPLO, the following endpoints are available:
     The API is split into two OpenAPI documents:
 
     - **Management API** (`/api/docs`): Endpoints for managing credentials, sessions, keys, and configurations (requires authentication).
-    - **Protocol API** (`/docs`): Wallet-facing protocol endpoints for OID4VCI, OID4VP, and related standards (public).
+    - **Protocol API** (`/docs`): Developer documentation for wallet-facing protocol endpoints such as OID4VCI, OID4VP, and related standards.
 
     Because all management endpoints share the `/api/` prefix, a reverse proxy
     (e.g. nginx) can enforce additional network-level protections such as IP
     allowlisting on management routes while keeping protocol endpoints publicly
-    accessible:
+    accessible. The root endpoint (`/`) and OpenAPI documentation endpoints
+    (`/docs`, `/docs-json`) are for operators and developers, not wallets. If
+    public documentation access is not required, they can be blocked at the
+    edge. The management documentation endpoints (`/api/docs`, `/api/docs-json`)
+    are covered by the `/api/` rule below:
 
     ```nginx
+    location = / {
+        deny all;
+    }
+
+    # Optional: disable public developer documentation endpoints.
+    location ~ ^/(docs|docs-json)$ {
+        deny all;
+    }
+
     location /api/ {
         allow 10.0.0.0/8;
         deny all;

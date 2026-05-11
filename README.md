@@ -142,7 +142,7 @@ pnpm --filter @eudiplo/client run dev
 ```bash
 # Get a token and start using the API
 # Replace with your configured AUTH_CLIENT_ID and AUTH_CLIENT_SECRET
-curl -X POST http://localhost:3000/oauth2/token \
+curl -X POST http://localhost:3000/api/oauth2/token \
   -H "Content-Type: application/json" \
   -d '{
     "client_id": "your-client-id",

@@ -249,7 +249,7 @@ export class EudiploClient {
 
   private async _doAuthenticate(): Promise<void> {
     const fetchFn = this.config.fetch ?? globalThis.fetch;
-    const res = await fetchFn(`${this.config.baseUrl}/oauth2/token`, {
+    const res = await fetchFn(`${this.config.baseUrl}/api/oauth2/token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

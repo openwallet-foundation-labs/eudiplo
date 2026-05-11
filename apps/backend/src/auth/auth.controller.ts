@@ -29,7 +29,7 @@ export class AuthController {
      * @param headers
      * @returns
      */
-    @Post("oauth2/token")
+    @Post("api/oauth2/token")
     @ApiBody({
         type: ClientCredentialsDto,
         examples: {

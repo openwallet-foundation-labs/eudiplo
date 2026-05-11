@@ -56,7 +56,7 @@ EUDIPLO includes a built-in OAuth2 server for simple deployments:
     **Option 1: Credentials in Authorization Header (OAuth2 Standard):**
 
     ```bash
-    curl -X POST http://localhost:3000/oauth2/token \
+    curl -X POST http://localhost:3000/api/oauth2/token \
       -H "Content-Type: application/json" \
       -H "Authorization: Basic $(echo -n 'client_id:client_secret' | base64)" \
       -d '{
@@ -67,7 +67,7 @@ EUDIPLO includes a built-in OAuth2 server for simple deployments:
     **Option 2: Credentials in Request Body:**
 
     ```bash
-    curl -X POST http://localhost:3000/oauth2/token \
+    curl -X POST http://localhost:3000/api/oauth2/token \
       -H "Content-Type: application/json" \
       -d '{
         "grant_type": "client_credentials",
@@ -121,7 +121,7 @@ AUTH_CLIENT_SECRET=root-secret
 
 In external OIDC mode:
 
-- EUDIPLO does not issue tokens from `/oauth2/token`
+- EUDIPLO does not issue tokens from `/api/oauth2/token`
 - `OIDC_CLIENT_ID` and `OIDC_CLIENT_SECRET` are used by EUDIPLO to manage
   roles/clients in Keycloak
 - `AUTH_CLIENT_ID` and `AUTH_CLIENT_SECRET` are optional; when both are set,
@@ -221,7 +221,7 @@ If the client attempts to use a config not in their allowed list, a `403 Forbidd
    `manage-clients`, `manage-users`, `view-realm`, `view-clients`, `view-users`)
 2. If bootstrap root login fails, ensure both `AUTH_CLIENT_ID` and
    `AUTH_CLIENT_SECRET` are set and obtain tokens from Keycloak's token endpoint
-   (not from EUDIPLO `/oauth2/token`)
+   (not from EUDIPLO `/api/oauth2/token`)
 
 ## Security Considerations
 

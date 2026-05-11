@@ -84,7 +84,7 @@ describe("OIDF", () => {
         // Acquire JWT token using client credentials
         const tokenResponse = await axiosBackendInstance.post<{
             access_token: string;
-        }>("/oauth2/token", {
+        }>("/api/oauth2/token", {
             client_id: clientId,
             client_secret: clientSecret,
             grant_type: "client_credentials",

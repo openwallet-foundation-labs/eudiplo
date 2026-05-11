@@ -19,16 +19,19 @@ import { ValidationErrorFilter } from "./shared/common/filters/validation-error.
 import otelSDK from "./tracing";
 
 /**
- * Protocol routes excluded from the `/api` global prefix.
- * These are wallet-facing and infrastructure endpoints that must remain
- * at the root path for protocol compliance and discoverability.
+ * Routes excluded from the automatic `/api` global prefix.
+ * Wallet-facing and infrastructure endpoints stay at the root path for protocol
+ * compliance and discoverability. The integrated OAuth2 token endpoint is
+ * already mounted under `/api` so firewalls can treat it as part of the admin
+ * surface without receiving a duplicate `/api/api` prefix.
  */
-const PROTOCOL_ROUTE_EXCLUSIONS: { path: string; method: RequestMethod }[] = [
+const GLOBAL_PREFIX_EXCLUSIONS: { path: string; method: RequestMethod }[] = [
     // Infrastructure
     { path: "/", method: RequestMethod.GET },
     { path: "health", method: RequestMethod.ALL },
-    // OAuth2 & Discovery
-    { path: "oauth2/{*path}", method: RequestMethod.ALL },
+    // Admin authentication
+    { path: "api/oauth2/{*path}", method: RequestMethod.ALL },
+    // Discovery
     { path: ".well-known/{*path}", method: RequestMethod.ALL },
     // OID4VCI Protocol
     { path: "issuers/:tenantId/vci/{*path}", method: RequestMethod.ALL },
@@ -188,7 +191,7 @@ async function bootstrap() {
 
     // Global route prefix: all management endpoints under /api/,
     // protocol endpoints (wallet-facing) stay at root for compliance
-    app.setGlobalPrefix("api", { exclude: PROTOCOL_ROUTE_EXCLUSIONS });
+    app.setGlobalPrefix("api", { exclude: GLOBAL_PREFIX_EXCLUSIONS });
 
     // Global exception filter for ValidationError
     app.useGlobalFilters(
@@ -244,7 +247,7 @@ async function bootstrap() {
                 type: "oauth2",
                 flows: {
                     clientCredentials: {
-                        tokenUrl: `${publicUrl}/oauth2/token`,
+                        tokenUrl: `${publicUrl}/api/oauth2/token`,
                         scopes: {},
                     },
                 },
@@ -383,7 +386,7 @@ async function bootstrap() {
                 logger.log(
                     `   → Mode:         Integrated OAuth2 (Client Credentials)`,
                 );
-                logger.log(`   → Token URL:    ${publicUrl}/oauth2/token`);
+                logger.log(`   → Token URL:    ${publicUrl}/api/oauth2/token`);
             }
         });
     }
