@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { AuditLogModule } from "../../../audit-log/audit-log.module";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
 import { CryptoModule } from "../../../crypto/crypto.module";
 import { StatusListEntity } from "./entities/status-list.entity";
@@ -13,6 +14,7 @@ import { StatusListManagementController } from "./status-list-management.control
 @Module({
     imports: [
         CryptoModule,
+        AuditLogModule,
         TypeOrmModule.forFeature([
             StatusMapping,
             StatusListEntity,

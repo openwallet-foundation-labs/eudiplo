@@ -106,6 +106,17 @@
               <span matListItemTitle>Users</span>
             </mat-list-item>
           }
+
+          @if (hasRole('clients:manage')) {
+            <mat-list-item
+              [routerLink]="['/admin/activity-logs']"
+              routerLinkActive="active-link"
+              (click)="closeSidenavOnMobile()"
+            >
+              <mat-icon matListItemIcon>history</mat-icon>
+              <span matListItemTitle>Activity Logs</span>
+            </mat-list-item>
+          }
         }
 
         <!-- Cryptographic Assets Section -->

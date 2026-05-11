@@ -144,7 +144,7 @@ When `rotationPolicy.enabled` is `true`:
 Define credential templates and schemas.
 
 **Schema Reference**:
-[Credential Config API](../api/openapi.md#credentialconfig)
+[Credential Config API](../api/openapi.md)
 
 ### Issuance Configurations
 
@@ -153,7 +153,7 @@ Define credential templates and schemas.
 Define issuance workflows and authentication requirements.
 
 **Schema Reference**:
-[Issuance Config API](../api/openapi.md#issuanceconfig)
+[Issuance Config API](../api/openapi.md)
 
 ### Presentation Configurations
 
@@ -162,7 +162,7 @@ Define issuance workflows and authentication requirements.
 Define verification requirements for credential presentations.
 
 **Schema Reference**:
-[Presentation Config API](../api/openapi.md#presentationconfig)
+[Presentation Config API](../api/openapi.md)
 
 ### Trust List Configurations
 
@@ -172,7 +172,7 @@ Define trust lists for credential verification. Trust lists specify which issuer
 and revocation services are trusted when verifying credentials during presentation flows.
 
 **Schema Reference**:
-[Trust List API](../api/openapi.md#trustlist)
+[Trust List API](../api/openapi.md)
 
 For detailed information on trust lists and their role in credential verification, see
 [Trust Framework](./trust-framework.md).
@@ -186,7 +186,7 @@ are used to track the status of issued credentials without revealing which speci
 credential is being checked.
 
 **Schema Reference**:
-[Status List API](../api/openapi.md#statuslist)
+[Status List API](../api/openapi.md)
 
 For detailed information on status lists and their role in credential lifecycle management,
 see [Status Management](./status-management.md).
@@ -198,7 +198,7 @@ see [Status Management](./status-management.md).
 Define client-specific configurations, including client IDs, secrets, and permissions.
 
 **Schema Reference**:
-[Client Config API](../api/openapi.md#clientconfig)
+[Client Config API](../api/openapi.md)
 
 ### Image Configuration
 

@@ -1,0 +1,135 @@
+<div class="activity-page">
+  <div class="activity-header">
+    <div class="header-main">
+      <h2>
+        <mat-icon>history</mat-icon>
+        Activity Logs
+      </h2>
+      <p>View change history for your tenant only</p>
+    </div>
+
+    <div class="header-controls">
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Filter by Object Type</mat-label>
+        <mat-select [(value)]="selectedObjectType" (selectionChange)="onFilterChange()">
+          <mat-option value="">All Objects</mat-option>
+          @for (objectType of getObjectTypes(); track objectType.value) {
+            <mat-option [value]="objectType.value">
+              {{ objectType.label }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <button
+        mat-stroked-button
+        color="primary"
+        (click)="refresh()"
+        [disabled]="activityLoading"
+        matTooltip="Refresh activity logs"
+      >
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (activityLoading) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading activity logs...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (activityError && !activityLoading) {
+    <div class="error-message">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ activityError }}</p>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!activityLoading && !activityError && activityLogs.length === 0) {
+    <div class="empty-state">
+      <mat-icon>info</mat-icon>
+      <p>No activity logs found for your tenant</p>
+    </div>
+  }
+
+  <!-- Activity Table -->
+  @if (!activityLoading && activityLogs.length > 0) {
+    <div class="table-container">
+      <table mat-table [dataSource]="visibleLogs" class="activity-table">
+        <!-- Timestamp Column -->
+        <ng-container matColumnDef="timestamp">
+          <th mat-header-cell *matHeaderCellDef>Timestamp</th>
+          <td mat-cell *matCellDef="let element">
+            {{ formatTimestamp(element.timestamp) }}
+          </td>
+        </ng-container>
+
+        <!-- Action Column -->
+        <ng-container matColumnDef="action">
+          <th mat-header-cell *matHeaderCellDef>Action</th>
+          <td mat-cell *matCellDef="let element">
+            <span class="action-badge" [ngClass]="'action-' + element.actionType">
+              {{ actionLabel(element.actionType) }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Actor Column -->
+        <ng-container matColumnDef="actor">
+          <th mat-header-cell *matHeaderCellDef>Actor</th>
+          <td mat-cell *matCellDef="let element">
+            {{ actorLabel(element) }}
+          </td>
+        </ng-container>
+
+        <!-- Changed Fields Column -->
+        <ng-container matColumnDef="changedFields">
+          <th mat-header-cell *matHeaderCellDef>Changed Fields</th>
+          <td mat-cell *matCellDef="let element">
+            <span
+              [matTooltip]="getChangedFieldsText(element.changedFields)"
+              matTooltipPosition="above"
+            >
+              {{ getChangedFieldsText(element.changedFields) }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let element">
+            <button
+              mat-icon-button
+              (click)="copyToClipboard(element)"
+              matTooltip="Copy to clipboard"
+              matTooltipPosition="above"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+
+    <div class="table-footer">
+      <mat-paginator
+        [length]="filteredLogs.length"
+        [pageIndex]="pageIndex"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="pageSizeOptions"
+        (page)="onPageChange($event)"
+        aria-label="Select activity log page"
+      ></mat-paginator>
+    </div>
+  }
+</div>

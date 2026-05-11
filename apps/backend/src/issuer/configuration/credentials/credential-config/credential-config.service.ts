@@ -2,7 +2,13 @@ import { readFileSync } from "node:fs";
 import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
+import { Request } from "express";
 import { Repository } from "typeorm";
+import {
+    AuditLogActor,
+    AuditLogService,
+} from "../../../../audit-log/audit-log.service";
+import { TokenPayload } from "../../../../auth/token.decorator";
 import { CertService } from "../../../../crypto/key/cert/cert.service";
 import { KeyUsageType } from "../../../../crypto/key/entities/key-chain.entity";
 import { ConfigImportService } from "../../../../shared/utils/config-import/config-import.service";
@@ -36,6 +42,7 @@ export class CredentialConfigService {
         private readonly configImportService: ConfigImportService,
         private readonly configImportOrchestrator: ConfigImportOrchestratorService,
         private readonly presentationsService: PresentationsService,
+        private readonly tenantActionLogService: AuditLogService,
     ) {
         this.configImportOrchestrator.register(
             "credentials",
@@ -238,16 +245,34 @@ export class CredentialConfigService {
         tenantId: string,
         config: CredentialConfigCreate,
         skipValidation = false,
+        actorToken?: TokenPayload,
+        req?: Request,
     ) {
         await this.replaceImageReferences(tenantId, config);
         await this.validateAttestationKeyChain(tenantId, config.keyChainId);
         if (!skipValidation) {
             await this.validateIaeActions(tenantId, config);
         }
-        return this.credentialConfigRepository.save({
+        const saved = await this.credentialConfigRepository.save({
             ...config,
             tenantId,
         });
+
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId,
+                actionType: "credential_config_created",
+                actor: this.resolveActor(actorToken),
+                changedFields: this.getChangedFields(
+                    undefined,
+                    this.sanitizeCredentialConfigForLog(saved),
+                ),
+                after: this.sanitizeCredentialConfigForLog(saved),
+                requestMeta: this.extractRequestMeta(req),
+            });
+        }
+
+        return saved;
     }
 
     /**
@@ -261,7 +286,13 @@ export class CredentialConfigService {
      * @param config - The partial CredentialConfig to update.
      * @returns A promise that resolves to the updated CredentialConfig entity.
      */
-    async update(tenantId: string, id: string, config: CredentialConfigUpdate) {
+    async update(
+        tenantId: string,
+        id: string,
+        config: CredentialConfigUpdate,
+        actorToken?: TokenPayload,
+        req?: Request,
+    ) {
         await this.replaceImageReferences(tenantId, config);
         await this.validateIaeActions(tenantId, config);
         const existing = await this.getById(tenantId, id);
@@ -270,12 +301,29 @@ export class CredentialConfigService {
                 ? (config.keyChainId ?? undefined)
                 : existing.keyChainId;
         await this.validateAttestationKeyChain(tenantId, keyChainId);
-        return this.credentialConfigRepository.save({
+        const saved = await this.credentialConfigRepository.save({
             ...existing,
             ...config,
             id,
             tenantId,
         });
+
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId,
+                actionType: "credential_config_updated",
+                actor: this.resolveActor(actorToken),
+                changedFields: this.getChangedFields(
+                    this.sanitizeCredentialConfigForLog(existing),
+                    this.sanitizeCredentialConfigForLog(saved),
+                ),
+                before: this.sanitizeCredentialConfigForLog(existing),
+                after: this.sanitizeCredentialConfigForLog(saved),
+                requestMeta: this.extractRequestMeta(req),
+            });
+        }
+
+        return saved;
     }
 
     /**
@@ -284,10 +332,98 @@ export class CredentialConfigService {
      * @param id - The ID of the CredentialConfig entity to delete.
      * @returns A promise that resolves to the result of the delete operation.
      */
-    delete(tenantId: string, id: string) {
-        return this.credentialConfigRepository.delete({
+    async delete(
+        tenantId: string,
+        id: string,
+        actorToken?: TokenPayload,
+        req?: Request,
+    ) {
+        const existing = await this.getById(tenantId, id);
+        const result = await this.credentialConfigRepository.delete({
             id,
             tenantId,
         });
+
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId,
+                actionType: "credential_config_deleted",
+                actor: this.resolveActor(actorToken),
+                before: this.sanitizeCredentialConfigForLog(existing),
+                requestMeta: this.extractRequestMeta(req),
+            });
+        }
+
+        return result;
+    }
+
+    private sanitizeCredentialConfigForLog(
+        config: CredentialConfig,
+    ): Record<string, unknown> {
+        return {
+            id: config.id,
+            format: config.config?.format,
+            config: config.config,
+            vct: config.vct,
+            schema: config.schema,
+            schemaMeta: config.schemaMeta,
+            iaeActions: config.iaeActions,
+            keyChainId: config.keyChainId,
+        };
+    }
+
+    private getChangedFields(
+        before?: Record<string, unknown>,
+        after?: Record<string, unknown>,
+    ): string[] {
+        const fields = new Set([
+            ...Object.keys(before ?? {}),
+            ...Object.keys(after ?? {}),
+        ]);
+
+        return [...fields].filter((field) => {
+            const beforeValue = before?.[field] ?? null;
+            const afterValue = after?.[field] ?? null;
+            return JSON.stringify(beforeValue) !== JSON.stringify(afterValue);
+        });
+    }
+
+    private resolveActor(token: TokenPayload): AuditLogActor {
+        const clientId = token.client?.clientId || token.authorizedParty;
+
+        if (token.subject && clientId && token.subject !== clientId) {
+            return {
+                type: "user",
+                id: token.subject,
+                display: clientId,
+            };
+        }
+
+        if (clientId) {
+            return {
+                type: "client",
+                id: clientId,
+                display: clientId,
+            };
+        }
+
+        if (token.subject) {
+            return {
+                type: "user",
+                id: token.subject,
+            };
+        }
+
+        return { type: "system" };
+    }
+
+    private extractRequestMeta(req?: Request) {
+        if (!req) return undefined;
+
+        return {
+            requestId: req.headers["x-request-id"]
+                ? String(req.headers["x-request-id"])
+                : undefined,
+        };
     }
 }
