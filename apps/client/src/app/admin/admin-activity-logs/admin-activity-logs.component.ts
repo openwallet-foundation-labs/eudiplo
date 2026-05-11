@@ -87,9 +87,7 @@ export class AdminActivityLogsComponent implements OnInit {
     let filtered = this.activityLogs;
 
     if (this.selectedObjectType) {
-      filtered = filtered.filter((log) =>
-        log.actionType?.includes(this.selectedObjectType!)
-      );
+      filtered = filtered.filter((log) => log.actionType?.includes(this.selectedObjectType!));
     }
 
     this.filteredLogs = filtered;
