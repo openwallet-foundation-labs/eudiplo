@@ -44,6 +44,32 @@ Set `DB_SSL=true` when your PostgreSQL server requires TLS encryption
 If your server accepts plaintext connections in a trusted internal network,
 you can keep `DB_SSL=false`.
 
+When using private CAs or self-signed certificates, configure certificate
+validation explicitly:
+
+```env
+DB_SSL=true
+DB_SSL_REJECT_UNAUTHORIZED=true
+DB_SSL_CA_PATH=/app/certs/postgres-ca.crt
+```
+
+Optional mutual TLS settings are also supported:
+
+```env
+DB_SSL_CERT_PATH=/app/certs/postgres-client.crt
+DB_SSL_KEY_PATH=/app/certs/postgres-client.key
+DB_SSL_KEY_PASSPHRASE=optional-passphrase
+```
+
+For local development only, you can disable certificate validation:
+
+```env
+DB_SSL=true
+DB_SSL_REJECT_UNAUTHORIZED=false
+```
+
+Do not use `DB_SSL_REJECT_UNAUTHORIZED=false` in production.
+
 Example for a TLS-required PostgreSQL deployment:
 
 ```env
