@@ -72,7 +72,7 @@ describe("Client Resource-Level Access Control (e2e)", () => {
 
         restrictedClientSecret = client.clientSecret;
         const restrictedTokenRes = await request(app.getHttpServer())
-            .post("/oauth2/token")
+            .post("/api/oauth2/token")
             .send({
                 client_id: client.clientId,
                 client_secret: client.clientSecret,
@@ -96,7 +96,7 @@ describe("Client Resource-Level Access Control (e2e)", () => {
             .then((res) => res.body);
 
         const unrestrictedTokenRes = await request(app.getHttpServer())
-            .post("/oauth2/token")
+            .post("/api/oauth2/token")
             .send({
                 client_id: client.clientId,
                 client_secret: client.clientSecret,
@@ -258,7 +258,7 @@ describe("Client Resource-Level Access Control (e2e)", () => {
                 .then((res) => res.body);
 
             const newTokenRes = await request(ctx.app.getHttpServer())
-                .post("/oauth2/token")
+                .post("/api/oauth2/token")
                 .send({
                     client_id: "restricted-client",
                     client_secret: restrictedClientSecret,
@@ -306,7 +306,7 @@ describe("Client Resource-Level Access Control (e2e)", () => {
                 .then((res) => res.body);
 
             const tokenRes = await request(ctx.app.getHttpServer())
-                .post("/oauth2/token")
+                .post("/api/oauth2/token")
                 .send({
                     client_id: client.clientId,
                     client_secret: client.clientSecret,

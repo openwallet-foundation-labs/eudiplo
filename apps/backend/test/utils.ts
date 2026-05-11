@@ -374,7 +374,7 @@ export async function getToken(
 ) {
     // Get JWT token using client credentials
     const tokenResponse = await request(app.getHttpServer())
-        .post("/oauth2/token")
+        .post("/api/oauth2/token")
         .trustLocalhost()
         .send({
             client_id: clientId,
@@ -404,7 +404,7 @@ export async function getToken(
         .then((res) => res.body.client);
 
     return request(app.getHttpServer())
-        .post("/oauth2/token")
+        .post("/api/oauth2/token")
         .trustLocalhost()
         .send({
             client_id: client.clientId,
