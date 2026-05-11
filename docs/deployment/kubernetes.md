@@ -425,7 +425,7 @@ Update to a specific version:
 
 ```bash
 kubectl -n eudiplo set image deployment/eudiplo \
-  eudiplo=ghcr.io/openwallet-foundation-labs/eudiplo:v1.2.3
+  eudiplo=ghcr.io/openwallet-foundation/eudiplo:v1.2.3
 ```
 
 Or edit deployment directly:
@@ -836,10 +836,10 @@ PVCs use the cluster's default StorageClass (Docker Desktop includes one by defa
 
 ## Support & Resources
 
-- **Documentation**: [https://openwallet-foundation-labs.github.io/eudiplo/latest/](https://openwallet-foundation-labs.github.io/eudiplo/latest/)
-- **GitHub Issues**: [https://github.com/openwallet-foundation-labs/eudiplo/issues](https://github.com/openwallet-foundation-labs/eudiplo/issues)
+- **Documentation**: [https://openwallet-foundation.github.io/eudiplo/latest/](https://openwallet-foundation.github.io/eudiplo/latest/)
+- **GitHub Issues**: [https://github.com/openwallet-foundation/eudiplo/issues](https://github.com/openwallet-foundation/eudiplo/issues)
 - **Discord Community**: [https://discord.gg/58ys8XfXDu](https://discord.gg/58ys8XfXDu)
-- **Source Code**: [https://github.com/openwallet-foundation-labs/eudiplo](https://github.com/openwallet-foundation-labs/eudiplo)
+- **Source Code**: [https://github.com/openwallet-foundation/eudiplo](https://github.com/openwallet-foundation/eudiplo)
 
 ## Next Steps
 

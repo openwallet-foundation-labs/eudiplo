@@ -6,7 +6,7 @@
 #   docker compose --profile full up               # Full: + Postgres + MinIO + Vault
 #
 # For more information, see the documentation:
-# https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/docker-compose/
+# https://openwallet-foundation.github.io/eudiplo/latest/deployment/docker-compose/
 
 services:
   # =============================================================================
@@ -14,7 +14,7 @@ services:
   # =============================================================================
 
   eudiplo:
-    image: ghcr.io/openwallet-foundation-labs/eudiplo:latest
+    image: ghcr.io/openwallet-foundation/eudiplo:latest
     restart: always
     env_file:
       - .env
@@ -33,7 +33,7 @@ services:
       - eudiplo-network
 
   eudiplo-client:
-    image: ghcr.io/openwallet-foundation-labs/eudiplo-client:latest
+    image: ghcr.io/openwallet-foundation/eudiplo-client:latest
     restart: always
     ports:
       - '4200:8080'

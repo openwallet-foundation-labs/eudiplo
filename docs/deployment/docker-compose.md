@@ -556,10 +556,10 @@ Edit `docker-compose.yml`:
 ```yaml
 services:
     eudiplo:
-        image: ghcr.io/openwallet-foundation-labs/eudiplo:v1.2.3
+        image: ghcr.io/openwallet-foundation/eudiplo:v1.2.3
 
     eudiplo-client:
-        image: ghcr.io/openwallet-foundation-labs/eudiplo-client:v1.2.3
+        image: ghcr.io/openwallet-foundation/eudiplo-client:v1.2.3
 ```
 
 Then:
@@ -964,8 +964,8 @@ docker volume prune
 
 ## Support & Resources
 
-- **Documentation:** [https://openwallet-foundation-labs.github.io/eudiplo/latest/](https://openwallet-foundation-labs.github.io/eudiplo/latest/)
-- **GitHub Issues:** [https://github.com/openwallet-foundation-labs/eudiplo/issues](https://github.com/openwallet-foundation-labs/eudiplo/issues)
+- **Documentation:** [https://openwallet-foundation.github.io/eudiplo/latest/](https://openwallet-foundation.github.io/eudiplo/latest/)
+- **GitHub Issues:** [https://github.com/openwallet-foundation/eudiplo/issues](https://github.com/openwallet-foundation/eudiplo/issues)
 - **Discord Community:** [https://discord.gg/58ys8XfXDu](https://discord.gg/58ys8XfXDu)
 - **Docker Compose Docs:** [https://docs.docker.com/compose/](https://docs.docker.com/compose/)
 

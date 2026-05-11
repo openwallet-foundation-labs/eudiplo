@@ -24,11 +24,11 @@ declare let monaco: any;
 
 // Dynamic schemas not generated from OpenAPI
 const claimsMetadataArraySchema = {
-  uri: 'https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClaimMetadataArray.schema.json',
+  uri: 'https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/ClaimMetadataArray.schema.json',
   fileMatch: ['a://b/ClaimMetadataArray*.schema.json'],
   schema: {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
-    $id: 'https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClaimMetadataArray.schema.json',
+    $id: 'https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/ClaimMetadataArray.schema.json',
     title: 'ClaimMetadataArray',
     type: 'array',
     items: claimsMetadataSchemaObj,
@@ -36,11 +36,11 @@ const claimsMetadataArraySchema = {
 };
 
 const transactionDataArraySchema = {
-  uri: 'https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TransactionDataArray.schema.json',
+  uri: 'https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/TransactionDataArray.schema.json',
   fileMatch: ['a://b/TransactionDataArray*.schema.json'],
   schema: {
     $schema: 'https://json-schema.org/draft/2020-12/schema',
-    $id: 'https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TransactionDataArray.schema.json',
+    $id: 'https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/TransactionDataArray.schema.json',
     title: 'TransactionDataArray',
     type: 'array',
     items: transactionDataSchemaObj,
