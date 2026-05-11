@@ -34,13 +34,13 @@ Choose how you want to run EUDIPLO:
       -e MASTER_SECRET=$(openssl rand -base64 32) \
       -e AUTH_CLIENT_ID=demo \
       -e AUTH_CLIENT_SECRET=demo-secret \
-      ghcr.io/openwallet-foundation-labs/eudiplo:latest
+      ghcr.io/openwallet-foundation/eudiplo:latest
 
     # Start the web client
     docker run -d \
       --name eudiplo-client \
       -p 4200:8080 \
-      ghcr.io/openwallet-foundation-labs/eudiplo-client:latest
+      ghcr.io/openwallet-foundation/eudiplo-client:latest
     ```
 
 === "⚡ API-Only Setup"
@@ -55,7 +55,7 @@ Choose how you want to run EUDIPLO:
       -e MASTER_SECRET=$(openssl rand -base64 32) \
       -e AUTH_CLIENT_ID=demo \
       -e AUTH_CLIENT_SECRET=demo-secret \
-      ghcr.io/openwallet-foundation-labs/eudiplo:latest
+      ghcr.io/openwallet-foundation/eudiplo:latest
     ```
 
 ---

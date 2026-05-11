@@ -31,7 +31,7 @@ EUDIPLO supports **webhook endpoints** to push data to your external services du
 
 ## Example Webhook Service
 
-A simple webhook simulator is available in the [test/webhook](https://github.com/openwallet-foundation-labs/eudiplo/tree/main/test/webhook)  
+A simple webhook simulator is available in the [test/webhook](https://github.com/openwallet-foundation/eudiplo/tree/main/test/webhook)  
 directory. It can be run locally or deployed to a Cloudflare Worker, and is a good starting point for testing webhook functionality.
 
 ---

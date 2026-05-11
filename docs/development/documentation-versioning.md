@@ -73,15 +73,15 @@ workflow dispatch feature in the repository's Actions tab.
 Once deployed, the documentation versions are available at:
 
 - **Latest Stable**:
-  [https://openwallet-foundation-labs.github.io/eudiplo/latest/](https://openwallet-foundation-labs.github.io/eudiplo/latest/)
+  [https://openwallet-foundation.github.io/eudiplo/latest/](https://openwallet-foundation.github.io/eudiplo/latest/)
   (points to latest major version)
 - **Development**:
-  [https://openwallet-foundation-labs.github.io/eudiplo/main/](https://openwallet-foundation-labs.github.io/eudiplo/main/)
+  [https://openwallet-foundation.github.io/eudiplo/main/](https://openwallet-foundation.github.io/eudiplo/main/)
   (alias: `/latest-dev/`)
-- **Major Versions**: `https://openwallet-foundation-labs.github.io/eudiplo/1/`,
-  `https://openwallet-foundation-labs.github.io/eudiplo/2/`, etc.
+- **Major Versions**: `https://openwallet-foundation.github.io/eudiplo/1/`,
+  `https://openwallet-foundation.github.io/eudiplo/2/`, etc.
 - **Specific Versions**:
-  `https://openwallet-foundation-labs.github.io/eudiplo/v1.2.3/` (direct access
+  `https://openwallet-foundation.github.io/eudiplo/v1.2.3/` (direct access
   only, not in version selector)
 - **Version Selector**: Available in the top navigation, shows only major
   versions + main

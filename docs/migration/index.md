@@ -57,7 +57,7 @@ Patch versions contain only bug fixes and should never require any migration ste
 
 EUDIPLO follows [Semantic Versioning](https://semver.org/):
 
-- **Breaking changes only happen in major versions.** If you experience a breaking change in a minor or patch release, please [report it as a bug](https://github.com/openwallet-foundation-labs/eudiplo/issues/new?template=bug_report.md).
+- **Breaking changes only happen in major versions.** If you experience a breaking change in a minor or patch release, please [report it as a bug](https://github.com/openwallet-foundation/eudiplo/issues/new?template=bug_report.md).
 - **Deprecation before removal.** Where feasible, features are deprecated in a minor release before being removed in the next major release.
 - **Database migrations are automatic.** Schema changes are handled by the migration system and should not require manual intervention.
 
@@ -68,4 +68,4 @@ If you encounter issues after upgrading:
 1. **Check the logs** — EUDIPLO logs migration steps and configuration errors on startup
 2. **Compare environment variables** — diff your `.env` against the latest `example.env`
 3. **Check the migration guide** — the version-specific guide lists all required actions
-4. **Open an issue** — if the migration guide doesn't cover your situation, [let us know](https://github.com/openwallet-foundation-labs/eudiplo/issues/new?template=bug_report.md)
+4. **Open an issue** — if the migration guide doesn't cover your situation, [let us know](https://github.com/openwallet-foundation/eudiplo/issues/new?template=bug_report.md)

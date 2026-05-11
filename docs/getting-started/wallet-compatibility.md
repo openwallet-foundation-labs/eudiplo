@@ -20,7 +20,7 @@ EUDIPLO is tested with every code change against the [OpenID Foundation Conforma
 
 !!! success "Compatibility Guarantee"
 
-    Any wallet that also passes the OIDF Conformance Test Suite should be compatible with EUDIPLO out of the box. If you encounter issues with a conformant wallet, please [report it](https://github.com/openwallet-foundation-labs/eudiplo/issues/new) so we can investigate.
+    Any wallet that also passes the OIDF Conformance Test Suite should be compatible with EUDIPLO out of the box. If you encounter issues with a conformant wallet, please [report it](https://github.com/openwallet-foundation/eudiplo/issues/new) so we can investigate.
 
 ---
 
@@ -80,7 +80,7 @@ EUDIPLO:
 
 !!! note "Help us expand this list!"
 
-    If you have successfully tested EUDIPLO with a wallet not listed here, please [reach out to us](https://github.com/openwallet-foundation-labs/eudiplo/issues/new?template=wallet-compatibility.md) so we can add it to this list.
+    If you have successfully tested EUDIPLO with a wallet not listed here, please [reach out to us](https://github.com/openwallet-foundation/eudiplo/issues/new?template=wallet-compatibility.md) so we can add it to this list.
 
 ---
 
@@ -94,7 +94,7 @@ If you want to test EUDIPLO with a new wallet, follow these steps:
 # Run EUDIPLO with proper HTTPS endpoint
 docker run -p 3000:3000 \
   -e PUBLIC_URL=https://your-domain.com \
-  ghcr.io/openwallet-foundation-labs/eudiplo:latest
+  ghcr.io/openwallet-foundation/eudiplo:latest
 ```
 
 ### **2. Test Credential Issuance**
@@ -129,7 +129,7 @@ Please document:
 If you have successfully tested a wallet with EUDIPLO:
 
 1. **Create an Issue**: Open a
-   [new issue](https://github.com/openwallet-foundation-labs/eudiplo/issues/new)
+   [new issue](https://github.com/openwallet-foundation/eudiplo/issues/new)
    on GitHub
 2. **Use Template**: Select the "Wallet Compatibility Report" template
 3. **Provide Details**: Include wallet name, version, test results, and any
@@ -167,6 +167,6 @@ If you encounter compatibility problems:
 - 📖 **Documentation**: Check our
   [Getting Started guide](../getting-started/quick-start.md)
 - 🐛 **Issues**: Report problems on
-  [GitHub Issues](https://github.com/openwallet-foundation-labs/eudiplo/issues)
+  [GitHub Issues](https://github.com/openwallet-foundation/eudiplo/issues)
 - 💬 **Community**: Join our [Discord server](https://discord.gg/58ys8XfXDu)
 - 📧 **Contact**: Reach out to the EUDIPLO team through GitHub discussions

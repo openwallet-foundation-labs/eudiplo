@@ -25,7 +25,7 @@ Before you start, make sure you have the following tools installed:
 ## 1. Clone the Repository
 
 ```bash
-git clone https://github.com/openwallet-foundation-labs/eudiplo
+git clone https://github.com/openwallet-foundation/eudiplo
 cd eudiplo
 ```
 
@@ -168,7 +168,7 @@ If you can't install Node.js locally (e.g., restricted environment) or prefer a 
 1. **Clone and open in VS Code:**
 
     ```bash
-    git clone https://github.com/openwallet-foundation-labs/eudiplo.git
+    git clone https://github.com/openwallet-foundation/eudiplo.git
     cd eudiplo
     code .
     ```
@@ -192,7 +192,7 @@ If you can't install Node.js locally (e.g., restricted environment) or prefer a 
 
 You can also use [GitHub Codespaces](https://github.com/features/codespaces) for cloud-based development:
 
-1. Go to the [repository on GitHub](https://github.com/openwallet-foundation-labs/eudiplo)
+1. Go to the [repository on GitHub](https://github.com/openwallet-foundation/eudiplo)
 2. Click **Code** → **Codespaces** → **Create codespace on main**
 
 The codespace automatically uses the devcontainer configuration.
