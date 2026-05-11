@@ -70,6 +70,7 @@ describe("Database SSL with CA path (positive)", () => {
             "",
             "[alt_names]",
             "DNS.1 = localhost",
+            "DNS.2 = host.testcontainers.internal",
             "IP.1 = 127.0.0.1",
         ].join("\n");
         writeFileSync(join(certDir, "openssl.cnf"), opensslCnf);
