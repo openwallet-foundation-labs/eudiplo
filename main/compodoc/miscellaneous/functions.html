@@ -140,6 +140,9 @@
                             <a href="#buildMsoMdocConfig" title="src/issuer/configuration/credentials/types/credential-config-types.ts" ><b>buildMsoMdocConfig</b>&nbsp;&nbsp;&nbsp;(src/.../credential-config-types.ts)</a>
                         </li>
                         <li>
+                            <a href="#buildPostgresSslOptions" title="src/database/postgres-ssl-options.ts" ><b>buildPostgresSslOptions</b>&nbsp;&nbsp;&nbsp;(src/.../postgres-ssl-options.ts)</a>
+                        </li>
+                        <li>
                             <a href="#buildSdJwtDcConfig" title="src/issuer/configuration/credentials/types/credential-config-types.ts" ><b>buildSdJwtDcConfig</b>&nbsp;&nbsp;&nbsp;(src/.../credential-config-types.ts)</a>
                         </li>
                         <li>
@@ -195,6 +198,15 @@
                         </li>
                         <li>
                             <a href="#loadTlsOptions" title="src/main.ts" ><b>loadTlsOptions</b>&nbsp;&nbsp;&nbsp;(src/.../main.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#parseBoolean" title="src/database/postgres-ssl-options.ts" ><b>parseBoolean</b>&nbsp;&nbsp;&nbsp;(src/.../postgres-ssl-options.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#parseOptionalString" title="src/database/postgres-ssl-options.ts" ><b>parseOptionalString</b>&nbsp;&nbsp;&nbsp;(src/.../postgres-ssl-options.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#readOptionalFile" title="src/database/postgres-ssl-options.ts" ><b>readOptionalFile</b>&nbsp;&nbsp;&nbsp;(src/.../postgres-ssl-options.ts)</a>
                         </li>
                         <li>
                             <a href="#Secured" title="src/auth/secure.decorator.ts" ><b>Secured</b>&nbsp;&nbsp;&nbsp;(src/.../secure.decorator.ts)</a>
@@ -861,6 +873,263 @@ This is a type assertion helper since our types are derived from the SDK</p>
                             </div>
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="../classes/CredentialConfig.html" target="_self" >CredentialConfigurationSupportedWithFormats</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/database/postgres-ssl-options.ts</h3>
+    <section data-compodoc="block-methods">
+    <h3></h3>    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="buildPostgresSslOptions"></a>
+                    <span class="name">
+                        <span ><b>buildPostgresSslOptions</b></span>
+                        <a href="#buildPostgresSslOptions"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>buildPostgresSslOptions(readValue)</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+                        <div class="io-description"><p>Build PostgreSQL SSL settings from environment/config values.</p>
+<p>Supported variables:</p>
+<ul>
+<li>DB_SSL=true|false</li>
+<li>DB_SSL_REJECT_UNAUTHORIZED=true|false</li>
+<li>DB_SSL_CA_PATH=/path/to/ca.crt</li>
+<li>DB_SSL_CERT_PATH=/path/to/client.crt</li>
+<li>DB_SSL_KEY_PATH=/path/to/client.key</li>
+<li>DB_SSL_KEY_PASSPHRASE=secret</li>
+</ul>
+</div>
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>readValue</td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/TlsOptions.html" target="_self" >boolean | TlsOptions</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="parseBoolean"></a>
+                    <span class="name">
+                        <span ><b>parseBoolean</b></span>
+                        <a href="#parseBoolean"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>parseBoolean(value)</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>value</td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>boolean | undefined</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="parseOptionalString"></a>
+                    <span class="name">
+                        <span ><b>parseOptionalString</b></span>
+                        <a href="#parseOptionalString"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>parseOptionalString(value)</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>value</td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>string | undefined</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="readOptionalFile"></a>
+                    <span class="name">
+                        <span ><b>readOptionalFile</b></span>
+                        <a href="#readOptionalFile"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+<code>readOptionalFile(path: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, variableName: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>path</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>variableName</td>
+                                            <td>
+                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Buffer</code>
 
                         </div>
                             <div class="io-description">

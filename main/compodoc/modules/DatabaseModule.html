@@ -170,8 +170,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="72"
-                                    class="link-to-prism">src/database/database.module.ts:72</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="75"
+                                    class="link-to-prism">src/database/database.module.ts:75</a></div>
                         </td>
                     </tr>
 
@@ -200,6 +200,7 @@ import { DataSource } from &quot;typeorm&quot;;
 import { PostgresConnectionOptions } from &quot;typeorm/driver/postgres/PostgresConnectionOptions.js&quot;;
 import { SqliteConnectionOptions } from &quot;typeorm/driver/sqlite/SqliteConnectionOptions.js&quot;;
 import * as migrations from &quot;./migrations&quot;;
+import { buildPostgresSslOptions } from &quot;./postgres-ssl-options&quot;;
 
 @Module({
     imports: [
@@ -241,7 +242,9 @@ import * as migrations from &quot;./migrations&quot;;
                             configService.getOrThrow&lt;string&gt;(&quot;DB_PASSWORD&quot;),
                         database:
                             configService.getOrThrow&lt;string&gt;(&quot;DB_DATABASE&quot;),
-                        ssl: configService.get&lt;boolean&gt;(&quot;DB_SSL&quot;, false),
+                        ssl: buildPostgresSslOptions((key: string) &#x3D;&gt;
+                            configService.get(key),
+                        ),
                         ...commonOptions,
                     } as PostgresConnectionOptions;
                 }
