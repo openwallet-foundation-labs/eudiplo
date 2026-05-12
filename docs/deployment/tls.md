@@ -59,7 +59,7 @@ To use built-in TLS with Docker Compose, mount your certificates as volumes:
 ```yaml
 services:
     eudiplo:
-        image: ghcr.io/openwallet-foundation-labs/eudiplo:latest
+        image: ghcr.io/openwallet-foundation/eudiplo:latest
         ports:
             - '3000:3000'
         environment:
@@ -159,7 +159,7 @@ services:
             - 'letsencrypt:/letsencrypt'
 
     eudiplo:
-        image: ghcr.io/openwallet-foundation-labs/eudiplo:latest
+        image: ghcr.io/openwallet-foundation/eudiplo:latest
         labels:
             - 'traefik.enable=true'
             - 'traefik.http.routers.eudiplo.rule=Host(`your-domain.com`)'
@@ -188,7 +188,7 @@ When serving the EUDIPLO client behind a reverse proxy on a subpath (e.g., `http
 ```yaml
 services:
     eudiplo-client:
-        image: ghcr.io/openwallet-foundation-labs/eudiplo-client:latest
+        image: ghcr.io/openwallet-foundation/eudiplo-client:latest
         environment:
             API_BASE_URL: http://eudiplo:3000
             CLIENT_BASE_HREF: /eudiplo-client/
@@ -244,7 +244,7 @@ With Traefik, use a `StripPrefix` middleware:
 ```yaml
 services:
     eudiplo-client:
-        image: ghcr.io/openwallet-foundation-labs/eudiplo-client:latest
+        image: ghcr.io/openwallet-foundation/eudiplo-client:latest
         environment:
             API_BASE_URL: http://eudiplo:3000
             CLIENT_BASE_HREF: /eudiplo-client/

@@ -2,7 +2,13 @@ import { readFileSync } from "node:fs";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToClass } from "class-transformer";
+import { Request } from "express";
 import { Repository } from "typeorm";
+import {
+    AuditLogActor,
+    AuditLogService,
+} from "../../../audit-log/audit-log.service";
+import { TokenPayload } from "../../../auth/token.decorator";
 import { ConfigImportService } from "../../../shared/utils/config-import/config-import.service";
 import {
     ConfigImportOrchestratorService,
@@ -19,6 +25,7 @@ export class AttributeProviderService {
         private readonly repo: Repository<AttributeProviderEntity>,
         private readonly configImportService: ConfigImportService,
         private readonly configImportOrchestrator: ConfigImportOrchestratorService,
+        private readonly tenantActionLogService: AuditLogService,
     ) {
         this.configImportOrchestrator.register(
             "attribute-providers",
@@ -66,21 +73,150 @@ export class AttributeProviderService {
         return entity;
     }
 
-    create(tenantId: string, dto: CreateAttributeProviderDto) {
-        return this.repo.save({ ...dto, tenantId });
+    async create(
+        tenantId: string,
+        dto: CreateAttributeProviderDto,
+        actorToken?: TokenPayload,
+        req?: Request,
+    ) {
+        const saved = await this.repo.save({ ...dto, tenantId });
+
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId,
+                actionType: "attribute_provider_created",
+                actor: this.resolveActor(actorToken),
+                changedFields: this.getChangedFields(
+                    undefined,
+                    this.sanitizeAttributeProviderForLog(saved),
+                ),
+                after: this.sanitizeAttributeProviderForLog(saved),
+                requestMeta: this.extractRequestMeta(req),
+            });
+        }
+
+        return saved;
     }
 
     async update(
         tenantId: string,
         id: string,
         dto: UpdateAttributeProviderDto,
+        actorToken?: TokenPayload,
+        req?: Request,
     ) {
         const existing = await this.getById(tenantId, id);
-        return this.repo.save({ ...existing, ...dto, id, tenantId });
+        const saved = await this.repo.save({
+            ...existing,
+            ...dto,
+            id,
+            tenantId,
+        });
+
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId,
+                actionType: "attribute_provider_updated",
+                actor: this.resolveActor(actorToken),
+                changedFields: this.getChangedFields(
+                    this.sanitizeAttributeProviderForLog(existing),
+                    this.sanitizeAttributeProviderForLog(saved),
+                ),
+                before: this.sanitizeAttributeProviderForLog(existing),
+                after: this.sanitizeAttributeProviderForLog(saved),
+                requestMeta: this.extractRequestMeta(req),
+            });
+        }
+
+        return saved;
     }
 
-    async delete(tenantId: string, id: string) {
-        await this.getById(tenantId, id);
-        return this.repo.delete({ id, tenantId });
+    async delete(
+        tenantId: string,
+        id: string,
+        actorToken?: TokenPayload,
+        req?: Request,
+    ) {
+        const existing = await this.getById(tenantId, id);
+        const result = await this.repo.delete({ id, tenantId });
+
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId,
+                actionType: "attribute_provider_deleted",
+                actor: this.resolveActor(actorToken),
+                before: this.sanitizeAttributeProviderForLog(existing),
+                requestMeta: this.extractRequestMeta(req),
+            });
+        }
+
+        return result;
+    }
+
+    private sanitizeAttributeProviderForLog(
+        provider: AttributeProviderEntity,
+    ): Record<string, unknown> {
+        return {
+            id: provider.id,
+            name: provider.name,
+            description: provider.description,
+            url: provider.url,
+            auth: provider.auth,
+        };
+    }
+
+    private getChangedFields(
+        before?: Record<string, unknown>,
+        after?: Record<string, unknown>,
+    ): string[] {
+        const fields = new Set([
+            ...Object.keys(before ?? {}),
+            ...Object.keys(after ?? {}),
+        ]);
+
+        return [...fields].filter((field) => {
+            const beforeValue = before?.[field] ?? null;
+            const afterValue = after?.[field] ?? null;
+            return JSON.stringify(beforeValue) !== JSON.stringify(afterValue);
+        });
+    }
+
+    private resolveActor(token: TokenPayload): AuditLogActor {
+        const clientId = token.client?.clientId || token.authorizedParty;
+
+        if (token.subject && clientId && token.subject !== clientId) {
+            return {
+                type: "user",
+                id: token.subject,
+                display: clientId,
+            };
+        }
+
+        if (clientId) {
+            return {
+                type: "client",
+                id: clientId,
+                display: clientId,
+            };
+        }
+
+        if (token.subject) {
+            return {
+                type: "user",
+                id: token.subject,
+            };
+        }
+
+        return { type: "system" };
+    }
+
+    private extractRequestMeta(req?: Request) {
+        if (!req) return undefined;
+
+        return {
+            requestId: req.headers["x-request-id"]
+                ? String(req.headers["x-request-id"])
+                : undefined,
+        };
     }
 }

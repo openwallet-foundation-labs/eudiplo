@@ -6,8 +6,10 @@ import {
     Param,
     Patch,
     Post,
+    Req,
 } from "@nestjs/common";
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Request } from "express";
 import { Role } from "../../../auth/roles/role.enum";
 import { Secured } from "../../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../../auth/token.decorator";
@@ -43,8 +45,9 @@ export class AttributeProviderController {
     create(
         @Body() dto: CreateAttributeProviderDto,
         @Token() user: TokenPayload,
+        @Req() req: Request,
     ) {
-        return this.service.create(user.entity!.id, dto);
+        return this.service.create(user.entity!.id, dto, user, req);
     }
 
     @Patch(":id")
@@ -56,15 +59,20 @@ export class AttributeProviderController {
         @Param("id") id: string,
         @Body() dto: UpdateAttributeProviderDto,
         @Token() user: TokenPayload,
+        @Req() req: Request,
     ) {
-        return this.service.update(user.entity!.id, id, dto);
+        return this.service.update(user.entity!.id, id, dto, user, req);
     }
 
     @Delete(":id")
     @ApiOperation({ summary: "Delete an attribute provider" })
     @ApiResponse({ status: 200, description: "Attribute provider deleted" })
     @ApiResponse({ status: 404, description: "Attribute provider not found" })
-    delete(@Param("id") id: string, @Token() user: TokenPayload) {
-        return this.service.delete(user.entity!.id, id);
+    delete(
+        @Param("id") id: string,
+        @Token() user: TokenPayload,
+        @Req() req: Request,
+    ) {
+        return this.service.delete(user.entity!.id, id, user, req);
     }
 }

@@ -64,6 +64,17 @@ export const routes: Routes = [
     children: tenantRoutes,
   },
 
+  // Admin routes
+  {
+    path: 'admin/activity-logs',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: getRole('clients:manage') },
+    loadComponent: () =>
+      import('./admin/admin-activity-logs/admin-activity-logs.component').then(
+        (m) => m.AdminActivityLogsComponent
+      ),
+  },
+
   // Offer routes (issuance & presentation)
   {
     path: 'offer',

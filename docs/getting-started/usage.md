@@ -21,10 +21,10 @@ Are you using EUDIPLO in your project? We'd love to feature it here!
 To add your project to this list:
 
 1. **Open a Pull Request**: Directly edit
-   [this page](https://github.com/openwallet-foundation-labs/eudiplo/edit/main/docs/getting-started/usage.md)
+   [this page](https://github.com/openwallet-foundation/eudiplo/edit/main/docs/getting-started/usage.md)
    and submit a PR
 2. **Or Open an Issue**: Create a
-   [new issue](https://github.com/openwallet-foundation-labs/eudiplo/issues/new)
+   [new issue](https://github.com/openwallet-foundation/eudiplo/issues/new)
    on GitHub with:
     - Project/Organization name
     - URL (if public)
@@ -42,6 +42,6 @@ Join our community to connect with other EUDIPLO users:
 
 - 💬 **Discord**: [Join our server](https://discord.gg/58ys8XfXDu)
 - 🐛 **GitHub Issues**:
-  [Report bugs or request features](https://github.com/openwallet-foundation-labs/eudiplo/issues)
+  [Report bugs or request features](https://github.com/openwallet-foundation/eudiplo/issues)
 - 📖 **Discussions**:
-  [Start a conversation](https://github.com/openwallet-foundation-labs/eudiplo/discussions)
+  [Start a conversation](https://github.com/openwallet-foundation/eudiplo/discussions)

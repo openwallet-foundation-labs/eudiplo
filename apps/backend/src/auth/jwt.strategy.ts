@@ -100,8 +100,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
         // Fetch client to get resource-level restrictions
         // For internal auth: sub is the client ID
         // For Keycloak: azp (authorized party) or client_id contains the client ID
-        const clientId =
-            payload.sub || (payload as any).azp || (payload as any).client_id;
+        const subject = (payload as any).sub as string | undefined;
+        const authorizedParty =
+            ((payload as any).azp as string | undefined) ||
+            ((payload as any).client_id as string | undefined);
+        const clientId = authorizedParty || subject;
         const client = clientId
             ? await this.clientsProvider
                   .getClientById(clientId)
@@ -112,6 +115,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
             entity: tenantEntity ?? undefined,
             roles: payload.roles || (payload as any).realm_access?.roles || [],
             client: client ?? undefined,
+            subject,
+            authorizedParty,
         };
     }
 }

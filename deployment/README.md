@@ -3,7 +3,7 @@
 This directory contains deployment configurations for EUDIPLO with multiple profiles to match your infrastructure needs.
 
 **📖 For comprehensive deployment documentation, visit:**  
-**[https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/](https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/)**
+**[https://openwallet-foundation.github.io/eudiplo/latest/deployment/](https://openwallet-foundation.github.io/eudiplo/latest/deployment/)**
 
 ## Deployment Options
 
@@ -66,9 +66,9 @@ deployment/
 
 | Deployment         | Path                    | Documentation                                                                                                  | Use Case      |
 | ------------------ | ----------------------- | -------------------------------------------------------------------------------------------------------------- | ------------- |
-| **Quick Start**    | `../docker-compose.yml` | [Docker Compose Guide](https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/docker-compose/) | Quick testing |
-| **Docker Compose** | `docker-compose/`       | [Docker Compose Guide](https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/docker-compose/) | Development   |
-| **Kubernetes**     | `k8s/`                  | [Kubernetes Guide](https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/kubernetes/)         | Production    |
+| **Quick Start**    | `../docker-compose.yml` | [Docker Compose Guide](https://openwallet-foundation.github.io/eudiplo/latest/deployment/docker-compose/) | Quick testing |
+| **Docker Compose** | `docker-compose/`       | [Docker Compose Guide](https://openwallet-foundation.github.io/eudiplo/latest/deployment/docker-compose/) | Development   |
+| **Kubernetes**     | `k8s/`                  | [Kubernetes Guide](https://openwallet-foundation.github.io/eudiplo/latest/deployment/kubernetes/)         | Production    |
 
 ## Service Access
 
@@ -84,6 +84,6 @@ After deployment, access the services at:
 
 ## Support
 
-- **Documentation:** [https://openwallet-foundation-labs.github.io/eudiplo/latest/](https://openwallet-foundation-labs.github.io/eudiplo/latest/)
-- **Issues:** [GitHub Issues](https://github.com/openwallet-foundation-labs/eudiplo/issues)
+- **Documentation:** [https://openwallet-foundation.github.io/eudiplo/latest/](https://openwallet-foundation.github.io/eudiplo/latest/)
+- **Issues:** [GitHub Issues](https://github.com/openwallet-foundation/eudiplo/issues)
 - **Community:** [Discord](https://discord.gg/58ys8XfXDu)

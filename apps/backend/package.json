@@ -6,10 +6,10 @@
     "license": "Apache-2.0",
     "repository": {
         "type": "git",
-        "url": "https://github.com/openwallet-foundation-labs/eudiplo.git"
+        "url": "https://github.com/openwallet-foundation/eudiplo.git"
     },
     "bugs": {
-        "url": "https://github.com/openwallet-foundation-labs/eudiplo/issues"
+        "url": "https://github.com/openwallet-foundation/eudiplo/issues"
     },
     "engines": {
         "node": ">=22.0.0",

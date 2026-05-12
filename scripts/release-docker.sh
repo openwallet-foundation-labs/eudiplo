@@ -6,7 +6,7 @@ set -euo pipefail
 : "${DOCKER_REGISTRY_PASSWORD:?DOCKER_REGISTRY_PASSWORD is required}"
 : "${DOCKER_RELEASE_VERSION:?DOCKER_RELEASE_VERSION is required}"
 
-REGISTRY="ghcr.io/openwallet-foundation-labs"
+REGISTRY="ghcr.io/openwallet-foundation"
 BACKEND_IMAGE="eudiplo"
 CLIENT_IMAGE="eudiplo-client"
 DOCKERFILE="Dockerfile"

@@ -142,7 +142,7 @@ export class AuthService {
             scopes_supported: ["openid"],
             claims_supported: ["iss", "sub", "aud", "exp", "iat"],
             service_documentation:
-                "https://openwallet-foundation-labs.github.io/eudiplo/latest/",
+                "https://openwallet-foundation.github.io/eudiplo/latest/",
         };
     }
 }

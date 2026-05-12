@@ -30,9 +30,19 @@ export class TenantShowComponent implements OnInit {
 
   constructor(private readonly route: ActivatedRoute) {}
 
-  ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id')!;
-    tenantControllerGetTenant<true>({ path: { id } }).then((res) => (this.tenant = res.data));
+  async ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (!id) {
+      console.error('Missing tenant ID in route');
+      return;
+    }
+
+    try {
+      this.tenant = await tenantControllerGetTenant<true>({ path: { id } }).then((res) => res.data);
+    } catch (error) {
+      console.error('Failed to load tenant details:', error);
+      return;
+    }
   }
 
   getCleanupModeLabel(mode?: string): string {

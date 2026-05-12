@@ -51,7 +51,7 @@ Perfect for:
 docker run -d \
   --name eudiplo \
   -p 3000:3000 \
-  ghcr.io/openwallet-foundation-labs/eudiplo:latest
+  ghcr.io/openwallet-foundation/eudiplo:latest
 ```
 
 !!! warning "External Dependencies Required"
@@ -82,4 +82,4 @@ Before deploying to production, ensure you:
 
 - **New to EUDIPLO?** Start with [Quick Start](../getting-started/quick-start.md)
 - **Ready for K8s?** See [Kubernetes Deployment](kubernetes.md)
-- **Need help?** Visit our [GitHub Issues](https://github.com/openwallet-foundation-labs/eudiplo/issues)
+- **Need help?** Visit our [GitHub Issues](https://github.com/openwallet-foundation/eudiplo/issues)

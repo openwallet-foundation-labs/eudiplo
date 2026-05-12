@@ -83,7 +83,7 @@ For real-time monitoring, see the [Monitoring Guide](../getting-started/monitor.
 Each tenant can override the global session settings via the `/session-config`
 endpoint or through the client UI under **Session Management > Session Config**.
 
-For the full API specification, see the [Session Config API](../api/index.md#tag/session-config).
+For the full API specification, see the [Session Config API](../api/openapi.md).
 
 ### Configuration Options
 
@@ -103,6 +103,11 @@ for details.
 When enabled, logs are available via `GET /api/session/{id}/logs` and are
 visible in the Web Client under the **Logs** tab on the session detail page.
 The tab only appears when log entries exist for the session.
+
+These session logs are distinct from tenant activity audit logs
+(`tenant_action_log`, exposed via `GET /api/admin/audit-logs`), which track
+internal management/configuration changes instead of issuance/presentation flow
+execution.
 
 ## Global Configuration
 

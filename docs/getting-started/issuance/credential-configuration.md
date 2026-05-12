@@ -13,7 +13,7 @@ For a complete configuration example, see the [Complete Configuration Example](#
 
 !!! Info
 
-    The data object for the import can be found in the [API Documentation](../../../api/openapi/#credentialconfigcreate)
+    The data object for the import can be found in the [API Documentation](../../api/openapi.md)
 
 ---
 
@@ -416,7 +416,7 @@ By default EUDIPLO will create a status list where each credential is managed wi
 
 !!! warning "TODO"
 
-    Move status configuration to the issuance config: <https://github.com/openwallet-foundation-labs/eudiplo/issues/276>
+    Move status configuration to the issuance config: <https://github.com/openwallet-foundation/eudiplo/issues/276>
 
 --8<-- "docs/generated/config-status.md"
 
@@ -630,4 +630,4 @@ This example includes:
 - **Selective disclosure**: `disclosureFrame` defining which claims can be selectively disclosed
 - **Display configuration**: How the credential appears in wallets, including colors, logos, and images
 
-You can use it as a template or use the generated [JSON Schema](https://github.com/openwallet-foundation-labs/eudiplo/blob/main/schemas/CredentialConfigCreate.schema.json) to create your own credential configurations by modifying the fields according to your requirements.
+You can use it as a template or use the generated [JSON Schema](https://github.com/openwallet-foundation/eudiplo/blob/main/schemas/CredentialConfigCreate.schema.json) to create your own credential configurations by modifying the fields according to your requirements.

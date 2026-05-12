@@ -1,11 +1,11 @@
 ![Logo](./docs/eudiplo.png)
 
-[![Build Status](https://github.com/openwallet-foundation-labs/eudiplo/actions/workflows/ci-and-release.yml/badge.svg)](https://github.com/openwallet-foundation-labs/eudiplo/actions)
-![License](https://img.shields.io/github/license/openwallet-foundation-labs/eudiplo)
-[![Website](https://img.shields.io/badge/website-eudiplo-blue)](https://openwallet-foundation-labs.github.io/eudiplo/latest/)
-[![Documentation Coverage](https://openwallet-foundation-labs.github.io/eudiplo/main/compodoc/images/coverage-badge-documentation.svg)](https://openwallet-foundation-labs.github.io/eudiplo/main/compodoc/coverage.html)
-[![codecov](https://codecov.io/github/openwallet-foundation-labs/eudiplo/graph/badge.svg?token=pt4TLHJYrO)](https://codecov.io/github/openwallet-foundation-labs/eudiplo)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=openwallet-foundation-labs_eudiplo&metric=alert_status)](https://sonarcloud.io/project/overview?id=openwallet-foundation-labs_eudiplo)
+[![Build Status](https://github.com/openwallet-foundation/eudiplo/actions/workflows/ci-and-release.yml/badge.svg)](https://github.com/openwallet-foundation/eudiplo/actions)
+![License](https://img.shields.io/github/license/openwallet-foundation/eudiplo)
+[![Website](https://img.shields.io/badge/website-eudiplo-blue)](https://openwallet-foundation.github.io/eudiplo/latest/)
+[![Documentation Coverage](https://openwallet-foundation.github.io/eudiplo/main/compodoc/images/coverage-badge-documentation.svg)](https://openwallet-foundation.github.io/eudiplo/main/compodoc/coverage.html)
+[![codecov](https://codecov.io/github/openwallet-foundation/eudiplo/graph/badge.svg?token=pt4TLHJYrO)](https://codecov.io/github/openwallet-foundation/eudiplo)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=openwallet-foundation_eudiplo&metric=alert_status)](https://sonarcloud.io/project/overview?id=openwallet-foundation_eudiplo)
 [![Join our Discord](https://img.shields.io/discord/1022962884864643214?label=Join%20our%20Discord&logo=discord&color=7289DA&labelColor=2C2F33)](https://discord.gg/58ys8XfXDu)
 
 # Your Diplomatic Layer for EUDI Wallet Integration
@@ -66,7 +66,7 @@ For quick testing and demos:
 
 ```bash
 # Clone the repository
-git clone https://github.com/openwallet-foundation-labs/eudiplo.git
+git clone https://github.com/openwallet-foundation/eudiplo.git
 cd eudiplo
 
 # Create .env with demo credentials
@@ -89,7 +89,7 @@ docker compose up -d
 
 ```bash
 # Clone and configure
-git clone https://github.com/openwallet-foundation-labs/eudiplo.git
+git clone https://github.com/openwallet-foundation/eudiplo.git
 cd eudiplo
 cp .env.example .env
 
@@ -116,12 +116,12 @@ docker run -p 3000:3000 \
   -e AUTH_CLIENT_ID=your-client-id \
   -e AUTH_CLIENT_SECRET=your-client-secret \
   -v $(pwd)/assets:/app/config \
-  ghcr.io/openwallet-foundation-labs/eudiplo:latest
+  ghcr.io/openwallet-foundation/eudiplo:latest
 
 # Run the client (optional - web interface)
 docker run -p 4200:80 \
   -e API_BASE_URL=http://localhost:3000 \
-  ghcr.io/openwallet-foundation-labs/eudiplo-client:latest
+  ghcr.io/openwallet-foundation/eudiplo-client:latest
 ```
 
 ### Option 3: Local Development
@@ -151,10 +151,10 @@ curl -X POST http://localhost:3000/api/oauth2/token \
 ```
 
 📚 API:
-[https://openwallet-foundation-labs.github.io/eudiplo/latest/api/](https://openwallet-foundation-labs.github.io/eudiplo/latest/api/)  
+[https://openwallet-foundation.github.io/eudiplo/latest/api/](https://openwallet-foundation.github.io/eudiplo/latest/api/)  
 📦
 Full setup:
-[Quickstart Guide](https://openwallet-foundation-labs.github.io/eudiplo/latest/getting-started/quick-start/)
+[Quickstart Guide](https://openwallet-foundation.github.io/eudiplo/latest/getting-started/quick-start/)
 
 ---
 
@@ -163,21 +163,21 @@ Full setup:
 **Choose your documentation version:**
 
 - 🚀 **Latest Stable** (recommended):
-  [https://openwallet-foundation-labs.github.io/eudiplo/latest/](https://openwallet-foundation-labs.github.io/eudiplo/latest/) -
+  [https://openwallet-foundation.github.io/eudiplo/latest/](https://openwallet-foundation.github.io/eudiplo/latest/) -
   Documentation for the most recent major release
 - 🔬 **Development**:
-  [https://openwallet-foundation-labs.github.io/eudiplo/main/](https://openwallet-foundation-labs.github.io/eudiplo/main/) -
+  [https://openwallet-foundation.github.io/eudiplo/main/](https://openwallet-foundation.github.io/eudiplo/main/) -
   Latest features from the main branch
 - 📚 **Specific Major Versions**:
-  [v1](https://openwallet-foundation-labs.github.io/eudiplo/1/),
-  [v2](https://openwallet-foundation-labs.github.io/eudiplo/2/), etc.
+  [v1](https://openwallet-foundation.github.io/eudiplo/1/),
+  [v2](https://openwallet-foundation.github.io/eudiplo/2/), etc.
 
 **Key sections:**
 
-- [Architecture](https://openwallet-foundation-labs.github.io/eudiplo/latest/architecture/)
-- [Supported Protocols](https://openwallet-foundation-labs.github.io/eudiplo/latest/architecture/supported-protocols/)
-- [API Reference](https://openwallet-foundation-labs.github.io/eudiplo/latest/api/)
-- [Code Documentation](https://openwallet-foundation-labs.github.io/eudiplo/latest/compodoc/)
+- [Architecture](https://openwallet-foundation.github.io/eudiplo/latest/architecture/)
+- [Supported Protocols](https://openwallet-foundation.github.io/eudiplo/latest/architecture/supported-protocols/)
+- [API Reference](https://openwallet-foundation.github.io/eudiplo/latest/api/)
+- [Code Documentation](https://openwallet-foundation.github.io/eudiplo/latest/compodoc/)
 
 ---
 

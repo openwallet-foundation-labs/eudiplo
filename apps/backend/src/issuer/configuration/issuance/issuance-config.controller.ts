@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Get, Post, Req } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
+import { Request } from "express";
 import { Role } from "../../../auth/roles/role.enum";
 import { Secured } from "../../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../../auth/token.decorator";
@@ -40,10 +41,13 @@ export class IssuanceConfigController {
     storeIssuanceConfiguration(
         @Body() config: IssuanceDto,
         @Token() user: TokenPayload,
+        @Req() req: Request,
     ) {
         return this.issuanceService.storeIssuanceConfiguration(
             user.entity!.id,
             config,
+            user,
+            req,
         );
     }
 }

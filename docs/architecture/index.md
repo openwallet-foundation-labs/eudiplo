@@ -28,7 +28,7 @@ Understanding EUDIPLO's role helps you integrate it correctly:
 
 ### Typical Integration Pattern
 
-For a visual overview, see the [system diagram](../index.md#how-it-works) on the home page.
+For a visual overview, see the [system diagram](../index.md#how-do-i-use-it) on the home page.
 
 ```mermaid
 flowchart LR
@@ -131,7 +131,7 @@ EUDIPLO can be deployed as:
 - a **backend service** in production (e.g., behind a gateway)
 
 You can find examples of deployments in the
-[deployment](https://github.com/openwallet-foundation-labs/eudiplo/tree/main/deployment)
+[deployment](https://github.com/openwallet-foundation/eudiplo/tree/main/deployment)
 directory.
 
 For configuration management, see

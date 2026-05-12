@@ -6,6 +6,7 @@ import {
     HttpCode,
     HttpStatus,
     Put,
+    Req,
 } from "@nestjs/common";
 import {
     ApiNoContentResponse,
@@ -13,6 +14,7 @@ import {
     ApiOperation,
     ApiTags,
 } from "@nestjs/swagger";
+import { Request } from "express";
 import { Role } from "../../../auth/roles/role.enum";
 import { Secured } from "../../../auth/secure.decorator";
 import { StatusListConfig } from "../../../auth/tenant/entitites/status-list-config";
@@ -70,10 +72,13 @@ export class StatusListConfigController {
     async updateConfig(
         @Token() token: TokenPayload,
         @Body() config: UpdateStatusListConfigDto,
+        @Req() req: Request,
     ): Promise<StatusListConfig> {
         return this.statusListConfigService.updateConfig(
             token.entity!.id,
             config,
+            token,
+            req,
         );
     }
 
@@ -91,7 +96,14 @@ export class StatusListConfigController {
     @ApiNoContentResponse({
         description: "Configuration reset successfully",
     })
-    async resetConfig(@Token() token: TokenPayload): Promise<void> {
-        return this.statusListConfigService.resetConfig(token.entity!.id);
+    async resetConfig(
+        @Token() token: TokenPayload,
+        @Req() req: Request,
+    ): Promise<void> {
+        return this.statusListConfigService.resetConfig(
+            token.entity!.id,
+            token,
+            req,
+        );
     }
 }
