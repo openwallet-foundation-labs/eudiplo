@@ -518,7 +518,7 @@ export class AuthService {
 
         return {
             issuer: oidc ?? publicUrl,
-            token_endpoint: &#x60;${publicUrl}/oauth2/token&#x60;,
+            token_endpoint: &#x60;${publicUrl}/api/oauth2/token&#x60;,
             jwks_uri: &#x60;${publicUrl}/.well-known/jwks.json&#x60;,
             response_types_supported: [&quot;token&quot;],
             grant_types_supported: [&quot;client_credentials&quot;],
@@ -536,7 +536,7 @@ export class AuthService {
             scopes_supported: [&quot;openid&quot;],
             claims_supported: [&quot;iss&quot;, &quot;sub&quot;, &quot;aud&quot;, &quot;exp&quot;, &quot;iat&quot;],
             service_documentation:
-                &quot;https://openwallet-foundation-labs.github.io/eudiplo/latest/&quot;,
+                &quot;https://openwallet-foundation.github.io/eudiplo/latest/&quot;,
         };
     }
 }

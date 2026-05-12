@@ -155,11 +155,16 @@
                     <td class="col-md-4">
                         <ul class="index-list">
                             <li>
+                                    <span class="modifier">Async</span>
                                 <a href="#create" >create</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
                                 <a href="#delete" >delete</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#extractRequestMeta" >extractRequestMeta</a>
                             </li>
                             <li>
                                 <a href="#getAll" >getAll</a>
@@ -170,8 +175,20 @@
                             </li>
                             <li>
                                     <span class="modifier">Private</span>
+                                <a href="#getChangedFields" >getChangedFields</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
                                     <span class="modifier">Async</span>
                                 <a href="#importForTenant" >importForTenant</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#resolveActor" >resolveActor</a>
+                            </li>
+                            <li>
+                                    <span class="modifier">Private</span>
+                                <a href="#sanitizeWebhookEndpointForLog" >sanitizeWebhookEndpointForLog</a>
                             </li>
                             <li>
                                     <span class="modifier">Async</span>
@@ -195,12 +212,12 @@
             <tbody>
                 <tr>
                     <td class="col-md-4">
-<code>constructor(repo: <a href="../entitys/WebhookEndpointEntity.html" target="_self">Repository&lt;WebhookEndpointEntity&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>)</code>
+<code>constructor(repo: <a href="../entitys/WebhookEndpointEntity.html" target="_self">Repository&lt;WebhookEndpointEntity&gt;</a>, configImportService: <a href="../injectables/ConfigImportService.html" target="_self">ConfigImportService</a>, configImportOrchestrator: <a href="../injectables/ConfigImportOrchestratorService.html" target="_self">ConfigImportOrchestratorService</a>, tenantActionLogService: <a href="../injectables/AuditLogService.html" target="_self">AuditLogService</a>)</code>
                     </td>
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:16</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="22" class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:22</a></div>
                             </td>
                         </tr>
 
@@ -253,6 +270,18 @@
                                                     </td>
                                                     
                                                 </tr>
+                                                <tr>
+                                                        <td>tenantActionLogService</td>
+                                                  
+                                                        <td>
+                                                                        <code><a href="../injectables/AuditLogService.html" target="_self" >AuditLogService</a></code>
+                                                        </td>
+                                                  
+                                                    <td>
+                                                            No
+                                                    </td>
+                                                    
+                                                </tr>
                                         </tbody>
                                     </table>
                             </div>
@@ -273,6 +302,7 @@
                 <td class="col-md-4">
                     <a name="create"></a>
                     <span class="name">
+                            <span class="modifier">Async</span>
                         <span ><b>create</b></span>
                         <a href="#create"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -280,15 +310,16 @@
             </tr>
             <tr>
                 <td class="col-md-4">
-<code>create(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/CreateWebhookEndpointDto.html" target="_self">CreateWebhookEndpointDto</a>)</code>
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>create(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/CreateWebhookEndpointDto.html" target="_self">CreateWebhookEndpointDto</a>, actorToken?: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>, req?: Request)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="69"
-                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:69</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="76"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:76</a></div>
                         </td>
                     </tr>
 
@@ -332,11 +363,35 @@
 
 
                                         </tr>
+                                        <tr>
+                                                <td>actorToken</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>req</td>
+                                            <td>
+                                                        <code>Request</code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="https://www.typescriptlang.org/docs/handbook/basic-types.html" target="_blank" >any</a></code>
+                            <b>Returns : </b>    <code>unknown</code>
 
                         </div>
                             <div class="io-description">
@@ -361,15 +416,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>delete(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>delete(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, actorToken?: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>, req?: Request)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="78"
-                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:78</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="134"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:134</a></div>
                         </td>
                     </tr>
 
@@ -413,11 +468,104 @@
 
 
                                         </tr>
+                                        <tr>
+                                                <td>actorToken</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>req</td>
+                                            <td>
+                                                        <code>Request</code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
                         <div class="io-description">
                             <b>Returns : </b>    <code>unknown</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="extractRequestMeta"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>extractRequestMeta</b></span>
+                        <a href="#extractRequestMeta"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>extractRequestMeta(req?: Request)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="213"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:213</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>req</td>
+                                            <td>
+                                                        <code>Request</code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>{ requestId: any; }</code>
 
                         </div>
                             <div class="io-description">
@@ -447,8 +595,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="57"
-                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:57</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="64"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:64</a></div>
                         </td>
                     </tr>
 
@@ -516,8 +664,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="61"
-                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:61</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="68"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:68</a></div>
                         </td>
                     </tr>
 
@@ -579,6 +727,87 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="getChangedFields"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>getChangedFields</b></span>
+                        <a href="#getChangedFields"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>getChangedFields(before?: Record<string | unknown>, after?: Record<string | unknown>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="168"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:168</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>before</td>
+                                            <td>
+                                                        <code>Record&lt;string | unknown&gt;</code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>after</td>
+                                            <td>
+                                                        <code>Record&lt;string | unknown&gt;</code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>string[]</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="importForTenant"></a>
                     <span class="name">
                             <span class="modifier">Private</span>
@@ -598,8 +827,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="30"
-                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:30</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="37"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:37</a></div>
                         </td>
                     </tr>
 
@@ -649,6 +878,144 @@
         <tbody>
             <tr>
                 <td class="col-md-4">
+                    <a name="resolveActor"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>resolveActor</b></span>
+                        <a href="#resolveActor"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>resolveActor(token: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="184"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:184</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>token</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>        <code><a href="../interfaces/AuditLogActor.html" target="_self" >AuditLogActor</a></code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="sanitizeWebhookEndpointForLog"></a>
+                    <span class="name">
+                            <span class="modifier">Private</span>
+                        <span ><b>sanitizeWebhookEndpointForLog</b></span>
+                        <a href="#sanitizeWebhookEndpointForLog"><span class="icon ion-ios-link"></span></a>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                        <span class="modifier-icon icon ion-ios-reset"></span>
+                    <code>sanitizeWebhookEndpointForLog(endpoint: <a href="../entitys/WebhookEndpointEntity.html" target="_self">WebhookEndpointEntity</a>)</code>
+                </td>
+            </tr>
+
+
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-line">Defined in <a href="" data-line="156"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:156</a></div>
+                        </td>
+                    </tr>
+
+
+            <tr>
+                <td class="col-md-4">
+
+                            <div class="io-description">
+                                <b>Parameters :</b>
+                                
+                                <table class="params">
+                                    <thead>
+                                        <tr>
+                                            <td>Name</td>
+                                                <td>Type</td>
+                                            <td>Optional</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                                <td>endpoint</td>
+                                            <td>
+                                                            <code><a href="../entitys/WebhookEndpointEntity.html" target="_self" >WebhookEndpointEntity</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <div class="io-description">
+                            <b>Returns : </b>    <code>Record&lt;string, unknown&gt;</code>
+
+                        </div>
+                            <div class="io-description">
+                                
+                            </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
                     <a name="update"></a>
                     <span class="name">
                             <span class="modifier">Async</span>
@@ -660,15 +1027,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>update(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/UpdateWebhookEndpointDto.html" target="_self">UpdateWebhookEndpointDto</a>)</code>
+                    <code>update(tenantId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, dto: <a href="../classes/UpdateWebhookEndpointDto.html" target="_self">UpdateWebhookEndpointDto</a>, actorToken?: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>, req?: Request)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="73"
-                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:73</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="101"
+                                    class="link-to-prism">src/issuer/configuration/webhook-endpoint/webhook-endpoint.service.ts:101</a></div>
                         </td>
                     </tr>
 
@@ -724,6 +1091,30 @@
 
 
                                         </tr>
+                                        <tr>
+                                                <td>actorToken</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>req</td>
+                                            <td>
+                                                        <code>Request</code>
+                                            </td>
+
+                                            <td>
+                                                    Yes
+                                            </td>
+
+
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -748,7 +1139,13 @@
 import { Injectable, NotFoundException } from &quot;@nestjs/common&quot;;
 import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
+import { Request } from &quot;express&quot;;
 import { Repository } from &quot;typeorm&quot;;
+import {
+    AuditLogActor,
+    AuditLogService,
+} from &quot;../../../audit-log/audit-log.service&quot;;
+import { TokenPayload } from &quot;../../../auth/token.decorator&quot;;
 import { ConfigImportService } from &quot;../../../shared/utils/config-import/config-import.service&quot;;
 import {
     ConfigImportOrchestratorService,
@@ -765,6 +1162,7 @@ export class WebhookEndpointService {
         private readonly repo: Repository&lt;WebhookEndpointEntity&gt;,
         private readonly configImportService: ConfigImportService,
         private readonly configImportOrchestrator: ConfigImportOrchestratorService,
+        private readonly tenantActionLogService: AuditLogService,
     ) {
         this.configImportOrchestrator.register(
             &quot;webhook-endpoints&quot;,
@@ -812,18 +1210,151 @@ export class WebhookEndpointService {
         return entity;
     }
 
-    create(tenantId: string, dto: CreateWebhookEndpointDto) {
-        return this.repo.save({ ...dto, tenantId });
+    async create(
+        tenantId: string,
+        dto: CreateWebhookEndpointDto,
+        actorToken?: TokenPayload,
+        req?: Request,
+    ) {
+        const saved &#x3D; await this.repo.save({ ...dto, tenantId });
+
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId,
+                actionType: &quot;webhook_endpoint_created&quot;,
+                actor: this.resolveActor(actorToken),
+                changedFields: this.getChangedFields(
+                    undefined,
+                    this.sanitizeWebhookEndpointForLog(saved),
+                ),
+                after: this.sanitizeWebhookEndpointForLog(saved),
+                requestMeta: this.extractRequestMeta(req),
+            });
+        }
+
+        return saved;
     }
 
-    async update(tenantId: string, id: string, dto: UpdateWebhookEndpointDto) {
+    async update(
+        tenantId: string,
+        id: string,
+        dto: UpdateWebhookEndpointDto,
+        actorToken?: TokenPayload,
+        req?: Request,
+    ) {
         const existing &#x3D; await this.getById(tenantId, id);
-        return this.repo.save({ ...existing, ...dto, id, tenantId });
+        const saved &#x3D; await this.repo.save({
+            ...existing,
+            ...dto,
+            id,
+            tenantId,
+        });
+
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId,
+                actionType: &quot;webhook_endpoint_updated&quot;,
+                actor: this.resolveActor(actorToken),
+                changedFields: this.getChangedFields(
+                    this.sanitizeWebhookEndpointForLog(existing),
+                    this.sanitizeWebhookEndpointForLog(saved),
+                ),
+                before: this.sanitizeWebhookEndpointForLog(existing),
+                after: this.sanitizeWebhookEndpointForLog(saved),
+                requestMeta: this.extractRequestMeta(req),
+            });
+        }
+
+        return saved;
     }
 
-    async delete(tenantId: string, id: string) {
-        await this.getById(tenantId, id);
-        return this.repo.delete({ id, tenantId });
+    async delete(
+        tenantId: string,
+        id: string,
+        actorToken?: TokenPayload,
+        req?: Request,
+    ) {
+        const existing &#x3D; await this.getById(tenantId, id);
+        const result &#x3D; await this.repo.delete({ id, tenantId });
+
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId,
+                actionType: &quot;webhook_endpoint_deleted&quot;,
+                actor: this.resolveActor(actorToken),
+                before: this.sanitizeWebhookEndpointForLog(existing),
+                requestMeta: this.extractRequestMeta(req),
+            });
+        }
+
+        return result;
+    }
+
+    private sanitizeWebhookEndpointForLog(
+        endpoint: WebhookEndpointEntity,
+    ): Record&lt;string, unknown&gt; {
+        return {
+            id: endpoint.id,
+            name: endpoint.name,
+            url: endpoint.url,
+            description: endpoint.description,
+            auth: endpoint.auth,
+        };
+    }
+
+    private getChangedFields(
+        before?: Record&lt;string, unknown&gt;,
+        after?: Record&lt;string, unknown&gt;,
+    ): string[] {
+        const fields &#x3D; new Set([
+            ...Object.keys(before ?? {}),
+            ...Object.keys(after ?? {}),
+        ]);
+
+        return [...fields].filter((field) &#x3D;&gt; {
+            const beforeValue &#x3D; before?.[field] ?? null;
+            const afterValue &#x3D; after?.[field] ?? null;
+            return JSON.stringify(beforeValue) !&#x3D;&#x3D; JSON.stringify(afterValue);
+        });
+    }
+
+    private resolveActor(token: TokenPayload): AuditLogActor {
+        const clientId &#x3D; token.client?.clientId || token.authorizedParty;
+
+        if (token.subject &amp;&amp; clientId &amp;&amp; token.subject !&#x3D;&#x3D; clientId) {
+            return {
+                type: &quot;user&quot;,
+                id: token.subject,
+                display: clientId,
+            };
+        }
+
+        if (clientId) {
+            return {
+                type: &quot;client&quot;,
+                id: clientId,
+                display: clientId,
+            };
+        }
+
+        if (token.subject) {
+            return {
+                type: &quot;user&quot;,
+                id: token.subject,
+            };
+        }
+
+        return { type: &quot;system&quot; };
+    }
+
+    private extractRequestMeta(req?: Request) {
+        if (!req) return undefined;
+
+        return {
+            requestId: req.headers[&quot;x-request-id&quot;]
+                ? String(req.headers[&quot;x-request-id&quot;])
+                : undefined,
+        };
     }
 }
 </code></pre>
