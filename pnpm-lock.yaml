@@ -370,6 +370,9 @@ importers:
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
+      undici:
+        specifier: ^7.16.0
+        version: 7.25.0
       unplugin-swc:
         specifier: ^1.5.9
         version: 1.5.9(@swc/core@1.15.33)(rollup@4.60.3)

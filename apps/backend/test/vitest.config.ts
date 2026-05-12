@@ -9,6 +9,11 @@ export default defineConfig({
         globals: true,
         root: "./",
         fileParallelism: false,
+        coverage: {
+            provider: "v8",
+            reportsDirectory: "./coverage/e2e",
+            cleanOnRerun: false,
+        },
         reporters: ["default", "junit"],
         outputFile: {
             junit: "../test-report.junit.xml",
