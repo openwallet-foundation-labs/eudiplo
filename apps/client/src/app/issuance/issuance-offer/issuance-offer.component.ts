@@ -273,6 +273,14 @@ export class IssuanceOfferComponent implements OnInit {
     const prefillData = history.state?.offerRequest as OfferRequestDto | undefined;
     if (prefillData) {
       await this.prefillFromOffer(prefillData);
+    } else {
+      // Auto-select if only one configuration is available
+      if (this.credentialConfigs.length === 1) {
+        this.credentialStepForm.patchValue({
+          credentialConfigurationIds: [this.credentialConfigs[0].id],
+        });
+        await this.setClaimFormFields([this.credentialConfigs[0].id]);
+      }
     }
 
     // Listen for credential config selection changes
