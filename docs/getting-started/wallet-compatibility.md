@@ -86,39 +86,74 @@ EUDIPLO:
 
 ## Testing New Wallets
 
-If you want to test EUDIPLO with a new wallet, follow these steps:
+EUDIPLO validates protocol interoperability automatically (OIDF conformance), but
+wallet-specific behavior should still be verified manually.
 
-### **1. Setup Test Environment**
+The following workflow is the recommended way to test a new wallet end-to-end.
+
+### **1. Setup a Test Environment**
+
+1. Start EUDIPLO using the [Quick Start](./quick-start.md).
+2. Complete the initial tenant and credential setup from
+   [First Steps](./first-steps.md).
+3. For testing with a mobile wallet, expose EUDIPLO on a public HTTPS URL and set
+   `PUBLIC_URL` to that URL (for example via ngrok as described in
+   [Running Locally](../development/running-locally.md)).
+
+Minimal backend example:
 
 ```bash
-# Run EUDIPLO with proper HTTPS endpoint
-docker run -p 3000:3000 \
-  -e PUBLIC_URL=https://your-domain.com \
+docker run -d \
+  --name eudiplo \
+  -p 3000:3000 \
+  -e PUBLIC_URL=https://your-public-host.example \
+  -e MASTER_SECRET=$(openssl rand -base64 32) \
+  -e AUTH_CLIENT_ID=demo \
+  -e AUTH_CLIENT_SECRET=demo-secret \
   ghcr.io/openwallet-foundation-labs/eudiplo:latest
 ```
 
-### **2. Test Credential Issuance**
+### **2. Prepare Wallet-Compatible Test Data**
 
-1. Configure a test credential template
-2. Initiate issuance flow via API
-3. Complete the flow in your wallet
-4. Verify credential is stored correctly
+Use a minimal, known-good configuration first:
 
-### **3. Test Credential Presentation**
+1. Create a credential configuration from a template (for example PID SD-JWT VC).
+2. Configure issuance with **DPoP disabled** for initial compatibility checks.
+3. Ensure signing keys/certificates are available for the tenant.
 
-1. Create a presentation request
-2. Generate QR code or deep link
-3. Present credential from wallet
-4. Verify presentation is received and validated
+### **3. Run Manual Issuance Checks**
 
-### **4. Document Results**
+At minimum, test these flows:
 
-Please document:
+1. **Pre-authorized flow (required):**
+    - Create an offer in **Issuance -> Sessions -> New Offer**.
+    - Scan QR/deep link with the wallet.
+    - Confirm credential is issued and stored in the wallet.
+2. **Authorization code flow (recommended):**
+    - Run an offer that requires user authentication.
+    - Confirm redirect/auth step works and issuance completes.
+3. **Negative checks (recommended):**
+    - Retry a consumed offer and verify replay is rejected.
+    - Test expired/invalid offers and verify expected error handling.
 
-- Wallet name and version
-- Test results (success/failure)
-- Any configuration adjustments needed
-- Error messages or issues encountered
+### **4. Run Manual Presentation Checks**
+
+1. Create a presentation request from a presentation configuration.
+2. Test **cross-device** flow (QR scan from another device).
+3. Test **same-device** flow when supported by the wallet.
+4. Verify EUDIPLO receives and validates the presentation and returns expected
+   claims to the verifier.
+5. Repeat with selective disclosure constraints to confirm claim filtering works.
+
+### **5. Record Compatibility Results**
+
+Document and share:
+
+- Wallet name and exact version
+- Device/OS version used for testing
+- Which flows passed/failed (pre-auth, auth code, presentation)
+- Required configuration deviations (for example DPoP on/off)
+- Error messages and wallet logs
 
 ---
 
