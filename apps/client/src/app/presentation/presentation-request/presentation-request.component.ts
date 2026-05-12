@@ -95,6 +95,11 @@ export class PresentationRequestComponent implements OnInit {
         await this.evaluateReadiness(this.route.snapshot.params['id']);
         //since we do not have any other values for now, we can submit the form
         this.onSubmit();
+      } else {
+        // Auto-select if only one configuration is available
+        if (this.configs.length === 1) {
+          this.form.patchValue({ requestId: this.configs[0].id });
+        }
       }
     } catch (error) {
       console.error('Error loading configurations:', error);
