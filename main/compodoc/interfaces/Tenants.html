@@ -265,14 +265,20 @@ import { InjectRepository } from &quot;@nestjs/typeorm&quot;;
 import type { UpDownCounter } from &quot;@opentelemetry/api&quot;;
 import { plainToClass } from &quot;class-transformer&quot;;
 import { validate } from &quot;class-validator&quot;;
+import { Request } from &quot;express&quot;;
 import { MetricService } from &quot;nestjs-otel&quot;;
 import { Repository } from &quot;typeorm&quot;;
+import {
+    AuditLogActor,
+    AuditLogService,
+} from &quot;../../audit-log/audit-log.service&quot;;
 import { EncryptionService } from &quot;../../crypto/encryption/encryption.service&quot;;
 import { RegistrarService } from &quot;../../registrar/registrar.service&quot;;
 import { ConfigImportOrchestratorService } from &quot;../../shared/utils/config-import/config-import-orchestrator.service&quot;;
 import { FilesService } from &quot;../../storage/files.service&quot;;
 import { CLIENTS_PROVIDER, ClientsProvider } from &quot;../client/client.provider&quot;;
 import { Role } from &quot;../roles/role.enum&quot;;
+import { TokenPayload } from &quot;../token.decorator&quot;;
 import { CreateTenantDto } from &quot;./dto/create-tenant.dto&quot;;
 import { ImportTenantDto } from &quot;./dto/import-tenant.dto&quot;;
 import { TenantEntity } from &quot;./entitites/tenant.entity&quot;;
@@ -298,6 +304,7 @@ export class TenantService implements OnApplicationBootstrap {
         metricService: MetricService,
         private readonly filesService: FilesService,
         private readonly configImportOrchestrator: ConfigImportOrchestratorService,
+        private readonly tenantActionLogService: AuditLogService,
     ) {
         this.tenantTotal &#x3D; metricService.getUpDownCounter(&quot;tenant_total&quot;, {
             description: &quot;Total number of tenants&quot;,
@@ -398,7 +405,11 @@ export class TenantService implements OnApplicationBootstrap {
      * @param data
      * @returns The created tenant with optional client credentials (if roles were specified)
      */
-    async createTenant(data: ImportTenantDto | CreateTenantDto) {
+    async createTenant(
+        data: ImportTenantDto | CreateTenantDto,
+        actorToken?: TokenPayload,
+        req?: Request,
+    ) {
         const tenant &#x3D; await this.tenantRepository.save(data);
         await this.setUpTenant(tenant);
 
@@ -422,10 +433,22 @@ export class TenantService implements OnApplicationBootstrap {
             };
         }
 
-        return {
+        const result &#x3D; {
             ...tenant,
             client: clientCredentials,
         };
+
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId: tenant.id,
+                actionType: &quot;tenant_created&quot;,
+                actor: this.resolveActor(actorToken),
+                after: this.sanitizeTenantForLog(tenant),
+                requestMeta: this.extractRequestMeta(req),
+            });
+        }
+
+        return result;
     }
 
     /**
@@ -462,20 +485,127 @@ export class TenantService implements OnApplicationBootstrap {
     async updateTenant(
         id: string,
         data: Partial&lt;Omit&lt;TenantEntity, &quot;id&quot; | &quot;clients&quot; | &quot;status&quot;&gt;&gt;,
+        actorToken?: TokenPayload,
+        req?: Request,
     ): Promise&lt;TenantEntity&gt; {
+        const existing &#x3D; await this.getTenant(id);
         await this.tenantRepository.update({ id }, data);
-        return this.getTenant(id);
+        const updated &#x3D; await this.getTenant(id);
+
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId: id,
+                actionType: &quot;tenant_updated&quot;,
+                actor: this.resolveActor(actorToken),
+                changedFields: this.getChangedFields(existing, updated),
+                before: this.sanitizeTenantForLog(existing),
+                after: this.sanitizeTenantForLog(updated),
+                requestMeta: this.extractRequestMeta(req),
+            });
+        }
+
+        return updated;
     }
 
     /**
      * Deletes a tenant by ID
      * @param tenantId The ID of the tenant to delete
      */
-    async deleteTenant(tenantId: string) {
+    async deleteTenant(
+        tenantId: string,
+        actorToken?: TokenPayload,
+        req?: Request,
+    ) {
+        const existingTenant &#x3D; await this.tenantRepository.findOne({
+            where: { id: tenantId },
+        });
+
         //delete all files associated with the tenant
         await this.filesService.deleteByTenant(tenantId);
         //because of cascading, all related entities will be deleted.
         await this.tenantRepository.delete({ id: tenantId });
+
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId,
+                actionType: &quot;tenant_deleted&quot;,
+                actor: this.resolveActor(actorToken),
+                before: existingTenant
+                    ? this.sanitizeTenantForLog(existingTenant)
+                    : undefined,
+                requestMeta: this.extractRequestMeta(req),
+            });
+        }
+    }
+
+    private sanitizeTenantForLog(
+        tenant: TenantEntity,
+    ): Record&lt;string, unknown&gt; {
+        return {
+            id: tenant.id,
+            name: tenant.name,
+            description: tenant.description,
+            status: tenant.status,
+            sessionConfig: tenant.sessionConfig,
+            statusListConfig: tenant.statusListConfig,
+        };
+    }
+
+    private resolveActor(token: TokenPayload): AuditLogActor {
+        const clientId &#x3D; token.client?.clientId || token.authorizedParty;
+
+        if (token.subject &amp;&amp; clientId &amp;&amp; token.subject !&#x3D;&#x3D; clientId) {
+            return {
+                type: &quot;user&quot;,
+                id: token.subject,
+                display: clientId,
+            };
+        }
+
+        if (clientId) {
+            return {
+                type: &quot;client&quot;,
+                id: clientId,
+                display: clientId,
+            };
+        }
+
+        if (token.subject) {
+            return {
+                type: &quot;user&quot;,
+                id: token.subject,
+            };
+        }
+
+        return { type: &quot;system&quot; };
+    }
+
+    private extractRequestMeta(req?: Request) {
+        if (!req) return undefined;
+
+        return {
+            requestId: req.headers[&quot;x-request-id&quot;]
+                ? String(req.headers[&quot;x-request-id&quot;])
+                : undefined,
+        };
+    }
+
+    private getChangedFields(
+        before: TenantEntity,
+        after: TenantEntity,
+    ): string[] {
+        const fields: Array&lt;keyof TenantEntity&gt; &#x3D; [
+            &quot;name&quot;,
+            &quot;description&quot;,
+            &quot;sessionConfig&quot;,
+            &quot;statusListConfig&quot;,
+        ];
+
+        return fields.filter((field) &#x3D;&gt; {
+            const beforeValue &#x3D; before[field] ?? null;
+            const afterValue &#x3D; after[field] ?? null;
+            return JSON.stringify(beforeValue) !&#x3D;&#x3D; JSON.stringify(afterValue);
+        }) as string[];
     }
 }
 </code></pre>

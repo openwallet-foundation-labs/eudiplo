@@ -310,6 +310,16 @@ export interface TokenPayload {
      * Client entity (includes resource-level restrictions)
      */
     client?: ClientEntity;
+
+    /**
+     * Token subject claim.
+     */
+    subject?: string;
+
+    /**
+     * Authorized party / OAuth client identifier when present.
+     */
+    authorizedParty?: string;
 }
 
 export interface InternalTokenPayload extends TokenPayload {

@@ -217,7 +217,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>deleteTenant(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>deleteTenant(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, token: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>, req: Request)</code>
                 </td>
             </tr>
 
@@ -231,8 +231,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="73"
-                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:73</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="85"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:85</a></div>
                         </td>
                     </tr>
 
@@ -269,6 +269,34 @@
                                             <td>
                                                     <p>The ID of the tenant to delete</p>
 
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>token</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>req</td>
+                                            <td>
+                                                        <code>Request</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -314,8 +342,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="53"
-                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:53</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="60"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:60</a></div>
                         </td>
                     </tr>
 
@@ -398,8 +426,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="33"
-                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:33</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="36"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:36</a></div>
                         </td>
                     </tr>
 
@@ -435,7 +463,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>initTenant(data: <a href="../classes/CreateTenantDto.html" target="_self">CreateTenantDto</a>)</code>
+                    <code>initTenant(data: <a href="../classes/CreateTenantDto.html" target="_self">CreateTenantDto</a>, token: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>, req: Request)</code>
                 </td>
             </tr>
 
@@ -449,8 +477,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="43"
-                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:43</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="46"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:46</a></div>
                         </td>
                     </tr>
 
@@ -476,6 +504,30 @@
                                                 <td>data</td>
                                             <td>
                                                             <code><a href="../classes/CreateTenantDto.html" target="_self" >CreateTenantDto</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>token</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                        </tr>
+                                        <tr>
+                                                <td>req</td>
+                                            <td>
+                                                        <code>Request</code>
                                             </td>
 
                                             <td>
@@ -513,7 +565,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>updateTenant(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, data: <a href="../classes/UpdateTenantDto.html" target="_self">UpdateTenantDto</a>)</code>
+                    <code>updateTenant(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, data: <a href="../classes/UpdateTenantDto.html" target="_self">UpdateTenantDto</a>, token: <a href="../interfaces/TokenPayload.html" target="_self">TokenPayload</a>, req: Request)</code>
                 </td>
             </tr>
 
@@ -527,8 +579,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="64"
-                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:64</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="71"
+                                    class="link-to-prism">src/auth/tenant/tenant.controller.ts:71</a></div>
                         </td>
                     </tr>
 
@@ -583,6 +635,34 @@
 
                                             </td>
                                         </tr>
+                                        <tr>
+                                                <td>token</td>
+                                            <td>
+                                                            <code><a href="../interfaces/TokenPayload.html" target="_self" >TokenPayload</a></code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                                <td>req</td>
+                                            <td>
+                                                        <code>Request</code>
+                                            </td>
+
+                                            <td>
+                                                    No
+                                            </td>
+
+
+                                            <td>
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -610,10 +690,13 @@
     Param,
     Patch,
     Post,
+    Req,
 } from &quot;@nestjs/common&quot;;
 import { ApiExtraModels, ApiTags } from &quot;@nestjs/swagger&quot;;
+import { Request } from &quot;express&quot;;
 import { Role } from &quot;../roles/role.enum&quot;;
 import { Secured } from &quot;../secure.decorator&quot;;
+import { Token, TokenPayload } from &quot;../token.decorator&quot;;
 import { CreateTenantDto } from &quot;./dto/create-tenant.dto&quot;;
 import { ImportTenantDto } from &quot;./dto/import-tenant.dto&quot;;
 import { UpdateTenantDto } from &quot;./dto/update-tenant.dto&quot;;
@@ -644,8 +727,12 @@ export class TenantController {
      * @returns
      */
     @Post()
-    initTenant(@Body() data: CreateTenantDto) {
-        return this.tenantService.createTenant(data);
+    initTenant(
+        @Body() data: CreateTenantDto,
+        @Token() token: TokenPayload,
+        @Req() req: Request,
+    ) {
+        return this.tenantService.createTenant(data, token, req);
     }
 
     /**
@@ -665,8 +752,13 @@ export class TenantController {
      * @returns The updated tenant
      */
     @Patch(&quot;:id&quot;)
-    updateTenant(@Param(&quot;id&quot;) id: string, @Body() data: UpdateTenantDto) {
-        return this.tenantService.updateTenant(id, data);
+    updateTenant(
+        @Param(&quot;id&quot;) id: string,
+        @Body() data: UpdateTenantDto,
+        @Token() token: TokenPayload,
+        @Req() req: Request,
+    ) {
+        return this.tenantService.updateTenant(id, data, token, req);
     }
 
     /**
@@ -674,8 +766,12 @@ export class TenantController {
      * @param id The ID of the tenant to delete
      */
     @Delete(&quot;:id&quot;)
-    deleteTenant(@Param(&quot;id&quot;) id: string) {
-        return this.tenantService.deleteTenant(id);
+    deleteTenant(
+        @Param(&quot;id&quot;) id: string,
+        @Token() token: TokenPayload,
+        @Req() req: Request,
+    ) {
+        return this.tenantService.deleteTenant(id, token, req);
     }
 }
 </code></pre>
