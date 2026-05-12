@@ -6,5 +6,5 @@ export class CertResponseDto {
     /**
      * The ID of the created self-signed certificate.
      */
-    id: string;
+    id!: string;
 }

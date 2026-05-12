@@ -14,6 +14,7 @@
             "DOM"
         ],
         "strict": true,
+        "ignoreDeprecations": "6.0",
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
