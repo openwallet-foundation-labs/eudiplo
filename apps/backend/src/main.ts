@@ -16,7 +16,6 @@ import { cleanupOpenApiDoc } from "nestjs-zod";
 import { AllExceptionsFilter } from "./all-exceptions.filter";
 import { AppModule } from "./app.module";
 import { ValidationErrorFilter } from "./shared/common/filters/validation-error.filter";
-import otelSDK from "./tracing";
 
 /**
  * Routes excluded from the automatic `/api` global prefix.
@@ -163,7 +162,11 @@ function loadTlsOptions(): TlsOptions | undefined {
 async function bootstrap() {
     // Start OpenTelemetry SDK before NestJS initializes —
     // instrumentations must be registered before any framework code runs.
-    await otelSDK.start();
+    // During DOC_GENERATE we skip OTel bootstrap entirely.
+    if (!process.env.DOC_GENERATE) {
+        const { default: otelSDK } = await import("./tracing");
+        await otelSDK.start();
+    }
 
     // Load TLS options if configured
     const tlsOptions = loadTlsOptions();

@@ -21,7 +21,7 @@ export class TrustList {
      * */
     @IsString()
     @Column("varchar", { primary: true })
-    id: string;
+    id!: string;
 
     @IsString()
     @IsOptional()
@@ -41,7 +41,7 @@ export class TrustList {
     tenant!: TenantEntity;
 
     @Column("varchar")
-    keyChainId: string;
+    keyChainId!: string;
 
     @ManyToOne(() => KeyChainEntity, {
         cascade: true,
@@ -73,17 +73,17 @@ export class TrustList {
      * The sequence number for versioning (incremented on updates)
      */
     @Column({ type: "int", default: 1 })
-    sequenceNumber: number;
+    sequenceNumber!: number;
 
     /**
      * The signed JWT representation of this trust list
      */
     @Column({ type: "varchar" })
-    jwt: string;
+    jwt!: string;
 
     @CreateDateColumn()
-    createdAt: Date;
+    createdAt!: Date;
 
     @UpdateDateColumn()
-    updatedAt: Date;
+    updatedAt!: Date;
 }

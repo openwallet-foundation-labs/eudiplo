@@ -13,7 +13,7 @@ import { TrustList } from "../entities/trust-list.entity";
  */
 export class TrustListEntityInfo {
     @IsString()
-    name: string;
+    name!: string;
 
     @IsString()
     @IsOptional()
@@ -50,17 +50,17 @@ export class TrustListEntityInfo {
 export class InternalTrustListEntity {
     @ApiProperty({ enum: ["internal"] })
     @IsString()
-    type: "internal";
+    type!: "internal";
 
     @IsString()
-    issuerKeyChainId: string;
+    issuerKeyChainId!: string;
 
     @IsString()
-    revocationKeyChainId: string;
+    revocationKeyChainId!: string;
 
     @ValidateNested()
     @Type(() => TrustListEntityInfo)
-    info: TrustListEntityInfo;
+    info!: TrustListEntityInfo;
 }
 
 /**
@@ -69,17 +69,17 @@ export class InternalTrustListEntity {
 export class ExternalTrustListEntity {
     @ApiProperty({ enum: ["external"] })
     @IsString()
-    type: "external";
+    type!: "external";
 
     @IsString()
-    issuerCertPem: string;
+    issuerCertPem!: string;
 
     @IsString()
-    revocationCertPem: string;
+    revocationCertPem!: string;
 
     @ValidateNested()
     @Type(() => TrustListEntityInfo)
-    info: TrustListEntityInfo;
+    info!: TrustListEntityInfo;
 }
 
 export type TrustListEntity = InternalTrustListEntity | ExternalTrustListEntity;
@@ -140,5 +140,5 @@ export class TrustListCreateDto extends OmitType(TrustList, [
         },
         keepDiscriminatorProperty: true,
     })
-    entities: TrustListEntity[];
+    entities!: TrustListEntity[];
 }

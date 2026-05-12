@@ -8,7 +8,7 @@ export class AuthResponse {
      * The VP token containing the presentation data.
      */
     @IsObject()
-    vp_token: {
+    vp_token!: {
         /**
          * Key-value pairs representing the VP token data.
          */

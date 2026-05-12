@@ -41,7 +41,7 @@ export class PresentationAttachment {
     format!: string;
 
     @IsNotEmpty()
-    data: any;
+    data!: any;
 
     @IsOptional()
     @IsString({ each: true })
@@ -76,7 +76,7 @@ export class CredentialQuery {
     claims?: ClaimsQuery[];
 
     @IsObject()
-    meta: any;
+    meta!: any;
 
     @IsArray()
     @IsOptional()
@@ -127,10 +127,10 @@ export class DCQL {
 
 export class TransactionData {
     @IsString()
-    type: string;
+    type!: string;
     @IsArray()
     @IsString({ each: true })
-    credential_ids: string[];
+    credential_ids!: string[];
     [key: string]: any;
 }
 
@@ -167,20 +167,20 @@ export class PresentationConfig {
      */
     @Column("varchar", { primary: true })
     @IsString()
-    id: string;
+    id!: string;
 
     /**
      * The tenant ID for which the VP request is made.
      */
     @ApiHideProperty()
     @Column("varchar", { primary: true })
-    tenantId: string;
+    tenantId!: string;
 
     /**
      * The tenant that owns this object.
      */
     @ManyToOne(() => TenantEntity, { cascade: true, onDelete: "CASCADE" })
-    tenant: TenantEntity;
+    tenant!: TenantEntity;
 
     /**
      * Description of the presentation configuration.
