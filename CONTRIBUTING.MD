@@ -10,7 +10,7 @@ This guide will walk you through the steps to report issues, suggest features, a
 
 If you find a bug, glitch, or unclear behavior:
 
-1. **Search** existing [issues](https://github.com/openwallet-foundation-labs/eudiplo/issues) to avoid duplicates.
+1. **Search** existing [issues](https://github.com/openwallet-foundation/eudiplo/issues) to avoid duplicates.
 2. If not found, **open a new issue** and include:
    - A short description
    - Steps to reproduce
@@ -23,7 +23,7 @@ If you find a bug, glitch, or unclear behavior:
 
 Have an idea to improve EUDIPLO?
 
-- Check if a [feature request](https://github.com/openwallet-foundation-labs/eudiplo/issues) already exists
+- Check if a [feature request](https://github.com/openwallet-foundation/eudiplo/issues) already exists
 - Open a new issue with a `feature request` label and describe:
   - The problem you want to solve
   - The proposed solution
@@ -37,11 +37,11 @@ Looking for a good first contribution? Here are some places to start:
 
 ### Good First Issues
 
-Check our [GitHub issues labeled `good first issue`](https://github.com/openwallet-foundation-labs/eudiplo/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) for beginner-friendly tasks.
+Check our [GitHub issues labeled `good first issue`](https://github.com/openwallet-foundation/eudiplo/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) for beginner-friendly tasks.
 
 ### SonarCloud Code Quality Issues
 
-Our [SonarCloud dashboard](https://sonarcloud.io/project/overview?id=openwallet-foundation-labs_eudiplo) shows code quality issues that make excellent first contributions:
+Our [SonarCloud dashboard](https://sonarcloud.io/project/overview?id=openwallet-foundation_eudiplo) shows code quality issues that make excellent first contributions:
 
 - **Code Smells** – Small improvements to code readability and maintainability
 - **Bugs** – Potential issues detected by static analysis
@@ -177,7 +177,7 @@ We follow a [Code of Conduct](CODE_OF_CONDUCT.md) to foster an inclusive and res
 
 ## Need Help?
 
-- Open a discussion or issue on [GitHub](https://github.com/openwallet-foundation-labs/eudiplo/issues)
+- Open a discussion or issue on [GitHub](https://github.com/openwallet-foundation/eudiplo/issues)
 - Contact the maintainers for guidance
 
 Thanks for helping improve EUDIPLO!

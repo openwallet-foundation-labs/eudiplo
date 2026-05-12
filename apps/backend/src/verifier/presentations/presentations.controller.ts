@@ -6,8 +6,10 @@ import {
     Param,
     Patch,
     Post,
+    Req,
 } from "@nestjs/common";
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Request } from "express";
 import { Role } from "../../auth/roles/role.enum";
 import { Secured } from "../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../auth/token.decorator";
@@ -119,10 +121,13 @@ export class PresentationManagementController {
     storePresentationConfig(
         @Body() config: PresentationConfigCreateDto,
         @Token() user: TokenPayload,
+        @Req() req: Request,
     ) {
         return this.presentationsService.storePresentationConfig(
             user.entity!.id,
             config,
+            user,
+            req,
         );
     }
 
@@ -154,11 +159,14 @@ export class PresentationManagementController {
         @Param("id") id: string,
         @Body() config: PresentationConfigUpdateDto,
         @Token() user: TokenPayload,
+        @Req() req: Request,
     ) {
         return this.presentationsService.updatePresentationConfig(
             id,
             user.entity!.id,
             config,
+            user,
+            req,
         );
     }
 
@@ -169,10 +177,16 @@ export class PresentationManagementController {
      */
     @Secured([Role.Presentations])
     @Delete(":id")
-    deleteConfiguration(@Param("id") id: string, @Token() user: TokenPayload) {
+    deleteConfiguration(
+        @Param("id") id: string,
+        @Token() user: TokenPayload,
+        @Req() req: Request,
+    ) {
         return this.presentationsService.deletePresentationConfig(
             id,
             user.entity!.id,
+            user,
+            req,
         );
     }
 

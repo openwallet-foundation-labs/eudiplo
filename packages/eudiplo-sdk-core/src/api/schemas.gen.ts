@@ -395,6 +395,73 @@ export const UpdateTenantDtoSchema = {
   },
 } as const;
 
+export const AuditLogResponseDtoSchema = {
+  type: "object",
+  properties: {
+    id: {
+      type: "string",
+    },
+    tenantId: {
+      type: "string",
+    },
+    actionType: {
+      type: "string",
+      enum: [
+        "tenant_created",
+        "tenant_updated",
+        "tenant_deleted",
+        "presentation_config_created",
+        "presentation_config_updated",
+        "presentation_config_deleted",
+        "issuance_config_updated",
+        "credential_config_created",
+        "credential_config_updated",
+        "credential_config_deleted",
+        "status_list_config_updated",
+        "status_list_config_reset",
+        "webhook_endpoint_created",
+        "webhook_endpoint_updated",
+        "webhook_endpoint_deleted",
+        "attribute_provider_created",
+        "attribute_provider_updated",
+        "attribute_provider_deleted",
+      ],
+    },
+    actorType: {
+      type: "string",
+      enum: ["user", "client", "system"],
+    },
+    actorId: {
+      type: "string",
+    },
+    actorDisplay: {
+      type: "string",
+    },
+    changedFields: {
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
+    before: {
+      type: "object",
+      additionalProperties: true,
+    },
+    after: {
+      type: "object",
+      additionalProperties: true,
+    },
+    requestId: {
+      type: "string",
+    },
+    timestamp: {
+      format: "date-time",
+      type: "string",
+    },
+  },
+  required: ["id", "tenantId", "actionType", "actorType", "timestamp"],
+} as const;
+
 export const ClientSecretResponseDtoSchema = {
   type: "object",
   properties: {

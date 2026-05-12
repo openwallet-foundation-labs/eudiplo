@@ -1,6 +1,6 @@
 site_name: EUDIPLO
-repo_name: openwallet-foundation-labs/eudiplo
-repo_url: https://github.com/openwallet-foundation-labs/eudiplo
+repo_name: openwallet-foundation/eudiplo
+repo_url: https://github.com/openwallet-foundation/eudiplo
 edit_uri: edit/main/docs/
 docs_dir: docs
 copyright: "Copyright © OpenWallet Foundation | License: CC BY 4.0"
@@ -95,12 +95,12 @@ extra:
     provider: mike
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/openwallet-foundation-labs/eudiplo
+      link: https://github.com/openwallet-foundation/eudiplo
     - icon: fontawesome/brands/discord
       link: https://discord.gg/58ys8XfXDu
   legal:
     - text: Contributing
-      link: https://github.com/openwallet-foundation-labs/eudiplo/blob/main/CONTRIBUTING.md
+      link: https://github.com/openwallet-foundation/eudiplo/blob/main/CONTRIBUTING.md
 
 nav:  
   - Getting Started:
@@ -114,6 +114,7 @@ nav:
         - Issuance:
           - Overview: getting-started/issuance/index.md
           - Credential Configuration: getting-started/issuance/credential-configuration.md
+          - Attribute Providers: getting-started/issuance/attribute-provider.md
           - Schema Metadata: getting-started/issuance/schema-metadata.md
           - Issuance Configuration: getting-started/issuance/issuance-configuration.md
         - Presentation:

@@ -562,7 +562,7 @@ assets/config/
 
 For detailed key chain management endpoints, parameters, and request/response schemas, see:
 
-**API Reference**: [Key Chain API Endpoints](../api/openapi.md#tag/key-chain)
+**API Reference**: [Key Chain API Endpoints](../api/openapi.md)
 
 Available operations include listing key chains, importing key chains, rotating keys, and managing key chain metadata.
 

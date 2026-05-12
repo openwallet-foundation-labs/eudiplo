@@ -8,3 +8,5 @@
 | `LOG_FORMAT` | `string` | Log output format  (default: `pretty`) |
 | `LOG_TO_FILE` | `boolean` | Enable logging to file in addition to console  (default: `false`) |
 | `LOG_FILE_PATH` | `string` | File path for log output when LOG_TO_FILE is enabled  (default: `./logs/session.log`) |
+| `AUDIT_LOG_RETENTION_DAYS` | `number` | Delete tenant activity audit log entries older than N days. Set to 0 to disable time-based pruning.  (default: `0`) |
+| `AUDIT_LOG_MAX_ENTRIES_PER_TENANT` | `number` | Keep only the newest N tenant activity audit log entries per tenant. Set to 0 to disable count-based pruning.  (default: `0`) |

@@ -81,7 +81,7 @@ async function loadAndBundle(specPath: string) {
   return { bundled, version, isOAS31: version.startsWith("3.1") };
 }
 
-function withMeta(schema: AnyObj, name: string, baseUrl = "https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/") {
+function withMeta(schema: AnyObj, name: string, baseUrl = "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/") {
   const hasSchema = typeof schema?.$schema === "string";
   const hasId = typeof schema?.$id === "string";
   return {

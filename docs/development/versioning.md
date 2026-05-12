@@ -23,7 +23,7 @@ publishes it with the `:main` tag.
 Use this tag for development environments:
 
 ```bash
-ghcr.io/openwallet-foundation-labs/eudiplo:main
+ghcr.io/openwallet-foundation/eudiplo:main
 ```
 
 > ⚠️ `main` is always moving and may contain untagged or unreleased features.
@@ -34,8 +34,8 @@ Stable releases are published via GitHub tags and follow semantic versioning.
 Each release creates both a versioned tag and updates the `:latest` tag:
 
 ```
-ghcr.io/openwallet-foundation-labs/eudiplo:1.2.3
-ghcr.io/openwallet-foundation-labs/eudiplo:latest
+ghcr.io/openwallet-foundation/eudiplo:1.2.3
+ghcr.io/openwallet-foundation/eudiplo:latest
 ```
 
 The `:latest` tag always points to the most recent stable release and is
@@ -47,7 +47,7 @@ Optionally, pre-release tags such as `1.3.0-alpha.1` may be published for
 testing upcoming features:
 
 ```
-ghcr.io/openwallet-foundation-labs/eudiplo:1.3.0-alpha.1
+ghcr.io/openwallet-foundation/eudiplo:1.3.0-alpha.1
 ```
 
 ## Release Automation
@@ -79,7 +79,7 @@ specification when contributing to ensure proper versioning.
 - **Deprecate before removing.** Where feasible, features are deprecated in a minor release before being removed in the next major.
 - **Database migrations are automatic.** Schema changes are applied by the migration system on startup. No manual SQL is required.
 - **Migration guides for every major version.** Each major release includes a step-by-step [migration guide](../migration/index.md) covering all required actions.
-- **If it breaks in a minor/patch, it's a bug.** If you experience a breaking change outside of a major release, please [report it](https://github.com/openwallet-foundation-labs/eudiplo/issues/new?template=bug_report.md).
+- **If it breaks in a minor/patch, it's a bug.** If you experience a breaking change outside of a major release, please [report it](https://github.com/openwallet-foundation/eudiplo/issues/new?template=bug_report.md).
 
 ## Breaking Change Checklist (for contributors)
 

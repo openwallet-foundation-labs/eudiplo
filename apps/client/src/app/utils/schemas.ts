@@ -12,7 +12,7 @@ import claimsMetadataSchemaObj from '../../../../../schemas/ClaimMetadata.schema
 // Create an array schema for ClaimMetadata (the field holds a list of claim description objects per OID4VCI spec Appendix B.2)
 const claimsMetadataArraySchemaObj = {
   $schema: 'https://json-schema.org/draft/2020-12/schema',
-  $id: 'https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/ClaimMetadataArray.schema.json',
+  $id: 'https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/ClaimMetadataArray.schema.json',
   title: 'ClaimMetadataArray',
   type: 'array',
   items: claimsMetadataSchemaObj,
@@ -21,7 +21,7 @@ const claimsMetadataArraySchemaObj = {
 // Create an array schema for TransactionData (URI-based matching allows arrays as root)
 const transactionDataArraySchemaObj = {
   $schema: 'https://json-schema.org/draft/2020-12/schema',
-  $id: 'https://raw.githubusercontent.com/openwallet-foundation-labs/eudiplo/refs/heads/main/schemas/TransactionDataArray.schema.json',
+  $id: 'https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/TransactionDataArray.schema.json',
   title: 'TransactionDataArray',
   type: 'array',
   items: transactionDataSchemaObj,

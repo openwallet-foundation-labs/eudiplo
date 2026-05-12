@@ -1,6 +1,7 @@
 import { HttpModule } from "@nestjs/axios";
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { AuditLogModule } from "../../audit-log/audit-log.module";
 import { RegistrarModule } from "../../registrar/registrar.module";
 import { TrustModule } from "../../shared/trust/trust.module";
 import { ResolverModule } from "../resolver/resolver.module";
@@ -16,6 +17,7 @@ import { PresentationsService } from "./presentations.service";
         ResolverModule,
         HttpModule,
         TypeOrmModule.forFeature([PresentationConfig]),
+        AuditLogModule,
         TrustModule,
         RegistrarModule,
     ],

@@ -2,9 +2,15 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { BitsPerStatus } from "@owf/token-status-list";
+import { Request } from "express";
 import { Repository } from "typeorm";
+import {
+    AuditLogActor,
+    AuditLogService,
+} from "../../../audit-log/audit-log.service";
 import { StatusListConfig } from "../../../auth/tenant/entitites/status-list-config";
 import { TenantEntity } from "../../../auth/tenant/entitites/tenant.entity";
+import { TokenPayload } from "../../../auth/token.decorator";
 import { UpdateStatusListConfigDto } from "./dto/update-status-list-config.dto";
 
 /**
@@ -16,6 +22,7 @@ export class StatusListConfigService {
         @InjectRepository(TenantEntity)
         private readonly tenantRepository: Repository<TenantEntity>,
         private readonly configService: ConfigService,
+        private readonly tenantActionLogService: AuditLogService,
     ) {}
 
     /**
@@ -103,8 +110,15 @@ export class StatusListConfigService {
     async updateConfig(
         tenantId: string,
         config: UpdateStatusListConfigDto,
+        actorToken?: TokenPayload,
+        req?: Request,
     ): Promise<StatusListConfig> {
-        await this.tenantRepository.findOneByOrFail({ id: tenantId });
+        const tenant = await this.tenantRepository.findOneByOrFail({
+            id: tenantId,
+        });
+        const before = this.sanitizeStatusListConfigForLog(
+            tenant.statusListConfig,
+        );
 
         // Replace config entirely - null values mean "use default"
         const updatedConfig: StatusListConfig = {
@@ -120,6 +134,21 @@ export class StatusListConfigService {
             { statusListConfig: updatedConfig },
         );
 
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId,
+                actionType: "status_list_config_updated",
+                actor: this.resolveActor(actorToken),
+                changedFields: this.getChangedFields(
+                    before,
+                    this.sanitizeStatusListConfigForLog(updatedConfig),
+                ),
+                before,
+                after: this.sanitizeStatusListConfigForLog(updatedConfig),
+                requestMeta: this.extractRequestMeta(req),
+            });
+        }
+
         return updatedConfig;
     }
 
@@ -128,11 +157,99 @@ export class StatusListConfigService {
      * Note: This only affects newly created status lists, not existing ones.
      * @param tenantId The tenant ID
      */
-    async resetConfig(tenantId: string): Promise<void> {
+    async resetConfig(
+        tenantId: string,
+        actorToken?: TokenPayload,
+        req?: Request,
+    ): Promise<void> {
         const tenant = await this.tenantRepository.findOneByOrFail({
             id: tenantId,
         });
+        const before = this.sanitizeStatusListConfigForLog(
+            tenant.statusListConfig,
+        );
         tenant.statusListConfig = undefined;
         await this.tenantRepository.save(tenant);
+
+        if (actorToken) {
+            await this.tenantActionLogService.record({
+                tenantId,
+                actionType: "status_list_config_reset",
+                actor: this.resolveActor(actorToken),
+                before,
+                requestMeta: this.extractRequestMeta(req),
+            });
+        }
+    }
+
+    private sanitizeStatusListConfigForLog(
+        config?: StatusListConfig | null,
+    ): Record<string, unknown> | undefined {
+        if (!config) {
+            return undefined;
+        }
+
+        return {
+            capacity: config.capacity,
+            bits: config.bits,
+            ttl: config.ttl,
+            immediateUpdate: config.immediateUpdate,
+            enableAggregation: config.enableAggregation,
+        };
+    }
+
+    private getChangedFields(
+        before?: Record<string, unknown>,
+        after?: Record<string, unknown>,
+    ): string[] {
+        const fields = new Set([
+            ...Object.keys(before ?? {}),
+            ...Object.keys(after ?? {}),
+        ]);
+
+        return [...fields].filter((field) => {
+            const beforeValue = before?.[field] ?? null;
+            const afterValue = after?.[field] ?? null;
+            return JSON.stringify(beforeValue) !== JSON.stringify(afterValue);
+        });
+    }
+
+    private resolveActor(token: TokenPayload): AuditLogActor {
+        const clientId = token.client?.clientId || token.authorizedParty;
+
+        if (token.subject && clientId && token.subject !== clientId) {
+            return {
+                type: "user",
+                id: token.subject,
+                display: clientId,
+            };
+        }
+
+        if (clientId) {
+            return {
+                type: "client",
+                id: clientId,
+                display: clientId,
+            };
+        }
+
+        if (token.subject) {
+            return {
+                type: "user",
+                id: token.subject,
+            };
+        }
+
+        return { type: "system" };
+    }
+
+    private extractRequestMeta(req?: Request) {
+        if (!req) return undefined;
+
+        return {
+            requestId: req.headers["x-request-id"]
+                ? String(req.headers["x-request-id"])
+                : undefined,
+        };
     }
 }

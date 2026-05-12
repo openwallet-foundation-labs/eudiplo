@@ -6,10 +6,13 @@ import {
     Param,
     Patch,
     Post,
+    Req,
 } from "@nestjs/common";
 import { ApiExtraModels, ApiTags } from "@nestjs/swagger";
+import { Request } from "express";
 import { Role } from "../roles/role.enum";
 import { Secured } from "../secure.decorator";
+import { Token, TokenPayload } from "../token.decorator";
 import { CreateTenantDto } from "./dto/create-tenant.dto";
 import { ImportTenantDto } from "./dto/import-tenant.dto";
 import { UpdateTenantDto } from "./dto/update-tenant.dto";
@@ -40,8 +43,12 @@ export class TenantController {
      * @returns
      */
     @Post()
-    initTenant(@Body() data: CreateTenantDto) {
-        return this.tenantService.createTenant(data);
+    initTenant(
+        @Body() data: CreateTenantDto,
+        @Token() token: TokenPayload,
+        @Req() req: Request,
+    ) {
+        return this.tenantService.createTenant(data, token, req);
     }
 
     /**
@@ -61,8 +68,13 @@ export class TenantController {
      * @returns The updated tenant
      */
     @Patch(":id")
-    updateTenant(@Param("id") id: string, @Body() data: UpdateTenantDto) {
-        return this.tenantService.updateTenant(id, data);
+    updateTenant(
+        @Param("id") id: string,
+        @Body() data: UpdateTenantDto,
+        @Token() token: TokenPayload,
+        @Req() req: Request,
+    ) {
+        return this.tenantService.updateTenant(id, data, token, req);
     }
 
     /**
@@ -70,7 +82,11 @@ export class TenantController {
      * @param id The ID of the tenant to delete
      */
     @Delete(":id")
-    deleteTenant(@Param("id") id: string) {
-        return this.tenantService.deleteTenant(id);
+    deleteTenant(
+        @Param("id") id: string,
+        @Token() token: TokenPayload,
+        @Req() req: Request,
+    ) {
+        return this.tenantService.deleteTenant(id, token, req);
     }
 }

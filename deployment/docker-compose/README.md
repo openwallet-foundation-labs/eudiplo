@@ -89,4 +89,4 @@ After deployment, access the services at:
 4. **Set up TLS/HTTPS** via reverse proxy
 5. **Configure backup strategies** for PostgreSQL and MinIO
 
-For more details, see the [full documentation](https://openwallet-foundation-labs.github.io/eudiplo/latest/deployment/docker-compose/).
+For more details, see the [full documentation](https://openwallet-foundation.github.io/eudiplo/latest/deployment/docker-compose/).

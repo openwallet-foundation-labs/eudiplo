@@ -77,7 +77,7 @@ EUDIPLO is distributed as a Docker container and can be configured in minutes.
 ```shell
 docker run -p 3000:3000 \
   -e PUBLIC_URL=https://example.com \
-  ghcr.io/openwallet-foundation-labs/eudiplo:latest
+  ghcr.io/openwallet-foundation/eudiplo:latest
 ```
 
 - `-p 3000:3000` exposes EUDIPLO locally on port 3000.

@@ -7,9 +7,11 @@ import {
     Param,
     Patch,
     Post,
+    Req,
 } from "@nestjs/common";
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { SchemaURIMeta } from "@owf/eudi-attestation-schema";
+import { Request } from "express";
 import { Role } from "../../../auth/roles/role.enum";
 import { Secured } from "../../../auth/secure.decorator";
 import { Token, TokenPayload } from "../../../auth/token.decorator";
@@ -233,8 +235,15 @@ export class CredentialConfigController {
     storeCredentialConfiguration(
         @Body() config: CredentialConfigCreate,
         @Token() user: TokenPayload,
+        @Req() req: Request,
     ) {
-        return this.credentialsService.store(user.entity!.id, config);
+        return this.credentialsService.store(
+            user.entity!.id,
+            config,
+            false,
+            user,
+            req,
+        );
     }
 
     @Patch(":id")
@@ -242,8 +251,15 @@ export class CredentialConfigController {
         @Param("id") id: string,
         @Body() config: CredentialConfigUpdate,
         @Token() user: TokenPayload,
+        @Req() req: Request,
     ) {
-        return this.credentialsService.update(user.entity!.id, id, config);
+        return this.credentialsService.update(
+            user.entity!.id,
+            id,
+            config,
+            user,
+            req,
+        );
     }
 
     /**
@@ -393,7 +409,8 @@ export class CredentialConfigController {
     deleteIssuanceConfiguration(
         @Param("id") id: string,
         @Token() user: TokenPayload,
+        @Req() req: Request,
     ): Promise<unknown> {
-        return this.credentialsService.delete(user.entity!.id, id);
+        return this.credentialsService.delete(user.entity!.id, id, user, req);
     }
 }

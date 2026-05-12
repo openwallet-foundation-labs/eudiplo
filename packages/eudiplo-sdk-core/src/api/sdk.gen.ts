@@ -25,6 +25,11 @@ import type {
   AttributeProviderControllerUpdateData,
   AttributeProviderControllerUpdateErrors,
   AttributeProviderControllerUpdateResponses,
+  AuditLogControllerGetAuditLogsData,
+  AuditLogControllerGetAuditLogsResponses,
+  AuthControllerGetOAuth2TokenData,
+  AuthControllerGetOAuth2TokenErrors,
+  AuthControllerGetOAuth2TokenResponses,
   CacheControllerClearAllCachesData,
   CacheControllerClearAllCachesResponses,
   CacheControllerClearStatusListCacheData,
@@ -297,6 +302,28 @@ export const appControllerGetFrontendConfig = <
   });
 
 /**
+ * OAuth2 Token endpoint - supports client credentials flow only
+ * Accepts client credentials either in Authorization header (Basic auth) or request body
+ */
+export const authControllerGetOAuth2Token = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<AuthControllerGetOAuth2TokenData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AuthControllerGetOAuth2TokenResponses,
+    AuthControllerGetOAuth2TokenErrors,
+    ThrowOnError
+  >({
+    url: "/api/oauth2/token",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Get all tenants
  */
 export const tenantControllerGetTenants = <ThrowOnError extends boolean = true>(
@@ -386,6 +413,24 @@ export const tenantControllerUpdateTenant = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Get recent audit log entries for the current tenant
+ */
+export const auditLogControllerGetAuditLogs = <
+  ThrowOnError extends boolean = true,
+>(
+  options?: Options<AuditLogControllerGetAuditLogsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AuditLogControllerGetAuditLogsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/admin/audit-logs",
+    ...options,
   });
 
 /**

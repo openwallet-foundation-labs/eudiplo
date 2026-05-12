@@ -23,7 +23,7 @@
       </button>
       <a
         mat-menu-item
-        href="https://openwallet-foundation-labs.github.io/eudiplo/main/"
+        href="https://openwallet-foundation.github.io/eudiplo/main/"
         target="_blank"
         rel="noopener"
       >
@@ -104,6 +104,17 @@
             >
               <mat-icon matListItemIcon>group</mat-icon>
               <span matListItemTitle>Users</span>
+            </mat-list-item>
+          }
+
+          @if (hasRole('clients:manage')) {
+            <mat-list-item
+              [routerLink]="['/admin/activity-logs']"
+              routerLinkActive="active-link"
+              (click)="closeSidenavOnMobile()"
+            >
+              <mat-icon matListItemIcon>history</mat-icon>
+              <span matListItemTitle>Activity Logs</span>
             </mat-list-item>
           }
         }
