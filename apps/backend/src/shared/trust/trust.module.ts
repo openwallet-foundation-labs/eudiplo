@@ -3,6 +3,7 @@ import { HttpModule } from "@nestjs/axios";
 import { forwardRef, Module } from "@nestjs/common";
 import { CryptoModule } from "../../crypto/crypto.module";
 import { CacheController } from "./cache.controller";
+import { FederationTrustService } from "./federation-trust.service";
 import { LoteParserService } from "./lote-parser.service";
 import { StatusListVerifierService } from "./status-list-verifier.service";
 import { TrustStoreService } from "./trust-store.service";
@@ -27,12 +28,14 @@ import { X509ValidationService } from "./x509-validation.service";
         X509ValidationService,
         StatusListVerifierService,
         WalletAttestationService,
+        FederationTrustService,
     ],
     exports: [
         TrustStoreService,
         X509ValidationService,
         StatusListVerifierService,
         WalletAttestationService,
+        FederationTrustService,
     ],
 })
 export class TrustModule {}

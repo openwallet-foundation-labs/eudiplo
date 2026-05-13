@@ -144,6 +144,7 @@ nav:
         - Webhooks: architecture/webhooks.md
         - Attribute Providers: architecture/attribute-providers.md
         - Interactive Authorization (IAE): architecture/iae.md
+        - OpenID Federation: federation/README.md
       - Chained Authorization Server: architecture/chained-as.md
       - Config Import: architecture/configuration-import.md
       - Key Management: architecture/key-management.md

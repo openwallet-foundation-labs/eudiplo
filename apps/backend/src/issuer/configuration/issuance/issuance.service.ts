@@ -192,6 +192,7 @@ export class IssuanceService {
             signingKeyId: config.signingKeyId,
             preferredAuthServer: config.preferredAuthServer,
             chainedAs: config.chainedAs,
+            federation: config.federation,
             credentialResponseEncryption: config.credentialResponseEncryption,
             credentialRequestEncryption: config.credentialRequestEncryption,
             refreshTokenEnabled: config.refreshTokenEnabled,

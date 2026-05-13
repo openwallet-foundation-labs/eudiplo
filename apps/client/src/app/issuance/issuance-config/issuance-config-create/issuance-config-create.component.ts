@@ -101,6 +101,15 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
         }),
         requireDPoP: [false],
       }),
+      federation: this.fb.group({
+        enabled: [false],
+        role: ['leaf'],
+        mode: ['hybrid'],
+        entityId: [''],
+        enforceSigningPolicy: [true],
+        cacheTtlSeconds: [300],
+        trustAnchors: this.fb.array([]),
+      }),
     } as { [k in keyof IssuanceDto]: any });
   }
 
@@ -234,6 +243,32 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
           },
         });
       }
+
+      // Load Federation config if present
+      if (config && (config as any)['federation']) {
+        const federation = (config as any)['federation'];
+        this.trustAnchors.clear();
+        if (federation.trustAnchors && Array.isArray(federation.trustAnchors)) {
+          for (const anchor of federation.trustAnchors) {
+            this.trustAnchors.push(
+              this.fb.group({
+                entityId: [anchor.entityId ?? '', Validators.required],
+                entityConfigurationUri: [anchor.entityConfigurationUri ?? '', Validators.required],
+              })
+            );
+          }
+        }
+        this.form.patchValue({
+          federation: {
+            enabled: this.trustAnchors.length > 0,
+            role: (federation.role as 'trust_anchor' | 'intermediate' | 'leaf') ?? 'leaf',
+            mode: (federation.mode as 'federation-only' | 'lote-only' | 'hybrid') ?? 'hybrid',
+            entityId: federation.entityId ?? '',
+            enforceSigningPolicy: federation.enforceSigningPolicy ?? true,
+            cacheTtlSeconds: federation.cacheTtlSeconds ?? 300,
+          },
+        });
+      }
     } catch (error) {
       console.error('Error loading config:', error);
       this.snackBar.open('Failed to load configuration', 'Close', {
@@ -285,6 +320,7 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
           ? formValue.walletProviderTrustLists
           : undefined,
       chainedAs: chainedAsConfig,
+      federation: this.buildFederationConfig(formValue.federation),
     } as IssuanceDto;
 
     this.issuanceConfigService
@@ -303,6 +339,31 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
       .finally(() => {
         this.loading = false;
       });
+  }
+
+  private buildFederationConfig(federationFormValue: unknown): IssuanceDto['federation'] | null {
+    if (!federationFormValue || typeof federationFormValue !== 'object') {
+      return null;
+    }
+    const fVal = federationFormValue as Record<string, unknown>;
+    const enabled = (fVal as any)['enabled'];
+    const trustAnchors = (fVal as any)['trustAnchors'];
+    if (!enabled || !Array.isArray(trustAnchors) || trustAnchors.length === 0) {
+      return null;
+    }
+    const role = (fVal['role'] as string) ?? 'leaf';
+    const mode = (fVal['mode'] as string) ?? 'hybrid';
+    return {
+      role: role as 'trust_anchor' | 'intermediate' | 'leaf',
+      mode: mode as 'federation-only' | 'lote-only' | 'hybrid',
+      entityId: (fVal['entityId'] as string) ?? undefined,
+      enforceSigningPolicy: fVal['enforceSigningPolicy'] !== false,
+      cacheTtlSeconds: (fVal['cacheTtlSeconds'] as number) ?? 300,
+      trustAnchors: trustAnchors as {
+        entityId: string;
+        entityConfigurationUri: string;
+      }[],
+    };
   }
 
   getFormGroup(controlName: string): FormGroup {
@@ -358,6 +419,31 @@ export class IssuanceConfigCreateComponent implements OnInit, OnDestroy {
 
   get refreshTokenEnabled(): boolean {
     return this.form.get('refreshTokenEnabled')?.value ?? true;
+  }
+
+  get federation(): FormGroup {
+    return this.form.get('federation') as FormGroup;
+  }
+
+  get federationEnabled(): boolean {
+    return this.federation.get('enabled')?.value ?? false;
+  }
+
+  get trustAnchors(): FormArray {
+    return this.federation.get('trustAnchors') as FormArray;
+  }
+
+  addTrustAnchor(): void {
+    this.trustAnchors.push(
+      this.fb.group({
+        entityId: ['', Validators.required],
+        entityConfigurationUri: ['', Validators.required],
+      })
+    );
+  }
+
+  removeTrustAnchor(index: number): void {
+    this.trustAnchors.removeAt(index);
   }
 
   /**

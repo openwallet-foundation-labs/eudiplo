@@ -27,3 +27,4 @@ export { AddTxCodeAttemptTracking1757000000000 } from "./1757000000000-AddTxCode
 export { AddSessionSingleUseTracking1760000000000 } from "./1760000000000-AddSessionSingleUseTracking";
 export { AddSchemaMetaToCredentialConfig1761000000000 } from "./1761000000000-AddSchemaMetaToCredentialConfig";
 export { AddTenantActionLog1762000000000 } from "./1762000000000-AddTenantActionLog";
+export { AddFederationToIssuanceConfig1763000000000 } from "./1763000000000-AddFederationToIssuanceConfig";

@@ -5,6 +5,7 @@ import { AuditLogModule } from "../../audit-log/audit-log.module";
 import { CryptoModule } from "../../crypto/crypto.module";
 import { RegistrarModule } from "../../registrar/registrar.module";
 import { SessionModule } from "../../session/session.module";
+import { TrustModule } from "../../shared/trust/trust.module";
 import { WebhookService } from "../../shared/utils/webhook/webhook.service";
 import { PresentationsModule } from "../../verifier/presentations/presentations.module";
 import { StatusListModule } from "../lifecycle/status/status-list.module";
@@ -41,6 +42,7 @@ import { WebhookEndpointService } from "./webhook-endpoint/webhook-endpoint.serv
         TrustListModule,
         HttpModule,
         SessionModule,
+        TrustModule,
         PresentationsModule,
         RegistrarModule,
         TypeOrmModule.forFeature([
