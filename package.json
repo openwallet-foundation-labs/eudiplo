@@ -32,10 +32,10 @@
     "doc:deploy-major": "source venv/bin/activate && pnpm run doc:generate && pnpm run compodoc && mike deploy --update-aliases",
     "doc:list-versions": "source venv/bin/activate && mike list",
     "doc:delete-version": "source venv/bin/activate && mike delete",
-    "prepare": "husky"
+    "prepare": "husky",
+    "knip": "knip"
   },
   "devDependencies": {
-    "@adobe/jsonschema2md": "^8.0.10",
     "@apidevtools/json-schema-ref-parser": "^15.3.1",
     "@codedependant/semantic-release-docker": "^7.0.0",
     "@openapi-contrib/openapi-schema-to-json-schema": "^5.1.0",
@@ -48,6 +48,7 @@
     "@types/unzipper": "^0.10.11",
     "cross-fetch": "^4.1.0",
     "husky": "^9.1.7",
+    "knip": "^6.13.1",
     "markdownlint-cli": "^0.48.0",
     "semantic-release": "^25.0.3",
     "ts-node": "^10.9.2",
