@@ -4,7 +4,7 @@ export interface PredefinedConfig {
   name: string;
   description: string;
   icon: string;
-  config: CredentialConfigCreate;
+  config: CredentialConfigCreate | Record<string, unknown>;
 }
 
 export const configs: PredefinedConfig[] = [

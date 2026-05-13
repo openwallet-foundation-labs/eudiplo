@@ -2,7 +2,7 @@
 
 import { type Client, formDataBodySerializer, type Options as Options2, type TDataShape } from './client';
 import { client } from './client.gen';
-import type { AppControllerGetFrontendConfigData, AppControllerGetFrontendConfigResponses, AppControllerGetVersionData, AppControllerGetVersionResponses, AttributeProviderControllerCreateData, AttributeProviderControllerCreateResponses, AttributeProviderControllerDeleteData, AttributeProviderControllerDeleteErrors, AttributeProviderControllerDeleteResponses, AttributeProviderControllerGetAllData, AttributeProviderControllerGetAllResponses, AttributeProviderControllerGetByIdData, AttributeProviderControllerGetByIdErrors, AttributeProviderControllerGetByIdResponses, AttributeProviderControllerUpdateData, AttributeProviderControllerUpdateErrors, AttributeProviderControllerUpdateResponses, AuditLogControllerGetAuditLogsData, AuditLogControllerGetAuditLogsResponses, AuthControllerGetOAuth2TokenData, AuthControllerGetOAuth2TokenErrors, AuthControllerGetOAuth2TokenResponses, CacheControllerClearAllCachesData, CacheControllerClearAllCachesResponses, CacheControllerClearStatusListCacheData, CacheControllerClearStatusListCacheResponses, CacheControllerClearTrustListCacheData, CacheControllerClearTrustListCacheResponses, CacheControllerGetStatsData, CacheControllerGetStatsResponses, ClientControllerCreateClientData, ClientControllerCreateClientResponses, ClientControllerDeleteClientData, ClientControllerDeleteClientResponses, ClientControllerGetClientData, ClientControllerGetClientResponses, ClientControllerGetClientsData, ClientControllerGetClientSecretData, ClientControllerGetClientSecretResponses, ClientControllerGetClientsResponses, ClientControllerRotateClientSecretData, ClientControllerRotateClientSecretResponses, ClientControllerUpdateClientData, ClientControllerUpdateClientResponses, CredentialConfigControllerDeleteIssuanceConfigurationData, CredentialConfigControllerDeleteIssuanceConfigurationResponses, CredentialConfigControllerGetConfigByIdData, CredentialConfigControllerGetConfigByIdResponses, CredentialConfigControllerGetConfigsData, CredentialConfigControllerGetConfigsResponses, CredentialConfigControllerSignSchemaMetaConfigData, CredentialConfigControllerSignSchemaMetaConfigErrors, CredentialConfigControllerSignSchemaMetaConfigResponses, CredentialConfigControllerSignVersionSchemaMetaConfigData, CredentialConfigControllerSignVersionSchemaMetaConfigErrors, CredentialConfigControllerSignVersionSchemaMetaConfigResponses, CredentialConfigControllerStoreCredentialConfigurationData, CredentialConfigControllerStoreCredentialConfigurationResponses, CredentialConfigControllerUpdateCredentialConfigurationData, CredentialConfigControllerUpdateCredentialConfigurationResponses, CredentialOfferControllerGetOfferData, CredentialOfferControllerGetOfferResponses, DeferredControllerCompleteDeferredData, DeferredControllerCompleteDeferredErrors, DeferredControllerCompleteDeferredResponses, DeferredControllerFailDeferredData, DeferredControllerFailDeferredErrors, DeferredControllerFailDeferredResponses, IssuanceConfigControllerGetIssuanceConfigurationsData, IssuanceConfigControllerGetIssuanceConfigurationsResponses, IssuanceConfigControllerStoreIssuanceConfigurationData, IssuanceConfigControllerStoreIssuanceConfigurationResponses, KeyChainControllerCreateData, KeyChainControllerCreateResponses, KeyChainControllerDeleteData, KeyChainControllerDeleteErrors, KeyChainControllerDeleteResponses, KeyChainControllerExportData, KeyChainControllerExportErrors, KeyChainControllerExportResponses, KeyChainControllerGetAllData, KeyChainControllerGetAllResponses, KeyChainControllerGetByIdData, KeyChainControllerGetByIdErrors, KeyChainControllerGetByIdResponses, KeyChainControllerGetProvidersData, KeyChainControllerGetProvidersResponses, KeyChainControllerImportData, KeyChainControllerImportResponses, KeyChainControllerRotateData, KeyChainControllerRotateErrors, KeyChainControllerRotateResponses, KeyChainControllerUpdateData, KeyChainControllerUpdateErrors, KeyChainControllerUpdateResponses, PresentationManagementControllerConfigurationData, PresentationManagementControllerConfigurationResponses, PresentationManagementControllerDeleteConfigurationData, PresentationManagementControllerDeleteConfigurationResponses, PresentationManagementControllerGetConfigurationData, PresentationManagementControllerGetConfigurationResponses, PresentationManagementControllerListSchemaMetadataCatalogData, PresentationManagementControllerListSchemaMetadataCatalogResponses, PresentationManagementControllerReissueRegistrationCertificateData, PresentationManagementControllerReissueRegistrationCertificateErrors, PresentationManagementControllerReissueRegistrationCertificateResponses, PresentationManagementControllerResolveIssuerMetadataData, PresentationManagementControllerResolveIssuerMetadataErrors, PresentationManagementControllerResolveIssuerMetadataResponses, PresentationManagementControllerResolveSchemaMetadataData, PresentationManagementControllerResolveSchemaMetadataErrors, PresentationManagementControllerResolveSchemaMetadataResponses, PresentationManagementControllerStorePresentationConfigData, PresentationManagementControllerStorePresentationConfigResponses, PresentationManagementControllerUpdateConfigurationData, PresentationManagementControllerUpdateConfigurationResponses, RegistrarControllerCreateAccessCertificateData, RegistrarControllerCreateAccessCertificateErrors, RegistrarControllerCreateAccessCertificateResponses, RegistrarControllerCreateConfigData, RegistrarControllerCreateConfigErrors, RegistrarControllerCreateConfigResponses, RegistrarControllerDeleteConfigData, RegistrarControllerDeleteConfigResponses, RegistrarControllerGetConfigData, RegistrarControllerGetConfigErrors, RegistrarControllerGetConfigResponses, RegistrarControllerUpdateConfigData, RegistrarControllerUpdateConfigErrors, RegistrarControllerUpdateConfigResponses, SchemaMetadataControllerDeprecateVersionData, SchemaMetadataControllerDeprecateVersionResponses, SchemaMetadataControllerExportData, SchemaMetadataControllerExportResponses, SchemaMetadataControllerFindAllData, SchemaMetadataControllerFindAllResponses, SchemaMetadataControllerFindOneData, SchemaMetadataControllerFindOneResponses, SchemaMetadataControllerGetJwtData, SchemaMetadataControllerGetJwtResponses, SchemaMetadataControllerGetLatestData, SchemaMetadataControllerGetLatestResponses, SchemaMetadataControllerGetSchemaData, SchemaMetadataControllerGetSchemaResponses, SchemaMetadataControllerGetVersionsData, SchemaMetadataControllerGetVersionsResponses, SchemaMetadataControllerGetVocabulariesData, SchemaMetadataControllerGetVocabulariesResponses, SchemaMetadataControllerRemoveData, SchemaMetadataControllerRemoveResponses, SchemaMetadataControllerUpdateData, SchemaMetadataControllerUpdateResponses, SessionConfigControllerGetConfigData, SessionConfigControllerGetConfigResponses, SessionConfigControllerResetConfigData, SessionConfigControllerResetConfigResponses, SessionConfigControllerUpdateConfigData, SessionConfigControllerUpdateConfigResponses, SessionControllerDeleteSessionData, SessionControllerDeleteSessionResponses, SessionControllerGetAllSessionsData, SessionControllerGetAllSessionsResponses, SessionControllerGetSessionData, SessionControllerGetSessionLogsData, SessionControllerGetSessionLogsResponses, SessionControllerGetSessionResponses, SessionControllerRevokeAllData, SessionControllerRevokeAllResponses, SessionEventsControllerSubscribeToSessionEventsData, SessionEventsControllerSubscribeToSessionEventsResponses, StatusListConfigControllerGetConfigData, StatusListConfigControllerGetConfigResponses, StatusListConfigControllerResetConfigData, StatusListConfigControllerResetConfigResponses, StatusListConfigControllerUpdateConfigData, StatusListConfigControllerUpdateConfigResponses, StatusListManagementControllerCreateListData, StatusListManagementControllerCreateListResponses, StatusListManagementControllerDeleteListData, StatusListManagementControllerDeleteListResponses, StatusListManagementControllerGetListData, StatusListManagementControllerGetListResponses, StatusListManagementControllerGetListsData, StatusListManagementControllerGetListsResponses, StatusListManagementControllerUpdateListData, StatusListManagementControllerUpdateListResponses, StorageControllerUploadData, StorageControllerUploadResponses, TenantControllerDeleteTenantData, TenantControllerDeleteTenantResponses, TenantControllerGetTenantData, TenantControllerGetTenantResponses, TenantControllerGetTenantsData, TenantControllerGetTenantsResponses, TenantControllerInitTenantData, TenantControllerInitTenantResponses, TenantControllerUpdateTenantData, TenantControllerUpdateTenantResponses, TrustListControllerCreateTrustListData, TrustListControllerCreateTrustListResponses, TrustListControllerDeleteTrustListData, TrustListControllerDeleteTrustListResponses, TrustListControllerExportTrustListData, TrustListControllerExportTrustListResponses, TrustListControllerGetAllTrustListsData, TrustListControllerGetAllTrustListsResponses, TrustListControllerGetTrustListData, TrustListControllerGetTrustListResponses, TrustListControllerGetTrustListVersionData, TrustListControllerGetTrustListVersionResponses, TrustListControllerGetTrustListVersionsData, TrustListControllerGetTrustListVersionsResponses, TrustListControllerUpdateTrustListData, TrustListControllerUpdateTrustListResponses, UserControllerCreateUserData, UserControllerCreateUserResponses, UserControllerDeleteUserData, UserControllerDeleteUserResponses, UserControllerGetUserData, UserControllerGetUserResponses, UserControllerGetUsersData, UserControllerGetUsersResponses, UserControllerUpdateUserData, UserControllerUpdateUserResponses, VerifierOfferControllerGetOfferData, VerifierOfferControllerGetOfferResponses, WebhookEndpointControllerCreateData, WebhookEndpointControllerCreateResponses, WebhookEndpointControllerDeleteData, WebhookEndpointControllerDeleteErrors, WebhookEndpointControllerDeleteResponses, WebhookEndpointControllerGetAllData, WebhookEndpointControllerGetAllResponses, WebhookEndpointControllerGetByIdData, WebhookEndpointControllerGetByIdErrors, WebhookEndpointControllerGetByIdResponses, WebhookEndpointControllerUpdateData, WebhookEndpointControllerUpdateErrors, WebhookEndpointControllerUpdateResponses } from './types.gen';
+import type { AppControllerGetFrontendConfigData, AppControllerGetFrontendConfigResponses, AppControllerGetVersionData, AppControllerGetVersionResponses, AttributeProviderControllerCreateData, AttributeProviderControllerCreateResponses, AttributeProviderControllerDeleteData, AttributeProviderControllerDeleteErrors, AttributeProviderControllerDeleteResponses, AttributeProviderControllerGetAllData, AttributeProviderControllerGetAllResponses, AttributeProviderControllerGetByIdData, AttributeProviderControllerGetByIdErrors, AttributeProviderControllerGetByIdResponses, AttributeProviderControllerUpdateData, AttributeProviderControllerUpdateErrors, AttributeProviderControllerUpdateResponses, AuditLogControllerGetAuditLogsData, AuditLogControllerGetAuditLogsResponses, AuthControllerGetOAuth2TokenData, AuthControllerGetOAuth2TokenErrors, AuthControllerGetOAuth2TokenResponses, CacheControllerClearAllCachesData, CacheControllerClearAllCachesResponses, CacheControllerClearStatusListCacheData, CacheControllerClearStatusListCacheResponses, CacheControllerClearTrustListCacheData, CacheControllerClearTrustListCacheResponses, CacheControllerGetStatsData, CacheControllerGetStatsResponses, ClientControllerCreateClientData, ClientControllerCreateClientResponses, ClientControllerDeleteClientData, ClientControllerDeleteClientResponses, ClientControllerGetClientData, ClientControllerGetClientResponses, ClientControllerGetClientsData, ClientControllerGetClientSecretData, ClientControllerGetClientSecretResponses, ClientControllerGetClientsResponses, ClientControllerRotateClientSecretData, ClientControllerRotateClientSecretResponses, ClientControllerUpdateClientData, ClientControllerUpdateClientResponses, CredentialConfigControllerDeleteIssuanceConfigurationData, CredentialConfigControllerDeleteIssuanceConfigurationResponses, CredentialConfigControllerGetConfigByIdData, CredentialConfigControllerGetConfigByIdResponses, CredentialConfigControllerGetConfigsData, CredentialConfigControllerGetConfigsResponses, CredentialConfigControllerStoreCredentialConfigurationData, CredentialConfigControllerStoreCredentialConfigurationResponses, CredentialConfigControllerUpdateCredentialConfigurationData, CredentialConfigControllerUpdateCredentialConfigurationResponses, CredentialOfferControllerGetOfferData, CredentialOfferControllerGetOfferResponses, DeferredControllerCompleteDeferredData, DeferredControllerCompleteDeferredErrors, DeferredControllerCompleteDeferredResponses, DeferredControllerFailDeferredData, DeferredControllerFailDeferredErrors, DeferredControllerFailDeferredResponses, IssuanceConfigControllerGetIssuanceConfigurationsData, IssuanceConfigControllerGetIssuanceConfigurationsResponses, IssuanceConfigControllerStoreIssuanceConfigurationData, IssuanceConfigControllerStoreIssuanceConfigurationResponses, KeyChainControllerCreateData, KeyChainControllerCreateResponses, KeyChainControllerDeleteData, KeyChainControllerDeleteErrors, KeyChainControllerDeleteResponses, KeyChainControllerExportData, KeyChainControllerExportErrors, KeyChainControllerExportResponses, KeyChainControllerGetAllData, KeyChainControllerGetAllResponses, KeyChainControllerGetByIdData, KeyChainControllerGetByIdErrors, KeyChainControllerGetByIdResponses, KeyChainControllerGetProvidersData, KeyChainControllerGetProvidersResponses, KeyChainControllerImportData, KeyChainControllerImportResponses, KeyChainControllerRotateData, KeyChainControllerRotateErrors, KeyChainControllerRotateResponses, KeyChainControllerUpdateData, KeyChainControllerUpdateErrors, KeyChainControllerUpdateResponses, PresentationManagementControllerConfigurationData, PresentationManagementControllerConfigurationResponses, PresentationManagementControllerDeleteConfigurationData, PresentationManagementControllerDeleteConfigurationResponses, PresentationManagementControllerGetConfigurationData, PresentationManagementControllerGetConfigurationResponses, PresentationManagementControllerListSchemaMetadataCatalogData, PresentationManagementControllerListSchemaMetadataCatalogResponses, PresentationManagementControllerReissueRegistrationCertificateData, PresentationManagementControllerReissueRegistrationCertificateErrors, PresentationManagementControllerReissueRegistrationCertificateResponses, PresentationManagementControllerResolveIssuerMetadataData, PresentationManagementControllerResolveIssuerMetadataErrors, PresentationManagementControllerResolveIssuerMetadataResponses, PresentationManagementControllerResolveSchemaMetadataData, PresentationManagementControllerResolveSchemaMetadataErrors, PresentationManagementControllerResolveSchemaMetadataResponses, PresentationManagementControllerStorePresentationConfigData, PresentationManagementControllerStorePresentationConfigResponses, PresentationManagementControllerUpdateConfigurationData, PresentationManagementControllerUpdateConfigurationResponses, RegistrarControllerCreateAccessCertificateData, RegistrarControllerCreateAccessCertificateErrors, RegistrarControllerCreateAccessCertificateResponses, RegistrarControllerCreateConfigData, RegistrarControllerCreateConfigErrors, RegistrarControllerCreateConfigResponses, RegistrarControllerDeleteConfigData, RegistrarControllerDeleteConfigResponses, RegistrarControllerGetConfigData, RegistrarControllerGetConfigErrors, RegistrarControllerGetConfigResponses, RegistrarControllerUpdateConfigData, RegistrarControllerUpdateConfigErrors, RegistrarControllerUpdateConfigResponses, SchemaMetadataControllerDeprecateVersionData, SchemaMetadataControllerDeprecateVersionResponses, SchemaMetadataControllerExportData, SchemaMetadataControllerExportResponses, SchemaMetadataControllerFindAllData, SchemaMetadataControllerFindAllResponses, SchemaMetadataControllerFindOneData, SchemaMetadataControllerFindOneResponses, SchemaMetadataControllerGetJwtData, SchemaMetadataControllerGetJwtResponses, SchemaMetadataControllerGetLatestData, SchemaMetadataControllerGetLatestResponses, SchemaMetadataControllerGetSchemaData, SchemaMetadataControllerGetSchemaResponses, SchemaMetadataControllerGetVersionsData, SchemaMetadataControllerGetVersionsResponses, SchemaMetadataControllerGetVocabulariesData, SchemaMetadataControllerGetVocabulariesResponses, SchemaMetadataControllerRemoveData, SchemaMetadataControllerRemoveResponses, SchemaMetadataControllerSignSchemaMetaConfigData, SchemaMetadataControllerSignSchemaMetaConfigErrors, SchemaMetadataControllerSignSchemaMetaConfigResponses, SchemaMetadataControllerSignVersionSchemaMetaConfigData, SchemaMetadataControllerSignVersionSchemaMetaConfigErrors, SchemaMetadataControllerSignVersionSchemaMetaConfigResponses, SchemaMetadataControllerUpdateData, SchemaMetadataControllerUpdateResponses, SessionConfigControllerGetConfigData, SessionConfigControllerGetConfigResponses, SessionConfigControllerResetConfigData, SessionConfigControllerResetConfigResponses, SessionConfigControllerUpdateConfigData, SessionConfigControllerUpdateConfigResponses, SessionControllerDeleteSessionData, SessionControllerDeleteSessionResponses, SessionControllerGetAllSessionsData, SessionControllerGetAllSessionsResponses, SessionControllerGetSessionData, SessionControllerGetSessionLogsData, SessionControllerGetSessionLogsResponses, SessionControllerGetSessionResponses, SessionControllerRevokeAllData, SessionControllerRevokeAllResponses, SessionEventsControllerSubscribeToSessionEventsData, SessionEventsControllerSubscribeToSessionEventsResponses, StatusListConfigControllerGetConfigData, StatusListConfigControllerGetConfigResponses, StatusListConfigControllerResetConfigData, StatusListConfigControllerResetConfigResponses, StatusListConfigControllerUpdateConfigData, StatusListConfigControllerUpdateConfigResponses, StatusListManagementControllerCreateListData, StatusListManagementControllerCreateListResponses, StatusListManagementControllerDeleteListData, StatusListManagementControllerDeleteListResponses, StatusListManagementControllerGetListData, StatusListManagementControllerGetListResponses, StatusListManagementControllerGetListsData, StatusListManagementControllerGetListsResponses, StatusListManagementControllerUpdateListData, StatusListManagementControllerUpdateListResponses, StorageControllerUploadData, StorageControllerUploadResponses, TenantControllerDeleteTenantData, TenantControllerDeleteTenantResponses, TenantControllerGetTenantData, TenantControllerGetTenantResponses, TenantControllerGetTenantsData, TenantControllerGetTenantsResponses, TenantControllerInitTenantData, TenantControllerInitTenantResponses, TenantControllerUpdateTenantData, TenantControllerUpdateTenantResponses, TrustListControllerCreateTrustListData, TrustListControllerCreateTrustListResponses, TrustListControllerDeleteTrustListData, TrustListControllerDeleteTrustListResponses, TrustListControllerExportTrustListData, TrustListControllerExportTrustListResponses, TrustListControllerGetAllTrustListsData, TrustListControllerGetAllTrustListsResponses, TrustListControllerGetTrustListData, TrustListControllerGetTrustListResponses, TrustListControllerGetTrustListVersionData, TrustListControllerGetTrustListVersionResponses, TrustListControllerGetTrustListVersionsData, TrustListControllerGetTrustListVersionsResponses, TrustListControllerUpdateTrustListData, TrustListControllerUpdateTrustListResponses, UserControllerCreateUserData, UserControllerCreateUserResponses, UserControllerDeleteUserData, UserControllerDeleteUserResponses, UserControllerGetUserData, UserControllerGetUserResponses, UserControllerGetUsersData, UserControllerGetUsersResponses, UserControllerUpdateUserData, UserControllerUpdateUserResponses, VerifierOfferControllerGetOfferData, VerifierOfferControllerGetOfferResponses, WebhookEndpointControllerCreateData, WebhookEndpointControllerCreateResponses, WebhookEndpointControllerDeleteData, WebhookEndpointControllerDeleteErrors, WebhookEndpointControllerDeleteResponses, WebhookEndpointControllerGetAllData, WebhookEndpointControllerGetAllResponses, WebhookEndpointControllerGetByIdData, WebhookEndpointControllerGetByIdErrors, WebhookEndpointControllerGetByIdResponses, WebhookEndpointControllerUpdateData, WebhookEndpointControllerUpdateErrors, WebhookEndpointControllerUpdateResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -494,9 +494,9 @@ export const credentialConfigControllerUpdateCredentialConfiguration = <ThrowOnE
  *
  * Reserves an attestation ID at the configured registrar, injects it as id, signs the SchemaMetaConfig with the tenant key chain and submits the JWS to the registrar. Optionally pass credentialConfigId to link the created entry back to a credential config.
  */
-export const credentialConfigControllerSignSchemaMetaConfig = <ThrowOnError extends boolean = true>(options: Options<CredentialConfigControllerSignSchemaMetaConfigData, ThrowOnError>) => (options.client ?? client).post<CredentialConfigControllerSignSchemaMetaConfigResponses, CredentialConfigControllerSignSchemaMetaConfigErrors, ThrowOnError>({
+export const schemaMetadataControllerSignSchemaMetaConfig = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerSignSchemaMetaConfigData, ThrowOnError>) => (options.client ?? client).post<SchemaMetadataControllerSignSchemaMetaConfigResponses, SchemaMetadataControllerSignSchemaMetaConfigErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/issuer/credentials/schema-metadata/sign',
+    url: '/api/schema-metadata/sign',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -509,9 +509,116 @@ export const credentialConfigControllerSignSchemaMetaConfig = <ThrowOnError exte
  *
  * Signs the supplied SchemaMetaConfig (which must include the existing id) with the tenant key chain and submits the JWS to the registrar as a new version under the same schema ID.
  */
-export const credentialConfigControllerSignVersionSchemaMetaConfig = <ThrowOnError extends boolean = true>(options: Options<CredentialConfigControllerSignVersionSchemaMetaConfigData, ThrowOnError>) => (options.client ?? client).post<CredentialConfigControllerSignVersionSchemaMetaConfigResponses, CredentialConfigControllerSignVersionSchemaMetaConfigErrors, ThrowOnError>({
+export const schemaMetadataControllerSignVersionSchemaMetaConfig = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerSignVersionSchemaMetaConfigData, ThrowOnError>) => (options.client ?? client).post<SchemaMetadataControllerSignVersionSchemaMetaConfigResponses, SchemaMetadataControllerSignVersionSchemaMetaConfigErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/issuer/credentials/schema-metadata/sign-version',
+    url: '/api/schema-metadata/sign-version',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Get predefined schema metadata vocabularies
+ */
+export const schemaMetadataControllerGetVocabularies = <ThrowOnError extends boolean = true>(options?: Options<SchemaMetadataControllerGetVocabulariesData, ThrowOnError>) => (options?.client ?? client).get<SchemaMetadataControllerGetVocabulariesResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/schema-metadata/vocabularies',
+    ...options
+});
+
+/**
+ * List schema metadata
+ */
+export const schemaMetadataControllerFindAll = <ThrowOnError extends boolean = true>(options?: Options<SchemaMetadataControllerFindAllData, ThrowOnError>) => (options?.client ?? client).get<SchemaMetadataControllerFindAllResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/schema-metadata',
+    ...options
+});
+
+/**
+ * Get schema metadata by ID
+ */
+export const schemaMetadataControllerFindOne = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerFindOneData, ThrowOnError>) => (options.client ?? client).get<SchemaMetadataControllerFindOneResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/schema-metadata/{id}',
+    ...options
+});
+
+/**
+ * Delete schema metadata
+ */
+export const schemaMetadataControllerRemove = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerRemoveData, ThrowOnError>) => (options.client ?? client).delete<SchemaMetadataControllerRemoveResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/schema-metadata/{id}/versions/{version}',
+    ...options
+});
+
+/**
+ * Update schema metadata attributes
+ */
+export const schemaMetadataControllerUpdate = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerUpdateData, ThrowOnError>) => (options.client ?? client).patch<SchemaMetadataControllerUpdateResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/schema-metadata/{id}/versions/{version}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Get latest version of schema metadata by ID
+ */
+export const schemaMetadataControllerGetLatest = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerGetLatestData, ThrowOnError>) => (options.client ?? client).get<SchemaMetadataControllerGetLatestResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/schema-metadata/{id}/latest',
+    ...options
+});
+
+/**
+ * List all versions of a schema metadata entry
+ */
+export const schemaMetadataControllerGetVersions = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerGetVersionsData, ThrowOnError>) => (options.client ?? client).get<SchemaMetadataControllerGetVersionsResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/schema-metadata/{id}/versions',
+    ...options
+});
+
+/**
+ * Get signed schema metadata JWT
+ */
+export const schemaMetadataControllerGetJwt = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerGetJwtData, ThrowOnError>) => (options.client ?? client).get<SchemaMetadataControllerGetJwtResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/schema-metadata/{id}/versions/{version}/jwt',
+    ...options
+});
+
+/**
+ * Export schema metadata in catalog format
+ */
+export const schemaMetadataControllerExport = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerExportData, ThrowOnError>) => (options.client ?? client).get<SchemaMetadataControllerExportResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/schema-metadata/{id}/versions/{version}/export',
+    ...options
+});
+
+/**
+ * Get schema content for a specific format
+ */
+export const schemaMetadataControllerGetSchema = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerGetSchemaData, ThrowOnError>) => (options.client ?? client).get<SchemaMetadataControllerGetSchemaResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/schema-metadata/{id}/versions/{version}/schemas/{format}',
+    ...options
+});
+
+/**
+ * Deprecate a schema metadata version
+ */
+export const schemaMetadataControllerDeprecateVersion = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerDeprecateVersionData, ThrowOnError>) => (options.client ?? client).patch<SchemaMetadataControllerDeprecateVersionResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/api/schema-metadata/{id}/versions/{version}/deprecation',
     ...options,
     headers: {
         'Content-Type': 'application/json',
@@ -907,113 +1014,6 @@ export const registrarControllerCreateConfig = <ThrowOnError extends boolean = t
 export const registrarControllerCreateAccessCertificate = <ThrowOnError extends boolean = true>(options: Options<RegistrarControllerCreateAccessCertificateData, ThrowOnError>) => (options.client ?? client).post<RegistrarControllerCreateAccessCertificateResponses, RegistrarControllerCreateAccessCertificateErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/api/registrar/access-certificate',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Get predefined schema metadata vocabularies
- */
-export const schemaMetadataControllerGetVocabularies = <ThrowOnError extends boolean = true>(options?: Options<SchemaMetadataControllerGetVocabulariesData, ThrowOnError>) => (options?.client ?? client).get<SchemaMetadataControllerGetVocabulariesResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/schema-metadata/vocabularies',
-    ...options
-});
-
-/**
- * List schema metadata
- */
-export const schemaMetadataControllerFindAll = <ThrowOnError extends boolean = true>(options?: Options<SchemaMetadataControllerFindAllData, ThrowOnError>) => (options?.client ?? client).get<SchemaMetadataControllerFindAllResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/schema-metadata',
-    ...options
-});
-
-/**
- * Get schema metadata by ID
- */
-export const schemaMetadataControllerFindOne = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerFindOneData, ThrowOnError>) => (options.client ?? client).get<SchemaMetadataControllerFindOneResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/schema-metadata/{id}',
-    ...options
-});
-
-/**
- * Delete schema metadata
- */
-export const schemaMetadataControllerRemove = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerRemoveData, ThrowOnError>) => (options.client ?? client).delete<SchemaMetadataControllerRemoveResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/schema-metadata/{id}/versions/{version}',
-    ...options
-});
-
-/**
- * Update schema metadata attributes
- */
-export const schemaMetadataControllerUpdate = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerUpdateData, ThrowOnError>) => (options.client ?? client).patch<SchemaMetadataControllerUpdateResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/schema-metadata/{id}/versions/{version}',
-    ...options,
-    headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-    }
-});
-
-/**
- * Get latest version of schema metadata by ID
- */
-export const schemaMetadataControllerGetLatest = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerGetLatestData, ThrowOnError>) => (options.client ?? client).get<SchemaMetadataControllerGetLatestResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/schema-metadata/{id}/latest',
-    ...options
-});
-
-/**
- * List all versions of a schema metadata entry
- */
-export const schemaMetadataControllerGetVersions = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerGetVersionsData, ThrowOnError>) => (options.client ?? client).get<SchemaMetadataControllerGetVersionsResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/schema-metadata/{id}/versions',
-    ...options
-});
-
-/**
- * Get signed schema metadata JWT
- */
-export const schemaMetadataControllerGetJwt = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerGetJwtData, ThrowOnError>) => (options.client ?? client).get<SchemaMetadataControllerGetJwtResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/schema-metadata/{id}/versions/{version}/jwt',
-    ...options
-});
-
-/**
- * Export schema metadata in catalog format
- */
-export const schemaMetadataControllerExport = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerExportData, ThrowOnError>) => (options.client ?? client).get<SchemaMetadataControllerExportResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/schema-metadata/{id}/versions/{version}/export',
-    ...options
-});
-
-/**
- * Get schema content for a specific format
- */
-export const schemaMetadataControllerGetSchema = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerGetSchemaData, ThrowOnError>) => (options.client ?? client).get<SchemaMetadataControllerGetSchemaResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/schema-metadata/{id}/versions/{version}/schemas/{format}',
-    ...options
-});
-
-/**
- * Deprecate a schema metadata version
- */
-export const schemaMetadataControllerDeprecateVersion = <ThrowOnError extends boolean = true>(options: Options<SchemaMetadataControllerDeprecateVersionData, ThrowOnError>) => (options.client ?? client).patch<SchemaMetadataControllerDeprecateVersionResponses, unknown, ThrowOnError>({
-    security: [{ scheme: 'bearer', type: 'http' }],
-    url: '/api/schema-metadata/{id}/versions/{version}/deprecation',
     ...options,
     headers: {
         'Content-Type': 'application/json',

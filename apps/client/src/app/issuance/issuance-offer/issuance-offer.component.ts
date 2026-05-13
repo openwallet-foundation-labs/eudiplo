@@ -39,6 +39,7 @@ import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { CommonModule } from '@angular/common';
 import { getApiErrorMessage } from '../../utils/error-message';
+import { deriveRuntimeArtifacts } from '../credential-config/credential-config-v2.util';
 
 /**
  * Custom validator to check that array has at least one element
@@ -334,6 +335,7 @@ export class IssuanceOfferComponent implements OnInit {
     this.selectedConfigsIaeStatus.clear();
     for (const id of credentialConfigIds) {
       const config = this.credentialConfigs.find((cred) => cred.id === id);
+      const runtime = config?.fields?.length ? deriveRuntimeArtifacts(config.fields as any) : null;
       const hasIae = (config?.iaeActions?.length || 0) > 0;
       this.selectedConfigsIaeStatus.set(id, hasIae);
     }
@@ -361,6 +363,7 @@ export class IssuanceOfferComponent implements OnInit {
 
     for (const id of credentialConfigIds) {
       const config = this.credentialConfigs.find((cred) => cred.id === id);
+      const runtime = config?.fields?.length ? deriveRuntimeArtifacts(config.fields as any) : null;
 
       // Schema is always assumed to be available (form input is always possible)
       // attributeProviderId is optional (attribute provider input is only available if configured)
@@ -370,15 +373,15 @@ export class IssuanceOfferComponent implements OnInit {
       const defaultSource = 'form';
 
       // Generate form fields from schema (only needed for pre-auth flow)
-      if (config?.schema) {
-        this.fields.push(this.formlyJsonschema.toFieldConfig(config.schema as any));
+      if (runtime?.schema) {
+        this.fields.push(this.formlyJsonschema.toFieldConfig(runtime.schema as any));
       } else {
         this.fields.push({} as any); // Empty field config as fallback
       }
 
       this.elements.push({
         id,
-        defaultClaims: config!.claims, // Optional default values for pre-filling the form
+        defaultClaims: runtime?.claims, // Optional default values for pre-filling the form
         attributeProviderId: config!.attributeProviderId || undefined, // Optional attribute provider reference
         claimSource: defaultSource,
       });

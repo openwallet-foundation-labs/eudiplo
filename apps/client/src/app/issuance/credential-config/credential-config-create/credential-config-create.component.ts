@@ -28,6 +28,8 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import {
   CredentialConfigCreate,
+  ClaimFieldDefinitionDto,
+  FieldDisplayDto,
   keyChainControllerGetAll,
   KeyChainResponseDto,
   PresentationConfig,
@@ -42,12 +44,12 @@ import { PresentationManagementService } from '../../../presentation/presentatio
 import { CredentialConfigService } from '../credential-config.service';
 import { JsonViewDialogComponent } from './json-view-dialog/json-view-dialog.component';
 import { configs } from './pre-config';
+import { convertV1ToV2 } from '../credential-config-v2.util';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import {
   credentialConfigSchema,
   embeddedDisclosurePolicySchema,
   vctSchema,
-  claimsMetadataSchema,
 } from '../../../utils/schemas';
 import { EditorComponent, extractSchema } from '../../../utils/editor/editor.component';
 import { ImageFieldComponent } from '../../../utils/image-field/image-field.component';
@@ -129,7 +131,25 @@ export class CredentialConfigCreateComponent implements OnInit {
 
   vctSchema = vctSchema;
   embeddedDisclosurePolicySchema = embeddedDisclosurePolicySchema;
-  claimsMetadataSchema = claimsMetadataSchema;
+
+  readonly localeOptions = [
+    { value: 'en-US', label: 'English (United States)' },
+    { value: 'en-GB', label: 'English (United Kingdom)' },
+    { value: 'de-DE', label: 'German (Germany)' },
+    { value: 'fr-FR', label: 'French (France)' },
+    { value: 'it-IT', label: 'Italian (Italy)' },
+    { value: 'es-ES', label: 'Spanish (Spain)' },
+  ];
+
+  readonly fieldTypes: ClaimFieldDefinitionDto['type'][] = [
+    'string',
+    'number',
+    'integer',
+    'boolean',
+    'object',
+    'array',
+    'date',
+  ];
 
   // VCT mode: 'string' for simple URI, 'object' for metadata object
   vctMode: 'string' | 'object' = 'string';
@@ -167,6 +187,8 @@ export class CredentialConfigCreateComponent implements OnInit {
       claimsByNamespace: new FormControl(''),
       // Common fields
       schema: new FormControl(''),
+      configVersion: new FormControl(2),
+      fields: new FormArray([]),
       displayConfigs: new FormArray([this.createDisplayConfigGroup()]),
       embeddedDisclosurePolicy: new FormControl(''),
       attributeProviderId: new FormControl(''),
@@ -457,9 +479,11 @@ export class CredentialConfigCreateComponent implements OnInit {
    * Patch form with configuration data (reusable for edit mode and JSON load)
    */
   private patchFormFromConfig(config: CredentialConfigCreate): void {
+    const normalizedConfig = this.normalizeConfigToV2(config);
+
     // Determine VCT mode based on the type of vct value
-    if (config.vct) {
-      if (typeof config.vct === 'string') {
+    if (normalizedConfig.vct) {
+      if (typeof normalizedConfig.vct === 'string') {
         this.vctMode = 'string';
       } else {
         this.vctMode = 'object';
@@ -476,48 +500,62 @@ export class CredentialConfigCreateComponent implements OnInit {
     vctStringControl?.updateValueAndValidity();
 
     this.form.patchValue({
-      id: config.id || '',
-      keyChainId: config.keyChainId || '',
-      format: config.config?.format || 'dc+sd-jwt',
-      scope: config.config?.scope || '',
-      description: config.description || '',
-      lifeTime: config.lifeTime || 3600,
-      keyBinding: config.keyBinding ?? true,
-      statusManagement: config.statusManagement ?? true,
-      claims: this.stringifyField(config.claims),
-      attributeProviderId: config.attributeProviderId || '',
-      webhookEndpointId: config.webhookEndpointId || '',
+      id: normalizedConfig.id || '',
+      keyChainId: normalizedConfig.keyChainId || '',
+      format: normalizedConfig.config?.format || 'dc+sd-jwt',
+      scope: normalizedConfig.config?.scope || '',
+      description: normalizedConfig.description || '',
+      lifeTime: normalizedConfig.lifeTime || 3600,
+      keyBinding: normalizedConfig.keyBinding ?? true,
+      statusManagement: normalizedConfig.statusManagement ?? true,
+      claims: this.stringifyField((normalizedConfig as any).claims),
+      attributeProviderId: normalizedConfig.attributeProviderId || '',
+      webhookEndpointId: normalizedConfig.webhookEndpointId || '',
       // SD-JWT specific
-      disclosureFrame: this.stringifyField(config.disclosureFrame),
-      vct: typeof config.vct === 'object' ? this.stringifyField(config.vct) : '',
-      vctString: typeof config.vct === 'string' ? config.vct : '',
-      sdJwtTrustFormat: (config as any).sdJwtTrustFormat || 'x5c',
+      disclosureFrame: this.stringifyField((normalizedConfig as any).disclosureFrame),
+      vct: typeof normalizedConfig.vct === 'object' ? this.stringifyField(normalizedConfig.vct) : '',
+      vctString: typeof normalizedConfig.vct === 'string' ? normalizedConfig.vct : '',
+      sdJwtTrustFormat: (normalizedConfig as any).sdJwtTrustFormat || 'x5c',
       // mDOC specific
-      docType: config.config?.docType || '',
-      namespace: config.config?.namespace || '',
-      claimsByNamespace: this.stringifyField(config.config?.claimsByNamespace),
+      docType: normalizedConfig.config?.docType || '',
+      namespace: (normalizedConfig.config as any)?.namespace || '',
+      claimsByNamespace: this.stringifyField((normalizedConfig.config as any)?.claimsByNamespace),
       // Common
-      schema: this.stringifyField(config.schema),
-      displayConfigs: config.config?.display || [],
-      embeddedDisclosurePolicy: this.stringifyField(config.embeddedDisclosurePolicy),
-      claimsMetadata: this.stringifyField(config.config?.claimsMetadata),
+      schema: this.stringifyField((normalizedConfig as any).schema),
+      configVersion: normalizedConfig.configVersion || 2,
+      displayConfigs: normalizedConfig.config?.display || [],
+      embeddedDisclosurePolicy: this.stringifyField(normalizedConfig.embeddedDisclosurePolicy),
+      claimsMetadata: this.stringifyField((normalizedConfig.config as any)?.claimsMetadata),
       // Key attestation requirements
-      keyAttestationEnabled: !!(config.config as any)?.keyAttestationsRequired,
-      keyStorageTypes: (config.config as any)?.keyAttestationsRequired?.key_storage || [],
+      keyAttestationEnabled: !!(normalizedConfig.config as any)?.keyAttestationsRequired,
+      keyStorageTypes: (normalizedConfig.config as any)?.keyAttestationsRequired?.key_storage || [],
       userAuthenticationTypes:
-        (config.config as any)?.keyAttestationsRequired?.user_authentication || [],
-    } as { [k in keyof Omit<CredentialConfigCreate, 'config'>]: any });
+        (normalizedConfig.config as any)?.keyAttestationsRequired?.user_authentication || [],
+    } as any);
+
+    this.fields.clear();
+    for (const field of normalizedConfig.fields || []) {
+      this.fields.push(this.createFieldGroup(field));
+    }
 
     // Handle IAE actions
     this.iaeActions.clear();
-    if (config.iaeActions?.length) {
-      config.iaeActions.forEach((action) =>
+    if (normalizedConfig.iaeActions?.length) {
+      normalizedConfig.iaeActions.forEach((action) =>
         this.iaeActions.push(this.createIaeActionGroup(action))
       );
     }
 
     // Update lifetime preset selection
-    this.updateLifetimePresetFromValue(config.lifeTime || 3600);
+    this.updateLifetimePresetFromValue(normalizedConfig.lifeTime || 3600);
+  }
+
+  private normalizeConfigToV2(config: CredentialConfigCreate): CredentialConfigCreate {
+    if (Array.isArray((config as any).fields)) {
+      return config;
+    }
+
+    return convertV1ToV2(config as any) as unknown as CredentialConfigCreate;
   }
 
   /**
@@ -675,6 +713,59 @@ export class CredentialConfigCreateComponent implements OnInit {
     }
   }
 
+  // Field Definition Management
+  createFieldDisplayGroup(display?: FieldDisplayDto): FormGroup {
+    return new FormGroup({
+      lang: new FormControl(display?.lang || 'en-US', [Validators.required]),
+      label: new FormControl(display?.label || '', [Validators.required]),
+      description: new FormControl(display?.description || ''),
+    });
+  }
+
+  createFieldGroup(field?: ClaimFieldDefinitionDto): FormGroup {
+    const display = new FormArray(
+      (field?.display || []).map((entry) => this.createFieldDisplayGroup(entry))
+    );
+
+    return new FormGroup({
+      path: new FormControl(field?.path?.join('.') || '', [Validators.required]),
+      type: new FormControl(field?.type || 'string', [Validators.required]),
+      defaultValue: new FormControl(this.stringifyField(field?.defaultValue)),
+      mandatory: new FormControl(!!field?.mandatory),
+      disclosable: new FormControl(field?.disclosable ?? true),
+      namespace: new FormControl(field?.namespace || ''),
+      display,
+    });
+  }
+
+  get fields(): FormArray {
+    return this.form.get('fields') as FormArray;
+  }
+
+  getFieldGroup(index: number): FormGroup {
+    return this.fields.at(index) as FormGroup;
+  }
+
+  getFieldDisplayArray(fieldIndex: number): FormArray {
+    return this.getFieldGroup(fieldIndex).get('display') as FormArray;
+  }
+
+  addField(): void {
+    this.fields.push(this.createFieldGroup());
+  }
+
+  removeField(index: number): void {
+    this.fields.removeAt(index);
+  }
+
+  addFieldDisplay(fieldIndex: number): void {
+    this.getFieldDisplayArray(fieldIndex).push(this.createFieldDisplayGroup());
+  }
+
+  removeFieldDisplay(fieldIndex: number, displayIndex: number): void {
+    this.getFieldDisplayArray(fieldIndex).removeAt(displayIndex);
+  }
+
   // IAE Actions Management
   iaeActionTypes = [
     { value: 'openid4vp_presentation', label: 'OID4VP Presentation', icon: 'verified_user' },
@@ -803,25 +894,21 @@ export class CredentialConfigCreateComponent implements OnInit {
       // mDOC specific fields
       ...(isMdoc && {
         docType: formValue.docType || undefined,
-        namespace: formValue.namespace || undefined,
-        claimsByNamespace: this.parseJsonField(formValue.claimsByNamespace, 'parse'),
       }),
     };
+
+    formValue.configVersion = 2;
+    formValue.fields = this.buildFieldsPayload(formValue.fields || [], isMdoc, formValue.namespace);
 
     // Convert empty strings to null to clear optional fields (for PATCH semantics)
     formValue.keyChainId = formValue.keyChainId || null;
     formValue.scope = formValue.scope || null;
 
-    // Parse JSON fields using helper - use null to clear, undefined is not sent
-    formValue.claims = this.parseJsonField(formValue.claims, 'parse', true);
-
     // SD-JWT specific fields (only include if SD-JWT format)
     if (isMdoc) {
-      formValue.disclosureFrame = null;
       formValue.vct = null;
       formValue.sdJwtTrustFormat = null;
     } else {
-      formValue.disclosureFrame = this.parseJsonField(formValue.disclosureFrame, 'parse', true);
       // Handle VCT based on mode:
       // - string mode: use custom URI entered by user
       // - object mode: send the metadata object (vct field inside will be auto-generated by backend)
@@ -833,7 +920,6 @@ export class CredentialConfigCreateComponent implements OnInit {
       formValue.sdJwtTrustFormat = formValue.sdJwtTrustFormat || 'x5c';
     }
 
-    formValue.schema = this.parseJsonField(formValue.schema, 'parse', true);
     formValue.embeddedDisclosurePolicy = this.parseJsonField(
       formValue.embeddedDisclosurePolicy,
       'extract',
@@ -873,6 +959,9 @@ export class CredentialConfigCreateComponent implements OnInit {
     delete formValue.docType;
     delete formValue.namespace;
     delete formValue.claimsByNamespace;
+    delete formValue.claims;
+    delete formValue.disclosureFrame;
+    delete formValue.schema;
     delete formValue.claimsMetadata;
     delete formValue.keyAttestationEnabled;
     delete formValue.keyStorageTypes;
@@ -895,6 +984,57 @@ export class CredentialConfigCreateComponent implements OnInit {
 
     const parsed = JSON.parse(value);
     return mode === 'extract' ? extractSchema(value) : parsed;
+  }
+
+  private buildFieldsPayload(
+    rawFields: any[],
+    isMdoc: boolean,
+    defaultNamespace?: string
+  ): ClaimFieldDefinitionDto[] {
+    return rawFields
+      .map((rawField: any) => {
+        const path = this.parseFieldPath(rawField['path']);
+        const defaultValueRaw = rawField['defaultValue']?.trim();
+        const namespace = rawField['namespace']?.trim() || defaultNamespace?.trim() || undefined;
+
+        const field: ClaimFieldDefinitionDto = {
+          path,
+          type: rawField['type'],
+          mandatory: !!rawField['mandatory'],
+          ...(isMdoc ? {} : { disclosable: !!rawField['disclosable'] }),
+          ...(namespace ? { namespace } : {}),
+        };
+
+        if (defaultValueRaw) {
+          field.defaultValue = JSON.parse(defaultValueRaw);
+        }
+
+        const display = (rawField['display'] || [])
+          .map((entry: any) => ({
+            lang: entry['lang']?.trim(),
+            label: entry['label']?.trim(),
+            description: entry['description']?.trim() || undefined,
+          }))
+          .filter((entry: FieldDisplayDto) => !!entry.lang && !!entry.label);
+
+        if (display.length > 0) {
+          field.display = display;
+        }
+
+        return field;
+      })
+      .filter((field) => field.path.length > 0);
+  }
+
+  private parseFieldPath(value: string): string[] {
+    if (!value) {
+      return [];
+    }
+
+    return value
+      .split('.')
+      .map((segment) => segment.trim())
+      .filter(Boolean);
   }
 
   /**
