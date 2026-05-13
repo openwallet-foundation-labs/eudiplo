@@ -513,7 +513,8 @@ export class CredentialConfigCreateComponent implements OnInit {
       webhookEndpointId: normalizedConfig.webhookEndpointId || '',
       // SD-JWT specific
       disclosureFrame: this.stringifyField((normalizedConfig as any).disclosureFrame),
-      vct: typeof normalizedConfig.vct === 'object' ? this.stringifyField(normalizedConfig.vct) : '',
+      vct:
+        typeof normalizedConfig.vct === 'object' ? this.stringifyField(normalizedConfig.vct) : '',
       vctString: typeof normalizedConfig.vct === 'string' ? normalizedConfig.vct : '',
       sdJwtTrustFormat: (normalizedConfig as any).sdJwtTrustFormat || 'x5c',
       // mDOC specific
