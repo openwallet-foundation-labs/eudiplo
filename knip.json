@@ -31,7 +31,8 @@
         "test/**/*.e2e-spec.ts"
       ],
       "ignore": [
-        "src/**/generated/**"
+        "src/**/generated/**",
+        "src/registrar/generated/**"
       ],
       "ignoreDependencies": [
         "ts-loader",
@@ -52,6 +53,10 @@
       ]
     },
     "apps/webhook": {},
-    "packages/eudiplo-sdk-core": {}
+    "packages/eudiplo-sdk-core": {
+      "ignore": [
+        "src/api/**"
+      ]
+    }
   }
 }
