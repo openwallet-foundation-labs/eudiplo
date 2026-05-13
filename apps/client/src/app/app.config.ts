@@ -33,7 +33,7 @@ const transactionDataArraySchema = {
   },
 };
 
-export function onMonacoLoad() {
+function onMonacoLoad() {
   monaco.languages.json.jsonDefaults.diagnosticsOptions.enableSchemaRequest = true;
   monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
     validate: true,

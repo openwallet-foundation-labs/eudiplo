@@ -25,7 +25,7 @@ export interface CredentialIssuerMetadata {
   credential_configurations_supported: Record<string, CredentialConfiguration>;
 }
 
-export interface DisplayInfo {
+interface DisplayInfo {
   name?: string;
   locale?: string;
   logo?: { uri?: string; alt_text?: string };
@@ -58,7 +58,7 @@ export interface CredentialConfiguration {
  * Claim metadata item as defined in OID4VCI Draft 15+
  * Claims are represented as an array with path arrays
  */
-export interface ClaimMetadataItem {
+interface ClaimMetadataItem {
   path: string[];
   mandatory?: boolean;
   value_type?: string;

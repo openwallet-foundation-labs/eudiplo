@@ -57,7 +57,7 @@ export type VocabularyStatus = (typeof VOCABULARY_STATUS_VALUES)[number];
 /**
  * Request body for `POST /registrar/schema-metadata/reserve`.
  */
-export class ReserveSchemaMetadataDto {
+class ReserveSchemaMetadataDto {
     /**
      * Optional human-readable name hint used by the registrar when generating
      * the reserved attestation ID. Used in documentation only.
@@ -74,7 +74,7 @@ export class ReserveSchemaMetadataDto {
 /**
  * Response of `POST /registrar/schema-metadata/reserve`.
  */
-export class ReservationResponseDto {
+class ReservationResponseDto {
     @ApiProperty({
         description:
             "The full reserved schema ID URL that should be used as the `id` in the signed JWT",
@@ -96,7 +96,7 @@ export class ReservationResponseDto {
 /**
  * Request body for `POST /registrar/schema-metadata`.
  */
-export class SubmitSchemaMetadataDto {
+class SubmitSchemaMetadataDto {
     @ApiProperty({
         description:
             "The signed schema metadata JWS (compact serialization). Sign via `POST /api/schema-metadata/sign`.",

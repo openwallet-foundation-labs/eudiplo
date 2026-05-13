@@ -50,7 +50,7 @@ export interface ChainValidationResult {
 /**
  * Certificate chain information extracted from a credential.
  */
-export interface CertificateChainInfo {
+interface CertificateChainInfo {
     /** The x5c chain from the credential (base64 encoded) */
     x5c: string[];
     /** Public key for signature verification */

@@ -14,7 +14,7 @@ import { JwtService } from '../services/jwt.service';
 
 type AccessCertificateStatus = 'missing' | 'expired' | 'expiring' | 'healthy';
 
-export interface DashboardStats {
+interface DashboardStats {
   credentialConfigs: number;
   presentationConfigs: number;
   sessionActive: number;

@@ -41,7 +41,7 @@ export class AuthorizationDetailsDto {
  * Initial Interactive Authorization Request DTO.
  * Sent by the wallet to start an interactive authorization flow.
  */
-export class InteractiveAuthorizationInitialRequestDto {
+class InteractiveAuthorizationInitialRequestDto {
     @ApiProperty({
         description: "Response type, typically 'code'",
         example: "code",
@@ -124,7 +124,7 @@ export class InteractiveAuthorizationInitialRequestDto {
  * Follow-up Interactive Authorization Request DTO.
  * Sent by the wallet after completing an interaction (e.g., OpenID4VP presentation).
  */
-export class InteractiveAuthorizationFollowUpRequestDto {
+class InteractiveAuthorizationFollowUpRequestDto {
     @ApiProperty({
         description:
             "Auth session identifier from the previous interaction response",

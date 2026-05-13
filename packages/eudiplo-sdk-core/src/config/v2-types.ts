@@ -28,7 +28,7 @@ export interface ClaimFieldDefinition {
   constraints?: Record<string, unknown>;
 }
 
-export interface CredentialConfigV2Core {
+interface CredentialConfigV2Core {
   format: CredentialFormat;
   display: Array<Record<string, unknown>>;
   scope?: string;

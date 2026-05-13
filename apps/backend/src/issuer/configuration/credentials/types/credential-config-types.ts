@@ -14,9 +14,9 @@ import type {
  * Format identifier constants for runtime checks
  */
 export const MSO_MDOC_FORMAT: MsoMdocFormatIdentifier = "mso_mdoc";
-export const SD_JWT_DC_FORMAT = "dc+sd-jwt" as const;
+const SD_JWT_DC_FORMAT = "dc+sd-jwt" as const;
 
-export type SdJwtDcFormatIdentifier = typeof SD_JWT_DC_FORMAT;
+type SdJwtDcFormatIdentifier = typeof SD_JWT_DC_FORMAT;
 
 /**
  * Extract mso_mdoc specific configuration from the SDK union type
@@ -44,7 +44,7 @@ export type TypedCredentialConfig =
 /**
  * Type guard to check if a config is for mso_mdoc format
  */
-export function isMsoMdocConfig(
+function isMsoMdocConfig(
     config:
         | CredentialConfigurationSupported
         | CredentialConfigurationSupportedWithFormats,
@@ -55,7 +55,7 @@ export function isMsoMdocConfig(
 /**
  * Type guard to check if a config is for dc+sd-jwt format
  */
-export function isSdJwtDcConfig(
+function isSdJwtDcConfig(
     config:
         | CredentialConfigurationSupported
         | CredentialConfigurationSupportedWithFormats,
@@ -78,12 +78,12 @@ export interface BuildCredentialConfigOptions {
 /**
  * Claim path element - string (object key), number (array index), or null (any element)
  */
-export type ClaimPathElement = string | number | null;
+type ClaimPathElement = string | number | null;
 
 /**
  * Claim display information in a specific locale for credential_metadata
  */
-export interface ClaimDisplayInput {
+interface ClaimDisplayInput {
     name?: string;
     locale?: string;
 }
@@ -91,7 +91,7 @@ export interface ClaimDisplayInput {
 /**
  * Single claim metadata entry for credential_metadata.claims
  */
-export interface ClaimMetadataInput {
+interface ClaimMetadataInput {
     path: ClaimPathElement[];
     mandatory?: boolean;
     display?: ClaimDisplayInput[];

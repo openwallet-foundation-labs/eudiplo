@@ -16,7 +16,7 @@ export interface DisplayFormValue {
   };
 }
 
-export interface VctFormValue {
+interface VctFormValue {
   vct?: string;
   name?: string;
   description?: string;
@@ -24,7 +24,7 @@ export interface VctFormValue {
   schema_uri?: string;
 }
 
-export interface CredentialConfigFormValue {
+interface CredentialConfigFormValue {
   id: string;
   tenantId: string;
   config: {
@@ -40,9 +40,9 @@ export interface CredentialConfigFormValue {
   vct?: VctFormValue;
 }
 
-export type FieldDisplayNames = Record<string, string>;
+type FieldDisplayNames = Record<string, string>;
 
-export const FIELD_DISPLAY_NAMES: FieldDisplayNames = {
+const FIELD_DISPLAY_NAMES: FieldDisplayNames = {
   id: 'Configuration ID',
   tenantId: 'Tenant ID',
   'config.format': 'Format',
@@ -52,7 +52,7 @@ export const FIELD_DISPLAY_NAMES: FieldDisplayNames = {
   keyId: 'Key ID',
 };
 
-export const SUPPORTED_FORMATS = [
+const SUPPORTED_FORMATS = [
   'dc+sd-jwt',
   'vc+sd-jwt',
   'jwt_vc_json',
@@ -60,7 +60,7 @@ export const SUPPORTED_FORMATS = [
   'ldp_vc',
 ] as const;
 
-export const SUPPORTED_LOCALES = [
+const SUPPORTED_LOCALES = [
   'en-US',
   'en-GB',
   'de-DE',

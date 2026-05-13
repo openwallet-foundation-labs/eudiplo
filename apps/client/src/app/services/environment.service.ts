@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 
-export interface OidcConfig {
+interface OidcConfig {
   clientId: string;
   clientSecret: string;
 }
 
-export interface ApiConfig {
+interface ApiConfig {
   baseUrl: string;
 }
 

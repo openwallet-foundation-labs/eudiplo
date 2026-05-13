@@ -12,7 +12,6 @@ import {
 
 export enum FederationTrustMode {
     FEDERATION_ONLY = "federation-only",
-    LOTE_ONLY = "lote-only",
     HYBRID = "hybrid",
 }
 

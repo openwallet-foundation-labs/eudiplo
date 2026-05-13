@@ -13,7 +13,7 @@ import {
     CredentialSetQuery,
 } from "../../../../verifier/presentations/entities/presentation-config.entity";
 
-export type PolicyType =
+type PolicyType =
     | "none"
     | "allowList"
     | "rootOfTrust"

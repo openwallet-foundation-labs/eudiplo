@@ -13,7 +13,7 @@ import { firstValueFrom } from "rxjs";
  * Status values as defined in the Token Status List spec.
  * @see https://datatracker.ietf.org/doc/html/draft-ietf-oauth-status-list
  */
-export enum StatusValue {
+enum StatusValue {
     /** The status is valid */
     VALID = 0x00,
     /** The status is invalid/revoked */

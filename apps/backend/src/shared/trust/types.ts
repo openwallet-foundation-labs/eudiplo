@@ -40,7 +40,7 @@ export type TrustedEntity = {
 /**
  * Helper to find a specific service type within a TrustedEntity.
  */
-export function findServiceByType(
+function findServiceByType(
     entity: TrustedEntity,
     serviceType: ServiceTypeIdentifier,
 ): TrustedEntityServiceCert | undefined {
@@ -50,7 +50,7 @@ export function findServiceByType(
 /**
  * Get the issuance certificate from a TrustedEntity.
  */
-export function getIssuanceCert(
+function getIssuanceCert(
     entity: TrustedEntity,
 ): TrustedEntityServiceCert | undefined {
     return findServiceByType(entity, ServiceTypeIdentifiers.EaaIssuance);
@@ -67,7 +67,7 @@ export function getRevocationCert(
 
 export type FederationTrustMode = "federation-only" | "lote-only" | "hybrid";
 
-export type FederationTrustAnchorRef = {
+type FederationTrustAnchorRef = {
     entityId: string;
     entityConfigurationUri: string;
 };
@@ -99,7 +99,7 @@ export type TrustListSource = {
     acceptedServiceTypes?: ServiceTypeIdentifier[];
 };
 
-export type VerifyPolicy = {
+type VerifyPolicy = {
     requireX5c: boolean;
     revocation?: {
         enabled: boolean;

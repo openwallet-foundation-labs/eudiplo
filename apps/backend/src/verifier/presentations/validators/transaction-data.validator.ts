@@ -6,7 +6,7 @@ import {
 } from "class-validator";
 
 @ValidatorConstraint({ name: "isTransactionDataValid", async: false })
-export class IsTransactionDataConstraint
+class IsTransactionDataConstraint
     implements ValidatorConstraintInterface
 {
     validate(values: any[]) {

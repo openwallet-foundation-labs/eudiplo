@@ -4,7 +4,7 @@ import { importJWK, jwtVerify } from "jose";
 import { firstValueFrom } from "rxjs";
 import { RulebookTrustListRef } from "./types";
 
-export type DecodedJwt = { header: any; payload: any; signature: string };
+type DecodedJwt = { header: any; payload: any; signature: string };
 @Injectable()
 export class TrustListJwtService {
     private readonly logger = new Logger(TrustListJwtService.name);

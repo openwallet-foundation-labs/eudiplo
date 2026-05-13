@@ -5,7 +5,7 @@ import { ConfigService } from "@nestjs/config";
 /**
  * Interface for services that can be registered with the import orchestrator.
  */
-export interface ImportableService {
+interface ImportableService {
     /**
      * Import method that will be called by the orchestrator.
      */

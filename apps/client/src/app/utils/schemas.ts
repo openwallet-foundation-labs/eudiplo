@@ -51,7 +51,7 @@ export const issuanceConfigSchema = new SchemaValidation(issuanceConfigSchemaObj
 
 export const presentationConfigSchema = new SchemaValidation(presnetationConfigCreateSchemaObj);
 
-export const registrationCertificateRequestSchema = new SchemaValidation(
+const registrationCertificateRequestSchema = new SchemaValidation(
   registrationCertificateRequestObj
 );
 

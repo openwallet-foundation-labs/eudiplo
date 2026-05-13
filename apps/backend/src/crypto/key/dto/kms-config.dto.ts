@@ -12,14 +12,14 @@ import {
 /**
  * Supported KMS adapter types.
  */
-export const KMS_PROVIDER_TYPES = ["db", "vault", "aws-kms"] as const;
+const KMS_PROVIDER_TYPES = ["db", "vault", "aws-kms"] as const;
 export type KmsProviderType = (typeof KMS_PROVIDER_TYPES)[number];
 
 /**
  * Base configuration for all KMS providers.
  * Each provider must have a unique id and a type.
  */
-export class BaseKmsProviderConfigDto {
+class BaseKmsProviderConfigDto {
     @ApiProperty({
         description:
             "Unique identifier for this provider instance. Used when generating keys to specify which provider to use.",
@@ -52,7 +52,7 @@ export class BaseKmsProviderConfigDto {
  * Configuration for the DB KMS provider.
  * No additional configuration required — keys are stored in the database.
  */
-export class DbKmsConfigDto extends BaseKmsProviderConfigDto {
+class DbKmsConfigDto extends BaseKmsProviderConfigDto {
     @ApiProperty({
         description: "Type of the KMS provider.",
         enum: ["db"],
@@ -65,7 +65,7 @@ export class DbKmsConfigDto extends BaseKmsProviderConfigDto {
 /**
  * Configuration for the HashiCorp Vault KMS provider.
  */
-export class VaultKmsConfigDto extends BaseKmsProviderConfigDto {
+class VaultKmsConfigDto extends BaseKmsProviderConfigDto {
     @ApiProperty({
         description: "Type of the KMS provider.",
         enum: ["vault"],
@@ -97,7 +97,7 @@ export class VaultKmsConfigDto extends BaseKmsProviderConfigDto {
  * Configuration for the AWS KMS provider.
  * Uses AWS SDK credential chain if credentials are not provided.
  */
-export class AwsKmsConfigDto extends BaseKmsProviderConfigDto {
+class AwsKmsConfigDto extends BaseKmsProviderConfigDto {
     @ApiProperty({
         description: "Type of the KMS provider.",
         enum: ["aws-kms"],

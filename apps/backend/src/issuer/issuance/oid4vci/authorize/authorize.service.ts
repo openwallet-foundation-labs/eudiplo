@@ -29,7 +29,7 @@ import { TokenErrorException } from "../exceptions";
 import { getHeadersFromRequest } from "../util";
 import { AuthorizeQueries } from "./dto/authorize-request.dto";
 
-export interface ParsedAccessTokenAuthorizationCodeRequestGrant {
+interface ParsedAccessTokenAuthorizationCodeRequestGrant {
     grantType: AuthorizationCodeGrantIdentifier;
     code: string;
 }

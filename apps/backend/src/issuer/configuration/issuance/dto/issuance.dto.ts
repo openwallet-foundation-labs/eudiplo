@@ -5,7 +5,7 @@ import { IssuanceConfig } from "../entities/issuance-config.entity";
 /**
  * DTO for mapping credential configurations in issuance.
  */
-export class CredentialConfigMapping {
+class CredentialConfigMapping {
     /**
      * Unique identifier for the credential configuration.
      */

@@ -116,7 +116,7 @@ export type IaeAction = IaeActionOpenid4vpPresentation | IaeActionRedirectToWeb;
 /**
  * Array validator class for IAE actions with class-transformer support.
  */
-export class IaeActionsWrapper {
+class IaeActionsWrapper {
     @ApiProperty({
         description: "List of IAE actions to execute in order",
         type: "array",
@@ -150,7 +150,7 @@ export class IaeActionsWrapper {
 /**
  * Helper function to validate and transform IAE actions array.
  */
-export function transformIaeActions(): ReturnType<typeof Type> {
+function transformIaeActions(): ReturnType<typeof Type> {
     return Type(() => IaeActionBase, {
         discriminator: {
             property: "type",

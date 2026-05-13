@@ -69,11 +69,11 @@ export class AuthenticationMethodNone implements AuthenticationMethodInterface {
     method!: "none";
 }
 
-export interface AuthenticationMethodInterface {
+interface AuthenticationMethodInterface {
     method: "none" | "auth" | "presentationDuringIssuance";
 }
 
-export enum AuthenticationMethod {
+enum AuthenticationMethod {
     NONE = "none",
     AUTH = "auth",
     PRESENTATION_DURING_ISSUANCE = "presentationDuringIssuance",

@@ -29,7 +29,7 @@ import { ImportTenantDto } from "./dto/import-tenant.dto";
 import { TenantEntity } from "./entitites/tenant.entity";
 
 // Tenant interface for service integration
-export interface Tenants {
+interface Tenants {
     id: string;
     secret: string;
 }

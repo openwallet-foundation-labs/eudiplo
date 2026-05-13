@@ -6,7 +6,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { MatAnchor } from '@angular/material/button';
 
-export function createWebhookFormGroup(): FormGroup {
+function createWebhookFormGroup(): FormGroup {
   return new FormGroup({
     url: new FormControl(''),
     auth: new FormGroup({
