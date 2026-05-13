@@ -65,8 +65,24 @@ export function getRevocationCert(
     return findServiceByType(entity, ServiceTypeIdentifiers.EaaRevocation);
 }
 
+export type FederationTrustMode = "federation-only" | "lote-only" | "hybrid";
+
+export type FederationTrustAnchorRef = {
+    entityId: string;
+    entityConfigurationUri: string;
+};
+
+export type FederationTrustSource = {
+    mode?: FederationTrustMode;
+    entityId?: string;
+    trustAnchors: FederationTrustAnchorRef[];
+    cacheTtlSeconds?: number;
+    enforceSigningPolicy?: boolean;
+};
+
 export type VerifierOptions = {
-    trustListSource: TrustListSource;
+    trustListSource?: TrustListSource;
+    federationTrustSource?: FederationTrustSource;
     policy: VerifyPolicy;
     /**
      * Transaction data from the OID4VP request.

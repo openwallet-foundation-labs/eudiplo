@@ -18,6 +18,16 @@
         }
       ]
     },
+    "federation": {
+      "nullable": true,
+      "description": "Optional OpenID Federation configuration used for trust evaluation.\nWhen omitted, trust checks rely on existing LoTE trust-list behavior.",
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "./FederationConfig.schema.json"
+        }
+      ]
+    },
     "refreshTokenEnabled": {
       "type": "boolean",
       "description": "Whether refresh tokens should be issued for OID4VCI token responses.",

@@ -224,6 +224,7 @@ export class MdocverifierService {
                 requireX5c: options.policy?.requireX5c,
                 pinnedCertMode: options.policy?.pinnedCertMode ?? "leaf",
                 serviceTypeFilter: "/Issuance",
+                federationTrustSource: options.federationTrustSource,
             },
         );
     }

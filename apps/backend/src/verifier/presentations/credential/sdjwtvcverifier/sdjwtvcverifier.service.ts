@@ -212,6 +212,7 @@ export class SdjwtvcverifierService {
                     requireX5c: options?.policy.requireX5c,
                     pinnedCertMode: options?.policy.pinnedCertMode ?? "leaf",
                     serviceTypeFilter: "/Issuance",
+                    federationTrustSource: options.federationTrustSource,
                 },
             );
 
@@ -281,6 +282,7 @@ export class SdjwtvcverifierService {
                 options.trustListSource,
                 {
                     pinnedCertMode: options.policy.pinnedCertMode ?? "leaf",
+                    federationTrustSource: options.federationTrustSource,
                 },
             );
         } catch (e: any) {

@@ -513,6 +513,156 @@
               }
             </mat-card-content>
           </mat-card>
+
+          <!-- OpenID Federation Card -->
+          <mat-card formGroupName="federation">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>security</mat-icon>
+                OpenID Federation
+              </mat-card-title>
+              <mat-card-subtitle
+                >Enable federation-based trust evaluation for credential verification and issuer
+                authentication</mat-card-subtitle
+              >
+            </mat-card-header>
+            <mat-card-content fxLayout="column" fxLayoutGap="16px">
+              <mat-slide-toggle formControlName="enabled">
+                <div fxLayout="column">
+                  <span><strong>Enable OpenID Federation</strong></span>
+                  <span class="toggle-description"
+                    >When enabled, uses federation trust anchors for entity validation</span
+                  >
+                </div>
+              </mat-slide-toggle>
+
+              @if (federationEnabled) {
+                <!-- Entity Role -->
+                <mat-form-field>
+                  <mat-label>Entity Role</mat-label>
+                  <mat-select formControlName="role">
+                    <mat-option value="trust_anchor">Trust Anchor</mat-option>
+                    <mat-option value="intermediate">Intermediate</mat-option>
+                    <mat-option value="leaf">Leaf (default)</mat-option>
+                  </mat-select>
+                  <mat-icon matSuffix>category</mat-icon>
+                  <mat-hint>This entity's role in the federation topology</mat-hint>
+                </mat-form-field>
+
+                <!-- Trust Mode -->
+                <mat-form-field>
+                  <mat-label>Trust Decision Mode</mat-label>
+                  <mat-select formControlName="mode">
+                    <mat-option value="federation-only">Federation Only</mat-option>
+                    <mat-option value="lote-only">LoTE Trust Lists Only</mat-option>
+                    <mat-option value="hybrid">Hybrid (default)</mat-option>
+                  </mat-select>
+                  <mat-icon matSuffix>merge</mat-icon>
+                  <mat-hint
+                    >How to combine federation and LoTE trust decisions. In hybrid mode, federation
+                    is authoritative with LoTE fallback.</mat-hint
+                  >
+                </mat-form-field>
+
+                <!-- Entity ID -->
+                <mat-form-field>
+                  <mat-label>Entity ID (optional)</mat-label>
+                  <input
+                    matInput
+                    formControlName="entityId"
+                    placeholder="https://issuer.example.org"
+                    type="url"
+                  />
+                  <mat-icon matSuffix>link</mat-icon>
+                  <mat-hint>This issuer's unique identifier in the federation</mat-hint>
+                </mat-form-field>
+
+                <!-- Cache TTL -->
+                <mat-form-field>
+                  <mat-label>Cache TTL (seconds)</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    formControlName="cacheTtlSeconds"
+                    placeholder="300"
+                    min="60"
+                  />
+                  <mat-icon matSuffix>schedule</mat-icon>
+                  <mat-hint
+                    >Cache expiry for federation trust decisions (default: 300 seconds)</mat-hint
+                  >
+                </mat-form-field>
+
+                <!-- Enforce Signing Policy -->
+                <mat-slide-toggle formControlName="enforceSigningPolicy">
+                  <div fxLayout="column">
+                    <span><strong>Enforce Signing Policy</strong></span>
+                    <span class="toggle-description"
+                      >Require federation trust checks to pass for upstream metadata and signing
+                      decisions</span
+                    >
+                  </div>
+                </mat-slide-toggle>
+
+                <!-- Trust Anchors -->
+                <div formArrayName="trustAnchors">
+                  <h4>
+                    <mat-icon>account_tree</mat-icon>
+                    Federation Trust Anchors
+                  </h4>
+                  @for (anchor of trustAnchors.controls; track $index; let i = $index) {
+                    <div
+                      [formGroupName]="i"
+                      fxLayout="column"
+                      fxLayoutGap="16px"
+                      class="trust-anchor-entry"
+                    >
+                      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="16px">
+                        <mat-form-field fxFlex>
+                          <mat-label>Trust Anchor {{ i + 1 }} Entity ID</mat-label>
+                          <input
+                            matInput
+                            formControlName="entityId"
+                            placeholder="https://ta.example.org"
+                            type="url"
+                          />
+                          <mat-icon matSuffix>link</mat-icon>
+                          <mat-hint>The trust anchor's entity ID</mat-hint>
+                        </mat-form-field>
+                        <button
+                          mat-icon-button
+                          type="button"
+                          (click)="removeTrustAnchor(i)"
+                          matTooltip="Remove trust anchor"
+                        >
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+
+                      <mat-form-field fxFull>
+                        <mat-label>Entity Configuration URI</mat-label>
+                        <input
+                          matInput
+                          formControlName="entityConfigurationUri"
+                          placeholder="https://ta.example.org/.well-known/openid-federation"
+                          type="url"
+                        />
+                        <mat-icon matSuffix>language</mat-icon>
+                        <mat-hint>Federation endpoint URL for this trust anchor</mat-hint>
+                      </mat-form-field>
+                    </div>
+                  }
+
+                  <div fxLayout="row" fxLayoutAlign="center center">
+                    <button mat-raised-button type="button" (click)="addTrustAnchor()">
+                      <mat-icon>add</mat-icon>
+                      Add Trust Anchor
+                    </button>
+                  </div>
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
         </div>
       </mat-tab>
     </mat-tab-group>

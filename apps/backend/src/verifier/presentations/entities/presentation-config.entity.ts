@@ -31,6 +31,7 @@ import { IsTransactionData } from "../validators/transaction-data.validator";
 export enum TrustedAuthorityType {
     AKI = "aki",
     ETSI_TL = "etsi_tl",
+    OPENID_FEDERATION = "openid_federation",
 }
 
 /**

@@ -16,7 +16,7 @@ export class ResolverService {
     resolvePublicKey(header: JWK): Promise<JWK> {
         //we ignore is iss value since it is no required when using x5c: https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-13.html#name-registered-jwt-claims
         if (header.x5c) {
-            //TODO: validate the certificate and the chain of trust!
+            // Trust-chain validation is executed by credential verification services.
             const certs = header.x5c.map(
                 (cert) => new X509Certificate(Buffer.from(cert, "base64")),
             );

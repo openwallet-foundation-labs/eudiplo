@@ -19,13 +19,19 @@ Issuance configurations define the parameters and settings for the issuance of c
 ## Configuration Fields
 
 - `authServers` (array of strings, optional): Authentication server URL for the issuance process.
-- `notifyWebhook` (object, optional): Webhook to send the result of the notification response. See [Webhooks](../../architecture/webhooks.md#notification-webhook).
 - `batchSize` (number, optional): Value to determine the amount of credentials that are issued in a batch. Default is 1.
 - `dPopRequired` (boolean, optional): Indicates whether DPoP is required for the issuance process. Default value is true.
+- `signingKeyId` (string, optional): Key ID used for signing access tokens. If omitted, the default signing key for the tenant is used.
+- `preferredAuthServer` (string, optional): Preferred authorization server shown first in issuer metadata (`authorization_servers`). Supports configured auth server URL, `built-in`, or `chained-as`.
 - `refreshTokenEnabled` (boolean, optional): Controls whether the token endpoint returns a refresh token in OID4VCI token responses. Default is `true`.
 - `refreshTokenExpiresInSeconds` (number, optional): Lifetime of issued refresh tokens in seconds. Default is `2592000` (30 days).
+- `txCodeMaxAttempts` (number, optional): Maximum failed `tx_code` attempts before invalidating pre-authorized code flow.
 - `walletAttestationRequired` (boolean, optional): Indicates whether wallet attestation is required for the token endpoint. Default value is false. See [Wallet Attestation](#wallet-attestation) below.
 - `walletProviderTrustLists` (array of strings, optional): URLs of trust lists containing trusted wallet providers. Required when `walletAttestationRequired` is true.
+- `credentialRequestEncryption` (boolean, optional): Advertise support for encrypted credential requests (`credential_request_encryption`).
+- `credentialResponseEncryption` (boolean, optional): Advertise support for encrypted credential responses (`credential_response_encryption`).
+- `chainedAs` (object, optional): Chained Authorization Server configuration. See [Chained Authorization Server](#chained-authorization-server).
+- `federation` (object, optional): OpenID Federation trust configuration for auth-server/upstream trust evaluation. See [OpenID Federation](../../federation/README.md).
 - `display` (array of objects, required): The display information from the [OID4VCI spec](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-issuer-metadata:~:text=2%20or%20greater.-,display,-%3A%20OPTIONAL.%20A%20non). To host images or logos, you can use the [storage](../../architecture/storage.md) system provided by EUDIPLO.
 
 ---

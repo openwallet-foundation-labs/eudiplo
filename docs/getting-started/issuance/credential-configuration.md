@@ -55,6 +55,7 @@ For a complete configuration example, see the [Complete Configuration Example](#
 - `webhookEndpointId`: **OPTIONAL** - Reference to a Webhook Endpoint for receiving notifications about the issuance process. See [Notification Webhook](#notification-webhook) for details.
 - `disclosureFrame`: **OPTIONAL** - Defines which claims should be selectively
   disclosable in SD-JWT format.
+- `sdJwtTrustFormat`: **OPTIONAL (SD-JWT only)** - Controls trust signaling in issued SD-JWT credentials: - `x5c` (default): include X.509 chain in JWT header - `federation`: use federation issuer identity (`iss`) for trust resolution
 - `embeddedDisclosurePolicy`: **OPTIONAL** - Defines the embedded disclosure policy for the credential. See [Embedded Disclosure Policy](#embedded-disclosure-policy) for details.
 - `iaeActions`: **OPTIONAL** - Sequence of Interactive Authorization actions required before credential issuance. See [Interactive Authorization Actions](#interactive-authorization-actions) for details.
 - `schema`: **OPTIONAL** - JSON schema for validating the credential claims.
@@ -318,7 +319,14 @@ The display configuration defines how the credential appears in wallets as defin
 
 ## Signing Key Chain
 
-The signing key chain is used to create the digital signature for the credential. It contains both the private key and its associated certificate. The certificate is included in the `x5c` field of the issued credential to allow verifiers to validate the signature.
+The signing key chain is used to create the digital signature for the credential. It contains both the private key and its associated certificate.
+
+For SD-JWT credentials, whether `x5c` is included is controlled by `sdJwtTrustFormat`:
+
+- `x5c` (default): certificate chain is embedded in the SD-JWT header
+- `federation`: trust signaling uses issuer federation identity (`iss`) instead of embedding `x5c`
+
+In both modes, the selected signing key chain is still used for signing.
 
 If no key chain is specified, the default key chain with `attestation` usage type will be used.
 

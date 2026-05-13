@@ -7,10 +7,12 @@ import Ajv from "ajv/dist/2020";
 import { Repository } from "typeorm";
 import { CryptoImplementationService } from "../../../crypto/key/crypto-implementation/crypto-implementation.service";
 import { Session } from "../../../session/entities/session.entity";
+import { FederationTrustService } from "../../../shared/trust/federation-trust.service";
 import { WebhookConfig } from "../../../shared/utils/webhook/webhook.dto";
 import { WebhookService } from "../../../shared/utils/webhook/webhook.service";
 import { VCT } from "../../issuance/oid4vci/metadata/dto/vct.dto";
 import { AttributeProviderEntity } from "../attribute-provider/entities/attribute-provider.entity";
+import { IssuanceService } from "../issuance/issuance.service";
 import { AuthorizationIdentity } from "./dto/authorization-identity";
 import { ClaimsWebhookResult } from "./dto/claims-webhook-result";
 import {
@@ -52,6 +54,8 @@ export class CredentialsService {
         private readonly sdjwtvcIssuerService: SdjwtvcIssuerService,
         private readonly mdocIssuerService: MdocIssuerService,
         private readonly cryptoImplementationService: CryptoImplementationService,
+        private readonly issuanceService: IssuanceService,
+        private readonly federationTrustService: FederationTrustService,
     ) {}
 
     /**
@@ -498,6 +502,23 @@ export class CredentialsService {
             }
         }
 
+        // Load issuance config to check for federation settings
+        let federationEntityId: string | undefined;
+        try {
+            const issuanceConfig =
+                await this.issuanceService.getIssuanceConfiguration(
+                    session.tenantId,
+                );
+            if (
+                issuanceConfig.federation &&
+                this.federationTrustService.isEnabled(issuanceConfig.federation)
+            ) {
+                federationEntityId = issuanceConfig.federation.entityId;
+            }
+        } catch {
+            // If issuance config not found, proceed without federation
+        }
+
         // Delegate to format-specific issuer service
         const format = credentialConfiguration.config.format;
 
@@ -516,6 +537,7 @@ export class CredentialsService {
                 holderCnf,
                 session,
                 claims: usedClaims,
+                federationEntityId,
             });
         }
     }

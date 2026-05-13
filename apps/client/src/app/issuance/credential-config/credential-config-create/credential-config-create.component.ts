@@ -152,6 +152,7 @@ export class CredentialConfigCreateComponent implements OnInit {
       disclosureFrame: new FormControl(''),
       vct: new FormControl(''),
       vctString: new FormControl(''),
+      sdJwtTrustFormat: new FormControl('x5c'),
       // mDOC specific fields
       docType: new FormControl(''),
       namespace: new FormControl(''),
@@ -366,6 +367,7 @@ export class CredentialConfigCreateComponent implements OnInit {
       disclosureFrame: this.stringifyField(config.disclosureFrame),
       vct: typeof config.vct === 'object' ? this.stringifyField(config.vct) : '',
       vctString: typeof config.vct === 'string' ? config.vct : '',
+      sdJwtTrustFormat: (config as any).sdJwtTrustFormat || 'x5c',
       // mDOC specific
       docType: config.config?.docType || '',
       namespace: config.config?.namespace || '',
@@ -684,6 +686,7 @@ export class CredentialConfigCreateComponent implements OnInit {
     if (isMdoc) {
       formValue.disclosureFrame = null;
       formValue.vct = null;
+      formValue.sdJwtTrustFormat = null;
     } else {
       formValue.disclosureFrame = this.parseJsonField(formValue.disclosureFrame, 'parse', true);
       // Handle VCT based on mode:
@@ -694,6 +697,7 @@ export class CredentialConfigCreateComponent implements OnInit {
       } else {
         formValue.vct = this.parseJsonField(formValue.vct, 'extract', true);
       }
+      formValue.sdJwtTrustFormat = formValue.sdJwtTrustFormat || 'x5c';
     }
 
     formValue.schema = this.parseJsonField(formValue.schema, 'parse', true);

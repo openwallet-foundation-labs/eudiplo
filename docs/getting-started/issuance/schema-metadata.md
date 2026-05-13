@@ -7,9 +7,10 @@ It is intentionally managed separately from Credential Configuration so one sche
 entry can be reused by multiple credential configurations.
 
 !!! warning "Unstable Feature"
-This feature is based on the TS11 specification, which is still in **draft status**.
-The schema metadata structure, API endpoints, and UI may change as the specification evolves.
-Please report feedback and issues to help shape the final specification.
+
+    This feature is based on the TS11 specification, which is still in **draft status**.
+    The schema metadata structure, API endpoints, and UI may change as the specification evolves.
+    Please report feedback and issues to help shape the final specification.
 
 ---
 
