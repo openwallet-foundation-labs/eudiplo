@@ -53,12 +53,7 @@ For a complete configuration example, see the [Complete Configuration Example](#
 - `fields`: **REQUIRED for v2** - Field definitions (`ClaimFieldDefinition[]`) that describe claim paths, data types, defaults, disclosure behavior, and optional display labels.
 - `attributeProviderId`: **OPTIONAL** - Reference to an Attribute Provider that fetches claims dynamically. See [Attribute Providers](attribute-provider.md) for details.
 - `webhookEndpointId`: **OPTIONAL** - Reference to a Webhook Endpoint for receiving notifications about the issuance process. See [Notification Webhook](#notification-webhook) for details.
-<<<<<<< HEAD
-- `disclosureFrame`: **OPTIONAL** - Defines which claims should be selectively
-  disclosable in SD-JWT format.
 - `sdJwtTrustFormat`: **OPTIONAL (SD-JWT only)** - Controls trust signaling in issued SD-JWT credentials: - `x5c` (default): include X.509 chain in JWT header - `federation`: use federation issuer identity (`iss`) for trust resolution
-=======
->>>>>>> fc41d5ed (feat: migrate credential config to field-based model)
 - `embeddedDisclosurePolicy`: **OPTIONAL** - Defines the embedded disclosure policy for the credential. See [Embedded Disclosure Policy](#embedded-disclosure-policy) for details.
 - `iaeActions`: **OPTIONAL** - Sequence of Interactive Authorization actions required before credential issuance. See [Interactive Authorization Actions](#interactive-authorization-actions) for details.
 
