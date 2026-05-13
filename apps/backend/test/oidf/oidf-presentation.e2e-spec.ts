@@ -11,7 +11,11 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module";
 import { KeyChainService } from "../../src/crypto/key/key-chain.service";
 import { getDefaultSecret } from "../utils";
-import { useOidfContainers } from "./oidf-setup";
+import {
+    BACKEND_TEST_CA_PATH,
+    OIDF_HTTPD_CA_PATH,
+    useOidfContainers,
+} from "./oidf-setup";
 import { OIDFSuite, TestInstance } from "./oidf-suite";
 
 // Setup OIDF containers for this test file
@@ -36,7 +40,8 @@ describe("OIDF", () => {
     const axiosBackendInstance = axios.default.create({
         baseURL: "https://localhost:3000",
         httpsAgent: new https.Agent({
-            rejectUnauthorized: false,
+            ca: readFileSync(BACKEND_TEST_CA_PATH),
+            checkServerIdentity: () => undefined,
         }),
     });
 
@@ -193,7 +198,8 @@ describe("OIDF", () => {
         const authorizeUrl = `${testInstance.url}/authorize${queryString}`;
         await axios.default.get(authorizeUrl, {
             httpsAgent: new https.Agent({
-                rejectUnauthorized: false,
+                ca: readFileSync(OIDF_HTTPD_CA_PATH),
+                checkServerIdentity: () => undefined,
             }),
         });
 

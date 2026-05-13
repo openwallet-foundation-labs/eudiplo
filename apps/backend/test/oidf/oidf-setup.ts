@@ -13,8 +13,8 @@
  * (not in globalSetup), which is why we use beforeAll/afterAll hooks.
  */
 
-import { rmSync } from "node:fs";
-import { resolve } from "node:path";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import {
     GenericContainer,
     Network,
@@ -26,6 +26,38 @@ import {
 import { afterAll, beforeAll } from "vitest";
 
 const TEST_DB_PATH = resolve(__dirname, "../../../tmp/service.db");
+
+/**
+ * Path inside the OIDF nginx image where the self-signed server certificate
+ * lives. Pinned to the upstream nginx image used in FAPI_IMAGE / HTTP_IMAGE
+ * (registry.gitlab.com/openid/conformance-suite/nginx) which terminates TLS
+ * for the conformance test runner. Update if the upstream image relocates it.
+ */
+const OIDF_HTTPD_CERT_PATH_IN_CONTAINER = "/etc/ssl/certs/nginx-selfsigned.crt";
+
+/**
+ * Filesystem location where the extracted OIDF httpd CA cert is written so
+ * tests can configure their HTTPS agents with it.
+ */
+const OIDF_HTTPD_CA_HOST_PATH = resolve(
+    __dirname,
+    "../../tmp/oidf-httpd-ca.pem",
+);
+
+/**
+ * Path to the local backend's self-signed cert used for the e2e server on
+ * https://localhost:3000. Re-exported so test files can configure their HTTPS
+ * agents without hard-coding the relative path.
+ */
+export const BACKEND_TEST_CA_PATH = resolve(__dirname, "../cert.pem");
+
+/**
+ * Path to the OIDF httpd server cert extracted from the running container in
+ * setupOidfContainers(). Test files should pass this to https.Agent via
+ * { ca: readFileSync(OIDF_HTTPD_CA_PATH) } when talking to the conformance
+ * suite httpd (port 8443). Available only after setupOidfContainers() runs.
+ */
+export const OIDF_HTTPD_CA_PATH = OIDF_HTTPD_CA_HOST_PATH;
 
 const TAG = "release-v5.1.42";
 
@@ -100,6 +132,23 @@ async function setupOidfContainers(): Promise<void> {
         const httpdPort = containerHttp.getMappedPort(8443);
         process.env.FAPI_TEST_URL = `https://localhost:${httpdPort}`;
         console.log(`FAPI test URL set to ${process.env.FAPI_TEST_URL}`);
+
+        // Extract the OIDF httpd server certificate so tests can validate the
+        // TLS chain instead of disabling certificate verification entirely.
+        // The cert lives inside the upstream nginx image at
+        // OIDF_HTTPD_CERT_PATH_IN_CONTAINER.
+        const certResult = await containerHttp.exec([
+            "cat",
+            OIDF_HTTPD_CERT_PATH_IN_CONTAINER,
+        ]);
+        if (certResult.exitCode !== 0) {
+            throw new Error(
+                `Failed to read OIDF httpd cert from ${OIDF_HTTPD_CERT_PATH_IN_CONTAINER} (exit ${certResult.exitCode}): ${certResult.stderr}`,
+            );
+        }
+        mkdirSync(dirname(OIDF_HTTPD_CA_HOST_PATH), { recursive: true });
+        writeFileSync(OIDF_HTTPD_CA_HOST_PATH, certResult.output);
+        console.log(`OIDF httpd CA cert written to ${OIDF_HTTPD_CA_HOST_PATH}`);
     } catch (error) {
         console.error("Error during OIDF container setup:", error);
         // Clean up any containers that did start
