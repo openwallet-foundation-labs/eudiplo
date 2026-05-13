@@ -1,5 +1,12 @@
 import { Component, type OnInit } from '@angular/core';
-import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormArray,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -80,6 +87,7 @@ export class CredentialConfigCreateComponent implements OnInit {
   public form: FormGroup;
   public create = true;
   public loading = false;
+  public submitAttempted = false;
   keyChains: KeyChainResponseDto[] = [];
   presentationConfigs: PresentationConfig[] = [];
   attributeProviders: AttributeProviderEntity[] = [];
@@ -259,6 +267,8 @@ export class CredentialConfigCreateComponent implements OnInit {
   }
 
   onSubmit() {
+    this.submitAttempted = true;
+
     if (this.form.invalid) {
       this.markFormGroupTouched();
       const invalidFields = this.getInvalidFields();
@@ -318,6 +328,120 @@ export class CredentialConfigCreateComponent implements OnInit {
         duration: 3000,
       });
       this.loading = false;
+    }
+  }
+
+  private countInvalidControls(control: AbstractControl | null): number {
+    if (!control) {
+      return 0;
+    }
+
+    if (control instanceof FormControl) {
+      return control.invalid ? 1 : 0;
+    }
+
+    if (control instanceof FormGroup || control instanceof FormArray) {
+      return Object.values(control.controls).reduce(
+        (sum, child) => sum + this.countInvalidControls(child),
+        0
+      );
+    }
+
+    return 0;
+  }
+
+  private metadataInvalidCount(): number {
+    const base = ['id', 'description', 'format', 'lifeTime'].reduce(
+      (sum, name) => sum + this.countInvalidControls(this.form.get(name)),
+      0
+    );
+
+    const isMdoc = this.form.get('format')?.value === 'mso_mdoc';
+    if (!isMdoc && this.vctMode === 'string') {
+      return base + this.countInvalidControls(this.form.get('vctString'));
+    }
+
+    return base;
+  }
+
+  private businessInvalidCount(): number {
+    return this.countInvalidControls(this.form.get('iaeActions'));
+  }
+
+  private visualInvalidCount(): number {
+    return this.countInvalidControls(this.form.get('displayConfigs'));
+  }
+
+  private fieldsInvalidCount(): number {
+    return this.countInvalidControls(this.form.get('fields'));
+  }
+
+  getTabInvalidCount(tab: 'metadata' | 'business' | 'display' | 'fields'): number {
+    switch (tab) {
+      case 'metadata':
+        return this.metadataInvalidCount();
+      case 'business':
+        return this.businessInvalidCount();
+      case 'display':
+        return this.visualInvalidCount();
+      case 'fields':
+        return this.fieldsInvalidCount();
+      default:
+        return 0;
+    }
+  }
+
+  showTabError(tab: 'metadata' | 'business' | 'display' | 'fields'): boolean {
+    if (this.getTabInvalidCount(tab) === 0) {
+      return false;
+    }
+
+    return (
+      this.submitAttempted ||
+      this.tabHasUserVisibleErrors(tab) ||
+      (this.form.invalid && this.form.dirty)
+    );
+  }
+
+  private hasTouchedOrDirtyInvalid(control: AbstractControl | null): boolean {
+    if (!control) {
+      return false;
+    }
+
+    if (control instanceof FormControl) {
+      return control.invalid && (control.touched || control.dirty);
+    }
+
+    if (control instanceof FormGroup || control instanceof FormArray) {
+      return Object.values(control.controls).some((child) => this.hasTouchedOrDirtyInvalid(child));
+    }
+
+    return false;
+  }
+
+  private tabHasUserVisibleErrors(tab: 'metadata' | 'business' | 'display' | 'fields'): boolean {
+    switch (tab) {
+      case 'metadata': {
+        const hasBaseErrors = ['id', 'description', 'format', 'lifeTime'].some((name) =>
+          this.hasTouchedOrDirtyInvalid(this.form.get(name))
+        );
+
+        const isMdoc = this.form.get('format')?.value === 'mso_mdoc';
+        const hasVctErrors =
+          !isMdoc && this.vctMode === 'string'
+            ? this.hasTouchedOrDirtyInvalid(this.form.get('vctString'))
+            : false;
+
+        return hasBaseErrors || hasVctErrors;
+      }
+      case 'business':
+        return this.hasTouchedOrDirtyInvalid(this.form.get('iaeActions'));
+      case 'display':
+        return this.hasTouchedOrDirtyInvalid(this.form.get('displayConfigs'));
+      case 'fields':
+        return this.hasTouchedOrDirtyInvalid(this.form.get('fields'));
+      default:
+        return false;
     }
   }
 
@@ -476,11 +600,20 @@ export class CredentialConfigCreateComponent implements OnInit {
     return `${Math.floor(seconds / 31536000)} years`;
   }
 
+  private markControlTreeTouched(control: AbstractControl | null): void {
+    if (!control) {
+      return;
+    }
+
+    control.markAsTouched();
+
+    if (control instanceof FormGroup || control instanceof FormArray) {
+      Object.values(control.controls).forEach((child) => this.markControlTreeTouched(child));
+    }
+  }
+
   private markFormGroupTouched(): void {
-    Object.keys(this.form.controls).forEach((key) => {
-      const control = this.form.get(key);
-      control?.markAsTouched();
-    });
+    this.markControlTreeTouched(this.form);
   }
 
   /**
