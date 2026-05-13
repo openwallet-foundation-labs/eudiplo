@@ -1281,8 +1281,8 @@ the registrar is not enabled for this tenant.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1404"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:1404</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1418"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:1418</a></div>
                         </td>
                     </tr>
 
@@ -1378,8 +1378,8 @@ For mDOC: the first path element is the namespace, so we return the claim name (
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1326"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:1326</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1340"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:1340</a></div>
                         </td>
                     </tr>
 
@@ -2764,8 +2764,8 @@ happens asynchronously.</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1343"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:1343</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1357"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:1357</a></div>
                         </td>
                     </tr>
 
@@ -2880,8 +2880,8 @@ If no credential_sets are defined, all credentials in the query are required.</p
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="1434"
-                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:1434</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="1448"
+                                    class="link-to-prism">src/verifier/presentations/presentations.service.ts:1448</a></div>
                         </td>
                     </tr>
 
@@ -4217,26 +4217,40 @@ export class PresentationsService {
                     },
                 );
 
+                const loteAuthorities &#x3D;
+                    dcqlCredential.trusted_authorities?.find(
+                        (auth) &#x3D;&gt; auth.type &#x3D;&#x3D;&#x3D; TrustedAuthorityType.ETSI_TL,
+                    );
+
+                const federationAuthorities &#x3D;
+                    dcqlCredential.trusted_authorities?.find(
+                        (auth) &#x3D;&gt;
+                            auth.type &#x3D;&#x3D;&#x3D;
+                            TrustedAuthorityType.OPENID_FEDERATION,
+                    );
+
                 const verifyOptions: VerifierOptions &#x3D; {
                     trustListSource: {
                         lotes:
-                            dcqlCredential.trusted_authorities
-                                ?.find(
-                                    (auth) &#x3D;&gt;
-                                        auth.type &#x3D;&#x3D;&#x3D;
-                                        TrustedAuthorityType.ETSI_TL,
-                                )
-                                ?.values.map((url) &#x3D;&gt; ({
-                                    url: url.replaceAll(
-                                        &quot;&lt;TENANT_URL&gt;&quot;,
-                                        tenantHost,
-                                    ),
-                                })) || [],
+                            loteAuthorities?.values.map((url) &#x3D;&gt; ({
+                                url: url.replaceAll(&quot;&lt;TENANT_URL&gt;&quot;, tenantHost),
+                            })) || [],
                         acceptedServiceTypes: [
                             ServiceTypeIdentifier.EaaIssuance,
                             ServiceTypeIdentifier.PIDIssuance,
                         ],
                     },
+                    federationTrustSource: federationAuthorities?.values.length
+                        ? {
+                              mode: &quot;hybrid&quot;,
+                              trustAnchors: federationAuthorities.values.map(
+                                  (value) &#x3D;&gt; ({
+                                      entityId: value,
+                                      entityConfigurationUri: &#x60;${value.replace(/\/$/, &quot;&quot;)}/.well-known/openid-federation&#x60;,
+                                  }),
+                              ),
+                          }
+                        : undefined,
                     policy: {
                         requireX5c: true,
                     },

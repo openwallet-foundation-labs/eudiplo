@@ -188,7 +188,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/issuer/configuration/credentials/issuer/sdjwtvc-issuer/sdjwtvc-issuer.service.ts:26</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/issuer/configuration/credentials/issuer/sdjwtvc-issuer/sdjwtvc-issuer.service.ts:30</a></div>
                             </td>
                         </tr>
 
@@ -301,8 +301,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="40"
-                                    class="link-to-prism">src/issuer/configuration/credentials/issuer/sdjwtvc-issuer/sdjwtvc-issuer.service.ts:40</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="44"
+                                    class="link-to-prism">src/issuer/configuration/credentials/issuer/sdjwtvc-issuer/sdjwtvc-issuer.service.ts:44</a></div>
                         </td>
                     </tr>
 
@@ -338,7 +338,7 @@
 
                                             <td>
                                                     <ul>
-<li>The issuance options</li>
+<li>The issuance options (including optional federationEntityId for federation-based trust)</li>
 </ul>
 
                                             </td>
@@ -376,13 +376,17 @@ import { KeyUsageType } from &quot;../../../../../crypto/key/entities/key-chain.
 import { KeyChainService } from &quot;../../../../../crypto/key/key-chain.service&quot;;
 import { Session } from &quot;../../../../../session/entities/session.entity&quot;;
 import { StatusListService } from &quot;../../../../lifecycle/status/status-list.service&quot;;
-import { CredentialConfig } from &quot;../../entities/credential.entity&quot;;
+import {
+    CredentialConfig,
+    SdJwtTrustFormat,
+} from &quot;../../entities/credential.entity&quot;;
 
 export interface SdJwtVcIssueOptions {
     credentialConfiguration: CredentialConfig;
     holderCnf: Jwk;
     session: Session;
     claims: Record&lt;string, any&gt;;
+    federationEntityId?: string;
 }
 
 /**
@@ -400,11 +404,17 @@ export class SdjwtvcIssuerService {
 
     /**
      * Issues an SD-JWT VC credential.
-     * @param options - The issuance options
+     * @param options - The issuance options (including optional federationEntityId for federation-based trust)
      * @returns The issued SD-JWT VC credential string
      */
     async issue(options: SdJwtVcIssueOptions): Promise&lt;string&gt; {
-        const { credentialConfiguration, holderCnf, session, claims } &#x3D; options;
+        const {
+            credentialConfiguration,
+            holderCnf,
+            session,
+            claims,
+            federationEntityId,
+        } &#x3D; options;
 
         const certificate &#x3D; await this.certService.find({
             tenantId: session.tenantId,
@@ -456,8 +466,30 @@ export class SdjwtvcIssuerService {
                 ? credentialConfiguration.vct
                 : &#x60;${host}/issuers/${session.tenantId}/credentials-metadata/vct/${credentialConfiguration.id}&#x60;;
 
+        // Federation is opt-in only; default and legacy modes use x5c.
+        const trustFormat &#x3D;
+            credentialConfiguration.sdJwtTrustFormat ?? SdJwtTrustFormat.X5C;
+        const useFederation &#x3D;
+            trustFormat &#x3D;&#x3D;&#x3D; SdJwtTrustFormat.FEDERATION &amp;&amp;
+            Boolean(federationEntityId);
+
+        // Build issuer identifier
+        const issuer &#x3D; useFederation
+            ? federationEntityId
+            : &#x60;${host}/issuers/${session.tenantId}&#x60;;
+
+        // Build header: include x5c only if not using federation
+        const header: any &#x3D; {
+            alg: this.cryptoImplementationService.getAlg(),
+        };
+
+        if (!useFederation) {
+            header.x5c &#x3D; this.certService.getLeafCertBase64(certificate);
+        }
+
         return sdjwt.issue(
             {
+                iss: issuer,
                 iat,
                 exp,
                 vct,
@@ -467,10 +499,7 @@ export class SdjwtvcIssuerService {
             },
             disclosureFrame,
             {
-                header: {
-                    x5c: this.certService.getLeafCertBase64(certificate),
-                    alg: this.cryptoImplementationService.getAlg(),
-                },
+                header,
             },
         );
     }

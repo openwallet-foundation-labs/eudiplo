@@ -2005,6 +2005,10 @@
       
         
       
+        
+          
+        
+      
     
     
     
@@ -2023,8 +2027,9 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_7">
         
           
-          <label class="md-nav__link" for="__nav_4_7" id="__nav_4_7_label" tabindex="0">
-            
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../federation/" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -2038,8 +2043,14 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_7" id="__nav_4_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4_7">
@@ -2134,6 +2145,8 @@
     </li>
   
 
+              
+            
               
             
           </ul>
@@ -3172,13 +3185,19 @@
 <h2 id="configuration-fields">Configuration Fields<a class="headerlink" href="#configuration-fields" title="Permanent link">¶</a></h2>
 <ul>
 <li><code>authServers</code> (array of strings, optional): Authentication server URL for the issuance process.</li>
-<li><code>notifyWebhook</code> (object, optional): Webhook to send the result of the notification response. See <a href="../../../architecture/webhooks/#notification-webhook">Webhooks</a>.</li>
 <li><code>batchSize</code> (number, optional): Value to determine the amount of credentials that are issued in a batch. Default is 1.</li>
 <li><code>dPopRequired</code> (boolean, optional): Indicates whether DPoP is required for the issuance process. Default value is true.</li>
+<li><code>signingKeyId</code> (string, optional): Key ID used for signing access tokens. If omitted, the default signing key for the tenant is used.</li>
+<li><code>preferredAuthServer</code> (string, optional): Preferred authorization server shown first in issuer metadata (<code>authorization_servers</code>). Supports configured auth server URL, <code>built-in</code>, or <code>chained-as</code>.</li>
 <li><code>refreshTokenEnabled</code> (boolean, optional): Controls whether the token endpoint returns a refresh token in OID4VCI token responses. Default is <code>true</code>.</li>
 <li><code>refreshTokenExpiresInSeconds</code> (number, optional): Lifetime of issued refresh tokens in seconds. Default is <code>2592000</code> (30 days).</li>
+<li><code>txCodeMaxAttempts</code> (number, optional): Maximum failed <code>tx_code</code> attempts before invalidating pre-authorized code flow.</li>
 <li><code>walletAttestationRequired</code> (boolean, optional): Indicates whether wallet attestation is required for the token endpoint. Default value is false. See <a href="#wallet-attestation">Wallet Attestation</a> below.</li>
 <li><code>walletProviderTrustLists</code> (array of strings, optional): URLs of trust lists containing trusted wallet providers. Required when <code>walletAttestationRequired</code> is true.</li>
+<li><code>credentialRequestEncryption</code> (boolean, optional): Advertise support for encrypted credential requests (<code>credential_request_encryption</code>).</li>
+<li><code>credentialResponseEncryption</code> (boolean, optional): Advertise support for encrypted credential responses (<code>credential_response_encryption</code>).</li>
+<li><code>chainedAs</code> (object, optional): Chained Authorization Server configuration. See <a href="#chained-authorization-server">Chained Authorization Server</a>.</li>
+<li><code>federation</code> (object, optional): OpenID Federation trust configuration for auth-server/upstream trust evaluation. See <a href="../../../federation/">OpenID Federation</a>.</li>
 <li><code>display</code> (array of objects, required): The display information from the <a href="https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-issuer-metadata:~:text=2%20or%20greater.-,display,-%3A%20OPTIONAL.%20A%20non">OID4VCI spec</a>. To host images or logos, you can use the <a href="../../../architecture/storage/">storage</a> system provided by EUDIPLO.</li>
 </ul>
 <hr>

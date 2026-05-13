@@ -610,8 +610,8 @@ signature = &quot;&lt;b64url(signature)&gt;&quot;</p>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="247"
-                                    class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:247</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="248"
+                                    class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:248</a></div>
                         </td>
                     </tr>
 
@@ -748,7 +748,7 @@ service of the same entity that issued the credential.</p>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="301" class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:301</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="303" class="link-to-prism">src/verifier/presentations/credential/sdjwtvcverifier/sdjwtvcverifier.service.ts:303</a></div>
                         </td>
                     </tr>
 
@@ -1006,6 +1006,7 @@ export class SdjwtvcverifierService {
                     requireX5c: options?.policy.requireX5c,
                     pinnedCertMode: options?.policy.pinnedCertMode ?? &quot;leaf&quot;,
                     serviceTypeFilter: &quot;/Issuance&quot;,
+                    federationTrustSource: options.federationTrustSource,
                 },
             );
 
@@ -1075,6 +1076,7 @@ export class SdjwtvcverifierService {
                 options.trustListSource,
                 {
                     pinnedCertMode: options.policy.pinnedCertMode ?? &quot;leaf&quot;,
+                    federationTrustSource: options.federationTrustSource,
                 },
             );
         } catch (e: any) {

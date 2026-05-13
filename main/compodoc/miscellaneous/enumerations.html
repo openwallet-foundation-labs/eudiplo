@@ -149,6 +149,12 @@
                             <a href="#DeferredTransactionStatus" title="src/issuer/issuance/oid4vci/entities/deferred-transaction.entity.ts" ><b>DeferredTransactionStatus</b>&nbsp;&nbsp;&nbsp;(src/.../deferred-transaction.entity.ts)</a>
                         </li>
                         <li>
+                            <a href="#FederationEntityRole" title="src/issuer/configuration/issuance/dto/federation-config.dto.ts" ><b>FederationEntityRole</b>&nbsp;&nbsp;&nbsp;(src/.../federation-config.dto.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#FederationTrustMode" title="src/issuer/configuration/issuance/dto/federation-config.dto.ts" ><b>FederationTrustMode</b>&nbsp;&nbsp;&nbsp;(src/.../federation-config.dto.ts)</a>
+                        </li>
+                        <li>
                             <a href="#FlowType" title="src/issuer/issuance/oid4vci/dto/offer-request.dto.ts" ><b>FlowType</b>&nbsp;&nbsp;&nbsp;(src/.../offer-request.dto.ts)</a>
                         </li>
                         <li>
@@ -189,6 +195,9 @@
                         </li>
                         <li>
                             <a href="#SchemaMetaFrameworkType" title="src/issuer/configuration/credentials/dto/schema-meta-config.dto.ts" ><b>SchemaMetaFrameworkType</b>&nbsp;&nbsp;&nbsp;(src/.../schema-meta-config.dto.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#SdJwtTrustFormat" title="src/issuer/configuration/credentials/entities/credential.entity.ts" ><b>SdJwtTrustFormat</b>&nbsp;&nbsp;&nbsp;(src/.../credential.entity.ts)</a>
                         </li>
                         <li>
                             <a href="#ServiceTypeIdentifier" title="src/issuer/trust-list/trustlist.service.ts" ><b>ServiceTypeIdentifier</b>&nbsp;&nbsp;&nbsp;(src/.../trustlist.service.ts)</a>
@@ -556,6 +565,57 @@
                         </tr>
             </tbody>
         </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="SdJwtTrustFormat"></a>
+                        <span class="name "><b>SdJwtTrustFormat</b><a href="#SdJwtTrustFormat"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+                    <tr>
+                        <td class="col-md-4">
+                            <div class="io-description"><p>Determines how SD-JWT credentials are signed and trust is established.</p>
+<ul>
+<li>&quot;x5c&quot;: Include certificate chain in JWT header (certificate-based trust)</li>
+<li>&quot;federation&quot;: Include issuer entity ID in &#39;iss&#39; claim (federation-based trust)</li>
+<li>&quot;auto&quot;: Legacy mode kept for backward compatibility (treated like x5c)</li>
+</ul>
+</div>
+                        </td>
+                    </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;X5C
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>x5c</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;FEDERATION
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>federation</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;AUTO
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>auto</code>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
 </section>
     <h3>src/issuer/issuance/oid4vci/entities/deferred-transaction.entity.ts</h3>
     <section data-compodoc="block-enums">
@@ -621,6 +681,89 @@
                         <tr>
                             <td class="col-md-4">
                                 <i>Value : </i><code>failed</code>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+</section>
+    <h3>src/issuer/configuration/issuance/dto/federation-config.dto.ts</h3>
+    <section data-compodoc="block-enums">
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="FederationEntityRole"></a>
+                        <span class="name "><b>FederationEntityRole</b><a href="#FederationEntityRole"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;TRUST_ANCHOR
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>trust_anchor</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;INTERMEDIATE
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>intermediate</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;LEAF
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>leaf</code>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+        <table class="table table-sm table-bordered">
+            <tbody>
+                <tr>
+                    <td class="col-md-4">
+                        <a name="FederationTrustMode"></a>
+                        <span class="name "><b>FederationTrustMode</b><a href="#FederationTrustMode"><span class="icon ion-ios-link"></span></a></span>
+                    </td>
+                </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;FEDERATION_ONLY
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>federation-only</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;LOTE_ONLY
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>lote-only</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;HYBRID
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>hybrid</code>
                             </td>
                         </tr>
             </tbody>
@@ -1470,6 +1613,16 @@ Lower numbers run first.</p>
                         <tr>
                             <td class="col-md-4">
                                 <i>Value : </i><code>etsi_tl</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                &nbsp;OPENID_FEDERATION
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">
+                                <i>Value : </i><code>openid_federation</code>
                             </td>
                         </tr>
             </tbody>

@@ -2278,6 +2278,10 @@
       
         
       
+        
+          
+        
+      
     
     
     
@@ -2296,8 +2300,9 @@
         <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_7">
         
           
-          <label class="md-nav__link" for="__nav_4_7" id="__nav_4_7_label" tabindex="0">
-            
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../federation/" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -2311,8 +2316,14 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_7" id="__nav_4_7_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
         <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4_7">
@@ -2407,6 +2418,8 @@
     </li>
   
 
+              
+            
               
             
           </ul>
@@ -3744,6 +3757,7 @@ credentials. Each credential type has its own configuration file.</p>
 <li><code>webhookEndpointId</code>: <strong>OPTIONAL</strong> - Reference to a Webhook Endpoint for receiving notifications about the issuance process. See <a href="#notification-webhook">Notification Webhook</a> for details.</li>
 <li><code>disclosureFrame</code>: <strong>OPTIONAL</strong> - Defines which claims should be selectively
   disclosable in SD-JWT format.</li>
+<li><code>sdJwtTrustFormat</code>: <strong>OPTIONAL (SD-JWT only)</strong> - Controls trust signaling in issued SD-JWT credentials: - <code>x5c</code> (default): include X.509 chain in JWT header - <code>federation</code>: use federation issuer identity (<code>iss</code>) for trust resolution</li>
 <li><code>embeddedDisclosurePolicy</code>: <strong>OPTIONAL</strong> - Defines the embedded disclosure policy for the credential. See <a href="#embedded-disclosure-policy">Embedded Disclosure Policy</a> for details.</li>
 <li><code>iaeActions</code>: <strong>OPTIONAL</strong> - Sequence of Interactive Authorization actions required before credential issuance. See <a href="#interactive-authorization-actions">Interactive Authorization Actions</a> for details.</li>
 <li><code>schema</code>: <strong>OPTIONAL</strong> - JSON schema for validating the credential claims.</li>
@@ -3984,7 +3998,13 @@ to create and version schema metadata entries.</p>
 </div>
 <hr>
 <h2 id="signing-key-chain">Signing Key Chain<a class="headerlink" href="#signing-key-chain" title="Permanent link">¶</a></h2>
-<p>The signing key chain is used to create the digital signature for the credential. It contains both the private key and its associated certificate. The certificate is included in the <code>x5c</code> field of the issued credential to allow verifiers to validate the signature.</p>
+<p>The signing key chain is used to create the digital signature for the credential. It contains both the private key and its associated certificate.</p>
+<p>For SD-JWT credentials, whether <code>x5c</code> is included is controlled by <code>sdJwtTrustFormat</code>:</p>
+<ul>
+<li><code>x5c</code> (default): certificate chain is embedded in the SD-JWT header</li>
+<li><code>federation</code>: trust signaling uses issuer federation identity (<code>iss</code>) instead of embedding <code>x5c</code></li>
+</ul>
+<p>In both modes, the selected signing key chain is still used for signing.</p>
 <p>If no key chain is specified, the default key chain with <code>attestation</code> usage type will be used.</p>
 <h3 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¶</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>

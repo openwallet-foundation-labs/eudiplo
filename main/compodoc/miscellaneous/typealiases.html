@@ -149,6 +149,9 @@
                             <a href="#BuiltTrustStore" title="src/shared/trust/trust-store.service.ts" ><b>BuiltTrustStore</b>&nbsp;&nbsp;&nbsp;(src/.../trust-store.service.ts)</a>
                         </li>
                         <li>
+                            <a href="#CachedEvaluation" title="src/shared/trust/federation-trust.service.ts" ><b>CachedEvaluation</b>&nbsp;&nbsp;&nbsp;(src/.../federation-trust.service.ts)</a>
+                        </li>
+                        <li>
                             <a href="#ClaimPathElement" title="src/issuer/configuration/credentials/dto/claim-metadata.dto.ts" ><b>ClaimPathElement</b>&nbsp;&nbsp;&nbsp;(src/.../claim-metadata.dto.ts)</a>
                         </li>
                         <li>
@@ -189,6 +192,21 @@
                         </li>
                         <li>
                             <a href="#EncryptionKeySource" title="src/shared/utils/encryption/providers/encryption-key-provider.interface.ts" ><b>EncryptionKeySource</b>&nbsp;&nbsp;&nbsp;(src/.../encryption-key-provider.interface.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#FederationEntityConfigurationPayload" title="src/shared/trust/federation-trust.service.ts" ><b>FederationEntityConfigurationPayload</b>&nbsp;&nbsp;&nbsp;(src/.../federation-trust.service.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#FederationTrustAnchorRef" title="src/shared/trust/types.ts" ><b>FederationTrustAnchorRef</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#FederationTrustEvaluation" title="src/shared/trust/federation-trust.service.ts" ><b>FederationTrustEvaluation</b>&nbsp;&nbsp;&nbsp;(src/.../federation-trust.service.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#FederationTrustMode" title="src/shared/trust/types.ts" ><b>FederationTrustMode</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
+                        </li>
+                        <li>
+                            <a href="#FederationTrustSource" title="src/shared/trust/types.ts" ><b>FederationTrustSource</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
                         </li>
                         <li>
                             <a href="#HistoricalInformationPeriod" title="src/issuer/trust-list/dto/types.ts" ><b>HistoricalInformationPeriod</b>&nbsp;&nbsp;&nbsp;(src/.../types.ts)</a>
@@ -604,6 +622,56 @@
                 <td class="col-md-4">
                     <div class="io-description"><p>Built trust store with TrustedEntities preserving service groupings.</p>
 </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>    <h3>src/shared/trust/federation-trust.service.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="CachedEvaluation"></a>
+                    <span class="name "><b>CachedEvaluation</b><a href="#CachedEvaluation"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="FederationEntityConfigurationPayload"></a>
+                    <span class="name "><b>FederationEntityConfigurationPayload</b><a href="#FederationEntityConfigurationPayload"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="FederationTrustEvaluation"></a>
+                    <span class="name "><b>FederationTrustEvaluation</b><a href="#FederationTrustEvaluation"><span class="icon ion-ios-link"></span></a></span>
                 </td>
             </tr>
             <tr>
@@ -1707,6 +1775,182 @@ via the <code>definition</code> &quot;X509SubjectName&quot;.</p>
             </tr>
         </tbody>
     </table>
+</section>    <h3>src/shared/trust/types.ts</h3>
+    <section data-compodoc="block-typealias">
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="FederationTrustAnchorRef"></a>
+                    <span class="name "><b>FederationTrustAnchorRef</b><a href="#FederationTrustAnchorRef"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="FederationTrustMode"></a>
+                    <span class="name "><b>FederationTrustMode</b><a href="#FederationTrustMode"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>&quot;federation-only&quot; | &quot;lote-only&quot; | &quot;hybrid&quot;</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="FederationTrustSource"></a>
+                    <span class="name "><b>FederationTrustSource</b><a href="#FederationTrustSource"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="RulebookTrustListRef"></a>
+                    <span class="name "><b>RulebookTrustListRef</b><a href="#RulebookTrustListRef"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="ServiceTypeIdentifier"></a>
+                    <span class="name "><b>ServiceTypeIdentifier</b><a href="#ServiceTypeIdentifier"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="TrustedEntity"></a>
+                    <span class="name "><b>TrustedEntity</b><a href="#TrustedEntity"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>A TrustedEntity from a LoTE, containing its services grouped together.
+This preserves the relationship between issuance and revocation certificates
+from the same entity.</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="TrustedEntityServiceCert"></a>
+                    <span class="name "><b>TrustedEntityServiceCert</b><a href="#TrustedEntityServiceCert"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <div class="io-description"><p>A service certificate from a TrustedEntity in a LoTE.</p>
+</div>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="TrustListSource"></a>
+                    <span class="name "><b>TrustListSource</b><a href="#TrustListSource"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="VerifierOptions"></a>
+                    <span class="name "><b>VerifierOptions</b><a href="#VerifierOptions"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-sm table-bordered">
+        <tbody>
+            <tr>
+                <td class="col-md-4">
+                    <a name="VerifyPolicy"></a>
+                    <span class="name "><b>VerifyPolicy</b><a href="#VerifyPolicy"><span class="icon ion-ios-link"></span></a></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="col-md-4">
+                    <code>    <code>literal type</code>
+</code>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>    <h3>src/issuer/configuration/credentials/entities/iae-action.dto.ts</h3>
     <section data-compodoc="block-typealias">
     <table class="table table-sm table-bordered">
@@ -2070,134 +2314,6 @@ This is distinct from the internal TokenPayload used for authenticated API reque
                 <td class="col-md-4">
                     <a name="StoredObject"></a>
                     <span class="name "><b>StoredObject</b><a href="#StoredObject"><span class="icon ion-ios-link"></span></a></span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <code>    <code>literal type</code>
-</code>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</section>    <h3>src/shared/trust/types.ts</h3>
-    <section data-compodoc="block-typealias">
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="RulebookTrustListRef"></a>
-                    <span class="name "><b>RulebookTrustListRef</b><a href="#RulebookTrustListRef"><span class="icon ion-ios-link"></span></a></span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <code>    <code>literal type</code>
-</code>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="ServiceTypeIdentifier"></a>
-                    <span class="name "><b>ServiceTypeIdentifier</b><a href="#ServiceTypeIdentifier"><span class="icon ion-ios-link"></span></a></span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <code>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-</code>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="TrustedEntity"></a>
-                    <span class="name "><b>TrustedEntity</b><a href="#TrustedEntity"><span class="icon ion-ios-link"></span></a></span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>A TrustedEntity from a LoTE, containing its services grouped together.
-This preserves the relationship between issuance and revocation certificates
-from the same entity.</p>
-</div>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <code>    <code>literal type</code>
-</code>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="TrustedEntityServiceCert"></a>
-                    <span class="name "><b>TrustedEntityServiceCert</b><a href="#TrustedEntityServiceCert"><span class="icon ion-ios-link"></span></a></span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>A service certificate from a TrustedEntity in a LoTE.</p>
-</div>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <code>    <code>literal type</code>
-</code>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="TrustListSource"></a>
-                    <span class="name "><b>TrustListSource</b><a href="#TrustListSource"><span class="icon ion-ios-link"></span></a></span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <code>    <code>literal type</code>
-</code>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="VerifierOptions"></a>
-                    <span class="name "><b>VerifierOptions</b><a href="#VerifierOptions"><span class="icon ion-ios-link"></span></a></span>
-                </td>
-            </tr>
-            <tr>
-                <td class="col-md-4">
-                    <code>    <code>literal type</code>
-</code>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="VerifyPolicy"></a>
-                    <span class="name "><b>VerifyPolicy</b><a href="#VerifyPolicy"><span class="icon ion-ios-link"></span></a></span>
                 </td>
             </tr>
             <tr>
