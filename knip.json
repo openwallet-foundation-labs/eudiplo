@@ -30,7 +30,9 @@
         "src/database/migrations/*.ts",
         "test/**/*.e2e-spec.ts"
       ],
-      "ignore": ["src/**/generated/**"],
+      "ignore": [
+        "src/**/generated/**"
+      ],
       "ignoreDependencies": [
         "ts-loader",
         "tsconfig-paths",

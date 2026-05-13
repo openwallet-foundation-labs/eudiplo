@@ -37,7 +37,7 @@ export enum InteractiveAuthSessionStatus {
     /**
      * Session cancelled or failed.
      */
-    }
+}
 
 /**
  * Entity for tracking interactive authorization sessions.

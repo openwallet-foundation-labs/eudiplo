@@ -81,7 +81,7 @@ export enum CredentialFormat {
 export enum SdJwtTrustFormat {
     X5C = "x5c",
     FEDERATION = "federation",
-    }
+}
 
 export class IssuerMetadataCredentialConfig {
     @IsEnum(CredentialFormat)

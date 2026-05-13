@@ -168,9 +168,7 @@ export const relyingPartyControllerRegister = <
 /**
  * Get a relying party by ID
  */
-const relyingPartyControllerFindOne = <
-    ThrowOnError extends boolean = false,
->(
+const relyingPartyControllerFindOne = <ThrowOnError extends boolean = false>(
     options: Options<RelyingPartyControllerFindOneData, ThrowOnError>,
 ) =>
     (options.client ?? client).get<
@@ -339,9 +337,7 @@ const registrationCertificateControllerFindOne = <
 /**
  * Get the status list
  */
-const statusListControllerGetList = <
-    ThrowOnError extends boolean = false,
->(
+const statusListControllerGetList = <ThrowOnError extends boolean = false>(
     options?: Options<StatusListControllerGetListData, ThrowOnError>,
 ) =>
     (options?.client ?? client).get<
@@ -353,9 +349,7 @@ const statusListControllerGetList = <
 /**
  * Returns the crl.der file
  */
-const statusListControllerCrlFile = <
-    ThrowOnError extends boolean = false,
->(
+const statusListControllerCrlFile = <ThrowOnError extends boolean = false>(
     options?: Options<StatusListControllerCrlFileData, ThrowOnError>,
 ) =>
     (options?.client ?? client).get<

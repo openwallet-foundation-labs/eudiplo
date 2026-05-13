@@ -1,15 +1,4 @@
-export type {
-    
-    
-    
-    
-    CredentialConfigV1,
-    
-    
-    
-    
-    
-} from "./v2-types";
+export type { CredentialConfigV1 } from "./v2-types";
 
 export {
     buildClaims,
