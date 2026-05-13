@@ -31,14 +31,17 @@
     "scripts": {
         "generate": "openapi-ts && tsup",
         "build": "tsup",
+        "test": "vitest run",
         "dev": "tsup --watch",
         "prepublishOnly": "pnpm build"
     },
     "devDependencies": {
         "@hey-api/openapi-ts": "^0.97.0",
         "@types/node": "^25.3.3",
+        "prettier": "^3.8.3",
         "tsup": "^8.5.1",
-        "typescript": "^6.0.3"
+        "typescript": "^6.0.3",
+        "vitest": "4.1.6"
     },
     "files": [
         "dist",

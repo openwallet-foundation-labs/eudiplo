@@ -2621,13 +2621,13 @@
           "type": "string",
           "description": "URI pointing to the schema document for this format"
         },
-        "metadata": {
+        "meta": {
           "type": "object",
           "description": "Schema-format specific metadata (for example { vct: 'urn:example:vct' } for dc+sd-jwt).",
           "additionalProperties": true
         }
       },
-      "required": ["metadata"],
+      "required": ["meta"],
       "additionalProperties": false
     }
   },
@@ -2822,63 +2822,6 @@
     }
   },
   {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/ClaimDisplayInfo.schema.json",
-    "fileMatch": ["a://b/ClaimDisplayInfo*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/ClaimDisplayInfo.schema.json",
-      "title": "ClaimDisplayInfo",
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "Human-readable name for the claim",
-          "example": "Given Name"
-        },
-        "locale": {
-          "type": "string",
-          "description": "Locale identifier (e.g., en-US, de-DE)",
-          "example": "en-US"
-        }
-      },
-      "additionalProperties": false
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/ClaimMetadata.schema.json",
-    "fileMatch": ["a://b/ClaimMetadata*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/ClaimMetadata.schema.json",
-      "title": "ClaimMetadata",
-      "type": "object",
-      "properties": {
-        "path": {
-          "description": "Path to the claim. For SD-JWT: JSONPath-like array. For mDOC: [namespace, claim_name]",
-          "example": ["given_name"],
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "mandatory": {
-          "type": "boolean",
-          "description": "Whether this claim must be disclosed",
-          "default": false
-        },
-        "display": {
-          "description": "Display information for the claim in different locales",
-          "type": "array",
-          "items": {
-            "$ref": "./ClaimDisplayInfo.schema.json"
-          }
-        }
-      },
-      "required": ["path"],
-      "additionalProperties": false
-    }
-  },
-  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/IssuerMetadataCredentialConfig.schema.json",
     "fileMatch": ["a://b/IssuerMetadataCredentialConfig*.schema.json"],
     "schema": {
@@ -2911,24 +2854,113 @@
         "docType": {
           "type": "string",
           "description": "Document type for mDOC credentials (e.g., \"org.iso.18013.5.1.mDL\").\nOnly applicable when format is \"mso_mdoc\"."
-        },
-        "namespace": {
-          "type": "string",
-          "description": "Namespace for mDOC credentials (e.g., \"org.iso.18013.5.1\").\nOnly applicable when format is \"mso_mdoc\".\nUsed when claims are provided as a flat object."
-        },
-        "claimsByNamespace": {
-          "type": "object",
-          "description": "Claims organized by namespace for mDOC credentials.\nAllows specifying claims across multiple namespaces.\nOnly applicable when format is \"mso_mdoc\".\nExample:\n{\n  \"org.iso.18013.5.1\": { \"given_name\": \"John\", \"family_name\": \"Doe\" },\n  \"org.iso.18013.5.1.aamva\": { \"DHS_compliance\": \"F\" }\n}"
-        },
-        "claimsMetadata": {
-          "description": "Claims metadata for wallet rendering.\nFollows the OID4VCI credential_metadata.claims specification.\nEach claim includes a path (JSONPath-like array), optional mandatory flag,\nand display information with multi-language support.\n\nExample:\n[\n  { \"path\": [\"given_name\"], \"mandatory\": false, \"display\": [{ \"name\": \"Given Name\", \"locale\": \"en-US\" }] },\n  { \"path\": [\"address\", \"street_address\"], \"display\": [{ \"name\": \"Street Address\", \"locale\": \"en-US\" }] }\n]",
-          "type": "array",
-          "items": {
-            "$ref": "./ClaimMetadata.schema.json"
-          }
         }
       },
       "required": ["format", "display"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/FieldDisplayDto.schema.json",
+    "fileMatch": ["a://b/FieldDisplayDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/FieldDisplayDto.schema.json",
+      "title": "FieldDisplayDto",
+      "type": "object",
+      "properties": {
+        "lang": {
+          "type": "string",
+          "description": "Locale code",
+          "example": "en-US"
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label",
+          "example": "Given Name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional display description",
+          "example": "Primary first name"
+        }
+      },
+      "required": ["lang", "label"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/ClaimFieldDefinitionDto.schema.json",
+    "fileMatch": ["a://b/ClaimFieldDefinitionDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/ClaimFieldDefinitionDto.schema.json",
+      "title": "ClaimFieldDefinitionDto",
+      "type": "object",
+      "properties": {
+        "path": {
+          "description": "Path to claim value",
+          "example": ["address", "locality"],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "type": {
+          "type": "string",
+          "enum": ["string", "number", "integer", "boolean", "object", "array", "date"],
+          "description": "Claim value type"
+        },
+        "defaultValue": {
+          "description": "Default value",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "object",
+              "additionalProperties": true
+            },
+            {
+              "type": "array",
+              "items": {}
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mandatory": {
+          "type": "boolean",
+          "description": "Whether claim is mandatory"
+        },
+        "disclosable": {
+          "type": "boolean",
+          "description": "Whether claim is disclosable in SD-JWT"
+        },
+        "namespace": {
+          "type": "string",
+          "description": "Namespace for mDOC field",
+          "example": "eu.europa.ec.eudi.pid.1"
+        },
+        "display": {
+          "type": "array",
+          "items": {
+            "$ref": "./FieldDisplayDto.schema.json"
+          }
+        },
+        "constraints": {
+          "type": "object",
+          "description": "Additional JSON schema constraints for this field"
+        }
+      },
+      "required": ["path", "type"],
       "additionalProperties": false
     }
   },
@@ -3091,41 +3123,6 @@
     }
   },
   {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/SchemaResponse.schema.json",
-    "fileMatch": ["a://b/SchemaResponse*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/SchemaResponse.schema.json",
-      "title": "SchemaResponse",
-      "type": "object",
-      "properties": {
-        "$schema": {
-          "type": "string"
-        },
-        "type": {
-          "type": "string"
-        },
-        "properties": {
-          "type": "object"
-        },
-        "required": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "title": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        }
-      },
-      "required": ["$schema", "type", "properties"],
-      "additionalProperties": false
-    }
-  },
-  {
     "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/CredentialConfig.schema.json",
     "fileMatch": ["a://b/CredentialConfig*.schema.json"],
     "schema": {
@@ -3216,9 +3213,14 @@
         "config": {
           "$ref": "./IssuerMetadataCredentialConfig.schema.json"
         },
-        "claims": {
-          "type": "object",
-          "nullable": true
+        "configVersion": {
+          "type": "number"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "./ClaimFieldDefinitionDto.schema.json"
+          }
         },
         "attributeProviderId": {
           "type": "string",
@@ -3236,10 +3238,6 @@
         "webhookEndpoint": {
           "$ref": "./WebhookEndpointEntity.schema.json"
         },
-        "disclosureFrame": {
-          "type": "object",
-          "nullable": true
-        },
         "keyBinding": {
           "type": "boolean"
         },
@@ -3255,18 +3253,9 @@
         },
         "lifeTime": {
           "type": "number"
-        },
-        "schema": {
-          "nullable": true,
-          "type": "object",
-          "allOf": [
-            {
-              "$ref": "./SchemaResponse.schema.json"
-            }
-          ]
         }
       },
-      "required": ["id", "tenant", "config"],
+      "required": ["id", "tenant", "config", "configVersion", "fields"],
       "additionalProperties": false
     }
   },
@@ -3353,9 +3342,14 @@
         "config": {
           "$ref": "./IssuerMetadataCredentialConfig.schema.json"
         },
-        "claims": {
-          "type": "object",
-          "nullable": true
+        "configVersion": {
+          "type": "number"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "./ClaimFieldDefinitionDto.schema.json"
+          }
         },
         "attributeProviderId": {
           "type": "string",
@@ -3366,10 +3360,6 @@
           "type": "string",
           "nullable": true,
           "description": "Reference to the webhook endpoint used for notifications.\nOptional: if set, notifications will be sent to this endpoint."
-        },
-        "disclosureFrame": {
-          "type": "object",
-          "nullable": true
         },
         "keyBinding": {
           "type": "boolean"
@@ -3383,18 +3373,9 @@
         },
         "lifeTime": {
           "type": "number"
-        },
-        "schema": {
-          "nullable": true,
-          "type": "object",
-          "allOf": [
-            {
-              "$ref": "./SchemaResponse.schema.json"
-            }
-          ]
         }
       },
-      "required": ["id", "config"],
+      "required": ["id", "config", "configVersion", "fields"],
       "additionalProperties": false
     }
   },
@@ -3481,9 +3462,14 @@
         "config": {
           "$ref": "./IssuerMetadataCredentialConfig.schema.json"
         },
-        "claims": {
-          "type": "object",
-          "nullable": true
+        "configVersion": {
+          "type": "number"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "./ClaimFieldDefinitionDto.schema.json"
+          }
         },
         "attributeProviderId": {
           "type": "string",
@@ -3494,10 +3480,6 @@
           "type": "string",
           "nullable": true,
           "description": "Reference to the webhook endpoint used for notifications.\nOptional: if set, notifications will be sent to this endpoint."
-        },
-        "disclosureFrame": {
-          "type": "object",
-          "nullable": true
         },
         "keyBinding": {
           "type": "boolean"
@@ -3511,15 +3493,6 @@
         },
         "lifeTime": {
           "type": "number"
-        },
-        "schema": {
-          "nullable": true,
-          "type": "object",
-          "allOf": [
-            {
-              "$ref": "./SchemaResponse.schema.json"
-            }
-          ]
         }
       },
       "additionalProperties": false
@@ -3578,6 +3551,366 @@
         }
       },
       "required": ["config"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/VocabularyEntryDto.schema.json",
+    "fileMatch": ["a://b/VocabularyEntryDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/VocabularyEntryDto.schema.json",
+      "title": "VocabularyEntryDto",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Stable machine-readable value to submit in schema metadata category/tags fields."
+        },
+        "label": {
+          "type": "string",
+          "description": "Display label for UI rendering."
+        },
+        "status": {
+          "type": "string",
+          "description": "Vocabulary lifecycle status.",
+          "enum": ["active", "deprecated"]
+        },
+        "replacedBy": {
+          "type": "string",
+          "description": "Replacement code when status is deprecated."
+        }
+      },
+      "required": ["code", "label", "status"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/SchemaMetadataVocabulariesDto.schema.json",
+    "fileMatch": ["a://b/SchemaMetadataVocabulariesDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/SchemaMetadataVocabulariesDto.schema.json",
+      "title": "SchemaMetadataVocabulariesDto",
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "Vocabulary publication version for cache invalidation."
+        },
+        "categories": {
+          "description": "Allowed category values that can be used when updating schema metadata category.",
+          "type": "array",
+          "items": {
+            "$ref": "./VocabularyEntryDto.schema.json"
+          }
+        },
+        "tags": {
+          "description": "Allowed tag values that can be used when updating schema metadata tags.",
+          "type": "array",
+          "items": {
+            "$ref": "./VocabularyEntryDto.schema.json"
+          }
+        }
+      },
+      "required": ["version", "categories", "tags"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/MetadataSchemaDto.schema.json",
+    "fileMatch": ["a://b/MetadataSchemaDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/MetadataSchemaDto.schema.json",
+      "title": "MetadataSchemaDto",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for this schema entry"
+        },
+        "formatIdentifier": {
+          "type": "string",
+          "description": "The credential format identifier",
+          "enum": ["dc+sd-jwt", "mso_mdoc"]
+        },
+        "uri": {
+          "type": "string",
+          "description": "URI to the schema definition"
+        },
+        "schemaContent": {
+          "type": "object",
+          "description": "Inline schema content (JSON Schema)",
+          "additionalProperties": true
+        },
+        "integrity": {
+          "type": "string",
+          "description": "Subresource Integrity hash for the schema"
+        }
+      },
+      "required": ["id", "formatIdentifier"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/TrustAuthorityDto.schema.json",
+    "fileMatch": ["a://b/TrustAuthorityDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/TrustAuthorityDto.schema.json",
+      "title": "TrustAuthorityDto",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for this trust authority entry"
+        },
+        "frameworkType": {
+          "type": "string",
+          "description": "Type of trust framework",
+          "enum": ["etsi_tl"]
+        },
+        "value": {
+          "type": "string",
+          "description": "URI or identifier for the trust list / authority"
+        },
+        "verificationMethod": {
+          "type": "object",
+          "description": "Verification method for the trust list signature (e.g., JWK)",
+          "additionalProperties": true
+        }
+      },
+      "required": ["id", "frameworkType", "value"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/AccessCertificateRefDto.schema.json",
+    "fileMatch": ["a://b/AccessCertificateRefDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/AccessCertificateRefDto.schema.json",
+      "title": "AccessCertificateRefDto",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "relyingPartyId": {
+          "type": "string"
+        },
+        "certificate": {
+          "type": "string"
+        },
+        "revoked": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string"
+        }
+      },
+      "required": ["id", "relyingPartyId", "certificate", "revoked", "createdAt"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/SchemaMetadataResponseDto.schema.json",
+    "fileMatch": ["a://b/SchemaMetadataResponseDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/SchemaMetadataResponseDto.schema.json",
+      "title": "SchemaMetadataResponseDto",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The unique, server-assigned identifier (UUID) for the schema metadata"
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of this schema metadata (SemVer)"
+        },
+        "rulebookURI": {
+          "type": "string",
+          "description": "URI of the human-readable Rulebook document"
+        },
+        "rulebookIntegrity": {
+          "type": "string",
+          "description": "Subresource Integrity hash for the rulebook URI"
+        },
+        "attestationLoS": {
+          "type": "string",
+          "description": "Level of security (LoS) of this attestation",
+          "enum": [
+            "iso_18045_high",
+            "iso_18045_moderate",
+            "iso_18045_enhanced-basic",
+            "iso_18045_basic"
+          ]
+        },
+        "bindingType": {
+          "type": "string",
+          "description": "Required binding type between attestation and holder",
+          "enum": ["claim", "key", "biometric", "none"]
+        },
+        "supportedFormats": {
+          "type": "array",
+          "description": "Credential formats in which this attestation is available",
+          "items": {
+            "type": "string",
+            "enum": ["dc+sd-jwt", "mso_mdoc"]
+          }
+        },
+        "schemaURIs": {
+          "description": "Format-specific schema URIs for this schema metadata",
+          "type": "array",
+          "items": {
+            "$ref": "./MetadataSchemaDto.schema.json"
+          }
+        },
+        "trustedAuthorities": {
+          "description": "Trust frameworks / trust anchors applicable to this schema metadata",
+          "type": "array",
+          "items": {
+            "$ref": "./TrustAuthorityDto.schema.json"
+          }
+        },
+        "category": {
+          "type": "string",
+          "description": "Domain category for filtering",
+          "enum": ["identity", "health", "finance", "education", "mobility", "employment", "other"]
+        },
+        "tags": {
+          "description": "Free-form tags for filtering and search",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "signedJwt": {
+          "type": "string",
+          "description": "The original signed JWT"
+        },
+        "issuer": {
+          "type": "string",
+          "description": "Issuer from the JWT (`iss` claim)"
+        },
+        "signerCertificateSerial": {
+          "type": "string",
+          "description": "Serial number of the access certificate that signed this schema metadata"
+        },
+        "signerCertificate": {
+          "description": "The access certificate used to sign this schema metadata",
+          "allOf": [
+            {
+              "$ref": "./AccessCertificateRefDto.schema.json"
+            }
+          ]
+        },
+        "issuedAt": {
+          "type": "string",
+          "description": "Timestamp when the JWT was issued (from the `iat` claim)"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Server creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last update timestamp"
+        },
+        "deprecated": {
+          "type": "boolean",
+          "description": "Whether this version is deprecated"
+        },
+        "deprecationMessage": {
+          "type": "string",
+          "description": "Deprecation message shown to consumers"
+        },
+        "supersededByVersion": {
+          "type": "string",
+          "description": "The version that supersedes this one"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "attestationLoS",
+        "bindingType",
+        "supportedFormats",
+        "schemaURIs",
+        "trustedAuthorities",
+        "signedJwt",
+        "issuer",
+        "signerCertificateSerial",
+        "issuedAt",
+        "createdAt",
+        "updatedAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/UpdateSchemaMetadataDto.schema.json",
+    "fileMatch": ["a://b/UpdateSchemaMetadataDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/UpdateSchemaMetadataDto.schema.json",
+      "title": "UpdateSchemaMetadataDto",
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "description": "Domain category for filtering",
+          "enum": ["identity", "health", "finance", "education", "mobility", "employment", "other"]
+        },
+        "tags": {
+          "type": "array",
+          "description": "Predefined tags for filtering and search",
+          "items": {
+            "type": "string",
+            "enum": [
+              "pid",
+              "eudi",
+              "kyc",
+              "aml",
+              "age-verification",
+              "residency",
+              "membership",
+              "education",
+              "employment",
+              "mobility"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  {
+    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/DeprecateSchemaMetadataDto.schema.json",
+    "fileMatch": ["a://b/DeprecateSchemaMetadataDto*.schema.json"],
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/DeprecateSchemaMetadataDto.schema.json",
+      "title": "DeprecateSchemaMetadataDto",
+      "type": "object",
+      "properties": {
+        "deprecated": {
+          "type": "boolean",
+          "description": "Whether to mark this version as deprecated"
+        },
+        "message": {
+          "type": "string",
+          "description": "Deprecation message shown to consumers"
+        },
+        "supersededByVersion": {
+          "type": "string",
+          "description": "The version that supersedes this one"
+        }
+      },
+      "required": ["deprecated"],
       "additionalProperties": false
     }
   },
@@ -4643,366 +4976,6 @@
         }
       },
       "required": ["keyId"],
-      "additionalProperties": false
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/VocabularyEntryDto.schema.json",
-    "fileMatch": ["a://b/VocabularyEntryDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/VocabularyEntryDto.schema.json",
-      "title": "VocabularyEntryDto",
-      "type": "object",
-      "properties": {
-        "code": {
-          "type": "string",
-          "description": "Stable machine-readable value to submit in schema metadata category/tags fields."
-        },
-        "label": {
-          "type": "string",
-          "description": "Display label for UI rendering."
-        },
-        "status": {
-          "type": "string",
-          "description": "Vocabulary lifecycle status.",
-          "enum": ["active", "deprecated"]
-        },
-        "replacedBy": {
-          "type": "string",
-          "description": "Replacement code when status is deprecated."
-        }
-      },
-      "required": ["code", "label", "status"],
-      "additionalProperties": false
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/SchemaMetadataVocabulariesDto.schema.json",
-    "fileMatch": ["a://b/SchemaMetadataVocabulariesDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/SchemaMetadataVocabulariesDto.schema.json",
-      "title": "SchemaMetadataVocabulariesDto",
-      "type": "object",
-      "properties": {
-        "version": {
-          "type": "string",
-          "description": "Vocabulary publication version for cache invalidation."
-        },
-        "categories": {
-          "description": "Allowed category values that can be used when updating schema metadata category.",
-          "type": "array",
-          "items": {
-            "$ref": "./VocabularyEntryDto.schema.json"
-          }
-        },
-        "tags": {
-          "description": "Allowed tag values that can be used when updating schema metadata tags.",
-          "type": "array",
-          "items": {
-            "$ref": "./VocabularyEntryDto.schema.json"
-          }
-        }
-      },
-      "required": ["version", "categories", "tags"],
-      "additionalProperties": false
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/MetadataSchemaDto.schema.json",
-    "fileMatch": ["a://b/MetadataSchemaDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/MetadataSchemaDto.schema.json",
-      "title": "MetadataSchemaDto",
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for this schema entry"
-        },
-        "formatIdentifier": {
-          "type": "string",
-          "description": "The credential format identifier",
-          "enum": ["dc+sd-jwt", "mso_mdoc"]
-        },
-        "uri": {
-          "type": "string",
-          "description": "URI to the schema definition"
-        },
-        "schemaContent": {
-          "type": "object",
-          "description": "Inline schema content (JSON Schema)",
-          "additionalProperties": true
-        },
-        "integrity": {
-          "type": "string",
-          "description": "Subresource Integrity hash for the schema"
-        }
-      },
-      "required": ["id", "formatIdentifier"],
-      "additionalProperties": false
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/TrustAuthorityDto.schema.json",
-    "fileMatch": ["a://b/TrustAuthorityDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/TrustAuthorityDto.schema.json",
-      "title": "TrustAuthorityDto",
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for this trust authority entry"
-        },
-        "frameworkType": {
-          "type": "string",
-          "description": "Type of trust framework",
-          "enum": ["etsi_tl"]
-        },
-        "value": {
-          "type": "string",
-          "description": "URI or identifier for the trust list / authority"
-        },
-        "verificationMethod": {
-          "type": "object",
-          "description": "Verification method for the trust list signature (e.g., JWK)",
-          "additionalProperties": true
-        }
-      },
-      "required": ["id", "frameworkType", "value"],
-      "additionalProperties": false
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/AccessCertificateRefDto.schema.json",
-    "fileMatch": ["a://b/AccessCertificateRefDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/AccessCertificateRefDto.schema.json",
-      "title": "AccessCertificateRefDto",
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "relyingPartyId": {
-          "type": "string"
-        },
-        "certificate": {
-          "type": "string"
-        },
-        "revoked": {
-          "type": "string"
-        },
-        "createdAt": {
-          "type": "string"
-        }
-      },
-      "required": ["id", "relyingPartyId", "certificate", "revoked", "createdAt"],
-      "additionalProperties": false
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/SchemaMetadataResponseDto.schema.json",
-    "fileMatch": ["a://b/SchemaMetadataResponseDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/SchemaMetadataResponseDto.schema.json",
-      "title": "SchemaMetadataResponseDto",
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "The unique, server-assigned identifier (UUID) for the schema metadata"
-        },
-        "version": {
-          "type": "string",
-          "description": "Version of this schema metadata (SemVer)"
-        },
-        "rulebookURI": {
-          "type": "string",
-          "description": "URI of the human-readable Rulebook document"
-        },
-        "rulebookIntegrity": {
-          "type": "string",
-          "description": "Subresource Integrity hash for the rulebook URI"
-        },
-        "attestationLoS": {
-          "type": "string",
-          "description": "Level of security (LoS) of this attestation",
-          "enum": [
-            "iso_18045_high",
-            "iso_18045_moderate",
-            "iso_18045_enhanced-basic",
-            "iso_18045_basic"
-          ]
-        },
-        "bindingType": {
-          "type": "string",
-          "description": "Required binding type between attestation and holder",
-          "enum": ["claim", "key", "biometric", "none"]
-        },
-        "supportedFormats": {
-          "type": "array",
-          "description": "Credential formats in which this attestation is available",
-          "items": {
-            "type": "string",
-            "enum": ["dc+sd-jwt", "mso_mdoc"]
-          }
-        },
-        "schemaURIs": {
-          "description": "Format-specific schema URIs for this schema metadata",
-          "type": "array",
-          "items": {
-            "$ref": "./MetadataSchemaDto.schema.json"
-          }
-        },
-        "trustedAuthorities": {
-          "description": "Trust frameworks / trust anchors applicable to this schema metadata",
-          "type": "array",
-          "items": {
-            "$ref": "./TrustAuthorityDto.schema.json"
-          }
-        },
-        "category": {
-          "type": "string",
-          "description": "Domain category for filtering",
-          "enum": ["identity", "health", "finance", "education", "mobility", "employment", "other"]
-        },
-        "tags": {
-          "description": "Free-form tags for filtering and search",
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "signedJwt": {
-          "type": "string",
-          "description": "The original signed JWT"
-        },
-        "issuer": {
-          "type": "string",
-          "description": "Issuer from the JWT (`iss` claim)"
-        },
-        "signerCertificateSerial": {
-          "type": "string",
-          "description": "Serial number of the access certificate that signed this schema metadata"
-        },
-        "signerCertificate": {
-          "description": "The access certificate used to sign this schema metadata",
-          "allOf": [
-            {
-              "$ref": "./AccessCertificateRefDto.schema.json"
-            }
-          ]
-        },
-        "issuedAt": {
-          "type": "string",
-          "description": "Timestamp when the JWT was issued (from the `iat` claim)"
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "Server creation timestamp"
-        },
-        "updatedAt": {
-          "type": "string",
-          "description": "Last update timestamp"
-        },
-        "deprecated": {
-          "type": "boolean",
-          "description": "Whether this version is deprecated"
-        },
-        "deprecationMessage": {
-          "type": "string",
-          "description": "Deprecation message shown to consumers"
-        },
-        "supersededByVersion": {
-          "type": "string",
-          "description": "The version that supersedes this one"
-        }
-      },
-      "required": [
-        "id",
-        "version",
-        "attestationLoS",
-        "bindingType",
-        "supportedFormats",
-        "schemaURIs",
-        "trustedAuthorities",
-        "signedJwt",
-        "issuer",
-        "signerCertificateSerial",
-        "issuedAt",
-        "createdAt",
-        "updatedAt"
-      ],
-      "additionalProperties": false
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/UpdateSchemaMetadataDto.schema.json",
-    "fileMatch": ["a://b/UpdateSchemaMetadataDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/UpdateSchemaMetadataDto.schema.json",
-      "title": "UpdateSchemaMetadataDto",
-      "type": "object",
-      "properties": {
-        "category": {
-          "type": "string",
-          "description": "Domain category for filtering",
-          "enum": ["identity", "health", "finance", "education", "mobility", "employment", "other"]
-        },
-        "tags": {
-          "type": "array",
-          "description": "Predefined tags for filtering and search",
-          "items": {
-            "type": "string",
-            "enum": [
-              "pid",
-              "eudi",
-              "kyc",
-              "aml",
-              "age-verification",
-              "residency",
-              "membership",
-              "education",
-              "employment",
-              "mobility"
-            ]
-          }
-        }
-      },
-      "additionalProperties": false
-    }
-  },
-  {
-    "uri": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/DeprecateSchemaMetadataDto.schema.json",
-    "fileMatch": ["a://b/DeprecateSchemaMetadataDto*.schema.json"],
-    "schema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/DeprecateSchemaMetadataDto.schema.json",
-      "title": "DeprecateSchemaMetadataDto",
-      "type": "object",
-      "properties": {
-        "deprecated": {
-          "type": "boolean",
-          "description": "Whether to mark this version as deprecated"
-        },
-        "message": {
-          "type": "string",
-          "description": "Deprecation message shown to consumers"
-        },
-        "supersededByVersion": {
-          "type": "string",
-          "description": "The version that supersedes this one"
-        }
-      },
-      "required": ["deprecated"],
       "additionalProperties": false
     }
   },

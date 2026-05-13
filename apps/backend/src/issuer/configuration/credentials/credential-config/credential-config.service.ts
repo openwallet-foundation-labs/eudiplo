@@ -363,9 +363,10 @@ export class CredentialConfigService {
         return {
             id: config.id,
             format: config.config?.format,
+            configVersion: config.configVersion,
             config: config.config,
+            fields: config.fields,
             vct: config.vct,
-            schema: config.schema,
             schemaMeta: config.schemaMeta,
             iaeActions: config.iaeActions,
             keyChainId: config.keyChainId,

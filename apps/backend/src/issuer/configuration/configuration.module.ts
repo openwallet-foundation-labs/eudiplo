@@ -4,6 +4,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { AuditLogModule } from "../../audit-log/audit-log.module";
 import { CryptoModule } from "../../crypto/crypto.module";
 import { RegistrarModule } from "../../registrar/registrar.module";
+import { SchemaMetadataController } from "../../registrar/schema-metadata.controller";
 import { SessionModule } from "../../session/session.module";
 import { TrustModule } from "../../shared/trust/trust.module";
 import { WebhookService } from "../../shared/utils/webhook/webhook.service";
@@ -20,6 +21,7 @@ import { CredentialConfig } from "./credentials/entities/credential.entity";
 import { MdocIssuerService } from "./credentials/issuer/mdoc-issuer/mdoc-issuer.service";
 import { SdjwtvcIssuerService } from "./credentials/issuer/sdjwtvc-issuer/sdjwtvc-issuer.service";
 import { SchemaMetaAdapterService } from "./credentials/schema-meta/schema-meta-adapter.service";
+import { SchemaMetadataSigningService } from "./credentials/schema-meta/schema-metadata-signing.service";
 import { IssuanceConfig } from "./issuance/entities/issuance-config.entity";
 import { IssuanceService } from "./issuance/issuance.service";
 import { IssuanceConfigController } from "./issuance/issuance-config.controller";
@@ -56,6 +58,7 @@ import { WebhookEndpointService } from "./webhook-endpoint/webhook-endpoint.serv
     controllers: [
         IssuanceConfigController,
         CredentialConfigController,
+        SchemaMetadataController,
         AttributeProviderController,
         WebhookEndpointController,
     ],
@@ -69,6 +72,7 @@ import { WebhookEndpointService } from "./webhook-endpoint/webhook-endpoint.serv
         AttributeProviderService,
         WebhookEndpointService,
         SchemaMetaAdapterService,
+        SchemaMetadataSigningService,
     ],
     exports: [
         IssuanceService,

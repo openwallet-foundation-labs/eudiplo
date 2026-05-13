@@ -99,7 +99,7 @@ export class ReservationResponseDto {
 export class SubmitSchemaMetadataDto {
     @ApiProperty({
         description:
-            "The signed schema metadata JWS (compact serialization). Sign via `POST /api/issuer/credentials/schema-metadata/sign`.",
+            "The signed schema metadata JWS (compact serialization). Sign via `POST /api/schema-metadata/sign`.",
     })
     @IsString()
     signedJwt!: string;

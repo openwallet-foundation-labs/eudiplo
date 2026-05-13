@@ -555,12 +555,18 @@ importers:
       '@types/node':
         specifier: ^25.3.3
         version: 25.6.2
+      prettier:
+        specifier: ^3.8.3
+        version: 3.8.3
       tsup:
         specifier: ^8.5.1
         version: 8.5.1(@swc/core@1.15.33)(jiti@2.7.0)(postcss@8.5.14)(tsx@4.21.0)(typescript@6.0.3)(yaml@2.9.0)
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
+      vitest:
+        specifier: 4.1.6
+        version: 4.1.6(@opentelemetry/api@1.9.1)(@types/node@25.6.2)(@vitest/coverage-v8@4.1.6)(vite@7.3.2(@types/node@25.6.2)(jiti@2.7.0)(sass@1.97.3)(terser@5.47.1)(tsx@4.21.0)(yaml@2.9.0))
 
 packages:
 

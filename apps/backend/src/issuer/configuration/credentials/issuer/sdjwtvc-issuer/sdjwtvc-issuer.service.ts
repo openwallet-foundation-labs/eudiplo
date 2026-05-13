@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { buildDisclosureFrame } from "../../utils";
 import type { Jwk } from "@openid4vc/oauth2";
 import { JWTwithStatusListPayload } from "@owf/token-status-list";
 import { digest, generateSalt } from "@sd-jwt/crypto-nodejs";
@@ -93,7 +94,8 @@ export class SdjwtvcIssuerService {
         }
 
         const host = this.configService.getOrThrow<string>("PUBLIC_URL");
-        const disclosureFrame = credentialConfiguration.disclosureFrame ?? {};
+        const disclosureFrame =
+            buildDisclosureFrame(credentialConfiguration.fields as any) ?? {};
 
         const vct =
             typeof credentialConfiguration.vct === "string"

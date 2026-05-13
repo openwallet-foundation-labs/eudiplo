@@ -8,7 +8,6 @@ import { RegistrarService } from "./registrar.service";
 import { RegistrarAuthService } from "./registrar-auth.service";
 import { RegistrarConfigService } from "./registrar-config.service";
 import { RegistrationCertificateService } from "./registration-certificate.service";
-import { SchemaMetadataController } from "./schema-metadata.controller";
 import { SchemaMetadataService } from "./schema-metadata.service";
 
 /**
@@ -21,7 +20,7 @@ import { SchemaMetadataService } from "./schema-metadata.service";
  */
 @Module({
     imports: [CryptoModule, TypeOrmModule.forFeature([RegistrarConfigEntity])],
-    controllers: [RegistrarController, SchemaMetadataController],
+    controllers: [RegistrarController],
     providers: [
         RegistrarAuthService,
         RegistrarConfigService,
@@ -30,6 +29,6 @@ import { SchemaMetadataService } from "./schema-metadata.service";
         SchemaMetadataService,
         RegistrarService,
     ],
-    exports: [RegistrarService],
+    exports: [RegistrarService, SchemaMetadataService],
 })
 export class RegistrarModule {}

@@ -7,7 +7,7 @@ credentials. Each credential type has its own configuration file.
 
 ## Basic Structure
 
-Each credential configuration is a JSON object that defines how a specific credential type should be issued. The configuration includes metadata, display information, claims, and various optional features like key binding and status management.
+Each credential configuration is a JSON object that defines how a specific credential type should be issued. The configuration includes metadata, display information, field definitions (`fields[]`), and optional features like key binding and status management.
 
 For a complete configuration example, see the [Complete Configuration Example](#complete-configuration-example) section at the bottom of this page.
 
@@ -35,6 +35,7 @@ For a complete configuration example, see the [Complete Configuration Example](#
 ### Optional Fields
 
 - `description`: **OPTIONAL** - Human-readable description of the credential. Will not be displayed to the end user.
+- `configVersion`: **OPTIONAL** - Configuration format version. Use `2` for the field format.
 - `vct`: **OPTIONAL** -
   [VC Type Metadata](https://www.ietf.org/archive/id/draft-ietf-oauth-sd-jwt-vc-09.html#name-sd-jwt-vc-type-metadata)
   provided via the `/{tenantId}/credentials-metadata/vct/{id}` endpoint. This link will
@@ -49,16 +50,17 @@ For a complete configuration example, see the [Complete Configuration Example](#
 - `keyBinding`: **OPTIONAL** - Enable cryptographic key binding. When `true`,
   credentials include a `cnf` claim with the holder's public key and require
   proof of possession. See [Cryptographic Key Binding](#cryptographic-key-binding) for details.
-- `claims`: **OPTIONAL** - Static claims to include in the credential. Can be
-  overridden by webhook responses or claims passed during credential offer.
+- `fields`: **REQUIRED for v2** - Field definitions (`ClaimFieldDefinition[]`) that describe claim paths, data types, defaults, disclosure behavior, and optional display labels.
 - `attributeProviderId`: **OPTIONAL** - Reference to an Attribute Provider that fetches claims dynamically. See [Attribute Providers](attribute-provider.md) for details.
 - `webhookEndpointId`: **OPTIONAL** - Reference to a Webhook Endpoint for receiving notifications about the issuance process. See [Notification Webhook](#notification-webhook) for details.
+<<<<<<< HEAD
 - `disclosureFrame`: **OPTIONAL** - Defines which claims should be selectively
   disclosable in SD-JWT format.
 - `sdJwtTrustFormat`: **OPTIONAL (SD-JWT only)** - Controls trust signaling in issued SD-JWT credentials: - `x5c` (default): include X.509 chain in JWT header - `federation`: use federation issuer identity (`iss`) for trust resolution
+=======
+>>>>>>> fc41d5ed (feat: migrate credential config to field-based model)
 - `embeddedDisclosurePolicy`: **OPTIONAL** - Defines the embedded disclosure policy for the credential. See [Embedded Disclosure Policy](#embedded-disclosure-policy) for details.
 - `iaeActions`: **OPTIONAL** - Sequence of Interactive Authorization actions required before credential issuance. See [Interactive Authorization Actions](#interactive-authorization-actions) for details.
-- `schema`: **OPTIONAL** - JSON schema for validating the credential claims.
 
 !!! info "Schema Metadata is managed separately"
 
@@ -68,51 +70,51 @@ For a complete configuration example, see the [Complete Configuration Example](#
 
 ---
 
-## Fetching Claims
+## Configuring Fields
 
-Claims define the data that will be included in the credential. This section covers how to configure claims at the credential configuration level.
+In v2, claim content is configured through `fields[]`. Each entry describes a single claim path (or object/array node), with type information and optional defaults.
 
 !!! info "Claims Priority System"
 
     EUDIPLO supports multiple ways to provide claims (configuration-level and offer-level), with a priority system that determines which claims are used. For a complete explanation of the claims priority order and when to use each method, see [Passing Claims](index.md#passing-claims) in the Issuance Overview.
 
-### Static Claims
+### Static Defaults via `fields[]`
 
-You can specify static claims directly in the credential configuration. These claims will be used as defaults for every credential issued using this configuration:
+You can define defaults directly in each field using `defaultValue`:
 
 ```json
 {
-    "claims": {
-        "issuing_country": "DE",
-        "issuing_authority": "DE",
-        "given_name": "ERIKA",
-        "family_name": "MUSTERMANN",
-        "birth_family_name": "GABLER",
-        "birthdate": "1964-08-12",
-        "age_birth_year": 1964,
-        "age_in_years": 59,
-        "age_equal_or_over": {
-            "12": true,
-            "14": true,
-            "16": true,
-            "18": true,
-            "21": true,
-            "65": false
+    "configVersion": 2,
+    "fields": [
+        {
+            "path": ["given_name"],
+            "type": "string",
+            "defaultValue": "ERIKA",
+            "mandatory": true,
+            "disclosable": true,
+            "display": [
+                { "lang": "en-US", "label": "Given Name" },
+                { "lang": "de-DE", "label": "Vorname" }
+            ]
         },
-        "place_of_birth": {
-            "locality": "BERLIN"
+        {
+            "path": ["family_name"],
+            "type": "string",
+            "defaultValue": "MUSTERMANN",
+            "mandatory": true,
+            "disclosable": true
         },
-        "address": {
-            "locality": "KÖLN",
-            "postal_code": "51147",
-            "street_address": "HEIDESTRAẞE 17"
-        },
-        "nationalities": ["DE"]
-    }
+        {
+            "path": ["address", "postal_code"],
+            "type": "string",
+            "defaultValue": "51147",
+            "disclosable": true
+        }
+    ]
 }
 ```
 
-Static claims are useful for:
+Static field defaults are useful for:
 
 - Default values for all credentials of this type
 - Fixed metadata (e.g., issuing country, issuing authority)
@@ -120,7 +122,7 @@ Static claims are useful for:
 
 ### Claims Webhook
 
-For dynamic claim retrieval, you can configure an Attribute Provider that will be called during the issuance process to fetch claims:
+For dynamic claim retrieval, configure an Attribute Provider that is called during issuance:
 
 ```json
 {
@@ -128,7 +130,7 @@ For dynamic claim retrieval, you can configure an Attribute Provider that will b
 }
 ```
 
-The Attribute Provider endpoint will receive information about the issuance session and must return the claims to be included in the credential.
+The Attribute Provider endpoint receives issuance context and returns claim values.
 
 Attribute Providers are useful when:
 
@@ -168,37 +170,30 @@ For more details about the webhook implementation and payload structure, see [No
 
 ## Selective Disclosure
 
-Use the `disclosureFrame` to make specific claims selectively disclosable in
-[SD-JWT](https://www.rfc-editor.org/rfc/rfc9901.html) format:
+In v2, selective disclosure for [SD-JWT](https://www.rfc-editor.org/rfc/rfc9901.html) is defined per field using `disclosable`.
 
 ```json
 {
-    "disclosureFrame": {
-        "_sd": [
-            "issuing_country",
-            "issuing_authority",
-            "given_name",
-            "family_name",
-            "birth_family_name",
-            "birthdate",
-            "age_birth_year",
-            "age_in_years",
-            "age_equal_or_over",
-            "place_of_birth",
-            "address",
-            "nationalities"
-        ],
-        "address": {
-            "_sd": ["locality", "postal_code", "street_address"]
+    "configVersion": 2,
+    "fields": [
+        {
+            "path": ["given_name"],
+            "type": "string",
+            "disclosable": true
+        },
+        {
+            "path": ["birthdate"],
+            "type": "string",
+            "disclosable": false
         }
-    }
+    ]
 }
 ```
 
 This configuration allows:
 
-- Individual disclosure of personal information fields
-- Selective disclosure of address components
+- Individual disclosure control per field
+- Mixing disclosable and non-disclosable fields in one credential
 - Holders can choose which claims to reveal during presentation
 
 ---
@@ -226,44 +221,73 @@ For issuing mobile documents following the ISO 18013-5 standard (such as Mobile 
             }
         ]
     },
-    "claims": {
-        "given_name": "ERIKA",
-        "family_name": "MUSTERMANN",
-        "birth_date": "1964-08-12",
-        "issuing_country": "DE"
-    },
+    "configVersion": 2,
+    "fields": [
+        {
+            "path": ["given_name"],
+            "type": "string",
+            "defaultValue": "ERIKA",
+            "mandatory": true,
+            "namespace": "org.iso.18013.5.1"
+        },
+        {
+            "path": ["family_name"],
+            "type": "string",
+            "defaultValue": "MUSTERMANN",
+            "mandatory": true,
+            "namespace": "org.iso.18013.5.1"
+        },
+        {
+            "path": ["issuing_country"],
+            "type": "string",
+            "defaultValue": "DE",
+            "namespace": "org.iso.18013.5.1"
+        }
+    ],
     "keyBinding": true
 }
 ```
 
 ### mDOC-Specific Fields
 
-| Field               | Required | Description                                                                                                           |
-| ------------------- | -------- | --------------------------------------------------------------------------------------------------------------------- |
-| `docType`           | Yes      | Document type identifier following ISO 18013-5 naming convention (e.g., `org.iso.18013.5.1.mDL`)                      |
-| `namespace`         | No       | Default namespace for claims. If not provided, derived from `docType`. For mDL, this is typically `org.iso.18013.5.1` |
-| `claimsByNamespace` | No       | Alternative to `claims` - allows specifying claims across multiple namespaces                                         |
+| Field                | Required | Description                                                                                                   |
+| -------------------- | -------- | ------------------------------------------------------------------------------------------------------------- |
+| `docType`            | Yes      | Document type identifier following ISO 18013-5 naming convention (e.g., `org.iso.18013.5.1.mDL`)              |
+| `namespace`          | No       | Default namespace for fields. If not provided, derived from `docType`. For mDL, typically `org.iso.18013.5.1` |
+| `fields[].namespace` | No       | Per-field namespace override. Use this when one credential includes claims from multiple namespaces.          |
 
 ### Multiple Namespaces
 
-For credentials that require claims from multiple namespaces, use `claimsByNamespace`:
+For credentials that require claims from multiple namespaces, set `namespace` per field:
 
 ```json
 {
+    "configVersion": 2,
     "config": {
         "format": "mso_mdoc",
         "docType": "org.iso.18013.5.1.mDL",
         "display": [{ "name": "mDL", "locale": "en-US" }]
     },
-    "claimsByNamespace": {
-        "org.iso.18013.5.1": {
-            "given_name": "ERIKA",
-            "family_name": "MUSTERMANN"
+    "fields": [
+        {
+            "path": ["given_name"],
+            "type": "string",
+            "defaultValue": "ERIKA",
+            "namespace": "org.iso.18013.5.1"
         },
-        "org.iso.18013.5.1.aamva": {
-            "DHS_compliance": "F"
+        {
+            "path": ["family_name"],
+            "type": "string",
+            "defaultValue": "MUSTERMANN",
+            "namespace": "org.iso.18013.5.1"
+        },
+        {
+            "path": ["DHS_compliance"],
+            "type": "string",
+            "defaultValue": "F",
+            "namespace": "org.iso.18013.5.1.aamva"
         }
-    }
+    ]
 }
 ```
 
@@ -273,7 +297,7 @@ For credentials that require claims from multiple namespaces, use `claimsByNames
 
 !!! info "Selective Disclosure"
 
-    Unlike SD-JWT, mDOC credentials have built-in selective disclosure at the namespace and claim level. The `disclosureFrame` field is not used for mDOC format.
+    Unlike SD-JWT, mDOC credentials have built-in selective disclosure at the namespace and claim level. The `fields[].disclosable` flag is ignored for mDOC format.
 
 ---
 
@@ -305,7 +329,7 @@ The display configuration defines how the credential appears in wallets as defin
 
 - `name`: Display name for the credential
 - `description`: Brief description of the credential
-- `locale`: Language/locale (e.g., "en-US", "de-DE")
+- `locale`: Language/locale (BCP 47, e.g., `en-US`, `de-DE`)
 - `background_color`: Background color (hex format)
 - `text_color`: Text color (hex format)
 - `logo`: Issuer logo configuration
@@ -453,10 +477,19 @@ the `lifeTime` configuration option (specified in seconds).
         ]
     },
     "lifeTime": 3600,
-    "claims": {
-        "given_name": "ERIKA",
-        "family_name": "MUSTERMANN"
-    }
+    "configVersion": 2,
+    "fields": [
+        {
+            "path": ["given_name"],
+            "type": "string",
+            "defaultValue": "ERIKA"
+        },
+        {
+            "path": ["family_name"],
+            "type": "string",
+            "defaultValue": "MUSTERMANN"
+        }
+    ]
 }
 ```
 
@@ -634,8 +667,8 @@ This example includes:
 
 - **Required fields**: `id`, `config` with format and display information
 - **Optional fields**: `description`, `vct`, `keyChainId`, `lifeTime`, `statusManagement`, `keyBinding`
-- **Claims**: Static claims that will be included in every issued credential
-- **Selective disclosure**: `disclosureFrame` defining which claims can be selectively disclosed
+- **Fields**: `configVersion: 2` and `fields[]` with typed claim definitions
+- **Selective disclosure**: Per-field `disclosable` flags for SD-JWT credentials
 - **Display configuration**: How the credential appears in wallets, including colors, logos, and images
 
 You can use it as a template or use the generated [JSON Schema](https://github.com/openwallet-foundation/eudiplo/blob/main/schemas/CredentialConfigCreate.schema.json) to create your own credential configurations by modifying the fields according to your requirements.

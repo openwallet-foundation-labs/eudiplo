@@ -77,7 +77,7 @@ export class SchemaUriEntry {
         additionalProperties: true,
     })
     @IsObject()
-    metadata!: SchemaURIMeta;
+    meta!: SchemaURIMeta;
 }
 
 /**

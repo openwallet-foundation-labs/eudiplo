@@ -19,12 +19,11 @@ import {
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { TenantEntity } from "../../../../auth/tenant/entitites/tenant.entity";
 import { KeyChainEntity } from "../../../../crypto/key/entities/key-chain.entity";
-import { SchemaResponse } from "../../../issuance/oid4vci/metadata/dto/schema-response.dto";
 import { VCT } from "../../../issuance/oid4vci/metadata/dto/vct.dto";
 import { AttributeProviderEntity } from "../../attribute-provider/entities/attribute-provider.entity";
 import { KeyAttestationsRequired } from "../../issuance/dto/key-attestations-required.dto";
 import { WebhookEndpointEntity } from "../../webhook-endpoint/entities/webhook-endpoint.entity";
-import { ClaimMetadata } from "../dto/claim-metadata.dto";
+import { ClaimFieldDefinitionDto } from "../dto/claim-field-definition.dto";
 import { SchemaMetaConfig } from "../dto/schema-meta-config.dto";
 import {
     IaeAction,
@@ -104,47 +103,6 @@ export class IssuerMetadataCredentialConfig {
     docType?: string;
 
     /**
-     * Namespace for mDOC credentials (e.g., "org.iso.18013.5.1").
-     * Only applicable when format is "mso_mdoc".
-     * Used when claims are provided as a flat object.
-     */
-    @IsOptional()
-    @IsString()
-    namespace?: string;
-
-    /**
-     * Claims organized by namespace for mDOC credentials.
-     * Allows specifying claims across multiple namespaces.
-     * Only applicable when format is "mso_mdoc".
-     * Example:
-     * {
-     *   "org.iso.18013.5.1": { "given_name": "John", "family_name": "Doe" },
-     *   "org.iso.18013.5.1.aamva": { "DHS_compliance": "F" }
-     * }
-     */
-    @IsOptional()
-    @IsObject()
-    claimsByNamespace?: Record<string, Record<string, any>>;
-
-    /**
-     * Claims metadata for wallet rendering.
-     * Follows the OID4VCI credential_metadata.claims specification.
-     * Each claim includes a path (JSONPath-like array), optional mandatory flag,
-     * and display information with multi-language support.
-     *
-     * Example:
-     * [
-     *   { "path": ["given_name"], "mandatory": false, "display": [{ "name": "Given Name", "locale": "en-US" }] },
-     *   { "path": ["address", "street_address"], "display": [{ "name": "Street Address", "locale": "en-US" }] }
-     * ]
-     */
-    @IsOptional()
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => ClaimMetadata)
-    claimsMetadata?: ClaimMetadata[];
-
-    /**
      * Key attestation requirements for JWT proofs for this credential.
      * When set, this is published in proof_types_supported.jwt.key_attestations_required
      * for this specific credential configuration.
@@ -193,10 +151,15 @@ export class CredentialConfig {
     @Type(() => IssuerMetadataCredentialConfig)
     config!: IssuerMetadataCredentialConfig;
 
-    @Column("json", { nullable: true })
-    @IsOptional()
-    @IsObject()
-    claims?: Record<string, any> | null;
+    @Column("int", { default: 2 })
+    @IsNumber()
+    configVersion!: number;
+
+    @Column("json")
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => ClaimFieldDefinitionDto)
+    fields!: ClaimFieldDefinitionDto[];
 
     /**
      * Reference to the attribute provider used for fetching claims.
@@ -233,12 +196,6 @@ export class CredentialConfig {
         { name: "tenantId", referencedColumnName: "tenantId" },
     ])
     webhookEndpoint?: WebhookEndpointEntity;
-
-    // has to be optional since there may be credentials that are disclosed without a frame
-    @Column("json", { nullable: true })
-    @IsOptional()
-    @IsObject()
-    disclosureFrame?: Record<string, any> | null;
 
     @IsOptional()
     @ApiProperty({
@@ -344,12 +301,6 @@ export class CredentialConfig {
     @Column("int", { nullable: true })
     @IsNumber()
     lifeTime?: number;
-
-    @IsOptional()
-    @ValidateNested()
-    @Type(() => SchemaResponse)
-    @Column("json", { nullable: true })
-    schema?: SchemaResponse | null;
 
     /**
      * TS11 schema metadata configuration for EUDI Catalogue of Attestations.

@@ -1,4 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
+import { buildClaimsByNamespace } from "../../utils";
 import type { Jwk } from "@openid4vc/oauth2";
 import { CoseKey, DeviceKey, Issuer, SignatureAlgorithm } from "@owf/mdoc";
 import { X509Certificate } from "@peculiar/x509";
@@ -45,26 +46,24 @@ export class MdocIssuerService {
             (credentialConfiguration.config as any).doctype ||
             "org.iso.18013.5.1.mDL";
 
-        // Get the namespace from configuration or derive from docType
-        const namespace =
-            credentialConfiguration.config.namespace ||
-            this.getDefaultNamespace(docType);
-
         const issuer = new Issuer(docType, mdocContext);
 
-        // Add claims to namespaces
-        // Priority: claimsByNamespace > flat claims with namespace
-        const claimsByNamespace =
-            credentialConfiguration.config.claimsByNamespace;
+        const defaultNamespace = this.getDefaultNamespace(docType);
+        const claimsByNamespace = buildClaimsByNamespace(
+            credentialConfiguration.fields as any,
+        );
 
         if (claimsByNamespace && Object.keys(claimsByNamespace).length > 0) {
             // Multiple namespaces specified
             for (const [ns, nsClaims] of Object.entries(claimsByNamespace)) {
                 issuer.addIssuerNamespace(ns, nsClaims);
             }
+            if (claims && Object.keys(claims).length > 0) {
+                issuer.addIssuerNamespace(defaultNamespace, claims);
+            }
         } else {
             // Single namespace with flat claims
-            issuer.addIssuerNamespace(namespace, claims);
+            issuer.addIssuerNamespace(defaultNamespace, claims);
         }
 
         // Get signing certificate

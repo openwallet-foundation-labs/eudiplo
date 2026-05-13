@@ -294,9 +294,9 @@ export class SchemaMetaAdapterService {
         );
         const rawSchemaUris = config.schemaURIs ?? [];
         for (const entry of rawSchemaUris) {
-            if (!entry.format || !entry.uri || !entry.metadata) {
+            if (!entry.format || !entry.uri || !entry.meta) {
                 throw new BadRequestException(
-                    "Each schemaURIs entry must include format, uri, and metadata after preprocessing.",
+                    "Each schemaURIs entry must include format, uri, and meta after preprocessing.",
                 );
             }
         }
@@ -305,7 +305,7 @@ export class SchemaMetaAdapterService {
             rawSchemaUris.map(async (entry) => ({
                 format: entry.format as string,
                 uri: entry.uri as string,
-                metadata: entry.metadata,
+                metadata: entry.meta,
                 integrity: await this.computeSri(
                     entry.uri as string,
                     `schemaURIs[${entry.format as string}]`,
