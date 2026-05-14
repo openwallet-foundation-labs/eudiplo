@@ -1,4 +1,4 @@
-export type CredentialFormat = "dc+sd-jwt" | "mso_mdoc";
+type CredentialFormat = "dc+sd-jwt" | "mso_mdoc";
 
 export type FieldType =
     | "string"

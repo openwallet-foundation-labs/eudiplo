@@ -48,6 +48,7 @@
     "@types/unzipper": "^0.10.11",
     "cross-fetch": "^4.1.0",
     "husky": "^9.1.7",
+    "joi": "^18.0.2",
     "knip": "^6.13.1",
     "markdownlint-cli": "^0.48.0",
     "semantic-release": "^25.0.3",

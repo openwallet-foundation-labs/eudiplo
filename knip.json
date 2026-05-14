@@ -5,7 +5,13 @@
   ],
   "ignoreBinaries": [
     "mike",
-    "mkdocs"
+    "mkdocs",
+    "python3",
+    "compodoc",
+    "openapi-ts"
+  ],
+  "ignoreUnresolved": [
+    "tslib"
   ],
   "workspaces": {
     ".": {
@@ -38,7 +44,9 @@
         "ts-loader",
         "tsconfig-paths",
         "source-map-support",
-        "@compodoc/compodoc"
+        "@compodoc/compodoc",
+        "pino-pretty",
+        "pino-opentelemetry-transport"
       ]
     },
     "apps/client": {
@@ -53,10 +61,6 @@
       ]
     },
     "apps/webhook": {},
-    "packages/eudiplo-sdk-core": {
-      "ignore": [
-        "src/api/**"
-      ]
-    }
+    "packages/eudiplo-sdk-core": {}
   }
 }
