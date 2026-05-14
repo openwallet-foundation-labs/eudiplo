@@ -19,7 +19,11 @@ import {
 } from "../../src/issuer/issuance/oid4vci/dto/offer-request.dto";
 import { ResponseType } from "../../src/verifier/oid4vp/dto/presentation-request.dto";
 import { getDefaultSecret } from "../utils";
-import { useOidfContainers } from "./oidf-setup";
+import {
+    BACKEND_TEST_CA_PATH,
+    OIDF_HTTPD_CA_PATH,
+    useOidfContainers,
+} from "./oidf-setup";
 import { OIDFSuite, TestInstance } from "./oidf-suite";
 
 // Set up the x509 crypto provider
@@ -253,7 +257,8 @@ describe("OIDF - oid4vci-1_0-issuer-haip-test-plan", () => {
     const axiosBackendInstance = axios.default.create({
         baseURL: "https://localhost:3000",
         httpsAgent: new https.Agent({
-            rejectUnauthorized: false,
+            ca: readFileSync(BACKEND_TEST_CA_PATH),
+            checkServerIdentity: () => undefined,
         }),
     });
 
@@ -329,7 +334,8 @@ describe("OIDF - oid4vci-1_0-issuer-haip-test-plan", () => {
         // Send the offer to the OIDF test runner
         await axios.default.get(`${url}${parameters}`, {
             httpsAgent: new https.Agent({
-                rejectUnauthorized: false,
+                ca: readFileSync(OIDF_HTTPD_CA_PATH),
+                checkServerIdentity: () => undefined,
             }),
         });
     }
