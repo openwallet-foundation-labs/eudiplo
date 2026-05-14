@@ -1,7 +1,9 @@
 import * as axios from "axios";
-import { mkdirSync } from "fs";
+import { mkdirSync, readFileSync } from "fs";
 import https from "https";
 import unzipper from "unzipper";
+
+import { OIDF_HTTPD_CA_PATH } from "./oidf-setup";
 
 export interface TestInstance {
     id: string;
@@ -41,9 +43,21 @@ export class OIDFSuite {
                     : undefined,
                 "Content-Type": "application/json",
             },
-            httpsAgent: new https.Agent({
-                rejectUnauthorized: false,
-            }),
+        });
+        // The OIDF httpd CA cert is extracted by setupOidfContainers() (which
+        // runs in beforeAll), so it isn't on disk yet when this constructor
+        // executes at module load time. Resolve the agent per-request via an
+        // interceptor that lazily reads the cert. The CN is "localhost" with
+        // no SAN, so we keep chain validation on (rejectUnauthorized: true,
+        // implicit) but bypass the SAN-only hostname check.
+        this.instance.interceptors.request.use((config) => {
+            if (!config.httpsAgent) {
+                config.httpsAgent = new https.Agent({
+                    ca: readFileSync(OIDF_HTTPD_CA_PATH),
+                    checkServerIdentity: () => undefined,
+                });
+            }
+            return config;
         });
     }
 
