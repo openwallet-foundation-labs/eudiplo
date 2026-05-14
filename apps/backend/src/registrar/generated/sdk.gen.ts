@@ -107,7 +107,7 @@ export type Options<
     meta?: Record<string, unknown>;
 };
 
-const healthControllerCheck = <ThrowOnError extends boolean = false>(
+const _healthControllerCheck = <ThrowOnError extends boolean = false>(
     options?: Options<HealthControllerCheckData, ThrowOnError>,
 ) =>
     (options?.client ?? client).get<
@@ -116,7 +116,7 @@ const healthControllerCheck = <ThrowOnError extends boolean = false>(
         ThrowOnError
     >({ url: "/health", ...options });
 
-const prometheusControllerIndex = <ThrowOnError extends boolean = false>(
+const _prometheusControllerIndex = <ThrowOnError extends boolean = false>(
     options?: Options<PrometheusControllerIndexData, ThrowOnError>,
 ) =>
     (options?.client ?? client).get<
@@ -168,7 +168,7 @@ export const relyingPartyControllerRegister = <
 /**
  * Get a relying party by ID
  */
-const relyingPartyControllerFindOne = <ThrowOnError extends boolean = false>(
+const _relyingPartyControllerFindOne = <ThrowOnError extends boolean = false>(
     options: Options<RelyingPartyControllerFindOneData, ThrowOnError>,
 ) =>
     (options.client ?? client).get<
@@ -180,7 +180,7 @@ const relyingPartyControllerFindOne = <ThrowOnError extends boolean = false>(
 /**
  * Returns the certificate of the RP registrar.
  */
-const cryptoControllerOwnCert = <ThrowOnError extends boolean = false>(
+const _cryptoControllerOwnCert = <ThrowOnError extends boolean = false>(
     options?: Options<CryptoControllerOwnCertData, ThrowOnError>,
 ) =>
     (options?.client ?? client).get<
@@ -192,7 +192,7 @@ const cryptoControllerOwnCert = <ThrowOnError extends boolean = false>(
 /**
  * Get all access certificates by a relying party
  */
-const accessCertificateControllerAccessCertificates = <
+const _accessCertificateControllerAccessCertificates = <
     ThrowOnError extends boolean = false,
 >(
     options: Options<
@@ -231,7 +231,7 @@ export const accessCertificateControllerRegister = <
 /**
  * Delete a certificate by id
  */
-const accessCertificateControllerDelete = <
+const _accessCertificateControllerDelete = <
     ThrowOnError extends boolean = false,
 >(
     options: Options<AccessCertificateControllerDeleteData, ThrowOnError>,
@@ -249,7 +249,7 @@ const accessCertificateControllerDelete = <
 /**
  * Get a certificate by id
  */
-const accessCertificateControllerFindOne = <
+const _accessCertificateControllerFindOne = <
     ThrowOnError extends boolean = false,
 >(
     options: Options<AccessCertificateControllerFindOneData, ThrowOnError>,
@@ -302,7 +302,7 @@ export const registrationCertificateControllerRegister = <
 /**
  * Delete a certificate by id
  */
-const registrationCertificateControllerDelete = <
+const _registrationCertificateControllerDelete = <
     ThrowOnError extends boolean = false,
 >(
     options: Options<RegistrationCertificateControllerDeleteData, ThrowOnError>,
@@ -320,7 +320,7 @@ const registrationCertificateControllerDelete = <
 /**
  * Get a certificate by id
  */
-const registrationCertificateControllerFindOne = <
+const _registrationCertificateControllerFindOne = <
     ThrowOnError extends boolean = false,
 >(
     options: Options<
@@ -337,7 +337,7 @@ const registrationCertificateControllerFindOne = <
 /**
  * Get the status list
  */
-const statusListControllerGetList = <ThrowOnError extends boolean = false>(
+const _statusListControllerGetList = <ThrowOnError extends boolean = false>(
     options?: Options<StatusListControllerGetListData, ThrowOnError>,
 ) =>
     (options?.client ?? client).get<
@@ -349,7 +349,7 @@ const statusListControllerGetList = <ThrowOnError extends boolean = false>(
 /**
  * Returns the crl.der file
  */
-const statusListControllerCrlFile = <ThrowOnError extends boolean = false>(
+const _statusListControllerCrlFile = <ThrowOnError extends boolean = false>(
     options?: Options<StatusListControllerCrlFileData, ThrowOnError>,
 ) =>
     (options?.client ?? client).get<
@@ -469,7 +469,7 @@ export const schemaMetadataControllerUploadAsset = <
 /**
  * Get uploaded trustlist/rulebook/schema asset
  */
-const schemaMetadataControllerGetUploadedAsset = <
+const _schemaMetadataControllerGetUploadedAsset = <
     ThrowOnError extends boolean = false,
 >(
     options: Options<
@@ -612,7 +612,7 @@ export const schemaMetadataControllerGetSignedJwt = <
 /**
  * Get internal author-only metadata
  */
-const schemaMetadataControllerGetInternalMetadata = <
+const _schemaMetadataControllerGetInternalMetadata = <
     ThrowOnError extends boolean = false,
 >(
     options: Options<

@@ -1,5 +1,4 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { buildClaimsByNamespace } from "../../utils";
 import type { Jwk } from "@openid4vc/oauth2";
 import { CoseKey, DeviceKey, Issuer, SignatureAlgorithm } from "@owf/mdoc";
 import { X509Certificate } from "@peculiar/x509";
@@ -10,6 +9,7 @@ import { KeyChainService } from "../../../../../crypto/key/key-chain.service";
 import { Session } from "../../../../../session/entities/session.entity";
 import { mdocContext } from "../../../../../verifier/presentations/mdoc-context";
 import { CredentialConfig } from "../../entities/credential.entity";
+import { buildClaimsByNamespace } from "../../utils";
 
 export interface MdocIssueOptions {
     credentialConfiguration: CredentialConfig;

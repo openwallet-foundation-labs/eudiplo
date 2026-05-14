@@ -335,7 +335,6 @@ export class IssuanceOfferComponent implements OnInit {
     this.selectedConfigsIaeStatus.clear();
     for (const id of credentialConfigIds) {
       const config = this.credentialConfigs.find((cred) => cred.id === id);
-      const runtime = config?.fields?.length ? deriveRuntimeArtifacts(config.fields as any) : null;
       const hasIae = (config?.iaeActions?.length || 0) > 0;
       this.selectedConfigsIaeStatus.set(id, hasIae);
     }

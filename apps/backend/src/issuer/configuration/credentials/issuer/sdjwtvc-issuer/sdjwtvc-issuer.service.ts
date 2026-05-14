@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { buildDisclosureFrame } from "../../utils";
 import type { Jwk } from "@openid4vc/oauth2";
 import { JWTwithStatusListPayload } from "@owf/token-status-list";
 import { digest, generateSalt } from "@sd-jwt/crypto-nodejs";
@@ -15,6 +14,7 @@ import {
     CredentialConfig,
     SdJwtTrustFormat,
 } from "../../entities/credential.entity";
+import { buildDisclosureFrame } from "../../utils";
 
 export interface SdJwtVcIssueOptions {
     credentialConfiguration: CredentialConfig;

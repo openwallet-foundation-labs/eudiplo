@@ -1,9 +1,9 @@
+import { MigrationInterface, QueryRunner, TableColumn } from "typeorm";
 import {
+    type CredentialConfigV1,
     convertV1ToV2,
     deriveRuntimeArtifacts,
-    type CredentialConfigV1,
 } from "../../issuer/configuration/credentials/utils";
-import { MigrationInterface, QueryRunner, TableColumn } from "typeorm";
 
 function parseMaybeJson(value: unknown): any {
     if (value === null || value === undefined) {

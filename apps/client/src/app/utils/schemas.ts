@@ -3,7 +3,6 @@ import vctSchemaObj from '../../../../../schemas/VCT.schema.json';
 import webhookSchemaObj from '../../../../../schemas/WebhookConfig.schema.json';
 import credentialConfigSchemaObj from '../../../../../schemas/CredentialConfigCreate.schema.json';
 import issuanceConfigSchemaObj from '../../../../../schemas/IssuanceDto.schema.json';
-import registrationCertificateRequestObj from '../../../../../schemas/RegistrationCertificateRequest.schema.json';
 import DCQLObj from '../../../../../schemas/DCQL.schema.json';
 import presnetationConfigCreateSchemaObj from '../../../../../schemas/PresentationConfigCreateDto.schema.json';
 import transactionDataSchemaObj from '../../../../../schemas/TransactionData.schema.json';
@@ -50,10 +49,6 @@ export const credentialConfigSchema = new SchemaValidation(credentialConfigSchem
 export const issuanceConfigSchema = new SchemaValidation(issuanceConfigSchemaObj);
 
 export const presentationConfigSchema = new SchemaValidation(presnetationConfigCreateSchemaObj);
-
-const registrationCertificateRequestSchema = new SchemaValidation(
-  registrationCertificateRequestObj
-);
 
 export const DCQLSchema = new SchemaValidation(DCQLObj);
 

@@ -13,8 +13,6 @@ import {
     CredentialSetQuery,
 } from "../../../../verifier/presentations/entities/presentation-config.entity";
 
-type PolicyType = "none" | "allowList" | "rootOfTrust" | "attestationBased";
-
 export class EmbeddedDisclosurePolicy {
     @IsString()
     policy!: string;

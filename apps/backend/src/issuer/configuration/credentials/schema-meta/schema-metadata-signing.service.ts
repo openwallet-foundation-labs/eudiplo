@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
-import { buildJsonSchema } from "../utils";
 import { SchemaURIMeta } from "@owf/eudi-attestation-schema";
 import { RegistrarService } from "../../../../registrar/registrar.service";
 import { CredentialConfigService } from "../credential-config/credential-config.service";
@@ -7,6 +6,7 @@ import {
     SignSchemaMetaConfigDto,
     SignVersionSchemaMetaConfigDto,
 } from "../dto/schema-meta-config.dto";
+import { buildJsonSchema } from "../utils";
 import { SchemaMetaAdapterService } from "./schema-meta-adapter.service";
 
 @Injectable()

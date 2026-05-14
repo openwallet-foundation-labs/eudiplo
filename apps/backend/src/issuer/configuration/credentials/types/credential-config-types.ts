@@ -44,7 +44,7 @@ export type TypedCredentialConfig =
 /**
  * Type guard to check if a config is for mso_mdoc format
  */
-function isMsoMdocConfig(
+function _isMsoMdocConfig(
     config:
         | CredentialConfigurationSupported
         | CredentialConfigurationSupportedWithFormats,
@@ -55,7 +55,7 @@ function isMsoMdocConfig(
 /**
  * Type guard to check if a config is for dc+sd-jwt format
  */
-function isSdJwtDcConfig(
+function _isSdJwtDcConfig(
     config:
         | CredentialConfigurationSupported
         | CredentialConfigurationSupportedWithFormats,

@@ -44,7 +44,6 @@ import { PresentationManagementService } from '../../../presentation/presentatio
 import { CredentialConfigService } from '../credential-config.service';
 import { JsonViewDialogComponent } from './json-view-dialog/json-view-dialog.component';
 import { configs } from './pre-config';
-import { convertV1ToV2 } from '../credential-config-v2.util';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import {
   credentialConfigSchema,
@@ -175,18 +174,14 @@ export class CredentialConfigCreateComponent implements OnInit {
       lifeTime: new FormControl(3600, [Validators.min(1)]),
       keyBinding: new FormControl(true, [Validators.required]),
       statusManagement: new FormControl(true, [Validators.required]),
-      claims: new FormControl(''),
       // SD-JWT specific fields
-      disclosureFrame: new FormControl(''),
       vct: new FormControl(''),
       vctString: new FormControl(''),
       sdJwtTrustFormat: new FormControl('x5c'),
       // mDOC specific fields
       docType: new FormControl(''),
       namespace: new FormControl(''),
-      claimsByNamespace: new FormControl(''),
       // Common fields
-      schema: new FormControl(''),
       configVersion: new FormControl(2),
       fields: new FormArray([]),
       displayConfigs: new FormArray([this.createDisplayConfigGroup()]),
@@ -194,7 +189,6 @@ export class CredentialConfigCreateComponent implements OnInit {
       attributeProviderId: new FormControl(''),
       webhookEndpointId: new FormControl(''),
       iaeActions: new FormArray([]),
-      claimsMetadata: new FormControl(''),
       // Key attestation requirements (per-credential, HAIP compliance)
       keyAttestationEnabled: new FormControl(false),
       keyStorageTypes: new FormControl<string[]>([]),
@@ -479,7 +473,7 @@ export class CredentialConfigCreateComponent implements OnInit {
    * Patch form with configuration data (reusable for edit mode and JSON load)
    */
   private patchFormFromConfig(config: CredentialConfigCreate): void {
-    const normalizedConfig = this.normalizeConfigToV2(config);
+    const normalizedConfig = config;
 
     // Determine VCT mode based on the type of vct value
     if (normalizedConfig.vct) {
@@ -508,11 +502,9 @@ export class CredentialConfigCreateComponent implements OnInit {
       lifeTime: normalizedConfig.lifeTime || 3600,
       keyBinding: normalizedConfig.keyBinding ?? true,
       statusManagement: normalizedConfig.statusManagement ?? true,
-      claims: this.stringifyField((normalizedConfig as any).claims),
       attributeProviderId: normalizedConfig.attributeProviderId || '',
       webhookEndpointId: normalizedConfig.webhookEndpointId || '',
       // SD-JWT specific
-      disclosureFrame: this.stringifyField((normalizedConfig as any).disclosureFrame),
       vct:
         typeof normalizedConfig.vct === 'object' ? this.stringifyField(normalizedConfig.vct) : '',
       vctString: typeof normalizedConfig.vct === 'string' ? normalizedConfig.vct : '',
@@ -520,13 +512,10 @@ export class CredentialConfigCreateComponent implements OnInit {
       // mDOC specific
       docType: normalizedConfig.config?.docType || '',
       namespace: (normalizedConfig.config as any)?.namespace || '',
-      claimsByNamespace: this.stringifyField((normalizedConfig.config as any)?.claimsByNamespace),
       // Common
-      schema: this.stringifyField((normalizedConfig as any).schema),
       configVersion: normalizedConfig.configVersion || 2,
       displayConfigs: normalizedConfig.config?.display || [],
       embeddedDisclosurePolicy: this.stringifyField(normalizedConfig.embeddedDisclosurePolicy),
-      claimsMetadata: this.stringifyField((normalizedConfig.config as any)?.claimsMetadata),
       // Key attestation requirements
       keyAttestationEnabled: !!(normalizedConfig.config as any)?.keyAttestationsRequired,
       keyStorageTypes: (normalizedConfig.config as any)?.keyAttestationsRequired?.key_storage || [],
@@ -549,14 +538,6 @@ export class CredentialConfigCreateComponent implements OnInit {
 
     // Update lifetime preset selection
     this.updateLifetimePresetFromValue(normalizedConfig.lifeTime || 3600);
-  }
-
-  private normalizeConfigToV2(config: CredentialConfigCreate): CredentialConfigCreate {
-    if (Array.isArray((config as any).fields)) {
-      return config;
-    }
-
-    return convertV1ToV2(config as any) as unknown as CredentialConfigCreate;
   }
 
   /**
@@ -959,11 +940,6 @@ export class CredentialConfigCreateComponent implements OnInit {
     delete formValue.format;
     delete formValue.docType;
     delete formValue.namespace;
-    delete formValue.claimsByNamespace;
-    delete formValue.claims;
-    delete formValue.disclosureFrame;
-    delete formValue.schema;
-    delete formValue.claimsMetadata;
     delete formValue.keyAttestationEnabled;
     delete formValue.keyStorageTypes;
     delete formValue.userAuthenticationTypes;

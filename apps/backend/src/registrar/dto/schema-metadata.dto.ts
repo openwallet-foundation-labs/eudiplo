@@ -55,65 +55,6 @@ export type VocabularyStatus = (typeof VOCABULARY_STATUS_VALUES)[number];
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Request body for `POST /registrar/schema-metadata/reserve`.
- */
-class ReserveSchemaMetadataDto {
-    /**
-     * Optional human-readable name hint used by the registrar when generating
-     * the reserved attestation ID. Used in documentation only.
-     */
-    @ApiPropertyOptional({
-        description:
-            "Optional human-readable name hint for the schema (used in documentation only)",
-    })
-    @IsOptional()
-    @IsString()
-    nameHint?: string;
-}
-
-/**
- * Response of `POST /registrar/schema-metadata/reserve`.
- */
-class ReservationResponseDto {
-    @ApiProperty({
-        description:
-            "The full reserved schema ID URL that should be used as the `id` in the signed JWT",
-    })
-    reservedId!: string;
-
-    @ApiProperty({
-        description: "When this reservation expires (ISO 8601)",
-    })
-    expiresAt!: string;
-
-    @ApiProperty({
-        description:
-            "Secret token to include in the `X-Reservation-Token` header when submitting the schema metadata JWT",
-    })
-    reservationToken!: string;
-}
-
-/**
- * Request body for `POST /registrar/schema-metadata`.
- */
-class SubmitSchemaMetadataDto {
-    @ApiProperty({
-        description:
-            "The signed schema metadata JWS (compact serialization). Sign via `POST /api/schema-metadata/sign`.",
-    })
-    @IsString()
-    signedJwt!: string;
-
-    @ApiPropertyOptional({
-        description:
-            "Reservation token returned by `/schema-metadata/reserve`. Required when the JWT's `id` is a registrar-reserved URL.",
-    })
-    @IsOptional()
-    @IsString()
-    reservationToken?: string;
-}
-
-/**
  * Request body for `PATCH /registrar/schema-metadata/:id`.
  */
 export class UpdateSchemaMetadataDto {

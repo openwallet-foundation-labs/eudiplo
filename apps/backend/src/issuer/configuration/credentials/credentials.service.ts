@@ -1,7 +1,6 @@
 import { ConflictException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
-import { buildClaims, buildClaimsMetadata, buildJsonSchema } from "./utils";
 import type { Jwk } from "@openid4vc/oauth2";
 import type { CredentialConfigurationSupported } from "@openid4vc/openid4vci";
 import Ajv from "ajv/dist/2020";
@@ -29,6 +28,7 @@ import {
     type TypedCredentialConfig,
     toCredentialConfigurationSupported,
 } from "./types/credential-config-types";
+import { buildClaims, buildClaimsMetadata, buildJsonSchema } from "./utils";
 
 /**
  * Service for managing credentials and their configurations.

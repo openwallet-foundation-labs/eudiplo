@@ -48,16 +48,6 @@ export interface ChainValidationResult {
 }
 
 /**
- * Certificate chain information extracted from a credential.
- */
-interface CertificateChainInfo {
-    /** The x5c chain from the credential (base64 encoded) */
-    x5c: string[];
-    /** Public key for signature verification */
-    publicKey?: JsonWebKey;
-}
-
-/**
  * Shared service for certificate chain validation.
  * Used by both mDOC and SD-JWT-VC verifiers to ensure consistent behavior.
  *

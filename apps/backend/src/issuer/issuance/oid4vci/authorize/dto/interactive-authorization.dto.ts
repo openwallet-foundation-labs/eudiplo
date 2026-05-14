@@ -1,6 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsArray, IsOptional, IsString, ValidateNested } from "class-validator";
+import { IsOptional, IsString } from "class-validator";
 
 /**
  * Authorization details for a credential request.
@@ -35,119 +34,6 @@ export class AuthorizationDetailsDto {
     @IsOptional()
     @IsString()
     credential_configuration_id?: string;
-}
-
-/**
- * Initial Interactive Authorization Request DTO.
- * Sent by the wallet to start an interactive authorization flow.
- */
-class InteractiveAuthorizationInitialRequestDto {
-    @ApiProperty({
-        description: "Response type, typically 'code'",
-        example: "code",
-    })
-    @IsString()
-    response_type!: string;
-
-    @ApiProperty({
-        description: "Client identifier",
-        example: "wallet-client",
-    })
-    @IsString()
-    client_id!: string;
-
-    @ApiProperty({
-        description:
-            "Comma-separated list of supported interaction types (e.g., 'openid4vp_presentation,redirect_to_web')",
-        example: "openid4vp_presentation,redirect_to_web",
-    })
-    @IsString()
-    interaction_types_supported!: string;
-
-    @ApiPropertyOptional({
-        description: "Redirect URI for the authorization response",
-        example: "https://wallet.example.com/callback",
-    })
-    @IsOptional()
-    @IsString()
-    redirect_uri?: string;
-
-    @ApiPropertyOptional({
-        description: "OAuth scope",
-        example: "openid",
-    })
-    @IsOptional()
-    @IsString()
-    scope?: string;
-
-    @ApiPropertyOptional({
-        description: "PKCE code challenge",
-    })
-    @IsOptional()
-    @IsString()
-    code_challenge?: string;
-
-    @ApiPropertyOptional({
-        description: "PKCE code challenge method",
-        example: "S256",
-    })
-    @IsOptional()
-    @IsString()
-    code_challenge_method?: string;
-
-    @ApiPropertyOptional({
-        description: "Authorization details for credential request",
-        type: [AuthorizationDetailsDto],
-    })
-    @IsOptional()
-    @IsArray()
-    @ValidateNested({ each: true })
-    @Type(() => AuthorizationDetailsDto)
-    authorization_details?: AuthorizationDetailsDto[];
-
-    @ApiPropertyOptional({
-        description: "State parameter",
-    })
-    @IsOptional()
-    @IsString()
-    state?: string;
-
-    @ApiPropertyOptional({
-        description: "Issuer state from credential offer",
-    })
-    @IsOptional()
-    @IsString()
-    issuer_state?: string;
-}
-
-/**
- * Follow-up Interactive Authorization Request DTO.
- * Sent by the wallet after completing an interaction (e.g., OpenID4VP presentation).
- */
-class InteractiveAuthorizationFollowUpRequestDto {
-    @ApiProperty({
-        description:
-            "Auth session identifier from the previous interaction response",
-        example: "session-123",
-    })
-    @IsString()
-    auth_session!: string;
-
-    @ApiPropertyOptional({
-        description:
-            "OpenID4VP response as JSON string (for openid4vp_presentation interaction)",
-        example: '{"vp_token": "..."}',
-    })
-    @IsOptional()
-    @IsString()
-    openid4vp_response?: string;
-
-    @ApiPropertyOptional({
-        description: "PKCE code verifier (for redirect_to_web interaction)",
-    })
-    @IsOptional()
-    @IsString()
-    code_verifier?: string;
 }
 
 /**

@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import {
     IsArray,
     IsBoolean,
@@ -8,7 +9,6 @@ import {
     IsString,
     ValidateNested,
 } from "class-validator";
-import { Type } from "class-transformer";
 
 export class FieldDisplayDto {
     @ApiProperty({ description: "Locale code", example: "en-US" })

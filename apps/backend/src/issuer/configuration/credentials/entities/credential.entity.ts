@@ -11,7 +11,6 @@ import {
     IsBoolean,
     IsEnum,
     IsNumber,
-    IsObject,
     IsOptional,
     IsString,
     ValidateNested,

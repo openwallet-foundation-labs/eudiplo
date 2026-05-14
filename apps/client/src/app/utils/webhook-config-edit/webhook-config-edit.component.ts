@@ -1,23 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { MatAnchor } from '@angular/material/button';
-
-function createWebhookFormGroup(): FormGroup {
-  return new FormGroup({
-    url: new FormControl(''),
-    auth: new FormGroup({
-      type: new FormControl(''),
-      config: new FormGroup({
-        headerName: new FormControl(''),
-        value: new FormControl(''),
-      }),
-    }),
-  });
-}
 
 @Component({
   selector: 'app-webhook-config-edit',

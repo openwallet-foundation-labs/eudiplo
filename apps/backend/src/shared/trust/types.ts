@@ -50,7 +50,7 @@ function findServiceByType(
 /**
  * Get the issuance certificate from a TrustedEntity.
  */
-function getIssuanceCert(
+function _getIssuanceCert(
     entity: TrustedEntity,
 ): TrustedEntityServiceCert | undefined {
     return findServiceByType(entity, ServiceTypeIdentifiers.EaaIssuance);

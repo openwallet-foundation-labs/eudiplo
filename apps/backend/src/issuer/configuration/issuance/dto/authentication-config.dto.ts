@@ -72,9 +72,3 @@ export class AuthenticationMethodNone implements AuthenticationMethodInterface {
 interface AuthenticationMethodInterface {
     method: "none" | "auth" | "presentationDuringIssuance";
 }
-
-enum AuthenticationMethod {
-    NONE = "none",
-    AUTH = "auth",
-    PRESENTATION_DURING_ISSUANCE = "presentationDuringIssuance",
-}

@@ -4,7 +4,7 @@ export interface PredefinedConfig {
   name: string;
   description: string;
   icon: string;
-  config: CredentialConfigCreate | Record<string, unknown>;
+  config: CredentialConfigCreate;
 }
 
 export const configs: PredefinedConfig[] = [
@@ -15,6 +15,7 @@ export const configs: PredefinedConfig[] = [
     config: {
       id: 'pid',
       description: 'Personal ID',
+      configVersion: 2,
       config: {
         format: 'dc+sd-jwt',
         scope: 'pid',
@@ -28,52 +29,153 @@ export const configs: PredefinedConfig[] = [
           },
         ],
       },
-      claims: {
-        issuing_country: 'DE',
-        issuing_authority: 'DE',
-        given_name: 'ERIKA',
-        family_name: 'MUSTERMANN',
-        birth_family_name: 'GABLER',
-        birthdate: '1964-08-12',
-        age_birth_year: 1964,
-        age_in_years: 59,
-        age_equal_or_over: {
-          '12': true,
-          '14': true,
-          '16': true,
-          '18': true,
-          '21': true,
-          '65': false,
+      fields: [
+        {
+          path: ['issuing_country'],
+          type: 'string',
+          defaultValue: 'DE',
+          mandatory: true,
+          disclosable: true,
+          display: [{ lang: 'en-US', label: 'Issuing Country' }],
         },
-        place_of_birth: {
-          locality: 'BERLIN',
+        {
+          path: ['issuing_authority'],
+          type: 'string',
+          defaultValue: 'DE',
+          mandatory: true,
+          disclosable: true,
+          display: [{ lang: 'en-US', label: 'Issuing Authority' }],
         },
-        address: {
-          locality: 'KÖLN',
-          postal_code: '51147',
-          street_address: 'HEIDESTRAẞE 17',
+        {
+          path: ['given_name'],
+          type: 'string',
+          defaultValue: 'ERIKA',
+          mandatory: true,
+          disclosable: true,
+          display: [{ lang: 'en-US', label: 'Given Name' }],
         },
-        nationalities: ['DE'],
-      },
-      disclosureFrame: {
-        _sd: [
-          'issuing_country',
-          'issuing_authority',
-          'given_name',
-          'family_name',
-          'birth_family_name',
-          'birthdate',
-          'age_birth_year',
-          'age_in_years',
-          'age_equal_or_over',
-          'place_of_birth',
-          'address',
-          'nationalities',
-        ],
-        address: {
-          _sd: ['locality', 'postal_code', 'street_address'],
+        {
+          path: ['family_name'],
+          type: 'string',
+          defaultValue: 'MUSTERMANN',
+          mandatory: true,
+          disclosable: true,
+          display: [{ lang: 'en-US', label: 'Family Name' }],
         },
-      },
+        {
+          path: ['birth_family_name'],
+          type: 'string',
+          defaultValue: 'GABLER',
+          mandatory: true,
+          disclosable: true,
+          display: [{ lang: 'en-US', label: 'Birth Family Name' }],
+        },
+        {
+          path: ['birthdate'],
+          type: 'date',
+          defaultValue: '1964-08-12',
+          mandatory: true,
+          disclosable: true,
+          constraints: { pattern: '^\\d{4}-\\d{2}-\\d{2}$' },
+          display: [{ lang: 'en-US', label: 'Birthdate' }],
+        },
+        {
+          path: ['age_birth_year'],
+          type: 'integer',
+          defaultValue: 1964,
+          mandatory: true,
+          disclosable: true,
+          display: [{ lang: 'en-US', label: 'Birth Year' }],
+        },
+        {
+          path: ['age_in_years'],
+          type: 'integer',
+          defaultValue: 59,
+          mandatory: true,
+          disclosable: true,
+          display: [{ lang: 'en-US', label: 'Age in Years' }],
+        },
+        {
+          path: ['age_equal_or_over'],
+          type: 'object',
+          defaultValue: {
+            '12': true,
+            '14': true,
+            '16': true,
+            '18': true,
+            '21': true,
+            '65': false,
+          },
+          mandatory: true,
+          disclosable: true,
+          display: [{ lang: 'en-US', label: 'Age Equal or Over' }],
+        },
+        { path: ['age_equal_or_over', '12'], type: 'boolean', defaultValue: true, mandatory: true },
+        { path: ['age_equal_or_over', '14'], type: 'boolean', defaultValue: true, mandatory: true },
+        { path: ['age_equal_or_over', '16'], type: 'boolean', defaultValue: true, mandatory: true },
+        { path: ['age_equal_or_over', '18'], type: 'boolean', defaultValue: true, mandatory: true },
+        { path: ['age_equal_or_over', '21'], type: 'boolean', defaultValue: true, mandatory: true },
+        { path: ['age_equal_or_over', '65'], type: 'boolean', defaultValue: false, mandatory: true },
+        {
+          path: ['place_of_birth'],
+          type: 'object',
+          defaultValue: { locality: 'BERLIN' },
+          mandatory: true,
+          disclosable: true,
+          display: [{ lang: 'en-US', label: 'Place of Birth' }],
+        },
+        {
+          path: ['place_of_birth', 'locality'],
+          type: 'string',
+          defaultValue: 'BERLIN',
+          mandatory: true,
+          display: [{ lang: 'en-US', label: 'Locality' }],
+        },
+        {
+          path: ['address'],
+          type: 'object',
+          defaultValue: {
+            locality: 'KÖLN',
+            postal_code: '51147',
+            street_address: 'HEIDESTRAẞE 17',
+          },
+          mandatory: true,
+          disclosable: true,
+          display: [{ lang: 'en-US', label: 'Address' }],
+        },
+        {
+          path: ['address', 'locality'],
+          type: 'string',
+          defaultValue: 'KÖLN',
+          mandatory: true,
+          disclosable: true,
+          display: [{ lang: 'en-US', label: 'Locality' }],
+        },
+        {
+          path: ['address', 'postal_code'],
+          type: 'string',
+          defaultValue: '51147',
+          mandatory: true,
+          disclosable: true,
+          display: [{ lang: 'en-US', label: 'Postal Code' }],
+        },
+        {
+          path: ['address', 'street_address'],
+          type: 'string',
+          defaultValue: 'HEIDESTRAẞE 17',
+          mandatory: true,
+          disclosable: true,
+          display: [{ lang: 'en-US', label: 'Street Address' }],
+        },
+        {
+          path: ['nationalities'],
+          type: 'array',
+          defaultValue: ['DE'],
+          mandatory: true,
+          disclosable: true,
+          display: [{ lang: 'en-US', label: 'Nationalities' }],
+        },
+      ],
       vct: {
         name: 'PID',
         description: 'PID credential',
@@ -82,131 +184,6 @@ export const configs: PredefinedConfig[] = [
       keyChainId: '139af178-3ca0-48f4-a2e4-7b1209f30374',
       statusManagement: true,
       lifeTime: 604800,
-      schema: {
-        $schema: 'https://json-schema.org/draft/2020-12/schema',
-        type: 'object',
-        properties: {
-          issuing_country: {
-            type: 'string',
-            title: 'Issuing Country',
-          },
-          issuing_authority: {
-            type: 'string',
-            title: 'Issuing Authority',
-          },
-          given_name: {
-            type: 'string',
-            title: 'Given Name',
-          },
-          family_name: {
-            type: 'string',
-            title: 'Family Name',
-          },
-          birth_family_name: {
-            type: 'string',
-            title: 'Birth Family Name',
-          },
-          birthdate: {
-            type: 'string',
-            pattern: '^\\d{4}-\\d{2}-\\d{2}$',
-            title: 'Birthdate',
-          },
-          age_birth_year: {
-            type: 'integer',
-            title: 'Birth Year',
-          },
-          age_in_years: {
-            type: 'integer',
-            title: 'Age in Years',
-          },
-          age_equal_or_over: {
-            type: 'object',
-            title: 'Age Equal or Over',
-            properties: {
-              '12': {
-                type: 'boolean',
-                title: '12 or Over',
-              },
-              '14': {
-                type: 'boolean',
-                title: '14 or Over',
-              },
-              '16': {
-                type: 'boolean',
-                title: '16 or Over',
-              },
-              '18': {
-                type: 'boolean',
-                title: '18 or Over',
-              },
-              '21': {
-                type: 'boolean',
-                title: '21 or Over',
-              },
-              '65': {
-                type: 'boolean',
-                title: '65 or Over',
-              },
-            },
-            required: ['12', '14', '16', '18', '21', '65'],
-          },
-          place_of_birth: {
-            type: 'object',
-            title: 'Place of Birth',
-            properties: {
-              locality: {
-                type: 'string',
-                title: 'Locality',
-              },
-            },
-            required: ['locality'],
-          },
-          address: {
-            type: 'object',
-            title: 'Address',
-            properties: {
-              locality: {
-                type: 'string',
-                title: 'Locality',
-              },
-              postal_code: {
-                type: 'string',
-                title: 'Postal Code',
-              },
-              street_address: {
-                type: 'string',
-                title: 'Street Address',
-              },
-            },
-            required: ['locality', 'postal_code', 'street_address'],
-          },
-          nationalities: {
-            type: 'array',
-            title: 'Nationalities',
-            items: {
-              type: 'string',
-              title: 'Nationality',
-            },
-          },
-        },
-        required: [
-          'issuing_country',
-          'issuing_authority',
-          'given_name',
-          'family_name',
-          'birth_family_name',
-          'birthdate',
-          'age_birth_year',
-          'age_in_years',
-          'age_equal_or_over',
-          'place_of_birth',
-          'address',
-          'nationalities',
-        ],
-        title: 'PID Claims',
-        description:
-          'Schema for PID credential claims, describing personal and identity information fields.',
-      },
     },
   },
 ];

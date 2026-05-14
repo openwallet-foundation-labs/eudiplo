@@ -12,7 +12,6 @@ import type {
     ClaimPathElement,
     CredentialConfigV1,
     CredentialConfigV2,
-    CredentialFormat,
     FieldType,
     JsonSchema,
 } from "./v2-types";

@@ -78,7 +78,7 @@ export const jsonBodySerializer = {
         ),
 };
 
-const urlSearchParamsBodySerializer = {
+const _urlSearchParamsBodySerializer = {
     bodySerializer: (body: unknown): string => {
         const data = new URLSearchParams();
 
