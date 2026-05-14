@@ -2440,14 +2440,14 @@ export const SchemaUriEntrySchema = {
             type: 'string',
             description: 'URI pointing to the schema document for this format'
         },
-        metadata: {
+        meta: {
             type: 'object',
             description: 'Schema-format specific metadata (for example { vct: \'urn:example:vct\' } for dc+sd-jwt).',
             additionalProperties: true
         }
     },
     required: [
-        'metadata'
+        'meta'
     ]
 } as const;
 
@@ -2622,53 +2622,6 @@ export const DisplaySchema = {
     ]
 } as const;
 
-export const ClaimDisplayInfoSchema = {
-    type: 'object',
-    properties: {
-        name: {
-            type: 'string',
-            description: 'Human-readable name for the claim',
-            example: 'Given Name'
-        },
-        locale: {
-            type: 'string',
-            description: 'Locale identifier (e.g., en-US, de-DE)',
-            example: 'en-US'
-        }
-    }
-} as const;
-
-export const ClaimMetadataSchema = {
-    type: 'object',
-    properties: {
-        path: {
-            description: 'Path to the claim. For SD-JWT: JSONPath-like array. For mDOC: [namespace, claim_name]',
-            example: [
-                'given_name'
-            ],
-            type: 'array',
-            items: {
-                type: 'string'
-            }
-        },
-        mandatory: {
-            type: 'boolean',
-            description: 'Whether this claim must be disclosed',
-            default: false
-        },
-        display: {
-            description: 'Display information for the claim in different locales',
-            type: 'array',
-            items: {
-                $ref: '#/components/schemas/ClaimDisplayInfo'
-            }
-        }
-    },
-    required: [
-        'path'
-    ]
-} as const;
-
 export const IssuerMetadataCredentialConfigSchema = {
     type: 'object',
     properties: {
@@ -2699,26 +2652,118 @@ export const IssuerMetadataCredentialConfigSchema = {
         docType: {
             type: 'string',
             description: 'Document type for mDOC credentials (e.g., "org.iso.18013.5.1.mDL").\nOnly applicable when format is "mso_mdoc".'
-        },
-        namespace: {
-            type: 'string',
-            description: 'Namespace for mDOC credentials (e.g., "org.iso.18013.5.1").\nOnly applicable when format is "mso_mdoc".\nUsed when claims are provided as a flat object.'
-        },
-        claimsByNamespace: {
-            type: 'object',
-            description: 'Claims organized by namespace for mDOC credentials.\nAllows specifying claims across multiple namespaces.\nOnly applicable when format is "mso_mdoc".\nExample:\n{\n  "org.iso.18013.5.1": { "given_name": "John", "family_name": "Doe" },\n  "org.iso.18013.5.1.aamva": { "DHS_compliance": "F" }\n}'
-        },
-        claimsMetadata: {
-            description: 'Claims metadata for wallet rendering.\nFollows the OID4VCI credential_metadata.claims specification.\nEach claim includes a path (JSONPath-like array), optional mandatory flag,\nand display information with multi-language support.\n\nExample:\n[\n  { "path": ["given_name"], "mandatory": false, "display": [{ "name": "Given Name", "locale": "en-US" }] },\n  { "path": ["address", "street_address"], "display": [{ "name": "Street Address", "locale": "en-US" }] }\n]',
-            type: 'array',
-            items: {
-                $ref: '#/components/schemas/ClaimMetadata'
-            }
         }
     },
     required: [
         'format',
         'display'
+    ]
+} as const;
+
+export const FieldDisplayDtoSchema = {
+    type: 'object',
+    properties: {
+        lang: {
+            type: 'string',
+            description: 'Locale code',
+            example: 'en-US'
+        },
+        label: {
+            type: 'string',
+            description: 'Display label',
+            example: 'Given Name'
+        },
+        description: {
+            type: 'string',
+            description: 'Optional display description',
+            example: 'Primary first name'
+        }
+    },
+    required: [
+        'lang',
+        'label'
+    ]
+} as const;
+
+export const ClaimFieldDefinitionDtoSchema = {
+    type: 'object',
+    properties: {
+        path: {
+            description: 'Path to claim value',
+            example: [
+                'address',
+                'locality'
+            ],
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        type: {
+            type: 'string',
+            enum: [
+                'string',
+                'number',
+                'integer',
+                'boolean',
+                'object',
+                'array',
+                'date'
+            ],
+            description: 'Claim value type'
+        },
+        defaultValue: {
+            description: 'Default value',
+            oneOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'object',
+                    additionalProperties: true
+                },
+                {
+                    type: 'array',
+                    items: {}
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
+        mandatory: {
+            type: 'boolean',
+            description: 'Whether claim is mandatory'
+        },
+        disclosable: {
+            type: 'boolean',
+            description: 'Whether claim is disclosable in SD-JWT'
+        },
+        namespace: {
+            type: 'string',
+            description: 'Namespace for mDOC field',
+            example: 'eu.europa.ec.eudi.pid.1'
+        },
+        display: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/FieldDisplayDto'
+            }
+        },
+        constraints: {
+            type: 'object',
+            description: 'Additional JSON schema constraints for this field'
+        }
+    },
+    required: [
+        'path',
+        'type'
     ]
 } as const;
 
@@ -2882,38 +2927,6 @@ export const KeyChainEntitySchema = {
     ]
 } as const;
 
-export const SchemaResponseSchema = {
-    type: 'object',
-    properties: {
-        $schema: {
-            type: 'string'
-        },
-        type: {
-            type: 'string'
-        },
-        properties: {
-            type: 'object'
-        },
-        required: {
-            type: 'array',
-            items: {
-                type: 'string'
-            }
-        },
-        title: {
-            type: 'string'
-        },
-        description: {
-            type: 'string'
-        }
-    },
-    required: [
-        '$schema',
-        'type',
-        'properties'
-    ]
-} as const;
-
 export const CredentialConfigSchema = {
     type: 'object',
     properties: {
@@ -2999,9 +3012,14 @@ export const CredentialConfigSchema = {
         config: {
             $ref: '#/components/schemas/IssuerMetadataCredentialConfig'
         },
-        claims: {
-            type: 'object',
-            nullable: true
+        configVersion: {
+            type: 'number'
+        },
+        fields: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/ClaimFieldDefinitionDto'
+            }
         },
         attributeProviderId: {
             type: 'string',
@@ -3018,10 +3036,6 @@ export const CredentialConfigSchema = {
         },
         webhookEndpoint: {
             $ref: '#/components/schemas/WebhookEndpointEntity'
-        },
-        disclosureFrame: {
-            type: 'object',
-            nullable: true
         },
         keyBinding: {
             type: 'boolean'
@@ -3048,21 +3062,14 @@ export const CredentialConfigSchema = {
         },
         lifeTime: {
             type: 'number'
-        },
-        schema: {
-            nullable: true,
-            type: 'object',
-            allOf: [
-                {
-                    $ref: '#/components/schemas/SchemaResponse'
-                }
-            ]
         }
     },
     required: [
         'id',
         'tenant',
-        'config'
+        'config',
+        'configVersion',
+        'fields'
     ]
 } as const;
 
@@ -3143,9 +3150,14 @@ export const CredentialConfigCreateSchema = {
         config: {
             $ref: '#/components/schemas/IssuerMetadataCredentialConfig'
         },
-        claims: {
-            type: 'object',
-            nullable: true
+        configVersion: {
+            type: 'number'
+        },
+        fields: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/ClaimFieldDefinitionDto'
+            }
         },
         attributeProviderId: {
             type: 'string',
@@ -3156,10 +3168,6 @@ export const CredentialConfigCreateSchema = {
             type: 'string',
             nullable: true,
             description: 'Reference to the webhook endpoint used for notifications.\nOptional: if set, notifications will be sent to this endpoint.'
-        },
-        disclosureFrame: {
-            type: 'object',
-            nullable: true
         },
         keyBinding: {
             type: 'boolean'
@@ -3183,20 +3191,13 @@ export const CredentialConfigCreateSchema = {
         },
         lifeTime: {
             type: 'number'
-        },
-        schema: {
-            nullable: true,
-            type: 'object',
-            allOf: [
-                {
-                    $ref: '#/components/schemas/SchemaResponse'
-                }
-            ]
         }
     },
     required: [
         'id',
-        'config'
+        'config',
+        'configVersion',
+        'fields'
     ]
 } as const;
 
@@ -3277,9 +3278,14 @@ export const CredentialConfigUpdateSchema = {
         config: {
             $ref: '#/components/schemas/IssuerMetadataCredentialConfig'
         },
-        claims: {
-            type: 'object',
-            nullable: true
+        configVersion: {
+            type: 'number'
+        },
+        fields: {
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/ClaimFieldDefinitionDto'
+            }
         },
         attributeProviderId: {
             type: 'string',
@@ -3290,10 +3296,6 @@ export const CredentialConfigUpdateSchema = {
             type: 'string',
             nullable: true,
             description: 'Reference to the webhook endpoint used for notifications.\nOptional: if set, notifications will be sent to this endpoint.'
-        },
-        disclosureFrame: {
-            type: 'object',
-            nullable: true
         },
         keyBinding: {
             type: 'boolean'
@@ -3317,15 +3319,6 @@ export const CredentialConfigUpdateSchema = {
         },
         lifeTime: {
             type: 'number'
-        },
-        schema: {
-            nullable: true,
-            type: 'object',
-            allOf: [
-                {
-                    $ref: '#/components/schemas/SchemaResponse'
-                }
-            ]
         }
     }
 } as const;
@@ -3373,6 +3366,365 @@ export const SignVersionSchemaMetaConfigDtoSchema = {
     },
     required: [
         'config'
+    ]
+} as const;
+
+export const VocabularyEntryDtoSchema = {
+    type: 'object',
+    properties: {
+        code: {
+            type: 'string',
+            description: 'Stable machine-readable value to submit in schema metadata category/tags fields.'
+        },
+        label: {
+            type: 'string',
+            description: 'Display label for UI rendering.'
+        },
+        status: {
+            type: 'string',
+            description: 'Vocabulary lifecycle status.',
+            enum: [
+                'active',
+                'deprecated'
+            ]
+        },
+        replacedBy: {
+            type: 'string',
+            description: 'Replacement code when status is deprecated.'
+        }
+    },
+    required: [
+        'code',
+        'label',
+        'status'
+    ]
+} as const;
+
+export const SchemaMetadataVocabulariesDtoSchema = {
+    type: 'object',
+    properties: {
+        version: {
+            type: 'string',
+            description: 'Vocabulary publication version for cache invalidation.'
+        },
+        categories: {
+            description: 'Allowed category values that can be used when updating schema metadata category.',
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/VocabularyEntryDto'
+            }
+        },
+        tags: {
+            description: 'Allowed tag values that can be used when updating schema metadata tags.',
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/VocabularyEntryDto'
+            }
+        }
+    },
+    required: [
+        'version',
+        'categories',
+        'tags'
+    ]
+} as const;
+
+export const MetadataSchemaDtoSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string',
+            description: 'Unique identifier for this schema entry'
+        },
+        formatIdentifier: {
+            type: 'string',
+            description: 'The credential format identifier',
+            enum: [
+                'dc+sd-jwt',
+                'mso_mdoc'
+            ]
+        },
+        uri: {
+            type: 'string',
+            description: 'URI to the schema definition'
+        },
+        schemaContent: {
+            type: 'object',
+            description: 'Inline schema content (JSON Schema)',
+            additionalProperties: true
+        },
+        integrity: {
+            type: 'string',
+            description: 'Subresource Integrity hash for the schema'
+        }
+    },
+    required: [
+        'id',
+        'formatIdentifier'
+    ]
+} as const;
+
+export const TrustAuthorityDtoSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string',
+            description: 'Unique identifier for this trust authority entry'
+        },
+        frameworkType: {
+            type: 'string',
+            description: 'Type of trust framework',
+            enum: [
+                'etsi_tl'
+            ]
+        },
+        value: {
+            type: 'string',
+            description: 'URI or identifier for the trust list / authority'
+        },
+        verificationMethod: {
+            type: 'object',
+            description: 'Verification method for the trust list signature (e.g., JWK)',
+            additionalProperties: true
+        }
+    },
+    required: [
+        'id',
+        'frameworkType',
+        'value'
+    ]
+} as const;
+
+export const AccessCertificateRefDtoSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string'
+        },
+        relyingPartyId: {
+            type: 'string'
+        },
+        certificate: {
+            type: 'string'
+        },
+        revoked: {
+            type: 'string'
+        },
+        createdAt: {
+            type: 'string'
+        }
+    },
+    required: [
+        'id',
+        'relyingPartyId',
+        'certificate',
+        'revoked',
+        'createdAt'
+    ]
+} as const;
+
+export const SchemaMetadataResponseDtoSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string',
+            description: 'The unique, server-assigned identifier (UUID) for the schema metadata'
+        },
+        version: {
+            type: 'string',
+            description: 'Version of this schema metadata (SemVer)'
+        },
+        rulebookURI: {
+            type: 'string',
+            description: 'URI of the human-readable Rulebook document'
+        },
+        rulebookIntegrity: {
+            type: 'string',
+            description: 'Subresource Integrity hash for the rulebook URI'
+        },
+        attestationLoS: {
+            type: 'string',
+            description: 'Level of security (LoS) of this attestation',
+            enum: [
+                'iso_18045_high',
+                'iso_18045_moderate',
+                'iso_18045_enhanced-basic',
+                'iso_18045_basic'
+            ]
+        },
+        bindingType: {
+            type: 'string',
+            description: 'Required binding type between attestation and holder',
+            enum: [
+                'claim',
+                'key',
+                'biometric',
+                'none'
+            ]
+        },
+        supportedFormats: {
+            type: 'array',
+            description: 'Credential formats in which this attestation is available',
+            items: {
+                type: 'string',
+                enum: [
+                    'dc+sd-jwt',
+                    'mso_mdoc'
+                ]
+            }
+        },
+        schemaURIs: {
+            description: 'Format-specific schema URIs for this schema metadata',
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/MetadataSchemaDto'
+            }
+        },
+        trustedAuthorities: {
+            description: 'Trust frameworks / trust anchors applicable to this schema metadata',
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/TrustAuthorityDto'
+            }
+        },
+        category: {
+            type: 'string',
+            description: 'Domain category for filtering',
+            enum: [
+                'identity',
+                'health',
+                'finance',
+                'education',
+                'mobility',
+                'employment',
+                'other'
+            ]
+        },
+        tags: {
+            description: 'Free-form tags for filtering and search',
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        signedJwt: {
+            type: 'string',
+            description: 'The original signed JWT'
+        },
+        issuer: {
+            type: 'string',
+            description: 'Issuer from the JWT (`iss` claim)'
+        },
+        signerCertificateSerial: {
+            type: 'string',
+            description: 'Serial number of the access certificate that signed this schema metadata'
+        },
+        signerCertificate: {
+            description: 'The access certificate used to sign this schema metadata',
+            allOf: [
+                {
+                    $ref: '#/components/schemas/AccessCertificateRefDto'
+                }
+            ]
+        },
+        issuedAt: {
+            type: 'string',
+            description: 'Timestamp when the JWT was issued (from the `iat` claim)'
+        },
+        createdAt: {
+            type: 'string',
+            description: 'Server creation timestamp'
+        },
+        updatedAt: {
+            type: 'string',
+            description: 'Last update timestamp'
+        },
+        deprecated: {
+            type: 'boolean',
+            description: 'Whether this version is deprecated'
+        },
+        deprecationMessage: {
+            type: 'string',
+            description: 'Deprecation message shown to consumers'
+        },
+        supersededByVersion: {
+            type: 'string',
+            description: 'The version that supersedes this one'
+        }
+    },
+    required: [
+        'id',
+        'version',
+        'attestationLoS',
+        'bindingType',
+        'supportedFormats',
+        'schemaURIs',
+        'trustedAuthorities',
+        'signedJwt',
+        'issuer',
+        'signerCertificateSerial',
+        'issuedAt',
+        'createdAt',
+        'updatedAt'
+    ]
+} as const;
+
+export const UpdateSchemaMetadataDtoSchema = {
+    type: 'object',
+    properties: {
+        category: {
+            type: 'string',
+            description: 'Domain category for filtering',
+            enum: [
+                'identity',
+                'health',
+                'finance',
+                'education',
+                'mobility',
+                'employment',
+                'other'
+            ]
+        },
+        tags: {
+            type: 'array',
+            description: 'Predefined tags for filtering and search',
+            items: {
+                type: 'string',
+                enum: [
+                    'pid',
+                    'eudi',
+                    'kyc',
+                    'aml',
+                    'age-verification',
+                    'residency',
+                    'membership',
+                    'education',
+                    'employment',
+                    'mobility'
+                ]
+            }
+        }
+    }
+} as const;
+
+export const DeprecateSchemaMetadataDtoSchema = {
+    type: 'object',
+    properties: {
+        deprecated: {
+            type: 'boolean',
+            description: 'Whether to mark this version as deprecated'
+        },
+        message: {
+            type: 'string',
+            description: 'Deprecation message shown to consumers'
+        },
+        supersededByVersion: {
+            type: 'string',
+            description: 'The version that supersedes this one'
+        }
+    },
+    required: [
+        'deprecated'
     ]
 } as const;
 
@@ -4326,365 +4678,6 @@ export const CreateAccessCertificateDtoSchema = {
     },
     required: [
         'keyId'
-    ]
-} as const;
-
-export const VocabularyEntryDtoSchema = {
-    type: 'object',
-    properties: {
-        code: {
-            type: 'string',
-            description: 'Stable machine-readable value to submit in schema metadata category/tags fields.'
-        },
-        label: {
-            type: 'string',
-            description: 'Display label for UI rendering.'
-        },
-        status: {
-            type: 'string',
-            description: 'Vocabulary lifecycle status.',
-            enum: [
-                'active',
-                'deprecated'
-            ]
-        },
-        replacedBy: {
-            type: 'string',
-            description: 'Replacement code when status is deprecated.'
-        }
-    },
-    required: [
-        'code',
-        'label',
-        'status'
-    ]
-} as const;
-
-export const SchemaMetadataVocabulariesDtoSchema = {
-    type: 'object',
-    properties: {
-        version: {
-            type: 'string',
-            description: 'Vocabulary publication version for cache invalidation.'
-        },
-        categories: {
-            description: 'Allowed category values that can be used when updating schema metadata category.',
-            type: 'array',
-            items: {
-                $ref: '#/components/schemas/VocabularyEntryDto'
-            }
-        },
-        tags: {
-            description: 'Allowed tag values that can be used when updating schema metadata tags.',
-            type: 'array',
-            items: {
-                $ref: '#/components/schemas/VocabularyEntryDto'
-            }
-        }
-    },
-    required: [
-        'version',
-        'categories',
-        'tags'
-    ]
-} as const;
-
-export const MetadataSchemaDtoSchema = {
-    type: 'object',
-    properties: {
-        id: {
-            type: 'string',
-            description: 'Unique identifier for this schema entry'
-        },
-        formatIdentifier: {
-            type: 'string',
-            description: 'The credential format identifier',
-            enum: [
-                'dc+sd-jwt',
-                'mso_mdoc'
-            ]
-        },
-        uri: {
-            type: 'string',
-            description: 'URI to the schema definition'
-        },
-        schemaContent: {
-            type: 'object',
-            description: 'Inline schema content (JSON Schema)',
-            additionalProperties: true
-        },
-        integrity: {
-            type: 'string',
-            description: 'Subresource Integrity hash for the schema'
-        }
-    },
-    required: [
-        'id',
-        'formatIdentifier'
-    ]
-} as const;
-
-export const TrustAuthorityDtoSchema = {
-    type: 'object',
-    properties: {
-        id: {
-            type: 'string',
-            description: 'Unique identifier for this trust authority entry'
-        },
-        frameworkType: {
-            type: 'string',
-            description: 'Type of trust framework',
-            enum: [
-                'etsi_tl'
-            ]
-        },
-        value: {
-            type: 'string',
-            description: 'URI or identifier for the trust list / authority'
-        },
-        verificationMethod: {
-            type: 'object',
-            description: 'Verification method for the trust list signature (e.g., JWK)',
-            additionalProperties: true
-        }
-    },
-    required: [
-        'id',
-        'frameworkType',
-        'value'
-    ]
-} as const;
-
-export const AccessCertificateRefDtoSchema = {
-    type: 'object',
-    properties: {
-        id: {
-            type: 'string'
-        },
-        relyingPartyId: {
-            type: 'string'
-        },
-        certificate: {
-            type: 'string'
-        },
-        revoked: {
-            type: 'string'
-        },
-        createdAt: {
-            type: 'string'
-        }
-    },
-    required: [
-        'id',
-        'relyingPartyId',
-        'certificate',
-        'revoked',
-        'createdAt'
-    ]
-} as const;
-
-export const SchemaMetadataResponseDtoSchema = {
-    type: 'object',
-    properties: {
-        id: {
-            type: 'string',
-            description: 'The unique, server-assigned identifier (UUID) for the schema metadata'
-        },
-        version: {
-            type: 'string',
-            description: 'Version of this schema metadata (SemVer)'
-        },
-        rulebookURI: {
-            type: 'string',
-            description: 'URI of the human-readable Rulebook document'
-        },
-        rulebookIntegrity: {
-            type: 'string',
-            description: 'Subresource Integrity hash for the rulebook URI'
-        },
-        attestationLoS: {
-            type: 'string',
-            description: 'Level of security (LoS) of this attestation',
-            enum: [
-                'iso_18045_high',
-                'iso_18045_moderate',
-                'iso_18045_enhanced-basic',
-                'iso_18045_basic'
-            ]
-        },
-        bindingType: {
-            type: 'string',
-            description: 'Required binding type between attestation and holder',
-            enum: [
-                'claim',
-                'key',
-                'biometric',
-                'none'
-            ]
-        },
-        supportedFormats: {
-            type: 'array',
-            description: 'Credential formats in which this attestation is available',
-            items: {
-                type: 'string',
-                enum: [
-                    'dc+sd-jwt',
-                    'mso_mdoc'
-                ]
-            }
-        },
-        schemaURIs: {
-            description: 'Format-specific schema URIs for this schema metadata',
-            type: 'array',
-            items: {
-                $ref: '#/components/schemas/MetadataSchemaDto'
-            }
-        },
-        trustedAuthorities: {
-            description: 'Trust frameworks / trust anchors applicable to this schema metadata',
-            type: 'array',
-            items: {
-                $ref: '#/components/schemas/TrustAuthorityDto'
-            }
-        },
-        category: {
-            type: 'string',
-            description: 'Domain category for filtering',
-            enum: [
-                'identity',
-                'health',
-                'finance',
-                'education',
-                'mobility',
-                'employment',
-                'other'
-            ]
-        },
-        tags: {
-            description: 'Free-form tags for filtering and search',
-            type: 'array',
-            items: {
-                type: 'string'
-            }
-        },
-        signedJwt: {
-            type: 'string',
-            description: 'The original signed JWT'
-        },
-        issuer: {
-            type: 'string',
-            description: 'Issuer from the JWT (`iss` claim)'
-        },
-        signerCertificateSerial: {
-            type: 'string',
-            description: 'Serial number of the access certificate that signed this schema metadata'
-        },
-        signerCertificate: {
-            description: 'The access certificate used to sign this schema metadata',
-            allOf: [
-                {
-                    $ref: '#/components/schemas/AccessCertificateRefDto'
-                }
-            ]
-        },
-        issuedAt: {
-            type: 'string',
-            description: 'Timestamp when the JWT was issued (from the `iat` claim)'
-        },
-        createdAt: {
-            type: 'string',
-            description: 'Server creation timestamp'
-        },
-        updatedAt: {
-            type: 'string',
-            description: 'Last update timestamp'
-        },
-        deprecated: {
-            type: 'boolean',
-            description: 'Whether this version is deprecated'
-        },
-        deprecationMessage: {
-            type: 'string',
-            description: 'Deprecation message shown to consumers'
-        },
-        supersededByVersion: {
-            type: 'string',
-            description: 'The version that supersedes this one'
-        }
-    },
-    required: [
-        'id',
-        'version',
-        'attestationLoS',
-        'bindingType',
-        'supportedFormats',
-        'schemaURIs',
-        'trustedAuthorities',
-        'signedJwt',
-        'issuer',
-        'signerCertificateSerial',
-        'issuedAt',
-        'createdAt',
-        'updatedAt'
-    ]
-} as const;
-
-export const UpdateSchemaMetadataDtoSchema = {
-    type: 'object',
-    properties: {
-        category: {
-            type: 'string',
-            description: 'Domain category for filtering',
-            enum: [
-                'identity',
-                'health',
-                'finance',
-                'education',
-                'mobility',
-                'employment',
-                'other'
-            ]
-        },
-        tags: {
-            type: 'array',
-            description: 'Predefined tags for filtering and search',
-            items: {
-                type: 'string',
-                enum: [
-                    'pid',
-                    'eudi',
-                    'kyc',
-                    'aml',
-                    'age-verification',
-                    'residency',
-                    'membership',
-                    'education',
-                    'employment',
-                    'mobility'
-                ]
-            }
-        }
-    }
-} as const;
-
-export const DeprecateSchemaMetadataDtoSchema = {
-    type: 'object',
-    properties: {
-        deprecated: {
-            type: 'boolean',
-            description: 'Whether to mark this version as deprecated'
-        },
-        message: {
-            type: 'string',
-            description: 'Deprecation message shown to consumers'
-        },
-        supersededByVersion: {
-            type: 'string',
-            description: 'The version that supersedes this one'
-        }
-    },
-    required: [
-        'deprecated'
     ]
 } as const;
 

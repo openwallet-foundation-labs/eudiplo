@@ -14,6 +14,7 @@ import {
     CredentialConfig,
     SdJwtTrustFormat,
 } from "../../entities/credential.entity";
+import { buildDisclosureFrame } from "../../utils";
 
 export interface SdJwtVcIssueOptions {
     credentialConfiguration: CredentialConfig;
@@ -93,7 +94,8 @@ export class SdjwtvcIssuerService {
         }
 
         const host = this.configService.getOrThrow<string>("PUBLIC_URL");
-        const disclosureFrame = credentialConfiguration.disclosureFrame ?? {};
+        const disclosureFrame =
+            buildDisclosureFrame(credentialConfiguration.fields as any) ?? {};
 
         const vct =
             typeof credentialConfiguration.vct === "string"

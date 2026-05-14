@@ -45,3 +45,6 @@ export { client } from './api/client.gen';
 
 // Re-export API types for advanced usage
 export * from './api';
+
+// Credential config v2 helpers
+export * from './config';

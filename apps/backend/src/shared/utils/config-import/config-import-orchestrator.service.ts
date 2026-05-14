@@ -3,16 +3,6 @@ import { Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
 /**
- * Interface for services that can be registered with the import orchestrator.
- */
-export interface ImportableService {
-    /**
-     * Import method that will be called by the orchestrator.
-     */
-    import(): Promise<void>;
-}
-
-/**
  * Import phase definitions with their order.
  * Lower numbers run first.
  */

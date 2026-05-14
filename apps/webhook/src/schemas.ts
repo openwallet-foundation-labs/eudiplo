@@ -14,12 +14,12 @@ import { z } from "zod";
 /**
  * Disclosed claims from a presented credential.
  */
-export const DisclosedClaimsSchema = z.record(z.string(), z.unknown());
+const DisclosedClaimsSchema = z.record(z.string(), z.unknown());
 
 /**
  * Presented credential information sent in claims webhook.
  */
-export const PresentedCredentialSchema = z.object({
+const PresentedCredentialSchema = z.object({
     id: z.string({ message: "credentials[].id is required" }),
     values: z.array(DisclosedClaimsSchema, {
         message: "credentials[].values is required",
@@ -29,7 +29,7 @@ export const PresentedCredentialSchema = z.object({
 /**
  * Identity context from authorization server.
  */
-export const AuthorizationIdentitySchema = z.object({
+const AuthorizationIdentitySchema = z.object({
     iss: z.string({ message: "identity.iss is required" }),
     sub: z.string({ message: "identity.sub is required" }),
     token_claims: z.record(z.string(), z.unknown(), {
@@ -44,7 +44,7 @@ export const AuthorizationIdentitySchema = z.object({
 /**
  * Schema for claims webhook request payload.
  */
-export const ClaimsWebhookRequestSchema = z.object({
+const ClaimsWebhookRequestSchema = z.object({
     session: z.string({ message: "session is required" }),
     credential_configuration_id: z.string({
         message: "credential_configuration_id is required",
@@ -60,7 +60,7 @@ export const ClaimsWebhookRequestSchema = z.object({
 /**
  * Notification event types.
  */
-export const NotificationEventSchema = z.enum([
+const NotificationEventSchema = z.enum([
     "credential_accepted",
     "credential_failure",
     "credential_deleted",
@@ -69,7 +69,7 @@ export const NotificationEventSchema = z.enum([
 /**
  * Notification information.
  */
-export const NotificationSchema = z.object({
+const NotificationSchema = z.object({
     id: z.string({ message: "notification.id is required" }),
     event: NotificationEventSchema.optional(),
     credentialConfigurationId: z.string({
@@ -80,7 +80,7 @@ export const NotificationSchema = z.object({
 /**
  * Schema for notification webhook request payload.
  */
-export const NotificationWebhookRequestSchema = z.object({
+const NotificationWebhookRequestSchema = z.object({
     notification: NotificationSchema,
     session: z.string({ message: "session is required" }),
 });
@@ -146,7 +146,7 @@ export function validateNotificationWebhookRequest(
 /**
  * Format Zod errors into a human-readable string.
  */
-export function formatZodError(error: z.ZodError): string {
+function formatZodError(error: z.ZodError): string {
     return error.issues
         .map((issue) => {
             const path = issue.path.length > 0 ? issue.path.join(".") : "root";

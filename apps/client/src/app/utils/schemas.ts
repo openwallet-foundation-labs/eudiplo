@@ -3,20 +3,9 @@ import vctSchemaObj from '../../../../../schemas/VCT.schema.json';
 import webhookSchemaObj from '../../../../../schemas/WebhookConfig.schema.json';
 import credentialConfigSchemaObj from '../../../../../schemas/CredentialConfigCreate.schema.json';
 import issuanceConfigSchemaObj from '../../../../../schemas/IssuanceDto.schema.json';
-import registrationCertificateRequestObj from '../../../../../schemas/RegistrationCertificateRequest.schema.json';
 import DCQLObj from '../../../../../schemas/DCQL.schema.json';
 import presnetationConfigCreateSchemaObj from '../../../../../schemas/PresentationConfigCreateDto.schema.json';
 import transactionDataSchemaObj from '../../../../../schemas/TransactionData.schema.json';
-import claimsMetadataSchemaObj from '../../../../../schemas/ClaimMetadata.schema.json';
-
-// Create an array schema for ClaimMetadata (the field holds a list of claim description objects per OID4VCI spec Appendix B.2)
-const claimsMetadataArraySchemaObj = {
-  $schema: 'https://json-schema.org/draft/2020-12/schema',
-  $id: 'https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/ClaimMetadataArray.schema.json',
-  title: 'ClaimMetadataArray',
-  type: 'array',
-  items: claimsMetadataSchemaObj,
-};
 
 // Create an array schema for TransactionData (URI-based matching allows arrays as root)
 const transactionDataArraySchemaObj = {
@@ -61,12 +50,6 @@ export const issuanceConfigSchema = new SchemaValidation(issuanceConfigSchemaObj
 
 export const presentationConfigSchema = new SchemaValidation(presnetationConfigCreateSchemaObj);
 
-export const registrationCertificateRequestSchema = new SchemaValidation(
-  registrationCertificateRequestObj
-);
-
 export const DCQLSchema = new SchemaValidation(DCQLObj);
 
 export const transactionDataArraySchema = new SchemaValidation(transactionDataArraySchemaObj);
-
-export const claimsMetadataSchema = new SchemaValidation(claimsMetadataArraySchemaObj);

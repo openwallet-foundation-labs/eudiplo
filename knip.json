@@ -1,0 +1,66 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "tags": [
+    "-lintignore"
+  ],
+  "ignoreBinaries": [
+    "mike",
+    "mkdocs",
+    "python3",
+    "compodoc",
+    "openapi-ts"
+  ],
+  "ignoreUnresolved": [
+    "tslib"
+  ],
+  "workspaces": {
+    ".": {
+      "entry": [
+        "scripts/**/*.{ts,js}"
+      ],
+      "project": [
+        "scripts/**/*.{ts,js}"
+      ],
+      "ignoreDependencies": [
+        "@semantic-release/git",
+        "@semantic-release/github",
+        "@semantic-release/npm",
+        "@codedependant/semantic-release-docker"
+      ]
+    },
+    "apps/backend": {
+      "entry": [
+        "src/main.ts",
+        "src/tracing.ts",
+        "src/database/data-source.ts",
+        "src/database/migrations/*.ts",
+        "test/**/*.e2e-spec.ts"
+      ],
+      "ignore": [
+        "src/**/generated/**",
+        "src/registrar/generated/**"
+      ],
+      "ignoreDependencies": [
+        "ts-loader",
+        "tsconfig-paths",
+        "source-map-support",
+        "@compodoc/compodoc",
+        "pino-pretty",
+        "pino-opentelemetry-transport"
+      ]
+    },
+    "apps/client": {
+      "entry": [
+        "src/**/*.spec.ts",
+        "e2e/**/*.ts"
+      ],
+      "ignoreDependencies": [
+        "@angular/platform-browser-dynamic",
+        "eslint-config-prettier",
+        "eslint-plugin-prettier"
+      ]
+    },
+    "apps/webhook": {},
+    "packages/eudiplo-sdk-core": {}
+  }
+}

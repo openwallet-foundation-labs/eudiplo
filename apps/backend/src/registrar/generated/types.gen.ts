@@ -4,7 +4,7 @@ export type ClientOptions = {
     baseUrl: "http://localhost:3001" | (string & {});
 };
 
-export type RelyingParty = {
+type RelyingParty = {
     name: string;
     id: string;
     EORI?: string;
@@ -17,14 +17,14 @@ export type RelyingParty = {
     createdAt: string;
 };
 
-export type RelyingPartyRegistration = {
+type RelyingPartyRegistration = {
     LEI?: string;
     EORI?: string;
     EUID?: string;
     TAX?: string;
 };
 
-export type AccessCertificate = {
+type AccessCertificate = {
     id: string;
     relyingPartyId: string;
     certificate: string;
@@ -32,7 +32,7 @@ export type AccessCertificate = {
     createdAt: string;
 };
 
-export type AccessCertificateRegistration = {
+type AccessCertificateRegistration = {
     publicKey: string;
     /**
      * The Subject Alternative Name (SAN) of the certificate
@@ -44,16 +44,16 @@ export type AccessCertificateRegistration = {
     rpId: string;
 };
 
-export type AccessCertificateRegistrationResponse = {
+type AccessCertificateRegistrationResponse = {
     id: string;
     crt: string;
 };
 
-export type IntendedUse = {
+type IntendedUse = {
     [key: string]: unknown;
 };
 
-export type Credential = {
+type Credential = {
     id: string;
     value: string;
     format: {
@@ -62,7 +62,7 @@ export type Credential = {
     createdAt: string;
 };
 
-export type Claim = {
+type Claim = {
     path: Array<string>;
 };
 
@@ -90,7 +90,7 @@ export type CredentialToRegistrationCertificate = {
     createdAt: string;
 };
 
-export type CredentialDef = {
+type CredentialDef = {
     format: "dc+sd-jwt" | "mso_mdoc";
     claims?: Array<Claim>;
     meta: {
@@ -98,14 +98,14 @@ export type CredentialDef = {
     };
 };
 
-export type ProvidedAttestation = {
+type ProvidedAttestation = {
     format: "dc+sd-jwt" | "mso_mdoc";
     meta: {
         [key: string]: unknown;
     };
 };
 
-export type MultiLang = {
+type MultiLang = {
     lang: string;
     content: string;
 };
@@ -141,7 +141,7 @@ export type RegistrationCertificateCreation = {
     purpose?: Array<MultiLang>;
 };
 
-export type OmitTypeClass = {
+type OmitTypeClass = {
     id: string;
     jwt: string;
     cwt: string;
@@ -151,7 +151,7 @@ export type OmitTypeClass = {
     createdAt: string;
 };
 
-export type VocabularyEntryDto = {
+type VocabularyEntryDto = {
     /**
      * Stable machine-readable value to submit in schema metadata category/tags fields.
      */
@@ -185,7 +185,7 @@ export type SchemaMetadataVocabulariesDto = {
     tags: Array<VocabularyEntryDto>;
 };
 
-export type ReserveSchemaIdDto = {
+type ReserveSchemaIdDto = {
     /**
      * Optional human-readable name hint for the schema (used in documentation only)
      */
@@ -203,14 +203,14 @@ export type ReservationResponseDto = {
     expiresAt: string;
 };
 
-export type SubmitSchemaMetadataDto = {
+type SubmitSchemaMetadataDto = {
     /**
      * The signed schema metadata JWT
      */
     jwt: string;
 };
 
-export type TrustAuthority = {
+type TrustAuthority = {
     /**
      * Unique identifier for this trust authority entry.
      */
@@ -334,7 +334,7 @@ export type SchemaMetadata = {
     updatedAt: string;
 };
 
-export type MetadataSchema = {
+type MetadataSchema = {
     /**
      * Unique identifier for this schema entry.
      */
@@ -391,7 +391,7 @@ export type UploadAssetResponseDto = {
     integrity: string;
 };
 
-export type SetVersionDeprecationDto = {
+type SetVersionDeprecationDto = {
     /**
      * Whether the selected version should be marked as deprecated.
      */
@@ -406,7 +406,7 @@ export type SetVersionDeprecationDto = {
     supersededByVersion?: string;
 };
 
-export type UpdateSchemaMetadataDto = {
+type UpdateSchemaMetadataDto = {
     /**
      * Domain category for filtering.
      */
@@ -469,7 +469,7 @@ export type HealthControllerCheckErrors = {
     };
 };
 
-export type HealthControllerCheckError =
+type HealthControllerCheckError =
     HealthControllerCheckErrors[keyof HealthControllerCheckErrors];
 
 export type HealthControllerCheckResponses = {
@@ -499,7 +499,7 @@ export type HealthControllerCheckResponses = {
     };
 };
 
-export type HealthControllerCheckResponse =
+type HealthControllerCheckResponse =
     HealthControllerCheckResponses[keyof HealthControllerCheckResponses];
 
 export type PrometheusControllerIndexData = {
@@ -524,7 +524,7 @@ export type RelyingPartyControllerFindAllResponses = {
     200: Array<RelyingParty>;
 };
 
-export type RelyingPartyControllerFindAllResponse =
+type RelyingPartyControllerFindAllResponse =
     RelyingPartyControllerFindAllResponses[keyof RelyingPartyControllerFindAllResponses];
 
 export type RelyingPartyControllerRegisterData = {
@@ -538,7 +538,7 @@ export type RelyingPartyControllerRegisterResponses = {
     201: RelyingParty;
 };
 
-export type RelyingPartyControllerRegisterResponse =
+type RelyingPartyControllerRegisterResponse =
     RelyingPartyControllerRegisterResponses[keyof RelyingPartyControllerRegisterResponses];
 
 export type RelyingPartyControllerFindOneData = {
@@ -554,7 +554,7 @@ export type RelyingPartyControllerFindOneResponses = {
     200: RelyingParty;
 };
 
-export type RelyingPartyControllerFindOneResponse =
+type RelyingPartyControllerFindOneResponse =
     RelyingPartyControllerFindOneResponses[keyof RelyingPartyControllerFindOneResponses];
 
 export type CryptoControllerOwnCertData = {
@@ -568,7 +568,7 @@ export type CryptoControllerOwnCertResponses = {
     200: string;
 };
 
-export type CryptoControllerOwnCertResponse =
+type CryptoControllerOwnCertResponse =
     CryptoControllerOwnCertResponses[keyof CryptoControllerOwnCertResponses];
 
 export type AccessCertificateControllerAccessCertificatesData = {
@@ -587,7 +587,7 @@ export type AccessCertificateControllerAccessCertificatesResponses = {
     200: Array<AccessCertificate>;
 };
 
-export type AccessCertificateControllerAccessCertificatesResponse =
+type AccessCertificateControllerAccessCertificatesResponse =
     AccessCertificateControllerAccessCertificatesResponses[keyof AccessCertificateControllerAccessCertificatesResponses];
 
 export type AccessCertificateControllerRegisterData = {
@@ -601,7 +601,7 @@ export type AccessCertificateControllerRegisterResponses = {
     201: AccessCertificateRegistrationResponse;
 };
 
-export type AccessCertificateControllerRegisterResponse =
+type AccessCertificateControllerRegisterResponse =
     AccessCertificateControllerRegisterResponses[keyof AccessCertificateControllerRegisterResponses];
 
 export type AccessCertificateControllerDeleteData = {
@@ -630,7 +630,7 @@ export type AccessCertificateControllerFindOneResponses = {
     200: AccessCertificateRegistrationResponse;
 };
 
-export type AccessCertificateControllerFindOneResponse =
+type AccessCertificateControllerFindOneResponse =
     AccessCertificateControllerFindOneResponses[keyof AccessCertificateControllerFindOneResponses];
 
 export type RegistrationCertificateControllerAllData = {
@@ -649,7 +649,7 @@ export type RegistrationCertificateControllerAllResponses = {
     200: Array<RegistrationCertificate>;
 };
 
-export type RegistrationCertificateControllerAllResponse =
+type RegistrationCertificateControllerAllResponse =
     RegistrationCertificateControllerAllResponses[keyof RegistrationCertificateControllerAllResponses];
 
 export type RegistrationCertificateControllerRegisterData = {
@@ -663,7 +663,7 @@ export type RegistrationCertificateControllerRegisterResponses = {
     201: OmitTypeClass;
 };
 
-export type RegistrationCertificateControllerRegisterResponse =
+type RegistrationCertificateControllerRegisterResponse =
     RegistrationCertificateControllerRegisterResponses[keyof RegistrationCertificateControllerRegisterResponses];
 
 export type RegistrationCertificateControllerDeleteData = {
@@ -692,7 +692,7 @@ export type RegistrationCertificateControllerFindOneResponses = {
     default: RegistrationCertificate;
 };
 
-export type RegistrationCertificateControllerFindOneResponse =
+type RegistrationCertificateControllerFindOneResponse =
     RegistrationCertificateControllerFindOneResponses[keyof RegistrationCertificateControllerFindOneResponses];
 
 export type StatusListControllerGetListData = {
@@ -706,7 +706,7 @@ export type StatusListControllerGetListResponses = {
     200: string;
 };
 
-export type StatusListControllerGetListResponse =
+type StatusListControllerGetListResponse =
     StatusListControllerGetListResponses[keyof StatusListControllerGetListResponses];
 
 export type StatusListControllerCrlFileData = {
@@ -723,7 +723,7 @@ export type StatusListControllerCrlFileResponses = {
     200: Blob | File;
 };
 
-export type StatusListControllerCrlFileResponse =
+type StatusListControllerCrlFileResponse =
     StatusListControllerCrlFileResponses[keyof StatusListControllerCrlFileResponses];
 
 export type SchemaMetadataControllerGetVocabulariesData = {
@@ -740,7 +740,7 @@ export type SchemaMetadataControllerGetVocabulariesResponses = {
     200: SchemaMetadataVocabulariesDto;
 };
 
-export type SchemaMetadataControllerGetVocabulariesResponse =
+type SchemaMetadataControllerGetVocabulariesResponse =
     SchemaMetadataControllerGetVocabulariesResponses[keyof SchemaMetadataControllerGetVocabulariesResponses];
 
 export type SchemaMetadataControllerReserveSchemaIdData = {
@@ -767,7 +767,7 @@ export type SchemaMetadataControllerReserveSchemaIdResponses = {
     201: ReservationResponseDto;
 };
 
-export type SchemaMetadataControllerReserveSchemaIdResponse =
+type SchemaMetadataControllerReserveSchemaIdResponse =
     SchemaMetadataControllerReserveSchemaIdResponses[keyof SchemaMetadataControllerReserveSchemaIdResponses];
 
 export type SchemaMetadataControllerFindAllData = {
@@ -793,7 +793,7 @@ export type SchemaMetadataControllerFindAllResponses = {
     200: Array<SchemaMetadata>;
 };
 
-export type SchemaMetadataControllerFindAllResponse =
+type SchemaMetadataControllerFindAllResponse =
     SchemaMetadataControllerFindAllResponses[keyof SchemaMetadataControllerFindAllResponses];
 
 export type SchemaMetadataControllerSubmitSchemaMetadataData = {
@@ -832,7 +832,7 @@ export type SchemaMetadataControllerSubmitSchemaMetadataResponses = {
     201: SchemaMetadata;
 };
 
-export type SchemaMetadataControllerSubmitSchemaMetadataResponse =
+type SchemaMetadataControllerSubmitSchemaMetadataResponse =
     SchemaMetadataControllerSubmitSchemaMetadataResponses[keyof SchemaMetadataControllerSubmitSchemaMetadataResponses];
 
 export type SchemaMetadataControllerUploadAssetData = {
@@ -863,7 +863,7 @@ export type SchemaMetadataControllerUploadAssetResponses = {
     201: UploadAssetResponseDto;
 };
 
-export type SchemaMetadataControllerUploadAssetResponse =
+type SchemaMetadataControllerUploadAssetResponse =
     SchemaMetadataControllerUploadAssetResponses[keyof SchemaMetadataControllerUploadAssetResponses];
 
 export type SchemaMetadataControllerGetUploadedAssetData = {
@@ -896,7 +896,7 @@ export type SchemaMetadataControllerGetUploadedAssetResponses = {
     200: Blob | File;
 };
 
-export type SchemaMetadataControllerGetUploadedAssetResponse =
+type SchemaMetadataControllerGetUploadedAssetResponse =
     SchemaMetadataControllerGetUploadedAssetResponses[keyof SchemaMetadataControllerGetUploadedAssetResponses];
 
 export type SchemaMetadataControllerGetLatestVersionInfoData = {
@@ -985,7 +985,7 @@ export type SchemaMetadataControllerSetVersionDeprecationResponses = {
     200: SchemaMetadata;
 };
 
-export type SchemaMetadataControllerSetVersionDeprecationResponse =
+type SchemaMetadataControllerSetVersionDeprecationResponse =
     SchemaMetadataControllerSetVersionDeprecationResponses[keyof SchemaMetadataControllerSetVersionDeprecationResponses];
 
 export type SchemaMetadataControllerFindOneData = {
@@ -1014,7 +1014,7 @@ export type SchemaMetadataControllerFindOneResponses = {
     200: SchemaMetadata;
 };
 
-export type SchemaMetadataControllerFindOneResponse =
+type SchemaMetadataControllerFindOneResponse =
     SchemaMetadataControllerFindOneResponses[keyof SchemaMetadataControllerFindOneResponses];
 
 export type SchemaMetadataControllerRemoveData = {
@@ -1081,7 +1081,7 @@ export type SchemaMetadataControllerUpdateMetadataResponses = {
     200: SchemaMetadata;
 };
 
-export type SchemaMetadataControllerUpdateMetadataResponse =
+type SchemaMetadataControllerUpdateMetadataResponse =
     SchemaMetadataControllerUpdateMetadataResponses[keyof SchemaMetadataControllerUpdateMetadataResponses];
 
 export type SchemaMetadataControllerGetSignedJwtData = {
@@ -1114,7 +1114,7 @@ export type SchemaMetadataControllerGetSignedJwtResponses = {
     200: string;
 };
 
-export type SchemaMetadataControllerGetSignedJwtResponse =
+type SchemaMetadataControllerGetSignedJwtResponse =
     SchemaMetadataControllerGetSignedJwtResponses[keyof SchemaMetadataControllerGetSignedJwtResponses];
 
 export type SchemaMetadataControllerGetInternalMetadataData = {

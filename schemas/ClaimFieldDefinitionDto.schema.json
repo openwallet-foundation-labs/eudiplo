@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/openwallet-foundation/eudiplo/refs/heads/main/schemas/ClaimFieldDefinitionDto.schema.json",
+  "title": "ClaimFieldDefinitionDto",
+  "type": "object",
+  "properties": {
+    "path": {
+      "description": "Path to claim value",
+      "example": [
+        "address",
+        "locality"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "string",
+        "number",
+        "integer",
+        "boolean",
+        "object",
+        "array",
+        "date"
+      ],
+      "description": "Claim value type"
+    },
+    "defaultValue": {
+      "description": "Default value",
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "object",
+          "additionalProperties": true
+        },
+        {
+          "type": "array",
+          "items": {}
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "mandatory": {
+      "type": "boolean",
+      "description": "Whether claim is mandatory"
+    },
+    "disclosable": {
+      "type": "boolean",
+      "description": "Whether claim is disclosable in SD-JWT"
+    },
+    "namespace": {
+      "type": "string",
+      "description": "Namespace for mDOC field",
+      "example": "eu.europa.ec.eudi.pid.1"
+    },
+    "display": {
+      "type": "array",
+      "items": {
+        "$ref": "./FieldDisplayDto.schema.json"
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "description": "Additional JSON schema constraints for this field"
+    }
+  },
+  "required": [
+    "path",
+    "type"
+  ],
+  "additionalProperties": false
+}

@@ -1,16 +1,6 @@
-import {
-    ApiProperty,
-    ApiPropertyOptional,
-    getSchemaPath,
-} from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import {
-    IsEnum,
-    IsOptional,
-    IsString,
-    IsUrl,
-    ValidateNested,
-} from "class-validator";
+import { IsEnum, IsOptional, IsString, IsUrl } from "class-validator";
 
 /**
  * Discriminator for IAE action types.
@@ -114,43 +104,9 @@ export class IaeActionRedirectToWeb extends IaeActionBase {
 export type IaeAction = IaeActionOpenid4vpPresentation | IaeActionRedirectToWeb;
 
 /**
- * Array validator class for IAE actions with class-transformer support.
- */
-export class IaeActionsWrapper {
-    @ApiProperty({
-        description: "List of IAE actions to execute in order",
-        type: "array",
-        items: {
-            oneOf: [
-                { $ref: getSchemaPath(IaeActionOpenid4vpPresentation) },
-                { $ref: getSchemaPath(IaeActionRedirectToWeb) },
-            ],
-        },
-    })
-    @ValidateNested({ each: true })
-    @Type(() => IaeActionBase, {
-        discriminator: {
-            property: "type",
-            subTypes: [
-                {
-                    name: IaeActionType.OPENID4VP_PRESENTATION,
-                    value: IaeActionOpenid4vpPresentation,
-                },
-                {
-                    name: IaeActionType.REDIRECT_TO_WEB,
-                    value: IaeActionRedirectToWeb,
-                },
-            ],
-        },
-        keepDiscriminatorProperty: true,
-    })
-    actions!: IaeAction[];
-}
-
-/**
  * Helper function to validate and transform IAE actions array.
  */
-export function transformIaeActions(): ReturnType<typeof Type> {
+function _transformIaeActions(): ReturnType<typeof Type> {
     return Type(() => IaeActionBase, {
         discriminator: {
             property: "type",

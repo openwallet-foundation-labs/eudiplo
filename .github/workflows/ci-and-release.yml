@@ -59,6 +59,9 @@ jobs:
         working-directory: apps/client
         run: pnpm dlx license-checker --production --onlyAllow "MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD;ISC"
 
+      - name: Run knip
+        run: pnpm knip --no-progress
+
   build-sdk-core:
     name: Build SDK Core
     permissions:

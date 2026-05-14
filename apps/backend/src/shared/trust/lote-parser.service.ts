@@ -6,7 +6,7 @@ import {
     TrustedEntityServiceCert,
 } from "./types";
 
-export type LoteInfo = {
+type LoteInfo = {
     nextUpdate?: string;
     listIssueDateTime?: string;
     schemeTerritory?: string;

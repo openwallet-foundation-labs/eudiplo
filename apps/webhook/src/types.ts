@@ -12,14 +12,14 @@
 /**
  * Webhook authentication configuration - no authentication.
  */
-export interface WebHookAuthConfigNone {
+interface WebHookAuthConfigNone {
     type: "none";
 }
 
 /**
  * API key configuration for webhook authentication.
  */
-export interface ApiKeyConfig {
+interface ApiKeyConfig {
     headerName: string;
     value: string;
 }
@@ -27,7 +27,7 @@ export interface ApiKeyConfig {
 /**
  * Webhook authentication configuration - API key in header.
  */
-export interface WebHookAuthConfigHeader {
+interface WebHookAuthConfigHeader {
     type: "apiKey";
     config: ApiKeyConfig;
 }
@@ -35,7 +35,7 @@ export interface WebHookAuthConfigHeader {
 /**
  * Webhook configuration type union.
  */
-export type WebhookAuth = WebHookAuthConfigNone | WebHookAuthConfigHeader;
+type WebhookAuth = WebHookAuthConfigNone | WebHookAuthConfigHeader;
 
 // ============================================================================
 // Claims Webhook (Unified Payload)
@@ -45,14 +45,14 @@ export type WebhookAuth = WebHookAuthConfigNone | WebHookAuthConfigHeader;
  * Disclosed claims from a presented credential.
  * The structure depends on the credential type and what was disclosed.
  */
-export interface DisclosedClaims {
+interface DisclosedClaims {
     [claimName: string]: unknown;
 }
 
 /**
  * Presented credential information sent in claims webhook.
  */
-export interface PresentedCredential {
+interface PresentedCredential {
     /**
      * Credential configuration ID.
      */
@@ -67,7 +67,7 @@ export interface PresentedCredential {
  * Identity context from authorization server (internal or external).
  * Present when using authorization code flow.
  */
-export interface AuthorizationIdentity {
+interface AuthorizationIdentity {
     /**
      * Token issuer (authorization server URL).
      * For external AS: e.g., "https://keycloak.example.com/realms/myapp"
@@ -97,7 +97,7 @@ export interface AuthorizationIdentity {
  *
  * Endpoint: /claims (recommended)
  */
-export interface ClaimsWebhookRequest {
+interface ClaimsWebhookRequest {
     /**
      * Session ID for the issuance flow.
      */
@@ -125,7 +125,7 @@ export interface ClaimsWebhookRequest {
 /**
  * Notification event types as defined by OID4VCI.
  */
-export type NotificationEvent =
+type NotificationEvent =
     | "credential_accepted"
     | "credential_failure"
     | "credential_deleted";
@@ -133,7 +133,7 @@ export type NotificationEvent =
 /**
  * Notification information.
  */
-export interface Notification {
+interface Notification {
     /**
      * Unique identifier for the notification.
      */
@@ -154,7 +154,7 @@ export interface Notification {
  *
  * Endpoint: /notify
  */
-export interface NotificationWebhookRequest {
+interface NotificationWebhookRequest {
     /**
      * Notification details.
      */
@@ -252,7 +252,7 @@ export function createNotificationSuccess(): NotificationWebhookResponse {
 /**
  * Creates an error notification response.
  */
-export function createNotificationError(
+function createNotificationError(
     message: string,
 ): NotificationWebhookResponse {
     return { status: "error", message };
@@ -261,11 +261,11 @@ export function createNotificationError(
 /**
  * Union type for all possible webhook request payloads.
  */
-export type WebhookRequest = ClaimsWebhookRequest | NotificationWebhookRequest;
+type WebhookRequest = ClaimsWebhookRequest | NotificationWebhookRequest;
 
 /**
  * Union type for all possible webhook response payloads.
  */
-export type WebhookResponse =
+type WebhookResponse =
     | ClaimsWebhookResponse
     | NotificationWebhookResponse;

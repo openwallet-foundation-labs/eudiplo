@@ -215,7 +215,7 @@ async function teardownOidfContainers(): Promise<void> {
 /**
  * Delete the test database to ensure a fresh start
  */
-export function deleteTestDatabase(): void {
+function deleteTestDatabase(): void {
     try {
         rmSync(TEST_DB_PATH, { force: true });
         console.log("Deleted test database for fresh start");
@@ -227,7 +227,7 @@ export function deleteTestDatabase(): void {
 /**
  * Setup hook for OIDF tests - starts required containers
  */
-export async function setupOidfTest(): Promise<void> {
+async function setupOidfTest(): Promise<void> {
     console.log("Setting up OIDF test containers...");
     // Delete database to ensure fresh start for each test file
     deleteTestDatabase();
@@ -242,7 +242,7 @@ export async function setupOidfTest(): Promise<void> {
 /**
  * Teardown hook for OIDF tests - stops containers
  */
-export async function teardownOidfTest(): Promise<void> {
+async function teardownOidfTest(): Promise<void> {
     await teardownOidfContainers();
 }
 

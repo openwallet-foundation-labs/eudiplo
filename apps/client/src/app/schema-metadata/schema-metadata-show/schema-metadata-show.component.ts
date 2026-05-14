@@ -390,7 +390,7 @@ export class SchemaMetadataShowComponent implements OnInit {
       schemaURIs: (this.item.schemaURIs ?? []).map((s) => ({
         format: s.formatIdentifier,
         uri: s.uri,
-        metadata: this.deriveSchemaUriMetadata(
+        meta: this.deriveSchemaUriMetadata(
           (() => {
             const cfg = this.findRelatedCredentialConfigForSchemaUri(s.uri);
             if (!cfg) {

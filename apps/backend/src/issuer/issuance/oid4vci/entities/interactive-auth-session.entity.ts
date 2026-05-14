@@ -21,11 +21,9 @@ export enum InteractiveAuthSessionStatus {
     /**
      * OpenID4VP presentation received for current step.
      */
-    PresentationReceived = "presentation_received",
     /**
      * Web authorization completed for current step.
      */
-    WebAuthCompleted = "web_auth_completed",
     /**
      * All steps completed, ready to issue authorization code.
      */
@@ -33,15 +31,12 @@ export enum InteractiveAuthSessionStatus {
     /**
      * Authorization code issued.
      */
-    CodeIssued = "code_issued",
     /**
      * Session expired.
      */
-    Expired = "expired",
     /**
      * Session cancelled or failed.
      */
-    Failed = "failed",
 }
 
 /**

@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
 import {
-  credentialConfigControllerSignSchemaMetaConfig,
-  credentialConfigControllerSignVersionSchemaMetaConfig,
   schemaMetadataControllerDeprecateVersion,
   schemaMetadataControllerExport,
   schemaMetadataControllerFindAll,
@@ -11,6 +9,8 @@ import {
   schemaMetadataControllerGetVocabularies,
   schemaMetadataControllerGetVersions,
   schemaMetadataControllerRemove,
+  schemaMetadataControllerSignSchemaMetaConfig,
+  schemaMetadataControllerSignVersionSchemaMetaConfig,
   schemaMetadataControllerUpdate,
   type DeprecateSchemaMetadataDto,
   type SchemaMetaConfig,
@@ -125,7 +125,7 @@ export class SchemaMetadataService {
    * provided by the caller.
    */
   async publishNewVersion(config: SchemaMetaConfig, keyChainId?: string): Promise<SchemaMetadata> {
-    const response = await credentialConfigControllerSignVersionSchemaMetaConfig({
+    const response = await schemaMetadataControllerSignVersionSchemaMetaConfig({
       body: { config, ...(keyChainId ? { keyChainId } : {}) },
     });
 
@@ -145,7 +145,7 @@ export class SchemaMetadataService {
     keyChainId?: string,
     credentialConfigId?: string
   ): Promise<SchemaMetadata> {
-    const response = await credentialConfigControllerSignSchemaMetaConfig({
+    const response = await schemaMetadataControllerSignSchemaMetaConfig({
       body: {
         config,
         ...(keyChainId ? { keyChainId } : {}),

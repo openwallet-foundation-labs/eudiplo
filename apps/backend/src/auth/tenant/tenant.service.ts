@@ -27,13 +27,6 @@ import { TokenPayload } from "../token.decorator";
 import { CreateTenantDto } from "./dto/create-tenant.dto";
 import { ImportTenantDto } from "./dto/import-tenant.dto";
 import { TenantEntity } from "./entitites/tenant.entity";
-
-// Tenant interface for service integration
-export interface Tenants {
-    id: string;
-    secret: string;
-}
-
 @Injectable()
 export class TenantService implements OnApplicationBootstrap {
     private readonly logger = new Logger(TenantService.name);

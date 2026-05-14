@@ -28,6 +28,7 @@ import {
     type TypedCredentialConfig,
     toCredentialConfigurationSupported,
 } from "./types/credential-config-types";
+import { buildClaims, buildClaimsMetadata, buildJsonSchema } from "./utils";
 
 /**
  * Service for managing credentials and their configurations.
@@ -147,12 +148,12 @@ export class CredentialsService {
         const credentialMetadata = entity.config.display
             ? {
                   display: entity.config.display,
-                  ...(entity.config.claimsMetadata && {
-                      claims: entity.config.claimsMetadata,
+                  ...(entity.fields.length > 0 && {
+                      claims: buildClaimsMetadata(entity.fields as any),
                   }),
               }
-            : entity.config.claimsMetadata
-              ? { claims: entity.config.claimsMetadata }
+            : entity.fields.length > 0
+              ? { claims: buildClaimsMetadata(entity.fields as any) }
               : undefined;
 
         // Build proof_types_supported with optional key_attestations_required
@@ -216,12 +217,12 @@ export class CredentialsService {
         const credentialMetadata = entity.config.display
             ? {
                   display: entity.config.display,
-                  ...(entity.config.claimsMetadata && {
-                      claims: entity.config.claimsMetadata,
+                  ...(entity.fields.length > 0 && {
+                      claims: buildClaimsMetadata(entity.fields as any),
                   }),
               }
-            : entity.config.claimsMetadata
-              ? { claims: entity.config.claimsMetadata }
+            : entity.fields.length > 0
+              ? { claims: buildClaimsMetadata(entity.fields as any) }
               : undefined;
 
         // Build proof_types_supported with optional key_attestations_required
@@ -279,10 +280,11 @@ export class CredentialsService {
             .findOneByOrFail({ id: credentialConfigurationId })
             .then((credentialConfiguration) => {
                 //if a schema is defined, validate the claims against it
-                if (credentialConfiguration.schema) {
-                    const validate = ajv.compile(
-                        credentialConfiguration.schema,
-                    );
+                const schema = buildJsonSchema(
+                    credentialConfiguration.fields as any,
+                );
+                if (schema && Object.keys(schema.properties ?? {}).length > 0) {
+                    const validate = ajv.compile(schema as any);
                     const valid = validate(claims); // claims mutated: unknown props removed, defaults applied
                     if (!valid) {
                         throw new ConflictException(
@@ -453,7 +455,9 @@ export class CredentialsService {
          * 4. static claims from the credential configuration
          */
         // Extract claims from the session's credentialClaims (discriminated union)
-        let usedClaims = credentialConfiguration.claims ?? {}; // default fallback
+        let usedClaims = buildClaims(
+            credentialConfiguration.fields as any,
+        ) as Record<string, any>; // default fallback
 
         // Use preloaded claims if provided (from webhook or inline)
         if (preloadedClaims) {

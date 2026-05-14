@@ -14,29 +14,6 @@ import { JwtService } from '../services/jwt.service';
 
 type AccessCertificateStatus = 'missing' | 'expired' | 'expiring' | 'healthy';
 
-export interface DashboardStats {
-  credentialConfigs: number;
-  presentationConfigs: number;
-  sessionActive: number;
-  sessionCompleted: number;
-  sessionFetched: number;
-  sessionFailed: number;
-  sessionExpired: number;
-  totalKeyChains: number;
-  accessKeyChains: number;
-  hasActiveAccessCertificate: boolean;
-  hasUsableAccessCertificate: boolean;
-  accessCertificateStatus: AccessCertificateStatus;
-  accessCertificateExpiresAt: string | null;
-  trustListCount: number;
-  hasTrustList: boolean;
-  hasRegistrarConfig: boolean;
-  lastSuccessfulIssuanceAt: string | null;
-  lastSuccessfulPresentationAt: string | null;
-  hasIssuanceConfig: boolean;
-  isLoading: boolean;
-}
-
 @Injectable({
   providedIn: 'root',
 })
