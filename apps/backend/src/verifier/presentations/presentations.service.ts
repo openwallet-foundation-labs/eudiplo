@@ -1165,26 +1165,40 @@ export class PresentationsService {
                     },
                 );
 
+                const loteAuthorities =
+                    dcqlCredential.trusted_authorities?.find(
+                        (auth) => auth.type === TrustedAuthorityType.ETSI_TL,
+                    );
+
+                const federationAuthorities =
+                    dcqlCredential.trusted_authorities?.find(
+                        (auth) =>
+                            auth.type ===
+                            TrustedAuthorityType.OPENID_FEDERATION,
+                    );
+
                 const verifyOptions: VerifierOptions = {
                     trustListSource: {
                         lotes:
-                            dcqlCredential.trusted_authorities
-                                ?.find(
-                                    (auth) =>
-                                        auth.type ===
-                                        TrustedAuthorityType.ETSI_TL,
-                                )
-                                ?.values.map((url) => ({
-                                    url: url.replaceAll(
-                                        "<TENANT_URL>",
-                                        tenantHost,
-                                    ),
-                                })) || [],
+                            loteAuthorities?.values.map((url) => ({
+                                url: url.replaceAll("<TENANT_URL>", tenantHost),
+                            })) || [],
                         acceptedServiceTypes: [
                             ServiceTypeIdentifier.EaaIssuance,
                             ServiceTypeIdentifier.PIDIssuance,
                         ],
                     },
+                    federationTrustSource: federationAuthorities?.values.length
+                        ? {
+                              mode: "hybrid",
+                              trustAnchors: federationAuthorities.values.map(
+                                  (value) => ({
+                                      entityId: value,
+                                      entityConfigurationUri: `${value.replace(/\/$/, "")}/.well-known/openid-federation`,
+                                  }),
+                              ),
+                          }
+                        : undefined,
                     policy: {
                         requireX5c: true,
                     },

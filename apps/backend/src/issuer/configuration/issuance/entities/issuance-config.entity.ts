@@ -28,6 +28,7 @@ import {
 } from "../dto/authentication-config.dto";
 import { ChainedAsConfig } from "../dto/chained-as-config.dto";
 import { DisplayInfo } from "../dto/display.dto";
+import { FederationConfig } from "../dto/federation-config.dto";
 
 /**
  * Entity to manage issuance configs
@@ -133,6 +134,17 @@ export class IssuanceConfig {
     @IsOptional()
     @Column({ type: "json", nullable: true })
     chainedAs?: ChainedAsConfig | null;
+
+    /**
+     * Optional OpenID Federation configuration used for trust evaluation.
+     * When omitted, trust checks rely on existing LoTE trust-list behavior.
+     */
+    @ApiPropertyOptional({ type: () => FederationConfig })
+    @ValidateNested()
+    @Type(() => FederationConfig)
+    @IsOptional()
+    @Column({ type: "json", nullable: true })
+    federation?: FederationConfig | null;
 
     @ValidateNested({ each: true })
     @Type(() => DisplayInfo)

@@ -41,6 +41,8 @@ import {
     SessionStatus,
 } from "../../../session/entities/session.entity";
 import { SessionService } from "../../../session/session.service";
+import { FederationTrustService } from "../../../shared/trust/federation-trust.service";
+import { FederationTrustSource } from "../../../shared/trust/types";
 import { AuditLogContext } from "../../../shared/utils/logger/audit-log.service";
 import { SessionLoggerService } from "../../../shared/utils/logger/session-logger.service";
 import { WebhookService } from "../../../shared/utils/webhook/webhook.service";
@@ -96,6 +98,7 @@ export class Oid4vciService {
         private readonly sessionService: SessionService,
         private readonly auditLogger: SessionLoggerService,
         private readonly issuanceService: IssuanceService,
+        private readonly federationTrustService: FederationTrustService,
         private readonly webhookService: WebhookService,
         private readonly httpService: HttpService,
         private readonly chainedAsService: ChainedAsService,
@@ -155,6 +158,32 @@ export class Oid4vciService {
         });
     }
 
+    private async assertFederationTrustForAuthorizationServer(
+        authorizationServer: string,
+        federationTrustSource?: FederationTrustSource,
+    ): Promise<void> {
+        if (!federationTrustSource) {
+            return;
+        }
+
+        const mode = this.federationTrustService.getMode(federationTrustSource);
+        if (mode === "lote-only") {
+            return;
+        }
+
+        const trustEvaluation =
+            await this.federationTrustService.evaluateAuthorizationServerTrust(
+                authorizationServer,
+                federationTrustSource,
+            );
+
+        if (!trustEvaluation.trusted) {
+            throw new BadRequestException(
+                `Authorization server is not trusted by OpenID Federation policy: ${trustEvaluation.reason}`,
+            );
+        }
+    }
+
     /**
      * Build the `credential_request_encryption` metadata object if enabled.
      * Fetches the tenant's encryption public key and returns the metadata block
@@ -204,7 +233,26 @@ export class Oid4vciService {
         const authorizationServers: AuthorizationServerMetadata[] = [];
         let authServers: string[] = [];
 
+        const federationTrustSource =
+            issuanceConfig.federation &&
+            issuanceConfig.federation.trustAnchors?.length
+                ? ({
+                      mode: issuanceConfig.federation.mode,
+                      entityId: issuanceConfig.federation.entityId,
+                      trustAnchors: issuanceConfig.federation.trustAnchors,
+                      cacheTtlSeconds:
+                          issuanceConfig.federation.cacheTtlSeconds,
+                      enforceSigningPolicy:
+                          issuanceConfig.federation.enforceSigningPolicy,
+                  } as FederationTrustSource)
+                : undefined;
+
         for (const authServerUrl of issuanceConfig.authServers || []) {
+            await this.assertFederationTrustForAuthorizationServer(
+                authServerUrl,
+                federationTrustSource,
+            );
+
             authServers.push(authServerUrl);
             //TODO: check where this is needed to reduce calls
             authorizationServers.push(

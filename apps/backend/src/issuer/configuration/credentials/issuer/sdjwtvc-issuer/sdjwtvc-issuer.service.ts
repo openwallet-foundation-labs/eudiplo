@@ -10,13 +10,17 @@ import { KeyUsageType } from "../../../../../crypto/key/entities/key-chain.entit
 import { KeyChainService } from "../../../../../crypto/key/key-chain.service";
 import { Session } from "../../../../../session/entities/session.entity";
 import { StatusListService } from "../../../../lifecycle/status/status-list.service";
-import { CredentialConfig } from "../../entities/credential.entity";
+import {
+    CredentialConfig,
+    SdJwtTrustFormat,
+} from "../../entities/credential.entity";
 
 export interface SdJwtVcIssueOptions {
     credentialConfiguration: CredentialConfig;
     holderCnf: Jwk;
     session: Session;
     claims: Record<string, any>;
+    federationEntityId?: string;
 }
 
 /**
@@ -34,11 +38,17 @@ export class SdjwtvcIssuerService {
 
     /**
      * Issues an SD-JWT VC credential.
-     * @param options - The issuance options
+     * @param options - The issuance options (including optional federationEntityId for federation-based trust)
      * @returns The issued SD-JWT VC credential string
      */
     async issue(options: SdJwtVcIssueOptions): Promise<string> {
-        const { credentialConfiguration, holderCnf, session, claims } = options;
+        const {
+            credentialConfiguration,
+            holderCnf,
+            session,
+            claims,
+            federationEntityId,
+        } = options;
 
         const certificate = await this.certService.find({
             tenantId: session.tenantId,
@@ -90,8 +100,30 @@ export class SdjwtvcIssuerService {
                 ? credentialConfiguration.vct
                 : `${host}/issuers/${session.tenantId}/credentials-metadata/vct/${credentialConfiguration.id}`;
 
+        // Federation is opt-in only; default and legacy modes use x5c.
+        const trustFormat =
+            credentialConfiguration.sdJwtTrustFormat ?? SdJwtTrustFormat.X5C;
+        const useFederation =
+            trustFormat === SdJwtTrustFormat.FEDERATION &&
+            Boolean(federationEntityId);
+
+        // Build issuer identifier
+        const issuer = useFederation
+            ? federationEntityId
+            : `${host}/issuers/${session.tenantId}`;
+
+        // Build header: include x5c only if not using federation
+        const header: any = {
+            alg: this.cryptoImplementationService.getAlg(),
+        };
+
+        if (!useFederation) {
+            header.x5c = this.certService.getLeafCertBase64(certificate);
+        }
+
         return sdjwt.issue(
             {
+                iss: issuer,
                 iat,
                 exp,
                 vct,
@@ -101,10 +133,7 @@ export class SdjwtvcIssuerService {
             },
             disclosureFrame,
             {
-                header: {
-                    x5c: this.certService.getLeafCertBase64(certificate),
-                    alg: this.cryptoImplementationService.getAlg(),
-                },
+                header,
             },
         );
     }

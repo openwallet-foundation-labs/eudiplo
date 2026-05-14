@@ -73,6 +73,18 @@ export enum CredentialFormat {
     SD_JWT = "dc+sd-jwt",
 }
 
+/**
+ * Determines how SD-JWT credentials are signed and trust is established.
+ * - "x5c": Include certificate chain in JWT header (certificate-based trust)
+ * - "federation": Include issuer entity ID in 'iss' claim (federation-based trust)
+ * - "auto": Legacy mode kept for backward compatibility (treated like x5c)
+ */
+export enum SdJwtTrustFormat {
+    X5C = "x5c",
+    FEDERATION = "federation",
+    AUTO = "auto",
+}
+
 export class IssuerMetadataCredentialConfig {
     @IsEnum(CredentialFormat)
     format!: CredentialFormat;
@@ -317,6 +329,16 @@ export class CredentialConfig {
     })
     @Column("json", { nullable: true })
     iaeActions?: IaeAction[] | null;
+
+    /**
+     * For SD-JWT credentials: determines whether to include certificate chain (x5c)
+     * or use federation-based trust (iss claim).
+     * Default: "x5c" (federation must be explicitly selected)
+     */
+    @IsOptional()
+    @IsEnum(SdJwtTrustFormat)
+    @Column("varchar", { nullable: true, default: "x5c" })
+    sdJwtTrustFormat?: SdJwtTrustFormat | null;
 
     @IsOptional()
     @Column("int", { nullable: true })

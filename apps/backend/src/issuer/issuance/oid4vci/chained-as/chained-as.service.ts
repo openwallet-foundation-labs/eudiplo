@@ -16,6 +16,8 @@ import { LessThan, Repository } from "typeorm";
 import { v4 } from "uuid";
 import { KeyChainService } from "../../../../crypto/key/key-chain.service";
 import { SessionService } from "../../../../session/session.service";
+import { FederationTrustService } from "../../../../shared/trust/federation-trust.service";
+import { FederationTrustSource } from "../../../../shared/trust/types";
 import { WalletAttestationService } from "../../../../shared/trust/wallet-attestation.service";
 import { AuthorizationIdentity } from "../../../configuration/credentials/dto/authorization-identity";
 import type { ChainedAsConfig } from "../../../configuration/issuance/dto/chained-as-config.dto";
@@ -109,6 +111,7 @@ export class ChainedAsService {
         private readonly keyChainService: KeyChainService,
         private readonly sessionService: SessionService,
         private readonly issuanceService: IssuanceService,
+        private readonly federationTrustService: FederationTrustService,
         private readonly walletAttestationService: WalletAttestationService,
         private readonly traceService: TraceService,
         @InjectRepository(ChainedAsSessionEntity)
@@ -144,7 +147,31 @@ export class ChainedAsService {
      * Fetch the OIDC discovery document from an upstream provider.
      * Results are cached for 5 minutes.
      */
-    async getUpstreamDiscovery(issuer: string): Promise<OidcDiscoveryDocument> {
+    async getUpstreamDiscovery(
+        tenantId: string,
+        issuer: string,
+    ): Promise<OidcDiscoveryDocument> {
+        const issuanceConfig =
+            await this.issuanceService.getIssuanceConfiguration(tenantId);
+        const federationTrustSource =
+            issuanceConfig.federation &&
+            issuanceConfig.federation.trustAnchors?.length
+                ? ({
+                      mode: issuanceConfig.federation.mode,
+                      entityId: issuanceConfig.federation.entityId,
+                      trustAnchors: issuanceConfig.federation.trustAnchors,
+                      cacheTtlSeconds:
+                          issuanceConfig.federation.cacheTtlSeconds,
+                      enforceSigningPolicy:
+                          issuanceConfig.federation.enforceSigningPolicy,
+                  } as FederationTrustSource)
+                : undefined;
+
+        await this.assertFederationTrustForUpstreamIssuer(
+            issuer,
+            federationTrustSource,
+        );
+
         const cached = this.discoveryCache.get(issuer);
         if (cached && cached.expiresAt > Date.now()) {
             return cached.doc;
@@ -172,6 +199,32 @@ export class ChainedAsService {
             );
             throw new BadRequestException(
                 "Failed to fetch upstream OIDC configuration",
+            );
+        }
+    }
+
+    private async assertFederationTrustForUpstreamIssuer(
+        upstreamIssuer: string,
+        federationTrustSource?: FederationTrustSource,
+    ): Promise<void> {
+        if (!federationTrustSource) {
+            return;
+        }
+
+        const mode = this.federationTrustService.getMode(federationTrustSource);
+        if (mode === "lote-only") {
+            return;
+        }
+
+        const trustEvaluation =
+            await this.federationTrustService.evaluateAuthorizationServerTrust(
+                upstreamIssuer,
+                federationTrustSource,
+            );
+
+        if (!trustEvaluation.trusted) {
+            throw new BadRequestException(
+                `Upstream issuer is not trusted by OpenID Federation policy: ${trustEvaluation.reason}`,
             );
         }
     }
@@ -331,6 +384,7 @@ export class ChainedAsService {
 
         // Fetch upstream discovery
         const discovery = await this.getUpstreamDiscovery(
+            tenantId,
             config.upstream.issuer,
         );
 
@@ -512,6 +566,7 @@ export class ChainedAsService {
             );
         }
         const discovery = await this.getUpstreamDiscovery(
+            tenantId,
             config.upstream.issuer,
         );
         const callbackUrl = `${this.getChainedAsBaseUrl(tenantId)}/callback`;
