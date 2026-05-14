@@ -115,7 +115,12 @@ export const configs: PredefinedConfig[] = [
         { path: ['age_equal_or_over', '16'], type: 'boolean', defaultValue: true, mandatory: true },
         { path: ['age_equal_or_over', '18'], type: 'boolean', defaultValue: true, mandatory: true },
         { path: ['age_equal_or_over', '21'], type: 'boolean', defaultValue: true, mandatory: true },
-        { path: ['age_equal_or_over', '65'], type: 'boolean', defaultValue: false, mandatory: true },
+        {
+          path: ['age_equal_or_over', '65'],
+          type: 'boolean',
+          defaultValue: false,
+          mandatory: true,
+        },
         {
           path: ['place_of_birth'],
           type: 'object',
