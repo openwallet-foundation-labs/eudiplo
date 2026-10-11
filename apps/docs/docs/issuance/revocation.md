@@ -53,7 +53,7 @@ curl -X POST "$EUDIPLO_URL/api/session/revoke" \
 - Allowed roles: `issuance:offer` or `issuance:manage`.
 - Revocation is final: setting `0` or `2` on a revoked credential is rejected with `409`, and nothing is changed. A suspension can be lifted (`0`) or turned into a revocation (`1`).
 
-In the web client, open the session under **All Sessions**. The **Credential Status** card lists the credentials of the session per credential type and offers **Revoke**, **Suspend** and **Reinstate** where the change is allowed; Suspend only appears when every list of that type has at least 2 bits per entry.
+In the web client, open the session under **All Sessions**. The **Credential Status** card lists the credentials of the session per credential type and offers **Revoke**, **Suspend** and **Reinstate** where the change is allowed; Suspend only appears when every list of that type has at least 2 bits per entry. Opening the session needs `issuance:offer` or `presentation:request`, and the card needs `issuance:offer` or `issuance:manage`, so `issuance:offer` alone is enough and `issuance:manage` alone is not.
 
 ## 3. Check the result
 
