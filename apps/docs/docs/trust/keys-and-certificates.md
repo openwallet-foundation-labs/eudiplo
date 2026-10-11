@@ -4,7 +4,7 @@ title: Keys and Certificates
 
 A key chain is a signing key together with its certificate chain. Each tenant needs one per purpose: an access key chain to sign presentation requests, an attestation key chain to sign credentials, and optionally status list and trust list key chains. Create them in the Web Client under **Cryptographic Assets → Keys → Create Key**, or with the API below; where the private keys live is set by the [KMS provider](../operate/kms.md).
 
-**Prerequisites:** the `issuance:manage` or `presentation:manage` role.
+**Prerequisites:** the `issuance:manage`, `presentation:manage` or `keys:manage` role.
 
 ## Usage types
 

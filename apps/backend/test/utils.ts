@@ -430,6 +430,7 @@ export async function getToken(
     clientId: string,
     clientSecret: string,
     tenantId = "root",
+    extraRoles: Role[] = [],
 ) {
     // Get JWT token using client credentials
     const tokenResponse = await request(app.getHttpServer())
@@ -458,6 +459,7 @@ export async function getToken(
                 Role.Issuances,
                 Role.PresentationRequest,
                 Role.Presentations,
+                ...extraRoles,
             ],
         })
         .then((res) => res.body.client);
@@ -535,8 +537,14 @@ export interface IssuanceTestContext {
 /**
  * Sets up a complete test application with all issuance configurations.
  * This is a shared setup for all issuance-related e2e tests.
+ * @param extraRoles - Roles of the tenant client besides the issuance and
+ * presentation roles, for example to grant them to other clients
  */
-export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
+export async function setupIssuanceTestApp({
+    extraRoles = [],
+}: {
+    extraRoles?: Role[];
+} = {}): Promise<IssuanceTestContext> {
     // Delete the database
     rmSync("../../tmp/service.db", { force: true });
 
@@ -556,7 +564,13 @@ export async function setupIssuanceTestApp(): Promise<IssuanceTestContext> {
     await app.init();
     await app.listen(3000);
 
-    const authToken = await getToken(app, clientId, clientSecret);
+    const authToken = await getToken(
+        app,
+        clientId,
+        clientSecret,
+        "root",
+        extraRoles,
+    );
 
     const configFolder = resolve(__dirname + "/fixtures");
 

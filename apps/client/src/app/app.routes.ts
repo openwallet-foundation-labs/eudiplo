@@ -12,6 +12,7 @@ import {
 } from './issuance/issuance.routes';
 import { webhookEndpointRoutes } from './webhook-endpoint/webhook-endpoint.routes';
 import { keyManagementRoutes } from './key-management/key-management.routes';
+import { KEY_CHAIN_ROLES } from './key-management/key-chain.service';
 import {
   presentationConfigRoutes,
   presentationOfferRoutes,
@@ -79,7 +80,7 @@ export const routes: Routes = [
   {
     path: 'admin/activity-logs',
     canActivate: [AuthGuard, RoleGuard],
-    data: { role: getRole('clients:manage') },
+    data: { role: [getRole('clients:manage'), getRole('audit:read')] },
     loadComponent: () =>
       import('./admin/admin-activity-logs/admin-activity-logs.component').then(
         (m) => m.AdminActivityLogsComponent
@@ -136,13 +137,13 @@ export const routes: Routes = [
   {
     path: 'keys',
     canActivate: [AuthGuard, RoleGuard],
-    data: { role: [getRole('issuance:manage'), getRole('presentation:manage')] },
+    data: { role: KEY_CHAIN_ROLES },
     children: keyManagementRoutes,
   },
   {
     path: 'kms',
     canActivate: [AuthGuard, RoleGuard],
-    data: { role: [getRole('issuance:manage'), getRole('presentation:manage')] },
+    data: { role: KEY_CHAIN_ROLES },
     loadComponent: () =>
       import('./key-management/key-management-providers/key-management-providers.component').then(
         (m) => m.KeyManagementProvidersComponent

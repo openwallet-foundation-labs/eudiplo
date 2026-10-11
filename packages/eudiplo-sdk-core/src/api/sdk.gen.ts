@@ -785,6 +785,8 @@ export const cacheControllerClearStatusListCache = <ThrowOnError extends boolean
 
 /**
  * Get sessions (paginated)
+ *
+ * A client that reads sessions of a type through `sessions:read` but cannot cancel or delete them (that needs `issuance:offer` or `presentation:request`, and `issuance:offer` or `issuance:manage` for issuance sessions, `presentation:request` or `presentation:manage` for presentation sessions) does not get the sessions of that type that a wallet can still redeem or answer (open status, not consumed): they are left out of the list and answer 404, since their ID is enough to redeem or answer them.
  */
 export const sessionControllerGetAllSessions = <ThrowOnError extends boolean = true>(options?: Options<SessionControllerGetAllSessionsData, ThrowOnError>): RequestResult<SessionControllerGetAllSessionsResponses, unknown, ThrowOnError> => (options?.client ?? client).get<SessionControllerGetAllSessionsResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
@@ -813,7 +815,9 @@ export const sessionControllerDeleteSession = <ThrowOnError extends boolean = tr
 });
 
 /**
- * Retrieves the session information for a given session ID.
+ * Get a session
+ *
+ * A client that reads sessions of a type through `sessions:read` but cannot cancel or delete them (that needs `issuance:offer` or `presentation:request`, and `issuance:offer` or `issuance:manage` for issuance sessions, `presentation:request` or `presentation:manage` for presentation sessions) does not get the sessions of that type that a wallet can still redeem or answer (open status, not consumed): they are left out of the list and answer 404, since their ID is enough to redeem or answer them. It gets the other sessions of that type without `authorization_code`, `refresh_token`, `request_uri`, `auth_queries`, `offer`, `offerUrl`, `requestUrl`, `requestObject`, `responseEncryptionPrivateJwk`, `vp_nonce`, `walletNonce`, `responseUri`, `responseCode`, `credentialPayload.tx_code`.
  */
 export const sessionControllerGetSession = <ThrowOnError extends boolean = true>(options: Options<SessionControllerGetSessionData, ThrowOnError>): RequestResult<SessionControllerGetSessionResponses, unknown, ThrowOnError> => (options.client ?? client).get<SessionControllerGetSessionResponses, unknown, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],

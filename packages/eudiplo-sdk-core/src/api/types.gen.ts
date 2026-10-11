@@ -60,7 +60,7 @@ export type RoleDto = {
     /**
      * OAuth2 roles
      */
-    role: 'presentation:manage' | 'presentation:request' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'users:manage' | 'tenants:manage' | 'tenant:admin' | 'registrar:manage';
+    role: 'presentation:manage' | 'presentation:request' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'users:manage' | 'tenants:manage' | 'tenant:admin' | 'registrar:manage' | 'audit:read' | 'sessions:read' | 'credentials:status' | 'keys:manage';
 };
 
 export type ClientCredentialsDto = {
@@ -214,7 +214,7 @@ export type ClientEntity = {
     /**
      * Roles assigned to the client
      */
-    roles: Array<'presentation:manage' | 'presentation:request' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'users:manage' | 'tenants:manage' | 'tenant:admin' | 'registrar:manage'>;
+    roles: Array<'presentation:manage' | 'presentation:request' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'users:manage' | 'tenants:manage' | 'tenant:admin' | 'registrar:manage' | 'audit:read' | 'sessions:read' | 'credentials:status' | 'keys:manage'>;
     /**
      * List of presentation config IDs this client can use. If empty/null, all configs are allowed.
      */
@@ -275,7 +275,7 @@ export type CreateTenantDto = {
     /**
      * Roles of the tenant's admin client `<id>-admin`, which also gets clients:manage. They are all that client can grant, unless they include tenant:admin. Without roles, no admin client is created.
      */
-    roles?: Array<'tenants:manage' | 'issuance:offer' | 'issuance:manage' | 'presentation:request' | 'presentation:manage' | 'clients:manage' | 'users:manage' | 'registrar:manage' | 'tenant:admin'>;
+    roles?: Array<'tenants:manage' | 'issuance:offer' | 'issuance:manage' | 'presentation:request' | 'presentation:manage' | 'clients:manage' | 'users:manage' | 'registrar:manage' | 'tenant:admin' | 'audit:read' | 'sessions:read' | 'credentials:status' | 'keys:manage'>;
     /**
      * Optional tenant-specific session storage configuration.
      */
@@ -443,7 +443,7 @@ export type UpdateClientDto = {
     /**
      * Optional replacement roles for the client.
      */
-    roles?: Array<'presentation:manage' | 'presentation:request' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'users:manage' | 'tenants:manage' | 'tenant:admin' | 'registrar:manage'>;
+    roles?: Array<'presentation:manage' | 'presentation:request' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'users:manage' | 'tenants:manage' | 'tenant:admin' | 'registrar:manage' | 'audit:read' | 'sessions:read' | 'credentials:status' | 'keys:manage'>;
     /**
      * Optional replacement allow-list of presentation config ids.
      */
@@ -470,7 +470,7 @@ export type CreateClientDto = {
     /**
      * Roles assigned to the client. At least one role is required.
      */
-    roles: Array<'presentation:manage' | 'presentation:request' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'users:manage' | 'tenants:manage' | 'tenant:admin' | 'registrar:manage'>;
+    roles: Array<'presentation:manage' | 'presentation:request' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'users:manage' | 'tenants:manage' | 'tenant:admin' | 'registrar:manage' | 'audit:read' | 'sessions:read' | 'credentials:status' | 'keys:manage'>;
     /**
      * Optional allow-list of presentation config ids this client can use.
      */
@@ -601,7 +601,7 @@ export type ManagedUserDto = {
     username: string;
     email?: string;
     enabled: boolean;
-    roles: Array<'presentation:manage' | 'presentation:request' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'users:manage' | 'tenants:manage' | 'tenant:admin' | 'registrar:manage'>;
+    roles: Array<'presentation:manage' | 'presentation:request' | 'issuance:manage' | 'issuance:offer' | 'clients:manage' | 'users:manage' | 'tenants:manage' | 'tenant:admin' | 'registrar:manage' | 'audit:read' | 'sessions:read' | 'credentials:status' | 'keys:manage'>;
     tenantId?: string;
     /**
      * One-time temporary password returned only on user creation.
@@ -612,14 +612,14 @@ export type ManagedUserDto = {
 export type CreateUserDto = {
     username: string;
     email?: string;
-    roles: Array<'tenants:manage' | 'issuance:offer' | 'issuance:manage' | 'presentation:request' | 'presentation:manage' | 'clients:manage' | 'users:manage' | 'registrar:manage' | 'tenant:admin'>;
+    roles: Array<'tenants:manage' | 'issuance:offer' | 'issuance:manage' | 'presentation:request' | 'presentation:manage' | 'clients:manage' | 'users:manage' | 'registrar:manage' | 'tenant:admin' | 'audit:read' | 'sessions:read' | 'credentials:status' | 'keys:manage'>;
     enabled?: boolean;
 };
 
 export type UpdateUserDto = {
     username?: string;
     email?: string;
-    roles?: Array<'tenants:manage' | 'issuance:offer' | 'issuance:manage' | 'presentation:request' | 'presentation:manage' | 'clients:manage' | 'users:manage' | 'registrar:manage' | 'tenant:admin'>;
+    roles?: Array<'tenants:manage' | 'issuance:offer' | 'issuance:manage' | 'presentation:request' | 'presentation:manage' | 'clients:manage' | 'users:manage' | 'registrar:manage' | 'tenant:admin' | 'audit:read' | 'sessions:read' | 'credentials:status' | 'keys:manage'>;
     enabled?: boolean;
     password?: string;
 };
@@ -7642,6 +7642,10 @@ export type SessionControllerRevokeAllErrors = {
      * The status does not fit the status list's bits per entry
      */
     400: unknown;
+    /**
+     * The token has neither credentials:status nor issuance:manage
+     */
+    403: unknown;
     /**
      * No status entry for the session, or a revoked credential would be reinstated or suspended
      */

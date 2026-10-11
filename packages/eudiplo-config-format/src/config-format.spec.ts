@@ -293,6 +293,40 @@ describe("portable schema identity and migrations", () => {
         ).toEqual([]);
     });
 
+    it("upgrades a v1 client to v2 unchanged", () => {
+        const v1 = {
+            $schema: schemaUrl("Client", 1),
+            metadata: { generation: 3 },
+            spec: { clientId: "shop-backend", roles: ["issuance:offer"] },
+        };
+        const result = migrateDocument(v1, validateConfigDocument);
+        expect(result.issues).toEqual([]);
+        expect(result.migrations).toEqual(["client-v2-read-and-status-roles"]);
+        expect(result.document.$schema).toBe(schemaUrl("Client", 2));
+        expect(result.document.spec).toEqual(v1.spec);
+        expect(result.document.metadata).toEqual({ generation: 3 });
+        expect(
+            migrateDocument(result.document, validateConfigDocument).migrations,
+        ).toEqual([]);
+    });
+
+    it.each(["audit:read", "sessions:read", "credentials:status", "keys:manage"])(
+        "accepts the client role %s only from v2 on",
+        (role) => {
+            const spec = { clientId: "support", roles: [role] };
+            expect(
+                validateConfigDocument(
+                    normalizeDocument({ $schema: schemaUrl("Client", 2), spec }),
+                ),
+            ).toEqual([]);
+            expect(
+                validateConfigDocument(
+                    normalizeDocument({ $schema: schemaUrl("Client", 1), spec }),
+                ).map((issue) => issue.path),
+            ).toContain("/spec/roles/0");
+        },
+    );
+
     it("accepts an x509 schema metadata trusted authority only from v2 on", () => {
         const spec = {
             id: "pid",

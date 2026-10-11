@@ -217,6 +217,42 @@ describe("config upgrade", () => {
             JSON.parse(await readFile(join(source, "info.json"), "utf8")),
         ).toEqual({ name: "Example" });
     });
+    it("upgrades a v1 client file to v2 with the spec unchanged", async () => {
+        const { cwd, context, output } = await setup();
+        const source = join(cwd, "client-folder");
+        await mkdir(join(source, "clients"), { recursive: true });
+        await writeFile(
+            join(source, "info.json"),
+            JSON.stringify({
+                $schema: schemaUrl("Tenant"),
+                metadata: { generation: 1 },
+                spec: { name: "Example" },
+            }),
+        );
+        const spec = { clientId: "shop-backend", roles: ["issuance:offer"] };
+        await writeFile(
+            join(source, "clients", "shop-backend.json"),
+            JSON.stringify({ $schema: schemaUrl("Client", 1), spec }),
+        );
+
+        expect(
+            await runCli(["config", "upgrade", source, "--check"], context),
+        ).toBe(1);
+        expect(output.stdout).toContain(
+            "clients/shop-backend.json: upgrade required",
+        );
+        expect(await runCli(["config", "upgrade", source], context)).toBe(0);
+        const result = JSON.parse(
+            await readFile(
+                join(`${source}.upgraded`, "clients", "shop-backend.json"),
+                "utf8",
+            ),
+        );
+        expect(result.$schema).toBe(
+            "https://eudiplo.dev/schemas/v2/ClientConfigFile.schema.json",
+        );
+        expect(result.spec).toEqual(spec);
+    });
     it("validates the entire folder before writing any output", async () => {
         const { cwd, context } = await setup();
         const source = join(cwd, "folder");

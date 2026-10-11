@@ -102,6 +102,61 @@ describe("SessionStore", () => {
         });
     });
 
+    it.each([
+        [SessionStatus.Active, false, ["issuance"], false],
+        [SessionStatus.Fetched, false, ["issuance"], false],
+        [SessionStatus.Active, true, ["issuance"], true],
+        [SessionStatus.Completed, false, ["issuance"], true],
+        [SessionStatus.Active, false, ["presentation"], true],
+        [SessionStatus.Active, false, [], true],
+    ] as const)(
+        "getForReader finds a %s issuance session with consumed %s and hideOpen %j: %s",
+        async (status, consumed, hideOpen, found) => {
+            const { store, repository } = createStore({
+                findForTenant: vi
+                    .fn()
+                    .mockResolvedValue({ ...session, status, consumed }),
+            });
+
+            const read = store.getForReader(
+                "tenant-1",
+                "session-1",
+                "issuance",
+                hideOpen,
+            );
+
+            if (found) await expect(read).resolves.toMatchObject({ status });
+            else await expect(read).rejects.toBeInstanceOf(SessionNotFound);
+            expect(repository.findForTenant).toHaveBeenCalledWith(
+                "tenant-1",
+                "session-1",
+                "issuance",
+            );
+        },
+    );
+
+    it("getForReader hides an open presentation session by its requestId", async () => {
+        const { store } = createStore({
+            findForTenant: vi.fn().mockResolvedValue({
+                ...session,
+                requestId: "age-check",
+                status: SessionStatus.Fetched,
+                consumed: false,
+            }),
+        });
+
+        await expect(
+            store.getForReader("tenant-1", "session-1", undefined, [
+                "presentation",
+            ]),
+        ).rejects.toBeInstanceOf(SessionNotFound);
+        await expect(
+            store.getForReader("tenant-1", "session-1", undefined, [
+                "issuance",
+            ]),
+        ).resolves.toMatchObject({ requestId: "age-check" });
+    });
+
     it("rejects an absent session ID without querying", async () => {
         const { store, repository } = createStore();
 

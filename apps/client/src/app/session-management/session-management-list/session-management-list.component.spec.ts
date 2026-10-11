@@ -8,6 +8,7 @@ import { vi } from 'vitest';
 
 import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
 import { PresentationManagementService } from '../../presentation/presentation-config/presentation-management.service';
+import { JwtService } from '../../services/jwt.service';
 import { SessionManagementService } from '../session-management.service';
 import { SessionManagementListComponent } from './session-management-list.component';
 
@@ -16,9 +17,14 @@ describe('SessionManagementListComponent', () => {
   let fixture: ComponentFixture<SessionManagementListComponent>;
   let getAllSessions: ReturnType<typeof vi.fn>;
   let cancelSession: ReturnType<typeof vi.fn>;
+  let roles: string[];
   let deleteSession: ReturnType<typeof vi.fn>;
 
-  async function setup(queryParams: Record<string, string | string[]> = {}) {
+  async function setup(
+    queryParams: Record<string, string | string[]> = {},
+    granted = ['issuance:offer', 'presentation:request']
+  ) {
+    roles = granted;
     vi.useFakeTimers();
     getAllSessions = vi.fn().mockResolvedValue({
       items: [],
@@ -33,6 +39,12 @@ describe('SessionManagementListComponent', () => {
       imports: [SessionManagementListComponent],
       providers: [
         provideRouter([]),
+        {
+          provide: JwtService,
+          useValue: {
+            hasRole: (role: string | string[]) => [role].flat().some((r) => roles.includes(r)),
+          },
+        },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -252,6 +264,53 @@ describe('SessionManagementListComponent', () => {
         '1 failed: the backend could not be reached. Check the connection and try again.',
       'Close',
       expect.anything()
+    );
+  });
+
+  it('offers sessions:read no selection to cancel or delete', async () => {
+    await setup({}, ['sessions:read']);
+
+    expect(component.displayedColumns).not.toContain('select');
+    expect(component.canChange({ id: 's-1' } as Session)).toBe(false);
+    const buttons = [...(fixture.nativeElement as HTMLElement).querySelectorAll('button')].map(
+      (button) => button.textContent!.trim()
+    );
+    expect(buttons.some((text) => text.includes('Issuance Offer'))).toBe(false);
+    expect(buttons.some((text) => text.includes('Presentation Request'))).toBe(false);
+  });
+
+  it('counts the manage roles toward a side, like the backend', async () => {
+    await setup({}, ['presentation:request', 'issuance:manage']);
+
+    expect(component.canChange({ id: 's-1', status: 'active' } as Session)).toBe(true);
+    expect(
+      component.canChange({ id: 's-2', status: 'active', requestId: 'age-check' } as Session)
+    ).toBe(true);
+  });
+
+  it('offers no select-all on a page without sessions the caller may change', async () => {
+    await setup({}, ['issuance:offer', 'sessions:read']);
+    component.dataSource.data = [
+      { id: 's-2', status: 'active', requestId: 'age-check' } as Session,
+    ];
+
+    expect(component.hasChangeableRows).toBe(false);
+    expect(component.isAllSelected()).toBe(false);
+  });
+
+  it('selects only the sessions of the side the caller may change', async () => {
+    await setup({}, ['issuance:offer', 'sessions:read']);
+    const issuance = { id: 's-1', status: 'active' } as Session;
+    const presentation = { id: 's-2', status: 'active', requestId: 'age-check' } as Session;
+    component.dataSource.data = [issuance, presentation];
+
+    expect(component.displayedColumns).toContain('select');
+    component.masterToggle();
+
+    expect(component.selection.selected).toEqual([issuance]);
+    expect(component.isAllSelected()).toBe(true);
+    expect(component.checkboxLabel(presentation)).toBe(
+      'row s-2: Your roles let you read this session but not cancel or delete it'
     );
   });
 

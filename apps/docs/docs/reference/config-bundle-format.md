@@ -41,7 +41,7 @@ rejects versions newer than its own.
 | Kind                 | `<File>`                      | Current version | Singleton |
 | -------------------- | ----------------------------- | --------------- | --------- |
 | `Tenant`             | `TenantConfigFile`            | 1               | yes       |
-| `Client`             | `ClientConfigFile`            | 1               |           |
+| `Client`             | `ClientConfigFile`            | 2               |           |
 | `KmsConfig`          | `KmsConfigFile`               | 1               | yes       |
 | `KeyChain`           | `KeyChainConfigFile`          | 2               |           |
 | `RegistrarConfig`    | `RegistrarConfigFile`         | 1               | yes       |
@@ -89,6 +89,10 @@ key source with both, it must match the key chain they describe, or the plan
 reports `KEY_CHAIN_TYPE_MISMATCH`. A v1 document is migrated unchanged;
 9.x cannot read v2 files. A bare key chain file with `type`, as
 `GET /api/key-chain/{id}/export` writes it, is read as v2.
+
+**Client v2** came with EUDIPLO 10.0 as well. It accepts the roles
+`audit:read`, `sessions:read`, `credentials:status` and `keys:manage`. A v1
+document is migrated unchanged; 9.x cannot read v2 files.
 
 ## Tenant folder layout
 
@@ -251,12 +255,13 @@ Exports, imports, detach and reattach actions are recorded in the tenant audit l
 `GET /api/config-bundles/resources/:kind` also accepts the roles that change
 resources of that kind, so screens can lock file-managed resources for them:
 
-| Kind                                                                    | Also readable with                       |
-| ----------------------------------------------------------------------- | ---------------------------------------- |
-| `Tenant` (session and status list settings)                             | `issuance:manage`, `presentation:manage` |
-| `KeyChain`, `WebhookEndpoint`, `TrustList`                              | `issuance:manage`, `presentation:manage` |
-| `IssuanceConfig`, `CredentialConfig`, `AttributeProvider`, `StatusList` | `issuance:manage`                        |
-| `PresentationConfig`                                                    | `presentation:manage`                    |
-| `Client`                                                                | `clients:manage`                         |
-| `RegistrarConfig`                                                       | `registrar:manage`                       |
-| `KmsConfig`                                                             | no other role                            |
+| Kind                                                                    | Also readable with                                      |
+| ----------------------------------------------------------------------- | ------------------------------------------------------- |
+| `Tenant` (session and status list settings)                             | `issuance:manage`, `presentation:manage`                |
+| `KeyChain`                                                              | `issuance:manage`, `presentation:manage`, `keys:manage` |
+| `WebhookEndpoint`, `TrustList`                                          | `issuance:manage`, `presentation:manage`                |
+| `IssuanceConfig`, `CredentialConfig`, `AttributeProvider`, `StatusList` | `issuance:manage`                                       |
+| `PresentationConfig`                                                    | `presentation:manage`                                   |
+| `Client`                                                                | `clients:manage`                                        |
+| `RegistrarConfig`                                                       | `registrar:manage`                                      |
+| `KmsConfig`                                                             | no other role                                           |

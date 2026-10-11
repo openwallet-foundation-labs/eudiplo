@@ -20,6 +20,7 @@ import { RegistrarConfig, RegistrarService } from '../../registrar/registrar.ser
 import { KeyChainCreateDto, KeyChainImportDto, KmsProviderInfoDto } from '@eudiplo/sdk-core';
 import { asSentence, getApiErrorMessage, getHttpErrorMessage } from '../../utils/error-message';
 import { openErrorSnackBar } from '../../utils/error-snackbar';
+import { JwtService } from '../../services/jwt.service';
 
 export type KeyUsageSelection = 'attestation' | 'statusList' | 'access' | 'trustList';
 export type KeyChainTypeSelection = 'internalChain' | 'externalCaChain' | 'standalone';
@@ -158,7 +159,8 @@ export class KeyCreateWizardComponent implements OnInit {
     private readonly registrarService: RegistrarService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly snackBar: MatSnackBar
+    private readonly snackBar: MatSnackBar,
+    private readonly jwtService: JwtService
   ) {
     // Step 1: Usage selection
     this.usageForm = this.fb.group({
@@ -193,7 +195,8 @@ export class KeyCreateWizardComponent implements OnInit {
 
   ngOnInit(): void {
     // Pre-check registrar config so we can show status quickly
-    this.checkRegistrarConfig();
+    // checkRegistrarConfig handles its own errors.
+    if (this.canUseRegistrar) void this.checkRegistrarConfig();
     this.loadKmsProviders();
   }
 
@@ -253,6 +256,15 @@ export class KeyCreateWizardComponent implements OnInit {
    */
   get hasRegistrarConfig(): boolean {
     return this.registrarConfig !== null;
+  }
+
+  /** Reading the registrar configuration and enrolling through it need registrar:manage. */
+  get canUseRegistrar(): boolean {
+    return this.jwtService.hasRole('registrar:manage');
+  }
+
+  isAccessSourceAvailable(source: AccessSourceSelection): boolean {
+    return source !== 'registrar' || this.canUseRegistrar;
   }
 
   get selectedUsage(): KeyUsageSelection | null {
@@ -342,6 +354,16 @@ export class KeyCreateWizardComponent implements OnInit {
    */
   onAccessSourceNext(): void {
     if (this.selectedAccessSource === 'registrar') {
+      if (!this.canUseRegistrar) {
+        this.snackBar.open(
+          'Enrolling through the registrar needs the registrar:manage role',
+          'Close',
+          {
+            duration: 5000,
+          }
+        );
+        return;
+      }
       if (!this.hasRegistrarConfig) {
         // Config not yet set - user can go to registrar page via UI link
         // but we don't force navigation automatically
