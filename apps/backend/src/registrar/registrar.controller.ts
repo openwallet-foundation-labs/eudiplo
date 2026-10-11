@@ -73,7 +73,7 @@ export class RegistrarController {
     @ApiResponse({
         status: 400,
         description:
-            "The token endpoint answered with an error status (for example wrong credentials), or a registrar or OIDC URL is malformed or blocked by the outbound URL policy",
+            "The token endpoint answered with an error status (for example wrong credentials), a registrar or OIDC URL is malformed or blocked by the outbound URL policy, or the policy blocks the token endpoint from the discovery document or a redirect target",
     })
     @ApiResponse({
         status: 503,
@@ -110,7 +110,7 @@ export class RegistrarController {
     @ApiResponse({
         status: 400,
         description:
-            "The token endpoint answered with an error status (for example wrong credentials), a registrar or OIDC URL is malformed or blocked by the outbound URL policy, or oidcUrl or registrarUrl changes without password (and clientSecret, if one is stored) sent again",
+            "The token endpoint answered with an error status (for example wrong credentials), a registrar or OIDC URL is malformed or blocked by the outbound URL policy, the policy blocks the token endpoint from the discovery document or a redirect target, or oidcUrl or registrarUrl changes without password (and clientSecret, if one is stored) sent again",
     })
     @ApiResponse({
         status: 503,

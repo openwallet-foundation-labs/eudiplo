@@ -100,6 +100,10 @@ export class RegistrarConfigService {
                 return;
             }
 
+            // Checked before the stored configuration is deleted.
+            await this.authService.assertSafeUrls(config, {
+                resolveHosts: false,
+            });
             if (existing && updateExisting) {
                 await this.configRepository.delete({ tenantId });
             }

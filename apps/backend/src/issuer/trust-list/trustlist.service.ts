@@ -129,9 +129,11 @@ export class TrustListService {
         id: string,
     ): Promise<TrustListCreateDto> {
         const entry = await this.findOne(tenantId, id);
+        // A nullable column comes back as null; the create schema only
+        // accepts an absent field, so leave it out to keep the export importable.
         return {
             id: entry.id,
-            description: entry.description,
+            description: entry.description ?? undefined,
             keyChainId: entry.keyChainId,
             entities: entry.entityConfig ?? [],
             data: entry.data,

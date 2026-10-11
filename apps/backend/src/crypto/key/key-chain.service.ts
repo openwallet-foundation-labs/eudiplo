@@ -305,9 +305,11 @@ export class KeyChainService {
             ? keyChain.rootJwk!
             : keyChain.activeJwk;
 
+        // Nullable columns come back as null; the import schema only accepts
+        // an absent field, so leave them out to keep the export importable.
         const exportDto: KeyChainExportDto = {
             id: keyChain.id,
-            description: keyChain.description,
+            description: keyChain.description ?? undefined,
             usageType: keyChain.usageType,
             // Private key material is only exported for database-held keys.
             // For external KMS providers the entity stores the public JWK;
@@ -336,8 +338,8 @@ export class KeyChainService {
         if (keyChain.rotationEnabled) {
             exportDto.rotationPolicy = {
                 enabled: true,
-                intervalDays: keyChain.rotationIntervalDays,
-                certValidityDays: keyChain.certValidityDays,
+                intervalDays: keyChain.rotationIntervalDays ?? undefined,
+                certValidityDays: keyChain.certValidityDays ?? undefined,
             };
         }
 
