@@ -1,6 +1,10 @@
+const NUMBER = String.raw`(0|[1-9]\d*)`;
+const IDENTIFIERS = String.raw`[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*`;
+
 /** A SemVer 2.0.0 version, with optional pre-release and build metadata. */
-export const SEMVER_REGEX =
-  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
+export const SEMVER_REGEX = new RegExp(
+  String.raw`^${NUMBER}\.${NUMBER}\.${NUMBER}(?:-${IDENTIFIERS})?(?:\+${IDENTIFIERS})?$`
+);
 
 function parseVersion(version: string): { core: number[]; prerelease: string[] } {
   const [withoutBuild] = version.split('+');
@@ -13,36 +17,43 @@ function parseVersion(version: string): { core: number[]; prerelease: string[] }
   };
 }
 
-/** SemVer precedence of two versions: negative when `a` is older than `b`. */
-function compareVersions(a: string, b: string): number {
-  const left = parseVersion(a);
-  const right = parseVersion(b);
-
-  for (let index = 0; index < Math.max(left.core.length, right.core.length); index += 1) {
-    const difference = (left.core[index] ?? 0) - (right.core[index] ?? 0);
+/** Major, minor and patch, compared as numbers. */
+function compareCore(left: number[], right: number[]): number {
+  for (let index = 0; index < Math.max(left.length, right.length); index += 1) {
+    const difference = (left[index] ?? 0) - (right[index] ?? 0);
     if (difference !== 0) return difference;
   }
+  return 0;
+}
 
-  // A pre-release ranks below the release of the same version.
-  if (left.prerelease.length === 0 || right.prerelease.length === 0) {
-    return right.prerelease.length - left.prerelease.length;
+/** One pre-release identifier: numeric ones compare as numbers and rank below the others. */
+function compareIdentifier(left: string, right: string): number {
+  const leftNumeric = /^\d+$/.test(left);
+  const rightNumeric = /^\d+$/.test(right);
+  if (leftNumeric && rightNumeric) return Number(left) - Number(right);
+  if (leftNumeric !== rightNumeric) return leftNumeric ? -1 : 1;
+  if (left === right) return 0;
+  return left < right ? -1 : 1;
+}
+
+/** Pre-release identifiers; a release, which has none, ranks above its pre-releases. */
+function comparePrerelease(left: string[], right: string[]): number {
+  if (left.length === 0 || right.length === 0) return right.length - left.length;
+  for (let index = 0; index < Math.min(left.length, right.length); index += 1) {
+    const difference = compareIdentifier(left[index], right[index]);
+    if (difference !== 0) return difference;
   }
+  // With equal leading identifiers, more identifiers rank higher.
+  return left.length - right.length;
+}
 
-  for (let index = 0; ; index += 1) {
-    const x = left.prerelease[index];
-    const y = right.prerelease[index];
-    if (x === undefined && y === undefined) return 0;
-    if (x === undefined) return -1;
-    if (y === undefined) return 1;
-    if (x === y) continue;
-
-    const xNumeric = /^\d+$/.test(x);
-    const yNumeric = /^\d+$/.test(y);
-    if (xNumeric && yNumeric) return Number(x) - Number(y);
-    if (xNumeric) return -1;
-    if (yNumeric) return 1;
-    return x < y ? -1 : 1;
-  }
+/** SemVer precedence of two versions: negative when `left` is older than `right`. */
+function compareVersions(left: string, right: string): number {
+  const older = parseVersion(left);
+  const newer = parseVersion(right);
+  return (
+    compareCore(older.core, newer.core) || comparePrerelease(older.prerelease, newer.prerelease)
+  );
 }
 
 /** Sort comparator for versions, newest first, by SemVer precedence. */

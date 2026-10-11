@@ -67,9 +67,9 @@
   </div>
 
   @if (loading && !item) {
-    <div fxLayout="column" fxLayoutAlign="center center" class="loading-container" role="status">
+    <div fxLayout="column" fxLayoutAlign="center center" class="loading-container">
       <mat-spinner diameter="40"></mat-spinner>
-      <p>Loading schema…</p>
+      <p><output>Loading schema…</output></p>
     </div>
   } @else if (loadError) {
     <mat-card appearance="outlined" role="alert">
@@ -135,8 +135,8 @@
             </mat-checkbox>
             <div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="8px">
               @if (publishBlockedReason) {
-                <span class="label publish-blocked" role="status">
-                  {{ publishBlockedReason }}
+                <span class="label publish-blocked">
+                  <output>{{ publishBlockedReason }}</output>
                   @if (loadState.credentialConfigs === 'failed') {
                     <button mat-button type="button" (click)="retrySources()">Retry</button>
                   }
@@ -310,7 +310,7 @@
             role.
           </p>
         } @else if (loadState.credentialConfigs === 'loading') {
-          <p class="label" role="status">Loading credential configs…</p>
+          <p class="label"><output>Loading credential configs…</output></p>
         } @else if (loadState.credentialConfigs === 'failed') {
           <p class="label">
             Could not load credential configs.

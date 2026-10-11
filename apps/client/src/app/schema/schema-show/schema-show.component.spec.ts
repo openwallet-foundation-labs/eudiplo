@@ -1108,7 +1108,8 @@ describe('SchemaShowComponent page', () => {
 
     fixture.detectChanges();
 
-    const status = fixture.nativeElement.querySelector('[role="status"]');
+    // <output> is a status live region.
+    const status = fixture.nativeElement.querySelector('output');
     expect(status?.textContent).toContain('Loading schema…');
   });
 
