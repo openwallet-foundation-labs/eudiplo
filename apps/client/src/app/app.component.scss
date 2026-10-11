@@ -28,7 +28,9 @@
     outline-offset: 2px;
   }
 
-  @include a11y.visually-hidden-focusable;
+  &:not(:focus) {
+    @include a11y.visually-hidden;
+  }
 }
 
 // App toolbar
