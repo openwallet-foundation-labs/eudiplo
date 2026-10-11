@@ -79,8 +79,8 @@
           <div class="step-description">
             <h3>What type of key chain do you need?</h3>
             <p class="hint">
-              Choose automatic key management with rotation (recommended) or a standalone
-              self-signed key.
+              Choose a key chain with its own root CA (recommended), a standalone self-signed key,
+              or a signing key under your own CA.
             </p>
           </div>
 
@@ -146,7 +146,8 @@
           <div class="step-description">
             <h3>How do you want to get your access certificate?</h3>
             <p class="hint">
-              Choose generated certificates, an external CA chain, or a standalone certificate.
+              Choose a self-signed certificate, registrar enrollment, or an externally issued
+              certificate.
             </p>
           </div>
 
@@ -236,9 +237,14 @@
         <form [formGroup]="configForm" fxLayout="column" fxLayoutGap="24px">
           <div class="step-description">
             <h3>Configure your key chain</h3>
-            @if (isInternalChain) {
+            @if (isExternalCaChain) {
               <p class="hint">
-                This will create a root CA and a rotating signing key managed as a single key chain.
+                This will import your CA key and certificate and create a signing key with a
+                certificate issued by your CA.
+              </p>
+            } @else if (isInternalChain) {
+              <p class="hint">
+                This will create a root CA and a signing key managed as a single key chain.
               </p>
             } @else if (selectedUsage === 'access' && selectedAccessSource === 'registrar') {
               <p class="hint">
@@ -255,8 +261,7 @@
               </p>
             } @else if (isExternalCertificate) {
               <p class="hint">
-                This will import the external CA key and certificate, then create a rotating leaf
-                signing key.
+                This will import your externally issued certificate and matching key.
               </p>
             } @else if (selectedUsage === 'attestation' && !isInternalChain) {
               <p class="hint">This will create a standalone self-signed key.</p>
@@ -387,29 +392,48 @@
             </mat-card-content>
           </mat-card>
 
-          <!-- Rotation Configuration (only for internal chain) -->
-          @if (rotationEnabled) {
+          <!-- Signing key settings (only for internal and external CA chains) -->
+          @if (isInternalChain) {
             <mat-card>
               <mat-card-header>
                 <mat-card-title>
-                  <mat-icon>autorenew</mat-icon>
-                  Rotation Settings
+                  <mat-icon>{{ rotationEnabled ? 'autorenew' : 'key' }}</mat-icon>
+                  Rotation Policy
                 </mat-card-title>
               </mat-card-header>
               <mat-card-content fxLayout="column" fxLayoutGap="16px">
+                <div>
+                  <mat-slide-toggle
+                    formControlName="rotationEnabled"
+                    color="primary"
+                    aria-describedby="rotation-hint"
+                  >
+                    Enable automatic key rotation
+                  </mat-slide-toggle>
+                  <p id="rotation-hint" class="rotation-hint">
+                    {{
+                      rotationEnabled
+                        ? 'EUDIPLO creates a new signing key and certificate on each interval.'
+                        : 'The signing certificate expires after the validity below and is not renewed. To renew it, turn rotation on by editing the key chain.'
+                    }}
+                  </p>
+                </div>
                 <div fxLayout="row" fxLayoutGap="16px" fxLayout.lt-md="column">
-                  <mat-form-field appearance="outline" fxFlex>
-                    <mat-label>Rotation Interval (days)</mat-label>
-                    <input
-                      matInput
-                      type="number"
-                      formControlName="rotationIntervalDays"
-                      min="1"
-                      placeholder="30"
-                      title="Rotation interval in days"
-                    />
-                    <mat-hint>How often the key will be rotated</mat-hint>
-                  </mat-form-field>
+                  @if (rotationEnabled) {
+                    <mat-form-field appearance="outline" fxFlex>
+                      <mat-label>Rotation Interval (days)</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        formControlName="rotationIntervalDays"
+                        min="1"
+                        placeholder="30"
+                        title="Rotation interval in days"
+                      />
+                      <mat-hint>How often the key will be rotated</mat-hint>
+                      <mat-error>Enter 1 to 3650 days</mat-error>
+                    </mat-form-field>
+                  }
 
                   <mat-form-field appearance="outline" fxFlex>
                     <mat-label>Certificate Validity (days)</mat-label>
@@ -421,7 +445,8 @@
                       placeholder="365"
                       title="Certificate validity in days"
                     />
-                    <mat-hint>Validity period for generated certificates</mat-hint>
+                    <mat-hint>Validity period for generated signing certificates</mat-hint>
+                    <mat-error>Enter 1 to 3650 days</mat-error>
                   </mat-form-field>
                 </div>
               </mat-card-content>
@@ -448,10 +473,13 @@
 
               @if (isExternalCaChain) {
                 <div class="next-steps-hint">
-                  <mat-icon>autorenew</mat-icon>
+                  <mat-icon>{{ rotationEnabled ? 'autorenew' : 'info' }}</mat-icon>
                   <span>
-                    EUDIPLO will use the external CA to issue the active signing certificate and
-                    rotate that signing key according to the configured policy.
+                    EUDIPLO will use the external CA to issue the active signing certificate{{
+                      rotationEnabled
+                        ? ' and rotate that signing key on the configured interval'
+                        : ''
+                    }}.
                   </span>
                 </div>
               } @else if (selectedUsage === 'attestation' && isInternalChain) {
@@ -463,12 +491,12 @@
                   </span>
                 </div>
               }
-              @if (selectedUsage === 'attestation' && !isInternalChain) {
+              @if (selectedUsage === 'attestation' && !isInternalChain && !isExternalCertificate) {
                 <div class="next-steps-hint">
                   <mat-icon>info</mat-icon>
                   <span>
-                    <strong>Next step:</strong> After creating this key, import a certificate signed
-                    by your external CA.
+                    This key gets a self-signed certificate. To use a certificate signed by your CA,
+                    check the external certificate option above and import the key with it.
                   </span>
                 </div>
               }

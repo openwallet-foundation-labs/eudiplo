@@ -1,0 +1,138 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { randomBytes } from 'node:crypto';
+import type { APIRequestContext, Page, Request } from '@playwright/test';
+import type { KeyChainImportDto, KeyChainResponseDto } from '@eudiplo/sdk-core';
+import { expect, test } from './support/test';
+import { hasAuthCredentials, resolvedE2EConfig } from './support/e2e-config';
+import { tenantToken, writeConfig } from './support/clients';
+
+// Test-only keys and certificates, valid until 2126: a CA (CA=true) and a
+// self-signed certificate that is not a CA.
+const fixture = (name: string) =>
+  readFileSync(join(__dirname, 'fixtures', 'key-chain', name), 'utf8');
+const caKey = fixture('ca-key.pem');
+const caCertificate = fixture('ca-cert.pem');
+const leafKey = fixture('leaf-key.pem');
+const leafCertificate = fixture('leaf-cert.pem');
+
+function isImport(request: Request): boolean {
+  return request.url().endsWith('/api/key-chain/import') && request.method() === 'POST';
+}
+
+/** Opens the configuration step of the wizard through these choices. */
+async function configure(page: Page, choices: string[], description: string): Promise<void> {
+  await page.goto('/keys/create');
+  for (const choice of choices) {
+    await page.getByRole('radio', { name: choice }).check();
+    await page.getByRole('button', { name: /^(Next|Configure Key)/ }).click();
+  }
+  await page.getByRole('textbox', { name: 'Description' }).fill(description);
+}
+
+async function fillKeyAndCertificate(page: Page, key: string, certificate: string): Promise<void> {
+  await page.getByRole('textbox', { name: 'External private key' }).fill(key);
+  await page.getByRole('textbox', { name: 'External certificate chain' }).fill(certificate);
+}
+
+async function keyChain(request: APIRequestContext, id: string): Promise<KeyChainResponseDto> {
+  const response = await request.get(`${resolvedE2EConfig.apiBaseUrl}/api/key-chain/${id}`, {
+    headers: { Authorization: `Bearer ${await tenantToken(request)}` },
+  });
+  expect(response.ok(), `GET /api/key-chain/${id}`).toBe(true);
+  return (await response.json()) as KeyChainResponseDto;
+}
+
+async function deleteKeyChain(request: APIRequestContext, id: string): Promise<void> {
+  const headers = { Authorization: `Bearer ${await tenantToken(request)}` };
+  await writeConfig(
+    () => request.delete(`${resolvedE2EConfig.apiBaseUrl}/api/key-chain/${id}`, { headers }),
+    `delete key chain ${id}`
+  );
+}
+
+test.describe('key creation wizard imports', () => {
+  const suffix = randomBytes(4).toString('hex');
+  const created: string[] = [];
+
+  test.beforeEach(() => {
+    test.skip(
+      !hasAuthCredentials,
+      'Set E2E_TENANT_CLIENT_ID and E2E_TENANT_CLIENT_SECRET for tenant flow tests.'
+    );
+  });
+
+  test.afterAll(async ({ request }) => {
+    for (const id of created) await deleteKeyChain(request, id);
+  });
+
+  /**
+   * Clicks the import button and returns the request body and the ID of the imported key chain,
+   * recorded for deletion before the page is checked.
+   */
+  async function submitImport(
+    page: Page,
+    button: string
+  ): Promise<{ body: KeyChainImportDto; id: string }> {
+    const answered = page.waitForResponse((response) => isImport(response.request()));
+    await page.getByRole('button', { name: button }).click();
+    const response = await answered;
+    expect(response.ok(), `POST /api/key-chain/import: ${await response.text()}`).toBe(true);
+    const { id } = (await response.json()) as { id: string };
+    created.push(id);
+    return { body: response.request().postDataJSON() as KeyChainImportDto, id };
+  }
+
+  test('imports an External CA Chain without rotation', async ({ page, request }) => {
+    const description = `E2E external CA ${suffix}`;
+    await configure(page, ['Credential Signing (Attestation)', 'External CA Chain'], description);
+    await fillKeyAndCertificate(page, caKey, caCertificate);
+
+    const rotation = page.getByRole('switch', { name: 'Enable automatic key rotation' });
+    await expect(rotation).toBeChecked();
+    await expect(page.getByRole('spinbutton', { name: 'Rotation Interval (days)' })).toBeVisible();
+    await rotation.click();
+    await expect(rotation).not.toBeChecked();
+    await expect(page.getByRole('spinbutton', { name: 'Rotation Interval (days)' })).toHaveCount(0);
+    await expect(page.locator('.summary-card')).toContainText(/Rotation:\s*Off/);
+
+    const { body, id } = await submitImport(page, 'Import CA & Create Chain');
+    expect(body.type).toBe('internalChain');
+    expect(body.rotationPolicy).toMatchObject({ enabled: false });
+    expect(body.rotationPolicy?.intervalDays).toBeUndefined();
+    await expect(page.getByRole('heading', { name: `Key Chain: ${description}` })).toBeVisible();
+
+    const stored = await keyChain(request, id);
+    expect(stored.type).toBe('internalChain');
+    expect(stored.rotationPolicy.enabled).toBe(false);
+  });
+
+  test('refuses an External CA Chain whose certificate is not a CA', async ({ page }) => {
+    await configure(
+      page,
+      ['Credential Signing (Attestation)', 'External CA Chain'],
+      `E2E not a CA ${suffix}`
+    );
+    await fillKeyAndCertificate(page, leafKey, leafCertificate);
+
+    const answered = page.waitForResponse((response) => isImport(response.request()));
+    await page.getByRole('button', { name: 'Import CA & Create Chain' }).click();
+    expect((await answered).status()).toBe(400);
+    await expect(page.getByText(/certificate must be a CA/)).toBeVisible();
+    await expect(page).toHaveURL(/\/keys\/create$/);
+  });
+
+  test('imports an External Certificate as a standalone key chain', async ({ page, request }) => {
+    const description = `E2E external access ${suffix}`;
+    await configure(page, ['Access Certificate', 'External Certificate'], description);
+    await fillKeyAndCertificate(page, leafKey, leafCertificate);
+
+    const { body, id } = await submitImport(page, 'Import Key & Certificate');
+    expect(body.type).toBe('standalone');
+    expect(body.rotationPolicy).toBeUndefined();
+    await expect(page.getByRole('heading', { name: `Key Chain: ${description}` })).toBeVisible();
+
+    const stored = await keyChain(request, id);
+    expect(stored.type).toBe('standalone');
+  });
+});
