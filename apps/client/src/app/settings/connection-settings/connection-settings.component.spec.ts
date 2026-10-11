@@ -2,6 +2,7 @@ import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
 import { ApiService } from '../../core';
+import { OidcService } from '../../core/oidc.service';
 import type { ConfigImportMode } from '../../services/frontend-config.service';
 import { FrontendConfigService } from '../../services/frontend-config.service';
 import { VersionService } from '../../services/version.service';
@@ -11,6 +12,10 @@ describe('ConnectionSettingsComponent', () => {
   let version: Partial<VersionService>;
   /** What the frontend config request returns; null when it fails. */
   let importMode: ConfigImportMode | null;
+  /** The secret the signed-in tab holds; undefined after a reload. */
+  let secret: string | undefined;
+  let rejected: boolean;
+  let oidcMode: 'local' | 'oidc';
   let fixture: ComponentFixture<ConnectionSettingsComponent>;
 
   async function render(): Promise<HTMLElement> {
@@ -30,11 +35,13 @@ describe('ConnectionSettingsComponent', () => {
           useValue: {
             getBaseUrl: () => 'http://localhost:3000',
             getClientId: () => 'demo',
-            getClientSecret: () => undefined,
+            getClientSecret: () => secret,
             getoidcUrl: () => undefined,
-            canRefreshToken: () => false,
+            canRefreshToken: () => oidcMode === 'oidc' || !!secret,
+            areCredentialsRejected: () => rejected,
           },
         },
+        { provide: OidcService, useValue: { mode: oidcMode } },
         { provide: VersionService, useValue: version },
         { provide: FrontendConfigService, useValue: frontendConfig },
       ],
@@ -51,6 +58,9 @@ describe('ConnectionSettingsComponent', () => {
 
   beforeEach(() => {
     importMode = 'disabled';
+    secret = undefined;
+    rejected = false;
+    oidcMode = 'local';
     version = {
       check: () => Promise.resolve(),
       client: { version: '10.0.0', revision: 'abcdef0123' },
@@ -66,6 +76,53 @@ describe('ConnectionSettingsComponent', () => {
     expect(value(page, 'Client version')).toBe('10.0.0 (commit abcdef0)');
     expect(value(page, 'Startup configuration import mode')).toBe('disabled');
     expect(page.textContent).not.toContain('different builds');
+  });
+
+  it('says that a session without the client secret is not renewed and offers nothing to copy', async () => {
+    const page = await render();
+
+    expect(value(page, 'Client Secret')).toBe('Not available in this tab');
+    expect(page.querySelector('input[aria-label="Client Secret"]')?.getAttribute('type')).not.toBe(
+      'password'
+    );
+    expect(page.querySelector('[aria-label="Copy Client Secret to clipboard"]')).toBeNull();
+    expect(page.textContent).toContain(
+      'Automatic token refresh: disabled. The Web Client keeps the client secret only until the page reloads'
+    );
+  });
+
+  it('shows the secret of the tab that signed in, which renews its token', async () => {
+    secret = 'demo-secret';
+
+    const page = await render();
+
+    expect(value(page, 'Client Secret')).toBe('demo-secret');
+    expect(page.querySelector('input[aria-label="Client Secret"]')?.getAttribute('type')).toBe(
+      'password'
+    );
+    expect(page.querySelector('[aria-label="Copy Client Secret to clipboard"]')).not.toBeNull();
+    expect(page.textContent).toContain('Automatic token refresh: enabled');
+    expect(page.textContent).not.toContain('keeps the client secret only until');
+  });
+
+  it('says why a session whose credentials were rejected is not renewed', async () => {
+    rejected = true;
+
+    const page = await render();
+
+    expect(page.textContent).toContain(
+      'Automatic token refresh: disabled. The token endpoint rejected the credentials; log in again.'
+    );
+    expect(page.textContent).not.toContain('keeps the client secret only until');
+  });
+
+  it('says that SSO uses no client secret', async () => {
+    oidcMode = 'oidc';
+
+    const page = await render();
+
+    expect(value(page, 'Client Secret')).toBe('Not used with SSO');
+    expect(page.textContent).toContain('Automatic token refresh: enabled');
   });
 
   it('says when client and backend come from different builds', async () => {
