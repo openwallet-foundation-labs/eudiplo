@@ -216,7 +216,7 @@
             mat-button
             color="warn"
             (click)="deleteConfig()"
-            [disabled]="!hasConfig || isSaving"
+            [disabled]="!hasConfig || isSaving || isDeleting"
             appConfigManaged
             managedKind="RegistrarConfig"
             managedResourceId="registrar"
@@ -228,7 +228,7 @@
             mat-raised-button
             color="primary"
             (click)="saveConfig()"
-            [disabled]="configForm.invalid || isSaving"
+            [disabled]="configForm.invalid || isSaving || isDeleting"
             appConfigManaged
             managedKind="RegistrarConfig"
             managedResourceId="registrar"

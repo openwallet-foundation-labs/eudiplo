@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -16,7 +16,11 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { RegistrarConfig, RegistrarConfigRequest, RegistrarService } from './registrar.service';
 import { ConfigOwnershipDirective } from '../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../config-portability/config-ownership-notice.component';
-import { getApiErrorMessage, getValidationIssues } from '../utils/error-message';
+import {
+  ConfigOwnershipService,
+  ConfigResourceMetadata,
+} from '../config-portability/config-ownership.service';
+import { getHttpErrorMessage, getValidationIssues } from '../utils/error-message';
 import { httpUrlValidator } from '../utils/http-url-validator';
 
 interface RegistrarPreset {
@@ -75,6 +79,9 @@ const URL_EXAMPLES: Record<string, string> = {
   styleUrl: './registrar.component.scss',
 })
 export class RegistrarComponent implements OnInit {
+  @ViewChild(ConfigOwnershipNoticeComponent)
+  private ownershipNotice?: ConfigOwnershipNoticeComponent;
+
   configForm: FormGroup;
   config: RegistrarConfig | null = null;
   selectedPreset = '';
@@ -83,6 +90,7 @@ export class RegistrarComponent implements OnInit {
   /** Set when the stored configuration could not be loaded; the form stays hidden. */
   loadError = '';
   isSaving = false;
+  isDeleting = false;
   showClientSecret = false;
   showPassword = false;
 
@@ -98,7 +106,8 @@ export class RegistrarComponent implements OnInit {
   constructor(
     private readonly registrarService: RegistrarService,
     private readonly snackBar: MatSnackBar,
-    private readonly fb: FormBuilder
+    private readonly fb: FormBuilder,
+    private readonly ownership: ConfigOwnershipService
   ) {
     this.configForm = this.fb.group({
       registrarUrl: ['', [Validators.required, httpUrlValidator]],
@@ -151,10 +160,8 @@ export class RegistrarComponent implements OnInit {
       // and saving it would replace the stored configuration and remove its
       // client secret.
       console.error('Error loading registrar data:', error);
-      // The backend's message, else Angular's, which names the status.
-      const body = (error as { error?: { message?: unknown } } | null)?.error;
-      this.loadError = getApiErrorMessage(
-        typeof body?.message === 'string' ? body : error,
+      this.loadError = getHttpErrorMessage(
+        error,
         'The registrar configuration could not be loaded'
       );
     } finally {
@@ -259,7 +266,7 @@ export class RegistrarComponent implements OnInit {
    */
   private saveErrorMessage(error: any): string {
     const issues = getValidationIssues(error);
-    if (!issues.length) return error?.error?.message || 'Failed to save configuration';
+    if (!issues.length) return getHttpErrorMessage(error, 'Failed to save configuration');
     const others: string[] = [];
     for (const { path, message } of issues) {
       const control = path in FIELD_LABELS ? this.configForm.get(path) : null;
@@ -309,22 +316,51 @@ export class RegistrarComponent implements OnInit {
   }
 
   async deleteConfig(): Promise<void> {
-    if (!confirm('Are you sure you want to delete the registrar configuration?')) {
+    // Advisory only: without the ownership the question leaves the restore out.
+    const ownership = await this.ownership
+      .get('RegistrarConfig', 'registrar')
+      .catch(() => undefined);
+    if (!confirm(this.deleteQuestion(ownership))) {
       return;
     }
 
-    this.isSaving = true;
+    this.isDeleting = true;
     try {
       await this.registrarService.deleteConfig();
       this.config = null;
       this.configForm.reset();
+      this.selectedPreset = '';
+      // The backend removed the ownership record with the configuration.
+      this.ownership.invalidate();
+      void this.ownershipNotice?.refresh();
       this.snackBar.open('Configuration deleted', 'Close', { duration: 3000 });
     } catch (error) {
       console.error('Error deleting config:', error);
-      this.snackBar.open('Failed to delete configuration', 'Close', { duration: 3000 });
+      this.snackBar.open(getHttpErrorMessage(error, 'Failed to delete configuration'), 'Close', {
+        duration: 5000,
+      });
     } finally {
-      this.isSaving = false;
+      this.isDeleting = false;
     }
+  }
+
+  /**
+   * What Delete removes, and what stops working until the registrar is
+   * configured again. A configuration detached from a folder has no ownership
+   * record once deleted, so a startup import from that folder creates it again.
+   */
+  private deleteQuestion(ownership?: ConfigResourceMetadata): string {
+    const secrets = this.config?.hasClientSecret ? 'password, client secret' : 'password';
+    const restore =
+      ownership?.ownership === 'detached'
+        ? `A startup import from ${ownership.source || 'its configuration folder'} can restore it.`
+        : 'This cannot be undone.';
+    return (
+      `Delete the registrar configuration? Its URLs, account, stored ${secrets} and ` +
+      'registration certificate defaults are removed. Until the registrar is configured again, ' +
+      'presentation requests are sent without registration certificates, and no access or ' +
+      `registration certificates can be requested. ${restore}`
+    );
   }
 
   get hasConfig(): boolean {

@@ -287,10 +287,17 @@ test('deletes the configuration', async ({ page }) => {
   await signIn(page, tenant);
   await openRegistrarConfig(page);
 
-  page.once('dialog', (dialog) => dialog.accept());
+  let question = '';
+  page.once('dialog', (dialog) => {
+    question = dialog.message();
+    return dialog.accept();
+  });
   await page.getByRole('button', { name: 'Delete', exact: true }).click();
 
   await expect(page.getByText('Configuration deleted')).toBeVisible();
+  expect(question).toContain(
+    'Its URLs, account, stored password and registration certificate defaults are removed.'
+  );
   await expect(page.getByRole('button', { name: 'Save Configuration' })).toBeVisible();
   expect((await tenant.call('GET', '/api/registrar/config')).status).toBe(404);
 });

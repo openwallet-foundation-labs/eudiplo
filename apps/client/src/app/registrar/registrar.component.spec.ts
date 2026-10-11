@@ -3,9 +3,12 @@ import { TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { provideRouter } from '@angular/router';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ConfigOwnershipService } from '../config-portability/config-ownership.service';
+import {
+  ConfigOwnershipService,
+  ConfigResourceMetadata,
+} from '../config-portability/config-ownership.service';
 import { RegistrarComponent } from './registrar.component';
 import { RegistrarConfig, RegistrarConfigRequest, RegistrarService } from './registrar.service';
 
@@ -18,7 +21,31 @@ const stored: RegistrarConfig = {
   hasClientSecret: true,
 };
 
+// Tests stub `confirm`; restore it even when an assertion fails.
+afterEach(() => vi.unstubAllGlobals());
+
 type SaveRequest = (config: Partial<RegistrarConfigRequest>) => Promise<RegistrarConfig>;
+
+/** Ownership service whose record is gone once the cache is invalidated, as after a delete. */
+function ownershipMock(metadata?: ConfigResourceMetadata) {
+  let current = metadata;
+  return {
+    get: vi.fn(async () => current),
+    isManaged: vi.fn(async () => false),
+    invalidate: vi.fn(() => {
+      current = undefined;
+    }),
+  };
+}
+
+const detached: ConfigResourceMetadata = {
+  tenantId: 'tenant',
+  kind: 'RegistrarConfig',
+  resourceId: 'registrar',
+  ownership: 'detached',
+  generation: 2,
+  source: 'folder:/config/tenant',
+};
 
 function serviceMock() {
   return {
@@ -43,7 +70,8 @@ describe('RegistrarComponent credentials', () => {
     component = new RegistrarComponent(
       registrarService as unknown as RegistrarService,
       { open: vi.fn() } as unknown as MatSnackBar,
-      new FormBuilder()
+      new FormBuilder(),
+      ownershipMock() as unknown as ConfigOwnershipService
     );
   });
 
@@ -197,7 +225,6 @@ describe('RegistrarComponent credentials', () => {
     await component.deleteConfig();
 
     expect(component.configForm.get('password')?.hasError('required')).toBe(true);
-    vi.unstubAllGlobals();
   });
 });
 
@@ -224,7 +251,8 @@ describe('RegistrarComponent registration certificate defaults', () => {
     component = new RegistrarComponent(
       registrarService as unknown as RegistrarService,
       { open: vi.fn() } as unknown as MatSnackBar,
-      new FormBuilder()
+      new FormBuilder(),
+      ownershipMock() as unknown as ConfigOwnershipService
     );
   });
 
@@ -299,7 +327,6 @@ describe('RegistrarComponent registration certificate defaults', () => {
     vi.stubGlobal('confirm', () => true);
     await load(defaults);
     await component.deleteConfig();
-    vi.unstubAllGlobals();
     component.configForm.patchValue({
       registrarUrl: 'https://registrar.example/api',
       oidcUrl: 'https://auth.example/realms/registrar',
@@ -326,6 +353,7 @@ describe('RegistrarComponent registration certificate defaults', () => {
 describe('RegistrarComponent load and save errors', () => {
   let registrarService: ReturnType<typeof serviceMock>;
   let snackBar: { open: ReturnType<typeof vi.fn> };
+  let ownership: ReturnType<typeof ownershipMock>;
   let component: RegistrarComponent;
 
   async function load(config: RegistrarConfig): Promise<void> {
@@ -336,10 +364,12 @@ describe('RegistrarComponent load and save errors', () => {
   beforeEach(() => {
     registrarService = serviceMock();
     snackBar = { open: vi.fn() };
+    ownership = ownershipMock();
     component = new RegistrarComponent(
       registrarService as unknown as RegistrarService,
       snackBar as unknown as MatSnackBar,
-      new FormBuilder()
+      new FormBuilder(),
+      ownership as unknown as ConfigOwnershipService
     );
   });
 
@@ -353,6 +383,98 @@ describe('RegistrarComponent load and save errors', () => {
     expect(component.loadError).toContain('The registrar configuration could not be loaded');
     expect(component.loadError).toContain('500 Internal Server Error');
     expect(component.hasConfig).toBe(false);
+  });
+
+  it('names what deleting removes before it deletes', async () => {
+    const confirm = vi.fn(() => false);
+    vi.stubGlobal('confirm', confirm);
+    await load(stored);
+
+    await component.deleteConfig();
+
+    const [question] = confirm.mock.calls[0] as unknown as [string];
+    expect(question).toContain(
+      'Its URLs, account, stored password, client secret and registration certificate defaults are removed.'
+    );
+    expect(question).toContain('presentation requests are sent without registration certificates');
+    expect(question).toContain('This cannot be undone.');
+    expect(registrarService.deleteConfig).not.toHaveBeenCalled();
+    expect(component.hasConfig).toBe(true);
+  });
+
+  it('leaves the client secret out of the question when none is stored', async () => {
+    const confirm = vi.fn(() => false);
+    vi.stubGlobal('confirm', confirm);
+    await load({ ...stored, hasClientSecret: false });
+
+    await component.deleteConfig();
+
+    const [question] = confirm.mock.calls[0] as unknown as [string];
+    expect(question).toContain('stored password and registration certificate defaults');
+    expect(question).not.toContain('client secret');
+  });
+
+  it('says that a startup import can restore a detached configuration', async () => {
+    const confirm = vi.fn(() => false);
+    vi.stubGlobal('confirm', confirm);
+    ownership.get.mockResolvedValue(detached);
+    await load(stored);
+
+    await component.deleteConfig();
+
+    const [question] = confirm.mock.calls[0] as unknown as [string];
+    expect(question).toContain('A startup import from folder:/config/tenant can restore it.');
+    expect(question).not.toContain('This cannot be undone.');
+  });
+
+  it('starts over without a preset after deleting', async () => {
+    vi.stubGlobal('confirm', () => true);
+    await load(stored);
+    component.selectedPreset = 'German Sandbox';
+
+    await component.deleteConfig();
+
+    expect(component.selectedPreset).toBe('');
+    expect(component.hasConfig).toBe(false);
+  });
+
+  it('marks the delete, not a save, as running', async () => {
+    vi.stubGlobal('confirm', () => true);
+    await load(stored);
+    let finish!: () => void;
+    registrarService.deleteConfig.mockReturnValue(
+      new Promise<undefined>((resolve) => (finish = () => resolve(undefined)))
+    );
+
+    const deleting = component.deleteConfig();
+    await vi.waitFor(() => expect(component.isDeleting).toBe(true));
+    expect(component.isSaving).toBe(false);
+    finish();
+    await deleting;
+
+    expect(component.isDeleting).toBe(false);
+  });
+
+  it("names the backend's reason for a failed delete and keeps the configuration", async () => {
+    vi.stubGlobal('confirm', () => true);
+    await load(stored);
+    registrarService.deleteConfig.mockRejectedValue(
+      new HttpErrorResponse({
+        status: 403,
+        statusText: 'Forbidden',
+        error: { statusCode: 403, message: 'Forbidden resource' },
+      })
+    );
+
+    await component.deleteConfig();
+
+    expect(snackBar.open).toHaveBeenCalledWith(
+      'Failed to delete configuration: Forbidden resource',
+      'Close',
+      expect.anything()
+    );
+    expect(component.hasConfig).toBe(true);
+    expect(component.configForm.value.registrarUrl).toBe(stored.registrarUrl);
   });
 
   it("names the backend's reason for a failed load", async () => {
@@ -467,13 +589,13 @@ describe('RegistrarComponent load and save errors', () => {
 
     expect(snackBar.open).toHaveBeenNthCalledWith(
       1,
-      'Invalid registrar credentials (HTTP 401).',
+      'Failed to save configuration: Invalid registrar credentials (HTTP 401).',
       'Close',
       expect.anything()
     );
     expect(snackBar.open).toHaveBeenNthCalledWith(
       2,
-      'Failed to save configuration',
+      'Failed to save configuration: the backend could not be reached. Check the connection and try again.',
       'Close',
       expect.anything()
     );
@@ -483,7 +605,10 @@ describe('RegistrarComponent load and save errors', () => {
 describe('RegistrarComponent rendered', () => {
   let registrarService: ReturnType<typeof serviceMock>;
 
-  async function render(config: RegistrarConfig | null | HttpErrorResponse) {
+  async function render(
+    config: RegistrarConfig | null | HttpErrorResponse,
+    ownership = ownershipMock()
+  ) {
     registrarService = serviceMock();
     if (config instanceof HttpErrorResponse) {
       registrarService.getConfig.mockRejectedValue(config);
@@ -495,13 +620,7 @@ describe('RegistrarComponent rendered', () => {
       providers: [
         provideRouter([]),
         { provide: RegistrarService, useValue: registrarService },
-        {
-          provide: ConfigOwnershipService,
-          useValue: {
-            get: vi.fn().mockResolvedValue(undefined),
-            isManaged: vi.fn().mockResolvedValue(false),
-          },
-        },
+        { provide: ConfigOwnershipService, useValue: ownership },
       ],
     })
       .overrideProvider(MatSnackBar, { useValue: { open: vi.fn() } })
@@ -615,6 +734,50 @@ describe('RegistrarComponent rendered', () => {
 
     const storedConfig = await render(stored);
     expect(password(storedConfig).placeholder).toBe('Leave empty to keep existing');
+  });
+
+  function button(fixture: { nativeElement: unknown }, label: string): HTMLButtonElement {
+    return [...element(fixture).querySelectorAll('button')].find((candidate) =>
+      candidate.textContent?.includes(label)
+    )!;
+  }
+
+  it('disables Save and Delete while a delete runs, without the save spinner', async () => {
+    vi.stubGlobal('confirm', () => true);
+    const fixture = await render(stored);
+    let finish!: () => void;
+    registrarService.deleteConfig.mockReturnValue(
+      new Promise<undefined>((resolve) => (finish = () => resolve(undefined)))
+    );
+
+    button(fixture, 'Delete').click();
+    await vi.waitFor(() => expect(fixture.componentInstance.isDeleting).toBe(true));
+    fixture.detectChanges();
+
+    expect(button(fixture, 'Delete').disabled).toBe(true);
+    expect(button(fixture, 'Update Configuration').disabled).toBe(true);
+    expect(element(fixture).querySelector('.button-spinner')).toBeNull();
+
+    finish();
+    await vi.waitFor(() => expect(fixture.componentInstance.isDeleting).toBe(false));
+    fixture.detectChanges();
+    expect(button(fixture, 'Save Configuration')).toBeDefined();
+  });
+
+  it('drops the detached notice once the configuration is deleted', async () => {
+    vi.stubGlobal('confirm', () => true);
+    const fixture = await render(stored, ownershipMock(detached));
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(element(fixture).textContent).toContain('Detached from folder:/config/tenant');
+    });
+
+    await fixture.componentInstance.deleteConfig();
+
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(element(fixture).textContent).not.toContain('Detached from');
+    });
   });
 
   it('labels the visibility toggles and reveals only their own field', async () => {

@@ -52,6 +52,20 @@ export function hasHttpStatus(error: unknown, status: number): boolean {
   return (error as { statusCode?: unknown } | null | undefined)?.statusCode === status;
 }
 
+/**
+ * Message for a failed `HttpClient` request: the backend's message, a hint
+ * when the backend could not be reached, else Angular's message, which names
+ * the status.
+ */
+export function getHttpErrorMessage(error: unknown, fallback: string): string {
+  const response = error as { status?: unknown; error?: { message?: unknown } | null } | null;
+  if (response?.status === 0) {
+    return `${fallback}: the backend could not be reached. Check the connection and try again.`;
+  }
+  const body = response?.error;
+  return getApiErrorMessage(typeof body?.message === 'string' ? body : error, fallback);
+}
+
 /** A field the backend rejected in a `400 Validation failed` response. */
 export interface ValidationIssue {
   /** Dot-separated path of the field in the request body, empty for the body itself. */
