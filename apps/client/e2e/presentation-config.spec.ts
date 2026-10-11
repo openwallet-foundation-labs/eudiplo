@@ -57,7 +57,8 @@ test('a locked action on the list says why and lets no click or key through', as
     .getByRole('row')
     .filter({ has: page.getByRole('cell', { name: 'pid', exact: true }) });
   const view = row.locator('button').first();
-  const edit = row.getByRole('button', { name: 'Edit Configuration' });
+  // The list names each action after its configuration.
+  const edit = row.getByRole('button', { name: 'Edit presentation configuration pid' });
   const tooltip = page.locator('.mat-mdc-tooltip');
   await expect(edit).toHaveAttribute('aria-disabled', 'true');
   await expect(edit).toHaveAccessibleDescription(/^Edit Configuration\. Managed by .+, read-only$/);
