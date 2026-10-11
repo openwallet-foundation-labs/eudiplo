@@ -4837,30 +4837,6 @@ export type UpdateIssuanceDto = {
  */
 export type PublishSchemaMetaConfig = {
     /**
-     * Schema ID (attestation identifier URI). `publish` passes it to the registrar when set; `publish-version` requires the ID of the existing schema. With `credentialConfigId` and no `rulebookURI`, `publish` only links that credential configuration to this ID and uploads nothing.
-     */
-    id?: string;
-    /**
-     * Human-readable name. Required when publishing; not needed for a link-only request.
-     */
-    name?: string;
-    /**
-     * Schema version, for example `1.0.0`.
-     */
-    version: string;
-    /**
-     * URL of the attestation rulebook, which EUDIPLO downloads and uploads to the registrar. Required when publishing.
-     */
-    rulebookURI?: string;
-    /**
-     * Attestation level of security.
-     */
-    attestationLoS: 'iso_18045_high' | 'iso_18045_moderate' | 'iso_18045_enhanced-basic' | 'iso_18045_basic';
-    /**
-     * Cryptographic binding type.
-     */
-    bindingType: 'claim' | 'key' | 'biometric' | 'none';
-    /**
      * Schemas per attestation format. When omitted, the schema of `credentialConfigId` is used.
      */
     schemaURIs?: Array<{
@@ -4906,6 +4882,30 @@ export type PublishSchemaMetaConfig = {
             [key: string]: unknown;
         } | string;
     }>;
+    /**
+     * Schema ID (attestation identifier URI). `publish` passes it to the registrar when set; `publish-version` requires the ID of the existing schema. With `credentialConfigId` and no `rulebookURI`, `publish` only links that credential configuration to this ID and uploads nothing.
+     */
+    id?: string;
+    /**
+     * Human-readable name. Required when publishing; not needed for a link-only request.
+     */
+    name?: string;
+    /**
+     * Schema version, for example `1.0.0`.
+     */
+    version: string;
+    /**
+     * URL of the attestation rulebook, which EUDIPLO downloads and uploads to the registrar. Required when publishing.
+     */
+    rulebookURI?: string;
+    /**
+     * Attestation level of security.
+     */
+    attestationLoS: 'iso_18045_high' | 'iso_18045_moderate' | 'iso_18045_enhanced-basic' | 'iso_18045_basic';
+    /**
+     * Cryptographic binding type.
+     */
+    bindingType: 'claim' | 'key' | 'biometric' | 'none';
     /**
      * Registrar category of the schema metadata, one of the predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets it at the registrar after publishing; it is not stored in the credential configuration.
      */

@@ -10379,46 +10379,6 @@ export const UpdateIssuanceDtoSchema = {
 export const PublishSchemaMetaConfigSchema = {
     type: 'object',
     properties: {
-        id: {
-            description: 'Schema ID (attestation identifier URI). `publish` passes it to the registrar when set; `publish-version` requires the ID of the existing schema. With `credentialConfigId` and no `rulebookURI`, `publish` only links that credential configuration to this ID and uploads nothing.',
-            type: 'string',
-            example: 'https://example.com/attestations/my-credential'
-        },
-        name: {
-            description: 'Human-readable name. Required when publishing; not needed for a link-only request.',
-            type: 'string',
-            example: 'German PID'
-        },
-        version: {
-            type: 'string',
-            description: 'Schema version, for example `1.0.0`.',
-            example: '1.0.0'
-        },
-        rulebookURI: {
-            description: 'URL of the attestation rulebook, which EUDIPLO downloads and uploads to the registrar. Required when publishing.',
-            type: 'string',
-            example: 'https://example.com/rulebooks/my-credential/1.0.0.md'
-        },
-        attestationLoS: {
-            type: 'string',
-            enum: [
-                'iso_18045_high',
-                'iso_18045_moderate',
-                'iso_18045_enhanced-basic',
-                'iso_18045_basic'
-            ],
-            description: 'Attestation level of security.'
-        },
-        bindingType: {
-            type: 'string',
-            enum: [
-                'claim',
-                'key',
-                'biometric',
-                'none'
-            ],
-            description: 'Cryptographic binding type.'
-        },
         schemaURIs: {
             description: 'Schemas per attestation format. When omitted, the schema of `credentialConfigId` is used.',
             items: {
@@ -10491,6 +10451,42 @@ export const PublishSchemaMetaConfigSchema = {
                 additionalProperties: false
             },
             type: 'array'
+        },
+        id: {
+            type: 'string',
+            description: 'Schema ID (attestation identifier URI). `publish` passes it to the registrar when set; `publish-version` requires the ID of the existing schema. With `credentialConfigId` and no `rulebookURI`, `publish` only links that credential configuration to this ID and uploads nothing.'
+        },
+        name: {
+            type: 'string',
+            description: 'Human-readable name. Required when publishing; not needed for a link-only request.'
+        },
+        version: {
+            type: 'string',
+            description: 'Schema version, for example `1.0.0`.'
+        },
+        rulebookURI: {
+            type: 'string',
+            description: 'URL of the attestation rulebook, which EUDIPLO downloads and uploads to the registrar. Required when publishing.'
+        },
+        attestationLoS: {
+            type: 'string',
+            enum: [
+                'iso_18045_high',
+                'iso_18045_moderate',
+                'iso_18045_enhanced-basic',
+                'iso_18045_basic'
+            ],
+            description: 'Attestation level of security.'
+        },
+        bindingType: {
+            type: 'string',
+            enum: [
+                'claim',
+                'key',
+                'biometric',
+                'none'
+            ],
+            description: 'Cryptographic binding type.'
         },
         category: {
             type: 'string',

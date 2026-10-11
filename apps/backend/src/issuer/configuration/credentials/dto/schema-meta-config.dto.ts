@@ -116,28 +116,6 @@ export class SchemaMetaConfig extends createZodDto(SchemaMetaConfigSchema) {
 export class PublishSchemaMetaConfig extends createZodDto(
     PublishSchemaMetaConfigSchema,
 ) {
-    @ApiPropertyOptional({
-        example: "https://example.com/attestations/my-credential",
-    })
-    id?: string;
-
-    @ApiPropertyOptional({ example: "German PID" })
-    name?: string;
-
-    @ApiProperty({ example: "1.0.0" })
-    version!: string;
-
-    @ApiPropertyOptional({
-        example: "https://example.com/rulebooks/my-credential/1.0.0.md",
-    })
-    rulebookURI?: string;
-
-    @ApiProperty({ enum: AttestationLoS })
-    attestationLoS!: AttestationLoS;
-
-    @ApiProperty({ enum: SchemaMetaBindingType })
-    bindingType!: SchemaMetaBindingType;
-
     @ApiPropertyOptional({ type: () => [SchemaUriEntry] })
     schemaURIs?: SchemaUriEntry[];
 
