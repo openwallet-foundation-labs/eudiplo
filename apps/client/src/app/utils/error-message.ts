@@ -36,15 +36,30 @@ export function apiErrorDetail(error: unknown): string | undefined {
 
 export function getApiErrorMessage(error: unknown, fallback: string): string {
   const extracted = apiErrorDetail(error);
+  const issue = firstValidationIssue(error);
   if (!extracted) {
-    return fallback;
+    return issue ? `${fallback}: ${issue}` : fallback;
   }
 
+  const message = issue ? `${extracted} (${issue})` : extracted;
   if (extracted.toLowerCase().startsWith('failed to')) {
-    return extracted;
+    return message;
   }
 
-  return `${fallback}: ${extracted}`;
+  return `${fallback}: ${message}`;
+}
+
+/**
+ * The first issue of a `400 Validation failed` response as `path: message`,
+ * so the user sees which field was rejected.
+ */
+function firstValidationIssue(error: unknown): string | undefined {
+  const issues = getValidationIssues(error);
+  if (issues.length === 0) return undefined;
+
+  const [{ path, message }] = issues;
+  const first = path ? `${path}: ${message}` : message;
+  return issues.length > 1 ? `${first}; ${issues.length - 1} more` : first;
 }
 
 /** True when the SDK error is the backend's error body with this HTTP status. */

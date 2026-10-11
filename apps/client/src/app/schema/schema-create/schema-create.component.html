@@ -1,6 +1,6 @@
 <div fxLayout="row" fxLayoutAlign="space-between center">
   <h2>Create Schema</h2>
-  <button matIconButton [routerLink]="['../']" matTooltip="Back to list">
+  <button matIconButton [routerLink]="['../']" matTooltip="Back to list" aria-label="Back to list">
     <mat-icon>arrow_back</mat-icon>
   </button>
 </div>
@@ -26,7 +26,9 @@
         <mat-form-field fxFlex appearance="outline">
           <mat-label>Version</mat-label>
           <input matInput formControlName="version" placeholder="1.0.0" />
-          @if (composeForm.get('version')?.hasError('pattern')) {
+          @if (composeForm.get('version')?.hasError('required')) {
+            <mat-error>Version is required.</mat-error>
+          } @else if (composeForm.get('version')?.hasError('pattern')) {
             <mat-error>Must be a valid semantic version (e.g. 1.0.0 or 1.0.0-beta.1)</mat-error>
           }
         </mat-form-field>
@@ -47,6 +49,7 @@
             placeholder="https://example.com/rulebook"
           />
           <mat-hint>The integrity hash is computed by the backend at signing time.</mat-hint>
+          <mat-error>Rulebook URI is required.</mat-error>
         </mat-form-field>
       </div>
 
@@ -58,6 +61,7 @@
               <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
             }
           </mat-select>
+          <mat-error>Attestation LoS is required.</mat-error>
         </mat-form-field>
         <mat-form-field fxFlex appearance="outline">
           <mat-label>Binding Type</mat-label>
@@ -66,6 +70,7 @@
               <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
             }
           </mat-select>
+          <mat-error>Binding type is required.</mat-error>
         </mat-form-field>
       </div>
 
@@ -87,13 +92,18 @@
         <mat-form-field fxFlex appearance="outline">
           <mat-label>Category (optional)</mat-label>
           <mat-select formControlName="category" [disabled]="categoryVocabularies.length === 0">
+            <mat-option value="">— None —</mat-option>
             @for (entry of categoryVocabularies; track entry.code) {
               <mat-option [value]="entry.code" [disabled]="entry.status === 'deprecated'">
                 {{ vocabularyLabel(entry) }}
               </mat-option>
             }
           </mat-select>
-          @if (categoryVocabularies.length === 0) {
+          @if (loadState.vocabularies === 'loading') {
+            <mat-hint role="status">Loading categories…</mat-hint>
+          } @else if (loadState.vocabularies === 'failed') {
+            <mat-hint>Could not load categories from the registrar.</mat-hint>
+          } @else if (categoryVocabularies.length === 0) {
             <mat-hint>No predefined categories available.</mat-hint>
           }
         </mat-form-field>
@@ -107,7 +117,11 @@
               </mat-option>
             }
           </mat-select>
-          @if (tagVocabularies.length === 0) {
+          @if (loadState.vocabularies === 'loading') {
+            <mat-hint role="status">Loading tags…</mat-hint>
+          } @else if (loadState.vocabularies === 'failed') {
+            <mat-hint>Could not load tags from the registrar.</mat-hint>
+          } @else if (tagVocabularies.length === 0) {
             <mat-hint>No predefined tags available.</mat-hint>
           }
         </mat-form-field>
@@ -122,6 +136,7 @@
           <mat-label>Select credential configs</mat-label>
           <mat-select
             [formControl]="importSchemaConfigIds"
+            [errorStateMatcher]="schemaURIsErrorMatcher"
             multiple
             [disabled]="credentialConfigs.length === 0"
             (selectionChange)="syncSchemaURIsFromSelection()"
@@ -130,12 +145,26 @@
               <mat-option [value]="c.id">{{ configLabel(c) }}</mat-option>
             }
           </mat-select>
-          @if (credentialConfigs.length === 0) {
+          @if (loadState.credentialConfigs === 'loading') {
+            <mat-hint role="status">Loading credential configs…</mat-hint>
+          } @else if (loadState.credentialConfigs === 'failed') {
+            <mat-hint>Could not load credential configs.</mat-hint>
+          } @else if (credentialConfigs.length === 0) {
             <mat-hint>No credential configs available.</mat-hint>
           }
-          @if (schemaURIs.length === 0) {
-            <mat-error>At least one schema URI is required. Select a credential config.</mat-error>
-          }
+          <!-- Replaces the hint, so it repeats why the select may be empty. -->
+          <mat-error>
+            At least one schema URI is required.
+            @if (loadState.credentialConfigs === 'failed') {
+              The credential configs could not be loaded.
+            } @else if (
+              loadState.credentialConfigs === 'loaded' && credentialConfigs.length === 0
+            ) {
+              Create a credential config first.
+            } @else {
+              Select a credential config.
+            }
+          </mat-error>
         </mat-form-field>
 
         <p class="mat-body-small">
@@ -168,6 +197,7 @@
           <mat-label>Select trust lists</mat-label>
           <mat-select
             [formControl]="importTrustListIds"
+            [errorStateMatcher]="trustedAuthoritiesErrorMatcher"
             multiple
             [disabled]="trustLists.length === 0"
             (selectionChange)="syncTrustedAuthoritiesFromSelection()"
@@ -176,12 +206,24 @@
               <mat-option [value]="tl.id">{{ trustListLabel(tl) }}</mat-option>
             }
           </mat-select>
-          @if (trustLists.length === 0) {
+          @if (loadState.trustLists === 'loading') {
+            <mat-hint role="status">Loading trust lists…</mat-hint>
+          } @else if (loadState.trustLists === 'failed') {
+            <mat-hint>Could not load trust lists.</mat-hint>
+          } @else if (trustLists.length === 0) {
             <mat-hint>No trust lists available.</mat-hint>
           }
-          @if (trustedAuthorities.length === 0) {
-            <mat-error>At least one trusted authority is required.</mat-error>
-          }
+          <!-- Replaces the hint, so it repeats why the select may be empty. -->
+          <mat-error>
+            At least one trusted authority is required.
+            @if (loadState.trustLists === 'failed') {
+              The trust lists could not be loaded; add a root certificate.
+            } @else if (loadState.trustLists === 'loaded' && trustLists.length === 0) {
+              No trust lists exist; add a root certificate.
+            } @else {
+              Select a trust list or add a root certificate.
+            }
+          </mat-error>
         </mat-form-field>
         <div formArrayName="trustedAuthorities" fxLayout="column" fxLayoutGap="8px">
           @for (authority of trustedAuthorities.controls; track authority; let index = $index) {
@@ -204,12 +246,14 @@
                     rows="3"
                     placeholder="MIIB..."
                   ></textarea>
+                  <mat-error>Paste the root certificate or remove this entry.</mat-error>
                 </mat-form-field>
                 <button
                   mat-icon-button
                   type="button"
                   (click)="removeTrustedAuthority(index)"
                   matTooltip="Remove root certificate"
+                  aria-label="Remove root certificate"
                 >
                   <mat-icon>delete</mat-icon>
                 </button>
@@ -225,16 +269,15 @@
     </form>
   </mat-card-content>
   <mat-card-actions align="end">
+    @if (submitAttempted && composeForm.invalid) {
+      <span class="form-errors-hint" role="alert">
+        Some required fields are missing or invalid. They are marked above.
+      </span>
+    }
     <button mat-stroked-button type="button" [routerLink]="['../']" class="no-shrink">
       Cancel
     </button>
-    <button
-      mat-raised-button
-      color="primary"
-      type="button"
-      (click)="submit()"
-      [disabled]="loading || composeForm.invalid"
-    >
+    <button mat-raised-button color="primary" type="button" (click)="submit()" [disabled]="loading">
       <mat-icon>send</mat-icon>
       {{ loading ? 'Submitting…' : 'Submit' }}
     </button>

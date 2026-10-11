@@ -19,6 +19,7 @@ import { StatusListManagementService } from '../../../status-list-management/sta
 import { downloadJsonFile } from '../../../common/download-json.util';
 import { ConfigOwnershipDirective } from '../../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../../config-portability/config-ownership-notice.component';
+import { JwtService } from '../../../services/jwt.service';
 
 interface ClaimFieldRow {
   key: string;
@@ -69,8 +70,14 @@ export class CredentialConfigShowComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly snackBar: MatSnackBar,
     private readonly router: Router,
-    private readonly clipboard: Clipboard
+    private readonly clipboard: Clipboard,
+    private readonly jwtService: JwtService
   ) {}
+
+  /** The schema pages need `registrar:manage`; without it their links would end in "Access denied". */
+  get canOpenSchemas(): boolean {
+    return this.jwtService.hasRole('registrar:manage');
+  }
 
   get isMdocFormat(): boolean {
     return this.config?.config?.format === 'mso_mdoc';

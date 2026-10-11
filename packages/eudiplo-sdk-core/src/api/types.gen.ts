@@ -4859,11 +4859,95 @@ export type UpdateIssuanceDto = {
     display?: Array<DisplayInfo>;
 };
 
+/**
+ * Schema metadata values; the registrar builds and signs the result.
+ */
+export type PublishSchemaMetaConfig = {
+    /**
+     * Schemas per attestation format. When omitted, the schema of `credentialConfigId` is used.
+     */
+    schemaURIs?: Array<{
+        /**
+         * Credential configuration whose schema EUDIPLO builds and uploads; `uri` and `meta` are not needed.
+         */
+        credentialConfigId?: string;
+        /**
+         * Attestation format of the schema, for example `dc+sd-jwt` or `mso_mdoc`. Required with `uri`; with `credentialConfigId`, the format of the configuration takes precedence.
+         */
+        format?: string;
+        /**
+         * URL of a schema document that EUDIPLO downloads and uploads to the registrar. Requires `format` and `meta`.
+         */
+        uri?: string;
+        /**
+         * Format-specific schema metadata, for example `{ "vct": "urn:example:vct" }` for `dc+sd-jwt`. Required with `uri`.
+         */
+        meta?: {
+            [key: string]: unknown;
+        };
+    }>;
+    /**
+     * Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` with `x509Certificate`).
+     */
+    trustedAuthorities?: Array<{
+        /**
+         * Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list's key chain; the other fields are not needed.
+         */
+        trustListId?: string;
+        /**
+         * Trust framework of an external authority. `x509` takes a root certificate in `value` and no `verificationMethod`.
+         */
+        frameworkType?: 'aki' | 'etsi_tl' | 'openid_federation' | 'x509';
+        /**
+         * Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.
+         */
+        value?: string;
+        /**
+         * Verification material of an external authority, for example a JWK, as object or JSON string. Required, except for `x509` (must be omitted) and for a `value` that is a trust list URL of this tenant (EUDIPLO adds the certificate).
+         */
+        verificationMethod?: {
+            [key: string]: unknown;
+        } | string;
+    }>;
+    /**
+     * Schema ID (attestation identifier URI). `publish` passes it to the registrar when set; `publish-version` requires the ID of the existing schema. With `credentialConfigId` and no `rulebookURI`, `publish` only links that credential configuration to this ID and uploads nothing.
+     */
+    id?: string;
+    /**
+     * Human-readable name. Required when publishing; not needed for a link-only request.
+     */
+    name?: string;
+    /**
+     * Schema version, for example `1.0.0`.
+     */
+    version: string;
+    /**
+     * URL of the attestation rulebook, which EUDIPLO downloads and uploads to the registrar. Required when publishing.
+     */
+    rulebookURI?: string;
+    /**
+     * Attestation level of security.
+     */
+    attestationLoS: 'iso_18045_high' | 'iso_18045_moderate' | 'iso_18045_enhanced-basic' | 'iso_18045_basic';
+    /**
+     * Cryptographic binding type.
+     */
+    bindingType: 'claim' | 'key' | 'biometric' | 'none';
+    /**
+     * Registrar category of the schema metadata, one of the predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets it at the registrar after publishing; it is not stored in the credential configuration.
+     */
+    category?: 'identity' | 'health' | 'finance' | 'education' | 'mobility' | 'employment' | 'other';
+    /**
+     * Registrar tags of the schema metadata, predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets them at the registrar after publishing; they are not stored in the credential configuration.
+     */
+    tags?: Array<'pid' | 'eudi' | 'kyc' | 'aml' | 'age-verification' | 'residency' | 'membership' | 'education' | 'employment' | 'mobility'>;
+};
+
 export type SignSchemaMetaConfigDto = {
     /**
      * The schema metadata configuration to submit. Registrar builds and signs the final schema metadata.
      */
-    config: SchemaMetaConfig & {
+    config: PublishSchemaMetaConfig & {
         /**
          * Schema ID (attestation identifier URI). `publish` passes it to the registrar when set; `publish-version` requires the ID of the existing schema. With `credentialConfigId` and no `rulebookURI`, `publish` only links that credential configuration to this ID and uploads nothing.
          */
@@ -4934,6 +5018,14 @@ export type SignSchemaMetaConfigDto = {
                 [key: string]: unknown;
             } | string;
         }>;
+        /**
+         * Registrar category of the schema metadata, one of the predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets it at the registrar after publishing; it is not stored in the credential configuration.
+         */
+        category?: 'identity' | 'health' | 'finance' | 'education' | 'mobility' | 'employment' | 'other';
+        /**
+         * Registrar tags of the schema metadata, predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets them at the registrar after publishing; they are not stored in the credential configuration.
+         */
+        tags?: Array<'pid' | 'eudi' | 'kyc' | 'aml' | 'age-verification' | 'residency' | 'membership' | 'education' | 'employment' | 'mobility'>;
     };
     /**
      * Credential configuration to link to the published schema metadata ID.
@@ -4949,7 +5041,7 @@ export type SignVersionSchemaMetaConfigDto = {
     /**
      * The schema metadata configuration to submit as a new version. Must include the existing id.
      */
-    config: SchemaMetaConfig & {
+    config: PublishSchemaMetaConfig & {
         /**
          * Schema ID (attestation identifier URI). `publish` passes it to the registrar when set; `publish-version` requires the ID of the existing schema. With `credentialConfigId` and no `rulebookURI`, `publish` only links that credential configuration to this ID and uploads nothing.
          */
@@ -5020,6 +5112,14 @@ export type SignVersionSchemaMetaConfigDto = {
                 [key: string]: unknown;
             } | string;
         }>;
+        /**
+         * Registrar category of the schema metadata, one of the predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets it at the registrar after publishing; it is not stored in the credential configuration.
+         */
+        category?: 'identity' | 'health' | 'finance' | 'education' | 'mobility' | 'employment' | 'other';
+        /**
+         * Registrar tags of the schema metadata, predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets them at the registrar after publishing; they are not stored in the credential configuration.
+         */
+        tags?: Array<'pid' | 'eudi' | 'kyc' | 'aml' | 'age-verification' | 'residency' | 'membership' | 'education' | 'employment' | 'mobility'>;
     };
     /**
      * Credential configuration to link to the new version.
