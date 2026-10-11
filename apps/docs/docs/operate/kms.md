@@ -103,7 +103,15 @@ curl -X POST https://eudiplo.example.com/api/key-chain \
 `encrypt`; `type` is `standalone` or `internalChain`. Certificates, rotation and
 key import are covered in [Keys and certificates](../trust/keys-and-certificates.md).
 A key chain stays with its provider; to move it, create a new key chain in the
-target provider and switch the configurations that reference it.
+target provider and switch the configurations that reference it. Exception: a
+key chain file with a private key (`key`, or a `private-jwk` key source
+without `activeJwk`) and without `kmsProvider` is imported into the default
+provider. After a change of `defaultProvider`, the next `upsert` or `replace`
+import imports it into the new default
+([plan](../reference/config-bundle-format.md#import-modes-and-plan-actions)),
+and fails at that key chain, stopping the rest of the tenant's import, if the
+new default cannot import keys. Set `kmsProvider` in the file to keep the key
+in its provider.
 
 ## Per-tenant providers
 

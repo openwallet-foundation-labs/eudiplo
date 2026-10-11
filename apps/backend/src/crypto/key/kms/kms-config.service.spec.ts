@@ -172,4 +172,25 @@ describe("KmsConfigService", () => {
         expect(provider?.type).toBe("csc");
         expect(service.getDefaultProviderId("tenant-a")).toBe("shared");
     });
+
+    it("gives the default provider of a tenant configuration, else the global one", () => {
+        vi.mocked(existsSync).mockImplementation(
+            (path) => String(path) === "/config/kms.json",
+        );
+        vi.mocked(readFileSync).mockReturnValue(
+            JSON.stringify({
+                defaultProvider: "global",
+                providers: [{ id: "global", type: "db" }],
+            }),
+        );
+        const service = createService();
+        const providers = [{ id: "tenant", type: "db" }];
+        expect(
+            service.getDefaultProviderIdWith({
+                defaultProvider: "tenant",
+                providers,
+            }),
+        ).toBe("tenant");
+        expect(service.getDefaultProviderIdWith({ providers })).toBe("global");
+    });
 });

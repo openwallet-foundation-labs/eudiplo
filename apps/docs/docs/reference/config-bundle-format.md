@@ -201,6 +201,11 @@ A `KmsConfig` or `RegistrarConfig` document replaces the stored resource: fields
 
 The plan lists these values as they will be stored. For the other kinds, a top-level field the document leaves out keeps its stored value.
 
+The plan compares a `private-jwk` key source without `activeJwk` with what its import stored, so a file that has not changed plans as `unchanged` and a startup with `CONFIG_IMPORT_MODE=upsert` does not import the key again:
+
+- It fills in what the import fills in: `kid` (`<id>-active`), `alg` (`ES256`) and the default KMS provider, the one the bundle's `KmsConfig` sets if the import applies it. `crt` entries in base64 DER compare like their PEM form. In a CA chain (rotation enabled, unless `crt` is one self-signed certificate that is not a CA), only the last entry counts, the CA certificate. A key in an external KMS is compared by its public key.
+- It does not compare what the import generates while that is still current. Without `crt`, a stored self-signed certificate of the key matches; a certificate issued by a CA is a change. In a CA chain, the active key and its leaf certificate are not compared. Once a generated certificate has less than 90 days left (less than half of its validity if that is shorter), or a generated certificate other than a CA certificate no longer names the host of `PUBLIC_URL`, the plan lists it as a change and the import generates it again; in a CA chain, that is a new active key with a new leaf certificate.
+
 The import pipeline is: decode, verify checksums, migrate to the current
 versions, validate, check references and external keys, plan, apply in
 dependency order (for example key chains before issuance configs), record

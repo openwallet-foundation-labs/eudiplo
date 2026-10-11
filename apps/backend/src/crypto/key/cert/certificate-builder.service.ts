@@ -10,6 +10,7 @@ import {
     importPublicCryptoKey,
     makeKmsSigningKey,
 } from "../kms/kms-crypto-provider.js";
+import { pemCertificates } from "./pem-certificates.js";
 
 const ECDSA_P256_SIGNATURE_ALG = {
     name: "ECDSA",
@@ -178,15 +179,7 @@ export class CertificateBuilderService {
     }
 
     splitPemChain(pem: string): string[] {
-        const certs: string[] = [];
-        const parts = pem.split("-----END CERTIFICATE-----");
-        for (const part of parts) {
-            const trimmed = part.trim();
-            if (trimmed.includes("-----BEGIN CERTIFICATE-----")) {
-                certs.push(`${trimmed}\n-----END CERTIFICATE-----`);
-            }
-        }
-        return certs;
+        return pemCertificates(pem);
     }
 
     generateSerialNumber(): string {

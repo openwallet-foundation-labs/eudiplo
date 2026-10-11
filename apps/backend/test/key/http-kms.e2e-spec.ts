@@ -12,11 +12,18 @@ import { join } from "node:path";
 import { INestApplication } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
+import { exportJWK } from "jose";
 import request from "supertest";
+import { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { AppModule } from "../../src/app.module.js";
 import { KeyChainType } from "../../src/crypto/key/dto/key-chain-create.dto.js";
+import { KeyChainEntity } from "../../src/crypto/key/entities/key-chain.entity.js";
+import { ConfigBundleService } from "../../src/platform/config-portability/config-bundle.service.js";
+import { ConfigBundleApplyService } from "../../src/platform/config-portability/config-bundle-apply.service.js";
+import { ConfigResourceMetadataEntity } from "../../src/platform/config-portability/entities/config-resource-metadata.entity.js";
 import { createAppValidationPipe } from "../../src/shared/common/zod/zod-schema.util.js";
+import { keyChainBundle } from "../shared/config-bundle.js";
 import { getToken } from "../utils.js";
 
 const PROVIDER_ID = "kms-reference";
@@ -238,6 +245,95 @@ describe("Key Chain — HTTP KMS adapter (e2e)", () => {
     afterAll(async () => {
         await app?.close();
         await new Promise<void>((resolve) => kmsServer?.close(() => resolve()));
+    });
+
+    test("imports a private key into the http kms once and plans the unchanged document as unchanged", async () => {
+        // The tenant getToken created.
+        const tenantId = "root";
+        const privateKey = async () =>
+            exportJWK(
+                (
+                    await webcrypto.subtle.generateKey(
+                        { name: "ECDSA", namedCurve: "P-256" },
+                        true,
+                        ["sign", "verify"],
+                    )
+                ).privateKey,
+            );
+        // No kmsProvider: the default provider of kms.json, the http kms.
+        const bundle = keyChainBundle(tenantId, [
+            {
+                id: "standalone",
+                usageType: "access",
+                keySource: { type: "private-jwk", jwk: await privateKey() },
+            },
+            {
+                id: "rotating",
+                usageType: "attestation",
+                keySource: { type: "private-jwk", jwk: await privateKey() },
+                rotationPolicy: { enabled: true },
+            },
+        ]);
+        const plans = app.get(ConfigBundleService);
+        const imports = app.get(ConfigBundleApplyService);
+        const stored = async () =>
+            (
+                await app
+                    .get(DataSource)
+                    .getRepository(KeyChainEntity)
+                    .find({ where: { tenantId }, order: { id: "ASC" } })
+            )
+                .filter((row) => ["standalone", "rotating"].includes(row.id))
+                .map((row) => ({
+                    id: row.id,
+                    kmsProvider: row.kmsProvider,
+                    externalKeyId: row.externalKeyId,
+                    rootExternalKeyId: row.rootExternalKeyId,
+                    activeCertificate: row.activeCertificate,
+                    rootCertificate: row.rootCertificate,
+                }));
+
+        try {
+            await imports.apply(tenantId, bundle, "upsert");
+            const imported = await stored();
+            expect(imported).toEqual([
+                expect.objectContaining({
+                    id: "rotating",
+                    kmsProvider: PROVIDER_ID,
+                    rootExternalKeyId: expect.any(String),
+                }),
+                expect.objectContaining({
+                    id: "standalone",
+                    kmsProvider: PROVIDER_ID,
+                    externalKeyId: expect.any(String),
+                }),
+            ]);
+
+            const plan = await plans.plan(tenantId, bundle, "upsert");
+            expect(
+                plan.items.map(({ id, action, changes }) => ({
+                    id,
+                    action,
+                    changes,
+                })),
+            ).toEqual([
+                { id: "standalone", action: "unchanged", changes: [] },
+                { id: "rotating", action: "unchanged", changes: [] },
+            ]);
+            await imports.apply(tenantId, bundle, "upsert");
+            expect(await stored()).toEqual(imported);
+        } finally {
+            const ids = ["standalone", "rotating"];
+            const dataSource = app.get(DataSource);
+            for (const id of ids) {
+                await dataSource
+                    .getRepository(KeyChainEntity)
+                    .delete({ tenantId, id });
+                await dataSource
+                    .getRepository(ConfigResourceMetadataEntity)
+                    .delete({ tenantId, kind: "KeyChain", resourceId: id });
+            }
+        }
     });
 
     test("http provider is listed with correct capabilities", async () => {

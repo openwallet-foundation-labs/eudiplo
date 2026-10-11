@@ -84,6 +84,14 @@ export class KmsProviderRegistry implements OnModuleInit {
         return this.resolve(undefined, tenantId);
     }
 
+    /**
+     * The default provider ID a tenant gets once the given KMS configuration
+     * is saved for it, as `resolve()` uses it then.
+     */
+    defaultProviderIdFor(tenantConfig: { defaultProvider?: string }): string {
+        return this.kmsConfig.getDefaultProviderIdWith(tenantConfig);
+    }
+
     /** Return the public view of registered providers (for the API). */
     list(tenantId?: string): KmsProvidersResponseDto {
         const bundle = this.getBundle(tenantId);

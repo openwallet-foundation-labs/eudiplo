@@ -53,6 +53,76 @@ describe("key replacement preparation", () => {
     );
 });
 
+describe("key defaults", () => {
+    function importer() {
+        const service = Object.create(KeyChainImportService.prototype) as any;
+        service.keyChainRepository = {
+            existsBy: vi.fn().mockResolvedValue(false),
+            save: vi.fn(),
+        };
+        service.tenantRepository = {
+            findOneByOrFail: async () => ({ name: "Tenant" }),
+        };
+        service.getHostname = () => "issuer.example";
+        service.logger = { log: vi.fn() };
+        const adapter = {
+            type: "db",
+            providerId: "db",
+            importKey: vi.fn(async ({ privateJwk }) => ({
+                ref: { privateJwk, publicJwk: {} },
+            })),
+        };
+        service.kmsRegistry = { resolve: () => adapter };
+        service.certBuilder = {
+            createSelfSignedCert: vi.fn().mockResolvedValue("certificate"),
+        };
+        return { service, adapter };
+    }
+    const key = { kty: "EC", crv: "P-256", x: "x", y: "y", d: "d" };
+
+    it("passes the key to the KMS with the kid and alg the plan expects", async () => {
+        const { service, adapter } = importer();
+        await service.importKeyChain("tenant", {
+            id: "key",
+            key,
+            usageType: "attestation",
+        });
+        expect(adapter.importKey).toHaveBeenCalledWith({
+            kid: "key-active",
+            privateJwk: { ...key, kid: "key-active", alg: "ES256" },
+        });
+    });
+    it("keeps a kid and alg the key brings", async () => {
+        const { service, adapter } = importer();
+        const named = { ...key, kid: "signing", alg: "ES384" };
+        await service.importKeyChain("tenant", {
+            id: "key",
+            key: named,
+            usageType: "attestation",
+        });
+        expect(adapter.importKey).toHaveBeenCalledWith({
+            kid: "signing",
+            privateJwk: named,
+        });
+    });
+    it("rejects a crt entry that is neither PEM nor base64 DER and names it", () => {
+        const { service } = importer();
+        expect(() =>
+            service.resolveCertificateChain({
+                crt: [
+                    "-----BEGIN CERTIFICATE-----\nMIIB\n-----END CERTIFICATE-----",
+                    "not a certificate",
+                ],
+            }),
+        ).toThrow(
+            expect.objectContaining({
+                status: 400,
+                message: expect.stringContaining("crt[1]"),
+            }),
+        );
+    });
+});
+
 describe("PEM private key imports", () => {
     it("converts a PKCS#8 EC private key to JWK", async () => {
         const service = Object.create(

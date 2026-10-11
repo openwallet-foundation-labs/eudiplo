@@ -20,6 +20,8 @@ import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { compare as compareSecret } from "bcrypt";
 import { Repository } from "typeorm";
+import { generatedCertificateHost } from "../../crypto/key/key-chain-import-rules.js";
+import { KmsProviderRegistry } from "../../crypto/key/kms/kms-provider.registry.js";
 import { KmsTenantConfigService } from "../../crypto/key/kms/kms-tenant-config.service.js";
 import { withoutRemovedChainedVp } from "../../issuer/configuration/issuance/domain/removed-authorization-servers.js";
 import { FileEntity } from "../../storage/entities/files.entity.js";
@@ -44,9 +46,12 @@ import type {
     ConfigPlanOptions,
     ConfigResourceKind,
 } from "./config-resource.types.js";
+import type { ConfigResourceMetadataEntity } from "./entities/config-resource-metadata.entity.js";
 import {
     appliedKmsProvider,
     appliedRotationPolicy,
+    importedKeyChainComparison,
+    importsThroughKeyChainImporter,
     keyChainSettingsSpec,
 } from "./key-chain-document.js";
 
@@ -119,6 +124,7 @@ export class ConfigBundleService {
         private readonly documentValidationService: ConfigDocumentValidationService,
         private readonly ownershipService: ConfigOwnershipService,
         private readonly configService: ConfigService,
+        private readonly kmsRegistry: KmsProviderRegistry,
     ) {}
 
     private get tenants() {
@@ -430,12 +436,22 @@ export class ConfigBundleService {
         const assets = await this.planAssets(tenantId, bundle, mode);
         const items: ConfigImportPlanItem[] = [];
         const issues: ConfigMigrationIssue[] = [];
-        const upgradedDocuments: ConfigDocument[] = [];
-        for (const file of bundle.documents) {
+        const upgraded = bundle.documents.map((file) => {
             const input = this.migrationService.normalize(file);
-            const sourceVersion = input.$schema!;
-            const result = this.migrationService.upgrade(input);
-            upgradedDocuments.push(result.document);
+            return {
+                sourceVersion: input.$schema!,
+                result: this.migrationService.upgrade(input),
+            };
+        });
+        const upgradedDocuments = upgraded.map(({ result }) => result.document);
+        const kmsDefaultProvider = await this.appliedKmsDefaultProvider(
+            tenantId,
+            upgradedDocuments,
+            mode,
+            ownershipSource,
+            options,
+        );
+        for (const { sourceVersion, result } of upgraded) {
             const exists = await this.exists(
                 tenantId,
                 result.document.kind,
@@ -451,47 +467,15 @@ export class ConfigBundleService {
                 ...this.documentValidationService.validate(result.document),
             );
             this.collectUnresolvedRequirements(result.document, itemIssues);
-            const reference = {
-                kind: result.document.kind,
-                id: resourceId(result.document),
-            };
-            // A startup folder import must not fail the whole tenant because
-            // one resource diverged; it skips that resource and says how to recover.
-            const startupFolder = ownershipSource.startsWith("folder:");
-            let skipDiverged = false;
-            if (
-                exists &&
-                !options.reattach &&
-                metadata.ownership === "detached" &&
-                sourceInScope(metadata.source, ownershipSource)
-            ) {
-                skipDiverged = true;
-                itemIssues.push({
-                    severity: "warning",
-                    code: "RESOURCE_DETACHED",
-                    path: "/metadata",
-                    message:
-                        "Resource was detached from this source and is skipped. Reattach it to apply the file version.",
-                    resource: reference,
-                });
-            } else if (
-                exists &&
-                !options.reattach &&
-                (result.document.metadata.generation ?? 1) < metadata.generation
-            ) {
-                skipDiverged = startupFolder;
-                itemIssues.push({
-                    severity: startupFolder ? "warning" : "error",
-                    code: "STALE_GENERATION",
-                    path: "/metadata/generation",
-                    message: `Generation ${result.document.metadata.generation ?? 1} is older than stored generation ${metadata.generation}.${
-                        startupFolder
-                            ? " The resource was changed through the API or UI and is skipped. Reattach it to apply the file version, or raise metadata.generation in the file."
-                            : ""
-                    }`,
-                    resource: reference,
-                });
-            }
+            const divergence = this.divergence(
+                result.document,
+                exists,
+                metadata,
+                ownershipSource,
+                options,
+            );
+            const skipDiverged = divergence.skip;
+            if (divergence.issue) itemIssues.push(divergence.issue);
             if (
                 exists &&
                 mode !== "create" &&
@@ -560,7 +544,11 @@ export class ConfigBundleService {
             );
             const comparison =
                 exists && mode !== "create" && !blocked && !skipDiverged
-                    ? await this.compareDocument(tenantId, result.document)
+                    ? await this.compareDocument(
+                          tenantId,
+                          result.document,
+                          kmsDefaultProvider,
+                      )
                     : undefined;
             const metadataChanged =
                 metadata.ownership !== "file-managed" ||
@@ -663,6 +651,90 @@ export class ConfigBundleService {
             items,
             issues,
         };
+    }
+
+    /**
+     * Whether an existing resource diverged from the source: it was detached
+     * from it, or changed since and has a newer generation. A startup folder
+     * import must not fail the whole tenant because one resource diverged, so
+     * it skips that resource and says how to recover; other imports are
+     * blocked by a stale generation.
+     */
+    private divergence(
+        document: ConfigDocument,
+        exists: boolean,
+        metadata: Pick<
+            ConfigResourceMetadataEntity,
+            "ownership" | "source" | "generation"
+        >,
+        ownershipSource: string,
+        options: ConfigPlanOptions,
+    ): { skip: boolean; issue?: ConfigMigrationIssue } {
+        if (!exists || options.reattach) return { skip: false };
+        const resource = { kind: document.kind, id: resourceId(document) };
+        if (
+            metadata.ownership === "detached" &&
+            sourceInScope(metadata.source, ownershipSource)
+        ) {
+            return {
+                skip: true,
+                issue: {
+                    severity: "warning",
+                    code: "RESOURCE_DETACHED",
+                    path: "/metadata",
+                    message:
+                        "Resource was detached from this source and is skipped. Reattach it to apply the file version.",
+                    resource,
+                },
+            };
+        }
+        const generation = document.metadata.generation ?? 1;
+        if (generation >= metadata.generation) return { skip: false };
+        const startupFolder = ownershipSource.startsWith("folder:");
+        return {
+            skip: startupFolder,
+            issue: {
+                severity: startupFolder ? "warning" : "error",
+                code: "STALE_GENERATION",
+                path: "/metadata/generation",
+                message: `Generation ${generation} is older than stored generation ${metadata.generation}.${
+                    startupFolder
+                        ? " The resource was changed through the API or UI and is skipped. Reattach it to apply the file version, or raise metadata.generation in the file."
+                        : ""
+                }`,
+                resource,
+            },
+        };
+    }
+
+    /**
+     * The default KMS provider of the bundle's KMS configuration, if the plan
+     * applies it before the key chains; otherwise undefined, and a key chain
+     * without `kmsProvider` goes to the tenant's current default.
+     */
+    private async appliedKmsDefaultProvider(
+        tenantId: string,
+        documents: ConfigDocument[],
+        mode: ConfigImportMode,
+        ownershipSource: string,
+        options: ConfigPlanOptions,
+    ): Promise<string | undefined> {
+        const kms = documents.find((document) => document.kind === "KmsConfig");
+        // Create mode compares no existing key chain.
+        if (!kms || mode === "create") return undefined;
+        const exists = await this.exists(tenantId, "KmsConfig", "kms");
+        const metadata = await this.ownershipService.get(
+            tenantId,
+            "KmsConfig",
+            resourceId(kms),
+        );
+        // A skipped configuration is not applied, and a blocked one blocks the plan.
+        if (
+            this.divergence(kms, exists, metadata, ownershipSource, options)
+                .issue
+        )
+            return undefined;
+        return this.kmsRegistry.defaultProviderIdFor(kms.spec);
     }
 
     /** Hash configuration only; live status values and allocation stacks are not configuration. */
@@ -1267,15 +1339,20 @@ export class ConfigBundleService {
         }
     }
 
-    /** Compare the fields this import would write with current persisted configuration. */
+    /**
+     * Compare the fields this import would write with current persisted configuration.
+     * @param kmsDefaultProvider The default provider of a KMS configuration
+     * applied before this document; the tenant's current default otherwise.
+     */
     async compareDocument(
         tenantId: string,
         document: ConfigDocument,
+        kmsDefaultProvider?: string,
     ): Promise<{ unchanged: boolean; changes: ConfigChange[] }> {
         const stored = await this.currentSpec(tenantId, document);
         if (!stored) return { unchanged: false, changes: [] };
         // Stored image references are storage URLs; bundles name the file.
-        const current = (await this.assetReferenceRewriter(tenantId))(
+        let current = (await this.assetReferenceRewriter(tenantId))(
             stored,
         ) as Record<string, any>;
         let desired = structuredClone(document.spec) as Record<string, any>;
@@ -1295,6 +1372,24 @@ export class ConfigBundleService {
             desired.rotationPolicy = appliedRotationPolicy(desired);
             desired.kmsProvider = appliedKmsProvider(desired);
         }
+        // Compare with what the key chain importer stores, not what it generates.
+        if (
+            document.kind === "KeyChain" &&
+            importsThroughKeyChainImporter(desired)
+        )
+            ({ desired, current } = importedKeyChainComparison(
+                desired,
+                current,
+                {
+                    kmsProvider:
+                        desired.kmsProvider ||
+                        kmsDefaultProvider ||
+                        this.kmsRegistry.list(tenantId).default,
+                    hostname: generatedCertificateHost(
+                        this.configService.getOrThrow<string>("PUBLIC_URL"),
+                    ),
+                },
+            ));
         if (
             document.kind === "Client" &&
             typeof desired.secret === "string" &&

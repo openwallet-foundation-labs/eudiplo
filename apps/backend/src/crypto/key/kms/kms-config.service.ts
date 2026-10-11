@@ -32,6 +32,16 @@ export class KmsConfigService {
         return this.getConfig(tenantId).defaultProvider || DEFAULT_PROVIDER_ID;
     }
 
+    /** The default provider ID a tenant gets once the given KMS configuration is saved for it. */
+    getDefaultProviderIdWith(
+        tenantConfig: Pick<KmsConfig, "defaultProvider">,
+    ): string {
+        return (
+            mergedDefaultProvider(this.globalConfig, tenantConfig) ||
+            DEFAULT_PROVIDER_ID
+        );
+    }
+
     getProviders(tenantId?: string): KmsProviderConfig[] {
         return this.getConfig(tenantId).providers;
     }
@@ -142,7 +152,15 @@ function mergeConfigs(global: KmsConfig, tenant: KmsConfig): KmsConfig {
     }
 
     return {
-        defaultProvider: tenant.defaultProvider || global.defaultProvider,
+        defaultProvider: mergedDefaultProvider(global, tenant),
         providers: [...mergedProviders.values()],
     };
+}
+
+/** A tenant's own default provider wins over the global one. */
+function mergedDefaultProvider(
+    global: Pick<KmsConfig, "defaultProvider">,
+    tenant: Pick<KmsConfig, "defaultProvider">,
+): string | undefined {
+    return tenant.defaultProvider || global.defaultProvider;
 }

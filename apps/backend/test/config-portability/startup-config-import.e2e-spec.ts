@@ -34,10 +34,10 @@ import { ConfigOwnershipService } from "../../src/platform/config-portability/co
 import type {
     ConfigBundle,
     ConfigImportPlan,
-    ConfigResourceKind,
 } from "../../src/platform/config-portability/config-resource.types.js";
 import { ConfigResourceMetadataEntity } from "../../src/platform/config-portability/entities/config-resource-metadata.entity.js";
 import { RegistrarConfigEntity } from "../../src/registrar/entities/registrar-config.entity.js";
+import { configBundle, keyChainBundle } from "../shared/config-bundle.js";
 
 describe("startup configuration reconciliation", () => {
     let app: INestApplication;
@@ -941,30 +941,31 @@ describe("startup configuration reconciliation", () => {
         };
         const stored = () =>
             keyChains.findOneByOrFail({ tenantId: "demo", id: imported.id });
-        // Each import of a private key creates a new active key, which the
-        // plan reports as well; only the replaced settings are checked here.
+        // The plan does not count the active key that rotation generates.
+        const plannedItem = async (bundle: ConfigBundle) =>
+            (await service.plan("demo", bundle, "upsert")).items.find(
+                (item) => item.kind === "KeyChain",
+            );
         const plannedSettings = async (bundle: ConfigBundle) =>
-            (await service.plan("demo", bundle, "upsert")).items
-                .find((item) => item.kind === "KeyChain")
-                ?.changes?.filter(
-                    ({ path }) =>
-                        path === "/spec/description" ||
-                        path.startsWith("/spec/rotationPolicy/"),
-                )
-                .map(({ path, after }) => ({ path, after }));
+            (await plannedItem(bundle))?.changes?.map(({ path, after }) => ({
+                path,
+                after,
+            }));
 
         try {
             await apply.apply(
                 "demo",
-                keyChainBundle({
-                    ...imported,
-                    description: "Imported CA",
-                    rotationPolicy: {
-                        enabled: true,
-                        intervalDays: 30,
-                        certValidityDays: 60,
+                keyChainBundle("demo", [
+                    {
+                        ...imported,
+                        description: "Imported CA",
+                        rotationPolicy: {
+                            enabled: true,
+                            intervalDays: 30,
+                            certValidityDays: 60,
+                        },
                     },
-                }),
+                ]),
                 "upsert",
             );
             expect(await stored()).toMatchObject({
@@ -975,10 +976,9 @@ describe("startup configuration reconciliation", () => {
             });
 
             // With rotation, the importer fills in its default intervals.
-            const defaults = keyChainBundle({
-                ...imported,
-                rotationPolicy: { enabled: true },
-            });
+            const defaults = keyChainBundle("demo", [
+                { ...imported, rotationPolicy: { enabled: true } },
+            ]);
             expect(await plannedSettings(defaults)).toEqual([
                 { path: "/spec/description", after: undefined },
                 { path: "/spec/rotationPolicy/certValidityDays", after: 365 },
@@ -992,9 +992,12 @@ describe("startup configuration reconciliation", () => {
                 certValidityDays: 365,
             });
 
-            // Without a rotation policy, rotation is off and has no intervals.
-            const minimal = keyChainBundle(imported);
+            // Without a rotation policy, rotation is off and has no intervals,
+            // and the CA key becomes a standalone key.
+            const minimal = keyChainBundle("demo", [imported]);
             expect(await plannedSettings(minimal)).toEqual([
+                { path: "/spec/activeCertificate", after: undefined },
+                { path: "/spec/keySource", after: "[redacted]" },
                 {
                     path: "/spec/rotationPolicy/certValidityDays",
                     after: undefined,
@@ -1009,6 +1012,7 @@ describe("startup configuration reconciliation", () => {
                 rotationIntervalDays: null,
                 certValidityDays: null,
             });
+            expect((await plannedItem(minimal))?.action).toBe("unchanged");
         } finally {
             await keyChains.delete({ tenantId: "demo", id: imported.id });
             await dataSource
@@ -1130,7 +1134,7 @@ describe("startup configuration reconciliation", () => {
             plan.items.find((item) => item.kind === "KeyChain");
 
         try {
-            const bundle = keyChainBundle(spec);
+            const bundle = keyChainBundle("demo", [spec]);
             const created = keyChainItem(
                 await service.plan("demo", bundle, "upsert"),
             );
@@ -1158,10 +1162,9 @@ describe("startup configuration reconciliation", () => {
             const swapped = keyChainItem(
                 await service.plan(
                     "demo",
-                    keyChainBundle({
-                        ...spec,
-                        activeCertificate: root.certificate,
-                    }),
+                    keyChainBundle("demo", [
+                        { ...spec, activeCertificate: root.certificate },
+                    ]),
                     "upsert",
                 ),
             );
@@ -1188,61 +1191,14 @@ describe("startup configuration reconciliation", () => {
 });
 
 function registrarBundle(spec: Record<string, unknown>): ConfigBundle {
-    return documentBundle(
-        "RegistrarConfig",
-        "registrar",
-        "registrar.json",
-        spec,
-    );
-}
-
-function keyChainBundle(spec: Record<string, unknown>): ConfigBundle {
-    return documentBundle(
-        "KeyChain",
-        String(spec.id),
-        `key-chains/${spec.id}.json`,
-        spec,
-    );
-}
-
-function documentBundle(
-    kind: ConfigResourceKind,
-    id: string,
-    path: string,
-    spec: Record<string, unknown>,
-): ConfigBundle {
-    const document = {
-        $schema: schemaUrl(kind),
-        metadata: { generation: 1 },
-        spec,
-    };
-    return {
-        manifest: {
-            format: "eudiplo.config-bundle",
-            formatVersion: 2,
-            sourceVersion: "document-import",
-            exportedAt: new Date(0).toISOString(),
-            tenant: "demo",
-            resources: [
-                {
-                    kind,
-                    id,
-                    $schema: document.$schema,
-                    path,
-                    sha256: createHash("sha256")
-                        .update(JSON.stringify(document))
-                        .digest("hex"),
-                    ownership: "unmanaged",
-                    generation: 1,
-                },
-            ],
-            assets: [],
-            requirements: [],
-            warnings: [],
+    return configBundle("demo", [
+        {
+            kind: "RegistrarConfig",
+            id: "registrar",
+            path: "registrar.json",
+            spec,
         },
-        documents: [document],
-        assets: [],
-    } as ConfigBundle;
+    ]);
 }
 
 function restoreEnvironment(key: string, value: string | undefined): void {

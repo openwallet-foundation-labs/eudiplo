@@ -16,20 +16,18 @@ import {
     CertificateBuilderService,
     certificateNotBefore,
 } from "./cert/certificate-builder.service.js";
+import { certificateEntryToPem } from "./cert/pem-certificates.js";
 import { KeyChainImportDto } from "./dto/key-chain-import.dto.js";
 import { KeyChainEntity, KeyUsage } from "./entities/key-chain.entity.js";
 import { importedRotationIntervals } from "./key-chain-import-rotation.js";
+import {
+    generatedCertificateHost,
+    importedCertificates,
+    importedPrivateKey,
+    importsAsCaChain,
+} from "./key-chain-import-rules.js";
 import type { KmsAdapter, KmsKeyRef } from "./kms/kms-adapter.js";
 import { KmsProviderRegistry } from "./kms/kms-provider.registry.js";
-
-// Avoids a backtracking-prone `=+$` regex by trimming padding with a bounded loop.
-function stripTrailingPadding(value: string): string {
-    let end = value.length;
-    while (end > 0 && value[end - 1] === "=") {
-        end -= 1;
-    }
-    return value.slice(0, end);
-}
 
 /**
  * Handles config-driven key-chain import and the config-import lifecycle hook.
@@ -95,17 +93,14 @@ export class KeyChainImportService {
         });
         const hostname = this.getHostname();
 
-        const privateKey = await this.resolvePrivateKey(dto);
+        const privateKey = importedPrivateKey(
+            id,
+            await this.resolvePrivateKey(dto),
+        );
         const replacing = await this.keyChainRepository.existsBy({
             tenantId,
             id,
         });
-        if (!privateKey.kid) {
-            privateKey.kid = `${id}-active`;
-        }
-        if (!privateKey.alg) {
-            privateKey.alg = "ES256";
-        }
 
         const adapter = this.kmsRegistry.resolve(dto.kmsProvider, tenantId);
         // External adapters must not overwrite the active key while a replacement is being validated.
@@ -116,10 +111,7 @@ export class KeyChainImportService {
 
         // With rotation, the key is a CA key unless the certificate is the
         // self-signed one of a standalone key chain, as in its export.
-        if (
-            rotationEnabled &&
-            !this.isStandaloneCertificate(normalizedCertificates)
-        ) {
+        if (importsAsCaChain(rotationEnabled, normalizedCertificates)) {
             return this.importKeyChainWithRotation(
                 id,
                 tenantId,
@@ -137,12 +129,16 @@ export class KeyChainImportService {
         });
 
         let activeCertificate: string;
-        if (normalizedCertificates && normalizedCertificates.length > 0) {
+        const certificates = importedCertificates(
+            normalizedCertificates,
+            false,
+        );
+        if (certificates) {
             this.validateLeafCertificate(
-                normalizedCertificates[0],
+                certificates[0],
                 activeMat.ref.publicJwk,
             );
-            activeCertificate = normalizedCertificates.join("\n");
+            activeCertificate = certificates.join("\n");
         } else {
             const now = new Date();
             const notAfter = new Date(
@@ -185,26 +181,6 @@ export class KeyChainImportService {
         return id;
     }
 
-    /**
-     * True for a single self-signed certificate that is not a CA, as a
-     * standalone key chain has. It cannot sign the leaves of a CA chain.
-     */
-    private isStandaloneCertificate(certificates?: string[]): boolean {
-        if (certificates?.length !== 1) return false;
-        let certificate: X509Certificate;
-        try {
-            certificate = new X509Certificate(certificates[0]);
-        } catch {
-            // The CA path reports the parse error.
-            return false;
-        }
-        return (
-            !certificate.ca &&
-            certificate.issuer === certificate.subject &&
-            certificate.verify(certificate.publicKey)
-        );
-    }
-
     private async resolvePrivateKey(dto: KeyChainImportDto): Promise<JWK> {
         if (dto.key) {
             return { ...dto.key };
@@ -233,7 +209,7 @@ export class KeyChainImportService {
         tenantId: string,
         subjectCN: string,
         hostname: string,
-        rootKeyJwk: JWK,
+        rootKeyJwk: JWK & { kid: string },
         adapter: KmsAdapter,
         dto: KeyChainImportDto,
     ): Promise<string> {
@@ -244,18 +220,16 @@ export class KeyChainImportService {
             now.getTime() + certValidityDays * 24 * 60 * 60 * 1000,
         );
 
-        rootKeyJwk.kid = rootKeyJwk.kid || `${id}-root`;
         const rootMat = await adapter.importKey({
             kid: rootKeyJwk.kid,
             privateJwk: rootKeyJwk,
         });
 
         let rootCertificate: string;
-        const normalizedCertificates = this.resolveCertificateChain(dto);
-        if (normalizedCertificates && normalizedCertificates.length > 0) {
-            // `crt` is modeled as leaf-first. In rotation mode we need the root CA
-            // certificate that will sign newly generated leaf certificates.
-            rootCertificate = normalizedCertificates.at(-1)!;
+        const [caCertificate] =
+            importedCertificates(this.resolveCertificateChain(dto), true) ?? [];
+        if (caCertificate) {
+            rootCertificate = caCertificate;
         } else {
             const rootNotAfter = new Date(
                 now.getTime() + 10 * 365 * 24 * 60 * 60 * 1000,
@@ -325,8 +299,9 @@ export class KeyChainImportService {
     }
 
     private getHostname(): string {
-        return new URL(this.configService.getOrThrow<string>("PUBLIC_URL"))
-            .hostname;
+        return generatedCertificateHost(
+            this.configService.getOrThrow<string>("PUBLIC_URL"),
+        );
     }
 
     private resolveCertificateChain(
@@ -345,43 +320,13 @@ export class KeyChainImportService {
         value: string,
         index: number,
     ): string {
-        const trimmed = value.trim();
-        if (this.isPemCertificate(trimmed)) {
-            return trimmed;
-        }
-
         try {
-            const normalized = trimmed.replace(/\s+/g, "");
-            const der = Buffer.from(normalized, "base64");
-            if (der.length === 0) {
-                throw new Error("decoded certificate is empty");
-            }
-
-            // Ensure the string was valid base64 before PEM wrapping.
-            const canonical = stripTrailingPadding(der.toString("base64"));
-            if (canonical !== stripTrailingPadding(normalized)) {
-                throw new Error("input is not valid base64 DER");
-            }
-
-            // Canonical PEM formatting with 64-character lines.
-            const body =
-                der
-                    .toString("base64")
-                    .match(/.{1,64}/g)
-                    ?.join("\n") ?? "";
-            return `-----BEGIN CERTIFICATE-----\n${body}\n-----END CERTIFICATE-----`;
+            return certificateEntryToPem(value);
         } catch (error) {
             throw new BadRequestException(
                 `Invalid certificate at crt[${index}]. Expected PEM or base64 DER: ${String(error)}`,
             );
         }
-    }
-
-    private isPemCertificate(value: string): boolean {
-        return (
-            value.includes("-----BEGIN CERTIFICATE-----") &&
-            value.includes("-----END CERTIFICATE-----")
-        );
     }
 
     private validateRotationRootCertificate(
