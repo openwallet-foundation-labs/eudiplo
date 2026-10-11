@@ -30,7 +30,7 @@
     <mat-card>
       <mat-card-header>
         <mat-icon mat-card-avatar>list_alt</mat-icon>
-        <mat-card-title>Status List Settings</mat-card-title>
+        <mat-card-title #settingsTitle tabindex="-1">Status List Settings</mat-card-title>
         <mat-card-subtitle>
           Configure how credential status is tracked. Capacity and bits only affect newly created
           status lists.
@@ -390,10 +390,11 @@
             color="warn"
             (click)="onReset()"
             [disabled]="isSaving || !hasStoredOverride"
+            disabledInteractive
             appConfigManaged
             managedKind="Tenant"
             managedResourceId="tenant"
-            matTooltip="Reset to global defaults"
+            [matTooltip]="resetTooltip"
           >
             <mat-icon>restart_alt</mat-icon>
             Reset to Defaults
@@ -403,6 +404,7 @@
           }
         </div>
         <button
+          #saveButton
           mat-raised-button
           color="primary"
           (click)="onSave()"

@@ -65,11 +65,14 @@ describe('RegistrarComponent credentials', () => {
 
   beforeEach(() => {
     registrarService = serviceMock();
-    component = new RegistrarComponent(
-      registrarService as unknown as RegistrarService,
-      { open: vi.fn() } as unknown as MatSnackBar,
-      new FormBuilder(),
-      ownershipMock() as unknown as ConfigOwnershipService
+    component = TestBed.runInInjectionContext(
+      () =>
+        new RegistrarComponent(
+          registrarService as unknown as RegistrarService,
+          { open: vi.fn() } as unknown as MatSnackBar,
+          new FormBuilder(),
+          ownershipMock() as unknown as ConfigOwnershipService
+        )
     );
   });
 
@@ -246,11 +249,14 @@ describe('RegistrarComponent registration certificate defaults', () => {
 
   beforeEach(() => {
     registrarService = serviceMock();
-    component = new RegistrarComponent(
-      registrarService as unknown as RegistrarService,
-      { open: vi.fn() } as unknown as MatSnackBar,
-      new FormBuilder(),
-      ownershipMock() as unknown as ConfigOwnershipService
+    component = TestBed.runInInjectionContext(
+      () =>
+        new RegistrarComponent(
+          registrarService as unknown as RegistrarService,
+          { open: vi.fn() } as unknown as MatSnackBar,
+          new FormBuilder(),
+          ownershipMock() as unknown as ConfigOwnershipService
+        )
     );
   });
 
@@ -363,11 +369,14 @@ describe('RegistrarComponent load and save errors', () => {
     registrarService = serviceMock();
     snackBar = { open: vi.fn() };
     ownership = ownershipMock();
-    component = new RegistrarComponent(
-      registrarService as unknown as RegistrarService,
-      snackBar as unknown as MatSnackBar,
-      new FormBuilder(),
-      ownership as unknown as ConfigOwnershipService
+    component = TestBed.runInInjectionContext(
+      () =>
+        new RegistrarComponent(
+          registrarService as unknown as RegistrarService,
+          snackBar as unknown as MatSnackBar,
+          new FormBuilder(),
+          ownership as unknown as ConfigOwnershipService
+        )
     );
   });
 
@@ -885,21 +894,30 @@ describe('RegistrarComponent rendered', () => {
 
   it('shows an error with Retry instead of the form when loading fails', async () => {
     const fixture = await render(new HttpErrorResponse({ status: 500 }));
-    expect(element(fixture).querySelector('[role="alert"]')?.textContent).toContain(
-      'could not be loaded'
-    );
+    const alert = element(fixture).querySelector('[role="alert"]')?.textContent;
+    expect(alert).toContain('could not be loaded');
+    // Saving a form without the stored configuration would replace it.
+    expect(alert).toContain('Retry before making changes.');
     expect(element(fixture).querySelector('form')).toBeNull();
 
     registrarService.getConfig.mockResolvedValue(stored);
     const retry = [...element(fixture).querySelectorAll('button')].find((button) =>
       button.textContent?.includes('Retry')
     )!;
+    retry.focus();
     retry.click();
     await vi.waitFor(() => expect(fixture.componentInstance.isLoading).toBe(false));
     fixture.detectChanges();
 
     expect(element(fixture).querySelector('[role="alert"]')).toBeNull();
     expect(element(fixture).querySelector('form')).not.toBeNull();
+    // The retry removed the error card with its focused Retry button.
+    const title = element(fixture).querySelector('mat-card-title');
+    expect(title?.textContent).toContain('Registrar Credentials');
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(document.activeElement).toBe(title);
+    });
   });
 
   it('explains a URL without a scheme', async () => {

@@ -21,7 +21,7 @@
     <mat-card>
       <mat-card-header>
         <mat-icon mat-card-avatar>schedule</mat-icon>
-        <mat-card-title>Session Retention Settings</mat-card-title>
+        <mat-card-title #settingsTitle tabindex="-1">Session Retention Settings</mat-card-title>
         <mat-card-subtitle>
           Control how long sessions are kept and what happens when they expire
         </mat-card-subtitle>
@@ -182,10 +182,11 @@
             color="warn"
             (click)="onReset()"
             [disabled]="isSaving || !hasStoredOverride"
+            disabledInteractive
             appConfigManaged
             managedKind="Tenant"
             managedResourceId="tenant"
-            matTooltip="Reset to global defaults"
+            [matTooltip]="resetTooltip"
           >
             <mat-icon>restart_alt</mat-icon>
             Reset to Defaults
@@ -195,6 +196,7 @@
           }
         </div>
         <button
+          #saveButton
           mat-flat-button
           color="primary"
           (click)="onSave()"

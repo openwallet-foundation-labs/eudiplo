@@ -1,4 +1,12 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  Injector,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -15,7 +23,9 @@ import { SessionConfigService, SessionCleanupMode, cleanupModes } from './sessio
 import { SessionStorageConfig, UpdateSessionConfigDto } from '@eudiplo/sdk-core';
 import { ConfigOwnershipDirective } from '../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../config-portability/config-ownership-notice.component';
+import { focusAfterRenderIfLost } from '../common/focus-if-lost.util';
 import { LoadErrorComponent } from '../common/load-error.component';
+import { resetDefaultsTooltip } from '../common/reset-defaults';
 import { getApiErrorMessage } from '../utils/error-message';
 import { openErrorSnackBar } from '../utils/error-snackbar';
 import { wholeNumberValidator } from '../utils/whole-number-validator';
@@ -51,6 +61,17 @@ export class SessionConfigComponent implements OnInit {
   loadError = '';
   currentConfig: SessionStorageConfig | null = null;
 
+  /**
+   * Where focus goes when a retry removes the error card with its focused
+   * Retry button, or a reset ends while focus is nowhere.
+   */
+  @ViewChild('settingsTitle', { read: ElementRef })
+  private readonly settingsTitle?: ElementRef<HTMLElement>;
+  /** Natively disabled while saving, so it loses focus to `<body>` until it is back. */
+  @ViewChild('saveButton', { read: ElementRef })
+  private readonly saveButton?: ElementRef<HTMLButtonElement>;
+  private readonly injector = inject(Injector);
+
   cleanupModes = cleanupModes;
 
   constructor(
@@ -70,6 +91,7 @@ export class SessionConfigComponent implements OnInit {
   }
 
   async loadConfig(): Promise<void> {
+    const retrying = this.loadError !== '';
     this.isLoading = true;
     this.loadError = '';
     try {
@@ -82,6 +104,9 @@ export class SessionConfigComponent implements OnInit {
       this.isLoading = false;
     }
     this.patchForm(this.currentConfig);
+    if (retrying && !this.loadError) {
+      focusAfterRenderIfLost(this.injector, () => this.settingsTitle?.nativeElement);
+    }
   }
 
   /**
@@ -98,6 +123,10 @@ export class SessionConfigComponent implements OnInit {
     return this.hasStoredCleanupMode || !!this.currentConfig?.ttlSeconds;
   }
 
+  get resetTooltip(): string {
+    return resetDefaultsTooltip(this.isSaving, this.hasStoredOverride);
+  }
+
   async onSave(): Promise<void> {
     if (this.configForm.invalid || this.loadError) {
       return;
@@ -112,6 +141,7 @@ export class SessionConfigComponent implements OnInit {
       return;
     } finally {
       this.isSaving = false;
+      focusAfterRenderIfLost(this.injector, () => this.saveButton?.nativeElement);
     }
     this.patchForm(this.currentConfig);
     this.snackBar.open('Session configuration saved successfully', 'Close', {
@@ -120,7 +150,8 @@ export class SessionConfigComponent implements OnInit {
   }
 
   async onReset(): Promise<void> {
-    if (!this.hasStoredOverride || !confirm(this.resetConfirmation())) {
+    // `disabledInteractive` keeps the button clickable while it looks disabled.
+    if (this.isSaving || !this.hasStoredOverride || !confirm(this.resetConfirmation())) {
       return;
     }
 
@@ -132,6 +163,7 @@ export class SessionConfigComponent implements OnInit {
       return;
     } finally {
       this.isSaving = false;
+      focusAfterRenderIfLost(this.injector, () => this.settingsTitle?.nativeElement);
     }
     // The same state a fresh load of a tenant without overrides returns.
     this.currentConfig = {};

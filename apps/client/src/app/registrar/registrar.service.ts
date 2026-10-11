@@ -41,6 +41,27 @@ export interface RegistrarConfigRequest {
 export type AccessCertificateResponse = RegistrarControllerCreateAccessCertificateResponse;
 
 /**
+ * Why EUDIPLO refused an access certificate request. It refuses before it
+ * stores the certificate, its last step, so the key has none: `role` (403)
+ * without registrar:manage; `registrar` (400) when the registrar
+ * authentication, the relying party registration or the certificate request
+ * fails, or (404) without registrar configuration or key. The backend's
+ * access-certificate.service.spec.ts pins that order.
+ */
+export type AccessCertificateRefusal = 'role' | 'registrar';
+
+/**
+ * Why a failed {@link RegistrarService.createAccessCertificate} was refused;
+ * undefined when it failed otherwise and the certificate may have been stored.
+ */
+export function accessCertificateRefusal(error: unknown): AccessCertificateRefusal | undefined {
+  const status = (error as { status?: unknown } | null)?.status;
+  if (status === 403) return 'role';
+  if (status === 400 || status === 404) return 'registrar';
+  return undefined;
+}
+
+/**
  * Service for managing registrar configuration and creating access certificates.
  */
 @Injectable({
