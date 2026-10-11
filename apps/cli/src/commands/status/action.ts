@@ -1,3 +1,4 @@
+import { redactUrl } from "../../services/cli-config.js";
 import { runDoctor } from "../../services/diagnostics.js";
 import { resolveInstance } from "../../services/instance-selection.js";
 import type { CliConfig, CommandContext, ParsedArgs } from "../../types.js";
@@ -11,7 +12,7 @@ export async function runStatusCommand(
     const checks = await runDoctor(instance, context, []);
     const health = checks.find((check) => check.name === "health endpoint");
     context.stdout.write(
-        `${instanceName} (${instance.target}) ${instance.url}\n`,
+        `${instanceName} (${instance.target}) ${redactUrl(instance.url)}\n`,
     );
     if (health) {
         context.stdout.write(

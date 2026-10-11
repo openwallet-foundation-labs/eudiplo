@@ -72,6 +72,11 @@ describe("eudiplo instance lifecycle", () => {
                         url: "https://admin:s3cret@eudiplo.example.com",
                         clientUrl: "https://token@client.example.com/app",
                     },
+                    // The URL parser accepts user info without "//".
+                    legacy: {
+                        target: "external",
+                        url: "https:admin:s3cret@legacy.example.com",
+                    },
                 },
             });
 
@@ -87,6 +92,44 @@ describe("eudiplo instance lifecycle", () => {
             expect(output.stdout).toContain(
                 "Client URL: https://***@client.example.com/app",
             );
+            expect(output.stdout).toContain(
+                "- legacy: external https://***@legacy.example.com/",
+            );
+        });
+
+        it("never prints credentials in doctor or status output", async () => {
+            const config = {
+                defaultInstance: "production",
+                instances: {
+                    production: {
+                        target: "external" as const,
+                        url: "https://admin:s3cret@eudiplo.example.com",
+                        clientUrl: "https:token:t0ken@client.example.com",
+                    },
+                },
+            };
+            // Like Node's fetch: refuse URLs with user info, repeating the URL.
+            const refusing: typeof fetch = async (input) => {
+                throw new TypeError(
+                    `Request cannot be constructed from a URL that includes credentials: ${String(input)}`,
+                );
+            };
+            const answering: typeof fetch = async () =>
+                new Response("{}", { status: 200 });
+
+            for (const fakeFetch of [refusing, answering]) {
+                const { context, output } = await createContext(config, {
+                    fetch: fakeFetch,
+                });
+                await runCli(["doctor"], context);
+                await runCli(["status"], context);
+                const printed = output.stdout + output.stderr;
+
+                expect(printed).not.toContain("admin");
+                expect(printed).not.toContain("s3cret");
+                expect(printed).not.toContain("t0ken");
+                expect(printed).toContain("https://***@eudiplo.example.com/");
+            }
         });
     });
 
@@ -660,9 +703,29 @@ describe("CLI config writes", () => {
             "https://***@example.com:8443/api",
         );
     });
+
+    it("redacts user info the URL parser accepts without //", () => {
+        expect(redactUrl("https:admin:secret@api.example.com")).toBe(
+            "https://***@api.example.com/",
+        );
+        expect(redactUrl("https:/admin:secret@api.example.com/v1")).toBe(
+            "https://***@api.example.com/v1",
+        );
+        expect(redactUrl("HTTPS://Admin:Secret@API.example.com")).toBe(
+            "https://***@api.example.com/",
+        );
+    });
+
+    it("hides values that are not URLs but could carry user info", () => {
+        expect(redactUrl("//admin:secret@api.example.com")).toBe("***");
+        expect(redactUrl("not a url")).toBe("not a url");
+    });
 });
 
-async function createContext(config?: CliConfig) {
+async function createContext(
+    config?: CliConfig,
+    options: { fetch?: typeof fetch } = {},
+) {
     const home = await mkdtemp(join(tmpdir(), "eudiplo-cli-home-"));
     const configPath = join(home, "config.json");
     if (config) {
@@ -684,9 +747,19 @@ async function createContext(config?: CliConfig) {
                 return true;
             },
         },
-        fetch: async () => {
-            throw new Error("Unexpected network request in instance tests.");
-        },
+        fetch:
+            options.fetch ??
+            (async () => {
+                throw new Error(
+                    "Unexpected network request in instance tests.",
+                );
+            }),
+        // Never open a real TLS socket from the test suite.
+        readCertificate: async () => ({
+            subject: "eudiplo.example.com",
+            issuer: "Test CA",
+            validTo: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        }),
     };
     return { context, output, configPath };
 }

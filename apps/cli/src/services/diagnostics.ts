@@ -17,6 +17,7 @@ import {
     readProviderHealth,
     summarizeProviderHealth,
 } from "./backend-checks.js";
+import { redactUrl } from "./cli-config.js";
 import {
     type CertificateReader,
     checkTlsCertificate,
@@ -64,7 +65,7 @@ const publicUrlCheck: DoctorCheckDefinition = {
             return {
                 name: "public URL",
                 status: "fail",
-                message: `${instance.url} is not a valid absolute URL`,
+                message: `${redactUrl(instance.url)} is not a valid absolute URL`,
             };
         }
         return {
@@ -72,8 +73,8 @@ const publicUrlCheck: DoctorCheckDefinition = {
             status: baseUrl.protocol === "https:" ? "pass" : "warn",
             message:
                 baseUrl.protocol === "https:"
-                    ? `${baseUrl.href} uses HTTPS`
-                    : `${baseUrl.href} does not use HTTPS`,
+                    ? `${redactUrl(baseUrl.href)} uses HTTPS`
+                    : `${redactUrl(baseUrl.href)} does not use HTTPS`,
         };
     },
 };
@@ -133,7 +134,7 @@ const clientConnectivityCheck: DoctorCheckDefinition = {
             return {
                 name: "client connectivity",
                 status: "fail",
-                message: `${instance.clientUrl} is not a valid absolute URL`,
+                message: `${redactUrl(instance.clientUrl)} is not a valid absolute URL`,
             };
         }
         return checkEndpoint("client connectivity", clientUrl, "", context);
@@ -376,19 +377,20 @@ async function checkEndpoint(
             return {
                 name,
                 status: "pass",
-                message: `${url.href} returned HTTP ${response.status}`,
+                message: `${redactUrl(url.href)} returned HTTP ${response.status}`,
             };
         }
         return {
             name,
             status: "fail",
-            message: `${url.href} returned HTTP ${response.status}`,
+            message: `${redactUrl(url.href)} returned HTTP ${response.status}`,
         };
     } catch (error) {
         return {
             name,
             status: "fail",
-            message: `${url.href} could not be reached: ${String(error)}`,
+            // fetch refuses URLs with user info and repeats the URL in its error.
+            message: `${redactUrl(url.href)} could not be reached: ${String(error).replaceAll(url.href, redactUrl(url.href))}`,
         };
     }
 }

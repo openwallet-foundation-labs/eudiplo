@@ -81,8 +81,9 @@ breaking later commands, and the file is replaced atomically with mode `0600`
 into a dotfiles repository, the file it points to is replaced and the link is
 kept. The default instance always points at a registered instance: removing it
 requires `--default <name>`, unless it is the last one; `--default` is refused
-when you remove any other instance, use `instance use` for that. `list` and
-`show` mask credentials embedded in a URL (`https://***@host`).
+when you remove any other instance, use `instance use` for that. The CLI never
+prints credentials embedded in a URL: `instance list`, `instance show`,
+`config validate`, `status` and `doctor` show them as `https://***@host`.
 
 Commands that call the management API read credentials from the environment,
 never from the instance file: `doctor` uses `EUDIPLO_CLIENT_ID` and

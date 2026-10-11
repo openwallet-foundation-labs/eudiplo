@@ -308,18 +308,24 @@ export function removeInstance(
 
 /**
  * Hides user info such as `user:password@` in a URL before it is printed.
- * Other URLs are returned exactly as configured.
+ * URLs without user info are returned exactly as configured. The masked form
+ * is built from the parsed URL, so spellings the URL parser accepts without
+ * `//`, such as `https:user:secret@host`, are masked too. A value that is not
+ * a URL is hidden entirely if it could contain user info.
  */
 export function redactUrl(value: string): string {
+    let url: URL;
     try {
-        const url = new URL(value);
-        if (url.username === "" && url.password === "") {
-            return value;
-        }
+        url = new URL(value);
     } catch {
+        return value.includes("@") ? "***" : value;
+    }
+    if (url.username === "" && url.password === "") {
         return value;
     }
-    return value.replace(/^([a-z][a-z\d+.-]*:\/\/)[^/?#]*@/i, "$1***@");
+    url.username = "***";
+    url.password = "";
+    return url.href;
 }
 
 /** Throws unless `value` is an absolute HTTP(S) URL, as config loading requires. */
