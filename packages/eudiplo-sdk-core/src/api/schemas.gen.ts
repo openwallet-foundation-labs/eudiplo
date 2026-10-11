@@ -339,8 +339,7 @@ export const StatusListConfigSchema = {
                 2,
                 4,
                 8
-            ],
-            default: 1
+            ]
         },
         ttl: {
             type: 'number',
@@ -350,13 +349,11 @@ export const StatusListConfigSchema = {
         },
         immediateUpdate: {
             type: 'boolean',
-            description: 'If true, regenerate JWT immediately on status changes. If false (default), use lazy regeneration on TTL expiry.',
-            default: false
+            description: 'If true, regenerate JWT immediately on status changes. If false, use lazy regeneration on TTL expiry. If not set, uses global STATUS_IMMEDIATE_UPDATE.'
         },
         enableAggregation: {
             type: 'boolean',
-            description: 'If true, include aggregation_uri in status list JWTs for pre-fetching support (default: true).',
-            default: true
+            description: 'If true, include aggregation_uri in status list JWTs for pre-fetching support. If not set, uses global STATUS_ENABLE_AGGREGATION.'
         }
     }
 } as const;
@@ -9018,7 +9015,7 @@ export const UpdateStatusListConfigDtoSchema = {
     type: 'object',
     properties: {
         capacity: {
-            description: 'The capacity of the status list. Set to null to reset to global default.',
+            description: 'The capacity of new status lists. Omit or set to null to follow STATUS_CAPACITY of the instance.',
             example: 10000,
             minimum: 100,
             anyOf: [
@@ -9040,7 +9037,7 @@ export const UpdateStatusListConfigDtoSchema = {
             ]
         },
         bits: {
-            description: 'Bits per status entry. Set to null to reset to global default.',
+            description: 'Bits per status entry of new status lists. Omit or set to null to follow STATUS_BITS of the instance.',
             enum: [
                 1,
                 2,
@@ -9081,7 +9078,7 @@ export const UpdateStatusListConfigDtoSchema = {
             ]
         },
         ttl: {
-            description: 'TTL in seconds for the status list JWT. Set to null to reset to global default.',
+            description: 'TTL in seconds for the status list JWT. Omit or set to null to follow STATUS_TTL of the instance.',
             example: 3600,
             minimum: 60,
             anyOf: [
@@ -9103,14 +9100,14 @@ export const UpdateStatusListConfigDtoSchema = {
             ]
         },
         immediateUpdate: {
-            description: 'If true, regenerate JWT on every status change. Set to null to reset to default (false).',
+            description: 'If true, regenerate JWT on every status change. Omit or set to null to follow STATUS_IMMEDIATE_UPDATE of the instance.',
             type: [
                 'boolean',
                 'null'
             ]
         },
         enableAggregation: {
-            description: 'If true, include aggregation_uri in status list JWTs for pre-fetching support. Set to null to reset to default (true).',
+            description: 'If true, include aggregation_uri in status list JWTs for pre-fetching support. Omit or set to null to follow STATUS_ENABLE_AGGREGATION of the instance.',
             type: [
                 'boolean',
                 'null'

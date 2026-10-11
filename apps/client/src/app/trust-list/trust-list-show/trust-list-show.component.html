@@ -5,20 +5,31 @@
     <div fxLayout="row" fxLayoutAlign="space-between center">
       <h2>Trust List Details</h2>
       <div>
-        <button mat-icon-button [routerLink]="['../']" matTooltip="Back to list">
+        <button
+          mat-icon-button
+          [routerLink]="['../']"
+          matTooltip="Back to list"
+          aria-label="Back to list"
+        >
           <mat-icon>arrow_back</mat-icon>
         </button>
         <button
           mat-icon-button
           [routerLink]="['edit']"
           matTooltip="Edit list"
+          aria-label="Edit list"
           appConfigManaged
           managedKind="TrustList"
           [managedResourceId]="trustList.id"
         >
           <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button matTooltip="Download backup" (click)="download()">
+        <button
+          mat-icon-button
+          matTooltip="Download configuration"
+          aria-label="Download configuration"
+          (click)="download()"
+        >
           <mat-icon>download</mat-icon>
         </button>
         <button
@@ -82,6 +93,7 @@
                 matSuffix
                 mat-icon-button
                 matTooltip="Copy URL"
+                aria-label="Copy URL"
                 (click)="copyToClipboard(publicUrl, 'Trust List URL')"
               >
                 <mat-icon>content_copy</mat-icon>

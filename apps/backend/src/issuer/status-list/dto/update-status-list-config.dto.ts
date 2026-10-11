@@ -5,19 +5,19 @@ import { UpdateStatusListConfigSchema } from "./status-list.schema.js";
 
 /**
  * DTO for updating status list configuration.
- * All fields are optional - only provided fields will be updated.
- * Set a field to null to reset it to the global default.
+ * The request replaces the stored configuration: a field that is omitted or
+ * null is removed and follows the global default of the instance.
  */
 export class UpdateStatusListConfigDto extends createZodDto(
     UpdateStatusListConfigSchema,
 ) {
     /**
      * The capacity of the status list (number of entries).
-     * Set to null to reset to global default.
+     * Omit or set to null to follow the global default.
      */
     @ApiPropertyOptional({
         description:
-            "The capacity of the status list. Set to null to reset to global default.",
+            "The capacity of new status lists. Omit or set to null to follow STATUS_CAPACITY of the instance.",
         example: 10000,
         minimum: 100,
         nullable: true,
@@ -26,11 +26,11 @@ export class UpdateStatusListConfigDto extends createZodDto(
 
     /**
      * The number of bits used per status entry.
-     * Set to null to reset to global default.
+     * Omit or set to null to follow the global default.
      */
     @ApiPropertyOptional({
         description:
-            "Bits per status entry. Set to null to reset to global default.",
+            "Bits per status entry of new status lists. Omit or set to null to follow STATUS_BITS of the instance.",
         enum: [1, 2, 4, 8],
         nullable: true,
     })
@@ -38,11 +38,11 @@ export class UpdateStatusListConfigDto extends createZodDto(
 
     /**
      * Time-to-live in seconds for the status list JWT.
-     * Set to null to reset to global default.
+     * Omit or set to null to follow the global default.
      */
     @ApiPropertyOptional({
         description:
-            "TTL in seconds for the status list JWT. Set to null to reset to global default.",
+            "TTL in seconds for the status list JWT. Omit or set to null to follow STATUS_TTL of the instance.",
         example: 3600,
         minimum: 60,
         nullable: true,
@@ -51,22 +51,22 @@ export class UpdateStatusListConfigDto extends createZodDto(
 
     /**
      * If true, regenerate JWT immediately on status changes.
-     * Set to null to reset to global default (false).
+     * Omit or set to null to follow STATUS_IMMEDIATE_UPDATE.
      */
     @ApiPropertyOptional({
         description:
-            "If true, regenerate JWT on every status change. Set to null to reset to default (false).",
+            "If true, regenerate JWT on every status change. Omit or set to null to follow STATUS_IMMEDIATE_UPDATE of the instance.",
         nullable: true,
     })
     immediateUpdate?: boolean | null;
 
     /**
      * Whether to include aggregation_uri in status list JWTs.
-     * Set to null to reset to global default (true).
+     * Omit or set to null to follow STATUS_ENABLE_AGGREGATION.
      */
     @ApiPropertyOptional({
         description:
-            "If true, include aggregation_uri in status list JWTs for pre-fetching support. Set to null to reset to default (true).",
+            "If true, include aggregation_uri in status list JWTs for pre-fetching support. Omit or set to null to follow STATUS_ENABLE_AGGREGATION of the instance.",
         nullable: true,
     })
     enableAggregation?: boolean | null;

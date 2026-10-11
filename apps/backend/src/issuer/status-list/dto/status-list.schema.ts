@@ -64,13 +64,15 @@ export const UpdateStatusListConfigSchema = z
             .min(100)
             .nullable()
             .optional()
-            .describe("Capacity override. Set null to reset to defaults."),
+            .describe(
+                "Capacity override. Omit or set null to follow STATUS_CAPACITY.",
+            ),
         bits: z
             .union([z.literal(1), z.literal(2), z.literal(4), z.literal(8)])
             .nullable()
             .optional()
             .describe(
-                "Bits-per-status override. Set null to reset to defaults.",
+                "Bits-per-status override. Omit or set null to follow STATUS_BITS.",
             ),
         ttl: z.coerce
             .number()
@@ -78,19 +80,27 @@ export const UpdateStatusListConfigSchema = z
             .min(60)
             .nullable()
             .optional()
-            .describe("JWT TTL override in seconds. Set null to reset."),
+            .describe(
+                "JWT TTL override in seconds. Omit or set null to follow STATUS_TTL.",
+            ),
         immediateUpdate: z
             .boolean()
             .nullable()
             .optional()
-            .describe("Immediate regeneration toggle. Set null to reset."),
+            .describe(
+                "Immediate regeneration toggle. Omit or set null to follow STATUS_IMMEDIATE_UPDATE.",
+            ),
         enableAggregation: z
             .boolean()
             .nullable()
             .optional()
-            .describe("Aggregation URI toggle. Set null to reset."),
+            .describe(
+                "Aggregation URI toggle. Omit or set null to follow STATUS_ENABLE_AGGREGATION.",
+            ),
     })
-    .describe("Payload for updating tenant status list configuration defaults.")
+    .describe(
+        "Payload replacing the tenant status list configuration; omitted fields follow the instance defaults.",
+    )
     .strict();
 
 export const UpdateStatusListSchema = z

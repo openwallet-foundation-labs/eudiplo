@@ -12,7 +12,6 @@ import { ConfigOwnershipDirective } from '../../config-portability/config-owners
 import { getApiErrorMessage } from '../../utils/error-message';
 import { openErrorSnackBar } from '../../utils/error-snackbar';
 import { BaseAsyncListComponent } from '../../common/base-async-list.component';
-import { downloadJsonFile } from '../../common/download-json.util';
 import { LoadErrorComponent } from '../../common/load-error.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TrustListService } from '../trust-list.service';
@@ -58,8 +57,7 @@ export class TrustListListComponent extends BaseAsyncListComponent<TrustList> {
 
   async downloadConfig(list: TrustList): Promise<void> {
     try {
-      const config = await this.trustListService.exportConfig(list.id);
-      downloadJsonFile(config, `trustlist-${list.id}-config.json`);
+      await this.trustListService.downloadConfig(list.id);
       this.snackBar.open('Trust list configuration downloaded', 'Close', { duration: 3000 });
     } catch (error) {
       console.error('Error downloading config:', error);

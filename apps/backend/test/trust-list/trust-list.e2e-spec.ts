@@ -574,10 +574,11 @@ describe("Trust List e2e Tests", () => {
                 )
                 .expect(201);
 
-            await request(server)
+            const response = await request(server)
                 .delete("/trust-list/never-created")
-                .set("Authorization", auth)
-                .expect(204);
+                .set("Authorization", auth);
+
+            expect(response.status).toBe(204);
         });
     });
 

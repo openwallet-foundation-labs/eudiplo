@@ -189,11 +189,11 @@ export type StatusListConfig = {
      */
     ttl?: number;
     /**
-     * If true, regenerate JWT immediately on status changes. If false (default), use lazy regeneration on TTL expiry.
+     * If true, regenerate JWT immediately on status changes. If false, use lazy regeneration on TTL expiry. If not set, uses global STATUS_IMMEDIATE_UPDATE.
      */
     immediateUpdate?: boolean;
     /**
-     * If true, include aggregation_uri in status list JWTs for pre-fetching support (default: true).
+     * If true, include aggregation_uri in status list JWTs for pre-fetching support. If not set, uses global STATUS_ENABLE_AGGREGATION.
      */
     enableAggregation?: boolean;
 };
@@ -4207,23 +4207,23 @@ export type StatusListAggregationDto = {
 
 export type UpdateStatusListConfigDto = {
     /**
-     * The capacity of the status list. Set to null to reset to global default.
+     * The capacity of new status lists. Omit or set to null to follow STATUS_CAPACITY of the instance.
      */
     capacity?: number | null | null;
     /**
-     * Bits per status entry. Set to null to reset to global default.
+     * Bits per status entry of new status lists. Omit or set to null to follow STATUS_BITS of the instance.
      */
     bits?: 1 | 2 | 4 | 8;
     /**
-     * TTL in seconds for the status list JWT. Set to null to reset to global default.
+     * TTL in seconds for the status list JWT. Omit or set to null to follow STATUS_TTL of the instance.
      */
     ttl?: number | null | null;
     /**
-     * If true, regenerate JWT on every status change. Set to null to reset to default (false).
+     * If true, regenerate JWT on every status change. Omit or set to null to follow STATUS_IMMEDIATE_UPDATE of the instance.
      */
     immediateUpdate?: boolean | null;
     /**
-     * If true, include aggregation_uri in status list JWTs for pre-fetching support. Set to null to reset to default (true).
+     * If true, include aggregation_uri in status list JWTs for pre-fetching support. Omit or set to null to follow STATUS_ENABLE_AGGREGATION of the instance.
      */
     enableAggregation?: boolean | null;
 };
