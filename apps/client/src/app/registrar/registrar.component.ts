@@ -80,7 +80,7 @@ const URL_EXAMPLES: Record<string, string> = {
 })
 export class RegistrarComponent implements OnInit {
   @ViewChild(ConfigOwnershipNoticeComponent)
-  private ownershipNotice?: ConfigOwnershipNoticeComponent;
+  private readonly ownershipNotice?: ConfigOwnershipNoticeComponent;
 
   configForm: FormGroup;
   config: RegistrarConfig | null = null;
