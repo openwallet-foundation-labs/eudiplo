@@ -96,6 +96,19 @@ function pathMatches(pattern: string, path: string): boolean {
     );
 }
 
+/** The action a plan item gets from its state, in order of precedence. */
+function planAction(state: {
+    blocked: boolean;
+    skip: boolean;
+    unchanged: boolean;
+    exists: boolean;
+}): ConfigImportPlanItem["action"] {
+    if (state.blocked) return "blocked";
+    if (state.skip) return "skip";
+    if (state.unchanged) return "unchanged";
+    return state.exists ? "update" : "create";
+}
+
 function placeholder(
     kind: ConfigResourceKind,
     id: string,
@@ -435,6 +448,8 @@ export class ConfigBundleService {
         const items: ConfigImportPlanItem[] = [];
         const issues: ConfigMigrationIssue[] = [];
         const upgradedDocuments: ConfigDocument[] = [];
+        const systemOwnedKeyChains =
+            await this.systemOwnedKeyChainIds(tenantId);
         for (const file of bundle.documents) {
             const input = this.migrationService.normalize(file);
             const sourceVersion = input.$schema!;
@@ -461,7 +476,7 @@ export class ConfigBundleService {
             const skipReserved =
                 exists &&
                 reference.kind === "KeyChain" &&
-                (await this.isSystemOwnedKeyChain(tenantId, reference.id));
+                systemOwnedKeyChains.has(reference.id);
             const itemIssues = [...result.issues];
             itemIssues.push(
                 ...this.documentValidationService.validate(result.document),
@@ -615,15 +630,12 @@ export class ConfigBundleService {
                 metadataChanged,
                 kind: result.document.kind,
                 id: resourceId(result.document),
-                action: blocked
-                    ? "blocked"
-                    : skipExisting || skipDiverged || skipReserved
-                      ? "skip"
-                      : comparison?.unchanged
-                        ? "unchanged"
-                        : exists
-                          ? "update"
-                          : "create",
+                action: planAction({
+                    blocked,
+                    skip: skipExisting || skipDiverged || skipReserved,
+                    unchanged: comparison?.unchanged ?? false,
+                    exists,
+                }),
                 sourceVersion,
                 targetVersion: result.document.$schema!,
                 migrations: result.migrations,
@@ -665,10 +677,7 @@ export class ConfigBundleService {
                     metadata.kind === "Tenant" ||
                     included.has(`${metadata.kind}/${metadata.resourceId}`) ||
                     (metadata.kind === "KeyChain" &&
-                        (await this.isSystemOwnedKeyChain(
-                            tenantId,
-                            metadata.resourceId,
-                        )))
+                        systemOwnedKeyChains.has(metadata.resourceId))
                 ) {
                     continue;
                 }
@@ -714,18 +723,17 @@ export class ConfigBundleService {
     }
 
     /**
-     * Key chains EUDIPLO manages itself, such as the tenant's encryption key
-     * chain. Imports neither change nor delete them.
+     * IDs of the key chains EUDIPLO manages itself, such as the tenant's
+     * encryption key chain. Imports neither change nor delete them.
      */
-    private isSystemOwnedKeyChain(
+    private async systemOwnedKeyChainIds(
         tenantId: string,
-        id: string,
-    ): Promise<boolean> {
-        return this.keyChains.existsBy({
-            tenantId,
-            id,
-            usage: Not(KeyUsage.Sign),
+    ): Promise<Set<string>> {
+        const keyChains = await this.keyChains.find({
+            where: { tenantId, usage: Not(KeyUsage.Sign) },
+            select: { id: true },
         });
+        return new Set(keyChains.map((keyChain) => keyChain.id));
     }
 
     /** Hash configuration only; live status values and allocation stacks are not configuration. */
