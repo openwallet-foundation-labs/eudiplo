@@ -60,3 +60,4 @@ export { EncryptStoredSecrets1784500000000 } from "./1784500000000-EncryptStored
 export { RedactAuditLogSecrets1784600000000 } from "./1784600000000-RedactAuditLogSecrets.js";
 export { HashAuthorizationCodes1784700000000 } from "./1784700000000-HashAuthorizationCodes.js";
 export { AddTokensValidAfterToClient1784800000000 } from "./1784800000000-AddTokensValidAfterToClient.js";
+export { AddAccessKeyChainIdToSession1784900000000 } from "./1784900000000-AddAccessKeyChainIdToSession.js";

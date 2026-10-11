@@ -767,7 +767,7 @@ describe("OID4VP request creation", () => {
                     getPresentationConfig: vi.fn().mockResolvedValue({}),
                 },
                 certService: {
-                    find: vi.fn().mockResolvedValue({}),
+                    find: vi.fn().mockResolvedValue({ keyId: "access-a" }),
                     getCertHash: vi.fn().mockReturnValue("hash"),
                 },
                 settings: { publicUrl: "https://verifier.example" },
@@ -836,5 +836,159 @@ describe("OID4VP request creation", () => {
             expect.any(String),
             { requestObject: "signed.request.object" },
         );
+    });
+
+    it("stores the access key chain of the client_id on a new session", async () => {
+        const service = createService(vi.fn().mockResolvedValue(undefined));
+
+        await service.createRequest(
+            "presentation",
+            {},
+            "tenant",
+            false,
+            "https://rp",
+        );
+
+        expect(
+            (service as unknown as { createSession: { execute: unknown } })
+                .createSession.execute,
+        ).toHaveBeenCalledWith(
+            expect.objectContaining({
+                clientId: "x509_hash:hash",
+                accessKeyChainId: "access-a",
+            }),
+        );
+    });
+
+    it("stores the access key chain of the client_id on an existing session", async () => {
+        const updateForTenant = vi.fn().mockResolvedValue(undefined);
+        const service = createService(updateForTenant);
+
+        await service.createRequest(
+            "presentation",
+            { session: "existing" },
+            "tenant",
+            false,
+            "https://rp",
+        );
+
+        expect(updateForTenant).toHaveBeenCalledExactlyOnceWith(
+            "tenant",
+            "existing",
+            expect.objectContaining({
+                clientId: "x509_hash:hash",
+                accessKeyChainId: "access-a",
+            }),
+        );
+    });
+});
+
+describe("OID4VP request object signing key", () => {
+    function createService(
+        session: Record<string, unknown>,
+        presentationConfig: Record<string, unknown> = {},
+    ) {
+        const find = vi.fn(async ({ keyId }: { keyId?: string }) => ({
+            keyId: keyId ?? "current-default",
+        }));
+        const getCertChain = vi.fn(({ keyId }: { keyId: string }) => [
+            `cert-of-${keyId}`,
+        ]);
+        const signJWT = vi.fn().mockResolvedValue("signed.request.object");
+        const service = Object.assign(
+            Object.create(Oid4vpService.prototype) as Oid4vpService,
+            {
+                sessionStore: {
+                    getForInternalFlow: vi.fn().mockResolvedValue({
+                        id: "session",
+                        tenantId: "tenant",
+                        requestId: "presentation",
+                        walletNonce: "nonce",
+                        ...session,
+                    }),
+                    updateForTenant: vi.fn().mockResolvedValue(undefined),
+                },
+                traceService: { getSpan: () => undefined },
+                auditLogger: {
+                    logFlowStart: vi.fn(),
+                    logFlowError: vi.fn(),
+                },
+                settings: {
+                    publicUrl: "https://verifier.example",
+                    removeTrustedAuthorities: false,
+                },
+                presentationConfigService: {
+                    getPresentationConfig: vi.fn().mockResolvedValue({
+                        dcql_query: { credentials: [] },
+                        ...presentationConfig,
+                    }),
+                },
+                trustedAuthoritiesService: {
+                    transformDcqlTrustedAuthoritiesToAki: vi.fn(
+                        async (query: unknown) => query,
+                    ),
+                },
+                encryptionService: {
+                    generateEphemeralEncryptionKeyPair: vi
+                        .fn()
+                        .mockResolvedValue({ publicJwk: {}, privateJwk: {} }),
+                },
+                cryptoImplementationService: { getAlgs: vi.fn(() => []) },
+                certService: {
+                    find,
+                    getCertChain,
+                    getCertHash: vi.fn(
+                        ({ keyId }: { keyId: string }) => `hash-of-${keyId}`,
+                    ),
+                },
+                keyChainService: { signJWT },
+            },
+        );
+        return { service, find, signJWT };
+    }
+
+    it("signs with the access key chain stored with the client_id, not the current default", async () => {
+        const { service, find, signJWT } = createService({
+            clientId: "x509_hash:hash-of-access-a",
+            accessKeyChainId: "access-a",
+        });
+
+        await service.createAuthorizationRequest("session", "https://rp");
+
+        expect(find).toHaveBeenCalledWith(
+            expect.objectContaining({ keyId: "access-a" }),
+        );
+        const [payload, header, tenantId, keyId] = signJWT.mock.calls[0];
+        expect(payload.client_id).toBe("x509_hash:hash-of-access-a");
+        expect(header.x5c).toEqual(["cert-of-access-a"]);
+        expect(tenantId).toBe("tenant");
+        expect(keyId).toBe("access-a");
+    });
+
+    it("falls back to the presentation configuration's key chain for sessions without a stored one", async () => {
+        const { service, signJWT } = createService(
+            { clientId: "x509_hash:hash-of-configured" },
+            { accessKeyChainId: "configured" },
+        );
+
+        await service.createAuthorizationRequest("session", "https://rp");
+
+        expect(signJWT.mock.calls[0][3]).toBe("configured");
+    });
+
+    it("fails instead of signing with another key chain when the stored one is gone", async () => {
+        const { service, find, signJWT } = createService({
+            clientId: "x509_hash:hash-of-access-a",
+            accessKeyChainId: "access-a",
+        });
+        find.mockRejectedValueOnce(new Error("Key chain not found"));
+
+        await expect(
+            service.createAuthorizationRequest("session", "https://rp"),
+        ).rejects.toThrow("Key chain not found");
+        expect(find).toHaveBeenCalledExactlyOnceWith(
+            expect.objectContaining({ keyId: "access-a" }),
+        );
+        expect(signJWT).not.toHaveBeenCalled();
     });
 });

@@ -41,7 +41,7 @@ The wallet-facing URLs contain a `walletNonce`, not the session ID; [Sessions](s
 
 ## Request object
 
-The request object is a JWT with `typ: oauth-authz-req+jwt`, signed with `ES256` by the presentation configuration's `access` key chain, whose certificate chain is in the `x5c` header.
+The request object is a JWT with `typ: oauth-authz-req+jwt`, signed with `ES256` by the `access` key chain chosen when the request was created ([which one](../trust/keys-and-certificates.md#default-access-key-chain)), whose certificate chain is in the `x5c` header.
 
 ```json
 {
