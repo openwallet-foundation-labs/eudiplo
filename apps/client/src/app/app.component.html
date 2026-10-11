@@ -194,7 +194,7 @@
           </app-nav-section>
         }
 
-        <!-- Cryptographic Assets Section -->
+        <!-- Cryptographic Assets Section: issuers publish trust lists, verifiers accept issuers from them -->
         @if (hasRole(['presentation:manage', 'issuance:manage'])) {
           <app-nav-section section="crypto" icon="key" label="Cryptographic Assets">
             <a
@@ -206,6 +206,17 @@
             >
               <mat-icon matListItemIcon>vpn_key</mat-icon>
               <span matListItemTitle>Keys</span>
+            </a>
+
+            <a
+              mat-list-item
+              [routerLink]="['/trust-list']"
+              routerLinkActive="active-link"
+              ariaCurrentWhenActive="page"
+              (click)="closeSidenavOnMobile()"
+            >
+              <mat-icon matListItemIcon>checklist</mat-icon>
+              <span matListItemTitle>Trust Lists</span>
             </a>
 
             <a
@@ -274,17 +285,6 @@
               >
                 <mat-icon matListItemIcon>settings</mat-icon>
                 <span matListItemTitle>Issuer Settings</span>
-              </a>
-
-              <a
-                mat-list-item
-                [routerLink]="['/trust-list']"
-                routerLinkActive="active-link"
-                ariaCurrentWhenActive="page"
-                (click)="closeSidenavOnMobile()"
-              >
-                <mat-icon matListItemIcon>checklist</mat-icon>
-                <span matListItemTitle>Trust Lists</span>
               </a>
 
               <a

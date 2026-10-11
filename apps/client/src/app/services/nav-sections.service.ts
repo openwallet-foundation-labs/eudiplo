@@ -14,13 +14,12 @@ export type NavSection =
 export const NAV_SECTION_ROUTES: Record<NavSection, string[]> = {
   settings: ['/settings'],
   administration: ['/tenants', '/clients', '/users', '/admin'],
-  crypto: ['/keys', '/kms'],
+  crypto: ['/keys', '/trust-list', '/kms'],
   integrations: ['/webhook-endpoints'],
   issuance: [
     '/offer/issuance',
     '/credential-config',
     '/issuance-config',
-    '/trust-list',
     '/status-lists',
     '/status-list-config',
     '/attribute-providers',

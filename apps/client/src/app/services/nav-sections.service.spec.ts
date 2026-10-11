@@ -40,6 +40,7 @@ describe('NavSectionsService', () => {
     ['/session-management/config', 'sessions'],
     ['/settings/connection', 'settings'],
     ['/keys', 'crypto'],
+    ['/trust-list/membership-issuers/edit', 'crypto'],
     ['/status-list-config', 'issuance'],
   ] as const)('finds the section of %s', (url, section) => {
     expect(new NavSectionsService().sectionOf(url)).toBe(section);
