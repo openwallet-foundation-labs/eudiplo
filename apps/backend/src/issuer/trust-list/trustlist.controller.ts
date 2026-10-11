@@ -14,7 +14,14 @@ import { Role } from "../../auth/roles/role.enum.js";
 import { Secured } from "../../auth/secure.decorator.js";
 import { Token, TokenPayload } from "../../auth/token.decorator.js";
 import { createConfigBodyPipe } from "../../shared/common/zod/zod-schema.util.js";
+import {
+    referencesVisibleTo,
+    TrustListInUseError,
+    type TrustListReferenceKind,
+    trustListInUseMessage,
+} from "./domain/trust-list-reference.js";
 import { TrustListCreateDto } from "./dto/trust-list-create.dto.js";
+import { TrustListInUseDto } from "./dto/trust-list-in-use.dto.js";
 import { TrustListCreateSchema } from "./schemas/trust-list.schema.js";
 import { TrustListService } from "./trustlist.service.js";
 
@@ -30,6 +37,13 @@ const readOnly = [
     "createdAt",
     "updatedAt",
 ];
+
+/** Roles that read each kind of configuration that can reference a trust list. */
+const readRoles: Record<TrustListReferenceKind, Role[]> = {
+    PresentationConfig: [Role.Presentations, Role.PresentationRequest],
+    CredentialConfig: [Role.Issuances],
+    IssuanceConfig: [Role.Issuances],
+};
 
 /**
  * Controller for managing trust lists.
@@ -157,15 +171,50 @@ export class TrustListController {
     }
 
     /**
-     * Deletes a trust list
+     * Deletes a trust list that no configuration of the tenant references
      * @param id
      * @param token
      * @returns
      */
     @Delete(":id")
     @ApiResponse({ status: 204, description: "Trust list deleted" })
+    @ApiResponse({
+        status: 409,
+        type: TrustListInUseDto,
+        description:
+            "Presentation configs, credential configs or the issuance configuration of the tenant still reference the trust list; the response names those the caller may read and counts the others",
+    })
     @HttpCode(204)
-    deleteTrustList(@Param("id") id: string, @Token() token: TokenPayload) {
-        return this.trustListService.remove(token.entity!.id, id);
+    async deleteTrustList(
+        @Param("id") id: string,
+        @Token() token: TokenPayload,
+    ): Promise<void> {
+        try {
+            await this.trustListService.removeUnreferenced(
+                token.entity!.id,
+                id,
+            );
+        } catch (error) {
+            if (error instanceof TrustListInUseError) {
+                // Configurations the caller may not read are only counted.
+                const references = referencesVisibleTo(
+                    error.references,
+                    (kind) =>
+                        readRoles[kind].some((role) =>
+                            token.roles?.includes(role),
+                        ),
+                );
+                throw new ConflictException({
+                    code: "TRUST_LIST_IN_USE",
+                    message: trustListInUseMessage(
+                        id,
+                        references,
+                        (kind) => readRoles[kind],
+                    ),
+                    references,
+                });
+            }
+            throw error;
+        }
     }
 }

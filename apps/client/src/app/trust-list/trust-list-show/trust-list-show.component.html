@@ -25,6 +25,8 @@
           mat-icon-button
           (click)="delete()"
           matTooltip="Delete list"
+          aria-label="Delete list"
+          [disabled]="deleting"
           color="warn"
           appConfigManaged
           managedKind="TrustList"

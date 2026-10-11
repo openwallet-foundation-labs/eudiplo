@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { client } from '@eudiplo/sdk-core';
 import { vi } from 'vitest';
 
@@ -365,80 +366,269 @@ describe('TrustListShowComponent references', () => {
       return confirm.mock.calls[0][0] as string;
     }
 
-    it('names the configs that still reference the list', async () => {
+    /** Answers DELETE with `status` and records it; other requests as `serveTrustList`. */
+    function answerDelete(status: number, body?: object): string[] {
+      const deletes: string[] = [];
+      client.setConfig({
+        fetch: async (request: RequestInfo | URL) => {
+          const req = request instanceof Request ? request : new Request(String(request));
+          if (req.method === 'DELETE') {
+            deletes.push(req.url);
+            return new Response(body ? JSON.stringify(body) : null, {
+              status,
+              headers: { 'Content-Type': 'application/json' },
+            });
+          }
+          const list = new URL(req.url).pathname.endsWith('/versions') ? [] : trustList;
+          return new Response(JSON.stringify(list), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        },
+      });
+      return deletes;
+    }
+
+    // The backend refuses to delete a list that configs reference; the page says so up front.
+    it('does not ask or send the delete while configs it sees reference the list', async () => {
       const { fixture } = await render(['issuance:manage', 'presentation:manage'], {
         credentialConfigs: async () => [referencing, unrelated],
         presentationConfigs: async () => [checkById, checkByUrl],
       });
       await referencesCard(fixture, 'Age check', presentationsTitle);
       await referencesCard(fixture, 'Membership card');
+      const deletes = answerDelete(204);
+      const confirm = vi.spyOn(globalThis, 'confirm');
+      // MatSnackBarModule in the component's imports provides its own MatSnackBar.
+      const snackBar = vi.spyOn(fixture.debugElement.injector.get(MatSnackBar), 'open');
 
-      expect(askedQuestion(fixture)).toBe(
-        'Delete trust list "Membership issuers"? 1 credential config and 2 presentation configs' +
-          ' still reference it and would then point to a missing trust list. This cannot be undone.'
+      fixture.componentInstance.delete();
+      await fixture.whenStable();
+
+      expect(confirm).not.toHaveBeenCalled();
+      expect(deletes).toEqual([]);
+      expect(snackBar).toHaveBeenCalledWith(
+        'Trust list "Membership issuers" (membership-issuers) is still referenced by' +
+          ' 1 credential config and 2 presentation configs. Remove these references before' +
+          ' deleting it.',
+        'Close',
+        expect.anything()
       );
     });
 
-    it('says which role the references it could not check need', async () => {
+    it('names the references it sees even when it cannot read the other kind', async () => {
       const { fixture } = await render(['presentation:manage'], {
         presentationConfigs: async () => [checkById],
       });
       await referencesCard(fixture, 'Door check', presentationsTitle);
+      const confirm = vi.spyOn(globalThis, 'confirm');
+      const snackBar = vi.spyOn(fixture.debugElement.injector.get(MatSnackBar), 'open');
+
+      fixture.componentInstance.delete();
+
+      expect(confirm).not.toHaveBeenCalled();
+      expect(snackBar).toHaveBeenCalledWith(
+        'Trust list "Membership issuers" (membership-issuers) is still referenced by' +
+          ' 1 presentation config. Remove these references before deleting it.',
+        'Close',
+        expect.anything()
+      );
+    });
+
+    // References it cannot see (a role, a failed load, the issuance configuration) are the
+    // backend's to report.
+    it('asks for a list it sees no references to and says the backend refuses used lists', async () => {
+      const { fixture } = await render(['presentation:manage'], {
+        presentationConfigs: async () => {
+          throw new Error('503');
+        },
+      });
+      await referencesCard(fixture, 'Could not load the presentation configs', presentationsTitle);
 
       expect(askedQuestion(fixture)).toBe(
-        'Delete trust list "Membership issuers"? 1 presentation config still references it and' +
-          ' would then point to a missing trust list.' +
-          ' Checking credential config references needs the issuance:manage role.' +
+        'Delete trust list "Membership issuers" (membership-issuers)? If a configuration still' +
+          ' references it, the delete is refused and the configurations are named.' +
           ' This cannot be undone.'
       );
     });
 
-    it('counts a failed load as not loaded, not as unused', async () => {
-      const { fixture } = await render(['issuance:manage', 'presentation:manage'], {
-        presentationConfigs: async () => {
-          throw new Error('503');
-        },
-      });
-      await referencesCard(fixture, 'Could not load the presentation configs', presentationsTitle);
+    it('names a list without description by its id', async () => {
+      const { fixture } = await render(['issuance:manage']);
       await referencesCard(fixture, 'No credential configs');
-
-      expect(askedQuestion(fixture)).toBe(
-        'Delete trust list "Membership issuers"?' +
-          ' References from presentation configs could not be loaded. This cannot be undone.'
-      );
-    });
-
-    it('names a list without description by its id and joins kinds in the same state', async () => {
-      const { fixture } = await render(['issuance:manage', 'presentation:manage'], {
-        credentialConfigs: async () => {
-          throw new Error('503');
-        },
-        presentationConfigs: async () => {
-          throw new Error('503');
-        },
-      });
-      await referencesCard(fixture, 'Could not load the presentation configs', presentationsTitle);
-      await referencesCard(fixture, 'Could not load the credential configs');
       fixture.componentInstance.trustList!.description = undefined;
 
-      expect(askedQuestion(fixture)).toBe(
-        'Delete trust list "membership-issuers"? References from credential configs and' +
-          ' presentation configs could not be loaded. This cannot be undone.'
-      );
+      expect(askedQuestion(fixture)).toMatch(/^Delete trust list "membership-issuers"\? /);
     });
 
-    // Delete works before the references have loaded; "no references" would be a false all-clear.
-    it('says which references are still loading', async () => {
-      const { fixture } = await render(['issuance:manage', 'presentation:manage'], {
-        presentationConfigs: () => new Promise(() => undefined),
+    it('loads the references again when the backend refuses the delete', async () => {
+      let presentationConfigs: unknown[] = [];
+      const { fixture, loadPresentations } = await render(['presentation:manage'], {
+        presentationConfigs: async () => presentationConfigs,
       });
-      await referencesCard(fixture, 'Loading presentation configs', presentationsTitle);
-      await referencesCard(fixture, 'No credential configs');
+      await referencesCard(fixture, 'No presentation configs', presentationsTitle);
+      // Another admin adds a reference after the page loaded.
+      presentationConfigs = [checkById];
+      const deletes = answerDelete(409, {
+        statusCode: 409,
+        code: 'TRUST_LIST_IN_USE',
+        message: 'Trust list "membership-issuers" is still referenced by 1 presentation config.',
+        references: [{ kind: 'PresentationConfig', id: 'door-check' }],
+      });
+      vi.spyOn(globalThis, 'confirm').mockReturnValue(true);
 
-      expect(askedQuestion(fixture)).toBe(
-        'Delete trust list "Membership issuers"?' +
-          ' References from presentation configs are still loading. This cannot be undone.'
-      );
+      fixture.componentInstance.delete();
+
+      await referencesCard(fixture, 'Door check', presentationsTitle);
+      expect(deletes).toHaveLength(1);
+      expect(loadPresentations).toHaveBeenCalledTimes(2);
+      expect(fixture.componentInstance.deleting).toBe(false);
     });
+
+    it('replaces a failed load with the references after a refused delete', async () => {
+      let fail = true;
+      const { fixture } = await render(['presentation:manage'], {
+        presentationConfigs: async () => {
+          if (fail) throw new Error('503');
+          return [checkById];
+        },
+      });
+      await referencesCard(fixture, 'Could not load the presentation configs', presentationsTitle);
+      fail = false;
+      answerDelete(409, {
+        statusCode: 409,
+        code: 'TRUST_LIST_IN_USE',
+        message: 'Trust list "membership-issuers" is still referenced by 1 presentation config.',
+        references: [{ kind: 'PresentationConfig', id: 'door-check' }],
+      });
+      vi.spyOn(globalThis, 'confirm').mockReturnValue(true);
+
+      fixture.componentInstance.delete();
+
+      const card = await referencesCard(fixture, 'Door check', presentationsTitle);
+      expect(card.textContent).not.toContain('Could not load');
+    });
+
+    it('does not reload the references when the delete fails for another reason', async () => {
+      const { fixture, loadPresentations } = await render(['presentation:manage']);
+      await referencesCard(fixture, 'No presentation configs', presentationsTitle);
+      answerDelete(500, { statusCode: 500, message: 'Internal Server Error' });
+      vi.spyOn(globalThis, 'confirm').mockReturnValue(true);
+      const snackBar = vi.spyOn(fixture.debugElement.injector.get(MatSnackBar), 'open');
+
+      fixture.componentInstance.delete();
+
+      await vi.waitFor(() => expect(fixture.componentInstance.deleting).toBe(false));
+      expect(snackBar).toHaveBeenCalled();
+      expect(loadPresentations).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not send a second delete while one runs', async () => {
+      const { fixture } = await render(['issuance:manage']);
+      await referencesCard(fixture, 'No credential configs');
+      const deletes: string[] = [];
+      client.setConfig({
+        fetch: async (request: RequestInfo | URL) => {
+          deletes.push(String(request instanceof Request ? request.url : request));
+          return new Promise<Response>(() => undefined);
+        },
+      });
+      vi.spyOn(globalThis, 'confirm').mockReturnValue(true);
+
+      fixture.componentInstance.delete();
+      fixture.componentInstance.delete();
+
+      await vi.waitFor(() => expect(deletes).toHaveLength(1));
+      expect(fixture.componentInstance.deleting).toBe(true);
+    });
+  });
+});
+
+describe('TrustListShowComponent delete', () => {
+  const trustList = { id: 'membership-issuers', tenantId: 'membership-demo', entityConfig: [] };
+  const refusal = {
+    statusCode: 409,
+    code: 'TRUST_LIST_IN_USE',
+    message:
+      'Trust list "membership-issuers" is still referenced by 1 presentation config ("membership"). Remove these references before deleting the trust list.',
+    references: [{ kind: 'PresentationConfig', id: 'membership' }],
+  };
+
+  /** Serves the list and answers its DELETE with `status` and `body`. */
+  function serve(status: number, body?: object): void {
+    client.setConfig({
+      fetch: async (request: RequestInfo | URL) => {
+        const req = request instanceof Request ? request : new Request(String(request));
+        if (req.method === 'DELETE') {
+          return body
+            ? new Response(JSON.stringify(body), {
+                status,
+                headers: { 'Content-Type': 'application/json' },
+              })
+            : new Response(null, { status });
+        }
+        const list = new URL(req.url).pathname.endsWith('/versions') ? [] : trustList;
+        return new Response(JSON.stringify(list), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      },
+    });
+  }
+
+  async function render() {
+    await TestBed.configureTestingModule({
+      imports: [TrustListShowComponent],
+      providers: [
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { paramMap: convertToParamMap({ id: trustList.id }) } },
+        },
+        { provide: ApiService, useValue: { getBaseUrl: () => undefined } },
+        { provide: FrontendConfigService, useValue: { getConfig: async () => undefined } },
+        { provide: CredentialConfigService, useValue: { loadConfigurations: async () => [] } },
+      ],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(TrustListShowComponent);
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(fixture.componentInstance.trustList).toBeDefined());
+    // MatSnackBarModule in the component's imports provides its own MatSnackBar.
+    const snackBar = vi.spyOn(fixture.debugElement.injector.get(MatSnackBar), 'open');
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    return { component: fixture.componentInstance, snackBar, navigate };
+  }
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    client.setConfig({ fetch: () => new Promise<Response>(() => undefined) });
+  });
+
+  it("shows the backend's reason when the list is still referenced, and stays on the page", async () => {
+    serve(409, refusal);
+    const { component, snackBar, navigate } = await render();
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+    component.delete();
+
+    await vi.waitFor(() =>
+      expect(snackBar).toHaveBeenCalledWith(
+        `Error deleting trust list: ${refusal.message}`,
+        'Close',
+        expect.anything()
+      )
+    );
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('returns to the list after deleting', async () => {
+    serve(204);
+    const { component, snackBar, navigate } = await render();
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+    component.delete();
+
+    await vi.waitFor(() => expect(navigate).toHaveBeenCalledWith(['/trust-list']));
+    expect(snackBar).toHaveBeenCalledWith('Trust list deleted', 'Close', { duration: 3000 });
   });
 });
