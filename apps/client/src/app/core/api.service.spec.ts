@@ -376,9 +376,9 @@ describe('ApiService token refresh', () => {
   });
 
   describe('token renewed by another tab', () => {
-    /** The event a browser sends to the other tabs after one stored a token. */
+    /** The event a browser sends to the other tabs after one stored a token; the listener reads only its key. */
     function announceStoredToken(): void {
-      globalThis.dispatchEvent(new StorageEvent('storage', { key: 'token_expiration' }));
+      globalThis.dispatchEvent(Object.assign(new Event('storage'), { key: 'token_expiration' }));
     }
 
     /** Another tab of the same browser stores its new token; only other tabs get the event. */
