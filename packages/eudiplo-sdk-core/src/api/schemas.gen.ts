@@ -8520,6 +8520,10 @@ export const SessionSchema = {
             type: 'string',
             description: 'Client ID used in the OID4VP authorization request.'
         },
+        accessKeyChainId: {
+            type: 'string',
+            description: 'Access key chain chosen when the OID4VP request was created. The\nrequest object is signed with this key chain, so it stays the one\n`clientId` was derived from when the tenant\'s default access key chain\nchanges in between.'
+        },
         walletNonce: {
             type: 'string',
             description: 'Cryptographic random nonce used in wallet-facing URLs (response_uri, request_uri, state).\nPer OID4VP spec Section 13.3, this separates the wallet-facing identifier (request-id)\nfrom the frontend-facing session ID (transaction-id) to prevent session fixation.'

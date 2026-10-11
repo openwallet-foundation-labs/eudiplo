@@ -43,4 +43,4 @@ Rules that the table cannot show:
 
 ## Server-managed fields
 
-Responses also contain `createdAt`, `updatedAt` and `registrationCertCache` (the registration certificate EUDIPLO resolved, with fingerprints and expiry). They are read-only and not part of the schema, so the API rejects them in a request body. EUDIPLO clears the cache when `registration_cert` or `dcql_query` changes and refreshes it in the background. To force a new certificate, call `POST /api/verifier/config/{id}/registration-cert/reissue`.
+Responses also contain `createdAt`, `updatedAt` and `registrationCertCache` (the registration certificate EUDIPLO resolved, with fingerprints and expiry). They are read-only and not part of the schema, so the API rejects them in a request body. When EUDIPLO resolves the certificate again is described in [Registration Certificates](../trust/registration-certificates.md#validation-and-caching).

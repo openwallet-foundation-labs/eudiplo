@@ -3906,6 +3906,13 @@ export type Session = {
      */
     clientId?: string;
     /**
+     * Access key chain chosen when the OID4VP request was created. The
+     * request object is signed with this key chain, so it stays the one
+     * `clientId` was derived from when the tenant's default access key chain
+     * changes in between.
+     */
+    accessKeyChainId?: string;
+    /**
      * Cryptographic random nonce used in wallet-facing URLs (response_uri, request_uri, state).
      * Per OID4VP spec Section 13.3, this separates the wallet-facing identifier (request-id)
      * from the frontend-facing session ID (transaction-id) to prevent session fixation.

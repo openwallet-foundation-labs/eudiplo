@@ -288,6 +288,22 @@ export class Oid4vpService {
                 this.settings.removeTrustedAuthorities,
             );
 
+            // Sign with the key chain the offer's client_id was derived from:
+            // the default access key chain may have changed since then. A
+            // rotation of that key chain in between still changes its
+            // certificate. Sessions from before the key chain was stored
+            // resolve it again.
+            const cert = await this.certService.find({
+                tenantId: session.tenantId,
+                type: KeyUsageType.Access,
+                keyId:
+                    session.accessKeyChainId ??
+                    presentationConfig.accessKeyChainId ??
+                    undefined,
+            });
+
+            // The registration certificate links the access certificate that
+            // signs this request.
             if (
                 presentationConfig.registration_cert &&
                 (await this.registrarService.isEnabledForTenant(
@@ -299,6 +315,7 @@ export class Oid4vpService {
                         presentationConfig,
                         dcql_query,
                         session.requestId!,
+                        cert,
                     );
             }
             const nonce = randomUUID();
@@ -311,12 +328,6 @@ export class Oid4vpService {
             );
 
             const lifeTime = 60 * 60;
-
-            const cert = await this.certService.find({
-                tenantId: session.tenantId,
-                type: KeyUsageType.Access,
-                keyId: presentationConfig.accessKeyChainId ?? undefined,
-            });
 
             const clientId =
                 session.clientId ?? createClientId(cert, this.certService);
@@ -555,6 +566,7 @@ export class Oid4vpService {
                 expiresAt,
                 useDcApi,
                 clientId,
+                accessKeyChainId: cert.keyId,
                 responseUri,
                 transaction_data,
                 skewSeconds:
@@ -586,6 +598,7 @@ export class Oid4vpService {
                 expiresAt,
                 useDcApi,
                 clientId,
+                accessKeyChainId: cert.keyId,
             });
         }
 

@@ -310,6 +310,13 @@ export interface RegistrationCertCache {
     expiresAt?: number;
     /** Origin of the cached JWT. */
     source: "imported" | "registrar";
+    /** Access key chain whose access certificate the JWT was resolved for. */
+    accessKeyChainId?: string;
+    /**
+     * SHA-256 (base64url) of the leaf access certificate the JWT was resolved
+     * for. The cache is not used for requests signed by another certificate.
+     */
+    accessCertificateHash?: string;
 }
 
 /**
@@ -396,7 +403,9 @@ export class PresentationConfig {
      * was actually issued (or imported) together with fingerprints used to detect
      * configuration drift. The cache is invalidated automatically when either the
      * `registrationCert` spec or the `dcql_query` of this presentation config
-     * changes, ensuring no stale/over-broad authorizations leak into VP requests.
+     * changes, ensuring no stale/over-broad authorizations leak into VP requests,
+     * and is not used when the request is signed by another access certificate
+     * than the one it was resolved for.
      *
      * @example
      * {

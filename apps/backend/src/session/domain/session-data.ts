@@ -113,6 +113,7 @@ export interface SessionData {
     credentials?: VerificationResult[];
     vp_nonce?: string;
     clientId?: string;
+    accessKeyChainId?: string;
     walletNonce?: string;
     responseCode?: string;
     responseUri?: string;
