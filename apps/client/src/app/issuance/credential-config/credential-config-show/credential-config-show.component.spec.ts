@@ -1,5 +1,6 @@
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { describe, expect, it, vi } from 'vitest';
 import type { CredentialConfig } from '@eudiplo/sdk-core';
 import { JwtService } from '../../../services/jwt.service';
 
@@ -75,5 +76,29 @@ describe('CredentialConfigShowComponent schema links', () => {
 
     expect(page.querySelector('a[href="/schema/schema-1"]')).toBeNull();
     expect(page.textContent).toContain('https://registrar.example/schema-metadata/schema-1');
+  });
+});
+
+describe('CredentialConfigShowComponent loading', () => {
+  it('says why the configuration could not be loaded instead of a blank page', async () => {
+    const component = new CredentialConfigShowComponent(
+      {
+        getConfig: vi.fn().mockRejectedValue({ statusCode: 403, message: 'Forbidden resource' }),
+      } as never,
+      {} as never,
+      { snapshot: { paramMap: { get: () => 'pid' } } } as never,
+      { open: vi.fn() } as never,
+      { navigate: vi.fn() } as never,
+      {} as never,
+      { hasRole: () => true } as never
+    );
+
+    component.loadConfig();
+
+    await vi.waitFor(() =>
+      expect(component.loadError).toBe(
+        'Failed to load credential configuration: Forbidden resource'
+      )
+    );
   });
 });

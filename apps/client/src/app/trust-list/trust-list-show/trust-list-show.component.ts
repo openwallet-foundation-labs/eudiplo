@@ -29,6 +29,8 @@ import { ConfigOwnershipNoticeComponent } from '../../config-portability/config-
 import { FrontendConfigService } from '../../services/frontend-config.service';
 import { JwtService } from '../../services/jwt.service';
 import { trustListUrl } from '../../utils/public-url';
+import { getApiErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
 
 interface EntityInfo {
   name: string;
@@ -117,8 +119,8 @@ export class TrustListShowComponent implements OnInit {
         void this.buildPublicUrl();
         await this.loadRelatedCredentialConfigs();
       },
-      () => {
-        this.snackBar.open('Error loading trust list', 'Close', { duration: 3000 });
+      (error) => {
+        openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Error loading trust list'));
         this.router.navigate(['/trust-list']);
       }
     );
@@ -215,17 +217,19 @@ export class TrustListShowComponent implements OnInit {
   }
 
   delete() {
-    if (!confirm('Are you sure you want to delete this trust list?')) {
+    const id = this.route.snapshot.paramMap.get('id')!;
+    if (
+      !confirm(`Delete trust list "${this.trustList?.description || id}"? This cannot be undone.`)
+    ) {
       return;
     }
-    const id = this.route.snapshot.paramMap.get('id')!;
     trustListControllerDeleteTrustList({ path: { id } }).then(
       () => {
         this.snackBar.open('Trust list deleted', 'Close', { duration: 3000 });
         this.router.navigate(['/trust-list']);
       },
-      () => {
-        this.snackBar.open('Error deleting trust list', 'Close', { duration: 3000 });
+      (error) => {
+        openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Error deleting trust list'));
       }
     );
   }

@@ -48,6 +48,7 @@ import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { CommonModule } from '@angular/common';
 import { getApiErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
 
 /**
  * Custom validator to check that array has at least one element
@@ -830,10 +831,12 @@ export class IssuanceOfferComponent implements OnInit {
       // Redirect to session details page with QR code and polling enabled
       this.router.navigate(['/session-management', offerResult!.session]);
     } catch (error: unknown) {
-      this.snackBar.open(getApiErrorMessage(error, 'Failed to generate offer'), 'Close', {
-        duration: 5000,
-        panelClass: ['error-snackbar'],
-      });
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, 'Failed to generate offer'),
+        'Close',
+        { panelClass: ['error-snackbar'] }
+      );
     } finally {
       this.generatingOffer = false;
     }

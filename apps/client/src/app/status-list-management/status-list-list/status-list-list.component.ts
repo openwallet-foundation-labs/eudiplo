@@ -20,6 +20,9 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { StatusListResponseDto } from '@eudiplo/sdk-core';
 import { StatusListManagementService } from '../status-list-management.service';
 import { ConfigOwnershipDirective } from '../../config-portability/config-ownership.directive';
+import { LoadErrorComponent } from '../../common/load-error.component';
+import { getApiErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
 
 @Component({
   selector: 'app-status-list-list',
@@ -37,6 +40,7 @@ import { ConfigOwnershipDirective } from '../../config-portability/config-owners
     MatSnackBarModule,
     FlexLayoutModule,
     ConfigOwnershipDirective,
+    LoadErrorComponent,
   ],
   templateUrl: './status-list-list.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -47,6 +51,8 @@ export class StatusListListComponent implements OnInit, AfterViewInit {
 
   dataSource = new MatTableDataSource<StatusListResponseDto>([]);
   isLoading = true;
+  /** Set when the lists could not be loaded, so the page does not claim there are none. */
+  loadError = '';
 
   displayedColumns = [
     'id',
@@ -65,7 +71,7 @@ export class StatusListListComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadData();
+    void this.loadData();
   }
 
   ngAfterViewInit(): void {
@@ -74,12 +80,13 @@ export class StatusListListComponent implements OnInit, AfterViewInit {
 
   private async loadData(): Promise<void> {
     this.isLoading = true;
+    this.loadError = '';
     try {
       const lists = await this.statusListService.getLists();
       this.dataSource.data = lists;
     } catch (error) {
       console.error('Error loading status lists:', error);
-      this.snackBar.open('Failed to load status lists', 'Close', { duration: 5000 });
+      this.loadError = getApiErrorMessage(error, 'Failed to load status lists');
     } finally {
       this.isLoading = false;
     }
@@ -120,7 +127,7 @@ export class StatusListListComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    if (!confirm(`Are you sure you want to delete status list "${list.id}"?`)) {
+    if (!confirm(`Delete status list "${list.id}"? This cannot be undone.`)) {
       return;
     }
 
@@ -130,7 +137,7 @@ export class StatusListListComponent implements OnInit, AfterViewInit {
       this.refresh();
     } catch (error) {
       console.error('Error deleting status list:', error);
-      this.snackBar.open('Failed to delete status list', 'Close', { duration: 5000 });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to delete status list'));
     }
   }
 

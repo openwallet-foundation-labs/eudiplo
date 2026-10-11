@@ -23,6 +23,8 @@ import {
 import { JwtService } from '../../services/jwt.service';
 import { ConfigOwnershipDirective } from '../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../config-portability/config-ownership-notice.component';
+import { getApiErrorMessage } from '../../utils/error-message';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
 
 interface ProviderHealthItem {
   providerId: string;
@@ -123,7 +125,11 @@ export class KeyManagementProvidersComponent implements OnInit {
       }
     } catch (error) {
       console.error('Failed to load KMS providers:', error);
-      this.snackBar.open('Failed to load KMS providers', 'Dismiss', { duration: 4000 });
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, 'Failed to load KMS providers'),
+        'Dismiss'
+      );
     } finally {
       this.isLoading = false;
     }
@@ -162,12 +168,12 @@ export class KeyManagementProvidersComponent implements OnInit {
       await this.loadProviders();
     } catch (error) {
       console.error('Failed to save tenant KMS config:', error);
-      this.snackBar.open(
+      openErrorSnackBar(
+        this.snackBar,
         isForbidden(error)
           ? KEY_ADMIN_FORBIDDEN_MESSAGE
-          : 'Failed to save tenant KMS configuration',
-        'Dismiss',
-        { duration: 4000 }
+          : getApiErrorMessage(error, 'Failed to save tenant KMS configuration'),
+        'Dismiss'
       );
     } finally {
       this.isSavingConfig = false;
@@ -184,12 +190,12 @@ export class KeyManagementProvidersComponent implements OnInit {
       await this.loadProviders();
     } catch (error) {
       console.error('Failed to reset tenant KMS config:', error);
-      this.snackBar.open(
+      openErrorSnackBar(
+        this.snackBar,
         isForbidden(error)
           ? KEY_ADMIN_FORBIDDEN_MESSAGE
-          : 'Failed to reset tenant KMS configuration',
-        'Dismiss',
-        { duration: 4000 }
+          : getApiErrorMessage(error, 'Failed to reset tenant KMS configuration'),
+        'Dismiss'
       );
     } finally {
       this.isSavingConfig = false;

@@ -27,8 +27,9 @@ import { CredentialConfigService } from '../../issuance/credential-config/creden
 import { JwtService } from '../../services/jwt.service';
 import { SchemaMetadata, SchemaService } from '../schema.service';
 import { LabelledFailure, getApiErrorMessage } from '../../utils/error-message';
-import { SourceLoadState, loadSource, sourceFailuresMessage } from '../load-source';
+import { SourceLoadState, loadSource, reportSourceFailures } from '../../common/load-source';
 import { SEMVER_REGEX, compareVersionsDesc, proposeNextVersion } from '../schema-version';
+import { openErrorSnackBar } from '../../utils/error-snackbar';
 
 function formatNotCarriedOver(values: string[]): string {
   return `Not in the registrar vocabulary, so not carried over: ${values.join(', ')}.`;
@@ -262,10 +263,7 @@ export class SchemaShowComponent implements OnInit {
     const failures = (await this.sources) ?? [];
     if (!this.item || this.sourceFailuresShown) return;
     this.sourceFailuresShown = true;
-    const message = sourceFailuresMessage(failures);
-    if (message) {
-      this.snackBar.open(message, 'Close', { duration: 10000 });
-    }
+    reportSourceFailures(this.snackBar, failures);
   }
 
   /**
@@ -349,9 +347,7 @@ export class SchemaShowComponent implements OnInit {
       }
     } catch (error) {
       console.error('Failed to update metadata:', error);
-      this.snackBar.open(getApiErrorMessage(error, 'Failed to update metadata'), 'Close', {
-        duration: 6000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to update metadata'));
     } finally {
       this.saving = false;
     }
@@ -365,9 +361,7 @@ export class SchemaShowComponent implements OnInit {
       this.snackBar.open('Signed JWT copied to clipboard', 'Close', { duration: 3000 });
     } catch (error) {
       console.error('Failed to copy JWT:', error);
-      this.snackBar.open(getApiErrorMessage(error, 'Failed to copy JWT'), 'Close', {
-        duration: 6000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to copy JWT'));
     }
   }
 
@@ -429,9 +423,7 @@ export class SchemaShowComponent implements OnInit {
       this.snackBar.open('Signed JWT downloaded', 'Close', { duration: 3000 });
     } catch (error) {
       console.error('Failed to download JWT:', error);
-      this.snackBar.open(getApiErrorMessage(error, 'Failed to download JWT'), 'Close', {
-        duration: 6000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to download JWT'));
     }
   }
 
@@ -631,9 +623,7 @@ export class SchemaShowComponent implements OnInit {
       });
     } catch (error) {
       console.error('Failed to publish new version:', error);
-      this.snackBar.open(getApiErrorMessage(error, 'Failed to publish new version'), 'Close', {
-        duration: 6000,
-      });
+      openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to publish new version'));
     } finally {
       this.publishing = false;
     }
@@ -779,7 +769,7 @@ export class SchemaShowComponent implements OnInit {
     const { updated, error } = await this.markDeprecated(entry, successor);
     this.deprecating = false;
     if (error) {
-      this.snackBar.open(error, 'Close', { duration: 6000 });
+      openErrorSnackBar(this.snackBar, error);
       return;
     }
     this.snackBar.open(`Version ${entry.version} deprecated`, 'Close', { duration: 3000 });
@@ -811,10 +801,9 @@ export class SchemaShowComponent implements OnInit {
       }
     } catch (error) {
       console.error('Failed to delete schema metadata:', error);
-      this.snackBar.open(
-        getApiErrorMessage(error, `Failed to delete version ${entry.version}`),
-        'Close',
-        { duration: 6000 }
+      openErrorSnackBar(
+        this.snackBar,
+        getApiErrorMessage(error, `Failed to delete version ${entry.version}`)
       );
     } finally {
       this.deleting = false;

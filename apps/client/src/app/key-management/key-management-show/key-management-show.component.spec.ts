@@ -1,6 +1,7 @@
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { convertToParamMap, provideRouter } from '@angular/router';
 import type { KeyChainResponseDto } from '@eudiplo/sdk-core';
+import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { KeyManagementShowComponent } from './key-management-show.component';
@@ -78,10 +79,49 @@ describe('KeyManagementShowComponent key export', () => {
     expect(snackBar.open.mock.lastCall?.[0]).toContain('tenant:admin');
   });
 
+  it("shows the backend's reason when the export fails for another reason", async () => {
+    roles = ['tenant:admin'];
+    keyChainService.export.mockRejectedValue({ statusCode: 404, message: 'Key chain not found' });
+
+    await create().exportKeyChain();
+
+    expect(snackBar.open.mock.lastCall?.[0]).toBe(
+      'Failed to export key chain: Key chain not found'
+    );
+  });
+
   it('shows the public key chain as JSON without calling the export', () => {
     create().viewAsJson();
 
     expect(keyChainService.export).not.toHaveBeenCalled();
     expect(dialog.open.mock.lastCall?.[1].data.jsonData).toBe(keyChain);
+  });
+});
+
+describe('KeyManagementShowComponent loading', () => {
+  it('shows why the key chain could not be loaded instead of loading forever, and retries', async () => {
+    const getById = vi
+      .fn()
+      .mockRejectedValueOnce({ statusCode: 404, message: 'Key chain not found' })
+      .mockResolvedValueOnce({ id: 'key', usageType: 'attestation' });
+    const component = new KeyManagementShowComponent(
+      { getById } as never,
+      { paramMap: of(convertToParamMap({ id: 'key' })) } as never,
+      { open: vi.fn() } as never,
+      {} as never,
+      {} as never,
+      { hasRole: () => true } as never
+    );
+
+    component.ngOnInit();
+    await vi.waitFor(() => expect(component.loadError).not.toBe(''));
+
+    expect(component.loadError).toBe('Failed to load key chain: Key chain not found');
+    expect(component.keyChain).toBeUndefined();
+
+    component.retryLoad();
+    await vi.waitFor(() => expect(component.keyChain?.id).toBe('key'));
+    expect(component.loadError).toBe('');
+    component.ngOnDestroy();
   });
 });

@@ -87,3 +87,20 @@ app-root {
 .visually-hidden {
   @include a11y.visually-hidden;
 }
+
+/* Loading and empty state of a list page, in place of its table. */
+.list-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+
+  .empty-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+}

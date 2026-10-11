@@ -17,6 +17,7 @@ import { ConfigOwnershipService } from '../../../config-portability/config-owner
 import { ApiService } from '../../../core';
 import { JwtService } from '../../../services/jwt.service';
 import { ClientShowComponent } from './client-show.component';
+import { errorSnackBarDuration } from '../../../utils/error-snackbar';
 
 describe('ClientShowComponent', () => {
   let component: ClientShowComponent;
@@ -253,7 +254,11 @@ describe('ClientShowComponent delete', () => {
       expect(snackBar.open).toHaveBeenCalledWith(
         'Failed to delete client: Cannot manage client offer-client: it has issuance:offer, which you neither hold nor may grant',
         'Close',
-        { duration: 5000 }
+        {
+          duration: errorSnackBarDuration(
+            'Failed to delete client: Cannot manage client offer-client: it has issuance:offer, which you neither hold nor may grant'
+          ),
+        }
       )
     );
     expect(navigate).not.toHaveBeenCalled();

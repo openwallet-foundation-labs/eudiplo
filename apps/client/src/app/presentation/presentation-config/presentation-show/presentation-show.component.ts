@@ -25,6 +25,9 @@ import {
 import { downloadJsonFile } from '../../../common/download-json.util';
 import { ConfigOwnershipDirective } from '../../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../../config-portability/config-ownership-notice.component';
+import { getApiErrorMessage } from '../../../utils/error-message';
+import { openErrorSnackBar } from '../../../utils/error-snackbar';
+import { LoadErrorComponent } from '../../../common/load-error.component';
 
 @Component({
   selector: 'app-presentation-show',
@@ -44,6 +47,7 @@ import { ConfigOwnershipNoticeComponent } from '../../../config-portability/conf
     ClipboardModule,
     ConfigOwnershipDirective,
     ConfigOwnershipNoticeComponent,
+    LoadErrorComponent,
   ],
   templateUrl: './presentation-show.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -51,6 +55,8 @@ import { ConfigOwnershipNoticeComponent } from '../../../config-portability/conf
 })
 export class PresentationShowComponent implements OnInit {
   config?: PresentationConfig;
+  /** Set when the page's data could not be loaded, so the page is not left blank. */
+  loadError = '';
   reissuing = false;
 
   readonly statusCheckModeLabels: Record<'strict' | 'best_effort' | 'disabled', string> = {
@@ -72,6 +78,7 @@ export class PresentationShowComponent implements OnInit {
   }
 
   async loadPresentation(): Promise<void> {
+    this.loadError = '';
     try {
       const presentationId = this.route.snapshot.paramMap.get('id');
       if (presentationId) {
@@ -79,6 +86,7 @@ export class PresentationShowComponent implements OnInit {
       }
     } catch (error) {
       console.error('Error loading presentation:', error);
+      this.loadError = getApiErrorMessage(error, 'Failed to load presentation configuration');
     }
   }
 
@@ -163,9 +171,10 @@ export class PresentationShowComponent implements OnInit {
       })
       .catch((err) => {
         console.error('Failed to reissue registration certificate', err);
-        this.snackBar.open('Failed to reissue registration certificate', 'Close', {
-          duration: 4000,
-        });
+        openErrorSnackBar(
+          this.snackBar,
+          getApiErrorMessage(err, 'Failed to reissue registration certificate')
+        );
       })
       .finally(() => {
         this.reissuing = false;
@@ -216,7 +225,10 @@ export class PresentationShowComponent implements OnInit {
   }
 
   deletePresentation() {
-    if (this.config && confirm('Are you sure you want to delete this presentation?')) {
+    if (
+      this.config &&
+      confirm(`Delete presentation configuration "${this.config.id}"? This cannot be undone.`)
+    ) {
       this.presentationService
         .deleteConfiguration(this.config.id)
         .then(() => {
@@ -226,9 +238,10 @@ export class PresentationShowComponent implements OnInit {
           this.router.navigate(['../'], { relativeTo: this.route });
         })
         .catch((error) => {
-          this.snackBar.open('Failed to delete presentation', 'Close', {
-            duration: 3000,
-          });
+          openErrorSnackBar(
+            this.snackBar,
+            getApiErrorMessage(error, 'Failed to delete presentation')
+          );
           console.error('Delete error:', error);
         });
     }

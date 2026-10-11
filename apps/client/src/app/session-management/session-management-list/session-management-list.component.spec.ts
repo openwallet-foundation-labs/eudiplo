@@ -16,6 +16,7 @@ describe('SessionManagementListComponent', () => {
   let fixture: ComponentFixture<SessionManagementListComponent>;
   let getAllSessions: ReturnType<typeof vi.fn>;
   let cancelSession: ReturnType<typeof vi.fn>;
+  let deleteSession: ReturnType<typeof vi.fn>;
 
   async function setup(queryParams: Record<string, string | string[]> = {}) {
     vi.useFakeTimers();
@@ -27,6 +28,7 @@ describe('SessionManagementListComponent', () => {
       totalPages: 0,
     });
     cancelSession = vi.fn().mockResolvedValue(undefined);
+    deleteSession = vi.fn().mockResolvedValue(undefined);
     await TestBed.configureTestingModule({
       imports: [SessionManagementListComponent],
       providers: [
@@ -39,7 +41,12 @@ describe('SessionManagementListComponent', () => {
         },
         {
           provide: SessionManagementService,
-          useValue: { getAllSessions, cancelSession, getStatusDisplay: (status: string) => status },
+          useValue: {
+            getAllSessions,
+            cancelSession,
+            deleteSession,
+            getStatusDisplay: (status: string) => status,
+          },
         },
         {
           provide: CredentialConfigService,
@@ -64,6 +71,7 @@ describe('SessionManagementListComponent', () => {
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
   it('loads the first page without filters', async () => {
@@ -240,7 +248,8 @@ describe('SessionManagementListComponent', () => {
     await component.cancelSelectedSessions();
 
     expect(snackBar).toHaveBeenCalledWith(
-      'Cancelled 1 of 3 sessions; 1 no longer pending; 1 failed',
+      'Cancelled 1 of 3 sessions; 1 no longer pending; ' +
+        '1 failed: the backend could not be reached. Check the connection and try again.',
       'Close',
       expect.anything()
     );
@@ -256,5 +265,66 @@ describe('SessionManagementListComponent', () => {
     await component.cancelSelectedSessions();
 
     expect(cancelSession).not.toHaveBeenCalled();
+  });
+
+  it('shows why loading failed and a retry instead of "No sessions found"', async () => {
+    await setup();
+    component.selection.select({ id: 's-1', status: 'active' } as Session);
+    getAllSessions.mockRejectedValueOnce({ statusCode: 403, message: 'Forbidden resource' });
+
+    component.refreshSessions();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('[role="alert"]')?.textContent).toContain(
+      'Failed to load sessions: Forbidden resource'
+    );
+    expect(element.textContent).not.toContain('No sessions found');
+    // Bulk actions must not act on sessions that are no longer shown.
+    expect(component.selection.selected).toEqual([]);
+  });
+
+  it('deletes selected sessions only after confirmation and reports the ones that failed', async () => {
+    await setup();
+    const confirm = vi.fn<(message?: string) => boolean>(() => false);
+    vi.stubGlobal('confirm', confirm);
+    const snackBar = vi.spyOn(TestBed.inject(MatSnackBar), 'open');
+    deleteSession
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce({ statusCode: 403, message: 'Forbidden resource' });
+    component.selection.select(
+      { id: 's-1', status: 'completed' } as Session,
+      { id: 's-2', status: 'completed' } as Session
+    );
+
+    await component.deleteSelectedSessions();
+    expect(confirm.mock.calls[0][0]).toContain('Delete 2 sessions?');
+    expect(deleteSession).not.toHaveBeenCalled();
+
+    confirm.mockReturnValue(true);
+    await component.deleteSelectedSessions();
+
+    expect(deleteSession).toHaveBeenCalledTimes(2);
+    expect(snackBar).toHaveBeenCalledWith(
+      'Deleted 1 of 2 sessions; 1 failed: Forbidden resource',
+      'Close',
+      expect.anything()
+    );
+    expect(component.selection.selected).toEqual([]);
+  });
+
+  it('reports when every selected session was deleted', async () => {
+    await setup();
+    vi.stubGlobal('confirm', () => true);
+    const snackBar = vi.spyOn(TestBed.inject(MatSnackBar), 'open');
+    component.selection.select(
+      { id: 's-1', status: 'completed' } as Session,
+      { id: 's-2', status: 'completed' } as Session
+    );
+
+    await component.deleteSelectedSessions();
+
+    expect(snackBar).toHaveBeenCalledWith('Deleted 2 sessions', 'Close', expect.anything());
   });
 });

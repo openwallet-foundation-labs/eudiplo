@@ -23,6 +23,9 @@ import {
 } from '../issuance-config.service';
 import { ConfigOwnershipDirective } from '../../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../../config-portability/config-ownership-notice.component';
+import { getApiErrorMessage } from '../../../utils/error-message';
+import { openErrorSnackBar } from '../../../utils/error-snackbar';
+import { LoadErrorComponent } from '../../../common/load-error.component';
 
 interface ChainedAuthorizationServerView {
   enabled: boolean;
@@ -70,6 +73,7 @@ interface AuthorizationServerRow {
     ClipboardModule,
     ConfigOwnershipDirective,
     ConfigOwnershipNoticeComponent,
+    LoadErrorComponent,
   ],
   templateUrl: './issuance-config-show.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -77,6 +81,8 @@ interface AuthorizationServerRow {
 })
 export class IssuanceConfigShowComponent implements OnInit {
   config?: IssuanceConfig;
+  /** Set when the page's data could not be loaded, so the page is not left blank. */
+  loadError = '';
   reissuing = false;
   readonly authServerDisplayedColumns = [
     'label',
@@ -295,9 +301,10 @@ export class IssuanceConfigShowComponent implements OnInit {
       })
       .catch((error) => {
         console.error('Failed to regenerate issuer registration certificate', error);
-        this.snackBar.open('Failed to regenerate registration certificate', 'Close', {
-          duration: 4000,
-        });
+        openErrorSnackBar(
+          this.snackBar,
+          getApiErrorMessage(error, 'Failed to regenerate registration certificate')
+        );
       })
       .finally(() => {
         this.reissuing = false;
@@ -308,16 +315,15 @@ export class IssuanceConfigShowComponent implements OnInit {
     this.loadConfig();
   }
 
-  private loadConfig(): void {
+  loadConfig(): void {
+    this.loadError = '';
     this.issuanceConfigService.getConfig().then(
       (config) => {
         this.config = config;
       },
       (error) => {
-        this.snackBar.open('Failed to load config', 'Close', {
-          duration: 3000,
-        });
         console.error('Load error:', error);
+        this.loadError = getApiErrorMessage(error, 'Failed to load issuer settings');
       }
     );
   }

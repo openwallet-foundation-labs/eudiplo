@@ -23,6 +23,8 @@
         </div>
       </mat-card-content>
     </mat-card>
+  } @else if (loadError) {
+    <app-load-error [message]="loadError" (retry)="loadUsers()" />
   } @else {
     <table mat-table [dataSource]="users" class="mat-elevation-z8">
       <ng-container matColumnDef="username">
