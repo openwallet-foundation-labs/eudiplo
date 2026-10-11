@@ -1,13 +1,18 @@
 import { webcrypto } from "node:crypto";
+import { BadRequestException, NotFoundException } from "@nestjs/common";
 import * as x509 from "@peculiar/x509";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { KeyUsageType } from "../crypto/key/types/key-usage-type.js";
 import { AccessCertificateService } from "./access-certificate.service.js";
-import { accessCertificateControllerAccessCertificates } from "./generated/index.js";
+import {
+    accessCertificateControllerAccessCertificates,
+    accessCertificateControllerRegister,
+} from "./generated/index.js";
 
 vi.mock("./generated/index.js", async (importOriginal) => ({
     ...(await importOriginal<typeof import("./generated/index.js")>()),
     accessCertificateControllerAccessCertificates: vi.fn(),
+    accessCertificateControllerRegister: vi.fn(),
 }));
 
 const crypto = webcrypto as Crypto;
@@ -78,7 +83,9 @@ describe("AccessCertificateService.findRegistrarAccessCertificateId", () => {
     function registrarReturns(...entries: ReturnType<typeof registrarEntry>[]) {
         vi.mocked(
             accessCertificateControllerAccessCertificates,
-        ).mockResolvedValue({ data: entries } as any);
+        ).mockResolvedValue({
+            data: entries,
+        } as any);
     }
 
     it("returns the registrar id of the certificate held by the access key chain", async () => {
@@ -103,7 +110,10 @@ describe("AccessCertificateService.findRegistrarAccessCertificateId", () => {
         });
         expect(
             accessCertificateControllerAccessCertificates,
-        ).toHaveBeenCalledWith({ client, query: { rp: "rp-1" } });
+        ).toHaveBeenCalledWith({
+            client,
+            query: { rp: "rp-1" },
+        });
     });
 
     it("ignores a revoked access certificate", async () => {
@@ -138,10 +148,119 @@ describe("AccessCertificateService.findRegistrarAccessCertificateId", () => {
     it("returns nothing when the registrar cannot list access certificates", async () => {
         vi.mocked(
             accessCertificateControllerAccessCertificates,
-        ).mockResolvedValue({ error: { statusCode: 500 } } as any);
+        ).mockResolvedValue({
+            error: { statusCode: 500 },
+        } as any);
 
         await expect(
             service.findRegistrarAccessCertificateId("tenant", client, "rp-1"),
         ).resolves.toBeUndefined();
     });
+});
+
+// The Web Client deletes a new access key when the enrollment answers 400,
+// 403 or 404, so every refusal must keep its status and come before the
+// certificate is stored.
+describe("AccessCertificateService.createAccessCertificate", () => {
+    let authService: {
+        getClient: ReturnType<typeof vi.fn>;
+        getRelyingPartyId: ReturnType<typeof vi.fn>;
+    };
+    let keyChainService: {
+        createCertificateSigningRequest: ReturnType<typeof vi.fn>;
+    };
+    let certService: { addCertificate: ReturnType<typeof vi.fn> };
+    let service: AccessCertificateService;
+
+    beforeEach(() => {
+        vi.mocked(accessCertificateControllerRegister).mockReset();
+        vi.mocked(accessCertificateControllerRegister).mockResolvedValue({
+            data: { id: "registrar-cert", crt: "PEM" },
+        } as any);
+        authService = {
+            getClient: vi.fn().mockResolvedValue({}),
+            getRelyingPartyId: vi.fn().mockResolvedValue("rp-1"),
+        };
+        keyChainService = {
+            createCertificateSigningRequest: vi.fn().mockResolvedValue("CSR"),
+        };
+        certService = { addCertificate: vi.fn().mockResolvedValue("access") };
+        service = new AccessCertificateService(
+            {} as any,
+            authService as any,
+            certService as any,
+            keyChainService as any,
+        );
+    });
+
+    it("stores the certificate the registrar issued", async () => {
+        await expect(
+            service.createAccessCertificate("tenant", { keyId: "access" }),
+        ).resolves.toEqual({
+            id: "registrar-cert",
+            certId: "access",
+            crt: "PEM",
+        });
+        expect(certService.addCertificate).toHaveBeenCalledWith(
+            "tenant",
+            expect.objectContaining({ crt: ["PEM"], keyId: "access" }),
+        );
+    });
+
+    it.each([
+        {
+            refusal: "the registrar authentication fails",
+            setup: () =>
+                authService.getClient.mockRejectedValue(
+                    new BadRequestException(
+                        "Failed to authenticate with registrar: invalid_grant",
+                    ),
+                ),
+            expected: BadRequestException,
+        },
+        {
+            refusal: "there is no registrar configuration",
+            setup: () =>
+                authService.getClient.mockRejectedValue(
+                    new NotFoundException("No registrar configuration found"),
+                ),
+            expected: NotFoundException,
+        },
+        {
+            refusal: "the relying party cannot be found or registered",
+            setup: () =>
+                authService.getRelyingPartyId.mockRejectedValue(
+                    new BadRequestException(
+                        "Failed to fetch relying parties from registrar",
+                    ),
+                ),
+            expected: BadRequestException,
+        },
+        {
+            refusal: "the key does not exist",
+            setup: () =>
+                keyChainService.createCertificateSigningRequest.mockRejectedValue(
+                    new NotFoundException("Key chain not found"),
+                ),
+            expected: NotFoundException,
+        },
+        {
+            refusal: "the registrar rejects the certificate request",
+            setup: () =>
+                vi
+                    .mocked(accessCertificateControllerRegister)
+                    .mockResolvedValue({ error: { status: 400 } } as any),
+            expected: BadRequestException,
+        },
+    ])(
+        "passes on the refusal and stores nothing when $refusal",
+        async ({ setup, expected }) => {
+            setup();
+
+            await expect(
+                service.createAccessCertificate("tenant", { keyId: "access" }),
+            ).rejects.toBeInstanceOf(expected);
+            expect(certService.addCertificate).not.toHaveBeenCalled();
+        },
+    );
 });

@@ -89,7 +89,7 @@ Then open `https://YOUR-HTTPS-HOST/health` in the **browser on your phone**. It 
 4. On the **Client ID and Secret** tab, enter `AUTH_CLIENT_ID` (by default `root`) as **Client ID** and `AUTH_CLIENT_SECRET` as **Client Secret**.
 5. Choose **Login with Client Credentials**.
 
-The Web Client is for administration from your computer only. The wallet never talks to it; it uses the `PUBLIC_URL` of the backend.
+The Web Client is for administration from your computer only. The wallet never talks to it; it uses the `PUBLIC_URL` of the backend. The Web Client reads the backend at `http://localhost:3000`, but requests its tokens from the token endpoint that `PUBLIC_URL` names, `https://YOUR-HTTPS-HOST/api/oauth2/token`. Keep the tunnel running while you are signed in.
 
 **Checkpoint:** the dashboard opens, and the navigation shows **Administration → Tenants**.
 
@@ -106,7 +106,8 @@ Check your wallet's row in [Wallet and registrar requirements](../trust/wallet-r
 | ----------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `init` fails with "port is already allocated"   | The demo or another stack uses port `3000` or `4200`        | Stop the other stack (`eudiplo down --instance local` for the demo), then run `eudiplo up --instance cookbook`.                                             |
 | Local health works, phone health fails          | Tunnel stopped, wrong target port or an interstitial page   | Restart the tunnel to port `3000`; make sure the phone gets the JSON directly.                                                                              |
-| Offers or metadata contain `localhost` or an old tunnel URL | `PUBLIC_URL` in `.eudiplo.env` is wrong              | Edit `PUBLIC_URL`, run `eudiplo up --instance cookbook` (Compose recreates the backend with the new environment), change the `url` of the `cookbook` instance in `~/.eudiplo/config.json` (the CLI commands use it), then create a new offer. |
+| Web Client login reports a connection error     | The tunnel is down; the login requests its token at `https://YOUR-HTTPS-HOST` | Restart the tunnel to port `3000` and sign in again. |
+| Offers or metadata contain `localhost` or an old tunnel URL | `PUBLIC_URL` in `.eudiplo.env` is wrong              | Edit `PUBLIC_URL`, run `eudiplo up --instance cookbook` (Compose recreates the backend with the new environment), change the `url` of the `cookbook` instance in `~/.eudiplo/config.json` (the CLI commands use it), sign in to the Web Client again (it keeps the old token endpoint until then), then create a new offer. |
 
 For login errors, `eudiplo: command not found` and other common problems, see [Troubleshooting](../troubleshooting.md).
 

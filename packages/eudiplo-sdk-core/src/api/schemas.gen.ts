@@ -473,7 +473,7 @@ export const TenantResponseDtoSchema = {
             ]
         },
         statusListConfig: {
-            description: 'Status list configuration for this tenant. Only affects newly created status lists.',
+            description: 'Status list configuration for this tenant. Capacity and bits apply to status lists created afterwards; TTL, update mode and aggregation apply to all status lists of the tenant.',
             anyOf: [
                 {
                     $ref: '#/components/schemas/StatusListConfig'
@@ -676,7 +676,7 @@ export const TenantCreateResponseDtoSchema = {
             ]
         },
         statusListConfig: {
-            description: 'Status list configuration for this tenant. Only affects newly created status lists.',
+            description: 'Status list configuration for this tenant. Capacity and bits apply to status lists created afterwards; TTL, update mode and aggregation apply to all status lists of the tenant.',
             anyOf: [
                 {
                     $ref: '#/components/schemas/StatusListConfig'
@@ -3260,7 +3260,7 @@ export const TenantEntitySchema = {
             ]
         },
         statusListConfig: {
-            description: 'Status list configuration for this tenant. Only affects newly created status lists.',
+            description: 'Status list configuration for this tenant. Capacity and bits apply to status lists created afterwards; TTL, update mode and aggregation apply to all status lists of the tenant.',
             anyOf: [
                 {
                     $ref: '#/components/schemas/StatusListConfig'

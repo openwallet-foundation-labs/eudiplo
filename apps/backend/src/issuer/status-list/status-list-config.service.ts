@@ -99,7 +99,10 @@ export class StatusListConfigService {
 
     /**
      * Update the status list configuration for a tenant.
-     * Note: Changes only affect newly created status lists, not existing ones.
+     * Note: Capacity and bits apply to status lists created afterwards;
+     * existing lists keep theirs. TTL, update mode and aggregation are read
+     * whenever a list is signed or an entry changes, so they apply to all
+     * status lists of the tenant.
      *
      * Fields set to `null` will use the global default.
      * Fields set to a value will override the default.
@@ -155,7 +158,7 @@ export class StatusListConfigService {
 
     /**
      * Reset the status list configuration for a tenant to defaults.
-     * Note: This only affects newly created status lists, not existing ones.
+     * Which fields affect existing status lists: see {@link updateConfig}.
      * @param tenantId The tenant ID
      */
     async resetConfig(

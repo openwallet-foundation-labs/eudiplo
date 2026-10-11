@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  Injector,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -16,6 +24,8 @@ import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { RegistrarConfig, RegistrarConfigRequest, RegistrarService } from './registrar.service';
 import { ConfigOwnershipDirective } from '../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../config-portability/config-ownership-notice.component';
+import { focusAfterRenderIfLost } from '../common/focus-if-lost.util';
+import { LoadErrorComponent } from '../common/load-error.component';
 import {
   ConfigOwnershipService,
   ConfigResourceOwnership,
@@ -111,6 +121,7 @@ const URL_EXAMPLES: Record<string, string> = {
     RouterModule,
     ConfigOwnershipDirective,
     ConfigOwnershipNoticeComponent,
+    LoadErrorComponent,
   ],
   templateUrl: './registrar.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -119,6 +130,10 @@ const URL_EXAMPLES: Record<string, string> = {
 export class RegistrarComponent implements OnInit {
   @ViewChild(ConfigOwnershipNoticeComponent)
   private readonly ownershipNotice?: ConfigOwnershipNoticeComponent;
+  /** Where focus goes when a retry removes the error card with its focused Retry button. */
+  @ViewChild('settingsTitle', { read: ElementRef })
+  private readonly settingsTitle?: ElementRef<HTMLElement>;
+  private readonly injector = inject(Injector);
 
   configForm: FormGroup;
   config: RegistrarConfig | null = null;
@@ -170,6 +185,7 @@ export class RegistrarComponent implements OnInit {
   }
 
   async loadData(): Promise<void> {
+    const retrying = this.loadError !== '';
     this.isLoading = true;
     this.loadError = '';
     try {
@@ -209,6 +225,9 @@ export class RegistrarComponent implements OnInit {
       );
     } finally {
       this.isLoading = false;
+    }
+    if (retrying && !this.loadError) {
+      focusAfterRenderIfLost(this.injector, () => this.settingsTitle?.nativeElement);
     }
   }
 
