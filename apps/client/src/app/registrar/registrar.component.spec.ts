@@ -552,6 +552,188 @@ describe('RegistrarComponent load and save errors', () => {
     expect(clientId.valid).toBe(true);
   });
 
+  it('rejects a URL with a query, fragment or credentials', () => {
+    for (const value of [
+      'https://registrar.example/api?',
+      'https://auth.example/realms/x#',
+      'https://user:secret@registrar.example',
+    ]) {
+      component.configForm.patchValue({ registrarUrl: value });
+      expect(component.fieldError('registrarUrl')).toBe(
+        'Enter an http(s) URL without query, fragment or credentials'
+      );
+    }
+  });
+
+  it('highlights a stored URL that breaks the base URL rule right after loading', async () => {
+    await load({ ...stored, oidcUrl: 'https://auth.example/realms/registrar#' });
+
+    expect(component.configForm.get('oidcUrl')?.touched).toBe(true);
+    expect(component.hasInvalidInput).toBe(true);
+  });
+
+  it('says what to do when the outbound URL policy blocks a URL', async () => {
+    await load(stored);
+    registrarService.updateConfig.mockRejectedValue(
+      validationFailed([
+        {
+          path: ['oidcUrl'],
+          message: 'Outbound URL host is not in the allowlist',
+          code: 'outbound_url_policy',
+        },
+      ])
+    );
+
+    await component.saveConfig();
+
+    const hint =
+      "Check the URL; if it is correct, ask the operator to allow it in this instance's outbound URL policy.";
+    expect(component.fieldError('oidcUrl')).toBe(
+      `Outbound URL host is not in the allowlist. ${hint}`
+    );
+    expect(snackBar.open).toHaveBeenCalledWith(
+      `Failed to save configuration. ${hint}`,
+      'Close',
+      expect.anything()
+    );
+  });
+
+  it('suggests checking the host name when it cannot be resolved', async () => {
+    await load(stored);
+    registrarService.updateConfig.mockRejectedValue(
+      validationFailed([
+        {
+          path: ['oidcUrl'],
+          message: 'Outbound URL host cannot be resolved',
+          code: 'outbound_url_policy',
+        },
+      ])
+    );
+
+    await component.saveConfig();
+
+    expect(component.fieldError('oidcUrl')).toBe(
+      'Outbound URL host cannot be resolved. Check the host name, or try again later.'
+    );
+  });
+
+  it('saves again after a backend rejection without an edit', async () => {
+    await load(stored);
+    registrarService.updateConfig.mockRejectedValueOnce(
+      validationFailed([
+        {
+          path: ['oidcUrl'],
+          message: 'Outbound URL host is not in the allowlist',
+          code: 'outbound_url_policy',
+        },
+      ])
+    );
+    await component.saveConfig();
+    expect(component.hasInvalidInput).toBe(false);
+
+    // The operator allowed the host in the meantime.
+    await component.saveConfig();
+
+    expect(registrarService.updateConfig).toHaveBeenCalledTimes(2);
+    expect(component.configForm.get('oidcUrl')?.hasError('server')).toBe(false);
+  });
+
+  it('says what to do when the policy blocks the discovered token endpoint', async () => {
+    await load(stored);
+    registrarService.updateConfig.mockRejectedValue(
+      new HttpErrorResponse({
+        status: 400,
+        error: {
+          statusCode: 400,
+          message:
+            'Registrar credentials could not be verified: Request to https://idp.internal/token is blocked by the outbound URL policy: Outbound URL host is not in the allowlist',
+        },
+      })
+    );
+    component.configForm.patchValue({ clientId: 'other-client' });
+
+    await component.saveConfig();
+
+    expect(snackBar.open.mock.calls.at(-1)?.[0]).toBe(
+      'Failed to save configuration: Registrar credentials could not be verified: Request to https://idp.internal/token is blocked by the outbound URL policy: Outbound URL host is not in the allowlist. ' +
+        "Check the URL; if it is correct, ask the operator to allow it in this instance's outbound URL policy."
+    );
+  });
+
+  it('saves a rejected new URL again with POST and the entered password', async () => {
+    await load(stored);
+    registrarService.saveConfig.mockRejectedValueOnce(
+      validationFailed([
+        {
+          path: ['registrarUrl'],
+          message: 'Outbound URL host is not in the allowlist',
+          code: 'outbound_url_policy',
+        },
+      ])
+    );
+    component.configForm.patchValue({
+      registrarUrl: 'https://registrar.other.example/api',
+      password: 'new-password',
+    });
+
+    await component.saveConfig();
+    expect(component.configForm.get('registrarUrl')?.hasError('server')).toBe(true);
+
+    await component.saveConfig();
+
+    expect(registrarService.saveConfig).toHaveBeenCalledTimes(2);
+    expect(registrarService.saveConfig.mock.calls[1][0]).toMatchObject({
+      registrarUrl: 'https://registrar.other.example/api',
+      password: 'new-password',
+    });
+    expect(registrarService.updateConfig).not.toHaveBeenCalled();
+  });
+
+  it('suggests checking the host name when the discovered token endpoint does not resolve', async () => {
+    await load(stored);
+    registrarService.updateConfig.mockRejectedValue(
+      new HttpErrorResponse({
+        status: 400,
+        error: {
+          statusCode: 400,
+          message:
+            'Registrar credentials could not be verified: Request to https://idp.example/token is blocked by the outbound URL policy: Outbound URL host cannot be resolved',
+        },
+      })
+    );
+    component.configForm.patchValue({ clientId: 'other-client' });
+
+    await component.saveConfig();
+
+    expect(snackBar.open.mock.calls.at(-1)?.[0]).toMatch(
+      /cannot be resolved\. Check the host name, or try again later\.$/
+    );
+  });
+
+  it('shows field issues at their fields and lists the others', async () => {
+    await load(stored);
+    registrarService.updateConfig.mockRejectedValue(
+      validationFailed([
+        { path: ['clientId'], message: 'Too small', code: 'too_small' },
+        {
+          path: ['registrationCertificateDefaults'],
+          message: 'Invalid input',
+          code: 'invalid_type',
+        },
+      ])
+    );
+    component.configForm.patchValue({ clientId: 'other-client' });
+
+    await component.saveConfig();
+
+    expect(component.fieldError('clientId')).toBe('Too small');
+    expect(snackBar.open).toHaveBeenCalledWith(
+      'Failed to save configuration. Check the highlighted fields. registrationCertificateDefaults: Invalid input',
+      'Close',
+      expect.anything()
+    );
+  });
+
   it('lists issues outside the form fields in the message', async () => {
     await load(stored);
     registrarService.updateConfig.mockRejectedValue(
@@ -579,7 +761,11 @@ describe('RegistrarComponent load and save errors', () => {
     registrarService.updateConfig.mockRejectedValueOnce(
       new HttpErrorResponse({
         status: 400,
-        error: { statusCode: 400, message: 'Invalid registrar credentials (HTTP 401).' },
+        error: {
+          statusCode: 400,
+          message:
+            'Invalid registrar credentials: the OIDC provider answered with HTTP 401, invalid_grant. Please check your username, password, client ID and secret.',
+        },
       })
     );
     registrarService.updateConfig.mockRejectedValueOnce(new HttpErrorResponse({ status: 0 }));
@@ -589,7 +775,7 @@ describe('RegistrarComponent load and save errors', () => {
 
     expect(snackBar.open).toHaveBeenNthCalledWith(
       1,
-      'Failed to save configuration: Invalid registrar credentials (HTTP 401).',
+      'Failed to save configuration: Invalid registrar credentials: the OIDC provider answered with HTTP 401, invalid_grant. Please check your username, password, client ID and secret.',
       'Close',
       expect.anything()
     );
@@ -741,6 +927,32 @@ describe('RegistrarComponent rendered', () => {
       candidate.textContent?.includes(label)
     )!;
   }
+
+  it('keeps Save enabled when a field carries only a backend rejection', async () => {
+    const fixture = await render(stored);
+    registrarService.updateConfig.mockRejectedValueOnce(
+      new HttpErrorResponse({
+        status: 400,
+        error: {
+          statusCode: 400,
+          message: 'Validation failed',
+          errors: [
+            {
+              path: ['oidcUrl'],
+              message: 'Outbound URL host is not in the allowlist',
+              code: 'outbound_url_policy',
+            },
+          ],
+        },
+      })
+    );
+
+    await fixture.componentInstance.saveConfig();
+    fixture.detectChanges();
+
+    expect(element(fixture).textContent).toContain('Outbound URL host is not in the allowlist');
+    expect(button(fixture, 'Update Configuration').disabled).toBe(false);
+  });
 
   it('disables Save and Delete while a delete runs, without the save spinner', async () => {
     vi.stubGlobal('confirm', () => true);

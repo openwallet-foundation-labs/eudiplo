@@ -81,6 +81,20 @@ describe('SchemaListComponent', () => {
     expect(listMine).toHaveBeenCalledTimes(2);
   });
 
+  it('shows a failed registrar sign-in with its reason', async () => {
+    // The SDK throws the parsed error body of the backend.
+    listMine.mockRejectedValueOnce({
+      statusCode: 400,
+      message: 'Failed to authenticate with registrar: the OIDC provider answered with HTTP 401',
+    });
+
+    const fixture = await render();
+
+    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain(
+      'Failed to authenticate with registrar: the OIDC provider answered with HTTP 401'
+    );
+  });
+
   it('lists the versions of an entry newest first', async () => {
     listMine.mockResolvedValue(
       ['1.0.0', '1.1.0', '1.1.0-rc.1', '1.10.0'].map((version) => ({
