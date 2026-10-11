@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { client } from '@eudiplo/sdk-core';
 import { vi } from 'vitest';
@@ -8,6 +9,7 @@ import { CredentialConfigService } from '../../issuance/credential-config/creden
 import { PresentationManagementService } from '../../presentation/presentation-config/presentation-management.service';
 import { FrontendConfigService } from '../../services/frontend-config.service';
 import { JwtService, type Role } from '../../services/jwt.service';
+import { TrustListService } from '../trust-list.service';
 import { TrustListShowComponent } from './trust-list-show.component';
 
 /** Answers the trust list requests of the page with this list and no versions. */
@@ -95,6 +97,11 @@ describe('TrustListShowComponent public URL', () => {
       'https://eudiplo.example.com/issuers/membership-demo/trust-list/membership-issuers'
     );
     expect(fixture.nativeElement.textContent).not.toContain('did not report its public URL');
+    expect(
+      (fixture.nativeElement as HTMLElement)
+        .querySelector('button[mattooltip="Copy URL"]')
+        ?.getAttribute('aria-label')
+    ).toBe('Copy URL');
   });
 
   it('falls back to the instance URL with a warning when the backend reports no public URL', async () => {
@@ -440,5 +447,94 @@ describe('TrustListShowComponent references', () => {
           ' References from presentation configs are still loading. This cannot be undone.'
       );
     });
+  });
+});
+
+describe('TrustListShowComponent download', () => {
+  const trustList = {
+    id: 'membership-issuers',
+    tenantId: 'membership-demo',
+    description: 'Issuers accepted for membership checks',
+    entityConfig: [],
+  };
+
+  async function render(downloadConfig: TrustListService['downloadConfig']) {
+    serveTrustList(trustList);
+    await TestBed.configureTestingModule({
+      imports: [TrustListShowComponent],
+      providers: [
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { paramMap: convertToParamMap({ id: trustList.id }) } },
+        },
+        { provide: ApiService, useValue: { getBaseUrl: () => undefined } },
+        { provide: FrontendConfigService, useValue: { getConfig: async () => undefined } },
+        { provide: CredentialConfigService, useValue: { loadConfigurations: async () => [] } },
+        { provide: TrustListService, useValue: { downloadConfig } },
+      ],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(TrustListShowComponent);
+    fixture.detectChanges();
+    let button: HTMLButtonElement | null = null;
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      button = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
+        'button[aria-label="Download configuration"]'
+      );
+      expect(button).not.toBeNull();
+    });
+    return button as unknown as HTMLButtonElement;
+  }
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    client.setConfig({ fetch: () => new Promise<Response>(() => undefined) });
+  });
+
+  it('names the header actions like their tooltips', async () => {
+    const button = await render(vi.fn());
+    const header = button.parentElement as HTMLElement;
+
+    expect([...header.querySelectorAll('button')].map((b) => b.getAttribute('aria-label'))).toEqual(
+      ['Back to list', 'Edit list', 'Download configuration', 'Delete list']
+    );
+  });
+
+  it('downloads the configuration of the list', async () => {
+    const downloadConfig = vi.fn().mockResolvedValue(undefined);
+    const button = await render(downloadConfig);
+    // The component's own MatSnackBarModule provides its instance, not the root injector.
+    const open = vi.spyOn(MatSnackBar.prototype, 'open');
+
+    button.click();
+
+    await vi.waitFor(() =>
+      expect(open).toHaveBeenCalledWith('Trust list configuration downloaded', 'Close', {
+        duration: 3000,
+      })
+    );
+    expect(downloadConfig).toHaveBeenCalledWith(trustList.id);
+  });
+
+  it('says why the configuration could not be downloaded', async () => {
+    const downloadConfig = vi
+      .fn()
+      .mockRejectedValue({ statusCode: 404, message: 'Trust list membership-issuers not found' });
+    const button = await render(downloadConfig);
+    const open = vi.spyOn(MatSnackBar.prototype, 'open');
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    button.click();
+
+    await vi.waitFor(() =>
+      expect(open).toHaveBeenCalledWith(
+        'Failed to download configuration: Trust list membership-issuers not found',
+        'Close',
+        expect.objectContaining({ duration: expect.any(Number) })
+      )
+    );
+    expect(downloadConfig).toHaveBeenCalledWith(trustList.id);
   });
 });
