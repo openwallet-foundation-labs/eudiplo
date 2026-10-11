@@ -22,6 +22,7 @@ import {
     PresentationTestContext,
     preparePresentation,
     setupPresentationTestApp,
+    walletNonceOf,
 } from "../utils.js";
 
 describe("Presentation - Webhook Integration", () => {
@@ -253,12 +254,12 @@ describe("Presentation - Webhook Integration", () => {
         const sessionId = res.body.session;
 
         const errorResponse = await request(app.getHttpServer())
-            .post(`/presentations/${sessionId}/oid4vp`)
+            .post(`/presentations/${walletNonceOf(res.body.uri)}/oid4vp`)
             .trustLocalhost()
             .send({
                 error: "access_denied",
                 error_description: "User declined",
-                state: sessionId,
+                state: walletNonceOf(res.body.uri),
             })
             .expect(200);
 
@@ -334,9 +335,12 @@ describe("Presentation - Webhook Integration", () => {
         const sessionId = res.body.session;
 
         await request(app.getHttpServer())
-            .post(`/presentations/${sessionId}/oid4vp`)
+            .post(`/presentations/${walletNonceOf(res.body.uri)}/oid4vp`)
             .trustLocalhost()
-            .send({ error: "access_denied", state: sessionId })
+            .send({
+                error: "access_denied",
+                state: walletNonceOf(res.body.uri),
+            })
             .expect(200);
 
         expect(nock.isDone()).toBe(true);
