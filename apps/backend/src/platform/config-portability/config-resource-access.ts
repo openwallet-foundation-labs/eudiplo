@@ -36,9 +36,9 @@ export function mayReadConfigOwnership(
     roles: readonly Role[] | undefined,
     kind: ConfigResourceKind,
 ): boolean {
-    const allowed = [
+    const allowed = new Set([
         ...CONFIG_ADMIN_ROLES,
         ...CONFIG_RESOURCE_MANAGE_ROLES[kind],
-    ];
-    return (roles ?? []).some((role) => allowed.includes(role));
+    ]);
+    return (roles ?? []).some((role) => allowed.has(role));
 }
