@@ -55,6 +55,7 @@
         [routerLink]="[config.id]"
         routerLinkActive="router-link-active"
         matTooltip="View Configuration"
+        aria-label="View Configuration"
       >
         <mat-icon>visibility</mat-icon>
       </button>
@@ -62,6 +63,7 @@
         matIconButton
         [routerLink]="[config.id, 'edit']"
         matTooltip="Edit Configuration"
+        aria-label="Edit Configuration"
         appConfigManaged
         managedKind="PresentationConfig"
         [managedResourceId]="config.id"

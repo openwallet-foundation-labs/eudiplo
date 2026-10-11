@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { WebhookEndpointEntity } from '@eudiplo/sdk-core';
@@ -16,6 +17,7 @@ import { ConfigOwnershipDirective } from '../../config-portability/config-owners
     MatTableModule,
     MatIconModule,
     MatButtonModule,
+    MatTooltipModule,
     RouterModule,
     FlexLayoutModule,
     ConfigOwnershipDirective,

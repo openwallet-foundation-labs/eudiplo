@@ -77,6 +77,12 @@ app-root {
   width: 100%;
 }
 
+// Actions locked by appConfigManaged stay hoverable so their tooltip can say
+// why. Hide the press ripple, as Material does for a disabled button.
+.config-managed-action .mat-mdc-button-ripple {
+  display: none;
+}
+
 // Content for screen readers only, such as a label without a visible counterpart
 .visually-hidden {
   @include a11y.visually-hidden;

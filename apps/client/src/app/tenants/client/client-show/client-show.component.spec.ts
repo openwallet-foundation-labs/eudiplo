@@ -74,7 +74,10 @@ describe('ClientShowComponent delete', () => {
       useValue: { getRoles: () => callerRoles, canUseConfigPortability: () => false },
     });
     TestBed.overrideProvider(ConfigOwnershipService, {
-      useValue: { get: async () => undefined, isManaged: async () => managed },
+      useValue: {
+        get: async (kind: string, resourceId: string) =>
+          managed ? { kind, resourceId, ownership: 'file-managed', generation: 1 } : undefined,
+      },
     });
     navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 

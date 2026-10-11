@@ -126,6 +126,7 @@
           matIconButton
           (click)="navigateToEdit(list)"
           matTooltip="Edit"
+          aria-label="Edit"
           appConfigManaged
           managedKind="StatusList"
           [managedResourceId]="list.id"
@@ -137,6 +138,7 @@
           (click)="deleteList(list)"
           [disabled]="list.usedEntries > 0"
           [matTooltip]="list.usedEntries > 0 ? 'Cannot delete: entries in use' : 'Delete'"
+          aria-label="Delete"
           appConfigManaged
           managedKind="StatusList"
           [managedResourceId]="list.id"
