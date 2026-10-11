@@ -10435,6 +10435,161 @@ export const UpdateIssuanceDtoSchema = {
     }
 } as const;
 
+export const PublishSchemaMetaConfigSchema = {
+    type: 'object',
+    properties: {
+        schemaURIs: {
+            description: 'Schemas per attestation format. When omitted, the schema of `credentialConfigId` is used.',
+            items: {
+                type: 'object',
+                properties: {
+                    credentialConfigId: {
+                        description: 'Credential configuration whose schema EUDIPLO builds and uploads; `uri` and `meta` are not needed.',
+                        type: 'string'
+                    },
+                    format: {
+                        description: 'Attestation format of the schema, for example `dc+sd-jwt` or `mso_mdoc`. Required with `uri`; with `credentialConfigId`, the format of the configuration takes precedence.',
+                        type: 'string'
+                    },
+                    uri: {
+                        description: 'URL of a schema document that EUDIPLO downloads and uploads to the registrar. Requires `format` and `meta`.',
+                        type: 'string'
+                    },
+                    meta: {
+                        description: 'Format-specific schema metadata, for example `{ "vct": "urn:example:vct" }` for `dc+sd-jwt`. Required with `uri`.',
+                        type: 'object',
+                        propertyNames: {
+                            type: 'string'
+                        },
+                        additionalProperties: {}
+                    }
+                },
+                additionalProperties: false
+            },
+            type: 'array'
+        },
+        trustedAuthorities: {
+            description: 'Trusted authorities for issuers of this attestation. Required when publishing: at least one entry must provide an X.509 certificate (`trustListId`, an `x509` entry or a `verificationMethod` with `x509Certificate`).',
+            items: {
+                type: 'object',
+                properties: {
+                    trustListId: {
+                        description: 'Trust list of the tenant. EUDIPLO publishes it as `etsi_tl` authority with its URL and the certificate of the trust list\'s key chain; the other fields are not needed.',
+                        type: 'string'
+                    },
+                    frameworkType: {
+                        description: 'Trust framework of an external authority. `x509` takes a root certificate in `value` and no `verificationMethod`.',
+                        type: 'string',
+                        enum: [
+                            'aki',
+                            'etsi_tl',
+                            'openid_federation',
+                            'x509'
+                        ]
+                    },
+                    value: {
+                        description: 'Authority value, for example the trust list URL for `etsi_tl` or the base64 DER root certificate for `x509`.',
+                        type: 'string'
+                    },
+                    verificationMethod: {
+                        description: 'Verification material of an external authority, for example a JWK, as object or JSON string. Required, except for `x509` (must be omitted) and for a `value` that is a trust list URL of this tenant (EUDIPLO adds the certificate).',
+                        anyOf: [
+                            {
+                                type: 'object',
+                                propertyNames: {
+                                    type: 'string'
+                                },
+                                additionalProperties: {}
+                            },
+                            {
+                                type: 'string'
+                            }
+                        ]
+                    }
+                },
+                additionalProperties: false
+            },
+            type: 'array'
+        },
+        id: {
+            type: 'string',
+            description: 'Schema ID (attestation identifier URI). `publish` passes it to the registrar when set; `publish-version` requires the ID of the existing schema. With `credentialConfigId` and no `rulebookURI`, `publish` only links that credential configuration to this ID and uploads nothing.'
+        },
+        name: {
+            type: 'string',
+            description: 'Human-readable name. Required when publishing; not needed for a link-only request.'
+        },
+        version: {
+            type: 'string',
+            description: 'Schema version, for example `1.0.0`.'
+        },
+        rulebookURI: {
+            type: 'string',
+            description: 'URL of the attestation rulebook, which EUDIPLO downloads and uploads to the registrar. Required when publishing.'
+        },
+        attestationLoS: {
+            type: 'string',
+            enum: [
+                'iso_18045_high',
+                'iso_18045_moderate',
+                'iso_18045_enhanced-basic',
+                'iso_18045_basic'
+            ],
+            description: 'Attestation level of security.'
+        },
+        bindingType: {
+            type: 'string',
+            enum: [
+                'claim',
+                'key',
+                'biometric',
+                'none'
+            ],
+            description: 'Cryptographic binding type.'
+        },
+        category: {
+            type: 'string',
+            description: 'Registrar category of the schema metadata, one of the predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets it at the registrar after publishing; it is not stored in the credential configuration.',
+            enum: [
+                'identity',
+                'health',
+                'finance',
+                'education',
+                'mobility',
+                'employment',
+                'other'
+            ]
+        },
+        tags: {
+            type: 'array',
+            description: 'Registrar tags of the schema metadata, predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets them at the registrar after publishing; they are not stored in the credential configuration.',
+            maxItems: 10,
+            items: {
+                type: 'string',
+                enum: [
+                    'pid',
+                    'eudi',
+                    'kyc',
+                    'aml',
+                    'age-verification',
+                    'residency',
+                    'membership',
+                    'education',
+                    'employment',
+                    'mobility'
+                ]
+            }
+        }
+    },
+    required: [
+        'version',
+        'attestationLoS',
+        'bindingType'
+    ],
+    description: 'Schema metadata values; the registrar builds and signs the result.',
+    additionalProperties: false
+} as const;
+
 export const SignSchemaMetaConfigDtoSchema = {
     type: 'object',
     properties: {
@@ -10548,13 +10703,46 @@ export const SignSchemaMetaConfigDtoSchema = {
                         },
                         additionalProperties: false
                     }
+                },
+                category: {
+                    description: 'Registrar category of the schema metadata, one of the predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets it at the registrar after publishing; it is not stored in the credential configuration.',
+                    type: 'string',
+                    enum: [
+                        'identity',
+                        'health',
+                        'finance',
+                        'education',
+                        'mobility',
+                        'employment',
+                        'other'
+                    ]
+                },
+                tags: {
+                    description: 'Registrar tags of the schema metadata, predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets them at the registrar after publishing; they are not stored in the credential configuration.',
+                    maxItems: 10,
+                    type: 'array',
+                    items: {
+                        type: 'string',
+                        enum: [
+                            'pid',
+                            'eudi',
+                            'kyc',
+                            'aml',
+                            'age-verification',
+                            'residency',
+                            'membership',
+                            'education',
+                            'employment',
+                            'mobility'
+                        ]
+                    }
                 }
             },
             additionalProperties: false,
             description: 'The schema metadata configuration to submit. Registrar builds and signs the final schema metadata.',
             allOf: [
                 {
-                    $ref: '#/components/schemas/SchemaMetaConfig'
+                    $ref: '#/components/schemas/PublishSchemaMetaConfig'
                 }
             ]
         },
@@ -10692,13 +10880,46 @@ export const SignVersionSchemaMetaConfigDtoSchema = {
                         },
                         additionalProperties: false
                     }
+                },
+                category: {
+                    description: 'Registrar category of the schema metadata, one of the predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets it at the registrar after publishing; it is not stored in the credential configuration.',
+                    type: 'string',
+                    enum: [
+                        'identity',
+                        'health',
+                        'finance',
+                        'education',
+                        'mobility',
+                        'employment',
+                        'other'
+                    ]
+                },
+                tags: {
+                    description: 'Registrar tags of the schema metadata, predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets them at the registrar after publishing; they are not stored in the credential configuration.',
+                    maxItems: 10,
+                    type: 'array',
+                    items: {
+                        type: 'string',
+                        enum: [
+                            'pid',
+                            'eudi',
+                            'kyc',
+                            'aml',
+                            'age-verification',
+                            'residency',
+                            'membership',
+                            'education',
+                            'employment',
+                            'mobility'
+                        ]
+                    }
                 }
             },
             additionalProperties: false,
             description: 'The schema metadata configuration to submit as a new version. Must include the existing id.',
             allOf: [
                 {
-                    $ref: '#/components/schemas/SchemaMetaConfig'
+                    $ref: '#/components/schemas/PublishSchemaMetaConfig'
                 }
             ]
         },

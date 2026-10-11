@@ -11,6 +11,12 @@ import type {
     Schema,
     TrustAuthority,
 } from "../../generated/index.js";
+import {
+    CATEGORY_VALUES,
+    type SchemaMetadataCategory,
+    type SchemaMetadataTag,
+    TAG_VALUES,
+} from "./schema-metadata-vocabulary.js";
 
 const ATTESTATION_LOS_VALUES = [
     "iso_18045_high",
@@ -25,31 +31,6 @@ export type BindingType = (typeof BINDING_TYPE_VALUES)[number];
 
 const FORMAT_VALUES = ["dc+sd-jwt", "mso_mdoc"] as const;
 export type CredentialFormatId = (typeof FORMAT_VALUES)[number];
-
-const CATEGORY_VALUES = [
-    "identity",
-    "health",
-    "finance",
-    "education",
-    "mobility",
-    "employment",
-    "other",
-] as const;
-export type SchemaMetadataCategory = (typeof CATEGORY_VALUES)[number];
-
-const TAG_VALUES = [
-    "pid",
-    "eudi",
-    "kyc",
-    "aml",
-    "age-verification",
-    "residency",
-    "membership",
-    "education",
-    "employment",
-    "mobility",
-] as const;
-export type SchemaMetadataTag = (typeof TAG_VALUES)[number];
 
 const VOCABULARY_STATUS_VALUES = ["active", "deprecated"] as const;
 export type VocabularyStatus = (typeof VOCABULARY_STATUS_VALUES)[number];

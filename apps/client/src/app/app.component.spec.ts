@@ -289,6 +289,21 @@ describe('AppComponent navigation toggle', () => {
     expect(backdrop.classList).toContain('mat-drawer-shown');
   });
 
+  it('collapses and reopens the side-mode navigation', () => {
+    const { fixture, element, toggle } = render(false);
+    const sidenav = element.querySelector('mat-sidenav') as HTMLElement;
+
+    toggle.click();
+    fixture.detectChanges();
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(sidenav.classList).not.toContain('mat-drawer-opened');
+
+    toggle.click();
+    fixture.detectChanges();
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(sidenav.classList).toContain('mat-drawer-opened');
+  });
+
   it('keeps the side-mode navigation open on Escape', async () => {
     const { fixture, element, toggle } = render(false);
     const sidenav = element.querySelector('mat-sidenav') as HTMLElement;
@@ -299,6 +314,38 @@ describe('AppComponent navigation toggle', () => {
 
     expect(toggle.getAttribute('aria-expanded')).toBe('true');
     expect(sidenav.classList).toContain('mat-drawer-opened');
+  });
+});
+
+describe('AppComponent skip link', () => {
+  function render() {
+    TestBed.configureTestingModule({
+      imports: [AppComponent],
+      providers: [provideRouter([{ path: 'login', component: EmptyPageComponent }])],
+    });
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    return { fixture, element: fixture.nativeElement as HTMLElement };
+  }
+
+  it('is the first focusable element and moves focus to the main content', () => {
+    const { element } = render();
+    const link = element.querySelector('a, button, [tabindex="0"]') as HTMLAnchorElement;
+    expect(link.textContent?.trim()).toBe('Skip to main content');
+
+    const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+    link.dispatchEvent(click);
+
+    expect(click.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(element.querySelector('#main-content'));
+  });
+
+  it('is left out on the login page', async () => {
+    const { fixture, element } = render();
+    await TestBed.inject(Router).navigateByUrl('/login');
+    fixture.detectChanges();
+
+    expect(element.querySelector('.skip-link')).toBeNull();
   });
 });
 

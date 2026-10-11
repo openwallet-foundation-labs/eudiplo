@@ -4,6 +4,7 @@ import { SchemaURIMeta } from "@owf/eudi-attestation-schema";
 import { KeyChainService } from "../../crypto/key/key-chain.service.js";
 import { CredentialConfigService } from "../../issuer/configuration/credentials/credential-config/credential-config.service.js";
 import {
+    SchemaMetaConfig,
     SchemaMetadataPinMode,
     SignSchemaMetaConfigDto,
     SignVersionSchemaMetaConfigDto,
@@ -590,31 +591,16 @@ export class SchemaMetadataSubmissionService {
                 ? config.name.trim()
                 : undefined;
 
-        const category = (config as { category?: unknown }).category;
-        const normalizedCategory =
-            typeof category === "string" ? category : undefined;
+        const { category, tags } = config;
 
-        const tags = (config as { tags?: unknown }).tags;
-        const normalizedTags =
-            Array.isArray(tags) && tags.every((tag) => typeof tag === "string")
-                ? tags
-                : undefined;
-
-        if (!displayName && !normalizedCategory && !normalizedTags?.length) {
+        if (!displayName && !category && !tags?.length) {
             return undefined;
         }
 
         return {
             ...(displayName ? { displayName } : {}),
-            ...(normalizedCategory
-                ? {
-                      category:
-                          normalizedCategory as UpdateSchemaMetadataDto["category"],
-                  }
-                : {}),
-            ...(normalizedTags?.length
-                ? { tags: normalizedTags as UpdateSchemaMetadataDto["tags"] }
-                : {}),
+            ...(category ? { category } : {}),
+            ...(tags?.length ? { tags } : {}),
         };
     }
 
@@ -658,9 +644,17 @@ export class SchemaMetadataSubmissionService {
             return;
         }
 
+        // Only SchemaMetaConfig fields belong in the credential config; the
+        // publish-only ones (category, tags) exist only at the registrar, and
+        // its schemaMeta (part of the config file format) rejects them.
+        const schemaMeta = Object.fromEntries(
+            Object.entries(normalizedConfig).filter(([key]) =>
+                Object.hasOwn(SchemaMetaConfig.schema.shape, key),
+            ),
+        );
         const schemaMetaForLink = {
             ...existing.schemaMeta,
-            ...normalizedConfig,
+            ...schemaMeta,
             id: generatedSchemaMetadataId,
         };
 
@@ -683,6 +677,13 @@ export class SchemaMetadataSubmissionService {
                 normalizedConfig.rulebookURI.trim().length === 0);
 
         if (isLinkOnlyRequest) {
+            // Nothing is published, so there is no new entry to set them on.
+            if (normalizedConfig.category || normalizedConfig.tags?.length) {
+                throw new BadRequestException(
+                    "config.category and config.tags only apply when publishing; omit them when linking a credential config to an existing schema metadata id",
+                );
+            }
+
             await this.updateCredentialConfigSchemaMetaLink(
                 tenantId,
                 body.credentialConfigId!,

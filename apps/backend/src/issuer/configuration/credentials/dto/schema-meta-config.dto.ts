@@ -3,6 +3,7 @@ import { SchemaURIMeta } from "@owf/eudi-attestation-schema";
 import { createZodDto } from "nestjs-zod";
 import {
     AttestationLoS,
+    PublishSchemaMetaConfigSchema,
     SchemaMetaBindingType,
     SchemaMetaConfigSchema,
     SchemaMetadataPinMode,
@@ -109,6 +110,20 @@ export class SchemaMetaConfig extends createZodDto(SchemaMetaConfigSchema) {
 }
 
 /**
+ * Schema metadata configuration of a publish request: the credential
+ * config's SchemaMetaConfig plus the registrar catalogue fields.
+ */
+export class PublishSchemaMetaConfig extends createZodDto(
+    PublishSchemaMetaConfigSchema,
+) {
+    @ApiPropertyOptional({ type: () => [SchemaUriEntry] })
+    schemaURIs?: SchemaUriEntry[];
+
+    @ApiPropertyOptional({ type: () => [TrustAuthorityEntry] })
+    trustedAuthorities?: TrustAuthorityEntry[];
+}
+
+/**
  * Request body for schema metadata submission.
  *
  * The registrar builds and signs schema metadata from the submitted values.
@@ -117,11 +132,11 @@ export class SignSchemaMetaConfigDto extends createZodDto(
     SignSchemaMetaConfigSchema,
 ) {
     @ApiProperty({
-        type: () => SchemaMetaConfig,
+        type: () => PublishSchemaMetaConfig,
         description:
             "The schema metadata configuration to submit. Registrar builds and signs the final schema metadata.",
     })
-    config!: SchemaMetaConfig;
+    config!: PublishSchemaMetaConfig;
 
     @ApiPropertyOptional()
     credentialConfigId?: string;
@@ -142,11 +157,11 @@ export class SignVersionSchemaMetaConfigDto extends createZodDto(
     SignVersionSchemaMetaConfigSchema,
 ) {
     @ApiProperty({
-        type: () => SchemaMetaConfig,
+        type: () => PublishSchemaMetaConfig,
         description:
             "The schema metadata configuration to submit as a new version. Must include the existing id.",
     })
-    config!: SchemaMetaConfig;
+    config!: PublishSchemaMetaConfig;
 
     @ApiPropertyOptional()
     credentialConfigId?: string;

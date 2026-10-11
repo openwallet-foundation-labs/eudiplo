@@ -1,4 +1,8 @@
 import { z } from "zod";
+import {
+    CATEGORY_VALUES,
+    TAG_VALUES,
+} from "../../../../registrar/schema-metadata/dto/schema-metadata-vocabulary.js";
 
 /**
  * Attestation Level of Security (LoS) as defined in TS11.
@@ -153,12 +157,38 @@ export const SchemaMetaConfigSchema = z
     )
     .strict();
 
+/**
+ * Schema metadata values of a publish request: SchemaMetaConfigSchema plus
+ * the registrar catalogue fields, which are not part of a credential
+ * configuration's schemaMeta.
+ */
+export const PublishSchemaMetaConfigSchema = SchemaMetaConfigSchema.extend({
+    category: z
+        .enum(CATEGORY_VALUES)
+        .optional()
+        .describe(
+            "Registrar category of the schema metadata, one of the predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets it at the registrar after publishing; it is not stored in the credential configuration.",
+        ),
+    tags: z
+        .array(z.enum(TAG_VALUES))
+        .max(TAG_VALUES.length)
+        .refine((tags) => new Set(tags).size === tags.length, {
+            message: "tags must not repeat",
+        })
+        .optional()
+        .describe(
+            "Registrar tags of the schema metadata, predefined values of `GET /api/schema-metadata/vocabularies`. EUDIPLO sets them at the registrar after publishing; they are not stored in the credential configuration.",
+        ),
+}).describe(
+    "Schema metadata values; the registrar builds and signs the result.",
+);
+
 const pinModeDescription = (target: string) =>
     `How to update the schema metadata pin of \`credentialConfigId\`: \`keep_current\` (default) keeps a pin to the same ID, \`update_to_new_version\` updates the pinned version under the same ID, \`replace_id\` repoints the pin to ${target}. A configuration without a pin is always linked. If it is pinned to another ID, only \`replace_id\` succeeds; the others answer \`400\` after the schema metadata was published.`;
 
 export const SignSchemaMetaConfigSchema = z
     .object({
-        config: SchemaMetaConfigSchema,
+        config: PublishSchemaMetaConfigSchema,
         credentialConfigId: z
             .string()
             .optional()
@@ -175,7 +205,7 @@ export const SignSchemaMetaConfigSchema = z
 
 export const SignVersionSchemaMetaConfigSchema = z
     .object({
-        config: SchemaMetaConfigSchema,
+        config: PublishSchemaMetaConfigSchema,
         credentialConfigId: z
             .string()
             .optional()
