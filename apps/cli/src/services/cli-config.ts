@@ -1,5 +1,14 @@
 import { randomBytes } from "node:crypto";
-import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
+import {
+    lstat,
+    mkdir,
+    readFile,
+    readlink,
+    realpath,
+    rename,
+    rm,
+    writeFile,
+} from "node:fs/promises";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { homedir } from "node:os";
 import {
@@ -42,7 +51,8 @@ export async function loadConfig(path: string): Promise<CliConfig> {
  * with mode 0600 where the platform supports it.
  *
  * The config is validated first, so no command can save a config that the
- * next command would fail to load.
+ * next command would fail to load. A symlinked config (for example into a
+ * dotfiles repository) stays a symlink: the file it points to is replaced.
  */
 export async function saveConfig(
     path: string,
@@ -51,19 +61,45 @@ export async function saveConfig(
     const contents = `${JSON.stringify(config, null, 4)}\n`;
     validateConfig(JSON.parse(contents));
 
-    await mkdir(dirname(path), { recursive: true, mode: 0o700 });
-    const temporaryPath = `${path}.${process.pid}.${randomBytes(6).toString("hex")}.tmp`;
+    const target = await resolveSymlinks(path);
+    await mkdir(dirname(target), { recursive: true, mode: 0o700 });
+    const temporaryPath = `${target}.${process.pid}.${randomBytes(6).toString("hex")}.tmp`;
     try {
         await writeFile(temporaryPath, contents, {
             encoding: "utf8",
             mode: 0o600,
             flag: "wx",
         });
-        await replaceFile(temporaryPath, path);
+        await replaceFile(temporaryPath, target);
     } catch (error) {
         await rm(temporaryPath, { force: true });
         throw error;
     }
+}
+
+/**
+ * Returns the file a path points to. A path that does not exist yet is
+ * returned as is, and a dangling symlink resolves to its missing target, so
+ * the first save creates the file the link expects.
+ */
+async function resolveSymlinks(path: string): Promise<string> {
+    try {
+        return await realpath(path);
+    } catch (error) {
+        if (!isNodeError(error) || error.code !== "ENOENT") {
+            throw error;
+        }
+    }
+    try {
+        if ((await lstat(path)).isSymbolicLink()) {
+            return resolve(dirname(path), await readlink(path));
+        }
+    } catch (error) {
+        if (!isNodeError(error) || error.code !== "ENOENT") {
+            throw error;
+        }
+    }
+    return path;
 }
 
 /**
@@ -99,10 +135,14 @@ function validateConfig(value: unknown): CliConfig {
         throw new Error("Config must define an instances object.");
     }
 
-    const instances: Record<string, InstanceConfig> = {};
-    for (const [name, instance] of Object.entries(value.instances)) {
-        instances[name] = validateInstanceConfig(name, instance);
-    }
+    // Object.fromEntries defines own properties, so an instance named
+    // `__proto__` is kept instead of replacing the object's prototype.
+    const instances: Record<string, InstanceConfig> = Object.fromEntries(
+        Object.entries(value.instances).map(([name, instance]) => [
+            name,
+            validateInstanceConfig(name, instance),
+        ]),
+    );
 
     return {
         defaultInstance: validateDefaultInstance(
@@ -202,10 +242,13 @@ export function renameInstance(
         throw new Error(`Instance ${newName} already exists.`);
     }
 
-    const instances: Record<string, InstanceConfig> = {};
-    for (const [name, instance] of Object.entries(config.instances)) {
-        instances[name === oldName ? newName : name] = instance;
-    }
+    // See validateConfig: own properties keep a `__proto__` name intact.
+    const instances: Record<string, InstanceConfig> = Object.fromEntries(
+        Object.entries(config.instances).map(([name, instance]) => [
+            name === oldName ? newName : name,
+            instance,
+        ]),
+    );
     return {
         defaultInstance:
             config.defaultInstance === oldName
@@ -218,7 +261,8 @@ export function renameInstance(
 /**
  * Removes an instance. The default can only be removed while it is the last
  * instance, or when `newDefault` names the instance that replaces it, so the
- * default never points at a missing instance.
+ * default never points at a missing instance. `newDefault` is refused when
+ * another instance is removed; `setDefaultInstance` changes the default.
  */
 export function removeInstance(
     config: CliConfig,
@@ -228,6 +272,11 @@ export function removeInstance(
     getInstance(config, name);
     const { newDefault } = options;
     if (newDefault !== undefined) {
+        if (config.defaultInstance !== name) {
+            throw new Error(
+                `--default only applies when removing the default instance${config.defaultInstance === undefined ? "" : ` (${config.defaultInstance})`}. To change the default, use: eudiplo instance use <name>`,
+            );
+        }
         if (newDefault === name) {
             throw new Error(
                 `Cannot make ${name} the default while removing it.`,

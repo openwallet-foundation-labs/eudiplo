@@ -77,10 +77,12 @@ eudiplo instance remove production --default staging  # remove the default, pick
 Use these commands instead of editing the file by hand. Every change is
 validated before it is written, so a mistyped URL is rejected instead of
 breaking later commands, and the file is replaced atomically with mode `0600`
-(where the platform supports it). The default instance always points at a
-registered instance: removing it requires `--default <name>`, unless it is the
-last one. `list` and `show` mask credentials embedded in a URL
-(`https://***@host`).
+(where the platform supports it). If `config.json` is a symlink, for example
+into a dotfiles repository, the file it points to is replaced and the link is
+kept. The default instance always points at a registered instance: removing it
+requires `--default <name>`, unless it is the last one; `--default` is refused
+when you remove any other instance, use `instance use` for that. `list` and
+`show` mask credentials embedded in a URL (`https://***@host`).
 
 Commands that call the management API read credentials from the environment,
 never from the instance file: `doctor` uses `EUDIPLO_CLIENT_ID` and

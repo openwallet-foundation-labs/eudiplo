@@ -1,4 +1,13 @@
-import { mkdtemp, readdir, readFile, stat, writeFile } from "node:fs/promises";
+import {
+    lstat,
+    mkdir,
+    mkdtemp,
+    readdir,
+    readFile,
+    stat,
+    symlink,
+    writeFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -163,6 +172,65 @@ describe("eudiplo instance lifecycle", () => {
                 defaultInstance: "only",
                 instances: { only: production },
             });
+        });
+    });
+
+    describe("names like Object members", () => {
+        it("keeps an instance renamed to __proto__", async () => {
+            const { context, output, configPath } = await createContext({
+                defaultInstance: "production",
+                instances: { production, staging },
+            });
+
+            expect(
+                await runCli(
+                    ["instance", "rename", "staging", "__proto__"],
+                    context,
+                ),
+            ).toBe(0);
+            const saved = await readFile(configPath, "utf8");
+            expect(Object.keys(JSON.parse(saved).instances)).toEqual([
+                "production",
+                "__proto__",
+            ]);
+
+            output.stdout = "";
+            expect(await runCli(["instance", "ls"], context)).toBe(0);
+            expect(output.stdout).toContain(
+                "- __proto__: external https://staging.example.com",
+            );
+            expect(
+                await runCli(["instance", "use", "__proto__"], context),
+            ).toBe(0);
+            expect(await runCli(["instance", "show"], context)).toBe(0);
+            expect(output.stdout).toContain("Instance __proto__ (default)");
+            expect(
+                await runCli(
+                    ["instance", "rename", "__proto__", "staging"],
+                    context,
+                ),
+            ).toBe(0);
+            expect(await readConfig(configPath)).toEqual({
+                defaultInstance: "staging",
+                instances: { production, staging },
+            });
+        });
+
+        it("adds and loads an instance named __proto__", async () => {
+            const { context, configPath } = await createContext();
+
+            expect(
+                await runCli(
+                    ["instance", "add", "__proto__", "--url", production.url],
+                    context,
+                ),
+            ).toBe(0);
+            const loaded = await loadConfig(configPath);
+            expect(loaded.defaultInstance).toBe("__proto__");
+            expect(Object.hasOwn(loaded.instances, "__proto__")).toBe(true);
+            expect(Object.getPrototypeOf(loaded.instances)).toBe(
+                Object.prototype,
+            );
         });
     });
 
@@ -394,6 +462,42 @@ describe("eudiplo instance lifecycle", () => {
             expect(await readFile(configPath, "utf8")).toBe(before);
         });
 
+        it("refuses --default when another instance is removed", async () => {
+            const { context, output, configPath } = await createContext({
+                defaultInstance: "production",
+                instances: {
+                    production,
+                    staging,
+                    old: { target: "external", url: "https://old.example.com" },
+                },
+            });
+            const before = await readFile(configPath, "utf8");
+
+            expect(
+                await runCli(
+                    ["instance", "rm", "old", "--default", "staging"],
+                    context,
+                ),
+            ).toBe(1);
+            expect(output.stderr).toContain(
+                "--default only applies when removing the default instance (production).",
+            );
+            expect(output.stderr).toContain("eudiplo instance use <name>");
+            expect(await readFile(configPath, "utf8")).toBe(before);
+        });
+
+        it("refuses --default when no default is set", () => {
+            expect(() =>
+                removeInstance(
+                    { instances: { production, staging } },
+                    "production",
+                    { newDefault: "staging" },
+                ),
+            ).toThrow(
+                "--default only applies when removing the default instance.",
+            );
+        });
+
         it("clears the default when the last instance is removed", async () => {
             const { context, output, configPath } = await createContext({
                 defaultInstance: "production",
@@ -458,6 +562,47 @@ describe("CLI config writes", () => {
             expect((await stat(configPath)).mode & 0o777).toBe(0o600);
         }
     });
+
+    it.skipIf(process.platform === "win32")(
+        "keeps a symlinked config a symlink and writes its target",
+        async () => {
+            const root = await mkdtemp(join(tmpdir(), "eudiplo-cli-link-"));
+            const target = join(root, "dotfiles", "eudiplo.json");
+            const link = join(root, "home", "config.json");
+            await saveConfig(target, { instances: { production } });
+            await mkdir(dirname(link));
+            await symlink(target, link);
+
+            await saveConfig(link, {
+                defaultInstance: "staging",
+                instances: { staging },
+            });
+
+            expect((await lstat(link)).isSymbolicLink()).toBe(true);
+            expect(await readConfig(target)).toEqual({
+                defaultInstance: "staging",
+                instances: { staging },
+            });
+            expect(await readdir(dirname(target))).toEqual(["eudiplo.json"]);
+            expect((await stat(target)).mode & 0o777).toBe(0o600);
+        },
+    );
+
+    it.skipIf(process.platform === "win32")(
+        "creates the missing target of a dangling symlink",
+        async () => {
+            const root = await mkdtemp(join(tmpdir(), "eudiplo-cli-link-"));
+            const link = join(root, "config.json");
+            await symlink("dotfiles/eudiplo.json", link);
+
+            await saveConfig(link, { instances: { production } });
+
+            expect((await lstat(link)).isSymbolicLink()).toBe(true);
+            expect(
+                await readConfig(join(root, "dotfiles", "eudiplo.json")),
+            ).toEqual({ instances: { production } });
+        },
+    );
 
     it("refuses to save a config that would not load again", async () => {
         const configPath = join(
