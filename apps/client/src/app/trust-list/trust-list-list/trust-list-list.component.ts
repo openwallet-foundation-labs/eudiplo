@@ -1,22 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
-import {
-  TrustList,
-  trustListControllerExportTrustList,
-  trustListControllerGetAllTrustLists,
-} from '@eudiplo/sdk-core';
+import { TrustList } from '@eudiplo/sdk-core';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { ConfigOwnershipDirective } from '../../config-portability/config-ownership.directive';
 import { getApiErrorMessage } from '../../utils/error-message';
 import { openErrorSnackBar } from '../../utils/error-snackbar';
+import { BaseAsyncListComponent } from '../../common/base-async-list.component';
+import { downloadJsonFile } from '../../common/download-json.util';
 import { LoadErrorComponent } from '../../common/load-error.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { TrustListService } from '../trust-list.service';
 
 @Component({
   selector: 'app-trust-list-list',
@@ -37,47 +36,30 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './trust-list-list.component.scss',
 })
-export class TrustListListComponent implements OnInit {
-  lists: TrustList[] = [];
-  loading = true;
-  /** Set when the list could not be loaded, so it is not shown as empty. */
-  loadError = '';
+export class TrustListListComponent extends BaseAsyncListComponent<TrustList> {
+  protected readonly loadFailedMessage = 'Failed to load trust lists';
+
+  get lists(): TrustList[] {
+    return this.items;
+  }
 
   displayedColumns: (keyof TrustList | 'actions')[] = ['id', 'description', 'actions'];
 
-  constructor(private readonly snackBar: MatSnackBar) {}
-
-  ngOnInit(): void {
-    void this.loadLists();
+  constructor(
+    private readonly trustListService: TrustListService,
+    private readonly snackBar: MatSnackBar
+  ) {
+    super();
   }
 
-  async loadLists(): Promise<void> {
-    this.loading = true;
-    this.loadError = '';
-    try {
-      this.lists = (await trustListControllerGetAllTrustLists()).data;
-    } catch (error) {
-      console.error('Error loading trust lists:', error);
-      this.loadError = getApiErrorMessage(error, 'Failed to load trust lists');
-    } finally {
-      this.loading = false;
-    }
+  protected fetchItems(): Promise<TrustList[]> {
+    return this.trustListService.getAll();
   }
 
   async downloadConfig(list: TrustList): Promise<void> {
     try {
-      const config = await trustListControllerExportTrustList({
-        path: { id: list.id! },
-      }).then((res) => res.data);
-
-      const dataStr =
-        'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(config, null, 2));
-      const downloadAnchorNode = document.createElement('a');
-      downloadAnchorNode.setAttribute('href', dataStr);
-      downloadAnchorNode.setAttribute('download', `trustlist-${list.id}-config.json`);
-      document.body.appendChild(downloadAnchorNode);
-      downloadAnchorNode.click();
-      downloadAnchorNode.remove();
+      const config = await this.trustListService.exportConfig(list.id);
+      downloadJsonFile(config, `trustlist-${list.id}-config.json`);
       this.snackBar.open('Trust list configuration downloaded', 'Close', { duration: 3000 });
     } catch (error) {
       console.error('Error downloading config:', error);
