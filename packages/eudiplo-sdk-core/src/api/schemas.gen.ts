@@ -1232,6 +1232,23 @@ export const CreateAccessCertificateDtoSchema = {
     additionalProperties: false
 } as const;
 
+export const CreateAccessKeyChainDtoSchema = {
+    type: 'object',
+    properties: {
+        description: {
+            description: 'Human-readable description for the new key chain.',
+            type: 'string',
+            example: 'Registrar access certificate'
+        },
+        kmsProvider: {
+            description: 'KMS provider for the new key chain (defaults to the configured default provider).',
+            type: 'string',
+            example: 'db'
+        }
+    },
+    additionalProperties: false
+} as const;
+
 export const ManagedUserDtoSchema = {
     type: 'object',
     properties: {
@@ -8502,6 +8519,10 @@ export const SessionSchema = {
         clientId: {
             type: 'string',
             description: 'Client ID used in the OID4VP authorization request.'
+        },
+        accessKeyChainId: {
+            type: 'string',
+            description: 'Access key chain chosen when the OID4VP request was created. The\nrequest object is signed with this key chain, so it stays the one\n`clientId` was derived from when the tenant\'s default access key chain\nchanges in between.'
         },
         walletNonce: {
             type: 'string',

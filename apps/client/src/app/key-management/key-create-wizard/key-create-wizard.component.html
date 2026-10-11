@@ -551,7 +551,7 @@
                   <span>
                     The key will be created and automatically enrolled with the registrar to obtain
                     a trusted certificate. If the enrollment is refused, for example because of
-                    wrong registrar credentials, the key is deleted.
+                    wrong registrar credentials, no key is kept.
                   </span>
                 </div>
               }
@@ -564,6 +564,14 @@
               <span>{{ enrollmentError.message }}</span>
               @if (enrollmentError.offerRegistrar) {
                 <a mat-stroked-button [routerLink]="['/registrar']">Go to Registrar</a>
+              }
+              @if (enrollmentError.keptKeyId) {
+                <a mat-stroked-button [routerLink]="['/keys', enrollmentError.keptKeyId]">
+                  Open Key
+                </a>
+              }
+              @if (enrollmentError.offerKeys) {
+                <a mat-stroked-button [routerLink]="['/keys']">Go to Keys</a>
               }
             </div>
           }

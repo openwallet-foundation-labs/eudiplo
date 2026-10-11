@@ -28,7 +28,7 @@ The table is generated at build time from the Zod schema the backend validates w
 | `webhookEndpointId`     | ID of a [webhook endpoint](webhooks.md) that receives results. A request can override it with an inline `webhook`.                                                                                                                        |
 | `attached`              | Stored with the configuration; currently not sent to the wallet.                                                                                                                                                                          |
 | `redirectUri`           | Same-device redirect target. `{sessionId}` is replaced with the session ID. A request can override it, except for ISO 18013-7. See [Receive Results](../presentation/receive-results.md).                                                  |
-| `accessKeyChainId`      | Access key chain that signs the request, determines the `client_id` and signs `readerAuth`. Without it, EUDIPLO uses an access key chain of the tenant; set it when the tenant has several.                                                  |
+| `accessKeyChainId`      | Access key chain that signs the request, determines the `client_id` and signs `readerAuth`. Without it, EUDIPLO uses the [default access key chain](../trust/keys-and-certificates.md#default-access-key-chain), which prefers a registrar or other CA-issued certificate. |
 | `readerAuth`            | `false`. ISO 18013-7 only: sign the `DeviceRequest` with the access key chain. Requires the `db` KMS provider for that key.                                                                                                                |
 
 ## Validation rules
@@ -43,4 +43,4 @@ Rules that the table cannot show:
 
 ## Server-managed fields
 
-Responses also contain `createdAt`, `updatedAt` and `registrationCertCache` (the registration certificate EUDIPLO resolved, with fingerprints and expiry). They are read-only and not part of the schema, so the API rejects them in a request body. EUDIPLO clears the cache when `registration_cert` or `dcql_query` changes and refreshes it in the background. To force a new certificate, call `POST /api/verifier/config/{id}/registration-cert/reissue`.
+Responses also contain `createdAt`, `updatedAt` and `registrationCertCache` (the registration certificate EUDIPLO resolved, with fingerprints and expiry). They are read-only and not part of the schema, so the API rejects them in a request body. When EUDIPLO resolves the certificate again is described in [Registration Certificates](../trust/registration-certificates.md#validation-and-caching).

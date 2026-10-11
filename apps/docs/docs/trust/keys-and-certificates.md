@@ -93,7 +93,19 @@ Certificates always belong to a key chain. Which one a wallet or verifier has to
 | Status list certificate     | Verifiers, as the revocation certificate of your trust list entry             | Standalone or internal chain                                                                    |
 | Trust list certificate      | Consumers of your trust list, who pin it as `verifierX509Der`                  | Standalone or internal chain                                                                    |
 
-A presentation configuration uses the access key chain in `accessKeyChainId`, or an access key chain of the tenant when it is not set. Registration certificates are JWTs issued by a registrar, not key chains; see [Registration Certificates](registration-certificates.md).
+A presentation configuration uses the access key chain in `accessKeyChainId`, or the default access key chain when it is not set. Registration certificates are JWTs issued by a registrar, not key chains; see [Registration Certificates](registration-certificates.md).
+
+### Default access key chain
+
+Presentation requests (OID4VP and ISO 18013-7) of a configuration without `accessKeyChainId`, signed issuer metadata and the link of a registration certificate to its access certificate use the tenant's default access key chain. With several access key chains, EUDIPLO picks it in this order:
+
+1. A certificate that is valid now before an expired or not yet valid one, which could not sign.
+2. The kind of the active certificate: one issued by another CA, such as a registrar certificate or that of an imported key, before an internal chain (an External CA chain included), before a self-signed certificate.
+3. The key chain created first.
+
+A new access key chain therefore only becomes the default when its certificate is of a better kind, or when the certificate of the current default is no longer valid. To use a particular key chain, set `accessKeyChainId`.
+
+An OpenID4VP request keeps the access key chain chosen when it was created: the request object a wallet fetches later is signed with the key chain its `client_id` was derived from, even when the default or the configuration's `accessKeyChainId` has changed in between. Its registration certificate is resolved for that key chain as well; see [Registration Certificates](registration-certificates.md#validation-and-caching). If that key chain is deleted or rotated before the wallet fetches the request, the wallet cannot use the request; create a new one.
 
 ### Revocation check
 

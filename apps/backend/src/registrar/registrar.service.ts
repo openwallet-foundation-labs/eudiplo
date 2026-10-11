@@ -1,6 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { TenantEntity } from "../auth/tenant/entities/tenant.entity.js";
-import { AccessCertificateService } from "./access-certificate.service.js";
+import {
+    AccessCertificateResult,
+    AccessCertificateService,
+} from "./access-certificate.service.js";
 import { RegistrarConfigEntity } from "./entities/registrar-config.entity.js";
 import { type RegistrationCertificateCreation } from "./generated/index.js";
 import { RegistrarConfigService } from "./registrar-config.service.js";
@@ -11,6 +14,7 @@ import {
 import { SchemaMetadataService } from "./schema-metadata/schema-metadata.service.js";
 import type {
     CreateAccessCertificate,
+    CreateAccessKeyChain,
     CreateRegistrarConfig,
     UpdateRegistrarConfig,
 } from "./schemas/registrar.schema.js";
@@ -73,8 +77,15 @@ export class RegistrarService {
     createAccessCertificate(
         tenantId: string,
         dto: CreateAccessCertificate,
-    ): Promise<{ id: string; certId: string; crt: string }> {
+    ): Promise<AccessCertificateResult> {
         return this.accessCertSvc.createAccessCertificate(tenantId, dto);
+    }
+
+    createAccessKeyChain(
+        tenantId: string,
+        dto: CreateAccessKeyChain,
+    ): Promise<AccessCertificateResult> {
+        return this.accessCertSvc.createAccessKeyChain(tenantId, dto);
     }
 
     // -------------------------------------------------------------------------

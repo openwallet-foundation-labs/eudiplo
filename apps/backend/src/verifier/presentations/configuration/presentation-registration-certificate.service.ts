@@ -1,7 +1,17 @@
-import { BadRequestException, Inject, Injectable } from "@nestjs/common";
+import {
+    BadRequestException,
+    Inject,
+    Injectable,
+    NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
+import {
+    type CertificateInfo,
+    CertService,
+} from "../../../crypto/key/cert/cert.service.js";
+import { KeyUsageType } from "../../../crypto/key/types/key-usage-type.js";
 import { RegistrarService } from "../../../registrar/registrar.service.js";
 import {
     PresentationConfig,
@@ -24,8 +34,18 @@ const CACHE_EXPIRY_SKEW_SECONDS = 60;
  *
  * The registrar-issued (or imported) certificate is cached on the
  * presentation config (`registrationCertCache`). The cache is valid while the
- * `registration_cert` spec and the `dcql_query` are unchanged and the JWT has
- * not expired.
+ * `registration_cert` spec and the `dcql_query` are unchanged, the access
+ * certificate that signs the request is the one the certificate was resolved
+ * for, and the JWT has not expired.
+ *
+ * The cache holds one certificate: the one for the configuration's current
+ * access certificate (its `accessKeyChainId`, or the tenant's default access
+ * key chain). A session pinned to another access key chain, for example one
+ * created before the default changed, gets a certificate resolved for its own
+ * key chain that is not cached, so new sessions keep using the cache. Such
+ * sessions only exist for a short time after the default changes (a request
+ * object is fetched once per session), so one registrar call each is accepted
+ * instead of a cache per access key chain.
  */
 @Injectable()
 export class PresentationRegistrationCertificateService {
@@ -33,6 +53,7 @@ export class PresentationRegistrationCertificateService {
         @InjectRepository(PresentationConfig)
         private readonly repository: Repository<PresentationConfig>,
         private readonly registrarService: RegistrarService,
+        private readonly certService: CertService,
         @Inject(PRESENTATION_SETTINGS)
         private readonly settings: PresentationSettings,
         private readonly logger: PinoLogger,
@@ -48,11 +69,16 @@ export class PresentationRegistrationCertificateService {
      *
      * Returns `undefined` when the config has no `registrationCert` spec or
      * the registrar is not enabled for this tenant.
+     *
+     * @param accessCertificate - The access certificate that signs the
+     * request. The registration certificate is linked to it. Defaults to the
+     * configuration's current access certificate.
      */
     async getOrIssueRegistrationCertificate(
         presentationConfig: PresentationConfig,
         resolvedDcqlQuery: any,
         requestId: string,
+        accessCertificate?: CertificateInfo,
     ): Promise<string | undefined> {
         if (!presentationConfig.registration_cert) {
             return undefined;
@@ -72,8 +98,12 @@ export class PresentationRegistrationCertificateService {
             presentationConfig.registration_cert,
         );
 
+        const signer = accessCertificate
+            ? this.toAccessCertificateRef(accessCertificate)
+            : await this.currentAccessCertificate(presentationConfig);
+
         const cache = presentationConfig.registrationCertCache;
-        if (isCacheValid(cache, dcqlFingerprint, specFingerprint)) {
+        if (isCacheValid(cache, dcqlFingerprint, specFingerprint, signer)) {
             return cache.jwt;
         }
 
@@ -85,14 +115,37 @@ export class PresentationRegistrationCertificateService {
                 presentationConfig.tenantId,
                 {
                     accessKeyChainId:
-                        presentationConfig.accessKeyChainId ?? undefined,
+                        signer?.keyChainId ??
+                        presentationConfig.accessKeyChainId ??
+                        undefined,
                 },
             );
+
+        if (
+            accessCertificate &&
+            signer?.fingerprint !==
+                (await this.currentAccessCertificate(presentationConfig))
+                    ?.fingerprint
+        ) {
+            // The session signs with an access key chain that is no longer the
+            // configuration's current one. Do not replace the cache that new
+            // sessions use.
+            this.logger.info(
+                {
+                    tenantId: presentationConfig.tenantId,
+                    configId: presentationConfig.id,
+                    accessKeyChainId: signer?.keyChainId,
+                },
+                "Resolved a registration certificate for a session pinned to a previous access key chain; not cached",
+            );
+            return resolved.jwt;
+        }
 
         const newCache = this.toCache(
             resolved,
             dcqlFingerprint,
             specFingerprint,
+            signer,
         );
 
         await this.repository.update(
@@ -200,10 +253,12 @@ export class PresentationRegistrationCertificateService {
      * Behavior:
      *  - If `registrationCert` is unset → clears any stale cache.
      *  - If a cache exists for an unchanged `registrationCert` spec, unchanged
-     *    `dcql_query`, and is not expired → keeps the existing cache.
+     *    `dcql_query`, the current access certificate, and is not expired →
+     *    keeps the existing cache.
      *  - Otherwise eagerly resolves the certificate via {@link RegistrarService}
-     *    and stores the new cache. On registrar/network failure the cache is
-     *    cleared and the save proceeds; the runtime path will retry.
+     *    and stores the new cache. On registrar/network failure, or when the
+     *    access certificate cannot be read, the cache is cleared and the save
+     *    proceeds; the runtime path will retry.
      *
      * Errors raised by the registrar that indicate user-config problems
      * (`BadRequestException`) propagate to fail the save.
@@ -224,8 +279,19 @@ export class PresentationRegistrationCertificateService {
         const specFingerprint =
             this.registrarService.computeSpecFingerprint(spec);
 
+        let signer: AccessCertificateRef | undefined;
+        try {
+            signer = await this.currentAccessCertificate(next);
+        } catch (err) {
+            this.logger.warn(
+                { err, tenantId: next.tenantId, configId: next.id },
+                "Failed to read the access certificate at save time; cache cleared, runtime will retry",
+            );
+            next.registrationCertCache = null;
+            return;
+        }
         const cache = existing?.registrationCertCache;
-        if (isCacheValid(cache, dcqlFingerprint, specFingerprint)) {
+        if (isCacheValid(cache, dcqlFingerprint, specFingerprint, signer)) {
             next.registrationCertCache = cache;
             return;
         }
@@ -248,12 +314,18 @@ export class PresentationRegistrationCertificateService {
                     resolvedDcql,
                     next.id ?? "presentation-config-save",
                     next.tenantId,
-                    { accessKeyChainId: next.accessKeyChainId ?? undefined },
+                    {
+                        accessKeyChainId:
+                            signer?.keyChainId ??
+                            next.accessKeyChainId ??
+                            undefined,
+                    },
                 );
             next.registrationCertCache = this.toCache(
                 resolved,
                 dcqlFingerprint,
                 specFingerprint,
+                signer,
             );
         } catch (err) {
             if (err instanceof BadRequestException) {
@@ -279,14 +351,55 @@ export class PresentationRegistrationCertificateService {
         );
     }
 
+    /**
+     * The access certificate that signs requests of new sessions for this
+     * configuration: its pinned access key chain or the tenant's default.
+     * `undefined` when the tenant has no access key chain; the registrar then
+     * links no access certificate either.
+     */
+    private async currentAccessCertificate(
+        presentationConfig: PresentationConfig,
+    ): Promise<AccessCertificateRef | undefined> {
+        const cert = await this.certService
+            .find({
+                tenantId: presentationConfig.tenantId,
+                type: KeyUsageType.Access,
+                keyId: presentationConfig.accessKeyChainId ?? undefined,
+                skipValidation: true,
+            })
+            .catch((err: unknown) => {
+                // Only a missing key chain means "no access certificate";
+                // other errors must not produce a cache without the link.
+                if (err instanceof NotFoundException) return undefined;
+                throw err;
+            });
+        return cert && this.toAccessCertificateRef(cert);
+    }
+
+    private toAccessCertificateRef(
+        cert: CertificateInfo,
+    ): AccessCertificateRef {
+        return {
+            keyChainId: cert.keyId,
+            fingerprint: this.certService.getCertHash(cert),
+        };
+    }
+
     private toCache(
         resolved: ResolvedRegistrationCertificate,
         dcqlFingerprint: string,
         specFingerprint: string,
+        accessCertificate: AccessCertificateRef | undefined,
     ): RegistrationCertCache {
         const payload = resolved.payload;
         return {
             jwt: resolved.jwt,
+            ...(accessCertificate
+                ? {
+                      accessKeyChainId: accessCertificate.keyChainId,
+                      accessCertificateHash: accessCertificate.fingerprint,
+                  }
+                : {}),
             fingerprint:
                 this.registrarService.computeAuthorizedCredentialsFingerprint(
                     payload.credentials,
@@ -301,16 +414,27 @@ export class PresentationRegistrationCertificateService {
     }
 }
 
+/** The access certificate a registration certificate is resolved for. */
+interface AccessCertificateRef {
+    keyChainId: string;
+    /** SHA-256 of the leaf certificate, base64url (as in `x509_hash`). */
+    fingerprint: string;
+}
+
 function isCacheValid(
     cache: RegistrationCertCache | null | undefined,
     dcqlFingerprint: string,
     specFingerprint: string,
+    accessCertificate: AccessCertificateRef | undefined,
 ): cache is RegistrationCertCache {
     const now = Math.floor(Date.now() / 1000);
     return (
         !!cache &&
         cache.dcqlFingerprint === dcqlFingerprint &&
         cache.specFingerprint === specFingerprint &&
+        // A cache from before the access certificate was recorded, or for
+        // another one, may link the wrong access certificate.
+        cache.accessCertificateHash === accessCertificate?.fingerprint &&
         (typeof cache.expiresAt !== "number" ||
             cache.expiresAt - CACHE_EXPIRY_SKEW_SECONDS > now)
     );

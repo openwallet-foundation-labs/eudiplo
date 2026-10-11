@@ -13,11 +13,33 @@ import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Role } from "../auth/roles/role.enum.js";
 import { Secured } from "../auth/secure.decorator.js";
 import { Token, TokenPayload } from "../auth/token.decorator.js";
+import { AccessCertificateResult } from "./access-certificate.service.js";
 import { CreateAccessCertificateDto } from "./dto/create-access-certificate.dto.js";
+import { CreateAccessKeyChainDto } from "./dto/create-access-key-chain.dto.js";
 import { CreateRegistrarConfigDto } from "./dto/create-registrar-config.dto.js";
 import { RegistrarConfigResponseDto } from "./dto/registrar-config-response.dto.js";
 import { UpdateRegistrarConfigDto } from "./dto/update-registrar-config.dto.js";
 import { RegistrarService } from "./registrar.service.js";
+
+/** Response of the endpoints that store a registrar access certificate. */
+const ACCESS_CERTIFICATE_RESPONSE_SCHEMA = {
+    type: "object",
+    required: ["id", "certId", "crt"],
+    properties: {
+        id: {
+            type: "string",
+            description: "The certificate ID at the registrar",
+        },
+        certId: {
+            type: "string",
+            description: "ID of the key chain that now holds the certificate",
+        },
+        crt: {
+            type: "string",
+            description: "The certificate in PEM format",
+        },
+    },
+};
 
 /**
  * Controller for managing registrar configuration and creating access certificates.
@@ -161,30 +183,14 @@ export class RegistrarController {
         description:
             "Creates an access certificate at the registrar for the specified key. " +
             "Registers the tenant as relying party at the registrar if it is not yet. " +
-            "The certificate is automatically stored in EUDIPLO.",
+            "The certificate is automatically stored in EUDIPLO. " +
+            "When the certificate request fails, a certificate the registrar already issued for the key in this request (for example after a lost response) is stored instead; " +
+            "a certificate EUDIPLO cannot store is revoked at the registrar.",
     })
     @ApiResponse({
         status: 201,
         description: "Access certificate created successfully",
-        schema: {
-            type: "object",
-            required: ["id", "certId", "crt"],
-            properties: {
-                id: {
-                    type: "string",
-                    description: "The certificate ID at the registrar",
-                },
-                certId: {
-                    type: "string",
-                    description:
-                        "ID of the key chain that now holds the certificate",
-                },
-                crt: {
-                    type: "string",
-                    description: "The certificate in PEM format",
-                },
-            },
-        },
+        schema: ACCESS_CERTIFICATE_RESPONSE_SCHEMA,
     })
     @ApiResponse({
         status: 400,
@@ -202,8 +208,52 @@ export class RegistrarController {
     async createAccessCertificate(
         @Token() token: TokenPayload,
         @Body() dto: CreateAccessCertificateDto,
-    ): Promise<{ id: string; certId: string; crt: string }> {
+    ): Promise<AccessCertificateResult> {
         return this.registrarService.createAccessCertificate(
+            token.entity!.id,
+            dto,
+        );
+    }
+
+    /**
+     * Create a standalone access key chain and enroll it at the registrar in
+     * one request. When the enrollment fails, the key chain is deleted again.
+     * @param token - The token payload from the auth context
+     * @param dto - Description and KMS provider of the new key chain
+     * @returns The registrar's certificate ID, the new key chain ID and the PEM
+     */
+    @Post("access-key-chain")
+    @ApiOperation({
+        summary: "Create an access key chain enrolled at the registrar",
+        description:
+            "Creates a standalone access key chain and requests its access certificate at the registrar in one request. " +
+            "Registers the tenant as relying party at the registrar if it is not yet. " +
+            "When the registrar refuses or the certificate cannot be stored, the key chain is deleted again, so no self-signed access key chain is left behind.",
+    })
+    @ApiResponse({
+        status: 201,
+        description: "Access key chain created and enrolled",
+        schema: ACCESS_CERTIFICATE_RESPONSE_SCHEMA,
+    })
+    @ApiResponse({
+        status: 400,
+        description:
+            "The registrar rejected the relying-party registration or the certificate request; no key chain was kept",
+    })
+    @ApiResponse({
+        status: 404,
+        description: "No registrar configuration found",
+    })
+    @ApiResponse({
+        status: 500,
+        description:
+            "The enrollment failed and the new key chain could not be deleted; the message names it. Also returned when the registrar stops answering during the certificate request",
+    })
+    async createAccessKeyChain(
+        @Token() token: TokenPayload,
+        @Body() dto: CreateAccessKeyChainDto,
+    ): Promise<AccessCertificateResult> {
+        return this.registrarService.createAccessKeyChain(
             token.entity!.id,
             dto,
         );

@@ -2,7 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ApiService } from '../core';
 import { firstValueFrom } from 'rxjs';
-import type { RegistrarControllerCreateAccessCertificateResponse } from '@eudiplo/sdk-core';
+import type {
+  CreateAccessKeyChainDto,
+  RegistrarControllerCreateAccessCertificateResponse,
+  RegistrarControllerCreateAccessKeyChainResponse,
+} from '@eudiplo/sdk-core';
 
 /**
  * Registrar configuration response from the API.
@@ -36,16 +40,23 @@ export interface RegistrarConfigRequest {
 }
 
 /**
- * Response from creating an access certificate.
+ * Response from creating an access key enrolled at the registrar.
  */
-export type AccessCertificateResponse = RegistrarControllerCreateAccessCertificateResponse;
+export type AccessCertificateResponse = RegistrarControllerCreateAccessKeyChainResponse;
 
 /**
- * Why EUDIPLO refused an access certificate request. It refuses before it
- * stores the certificate, its last step, so the key has none: `role` (403)
- * without registrar:manage; `registrar` (400) when the registrar
- * authentication, the relying party registration or the certificate request
- * fails, or (404) without registrar configuration or key. The backend's
+ * Response from enrolling an existing key at the registrar.
+ */
+export type AccessCertificateEnrollmentResponse =
+  RegistrarControllerCreateAccessCertificateResponse;
+
+/**
+ * Why EUDIPLO refused {@link RegistrarService.createAccessCertificate}. It
+ * refuses before it stores the certificate, its last step, so the key keeps
+ * the certificate it had: `role` (403) without registrar:manage; `registrar`
+ * (400) when the registrar authentication, the relying party registration or
+ * the certificate request fails and the registrar lists no other certificate
+ * for the key, or (404) without registrar configuration or key. The backend's
  * access-certificate.service.spec.ts pins that order.
  */
 export type AccessCertificateRefusal = 'role' | 'registrar';
@@ -59,6 +70,47 @@ export function accessCertificateRefusal(error: unknown): AccessCertificateRefus
   if (status === 403) return 'role';
   if (status === 400 || status === 404) return 'registrar';
   return undefined;
+}
+
+/**
+ * How {@link RegistrarService.createAccessKeyChain} failed, which decides
+ * what the user can do next:
+ * - `role` (403): the caller lacks registrar:manage; no key was created.
+ * - `registrar` (400 or 404 caused by the registrar): its authentication, the
+ *   relying party registration or the certificate request failed, or there
+ *   is no registrar configuration; EUDIPLO kept no key.
+ * - `refused` (another 400 or 404, for example an unknown KMS provider): no
+ *   key was kept, and the registrar configuration is not the cause.
+ * - `keyLeft` (5xx naming a key chain): EUDIPLO could not delete the new key
+ *   chain `keyId`, which has no registrar certificate.
+ * - `failed` (another 5xx from EUDIPLO): EUDIPLO kept no key.
+ * - `unknown` (no answer, or 502, 503 or 504 from a proxy): the request may
+ *   still have created and enrolled a key.
+ *
+ * The backend's access-certificate.service.spec.ts pins the messages read here.
+ */
+export type AccessKeyEnrollmentFailure =
+  | { kind: 'role' | 'registrar' | 'refused' | 'failed' | 'unknown' }
+  | { kind: 'keyLeft'; keyId: string };
+
+const GATEWAY_STATUSES = new Set([0, 502, 503, 504]);
+const KEY_LEFT_MESSAGE = /The new access key chain (\S+) could not be deleted/;
+const REGISTRAR_CAUSE = /registrar|access certificate/i;
+
+export function accessKeyEnrollmentFailure(error: unknown): AccessKeyEnrollmentFailure {
+  const { status, error: body } = (error ?? {}) as { status?: number; error?: unknown };
+  const message =
+    typeof (body as { message?: unknown } | null)?.message === 'string'
+      ? (body as { message: string }).message
+      : '';
+  if (status === undefined || GATEWAY_STATUSES.has(status)) return { kind: 'unknown' };
+  if (status === 403) return { kind: 'role' };
+  if (status === 400 || status === 404) {
+    return { kind: REGISTRAR_CAUSE.test(message) ? 'registrar' : 'refused' };
+  }
+  const keyLeft = KEY_LEFT_MESSAGE.exec(message);
+  if (keyLeft) return { kind: 'keyLeft', keyId: keyLeft[1] };
+  return { kind: status >= 500 ? 'failed' : 'refused' };
 }
 
 /**
@@ -122,16 +174,27 @@ export class RegistrarService {
   }
 
   /**
-   * Create an access certificate for a key.
+   * Create a standalone access key and enroll it at the registrar in one
+   * request. When the enrollment fails, the backend deletes the key again.
+   */
+  /**
+   * Create an access certificate for an existing key.
    * The certificate is fetched from the registrar and stored in EUDIPLO.
    */
-  async createAccessCertificate(keyId: string): Promise<AccessCertificateResponse> {
+  createAccessCertificate(keyId: string): Promise<AccessCertificateEnrollmentResponse> {
+    return firstValueFrom(
+      this.http.post<AccessCertificateEnrollmentResponse>(
+        `${this.getBaseUrl()}/api/registrar/access-certificate`,
+        { keyId }
+      )
+    );
+  }
+
+  createAccessKeyChain(body: CreateAccessKeyChainDto): Promise<AccessCertificateResponse> {
     return firstValueFrom(
       this.http.post<AccessCertificateResponse>(
-        `${this.getBaseUrl()}/api/registrar/access-certificate`,
-        {
-          keyId,
-        }
+        `${this.getBaseUrl()}/api/registrar/access-key-chain`,
+        body
       )
     );
   }

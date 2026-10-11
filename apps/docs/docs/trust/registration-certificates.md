@@ -49,7 +49,9 @@ Every certificate, also an imported `jwt`, is checked before use:
 - **Time:** `exp` and `nbf` with 60 seconds tolerance.
 - **Overasking:** the certificate's authorized `credentials` must exactly cover every credential query of the DCQL query; see [Overasking check](registrar.md#overasking-check). `SKIP_OVERASKING_CHECK=true` disables this for development.
 
-A failed check makes the presentation request fail with `400`. The resolved certificate is cached on the configuration (`registrationCertCache`) and reused until the DCQL query or `registration_cert` changes, or until 60 seconds before it expires. After a change, EUDIPLO resolves it again in the background. `POST /api/verifier/config/{id}/registration-cert/reissue` forces a new certificate.
+A failed check makes the presentation request fail with `400`. The resolved certificate is cached on the configuration (`registrationCertCache`) and reused until the DCQL query or `registration_cert` changes, the access certificate that signs the request changes, or until 60 seconds before it expires. After `registration_cert` or `dcql_query` changes, EUDIPLO resolves it again in the background; after the access certificate changes (including a new `accessKeyChainId`) or the cached certificate expires, the next presentation request resolves it, and fails if the registrar cannot be reached. `POST /api/verifier/config/{id}/registration-cert/reissue` forces a new certificate.
+
+A certificate created from `body` names the registrar access certificate of the access key chain that signs the request (`accessCertificateId`) when the registrar lists one, unless the body sets it. The cache holds the certificate for the configuration's current access key chain: its `accessKeyChainId`, or the tenant's default. A request whose session keeps another access key chain, for example a step of the Interactive Authorization Endpoint started before the default access key chain changed, gets a certificate for that key chain; EUDIPLO creates it at the registrar for that request and does not cache it.
 
 ## Issuer registration certificate
 

@@ -87,8 +87,27 @@ export const CreateAccessCertificateSchema = z
     .describe("Payload for creating an access certificate.")
     .strict();
 
+export const CreateAccessKeyChainSchema = z
+    .object({
+        description: z
+            .string()
+            .optional()
+            .describe("Human-readable description for the new key chain."),
+        kmsProvider: z
+            .string()
+            .optional()
+            .describe(
+                "KMS provider for the new key chain (defaults to the configured default provider).",
+            ),
+    })
+    .describe(
+        "Payload for creating an access key chain enrolled at the registrar.",
+    )
+    .strict();
+
 export type CreateRegistrarConfig = z.infer<typeof CreateRegistrarConfigSchema>;
 export type UpdateRegistrarConfig = z.infer<typeof UpdateRegistrarConfigSchema>;
 export type CreateAccessCertificate = z.infer<
     typeof CreateAccessCertificateSchema
 >;
+export type CreateAccessKeyChain = z.infer<typeof CreateAccessKeyChainSchema>;
