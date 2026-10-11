@@ -1231,6 +1231,7 @@ describe("startup configuration reconciliation", () => {
             generation = 1,
         ) =>
             documentBundle(
+                "demo",
                 "Client",
                 clientId,
                 `clients/${clientId}.json`,
