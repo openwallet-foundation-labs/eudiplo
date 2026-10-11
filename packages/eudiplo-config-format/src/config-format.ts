@@ -18,7 +18,7 @@ export const CONFIG_FORMATS = {
     CredentialConfig: {
         slug: "credential-config",
         file: "CredentialConfigFile",
-        version: 1,
+        version: 2,
     },
     PresentationConfig: {
         slug: "presentation-config",
@@ -162,6 +162,16 @@ const CONFIG_MIGRATIONS: readonly ConfigMigration[] = [
         to: 3,
         // v3 only adds the optional verifierKeyPem to wallet provider trust
         // list references: a v2 spec is a valid v3 spec.
+        migrate: (spec) => ({ spec }),
+    },
+    {
+        id: "credential-config-v2-x509-trusted-authority",
+        kind: "CredentialConfig",
+        from: 1,
+        to: 2,
+        // v2 only adds the frameworkType `x509` to schemaMeta trusted
+        // authorities, which schema metadata publishing already writes: a v1
+        // spec is a valid v2 spec.
         migrate: (spec) => ({ spec }),
     },
     presentationConfigV1ToV2,

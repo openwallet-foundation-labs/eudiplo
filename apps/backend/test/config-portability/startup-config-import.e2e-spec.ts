@@ -268,6 +268,80 @@ describe("startup configuration reconciliation", () => {
         ).toEqual([]);
     });
 
+    it("round-trips a credential configuration with an x509 schema metadata authority", async () => {
+        const appConfig = app.get(ConfigService);
+        const tenantId = "x509-schema-meta";
+        // Not getToken from ../utils.js: it imports AppModule statically, which
+        // reads the configuration before beforeAll sets CONFIG_FOLDER and
+        // CONFIG_IMPORT_MODE, so the startup import of this suite never runs.
+        const bootstrap = await request(app.getHttpServer())
+            .post("/api/oauth2/token")
+            .send({
+                grant_type: "client_credentials",
+                client_id: appConfig.getOrThrow<string>("AUTH_CLIENT_ID"),
+                client_secret:
+                    appConfig.getOrThrow<string>("AUTH_CLIENT_SECRET"),
+            })
+            .expect(201);
+        const tenant = await request(app.getHttpServer())
+            .post("/tenant")
+            .set("Authorization", `Bearer ${bootstrap.body.access_token}`)
+            .send({
+                id: tenantId,
+                name: "x509 schema metadata tenant",
+                roles: ["issuance:manage"],
+            })
+            .expect(201);
+        const token = await request(app.getHttpServer())
+            .post("/api/oauth2/token")
+            .send({
+                grant_type: "client_credentials",
+                client_id: tenant.body.client.clientId,
+                client_secret: tenant.body.client.clientSecret,
+            })
+            .expect(201)
+            .then((response) => response.body.access_token);
+        // What publishing schema metadata with this credentialConfigId links.
+        const schemaMeta = {
+            id: "https://schemas.example/pid",
+            name: "PID",
+            version: "1.0.0",
+            attestationLoS: "iso_18045_high",
+            bindingType: "key",
+            trustedAuthorities: [
+                {
+                    frameworkType: "x509",
+                    value: Buffer.from("root certificate").toString("base64"),
+                },
+            ],
+        };
+        await request(app.getHttpServer())
+            .post("/issuer/credentials")
+            .set("Authorization", `Bearer ${token}`)
+            .send({
+                id: "pid",
+                config: { format: "dc+sd-jwt", display: [] },
+                fields: [],
+                schemaMeta,
+            })
+            .expect(201);
+
+        const service = app.get(ConfigBundleService);
+        const bundle = await service.exportBundle(tenantId);
+        const exported = bundle.documents.find(
+            (document) =>
+                normalizeDocument(document).kind === "CredentialConfig",
+        );
+        expect(exported?.$schema).toBe(schemaUrl("CredentialConfig", 2));
+        expect(exported?.spec.schemaMeta).toMatchObject(schemaMeta);
+        const plan = await service.plan(tenantId, bundle, "upsert");
+        expect(
+            plan.issues.filter(
+                (issue) => issue.resource?.kind === "CredentialConfig",
+            ),
+        ).toEqual([]);
+    });
+
     it("plans resources with unchanged image references as unchanged", async () => {
         const root = join(
             app.get(ConfigService).getOrThrow<string>("CONFIG_FOLDER"),

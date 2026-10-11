@@ -2699,8 +2699,7 @@ export type CredentialConfig = {
     attributeProviderId?: string | null;
     attributeProvider?: AttributeProviderEntity;
     /**
-     * Reference to the webhook endpoint used for notifications.
-     * Optional: if set, notifications will be sent to this endpoint.
+     * Not used for notifications: they go to the webhook endpoint of the offer.
      */
     webhookEndpointId?: string | null;
     webhookEndpoint?: WebhookEndpointEntity;
@@ -2766,8 +2765,7 @@ export type CredentialConfigCreate = {
      */
     attributeProviderId?: string | null;
     /**
-     * Reference to the webhook endpoint used for notifications.
-     * Optional: if set, notifications will be sent to this endpoint.
+     * Not used for notifications: they go to the webhook endpoint of the offer.
      */
     webhookEndpointId?: string | null;
     keyBinding?: boolean;
@@ -2831,8 +2829,7 @@ export type CredentialConfigUpdate = {
      */
     attributeProviderId?: string | null;
     /**
-     * Reference to the webhook endpoint used for notifications.
-     * Optional: if set, notifications will be sent to this endpoint.
+     * Not used for notifications: they go to the webhook endpoint of the offer.
      */
     webhookEndpointId?: string | null;
     keyBinding?: boolean;
