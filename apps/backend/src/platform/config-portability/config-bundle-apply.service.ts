@@ -483,6 +483,8 @@ export class ConfigBundleApplyService {
                 await this.webhookEndpointService.delete(tenantId, id);
                 return;
             case "TrustList":
+                // Unlike DELETE /trust-list/{id}, without the reference check:
+                // the plan only blocks references by documents of the bundle.
                 await this.trustListService.remove(tenantId, id);
                 return;
             case "StatusList":

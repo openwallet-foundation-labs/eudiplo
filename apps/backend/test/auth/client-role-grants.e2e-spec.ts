@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { rmSync } from "node:fs";
 import { INestApplication } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
@@ -10,6 +9,7 @@ import { AllExceptionsFilter } from "../../src/all-exceptions.filter.js";
 import { AppModule } from "../../src/app.module.js";
 import { Role } from "../../src/auth/roles/role.enum.js";
 import { createAppValidationPipe } from "../../src/shared/common/zod/zod-schema.util.js";
+import { clientBundle } from "../shared/config-bundle.js";
 
 /**
  * A client manager can only grant the roles it holds, and only act on
@@ -444,42 +444,6 @@ describe("Client role grants (e2e)", () => {
     });
 
     describe("configuration bundle", () => {
-        function clientBundle(spec: Record<string, unknown>) {
-            const document = {
-                $schema:
-                    "https://eudiplo.dev/schemas/v1/ClientConfigFile.schema.json",
-                metadata: { generation: 1 },
-                spec,
-            };
-            return {
-                manifest: {
-                    format: "eudiplo.config-bundle",
-                    formatVersion: 2,
-                    sourceVersion: "client-role-grants",
-                    exportedAt: new Date(0).toISOString(),
-                    tenant: platformTenantId,
-                    resources: [
-                        {
-                            kind: "Client",
-                            id: spec.clientId,
-                            $schema: document.$schema,
-                            path: `clients/${spec.clientId}.json`,
-                            sha256: createHash("sha256")
-                                .update(JSON.stringify(document))
-                                .digest("hex"),
-                            ownership: "unmanaged",
-                            generation: 1,
-                        },
-                    ],
-                    assets: [],
-                    requirements: [],
-                    warnings: [],
-                },
-                documents: [document],
-                assets: [],
-            };
-        }
-
         function plan(bundle: object) {
             return request(app.getHttpServer())
                 .post("/config-bundles/plan?mode=upsert")
@@ -488,7 +452,7 @@ describe("Client role grants (e2e)", () => {
         }
 
         test("refuses to rotate the secret of a client with more roles", async () => {
-            const bundle = clientBundle({
+            const bundle = clientBundle(platformTenantId, {
                 clientId: `${platformTenantId}-admin`,
                 secret: "!generate",
                 roles: [Role.Clients],
@@ -508,7 +472,7 @@ describe("Client role grants (e2e)", () => {
         });
 
         test("lets a client keep a role the caller may not grant", async () => {
-            const bundle = clientBundle({
+            const bundle = clientBundle(platformTenantId, {
                 clientId: "grants-platform-keep",
                 secret: "!generate",
                 description: "kept tenant:admin",
@@ -531,7 +495,7 @@ describe("Client role grants (e2e)", () => {
 
         test("refuses to add a role the caller may not grant", async () => {
             const planned = await plan(
-                clientBundle({
+                clientBundle(platformTenantId, {
                     clientId: "grants-platform-new",
                     secret: "!generate",
                     roles: [Role.TenantAdmin],
@@ -542,7 +506,7 @@ describe("Client role grants (e2e)", () => {
 
         test("blocks a client ID that another tenant uses", async () => {
             const planned = await plan(
-                clientBundle({
+                clientBundle(platformTenantId, {
                     clientId: "grants-other-offer",
                     secret: "!generate",
                     roles: [Role.IssuanceOffer],

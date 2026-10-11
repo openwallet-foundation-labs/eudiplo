@@ -90,6 +90,9 @@ export class AuthService {
         const payload: InternalTokenPayload = {
             roles: client.roles,
             tenant_id: client.tenantId!,
+            ...(client.tokensValidAfter && {
+                credentials_at: client.tokensValidAfter.getTime(),
+            }),
         };
 
         const access_token = await this.jwtService.generateToken(payload, {

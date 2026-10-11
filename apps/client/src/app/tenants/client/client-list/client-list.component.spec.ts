@@ -1,4 +1,5 @@
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { provideRouter, Router } from '@angular/router';
 import { client, type ClientEntity } from '@eudiplo/sdk-core';
@@ -206,5 +207,78 @@ describe('ClientListComponent loading', () => {
     await component.loadClients();
 
     expect(component.loadError).toBe('Failed to load clients: Forbidden resource');
+  });
+});
+
+describe('ClientListComponent rotate secret', () => {
+  let fixture: ComponentFixture<ClientListComponent>;
+  let confirm: Mock<(message?: string) => boolean>;
+  let useRotatedSecret: Mock<(secret: string) => Promise<void>>;
+  let dialog: { open: Mock };
+
+  beforeEach(async () => {
+    confirm = vi.fn<(message?: string) => boolean>(() => true);
+    useRotatedSecret = vi.fn(async () => undefined);
+    dialog = { open: vi.fn() };
+    vi.stubGlobal('confirm', confirm);
+    vi.spyOn(ClientListComponent.prototype, 'loadClients').mockResolvedValue();
+    client.setConfig({
+      fetch: vi.fn<typeof fetch>(
+        async () =>
+          new Response(JSON.stringify({ secret: 'new-secret' }), {
+            status: 201,
+            headers: { 'Content-Type': 'application/json' },
+          })
+      ),
+    });
+    await TestBed.configureTestingModule({
+      imports: [ClientListComponent],
+      providers: [
+        provideRouter([]),
+        { provide: JwtService, useValue: { getRoles: () => ['clients:manage', 'issuance:offer'] } },
+        { provide: ConfigOwnershipService, useValue: { get: async () => undefined } },
+        {
+          provide: ApiService,
+          useValue: {
+            getClientId: () => 'offer',
+            getBaseUrl: () => 'http://backend.test',
+            useRotatedSecret,
+          },
+        },
+      ],
+    })
+      .overrideProvider(MatDialog, { useValue: dialog })
+      .compileComponents();
+
+    fixture = TestBed.createComponent(ClientListComponent);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    client.setConfig({ fetch: () => new Promise<Response>(() => undefined) });
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it('moves the own session to the new secret after showing it', async () => {
+    await fixture.componentInstance.rotateSecret({
+      clientId: 'offer',
+      roles: ['issuance:offer'],
+    } as ClientEntity);
+
+    expect(confirm.mock.lastCall?.[0]).toContain('You are signed in with this client.');
+    expect(dialog.open.mock.lastCall?.[1].data.secret).toBe('new-secret');
+    expect(useRotatedSecret).toHaveBeenCalledWith('new-secret');
+  });
+
+  it('keeps the session for another client', async () => {
+    await fixture.componentInstance.rotateSecret({
+      clientId: 'other',
+      roles: ['issuance:offer'],
+    } as ClientEntity);
+
+    expect(confirm.mock.lastCall?.[0]).not.toContain('You are signed in');
+    expect(dialog.open).toHaveBeenCalled();
+    expect(useRotatedSecret).not.toHaveBeenCalled();
   });
 });

@@ -2,6 +2,12 @@ import { ConflictException } from "@nestjs/common";
 import type { LoTEDocument } from "@owf/eudi-lote";
 import * as x509 from "@peculiar/x509";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { TrustListReferences } from "./application/trust-list-references.js";
+import {
+    type ManagedTrustList,
+    TrustListInUseError,
+    type TrustListReference,
+} from "./domain/trust-list-reference.js";
 import type { TrustListCreateDto } from "./dto/trust-list-create.dto.js";
 import type { TrustList } from "./entities/trust-list.entity.js";
 import { TrustListCreateSchema } from "./schemas/trust-list.schema.js";
@@ -48,6 +54,7 @@ function createService(
     rows: TrustList[],
     store = new Map(rows.map((row) => [row.id, structuredClone(row)])),
     versions: object[] = [],
+    references = new TrustListReferences(),
 ) {
     const manager = {
         update: vi.fn(
@@ -78,6 +85,13 @@ function createService(
         findOneByOrFail: vi.fn(async ({ id }: { id: string }) =>
             structuredClone(store.get(id)),
         ),
+        existsBy: vi.fn(
+            async ({ tenantId, id }: { tenantId: string; id: string }) =>
+                store.get(id)?.tenantId === tenantId,
+        ),
+        delete: vi.fn(async ({ id }: { id: string }) => {
+            store.delete(id);
+        }),
         create: vi.fn((value: object) => value),
         save: vi.fn(async (value: object) => value),
         manager: {
@@ -103,6 +117,7 @@ function createService(
                 .mockResolvedValue({ id: "tenant", name: "Tenant" }),
         } as any,
         { register: vi.fn() } as any,
+        references,
     );
     const generateJwt = vi
         .spyOn(service, "generateJwt")
@@ -345,6 +360,96 @@ describe("TrustListService", () => {
             const exported = await service.exportTrustList("tenant", "list");
 
             expect(exported.description).toBe("Issuers");
+        });
+    });
+
+    describe("removeUnreferenced", () => {
+        function referencesFound(found: TrustListReference[]) {
+            const references = new TrustListReferences();
+            const findReferences = vi.fn(
+                async (_list: ManagedTrustList) => found,
+            );
+            references.register({ findReferences });
+            return { references, findReferences };
+        }
+
+        it("deletes a list that no configuration references", async () => {
+            const { references, findReferences } = referencesFound([]);
+            const { service, store } = createService(
+                [storedList("list", inDays(20))],
+                undefined,
+                undefined,
+                references,
+            );
+
+            await service.removeUnreferenced("tenant", "list");
+
+            expect(findReferences).toHaveBeenCalledWith({
+                tenantId: "tenant",
+                id: "list",
+            });
+            expect(store.has("list")).toBe(false);
+        });
+
+        it("keeps a referenced list and names the references", async () => {
+            const found: TrustListReference[] = [
+                { kind: "PresentationConfig", id: "pid", description: "PID" },
+                { kind: "IssuanceConfig" },
+            ];
+            const { references } = referencesFound(found);
+            const { service, store, trustListRepo } = createService(
+                [storedList("list", inDays(20))],
+                undefined,
+                undefined,
+                references,
+            );
+
+            const error = await service
+                .removeUnreferenced("tenant", "list")
+                .catch((e: unknown) => e);
+
+            expect(error).toBeInstanceOf(TrustListInUseError);
+            expect((error as TrustListInUseError).references).toEqual(found);
+            expect(trustListRepo.delete).not.toHaveBeenCalled();
+            expect(store.has("list")).toBe(true);
+        });
+
+        it("keeps the list when a reference source fails", async () => {
+            const references = new TrustListReferences();
+            references.register({
+                findReferences: async () => {
+                    throw new Error("database unavailable");
+                },
+            });
+            const { service, store, trustListRepo } = createService(
+                [storedList("list", inDays(20))],
+                undefined,
+                undefined,
+                references,
+            );
+
+            await expect(
+                service.removeUnreferenced("tenant", "list"),
+            ).rejects.toThrow("database unavailable");
+            expect(trustListRepo.delete).not.toHaveBeenCalled();
+            expect(store.has("list")).toBe(true);
+        });
+
+        it("does nothing for a list of another tenant or an unknown ID", async () => {
+            const { references, findReferences } = referencesFound([]);
+            const { service, store, trustListRepo } = createService(
+                [storedList("list", inDays(20))],
+                undefined,
+                undefined,
+                references,
+            );
+
+            await service.removeUnreferenced("other-tenant", "list");
+            await service.removeUnreferenced("tenant", "unknown");
+
+            expect(findReferences).not.toHaveBeenCalled();
+            expect(trustListRepo.delete).not.toHaveBeenCalled();
+            expect(store.has("list")).toBe(true);
         });
     });
 });

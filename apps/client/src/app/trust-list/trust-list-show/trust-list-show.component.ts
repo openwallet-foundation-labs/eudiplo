@@ -39,7 +39,7 @@ import { LoadErrorComponent } from '../../common/load-error.component';
 import { FrontendConfigService } from '../../services/frontend-config.service';
 import { JwtService } from '../../services/jwt.service';
 import { trustListUrl } from '../../utils/public-url';
-import { getApiErrorMessage } from '../../utils/error-message';
+import { getApiErrorMessage, hasHttpStatus } from '../../utils/error-message';
 import { openErrorSnackBar } from '../../utils/error-snackbar';
 import { TrustListService } from '../trust-list.service';
 import {
@@ -73,19 +73,6 @@ interface ExternalEntity {
 }
 
 type TrustListEntity = InternalEntity | ExternalEntity;
-
-type ReferenceCheckState = 'checked' | 'loading' | 'failed' | 'forbidden';
-
-/** Whether the references of one kind of config are known, still loading, or not readable. */
-function referenceCheckState(
-  canRead: boolean,
-  loading: boolean,
-  failed: boolean
-): ReferenceCheckState {
-  if (!canRead) return 'forbidden';
-  if (failed) return 'failed';
-  return loading ? 'loading' : 'checked';
-}
 
 @Component({
   selector: 'app-trust-list-show',
@@ -144,6 +131,8 @@ export class TrustListShowComponent implements OnInit {
   relatedPresentationConfigsFailed = false;
   /** Set when the list could not be loaded, so the page is not left blank. */
   loadError = '';
+  /** True while a delete request runs, so it is not sent twice. */
+  deleting = false;
   private readonly id: string;
 
   constructor() {
@@ -235,6 +224,7 @@ export class TrustListShowComponent implements OnInit {
     if (!trustList || !this.canReadCredentialConfigs) return;
 
     this.relatedCredentialConfigsLoading = true;
+    this.relatedCredentialConfigsFailed = false;
     try {
       const allConfigs = await this.credentialConfigService.loadConfigurations();
       this.relatedCredentialConfigs = allConfigs.filter((config) =>
@@ -257,6 +247,7 @@ export class TrustListShowComponent implements OnInit {
     if (!trustList || !this.canReadPresentationConfigs) return;
 
     this.relatedPresentationConfigsLoading = true;
+    this.relatedPresentationConfigsFailed = false;
     try {
       const allConfigs = await this.presentationService.loadConfigurations();
       this.relatedPresentationConfigs = allConfigs.filter((config) =>
@@ -269,57 +260,58 @@ export class TrustListShowComponent implements OnInit {
     }
   }
 
-  /**
-   * Asks before deleting. The backend deletes the list even while configs still use it, so the
-   * question names the credential and presentation configs that still reference it, and the kinds
-   * of config whose references are still loading, failed to load, or need another role.
-   */
-  deleteQuestion(): string {
-    const kinds = [
+  /** The kinds of config that can reference the list, with what this page knows about them. */
+  private referenceKinds() {
+    return [
       {
         noun: 'credential config',
-        roles: 'the issuance:manage role',
         count: this.relatedCredentialConfigs.length,
-        state: referenceCheckState(
-          this.canReadCredentialConfigs,
-          this.relatedCredentialConfigsLoading,
-          this.relatedCredentialConfigsFailed
-        ),
+        known:
+          this.canReadCredentialConfigs &&
+          !this.relatedCredentialConfigsLoading &&
+          !this.relatedCredentialConfigsFailed,
       },
       {
         noun: 'presentation config',
-        roles: 'the presentation:manage or presentation:request role',
         count: this.relatedPresentationConfigs.length,
-        state: referenceCheckState(
-          this.canReadPresentationConfigs,
-          this.relatedPresentationConfigsLoading,
-          this.relatedPresentationConfigsFailed
-        ),
+        known:
+          this.canReadPresentationConfigs &&
+          !this.relatedPresentationConfigsLoading &&
+          !this.relatedPresentationConfigsFailed,
       },
     ];
-    const inState = (state: ReferenceCheckState) => kinds.filter((kind) => kind.state === state);
-    const nouns = (state: ReferenceCheckState) =>
-      inState(state)
-        .map((kind) => `${kind.noun}s`)
-        .join(' and ');
+  }
 
-    const question = [`Delete trust list "${this.trustList?.description || this.id}"?`];
-    const used = inState('checked').filter((kind) => kind.count > 0);
-    if (used.length) {
-      const counts = used.map((kind) => `${kind.count} ${kind.noun}${kind.count === 1 ? '' : 's'}`);
-      const total = used.reduce((sum, kind) => sum + kind.count, 0);
-      question.push(
-        `${counts.join(' and ')} still ${total === 1 ? 'references' : 'reference'} it` +
-          ' and would then point to a missing trust list.'
-      );
-    }
-    if (nouns('loading')) question.push(`References from ${nouns('loading')} are still loading.`);
-    if (nouns('failed')) question.push(`References from ${nouns('failed')} could not be loaded.`);
-    for (const kind of inState('forbidden')) {
-      question.push(`Checking ${kind.noun} references needs ${kind.roles}.`);
-    }
-    question.push('This cannot be undone.');
-    return question.join(' ');
+  /** The list as messages name it: its description and ID, or its ID alone. */
+  private listName(): string {
+    const description = this.trustList?.description;
+    return description ? `"${description}" (${this.id})` : `"${this.id}"`;
+  }
+
+  /**
+   * Why the backend would refuse the delete, when this page already sees configs that reference
+   * the list; undefined otherwise.
+   */
+  deleteBlockedReason(): string | undefined {
+    const used = this.referenceKinds().filter((kind) => kind.known && kind.count > 0);
+    if (!used.length) return undefined;
+    const counts = used.map((kind) => `${kind.count} ${kind.noun}${kind.count === 1 ? '' : 's'}`);
+    return (
+      `Trust list ${this.listName()} is still referenced by ${counts.join(' and ')}.` +
+      ' Remove these references before deleting it.'
+    );
+  }
+
+  /**
+   * Asks before deleting a list that this page sees no references to. References it cannot see,
+   * still loading, not readable with the caller's roles or in the issuance configuration, make
+   * the backend refuse the delete and name them.
+   */
+  deleteQuestion(): string {
+    return (
+      `Delete trust list ${this.listName()}? If a configuration still references it, the delete` +
+      ' is refused and the configurations are named. This cannot be undone.'
+    );
   }
 
   copyToClipboard(text: string, label: string): void {
@@ -334,16 +326,29 @@ export class TrustListShowComponent implements OnInit {
   }
 
   delete() {
+    if (this.deleting) return;
+    const blocked = this.deleteBlockedReason();
+    if (blocked) {
+      openErrorSnackBar(this.snackBar, blocked);
+      return;
+    }
     if (!confirm(this.deleteQuestion())) {
       return;
     }
+    this.deleting = true;
     trustListControllerDeleteTrustList({ path: { id: this.id } }).then(
       () => {
         this.snackBar.open('Trust list deleted', 'Close', { duration: 3000 });
         this.router.navigate(['/trust-list']);
       },
       (error) => {
+        this.deleting = false;
         openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Error deleting trust list'));
+        // The backend found references this page did not show; show its current state.
+        if (hasHttpStatus(error, 409)) {
+          void this.loadRelatedCredentialConfigs();
+          void this.loadRelatedPresentationConfigs();
+        }
       }
     );
   }
