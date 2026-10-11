@@ -3,7 +3,6 @@
     <button
       matIconButton
       (click)="toggleSidenav()"
-      fxHide.gt-sm
       aria-label="Toggle navigation"
       aria-controls="app-sidenav"
       [attr.aria-expanded]="sidenavOpened"
@@ -80,8 +79,8 @@
   <mat-sidenav-container class="sidenav-container">
     <!-- Side Navigation. The phone drawer closes itself on Escape or a tap on the backdrop;
          follow it as soon as it starts closing, so the menu button reports it and one tap
-         reopens it. In side mode the navigation is part of the page and wide screens hide the
-         menu button, so Escape must not close it there. -->
+         reopens it. In side mode the navigation is part of the page: only the menu button
+         collapses it, not Escape. -->
     <mat-sidenav
       #sidenav
       id="app-sidenav"

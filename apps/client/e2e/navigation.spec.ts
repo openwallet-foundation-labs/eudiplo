@@ -114,3 +114,22 @@ test.describe('on a phone', () => {
     await expect(navigation).toBeHidden();
   });
 });
+
+test('the menu button brings the navigation back after the window widens', async ({ page }) => {
+  // A portrait tablet keeps the navigation beside the content, and the user collapses it there.
+  await page.setViewportSize({ width: 800, height: 1000 });
+  await page.goto('/dashboard');
+  const toggle = page.getByRole('button', { name: 'Toggle navigation' });
+  const navigation = page.getByRole('navigation');
+  await expect(navigation).toBeVisible();
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(navigation).toBeHidden();
+
+  // The layout stays the same when the window widens, so the button is the way back.
+  await page.setViewportSize({ width: 1280, height: 1000 });
+  await expect(toggle).toBeVisible();
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(navigation).toBeVisible();
+});
