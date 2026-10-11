@@ -7,6 +7,14 @@ import { OidcService } from './oidc.service';
 /** Shortest time between two token renewals after a `403`. */
 const roleRenewalIntervalMs = 60_000;
 
+/**
+ * Reason of a `403` from the backend's role check, which the backend answers
+ * with Nest's default text (pinned by the backend's
+ * `read-and-status-roles.e2e-spec.ts`). Other `403`s give their own reason,
+ * which a new token would not change.
+ */
+const roleRefusalReason = 'Forbidden resource';
+
 /** The token of an `Authorization: Bearer` header. */
 function bearerToken(header: string | null | undefined): string | undefined {
   return header?.startsWith('Bearer ') ? header.slice('Bearer '.length) : undefined;
@@ -29,6 +37,12 @@ export class ApiRefusalService implements OnDestroy {
   private readonly revoked = new Subject<void>();
   /** Emits when the backend refuses the token and no new one can be had. */
   readonly accessRevoked$ = this.revoked.asObservable();
+  private readonly rolesRefused = new Subject<void>();
+  /**
+   * Emits when the backend's role check refuses the current token and no new
+   * token can show whether the client's roles changed: the tab has no secret.
+   */
+  readonly rolesRefusedWithoutRenewal$ = this.rolesRefused.asObservable();
 
   constructor(
     private readonly apiService: ApiService,
@@ -42,19 +56,32 @@ export class ApiRefusalService implements OnDestroy {
   }
 
   private readonly onSdkResponse = (response: Response, request: Request): Response => {
-    this.handleApiResponse(response.status, bearerToken(request.headers.get('Authorization')));
+    const token = bearerToken(request.headers.get('Authorization'));
+    if (response.status === 403) {
+      void response
+        .clone()
+        .json()
+        .catch(() => undefined)
+        .then((body: unknown) => this.handleApiResponse(403, token, body));
+    } else {
+      this.handleApiResponse(response.status, token);
+    }
     return response;
   };
 
-  /** Reacts to an answer of the management API to a request sent with `token`. */
-  handleApiResponse(status: number, token: string | undefined): void {
+  /** Reacts to an answer of the management API to a request sent with `token`, with its JSON `body`. */
+  handleApiResponse(status: number, token: string | undefined, body?: unknown): void {
     if (this.oidcService.mode === 'oidc' || !token || token !== this.apiService.accessToken) {
       return;
     }
     if (status === 401) {
       void this.renewRefusedToken(token);
     } else if (status === 403) {
-      void this.renewForRoles();
+      if (this.apiService.canRefreshToken()) {
+        void this.renewForRoles();
+      } else if ((body as { message?: unknown } | undefined)?.message === roleRefusalReason) {
+        this.rolesRefused.next();
+      }
     }
   }
 
@@ -88,9 +115,7 @@ export class ApiRefusalService implements OnDestroy {
   /** A new token carries the client's current roles, so the menu follows them. */
   private async renewForRoles(): Promise<void> {
     const now = Date.now();
-    if (now - this.rolesRenewedAt < roleRenewalIntervalMs || !this.apiService.canRefreshToken()) {
-      return;
-    }
+    if (now - this.rolesRenewedAt < roleRenewalIntervalMs) return;
     this.rolesRenewedAt = now;
     // A failed refresh is reported like any other.
     await this.apiService.refreshAccessToken().catch(() => undefined);

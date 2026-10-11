@@ -219,8 +219,8 @@ export class ApiService implements OnDestroy {
    */
   async useRotatedSecret(clientSecret: string): Promise<void> {
     // A reloaded tab has only the stored settings; with the new secret it renews its token again.
-    const config = this.sessionConfig ?? this.getOAuthConfiguration();
-    const settings = this.clientFromStoredConfig(config)?.settings;
+    const config = this.sessionConfig ?? this.storedConfigOfThisSession();
+    const settings = this.clientFromStoredConfig(config ?? null)?.settings;
     if (!config || !settings) {
       throw new Error('OAuth2 client not properly configured. Please log in again.');
     }
@@ -229,6 +229,20 @@ export class ApiService implements OnDestroy {
     this.sessionConfig = config;
     this.oauth2Client = new OAuth2Client({ ...settings, clientSecret });
     await this.refreshAccessToken();
+  }
+
+  /**
+   * The stored settings of a reloaded tab, which has no settings of its own,
+   * as long as they still name its client and backend: another tab may have
+   * signed in with another client since.
+   */
+  private storedConfigOfThisSession(): StoredOAuthConfig | undefined {
+    const stored = this.getOAuthConfiguration();
+    const clientId = this.oauth2Client?.settings.clientId;
+    if (!stored || !clientId || stored.clientId !== clientId || stored.baseUrl !== this.baseUrl) {
+      return undefined;
+    }
+    return stored;
   }
 
   /**

@@ -378,7 +378,10 @@ describe("Read and status roles (e2e)", () => {
                 .expect(200);
             expect(Array.isArray(logs.body)).toBe(true);
 
-            await as(auditor).get("/client").expect(403);
+            const refused = await as(auditor).get("/client").expect(403);
+            // The Web Client tells a refusal of the role check from other
+            // 403s by this text and then suggests a new login.
+            expect(refused.body.message).toBe("Forbidden resource");
             await as(auditor).get("/session").expect(403);
         });
     });
