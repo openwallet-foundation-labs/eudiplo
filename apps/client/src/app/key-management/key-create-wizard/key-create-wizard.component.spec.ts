@@ -324,7 +324,8 @@ describe('KeyCreateWizardComponent registrar enrollment', () => {
     const [message, action] = snackBar.open.mock.lastCall!;
     expect(message).toBe(
       'Key created without a registrar certificate: Failed to authenticate with registrar: the OIDC provider answered with HTTP 401, invalid_grant. ' +
-        'Failed to delete it: Internal server error. Delete the key, check the registrar configuration, then create it again.'
+        'Failed to delete it: Internal server error. ' +
+        "Check the registrar configuration, then select Enroll with Registrar on the key's Active Certificate, or delete the key."
     );
     expect(action).toBe('Close');
   });
@@ -341,7 +342,7 @@ describe('KeyCreateWizardComponent registrar enrollment', () => {
     const [message, action] = snackBar.open.mock.lastCall!;
     expect(message).toBe(
       'Key created, but its registrar enrollment failed: Failed to enroll certificate from registrar: the backend could not be reached. Check the connection and try again. ' +
-        "If the key's Active Certificate has the same Issuer as Subject, it is self-signed: delete the key and create it again."
+        'If the key is still self-signed (its Active Certificate has the same Issuer as Subject), select Enroll with Registrar on that certificate to try again, or delete the key.'
     );
     expect(action).toBe('Close');
   });

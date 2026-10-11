@@ -204,11 +204,13 @@ placeholders are handled according to `CONFIG_VARIABLE_STRICT`:
 | Plan action | Meaning                                                                                     |
 | ----------- | ------------------------------------------------------------------------------------------- |
 | `create`    | The resource will be created                                                                |
-| `update`    | The resource will change; the plan lists redacted field changes                            |
+| `update`    | The resource will change; the plan lists its field changes, secrets redacted               |
 | `unchanged` | Already matches, or a key chain document this source already applied (see below); only ownership metadata may be updated |
 | `skip`      | Exists and is left alone: in `create` mode (`RESOURCE_EXISTS`), in a startup import when the resource was detached from that folder (`RESOURCE_DETACHED`) or has a newer stored generation (`STALE_GENERATION`), or because it is the tenant's encryption key chain (`KEY_CHAIN_ID_RESERVED`) |
 | `delete`    | Will be removed (`replace` mode)                                                            |
 | `blocked`   | Cannot be applied, for example `STALE_GENERATION`, `MISSING_RESOURCE_REFERENCE`, `STATUS_LIST_LAYOUT_IMMUTABLE` or a missing secret or key. One blocked item blocks the whole plan |
+
+An `update` item lists its field changes in `changes`: the `path` in the document, the stored value as `before` and the value after the import as `after`. Without `before`, the import adds the field; without `after`, it removes the stored value. Entries with `redacted: true` hide the values: a secret reads `[redacted]`, and a value that changes between an object, a list and a plain value reads `[changed]` on both sides.
 
 A `KmsConfig` or `RegistrarConfig` document replaces the stored resource: fields it leaves out are removed, and the plan lists their removal. A `KeyChain` document replaces the stored key material, and also the type, description and rotation policy:
 
@@ -241,7 +243,7 @@ All endpoints act on the tenant of the access token and accept `tenant:admin` or
 | `GET /api/config-bundles/export?format=zip\|json`                  | Export the tenant (default `json`)        |
 | `POST /api/config-bundles/plan?mode=…`                            | Plan a JSON bundle                        |
 | `POST /api/config-bundles/plan/archive?mode=…`                    | Plan a ZIP bundle (multipart field `bundle`) |
-| `POST /api/config-bundles/import?mode=…&planFingerprint=…`        | Apply a JSON bundle                       |
+| `POST /api/config-bundles/import?mode=…&planFingerprint=…`        | Apply a JSON bundle; `replace` also needs `confirmReplace=true` |
 | `POST /api/config-bundles/import/archive?mode=…&planFingerprint=…` | Apply a ZIP bundle; `replace` also needs `confirmReplace=true` |
 | `POST /api/config-bundles/documents/upgrade`                      | Upgrade one document to the current version |
 | `GET /api/config-bundles/operations`, `GET …/operations/:id`      | Latest 50 operation reports, or one report |

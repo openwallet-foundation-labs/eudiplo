@@ -570,7 +570,8 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
    * configurations that name no access key; it is deleted and the wizard says
    * why next to Create & Enroll, so the user can check the registrar
    * configuration and try again. After any other failure the certificate may
-   * have been stored, so the key is kept and opened. A user who left the
+   * have been stored, so the key is kept and opened, where Enroll with
+   * Registrar requests the certificate again. A user who left the
    * wizard meanwhile gets the outcome in a snackbar and stays where they are.
    */
   private async enrollWithRegistrar(keyId: string): Promise<void> {
@@ -586,7 +587,7 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
       if (!refusal) {
         this.openKeptKey(
           keyId,
-          `Key created, but its registrar enrollment failed: ${reason} If the key's Active Certificate has the same Issuer as Subject, it is self-signed: delete the key and create it again.`
+          `Key created, but its registrar enrollment failed: ${reason} If the key is still self-signed (its Active Certificate has the same Issuer as Subject), select Enroll with Registrar on that certificate to try again, or delete the key.`
         );
         return;
       }
@@ -594,7 +595,7 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
       if (deleteReason) {
         this.openKeptKey(
           keyId,
-          `Key created without a registrar certificate: ${reason} ${deleteReason} Delete the key, check the registrar configuration, then create it again.`
+          `Key created without a registrar certificate: ${reason} ${deleteReason} Check the registrar configuration, then select Enroll with Registrar on the key's Active Certificate, or delete the key.`
         );
         return;
       }

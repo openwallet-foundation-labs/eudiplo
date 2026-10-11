@@ -79,6 +79,33 @@ table {
   }
 }
 
+.changes {
+  margin-bottom: 16px;
+
+  code {
+    overflow-wrap: anywhere;
+  }
+
+  .described {
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  // The warning colour is too light for text on the light theme; only the icon carries it.
+  .removed {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--mat-sys-on-surface);
+
+    mat-icon {
+      color: var(--eudiplo-warning);
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
 .source {
   max-width: 320px;
   overflow-wrap: anywhere;

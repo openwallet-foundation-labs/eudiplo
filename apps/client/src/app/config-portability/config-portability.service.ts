@@ -48,7 +48,19 @@ interface ConfigPlanIssue {
   message: string;
 }
 
-interface ConfigPlanItem {
+/**
+ * One field the plan changes. A missing `before` is a value the import adds, a missing `after`
+ * one it removes. With `redacted`, a secret reads `[redacted]` and an object or list whose
+ * content is not shown reads `[changed]`.
+ */
+export interface ConfigPlanChange {
+  path: string;
+  before?: unknown;
+  after?: unknown;
+  redacted?: boolean;
+}
+
+export interface ConfigPlanItem {
   kind: string;
   id: string;
   action: 'create' | 'update' | 'unchanged' | 'skip' | 'delete' | 'blocked';
@@ -56,7 +68,7 @@ interface ConfigPlanItem {
   targetVersion: string;
   migrations: string[];
   issues: ConfigPlanIssue[];
-  changes?: { path: string }[];
+  changes?: ConfigPlanChange[];
 }
 
 export interface ConfigImportPlan {
