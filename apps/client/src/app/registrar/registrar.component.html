@@ -207,8 +207,11 @@
           <button
             mat-button
             color="warn"
+            #deleteButton
             (click)="deleteConfig()"
             [disabled]="!hasConfig || isSaving || isDeleting"
+            disabledInteractive
+            [matTooltip]="deleteTooltip"
             appConfigManaged
             managedKind="RegistrarConfig"
             managedResourceId="registrar"
@@ -223,6 +226,7 @@
           <button
             mat-raised-button
             color="primary"
+            #saveButton
             (click)="saveConfig()"
             [disabled]="hasInvalidInput || isSaving || isDeleting"
             appConfigManaged

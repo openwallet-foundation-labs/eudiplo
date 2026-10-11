@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
 import { client } from '@eudiplo/sdk-core';
 import { vi } from 'vitest';
 
@@ -12,14 +13,16 @@ import { JwtService, type Role } from '../../services/jwt.service';
 import { TrustListService } from '../trust-list.service';
 import { TrustListShowComponent } from './trust-list-show.component';
 
-/** Answers the trust list requests of the page with this list and no versions. */
-function serveTrustList(trustList: object): void {
+/** Answers the trust list requests of the page with this body and status, and no versions. */
+function serveTrustList(trustList: object, status = 200): void {
   client.setConfig({
     fetch: async (request: RequestInfo | URL) => {
       const path = new URL(request instanceof Request ? request.url : String(request)).pathname;
-      const body = path.endsWith('/versions') ? [] : trustList;
-      return new Response(JSON.stringify(body), {
-        status: 200,
+      if (path.endsWith('/versions')) {
+        return new Response('[]', { headers: { 'Content-Type': 'application/json' } });
+      }
+      return new Response(JSON.stringify(trustList), {
+        status,
         headers: { 'Content-Type': 'application/json' },
       });
     },
@@ -725,5 +728,116 @@ describe('TrustListShowComponent download', () => {
       )
     );
     expect(downloadConfig).toHaveBeenCalledWith(trustList.id);
+  });
+});
+
+describe('TrustListShowComponent loading the list', () => {
+  const trustList = {
+    id: 'membership-issuers',
+    tenantId: 'membership-demo',
+    description: 'Issuers accepted for membership checks',
+    entityConfig: [],
+  };
+
+  /** Opens the page under its real route, so relative links resolve as in the app. */
+  async function render(): Promise<RouterTestingHarness> {
+    await TestBed.configureTestingModule({
+      imports: [TrustListShowComponent],
+      providers: [
+        provideRouter([{ path: 'trust-list/:id', component: TrustListShowComponent }]),
+        { provide: ApiService, useValue: { getBaseUrl: () => undefined } },
+        { provide: FrontendConfigService, useValue: { getConfig: async () => undefined } },
+        { provide: CredentialConfigService, useValue: { loadConfigurations: async () => [] } },
+      ],
+    }).compileComponents();
+
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl(`/trust-list/${trustList.id}`, TrustListShowComponent);
+    return harness;
+  }
+
+  function retryButton(harness: RouterTestingHarness): HTMLButtonElement | undefined {
+    return [
+      ...harness.routeNativeElement!.querySelectorAll<HTMLButtonElement>('app-load-error button'),
+    ].find((button) => button.textContent?.includes('Retry'));
+  }
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    client.setConfig({ fetch: () => new Promise<Response>(() => undefined) });
+  });
+
+  it('says it is loading while the list is requested', async () => {
+    client.setConfig({ fetch: () => new Promise<Response>(() => undefined) });
+    const page = (await render()).routeNativeElement!;
+
+    // <output> is a status live region, so screen readers announce the loading state.
+    expect(page.querySelector('output')?.textContent?.trim()).toBe('Loading trust list…');
+    expect(page.querySelector('app-load-error')).toBeNull();
+  });
+
+  it('stays on the page and says why the list could not be loaded', async () => {
+    serveTrustList(
+      {
+        statusCode: 404,
+        message: 'Trust list membership-issuers not found',
+      },
+      404
+    );
+    const navigate = vi.spyOn(Router.prototype, 'navigate');
+    const harness = await render();
+    const page = harness.routeNativeElement!;
+
+    await vi.waitFor(() => {
+      harness.detectChanges();
+      expect(page.querySelector('app-load-error [role="alert"]')?.textContent).toContain(
+        'Failed to load trust list: Trust list membership-issuers not found'
+      );
+    });
+    expect(page.querySelector('output')).toBeNull();
+    expect(navigate).not.toHaveBeenCalled();
+    const back = page.querySelector('app-load-error a');
+    expect(back?.textContent?.trim()).toBe('Back to the list');
+    expect(back?.getAttribute('href')).toBe('/trust-list');
+  });
+
+  it('leaves the focus alone when the list loads on the first try', async () => {
+    serveTrustList(trustList);
+    const harness = await render();
+    const page = harness.routeNativeElement!;
+
+    await vi.waitFor(() => {
+      harness.detectChanges();
+      expect(page.querySelector('h2')?.textContent).toBe('Trust List Details');
+    });
+    await harness.fixture.whenRenderingDone();
+    expect(document.activeElement).not.toBe(page.querySelector('h2'));
+  });
+
+  it('shows the list after a retry succeeds and focuses its heading', async () => {
+    serveTrustList({ statusCode: 503, message: 'Service unavailable' }, 503);
+    const harness = await render();
+    const page = harness.routeNativeElement!;
+    await vi.waitFor(() => {
+      harness.detectChanges();
+      expect(retryButton(harness)).toBeDefined();
+    });
+
+    serveTrustList(trustList);
+    const retry = retryButton(harness)!;
+    retry.focus();
+    retry.click();
+    harness.detectChanges();
+    expect(page.querySelector('app-load-error')).toBeNull();
+    expect(page.querySelector('output')?.textContent?.trim()).toBe('Loading trust list…');
+
+    await vi.waitFor(() => {
+      harness.detectChanges();
+      const heading = page.querySelector('h2');
+      expect(heading?.textContent).toBe('Trust List Details');
+      // The retry removed the focused Retry button with the error card.
+      expect(document.activeElement).toBe(heading);
+    });
+    expect(page.querySelector('app-load-error')).toBeNull();
   });
 });

@@ -5,6 +5,7 @@ import type { Page } from '@playwright/test';
 import { expect, test } from './support/test';
 import { hasRootCredentials, resolvedE2EConfig } from './support/e2e-config';
 import { loginWithClientCredentials } from './support/login';
+import { createTenant as createTestTenant } from './support/tenants';
 
 // The Registrar Config screen against the real backend. The backend checks the
 // registrar credentials at the token endpoint of the OIDC realm before it
@@ -76,20 +77,6 @@ test.afterAll(async () => {
   await new Promise<void>((resolve) => realms.close(() => resolve()));
 });
 
-async function accessToken(clientId: string, clientSecret: string): Promise<string> {
-  const response = await fetch(`${api}/api/oauth2/token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'client_credentials',
-      client_id: clientId,
-      client_secret: clientSecret,
-    }),
-  });
-  expect(response.ok).toBe(true);
-  return (await response.json()).access_token;
-}
-
 interface Tenant {
   clientId: string;
   clientSecret: string;
@@ -99,22 +86,11 @@ interface Tenant {
 
 /** A new tenant whose admin client may manage the registrar configuration and these roles. */
 async function createTenant(extraRoles: string[] = []): Promise<Tenant> {
-  const root = await accessToken(
-    resolvedE2EConfig.rootClientId!,
-    resolvedE2EConfig.rootClientSecret!
+  const { clientId, clientSecret, token } = await createTestTenant(
+    'registrar-e2e',
+    'Registrar E2E',
+    ['registrar:manage', ...extraRoles]
   );
-  const response = await fetch(`${api}/api/tenant`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${root}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      id: `registrar-e2e-${randomBytes(4).toString('hex')}`,
-      name: 'Registrar E2E',
-      roles: ['registrar:manage', ...extraRoles],
-    }),
-  });
-  expect(response.status).toBe(201);
-  const { clientId, clientSecret } = (await response.json()).client;
-  const token = await accessToken(clientId, clientSecret);
   return {
     clientId,
     clientSecret,

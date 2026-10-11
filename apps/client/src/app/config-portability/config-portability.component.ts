@@ -26,11 +26,30 @@ import {
   ConfigOperation,
   ConfigImportMode,
   ConfigImportPlan,
+  ConfigPlanChange,
+  ConfigPlanItem,
   ConfigPortabilityService,
   ConfigResourceMetadata,
 } from './config-portability.service';
 import { openErrorSnackBar } from '../utils/error-snackbar';
 import { offersApplyFromFile } from './config-ownership.service';
+
+/**
+ * How one side of a field change reads in the plan: a value, a word naming what is not shown,
+ * or the removal of the stored value.
+ */
+export interface ChangeSide {
+  text: string;
+  kind: 'value' | 'described' | 'removed';
+}
+
+/**
+ * A change whose `after` is missing removes the stored value. A `null` is a value: in a DCQL
+ * claims path, for example, it selects all array elements.
+ */
+const removesValue = (change: ConfigPlanChange) => change.after === undefined;
+
+const fieldCount = (count: number) => `${count} ${count === 1 ? 'field' : 'fields'}`;
 
 @Component({
   selector: 'app-config-portability',
@@ -57,6 +76,7 @@ import { offersApplyFromFile } from './config-ownership.service';
 })
 export class ConfigPortabilityComponent implements OnInit {
   readonly planColumns = ['resource', 'version', 'action', 'issues'];
+  readonly changeColumns = ['path', 'before', 'after'];
   readonly resourceColumns = ['select', 'resource', 'ownership', 'generation', 'source', 'actions'];
   mode: ConfigImportMode = 'upsert';
   bundle?: ConfigBundle;
@@ -80,6 +100,11 @@ export class ConfigPortabilityComponent implements OnInit {
     private readonly snackBar: MatSnackBar,
     private readonly jwt: JwtService
   ) {}
+
+  /** The shown plan has been applied. A refused apply keeps its operation ID but is not applicable. */
+  get applied(): boolean {
+    return !!this.plan?.operationId && this.plan.applicable;
+  }
 
   get canApply(): boolean {
     return this.jwt.hasRole('tenants:manage') || this.jwt.hasRole('tenant:admin');
@@ -166,22 +191,19 @@ export class ConfigPortabilityComponent implements OnInit {
       this.reattachTarget
     )
       return;
-    const confirmed =
-      this.mode !== 'replace' ||
-      globalThis.confirm(
-        'Replace mode deletes file-managed resources from this bundle source that are not in the bundle. Continue?'
-      );
-    if (!confirmed) return;
+    const question = this.applyQuestion(this.plan);
+    if (question && !globalThis.confirm(question)) return;
+    const confirmReplace = this.mode === 'replace';
     const fingerprint = this.plan.planFingerprint;
     await this.run(async () => {
       this.plan = this.bundleArchive
         ? await this.portability.importArchive(
             this.bundleArchive,
             this.mode,
-            confirmed,
+            confirmReplace,
             fingerprint
           )
-        : await this.portability.import(this.bundle!, this.mode, confirmed, fingerprint);
+        : await this.portability.import(this.bundle!, this.mode, confirmReplace, fingerprint);
       this.keepGeneratedSecrets(this.plan.generatedSecrets);
       await this.refreshResources();
       this.snackBar.open('Configuration bundle imported', 'Close', { duration: 3000 });
@@ -273,6 +295,29 @@ export class ConfigPortabilityComponent implements OnInit {
   /** True while the shown plan applies the file version of a resource that is still file-managed. */
   get reappliesFileVersion(): boolean {
     return this.reattachTarget?.ownership === 'file-managed';
+  }
+
+  /** The field changes of an item at a glance, for example "3 fields, 1 removed". */
+  changeSummary(item: ConfigPlanItem): string {
+    const changes = item.changes ?? [];
+    const removed = changes.filter(removesValue).length;
+    return removed
+      ? `${fieldCount(changes.length)}, ${removed} removed`
+      : fieldCount(changes.length);
+  }
+
+  changeSide(change: ConfigPlanChange, side: 'before' | 'after'): ChangeSide {
+    const value = change[side];
+    if (side === 'after' && removesValue(change)) return { text: 'removed', kind: 'removed' };
+    if (value === undefined) return { text: 'not set', kind: 'described' };
+    // Markers of configChanges in packages/eudiplo-config-format/src/config-values.ts.
+    if (change.redacted && value === '[redacted]') return { text: 'secret', kind: 'described' };
+    if (change.redacted && value === '[changed]') return { text: 'changed', kind: 'described' };
+    return { text: JSON.stringify(value), kind: 'value' };
+  }
+
+  hasRedactedChanges(plan: ConfigImportPlan): boolean {
+    return plan.items.some((item) => item.changes?.some((change) => change.redacted));
   }
 
   resourceKey(resource: ConfigResourceMetadata): string {
@@ -447,6 +492,30 @@ export class ConfigPortabilityComponent implements OnInit {
         getApiErrorMessage(error, 'Could not load resource ownership')
       );
     }
+  }
+
+  /** What to confirm before the plan is applied, or undefined when it needs no confirmation. */
+  private applyQuestion(plan: ConfigImportPlan): string | undefined {
+    const parts: string[] = [];
+    const deletions = plan.items
+      .filter((item) => item.action === 'delete')
+      .map((item) => `${item.kind}/${item.id}`);
+    if (this.mode === 'replace')
+      parts.push(
+        deletions.length
+          ? `Replace mode deletes file-managed resources from this bundle source that are not in the bundle: ${deletions.join(', ')}.`
+          : 'This replace import deletes no resources.'
+      );
+    const removals = plan.items.flatMap((item) => {
+      const count = item.changes?.filter(removesValue).length ?? 0;
+      return count ? [`${item.kind}/${item.id} (${fieldCount(count)})`] : [];
+    });
+    if (removals.length)
+      parts.push(
+        `The import removes stored values that the bundle leaves out, marked as removed in the plan: ${removals.join(', ')}.`
+      );
+    if (deletions.length || removals.length) parts.push('This cannot be undone.');
+    return parts.length ? `${parts.join(' ')} Continue?` : undefined;
   }
 
   private async run(operation: () => Promise<void>, fallback: string): Promise<void> {
