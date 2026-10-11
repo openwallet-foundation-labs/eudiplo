@@ -16,6 +16,7 @@ import { StatusListConfigService, bitsOptions } from './status-list-config.servi
 import { StatusListConfig } from '@eudiplo/sdk-core';
 import { ConfigOwnershipDirective } from '../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../config-portability/config-ownership-notice.component';
+import { getApiErrorMessage } from '../utils/error-message';
 
 @Component({
   selector: 'app-status-list-config',
@@ -79,9 +80,11 @@ export class StatusListConfigComponent implements OnInit {
         enableAggregation: this.currentConfig?.enableAggregation ?? true,
       });
     } catch (error) {
-      this.snackBar.open('Failed to load status list configuration', 'Close', {
-        duration: 5000,
-      });
+      this.snackBar.open(
+        getApiErrorMessage(error, 'Failed to load status list configuration'),
+        'Close',
+        { duration: 5000 }
+      );
       console.error('Load error:', error);
     } finally {
       this.isLoading = false;
@@ -108,11 +111,9 @@ export class StatusListConfigComponent implements OnInit {
         duration: 3000,
       });
     } catch (error) {
-      this.snackBar.open(
-        error instanceof Error ? error.message : 'Failed to save configuration',
-        'Close',
-        { duration: 5000 }
-      );
+      this.snackBar.open(getApiErrorMessage(error, 'Failed to save configuration'), 'Close', {
+        duration: 5000,
+      });
     } finally {
       this.isSaving = false;
     }
@@ -134,11 +135,9 @@ export class StatusListConfigComponent implements OnInit {
         duration: 3000,
       });
     } catch (error) {
-      this.snackBar.open(
-        error instanceof Error ? error.message : 'Failed to reset configuration',
-        'Close',
-        { duration: 5000 }
-      );
+      this.snackBar.open(getApiErrorMessage(error, 'Failed to reset configuration'), 'Close', {
+        duration: 5000,
+      });
     } finally {
       this.isSaving = false;
     }

@@ -550,7 +550,23 @@ describe('SchemaShowComponent loading', () => {
     expect(component.metadataForm.controls.displayName.enabled).toBe(true);
     expect(component.relatedCredentialConfigs.map((c) => c.id)).toEqual(['pid']);
     expect(openSnackBar).toHaveBeenCalledWith(
-      'Failed to load categories and tags from the registrar: Registrar unreachable',
+      'Failed to load the registrar vocabulary: Registrar unreachable',
+      'Close',
+      { duration: 10000 }
+    );
+  });
+
+  it('names both sources in one message when the backend does not answer them', async () => {
+    schemaService['getVocabularies'].mockRejectedValue(new TypeError('Failed to fetch'));
+    loadConfigurations.mockRejectedValue(new TypeError('Failed to fetch'));
+    create();
+
+    await component.load();
+
+    expect(component.item?.id).toBe('schema-1');
+    expect(openSnackBar).toHaveBeenCalledWith(
+      'Failed to load credential configs and the registrar vocabulary: ' +
+        'the backend could not be reached. Check the connection and try again.',
       'Close',
       { duration: 10000 }
     );

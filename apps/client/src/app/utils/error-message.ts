@@ -115,6 +115,53 @@ function isNetworkError(error: unknown): boolean {
   );
 }
 
+const listFormat = new Intl.ListFormat('en', { type: 'conjunction' });
+
+/** A failed call, named by `label`, for example "trust lists" or a resource key. */
+export interface LabelledFailure {
+  label: string;
+  error: unknown;
+}
+
+/**
+ * Splits failed calls so a list of them gives the unreachable hint once:
+ * `unreachable` names every call the backend did not answer, `describe`
+ * turning their joined labels into the start of the message, for example
+ * "Could not load key chains and trust lists: the backend could not be
+ * reached. …"; `other` keeps the remaining failures in their order.
+ */
+export function groupUnreachable<T extends LabelledFailure>(
+  failures: T[],
+  describe: (labels: string) => string
+): { unreachable?: string; other: T[] } {
+  const labels = failures
+    .filter((failure) => isNetworkError(failure.error))
+    .map((failure) => failure.label);
+  return {
+    unreachable: labels.length
+      ? unreachableMessage(describe(listFormat.format(labels)))
+      : undefined,
+    other: failures.filter((failure) => !isNetworkError(failure.error)),
+  };
+}
+
+/**
+ * The reasons of several failed calls in one text, joined with "; ": `reason`
+ * gives the reason of each call the backend answered, and the calls it did not
+ * answer share one reason at the end, as in {@link groupUnreachable}.
+ */
+export function joinFailures<T extends LabelledFailure>(
+  failures: T[],
+  reason: (failure: T) => string,
+  describe: (labels: string) => string
+): string {
+  const { unreachable, other } = groupUnreachable(failures, describe);
+  const reasons = other.map(reason);
+  // Last, so its closing period does not run into a separator.
+  if (unreachable) reasons.push(unreachable);
+  return reasons.join('; ');
+}
+
 /** A field the backend rejected in a `400 Validation failed` response. */
 export interface ValidationIssue {
   /** Dot-separated path of the field in the request body, empty for the body itself. */

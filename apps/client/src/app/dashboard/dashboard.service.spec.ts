@@ -168,6 +168,78 @@ describe('DashboardService', () => {
     expect(service.hasHealthSignals).toBe(false);
   });
 
+  it('gives one warning for all requests the backend did not answer', async () => {
+    roles = ['issuance:offer'];
+    client.setConfig({
+      fetch: async () => {
+        throw new TypeError('Failed to fetch');
+      },
+    });
+
+    await service.getCounters();
+
+    expect(service.warnings).toEqual([
+      {
+        message:
+          'Could not load session counts and recent sessions: ' +
+          'the backend could not be reached. Check the connection and try again.',
+        retry: true,
+      },
+    ]);
+  });
+
+  it('puts the unreachable warning first, before the warnings of requests the backend answered', async () => {
+    roles = ['issuance:offer'];
+    client.setConfig({
+      fetch: async (input: RequestInfo | URL) => {
+        const url = new URL(input instanceof Request ? input.url : String(input));
+        if (url.pathname === '/api/session') throw new TypeError('Failed to fetch');
+        return new Response(JSON.stringify({ statusCode: 403, message: 'Forbidden resource' }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      },
+    });
+
+    await service.getCounters();
+
+    expect(service.warnings).toEqual([
+      {
+        message:
+          'Could not load recent sessions: ' +
+          'the backend could not be reached. Check the connection and try again.',
+        retry: true,
+      },
+      { message: 'Could not load session counts: Forbidden resource', retry: false },
+    ]);
+  });
+
+  it('keeps the warnings of requests the backend answered apart from the unreachable ones', async () => {
+    roles = ['issuance:offer'];
+    client.setConfig({
+      fetch: async (input: RequestInfo | URL) => {
+        const url = new URL(input instanceof Request ? input.url : String(input));
+        if (url.pathname === '/api/session/stats') throw new TypeError('Failed to fetch');
+        return new Response(JSON.stringify({ statusCode: 500 }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      },
+    });
+
+    await service.getCounters();
+
+    expect(service.warnings).toEqual([
+      {
+        message:
+          'Could not load session counts: ' +
+          'the backend could not be reached. Check the connection and try again.',
+        retry: true,
+      },
+      { message: 'Could not load recent sessions.', retry: true },
+    ]);
+  });
+
   it("gives the backend's reason and no retry when a retry cannot help", async () => {
     roles = ['issuance:offer'];
     responses['/api/session'] = { items: [], total: 0, page: 1, pageSize: 5, totalPages: 0 };
