@@ -111,7 +111,13 @@
       <mat-card-header>
         <mat-icon mat-card-avatar>{{ plan.applicable ? 'check_circle' : 'error' }}</mat-icon>
         <mat-card-title>
-          {{ reattachTarget ? 'Reset ' + resourceKey(reattachTarget) + ' to file' : 'Import plan' }}
+          {{
+            reattachTarget
+              ? reappliesFileVersion
+                ? 'Apply ' + resourceKey(reattachTarget) + ' from file'
+                : 'Reset ' + resourceKey(reattachTarget) + ' to file'
+              : 'Import plan'
+          }}
         </mat-card-title>
         <mat-card-subtitle>
           {{
@@ -168,6 +174,13 @@
           <tr mat-header-row *matHeaderRowDef="planColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: planColumns"></tr>
         </table>
+        @if (reattachTarget && planRegeneratesClientSecret && !plan.operationId) {
+          <p class="issue warning">
+            <strong>New secret</strong>: {{ reattachTarget.resourceId }} gets a new secret, and its
+            current secret stops working. With "secret": "!generate" in the file, the new secret is
+            generated and shown once; otherwise it is the secret from the file.
+          </p>
+        }
         @for (item of plan.items; track item.kind + item.id) {
           @if (item.changes?.length) {
             <h3>
@@ -197,7 +210,13 @@
               </ng-container>
               <ng-container matColumnDef="after">
                 <th mat-header-cell *matHeaderCellDef>
-                  {{ reattachTarget ? 'After reset' : 'After import' }}
+                  {{
+                    reattachTarget
+                      ? reappliesFileVersion
+                        ? 'After apply'
+                        : 'After reset'
+                      : 'After import'
+                  }}
                 </th>
                 <td mat-cell *matCellDef="let change">
                   @let after = changeSide(change, 'after');
@@ -241,36 +260,45 @@
             [disabled]="busy || !plan.applicable || !plan.planFingerprint || !!plan.operationId"
           >
             <mat-icon>restore</mat-icon>
-            Reset to file
+            {{ reappliesFileVersion ? 'Apply from file' : 'Reset to file' }}
           </button>
         </mat-card-actions>
       }
     </mat-card>
+  }
 
-    @if (plan.generatedSecrets?.length) {
-      <mat-card class="generated-secrets">
-        <mat-card-header>
-          <mat-icon mat-card-avatar>key</mat-icon>
-          <mat-card-title>Generated client secrets</mat-card-title>
-          <mat-card-subtitle>
-            These values are shown once. Save them before leaving this page.
-          </mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          @for (secret of plan.generatedSecrets; track secret.id) {
-            <div>
-              <strong>{{ secret.id }}</strong> <code>{{ secret.value }}</code>
-            </div>
-          }
-        </mat-card-content>
-        <mat-card-actions>
-          <button mat-flat-button (click)="downloadImportResult()">
-            <mat-icon>download</mat-icon>
-            Download secrets
-          </button>
-        </mat-card-actions>
-      </mat-card>
-    }
+  @if (generatedSecrets.length) {
+    <mat-card class="generated-secrets">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>key</mat-icon>
+        <mat-card-title>Generated client secrets</mat-card-title>
+        <mat-card-subtitle>
+          These values are shown once. Save them before leaving this page.
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        @for (secret of generatedSecrets; track secret.id) {
+          <div class="generated-secret">
+            <strong>{{ secret.id }}</strong> <code>{{ secret.value }}</code>
+            <button
+              mat-icon-button
+              (click)="copySecret(secret)"
+              matTooltip="Copy secret"
+              [attr.aria-label]="'Copy the secret of ' + secret.id"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </div>
+        }
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-flat-button (click)="downloadImportResult()">
+          <mat-icon>download</mat-icon>
+          Download secrets
+        </button>
+        <button mat-button (click)="dismissGeneratedSecrets()">Done</button>
+      </mat-card-actions>
+    </mat-card>
   }
 
   <mat-card>
@@ -358,6 +386,16 @@
                 </button>
               }
               @if (item.ownership === 'file-managed') {
+                @if (canApplyFromFile(item)) {
+                  <button
+                    mat-button
+                    (click)="planReattach(item)"
+                    [disabled]="busy || !canApply"
+                    matTooltip='Apply the version from the config folder again. A client with "secret": "!generate" gets a new secret, shown once.'
+                  >
+                    Apply from file
+                  </button>
+                }
                 <button mat-button (click)="detach(item)" [disabled]="busy || !canApply">
                   Detach
                 </button>

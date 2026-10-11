@@ -20,6 +20,22 @@ export interface ConfigResourceMetadata extends ConfigResourceOwnership {
   tenantId: string;
 }
 
+/**
+ * A file-managed client from the config folder. Config Portability offers
+ * "Apply from file" for it, which gives a client with "secret": "!generate" a
+ * new secret that a startup import cannot show.
+ */
+export function offersApplyFromFile(
+  kind: ConfigResourceKind,
+  metadata?: Pick<ConfigResourceOwnership, 'ownership' | 'source'>
+): boolean {
+  return (
+    kind === 'Client' &&
+    metadata?.ownership === 'file-managed' &&
+    !!metadata.source?.startsWith('folder:')
+  );
+}
+
 @Injectable({ providedIn: 'root' })
 export class ConfigOwnershipService {
   /** Lookups still in flight, so the lock notice and buttons of one screen share a request. */

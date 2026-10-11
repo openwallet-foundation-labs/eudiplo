@@ -54,11 +54,11 @@ import type {
     ConfigPlanOptions,
     ConfigResourceKind,
 } from "./config-resource.types.js";
+import { documentAppliedAsIs } from "./config-source-hash.js";
 import {
     appliedKeyChainType,
     appliedKmsProvider,
     appliedRotationPolicy,
-    keyChainAppliedAsIs,
     keyChainSettingsSpec,
 } from "./key-chain-document.js";
 
@@ -610,7 +610,7 @@ export class ConfigBundleService {
                 // Reattach restores the folder version, so it always compares.
                 comparison =
                     !options.reattach &&
-                    keyChainAppliedAsIs(
+                    this.skipsComparison(
                         result.document,
                         metadata,
                         ownershipSource,
@@ -1429,6 +1429,21 @@ export class ConfigBundleService {
                 },
             });
         }
+    }
+
+    /**
+     * Whether a document this source applied as it is plans `unchanged`
+     * without comparing it. With Keycloak, clients are applied again to undo
+     * changes made there; apply keeps the secret of a client applied as it is.
+     */
+    private skipsComparison(
+        document: ConfigDocument,
+        metadata: Parameters<typeof documentAppliedAsIs>[1],
+        source: string,
+    ): boolean {
+        if (document.kind === "Client" && this.configService.get("OIDC"))
+            return false;
+        return documentAppliedAsIs(document, metadata, source);
     }
 
     /** Compare the fields this import would write with current persisted configuration. */
