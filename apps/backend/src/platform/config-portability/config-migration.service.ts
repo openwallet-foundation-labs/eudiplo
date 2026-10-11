@@ -14,6 +14,7 @@ import type {
     ConfigMigrationResult,
     ConfigResourceKind,
 } from "./config-resource.types.js";
+import { withoutNullRotationValues } from "./key-chain-document.js";
 
 type Spec = Record<string, any>;
 @Injectable()
@@ -74,7 +75,9 @@ export class ConfigMigrationService {
     }
 
     unwrapForLegacyImporter(document: ConfigDocument): Record<string, unknown> {
-        const spec = structuredClone(document.spec) as Spec;
+        let spec = structuredClone(document.spec) as Spec;
+        if (document.kind === "KeyChain")
+            spec = withoutNullRotationValues(spec);
         if (
             document.kind === "KeyChain" &&
             spec.keySource?.type === "private-jwk"

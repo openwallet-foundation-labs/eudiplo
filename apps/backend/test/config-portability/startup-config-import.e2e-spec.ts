@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, webcrypto } from "node:crypto";
 import {
     cpSync,
     mkdirSync,
@@ -18,10 +18,12 @@ import {
 import type { INestApplication } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Test } from "@nestjs/testing";
+import * as x509 from "@peculiar/x509";
 import request from "supertest";
 import { DataSource } from "typeorm";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { TenantEntity } from "../../src/auth/tenant/entities/tenant.entity.js";
+import { KeyChainEntity } from "../../src/crypto/key/entities/key-chain.entity.js";
 import { IssuanceConfig } from "../../src/issuer/configuration/issuance/entities/issuance-config.entity.js";
 import { StatusListEntity } from "../../src/issuer/status-list/entities/status-list.entity.js";
 import { ConfigBundleService } from "../../src/platform/config-portability/config-bundle.service.js";
@@ -32,6 +34,7 @@ import { ConfigOwnershipService } from "../../src/platform/config-portability/co
 import type {
     ConfigBundle,
     ConfigImportPlan,
+    ConfigResourceKind,
 } from "../../src/platform/config-portability/config-resource.types.js";
 import { ConfigResourceMetadataEntity } from "../../src/platform/config-portability/entities/config-resource-metadata.entity.js";
 import { RegistrarConfigEntity } from "../../src/registrar/entities/registrar-config.entity.js";
@@ -322,6 +325,10 @@ describe("startup configuration reconciliation", () => {
         expect(exported).toHaveLength(created.size);
         for (const document of exported) {
             expect(document.spec).not.toHaveProperty("description");
+            if (normalizeDocument(document).kind === "KeyChain")
+                expect(document.spec.rotationPolicy).toEqual({
+                    enabled: false,
+                });
         }
         const plan = await service.plan(tenantId, bundle, "upsert");
         expect(
@@ -918,6 +925,102 @@ describe("startup configuration reconciliation", () => {
         }
     });
 
+    it("applies the description and rotation settings of a key chain document as the plan lists them", async () => {
+        const service = app.get(ConfigBundleService);
+        const apply = app.get(ConfigBundleApplyService);
+        const dataSource = app.get(DataSource);
+        const keyChains = dataSource.getRepository(KeyChainEntity);
+        const ca = await caKeyWithCertificate();
+        // A private key without active key goes through the key chain importer.
+        const imported = {
+            id: "replaced-imported-key",
+            usageType: "attestation",
+            kmsProvider: "db",
+            keySource: { type: "private-jwk", jwk: ca.jwk },
+            crt: [ca.certificate],
+        };
+        const stored = () =>
+            keyChains.findOneByOrFail({ tenantId: "demo", id: imported.id });
+        // Each import of a private key creates a new active key, which the
+        // plan reports as well; only the replaced settings are checked here.
+        const plannedSettings = async (bundle: ConfigBundle) =>
+            (await service.plan("demo", bundle, "upsert")).items
+                .find((item) => item.kind === "KeyChain")
+                ?.changes?.filter(
+                    ({ path }) =>
+                        path === "/spec/description" ||
+                        path.startsWith("/spec/rotationPolicy/"),
+                )
+                .map(({ path, after }) => ({ path, after }));
+
+        try {
+            await apply.apply(
+                "demo",
+                keyChainBundle({
+                    ...imported,
+                    description: "Imported CA",
+                    rotationPolicy: {
+                        enabled: true,
+                        intervalDays: 30,
+                        certValidityDays: 60,
+                    },
+                }),
+                "upsert",
+            );
+            expect(await stored()).toMatchObject({
+                description: "Imported CA",
+                rotationEnabled: true,
+                rotationIntervalDays: 30,
+                certValidityDays: 60,
+            });
+
+            // With rotation, the importer fills in its default intervals.
+            const defaults = keyChainBundle({
+                ...imported,
+                rotationPolicy: { enabled: true },
+            });
+            expect(await plannedSettings(defaults)).toEqual([
+                { path: "/spec/description", after: undefined },
+                { path: "/spec/rotationPolicy/certValidityDays", after: 365 },
+                { path: "/spec/rotationPolicy/intervalDays", after: 90 },
+            ]);
+            await apply.apply("demo", defaults, "upsert");
+            expect(await stored()).toMatchObject({
+                description: null,
+                rotationEnabled: true,
+                rotationIntervalDays: 90,
+                certValidityDays: 365,
+            });
+
+            // Without a rotation policy, rotation is off and has no intervals.
+            const minimal = keyChainBundle(imported);
+            expect(await plannedSettings(minimal)).toEqual([
+                {
+                    path: "/spec/rotationPolicy/certValidityDays",
+                    after: undefined,
+                },
+                { path: "/spec/rotationPolicy/enabled", after: false },
+                { path: "/spec/rotationPolicy/intervalDays", after: undefined },
+            ]);
+            await apply.apply("demo", minimal, "upsert");
+            expect(await stored()).toMatchObject({
+                description: null,
+                rotationEnabled: false,
+                rotationIntervalDays: null,
+                certValidityDays: null,
+            });
+        } finally {
+            await keyChains.delete({ tenantId: "demo", id: imported.id });
+            await dataSource
+                .getRepository(ConfigResourceMetadataEntity)
+                .delete({
+                    tenantId: "demo",
+                    kind: "KeyChain",
+                    resourceId: imported.id,
+                });
+        }
+    });
+
     it("imports a registrar configuration whose hosts do not resolve yet", async () => {
         const apply = app.get(ConfigBundleApplyService);
         const registrars = app
@@ -1000,8 +1103,31 @@ describe("startup configuration reconciliation", () => {
 });
 
 function registrarBundle(spec: Record<string, unknown>): ConfigBundle {
+    return documentBundle(
+        "RegistrarConfig",
+        "registrar",
+        "registrar.json",
+        spec,
+    );
+}
+
+function keyChainBundle(spec: Record<string, unknown>): ConfigBundle {
+    return documentBundle(
+        "KeyChain",
+        String(spec.id),
+        `key-chains/${spec.id}.json`,
+        spec,
+    );
+}
+
+function documentBundle(
+    kind: ConfigResourceKind,
+    id: string,
+    path: string,
+    spec: Record<string, unknown>,
+): ConfigBundle {
     const document = {
-        $schema: schemaUrl("RegistrarConfig"),
+        $schema: schemaUrl(kind),
         metadata: { generation: 1 },
         spec,
     };
@@ -1009,15 +1135,15 @@ function registrarBundle(spec: Record<string, unknown>): ConfigBundle {
         manifest: {
             format: "eudiplo.config-bundle",
             formatVersion: 2,
-            sourceVersion: "registrar-import",
+            sourceVersion: "document-import",
             exportedAt: new Date(0).toISOString(),
             tenant: "demo",
             resources: [
                 {
-                    kind: "RegistrarConfig",
-                    id: "registrar",
+                    kind,
+                    id,
                     $schema: document.$schema,
-                    path: "registrar.json",
+                    path,
                     sha256: createHash("sha256")
                         .update(JSON.stringify(document))
                         .digest("hex"),
@@ -1048,4 +1174,40 @@ function jsonFiles(directory: string): string[] {
         if (entry.isDirectory()) return jsonFiles(path);
         return entry.name.endsWith(".json") ? [path] : [];
     });
+}
+
+/** An EC CA key as the portable key chain schema accepts it, with a self-signed CA certificate. */
+async function caKeyWithCertificate() {
+    const crypto = webcrypto as Crypto;
+    const algorithm = { name: "ECDSA", namedCurve: "P-256", hash: "SHA-256" };
+    const keys = (await crypto.subtle.generateKey(algorithm, true, [
+        "sign",
+        "verify",
+    ])) as CryptoKeyPair;
+    const certificate = await x509.X509CertificateGenerator.createSelfSigned(
+        {
+            serialNumber: "01",
+            name: "CN=Key chain CA",
+            notBefore: new Date(Date.now() - 60_000),
+            notAfter: new Date(Date.now() + 3_600_000),
+            keys,
+            signingAlgorithm: algorithm,
+            extensions: [
+                new x509.BasicConstraintsExtension(true, undefined, true),
+                new x509.KeyUsagesExtension(
+                    x509.KeyUsageFlags.keyCertSign | x509.KeyUsageFlags.cRLSign,
+                    true,
+                ),
+            ],
+        },
+        crypto,
+    );
+    const { kty, crv, x, y, d } = await crypto.subtle.exportKey(
+        "jwk",
+        keys.privateKey,
+    );
+    return {
+        jwk: { kty, crv, x, y, d },
+        certificate: certificate.toString("pem"),
+    };
 }
