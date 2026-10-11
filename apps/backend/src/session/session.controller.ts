@@ -59,6 +59,11 @@ import {
 const READ_ONLY_NOTE =
     "A client that reads sessions of a type through `sessions:read` but cannot cancel or delete them (that needs `issuance:offer` or `presentation:request`, and `issuance:offer` or `issuance:manage` for issuance sessions, `presentation:request` or `presentation:manage` for presentation sessions) does not get the sessions of that type that a wallet can still redeem or answer (open status, not consumed): they are left out of the list and answer 404, since their ID is enough to redeem or answer them.";
 
+/** The fields `readOnlySessionView` leaves out, for the OpenAPI description. */
+const OMITTED_FIELDS = [...BEARER_FIELDS, "credentialPayload.tx_code"]
+    .map((field) => "`" + field + "`")
+    .join(", ");
+
 @ApiTags("Session")
 @Secured([Role.IssuanceOffer, Role.PresentationRequest, Role.SessionsRead])
 @Controller("session")
@@ -124,7 +129,7 @@ export class SessionController {
     @ApiParam({ name: "id", description: "The session ID", type: String })
     @ApiOperation({
         summary: "Get a session",
-        description: `${READ_ONLY_NOTE} It gets the other sessions of that type without ${[...BEARER_FIELDS, "credentialPayload.tx_code"].map((field) => `\`${field}\``).join(", ")}.`,
+        description: `${READ_ONLY_NOTE} It gets the other sessions of that type without ${OMITTED_FIELDS}.`,
     })
     @ApiResponse({ status: 200, type: Session })
     @Get(":id")

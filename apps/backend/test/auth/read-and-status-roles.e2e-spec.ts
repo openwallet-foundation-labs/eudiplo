@@ -247,36 +247,35 @@ describe("Read and status roles (e2e)", () => {
         });
 
         test("creates, cancels, deletes and revokes nothing", async () => {
-            await as(sessionReader)
-                .delete(`/session/${issuanceSession}`)
-                .expect(403);
-            await as(sessionReader)
-                .post(`/session/${presentationSession}/cancel`)
-                .expect(403);
-            await as(sessionReader)
-                .post("/session/revoke", {
+            const attempts = await Promise.all([
+                as(sessionReader).delete(`/session/${issuanceSession}`),
+                as(sessionReader).post(
+                    `/session/${presentationSession}/cancel`,
+                ),
+                as(sessionReader).post("/session/revoke", {
                     sessionId: issuanceSession,
                     status: 2,
-                })
-                .expect(403);
-            await as(sessionReader)
-                .post("/issuer/offer", {
+                }),
+                as(sessionReader).post("/issuer/offer", {
                     response_type: "uri",
                     credentialConfigurationIds: ["pid-no-key"],
                     flow: "pre_authorized_code",
-                })
-                .expect(403);
-            await as(sessionReader)
-                .post("/verifier/offer", {
+                }),
+                as(sessionReader).post("/verifier/offer", {
                     response_type: ResponseType.URI,
                     requestId: "pid",
-                })
-                .expect(403);
+                }),
+            ]);
+            expect(attempts.map((attempt) => attempt.status)).toEqual([
+                403, 403, 403, 403, 403,
+            ]);
 
-            await as(adminToken).get(`/session/${issuanceSession}`).expect(200);
-            await as(adminToken)
-                .get(`/session/${presentationSession}`)
-                .expect(200);
+            const kept = await Promise.all(
+                [issuanceSession, presentationSession].map((id) =>
+                    as(adminToken).get(`/session/${id}`),
+                ),
+            );
+            expect(kept.map((session) => session.status)).toEqual([200, 200]);
         });
 
         test("does not widen what a verifier may change to issuance sessions", async () => {
@@ -411,16 +410,17 @@ describe("Read and status roles (e2e)", () => {
             const [chain] = (
                 await as(keyCustodian).get("/key-chain").expect(200)
             ).body;
-            await as(keyCustodian)
-                .get(`/key-chain/${chain.id}/export`)
-                .expect(403);
-            await as(keyCustodian)
-                .get("/key-chain/providers/config")
-                .expect(403);
-            await as(keyCustodian).get("/issuer/credentials").expect(403);
-            await as(keyCustodian)
-                .get("/config-bundles/resources/CredentialConfig")
-                .expect(403);
+            const reads = await Promise.all(
+                [
+                    `/key-chain/${chain.id}/export`,
+                    "/key-chain/providers/config",
+                    "/issuer/credentials",
+                    "/config-bundles/resources/CredentialConfig",
+                ].map((path) => as(keyCustodian).get(path)),
+            );
+            expect(reads.map((read) => read.status)).toEqual([
+                403, 403, 403, 403,
+            ]);
         });
     });
 
@@ -430,17 +430,16 @@ describe("Read and status roles (e2e)", () => {
             Role.SessionsRead,
         ]);
 
-        await as(manager)
-            .post("/client", {
-                clientId: "roles-granted-reader",
-                roles: [Role.SessionsRead],
-            })
-            .expect(201);
-        await as(manager)
-            .post("/client", {
-                clientId: "roles-granted-status",
-                roles: [Role.CredentialStatus],
-            })
-            .expect(403);
+        const granted = await as(manager).post("/client", {
+            clientId: "roles-granted-reader",
+            roles: [Role.SessionsRead],
+        });
+        expect(granted.status).toBe(201);
+        const denied = await as(manager).post("/client", {
+            clientId: "roles-granted-status",
+            roles: [Role.CredentialStatus],
+        });
+        expect(denied.status).toBe(403);
+        expect(denied.body.message).toContain("credentials:status");
     });
 });
