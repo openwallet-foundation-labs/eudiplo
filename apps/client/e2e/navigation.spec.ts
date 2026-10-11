@@ -63,23 +63,54 @@ test('opens an entry with Enter', async ({ page }) => {
   await expect(link).toHaveAttribute('aria-current', 'page');
 });
 
-test('closes the overlay after an entry opens with Enter on small screens', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/dashboard');
-  const sidenav = page.locator('mat-sidenav');
-  // The toggle has no accessible name, only its icon.
-  const toggle = page
-    .locator('mat-toolbar button')
-    .filter({ has: page.locator('mat-icon', { hasText: /^menu$/ }) });
-  await expect(toggle).toBeVisible();
-  await expect(sidenav).toBeHidden();
+test.describe('on a phone', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
 
-  await toggle.click();
-  // The overlay focuses its first link once it has opened; tabbing before that races it.
-  await expect(sidenav.getByRole('link', { name: 'Dashboard', exact: true })).toBeFocused();
-  await tabToNavLink(page, 'Keys');
-  await page.keyboard.press('Enter');
+  test('the menu button opens and closes the navigation', async ({ page }) => {
+    await page.goto('/dashboard');
+    const toggle = page.getByRole('button', { name: 'Toggle navigation' });
+    const navigation = page.getByRole('navigation');
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(navigation).toBeHidden();
 
-  await expect(page).toHaveURL(/\/keys$/);
-  await expect(sidenav).toBeHidden();
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    await expect(navigation).toBeVisible();
+
+    // The open drawer takes focus, and Escape closes it from there.
+    await expect(navigation.locator(':focus')).toHaveCount(1);
+    await page.keyboard.press('Escape');
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(navigation).toBeHidden();
+    await expect(toggle).toBeFocused();
+
+    // The button follows the drawer at once, so a tap while it still slides away reopens it.
+    await toggle.click();
+    await expect(navigation.locator(':focus')).toHaveCount(1);
+    await page.keyboard.press('Escape');
+    await toggle.click();
+    await expect(navigation.locator(':focus')).toHaveCount(1);
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    await navigation.getByText('Credential Types', { exact: true }).click();
+    await expect(page).toHaveURL(/\/credential-config$/);
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(navigation).toBeHidden();
+  });
+
+  test('an entry opened with Enter closes the navigation', async ({ page }) => {
+    await page.goto('/dashboard');
+    const toggle = page.getByRole('button', { name: 'Toggle navigation' });
+    const navigation = page.getByRole('navigation');
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+
+    await toggle.click();
+    // The drawer focuses its first link once it has opened; tabbing before that races it.
+    await expect(navigation.getByRole('link', { name: 'Dashboard', exact: true })).toBeFocused();
+    await tabToNavLink(page, 'Keys');
+    await page.keyboard.press('Enter');
+
+    await expect(page).toHaveURL(/\/keys$/);
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(navigation).toBeHidden();
+  });
 });
