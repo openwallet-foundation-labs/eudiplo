@@ -101,6 +101,15 @@ describe('AppComponent navigation', () => {
     expect(menuItems(roles).filter((item) => item === 'Webhook Endpoints')).toHaveLength(1);
   });
 
+  // Matches the route guard in app.routes.ts and the backend trust list controller.
+  it.each<[string, Role[]]>([
+    ['issuance', ['issuance:manage', 'issuance:offer']],
+    ['verification', ['presentation:manage', 'presentation:request']],
+    ['issuance and verification', ['issuance:manage', 'presentation:manage']],
+  ])('lists Trust Lists once for %s admins', (_, roles) => {
+    expect(menuItems(roles).filter((item) => item === 'Trust Lists')).toHaveLength(1);
+  });
+
   it('shows Config Portability only with tenant:admin or tenants:manage', () => {
     expect(menuItems(['tenant:admin'])).toContain('Config Portability');
     TestBed.resetTestingModule();
@@ -132,11 +141,12 @@ describe('AppComponent navigation', () => {
     expect(header !== null).toBe(shown);
   });
 
-  it('hides Webhook Endpoints from clients that cannot manage them', () => {
-    expect(menuItems(['issuance:offer', 'presentation:request'])).not.toContain(
-      'Webhook Endpoints'
-    );
-  });
+  it.each(['Webhook Endpoints', 'Trust Lists'])(
+    'hides %s from clients that cannot manage them',
+    (entry) => {
+      expect(menuItems(['issuance:offer', 'presentation:request'])).not.toContain(entry);
+    }
+  );
 });
 
 describe('AppComponent session expiry', () => {

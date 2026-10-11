@@ -36,7 +36,7 @@ EUDIPLO does not create a trust list signing key on its own, even though the tru
 
 ## Step 2: Publish the trust list
 
-Open **Credential Issuance → Trust Lists**, choose **+** (**Create new Trust List**) and enter:
+Open **Cryptographic Assets → Trust Lists**, choose **+** (**Create new Trust List**) and enter:
 
 1. **ID** `membership-issuers`, **Description** `Issuers accepted for membership checks`, **Signing Key Chain** `Membership trust list signing`.
 2. Choose **Add Internal Entity**. Keep **Provider type** **Credential provider**, select **Issuer Key Chain** `Membership credential signing` and **Revocation Key Chain** `Membership status list signing`, and enter **Entity Name** `Membership Demo`.

@@ -184,10 +184,11 @@ export const routes: Routes = [
     children: presentationConfigRoutes,
   },
 
-  // Trust list routes
+  // Trust list routes: issuers publish trust lists, verifiers accept issuers from them
   {
     path: 'trust-list',
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: [getRole('issuance:manage'), getRole('presentation:manage')] },
     children: trustListRoutes,
   },
 

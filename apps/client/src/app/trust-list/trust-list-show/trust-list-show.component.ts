@@ -27,6 +27,7 @@ import { CredentialConfigService } from '../../issuance/credential-config/creden
 import { ConfigOwnershipDirective } from '../../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../../config-portability/config-ownership-notice.component';
 import { FrontendConfigService } from '../../services/frontend-config.service';
+import { JwtService } from '../../services/jwt.service';
 import { trustListUrl } from '../../utils/public-url';
 
 interface EntityInfo {
@@ -87,6 +88,7 @@ export class TrustListShowComponent implements OnInit {
   private readonly apiService = inject(ApiService);
   private readonly credentialConfigService = inject(CredentialConfigService);
   private readonly frontendConfigService = inject(FrontendConfigService);
+  private readonly jwtService = inject(JwtService);
 
   trustList?: TrustList;
   entities: TrustListEntity[] = [];
@@ -98,6 +100,8 @@ export class TrustListShowComponent implements OnInit {
    */
   publicUrlIsInstanceUrl = false;
   relatedCredentialConfigs: CredentialConfig[] = [];
+  relatedCredentialConfigsLoading = false;
+  relatedCredentialConfigsFailed = false;
   private readonly id: string;
 
   constructor() {
@@ -167,10 +171,24 @@ export class TrustListShowComponent implements OnInit {
     );
   }
 
-  private async loadRelatedCredentialConfigs(): Promise<void> {
-    if (!this.trustList) return;
+  /** Credential configs, and so their references to this list, need `issuance:manage`. */
+  get canReadCredentialConfigs(): boolean {
+    return this.jwtService.hasRole('issuance:manage');
+  }
 
-    const allConfigs = await this.credentialConfigService.loadConfigurations();
+  private async loadRelatedCredentialConfigs(): Promise<void> {
+    if (!this.trustList || !this.canReadCredentialConfigs) return;
+
+    let allConfigs: CredentialConfig[];
+    this.relatedCredentialConfigsLoading = true;
+    try {
+      allConfigs = await this.credentialConfigService.loadConfigurations();
+    } catch {
+      this.relatedCredentialConfigsFailed = true;
+      return;
+    } finally {
+      this.relatedCredentialConfigsLoading = false;
+    }
     const trustListId = this.trustList.id;
     const trustListPathSegment = `/trust-list/${trustListId}`;
 
