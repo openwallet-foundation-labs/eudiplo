@@ -14,8 +14,11 @@ import {
 import { ConfigOwnershipService } from '../config-portability/config-ownership.service';
 import { StatusListConfigComponent } from './status-list-config.component';
 
-/** A response, or `'unreachable'` for a backend that does not answer. */
-type StubResponse = { status: number; body?: unknown } | 'unreachable';
+/**
+ * A response, `'unreachable'` for a backend that does not answer, or `'empty'`
+ * for a 200 with `Content-Length: 0` and no Content-Type, which is how Nest sends `null`.
+ */
+type StubResponse = { status: number; body?: unknown } | 'unreachable' | 'empty';
 
 describe('StatusListConfigComponent', () => {
   let responses: Record<string, StubResponse>;
@@ -56,6 +59,9 @@ describe('StatusListConfigComponent', () => {
         requests.push(key);
         const stub = responses[key] ?? { status: 404, body: {} };
         if (stub === 'unreachable') throw new TypeError('Failed to fetch');
+        if (stub === 'empty') {
+          return new Response(null, { status: 200, headers: { 'Content-Length': '0' } });
+        }
         return new Response(stub.status === 204 ? null : JSON.stringify(stub.body ?? {}), {
           status: stub.status,
           headers: { 'Content-Type': 'application/json' },
@@ -157,11 +163,11 @@ describe('StatusListConfigComponent', () => {
   });
 
   it('offers no reset while nothing is stored', async () => {
-    // The backend answers null, which the SDK reads as an empty object.
-    responses['GET /api/status-list-config'] = { status: 200, body: {} };
+    responses['GET /api/status-list-config'] = 'empty';
 
     const element = await render();
 
+    expect(fixture.componentInstance.currentConfig).toStrictEqual({});
     expectResetUnavailable(fixture, NOTHING_TO_RESET);
     expect(element.textContent).toContain('This tenant already follows the global defaults.');
     const confirm = vi.fn<(message?: string) => boolean>(() => true);
@@ -174,7 +180,7 @@ describe('StatusListConfigComponent', () => {
   });
 
   it('offers a reset once a save stores settings', async () => {
-    responses['GET /api/status-list-config'] = { status: 200, body: {} };
+    responses['GET /api/status-list-config'] = 'empty';
     responses['PUT /api/status-list-config'] = {
       status: 200,
       body: { capacity: 1000, bits: 1, immediateUpdate: false, enableAggregation: true },

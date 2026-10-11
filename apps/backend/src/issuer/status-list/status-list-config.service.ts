@@ -172,7 +172,8 @@ export class StatusListConfigService {
         const before = this.sanitizeStatusListConfigForLog(
             tenant.statusListConfig,
         );
-        tenant.statusListConfig = undefined;
+        // TypeORM leaves undefined properties out of the update; only null clears the column.
+        tenant.statusListConfig = null;
         await this.tenantRepository.save(tenant);
 
         if (actorToken) {
