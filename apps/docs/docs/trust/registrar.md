@@ -2,6 +2,8 @@
 title: Registrar
 ---
 
+import SchemaReference from "@site/src/components/SchemaReference";
+
 EUDIPLO can talk to the German EUDI wallet registrar to obtain access certificates, issue registration certificates and publish schema metadata. Each tenant uses its own registrar account. Other ecosystems are not supported by this integration: import their certificates instead ([Wallet and Registrar Requirements](wallet-registrars.md)).
 
 ## Prerequisites
@@ -84,7 +86,7 @@ TS11 is still a draft. Fields, endpoints and screens can change.
 4. Under **Trusted Authorities**, select trust lists or add root certificates (base64 DER).
 5. Choose **Submit**. EUDIPLO uploads the schemas and the rulebook, the registrar signs the result.
 
-EUDIPLO downloads the rulebook and schema URLs before uploading them, under the [outbound URL policy](../reference/webhooks.md): HTTPS only and no private addresses by default, at most 5 MB and three redirects per file.
+EUDIPLO downloads the rulebook and schema URLs before uploading them, under the [outbound URL policy](../concepts/security-model.md#https-and-tls): HTTPS only and no private addresses by default, at most 5 MB, 10 seconds and three redirects per file.
 
 Schema metadata is versioned: the list groups versions by ID. To publish a new version:
 
@@ -92,8 +94,14 @@ Schema metadata is versioned: the list groups versions by ID. To publish a new v
 2. Check **New Version** and **Rulebook URI**. The registrar does not copy the name, category and tags to a new version, so the Web Client sends those of the shown version again (the ID as name if it has none). It leaves out values that are not in the registrar vocabulary; if the vocabulary cannot be loaded, it sends them unchecked and says so before you publish. The vct or doctype of each schema URI comes from the credential type linked to the schema: the one named in the URI, otherwise the only linked credential type of that format.
 3. Leave **Deprecate current version** ticked to deprecate the shown version, and choose **Publish**. If the deprecation fails, the new version stays published and the message offers **Retry**.
 
-On the details of a version, **Catalog Metadata** changes its name, category and tags, **Deprecate** deprecates it later (marked as superseded by the newest version, if there is a newer one), and **Delete** removes it at the registrar after a confirmation.
+On the details of a version, **Catalog Metadata** changes its name, category and tags, **Deprecate** deprecates it later (marked as superseded by the newest version, if there is a newer one), and **Delete** removes it at the registrar. Deprecate and Delete ask for confirmation first.
 
-Via the API, `POST /api/schema-metadata/publish` and `POST /api/schema-metadata/publish-version` publish (role `issuance:manage`); the other `/api/schema-metadata` endpoints list, read, update, deprecate (`PATCH /api/schema-metadata/{id}/versions/{version}/deprecation`) and delete entries (role `registrar:manage`). The optional `config.category` and `config.tags` of a publish request take the registrar's predefined values, which `GET /api/schema-metadata/vocabularies` lists (role `registrar:manage`); EUDIPLO sets them at the registrar after publishing and does not store them in the `schemaMeta` of the credential type. A `publish-version` request sends the name, category and tags again as `config.name`, `config.category` and `config.tags`. A `publish` request with `credentialConfigId`, `config.id` and no `config.rulebookURI` uploads nothing: it writes `config` with that ID into the `schemaMeta` of the credential type and rejects category and tags. If the credential type is already linked to another ID, set `pinMode` to `replace_id`.
+Via the API, `POST /api/schema-metadata/publish` and `POST /api/schema-metadata/publish-version` publish (role `issuance:manage`); the other `/api/schema-metadata` endpoints list, read, update, deprecate (`PATCH /api/schema-metadata/{id}/versions/{version}/deprecation`) and delete entries (role `registrar:manage`); see [Publish via the API](#publish-via-the-api).
 
 The `schemaMeta` of each credential configuration determines the `provides_attestations` of the [issuer registration certificate](registration-certificates.md#issuer-registration-certificate). Verifiers can start a presentation configuration from schema metadata with **Import from Schema** ([Configure Verification](../presentation/configure-verification.md)).
+
+### Publish via the API
+
+`POST /api/schema-metadata/publish` takes the body below. `POST /api/schema-metadata/publish-version` takes the same body for a new version: `config.id` names the existing schema, and `pinMode: "replace_id"` repoints the pin to it. The registrar does not copy the name, category and tags to a new version: send them again in `config.name` (required), `config.category` and `config.tags`. `GET /api/schema-metadata/vocabularies` (role `registrar:manage`) lists the values of `config.category` and `config.tags`. A `publish` request with `credentialConfigId` and `config.id` but without `config.rulebookURI` is link-only: EUDIPLO uploads nothing, rejects category and tags, and writes `config` with that ID into the `schemaMeta` of the credential configuration as `pinMode` allows.
+
+<SchemaReference name="schema-metadata-publish" mode="table" />

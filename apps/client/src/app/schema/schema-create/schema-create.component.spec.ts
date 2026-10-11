@@ -1,5 +1,7 @@
+import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
+import { MatSelectHarness } from '@angular/material/select/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { client } from '@eudiplo/sdk-core';
@@ -468,5 +470,34 @@ describe('SchemaCreateComponent required fields', () => {
     expect(text(fixture)).toContain(
       'At least one trusted authority is required. The trust lists could not be loaded; add a root certificate.'
     );
+  });
+});
+
+describe('SchemaCreateComponent template', () => {
+  it('lets the user clear a selected category', async () => {
+    const pending = () => new Promise<never>(() => undefined);
+    TestBed.configureTestingModule({
+      imports: [SchemaCreateComponent],
+      providers: [
+        provideRouter([]),
+        { provide: SchemaService, useValue: { getVocabularies: pending } },
+        { provide: CredentialConfigService, useValue: { loadConfigurations: pending } },
+      ],
+    });
+    const fixture = TestBed.createComponent(SchemaCreateComponent);
+    const component = fixture.componentInstance;
+    component.categoryVocabularies = [{ code: 'identity', label: 'Identity' } as any];
+    fixture.detectChanges();
+    component.composeForm.patchValue({ category: 'identity' });
+
+    const select = await TestbedHarnessEnvironment.loader(fixture).getHarness(
+      MatSelectHarness.with({ selector: '[formControlName="category"]' })
+    );
+    await select.open();
+    const [none] = await select.getOptions();
+    expect(await none.getText()).toBe('— None —');
+    await none.click();
+
+    expect(component.composeForm.value.category).toBe('');
   });
 });
