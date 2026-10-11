@@ -41,14 +41,26 @@ export function appliedRotationPolicy(spec: Spec): RotationPolicy {
     return { enabled, ...importedRotationIntervals(policy) };
 }
 
-/** The columns besides key material that a key chain document replaces. */
-export function keyChainSettingsColumns(spec: Spec) {
+/**
+ * The columns besides key material that a key chain document replaces. An
+ * unset value is null, which clears the column on save; the entity types
+ * these nullable columns without null.
+ */
+export function keyChainSettingsColumns(
+    spec: Spec,
+): Pick<
+    KeyChainEntity,
+    | "description"
+    | "rotationEnabled"
+    | "rotationIntervalDays"
+    | "certValidityDays"
+> {
     const policy = appliedRotationPolicy(spec);
     return {
         description: spec.description ?? null,
         rotationEnabled: policy.enabled,
-        rotationIntervalDays: policy.intervalDays ?? null,
-        certValidityDays: policy.certValidityDays ?? null,
+        rotationIntervalDays: policy.intervalDays ?? (null as any),
+        certValidityDays: policy.certValidityDays ?? (null as any),
     };
 }
 
