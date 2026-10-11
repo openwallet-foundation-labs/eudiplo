@@ -294,9 +294,7 @@ export class RegistrarComponent implements OnInit {
   private mergeCertificateDefaults(
     fields: Partial<Record<(typeof FORM_DEFAULTS)[number], string | null>>
   ): Record<string, unknown> | null {
-    const defaults: Record<string, unknown> = {
-      ...(this.config?.registrationCertificateDefaults ?? {}),
-    };
+    const defaults: Record<string, unknown> = { ...this.config?.registrationCertificateDefaults };
     for (const key of FORM_DEFAULTS) {
       const value = fields[key]?.trim();
       if (value) {
