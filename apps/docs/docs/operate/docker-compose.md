@@ -84,7 +84,7 @@ Vault. In production, use a Vault with persistent storage or another
 | Service          | Profiles                    | Ports                  | Purpose                                              |
 | ---------------- | --------------------------- | ---------------------- | ---------------------------------------------------- |
 | `eudiplo`        | always                      | 3000                   | Backend                                              |
-| `eudiplo-client` | always                      | 4200 → 8080            | Web client. The browser calls the backend directly, at the URL entered on the login page; `API_BASE_URL` prefills it |
+| `eudiplo-client` | always                      | 4200 → 8080            | Web client. The browser calls the backend directly ([which addresses](#web-client-addresses)); `API_BASE_URL` prefills the login page |
 | `postgres`       | `postgres`, `standard`, `full` | -                   | PostgreSQL 16; set `DB_HOST=postgres` in `.env`      |
 | `rustfs`         | `s3`, `standard`, `full`    | 9000 (S3), 9001 (console) | S3-compatible object storage                      |
 | `rustfs-init`    | `s3`, `standard`, `full`    | -                      | Creates `S3_BUCKET` once and exits                   |
@@ -109,6 +109,19 @@ The Compose file also reads these variables from `.env`:
 | `EUDIPLO_ENV_FILE`      | `.env`                                               | Environment file passed to the backend                     |
 | `API_BASE_URL`          | `http://localhost:3000`                              | Backend URL prefilled on the web client's login page; set it to the URL your browser uses for the backend |
 | `CLIENT_BASE_HREF`      | `/`                                                  | Path of the web client behind a reverse proxy ([TLS and reverse proxy](tls.md#serving-the-client-from-a-subpath)) |
+
+### Web client addresses
+
+The web client runs in the browser, so the browser sends its requests, to two
+addresses. It reads the discovery document and sends every API call to the
+**EUDIPLO Instance** entered on the login page. For the client-credentials
+login and every token refresh, it uses the token endpoint that discovery names:
+`PUBLIC_URL/api/oauth2/token`, or the provider's token endpoint when `OIDC` is
+set. Both addresses must be reachable from the browser, accept the web client's
+origin (`CORS_ORIGINS` on the backend, the allowed web origins at the
+provider), and pass any proxy or WAF in front of them. They differ when, for
+example, the login page uses `http://localhost:3000` while `PUBLIC_URL` is a
+tunnel or the public host name.
 
 ## Data and configuration folders
 
