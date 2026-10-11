@@ -1,0 +1,20 @@
+// Hides an element visually but keeps it available to screen readers.
+// Global styles expose it as the `.visually-hidden` class (styles.scss).
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Like visually-hidden, but shows the element while it has focus, for example a skip link.
+@mixin visually-hidden-focusable {
+  &:not(:focus) {
+    @include visually-hidden;
+  }
+}

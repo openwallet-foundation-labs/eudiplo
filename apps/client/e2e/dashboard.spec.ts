@@ -51,6 +51,14 @@ test('dashboard figures open the session list with their filters', async ({ page
   await expect(page.getByRole('button', { name: /Clear Filters/ })).toBeVisible();
 });
 
+test('keeps the activity data table for screen readers only', async ({ page }) => {
+  await page.goto('/dashboard');
+  const table = page.getByRole('table', { name: /Sessions per (day|hour) by outcome/ });
+  // A table grows past the 1px box of .visually-hidden, so the clip is what hides it.
+  await expect(table).toHaveCSS('position', 'absolute');
+  await expect(table).toHaveCSS('clip', 'rect(0px, 0px, 0px, 0px)');
+});
+
 test("help menu opens the instance's API reference", async ({ page }) => {
   await page.goto('/dashboard');
   await page.getByRole('button', { name: 'Help and resources' }).click();
