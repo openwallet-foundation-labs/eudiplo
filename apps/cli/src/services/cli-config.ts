@@ -200,13 +200,6 @@ export function updateInstance(
             "Nothing to update. Pass --url, --client-url or --no-client-url.",
         );
     }
-    if (update.url !== undefined) {
-        validateHttpUrl(update.url, "--url");
-    }
-    if (typeof update.clientUrl === "string") {
-        validateHttpUrl(update.clientUrl, "--client-url");
-    }
-
     const next: InstanceConfig = { ...current };
     if (update.url !== undefined) {
         next.url = update.url;
@@ -326,11 +319,6 @@ export function redactUrl(value: string): string {
     url.username = "***";
     url.password = "";
     return url.href;
-}
-
-/** Throws unless `value` is an absolute HTTP(S) URL, as config loading requires. */
-export function assertHttpUrl(value: string, label: string): void {
-    validateHttpUrl(value, label);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -475,7 +463,8 @@ function validateOptionalHttpUrl(value: unknown, label: string): void {
     }
 }
 
-function validateHttpUrl(value: string, label: string): void {
+/** Throws unless `value` is an absolute HTTP(S) URL, as config loading requires. */
+export function validateHttpUrl(value: string, label: string): void {
     try {
         const url = new URL(value);
         if (url.protocol !== "http:" && url.protocol !== "https:") {

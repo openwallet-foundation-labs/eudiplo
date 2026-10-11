@@ -1,6 +1,5 @@
 import { readStringFlag } from "../../options.js";
 import {
-    assertHttpUrl,
     getInstance,
     redactUrl,
     removeInstance,
@@ -9,6 +8,7 @@ import {
     setDefaultInstance,
     updateInstance,
     upsertInstance,
+    validateHttpUrl,
 } from "../../services/cli-config.js";
 import { parseTarget } from "../../services/deployment-target.js";
 import {
@@ -30,20 +30,15 @@ export async function runInstanceAdd(
         throw new Error("Instance name is required.");
     }
 
-    const url = readStringFlag(parsed.flags, "url");
-    if (!url) {
+    const url = readUrlFlag(parsed.flags, "url");
+    if (url === undefined) {
         throw new Error("--url is required.");
     }
-
-    assertHttpUrl(url, "--url");
 
     const target = parseTarget(
         readStringFlag(parsed.flags, "target") ?? "external",
     );
-    const clientUrl = readStringFlag(parsed.flags, "client-url");
-    if (clientUrl !== undefined) {
-        assertHttpUrl(clientUrl, "--client-url");
-    }
+    const clientUrl = readUrlFlag(parsed.flags, "client-url");
     const kubernetes =
         target === "kubernetes"
             ? readKubernetesOptions(parsed.flags)
@@ -196,11 +191,11 @@ export async function runInstanceUpdate(
     context: CommandContext,
 ): Promise<number> {
     const name = requireInstanceName(parsed);
-    const url = readStringFlag(parsed.flags, "url");
+    const url = readUrlFlag(parsed.flags, "url");
     const clientUrl =
         parsed.flags["no-client-url"] === true
             ? null
-            : readStringFlag(parsed.flags, "client-url");
+            : readUrlFlag(parsed.flags, "client-url");
     await saveConfig(
         configPath,
         updateInstance(config, name, { url, clientUrl }),
@@ -225,6 +220,24 @@ export async function runInstanceRename(
         context.stdout.write(`Default instance is now ${newName}.\n`);
     }
     return 0;
+}
+
+/**
+ * Reads and validates a URL option. The value is taken as given, so
+ * `--url ""` (an unset variable in a script) is reported as an invalid URL
+ * instead of a missing option. This is the only place URL options are
+ * checked; saveConfig validates the whole config again before writing.
+ */
+function readUrlFlag(
+    flags: ParsedArgs["flags"],
+    name: "url" | "client-url",
+): string | undefined {
+    const value = flags[name];
+    if (typeof value !== "string") {
+        return undefined;
+    }
+    validateHttpUrl(value, `--${name}`);
+    return value;
 }
 
 function requireInstanceName(parsed: ParsedArgs): string {

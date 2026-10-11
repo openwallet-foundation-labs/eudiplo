@@ -202,6 +202,42 @@ describe("eudiplo instance lifecycle", () => {
             expect(await runCli(["instance", "ls"], context)).toBe(0);
         });
 
+        it("reports empty URLs instead of ignoring them", async () => {
+            const { context, output, configPath } = await createContext({
+                defaultInstance: "production",
+                instances: { production },
+            });
+            const before = await readFile(configPath, "utf8");
+
+            expect(
+                await runCli(
+                    [
+                        "instance",
+                        "add",
+                        "staging",
+                        "--url",
+                        staging.url,
+                        "--client-url",
+                        "",
+                    ],
+                    context,
+                ),
+            ).toBe(1);
+            expect(output.stderr).toContain(
+                "--client-url must be an absolute HTTP(S) URL.",
+            );
+            expect(
+                await runCli(
+                    ["instance", "add", "staging", "--url", ""],
+                    context,
+                ),
+            ).toBe(1);
+            expect(output.stderr).toContain(
+                "--url must be an absolute HTTP(S) URL.",
+            );
+            expect(await readFile(configPath, "utf8")).toBe(before);
+        });
+
         it("makes the first instance the default, as before", async () => {
             const { context, configPath } = await createContext();
 
@@ -352,6 +388,35 @@ describe("eudiplo instance lifecycle", () => {
             ).toBe(1);
             expect(output.stderr).toContain(
                 "--url must be an absolute HTTP(S) URL.",
+            );
+            expect(await readFile(configPath, "utf8")).toBe(before);
+        });
+
+        it("reports an empty URL as invalid instead of missing", async () => {
+            const { context, output, configPath } = await createContext({
+                defaultInstance: "staging",
+                instances: { staging },
+            });
+            const before = await readFile(configPath, "utf8");
+
+            expect(
+                await runCli(
+                    ["instance", "update", "staging", "--url", ""],
+                    context,
+                ),
+            ).toBe(1);
+            expect(output.stderr).toContain(
+                "--url must be an absolute HTTP(S) URL.",
+            );
+            expect(output.stderr).not.toContain("Nothing to update");
+            expect(
+                await runCli(
+                    ["instance", "update", "staging", "--client-url", ""],
+                    context,
+                ),
+            ).toBe(1);
+            expect(output.stderr).toContain(
+                "--client-url must be an absolute HTTP(S) URL.",
             );
             expect(await readFile(configPath, "utf8")).toBe(before);
         });
