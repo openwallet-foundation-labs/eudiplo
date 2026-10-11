@@ -26,8 +26,8 @@ import type {
 import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
 import { JwtService } from '../../services/jwt.service';
 import { SchemaMetadata, SchemaService } from '../schema.service';
-import { getApiErrorMessage } from '../../utils/error-message';
-import { SourceLoadState, loadSource } from '../load-source';
+import { LabelledFailure, getApiErrorMessage } from '../../utils/error-message';
+import { SourceLoadState, loadSource, sourceFailuresMessage } from '../load-source';
 import { SEMVER_REGEX, compareVersionsDesc, proposeNextVersion } from '../schema-version';
 
 function formatNotCarriedOver(values: string[]): string {
@@ -87,8 +87,8 @@ export class SchemaShowComponent implements OnInit {
     vocabularies: 'loading',
     credentialConfigs: 'loading',
   };
-  /** The running or settled load of the sources, with the messages of the failed ones. */
-  private sources?: Promise<string[]>;
+  /** The running or settled load of the sources: the failure of each, undefined for one that loaded. */
+  private sources?: Promise<(LabelledFailure | undefined)[]>;
   /** Whether the failures of `sources` were named already, so they show once. */
   private sourceFailuresShown = false;
   showPublishForm = false;
@@ -245,13 +245,13 @@ export class SchemaShowComponent implements OnInit {
     await this.showSourceFailures();
   }
 
-  private loadSources(onlyFailed = false): Promise<string[]> {
+  private loadSources(onlyFailed = false): Promise<(LabelledFailure | undefined)[]> {
     const load = (source: keyof SchemaShowComponent['loadState']) =>
       !onlyFailed || this.loadState[source] === 'failed';
     return Promise.all([
-      load('vocabularies') ? this.loadVocabularies() : undefined,
       load('credentialConfigs') ? this.loadCredentialConfigs() : undefined,
-    ]).then((results) => results.filter((message): message is string => !!message));
+      load('vocabularies') ? this.loadVocabularies() : undefined,
+    ]);
   }
 
   /**
@@ -262,8 +262,9 @@ export class SchemaShowComponent implements OnInit {
     const failures = (await this.sources) ?? [];
     if (!this.item || this.sourceFailuresShown) return;
     this.sourceFailuresShown = true;
-    if (failures.length > 0) {
-      this.snackBar.open(failures.join('; '), 'Close', { duration: 10000 });
+    const message = sourceFailuresMessage(failures);
+    if (message) {
+      this.snackBar.open(message, 'Close', { duration: 10000 });
     }
   }
 
@@ -271,40 +272,28 @@ export class SchemaShowComponent implements OnInit {
    * Loads the category and tag vocabularies. Category and Tags stay disabled
    * until they are loaded: without the vocabulary the selects have no options.
    */
-  private loadVocabularies(): Promise<string | undefined> {
+  private loadVocabularies(): Promise<LabelledFailure | undefined> {
     const { category, tags } = this.metadataForm.controls;
     category.disable();
     tags.disable();
-    return loadSource(
-      this.loadState,
-      'vocabularies',
-      'Failed to load categories and tags from the registrar',
-      async () => {
-        const vocabularies = await this.schemaService.getVocabularies();
-        this.categoryVocabularies = vocabularies.categories;
-        this.tagVocabularies = vocabularies.tags;
-        category.enable();
-        tags.enable();
-      }
-    );
+    return loadSource(this.loadState, 'vocabularies', 'the registrar vocabulary', async () => {
+      const vocabularies = await this.schemaService.getVocabularies();
+      this.categoryVocabularies = vocabularies.categories;
+      this.tagVocabularies = vocabularies.tags;
+      category.enable();
+      tags.enable();
+    });
   }
 
-  private async loadCredentialConfigs(): Promise<string | undefined> {
+  private async loadCredentialConfigs(): Promise<LabelledFailure | undefined> {
     if (!this.canManageIssuance) {
       this.credentialConfigs = [];
       return undefined;
     }
-    return loadSource(
-      this.loadState,
-      'credentialConfigs',
-      'Failed to load credential configs',
-      async () => {
-        this.credentialConfigs = await this.credentialConfigService.loadConfigurations();
-        this.relatedCredentialConfigs = this.item
-          ? this.findRelatedCredentialConfigs(this.item)
-          : [];
-      }
-    );
+    return loadSource(this.loadState, 'credentialConfigs', 'credential configs', async () => {
+      this.credentialConfigs = await this.credentialConfigService.loadConfigurations();
+      this.relatedCredentialConfigs = this.item ? this.findRelatedCredentialConfigs(this.item) : [];
+    });
   }
 
   private findRelatedCredentialConfigs(item: SchemaMetadata): CredentialConfig[] {

@@ -19,7 +19,7 @@ A listed CA certificate accepts every credential issued below it; a listed end-e
 
 ## Publish a managed trust list
 
-Create the list in the Web Client under **Credential Issuance → Trust Lists**, or with `POST /api/trust-list` (role `issuance:manage` or `presentation:manage`):
+Create the list in the Web Client under **Cryptographic Assets → Trust Lists**, or with `POST /api/trust-list` (role `issuance:manage` or `presentation:manage`):
 
 ```json
 {

@@ -153,7 +153,7 @@ describe('SchemaCreateComponent loading its sources', () => {
       vocabularies: 'failed',
     });
     expect(openSnackBar).toHaveBeenCalledWith(
-      'Failed to load categories and tags from the registrar: Registrar is not configured for this tenant',
+      'Failed to load the registrar vocabulary: Registrar is not configured for this tenant',
       'Close',
       { duration: 10000 }
     );
@@ -188,7 +188,7 @@ describe('SchemaCreateComponent loading its sources', () => {
     await createComponent().loadData();
 
     expect(openSnackBar).toHaveBeenCalledWith(
-      'Failed to load categories and tags from the registrar: ' +
+      'Failed to load the registrar vocabulary: ' +
         'Failed to authenticate with registrar: the OIDC provider could not be reached',
       'Close',
       { duration: 10000 }
@@ -206,11 +206,25 @@ describe('SchemaCreateComponent loading its sources', () => {
 
     await createComponent().loadData();
 
-    const unreachable = 'the backend could not be reached. Check the connection and try again.';
     expect(openSnackBar).toHaveBeenCalledWith(
-      `Failed to load credential configs: ${unreachable}; ` +
-        `Failed to load trust lists: ${unreachable}; ` +
-        `Failed to load categories and tags from the registrar: ${unreachable}`,
+      'Failed to load credential configs, trust lists, and the registrar vocabulary: ' +
+        'the backend could not be reached. Check the connection and try again.',
+      'Close',
+      { duration: 10000 }
+    );
+  });
+
+  it('gives the unreachable hint once, after the reasons the backend gave', async () => {
+    loadConfigurations.mockRejectedValue(new TypeError('Failed to fetch'));
+    respondToTrustLists(403, { statusCode: 403, message: 'Forbidden resource' });
+    getVocabularies.mockRejectedValue(new TypeError('Failed to fetch'));
+
+    await createComponent().loadData();
+
+    expect(openSnackBar).toHaveBeenCalledWith(
+      'Failed to load trust lists: Forbidden resource; ' +
+        'Failed to load credential configs and the registrar vocabulary: ' +
+        'the backend could not be reached. Check the connection and try again.',
       'Close',
       { duration: 10000 }
     );
@@ -399,6 +413,18 @@ describe('SchemaCreateComponent required fields', () => {
     component.addX509TrustAnchor();
     fixture.detectChanges();
     expect(text(fixture)).not.toContain('At least one trusted authority is required.');
+  });
+
+  it('labels a root certificate field once, through its mat-label', async () => {
+    const fixture = await render();
+    fixture.componentInstance.addX509TrustAnchor();
+    fixture.detectChanges();
+
+    const labels = (fixture.nativeElement as HTMLElement).querySelectorAll(
+      'label[for="root-certificate-0"]'
+    );
+    expect(labels).toHaveLength(1);
+    expect(labels[0].textContent).toContain('Root certificate (base64 DER)');
   });
 
   it('does not navigate after a submit that finishes once the user has left', async () => {

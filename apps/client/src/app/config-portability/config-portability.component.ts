@@ -13,7 +13,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { getApiErrorMessage } from '../utils/error-message';
+import {
+  LabelledFailure,
+  apiErrorDetail,
+  getApiErrorMessage,
+  groupUnreachable,
+  joinFailures,
+} from '../utils/error-message';
 import { JwtService } from '../services/jwt.service';
 import {
   ConfigBundle,
@@ -295,20 +301,28 @@ export class ConfigPortabilityComponent implements OnInit {
     }
     this.busy = true;
     try {
-      const failures: string[] = [];
+      const failures: LabelledFailure[] = [];
       for (const resource of targets) {
         try {
           await this.portability.detach(resource.kind, resource.resourceId);
           this.selected.delete(this.resourceKey(resource));
         } catch (error) {
-          failures.push(`${this.resourceKey(resource)}: ${getApiErrorMessage(error, 'failed')}`);
+          failures.push({ label: this.resourceKey(resource), error });
         }
       }
       await this.refreshResources();
       const succeeded = targets.length - failures.length;
       if (failures.length) {
+        const summary = `Detached ${succeeded} of ${targets.length} resource(s)`;
+        // The backend answered none of them: the failed resources stay selected, so the reason is enough.
+        const { unreachable, other } = groupUnreachable(failures, () => summary);
+        const reasons = joinFailures(
+          failures,
+          ({ label, error }) => `${label}: ${apiErrorDetail(error) ?? 'failed'}`,
+          (labels) => labels
+        );
         this.snackBar.open(
-          `Detached ${succeeded} of ${targets.length} resource(s). Failed: ${failures.join('; ')}`,
+          unreachable && other.length === 0 ? unreachable : `${summary}. Failed: ${reasons}`,
           'Close',
           { duration: 8000 }
         );

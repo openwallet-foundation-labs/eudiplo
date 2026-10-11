@@ -44,6 +44,10 @@ import type {
     ConfigPlanOptions,
     ConfigResourceKind,
 } from "./config-resource.types.js";
+import {
+    appliedRotationPolicy,
+    keyChainSettingsSpec,
+} from "./key-chain-document.js";
 
 const OMITTED_FIELDS = new Set([
     "tenant",
@@ -239,7 +243,7 @@ export class ConfigBundleService {
                 : { type: "required", publicJwk };
             const spec: Record<string, unknown> = {
                 id: keyChain.id,
-                description: keyChain.description ?? undefined,
+                ...keyChainSettingsSpec(keyChain),
                 usageType: keyChain.usageType,
                 kmsProvider: keyChain.kmsProvider,
                 keySource,
@@ -249,11 +253,6 @@ export class ConfigBundleService {
                 activeCertificate: keyChain.hasInternalCa()
                     ? keyChain.activeCertificate
                     : undefined,
-                rotationPolicy: {
-                    enabled: keyChain.rotationEnabled,
-                    intervalDays: keyChain.rotationIntervalDays,
-                    certValidityDays: keyChain.certValidityDays,
-                },
             };
             if (!keyChain.externalKeyId) {
                 requirements.push({
@@ -1290,6 +1289,9 @@ export class ConfigBundleService {
             desired.registrationCertificateDefaults === null
         )
             delete desired.registrationCertificateDefaults;
+        // Compare with the rotation policy the importers store for the document.
+        if (document.kind === "KeyChain")
+            desired.rotationPolicy = appliedRotationPolicy(desired);
         if (
             document.kind === "Client" &&
             typeof desired.secret === "string" &&
@@ -1417,7 +1419,7 @@ export class ConfigBundleService {
                       };
                 return {
                     id,
-                    description: entity.description ?? undefined,
+                    ...keyChainSettingsSpec(entity),
                     usageType: entity.usageType,
                     keySource,
                     crt: [
@@ -1429,11 +1431,6 @@ export class ConfigBundleService {
                         ? entity.activeCertificate
                         : undefined,
                     kmsProvider: entity.kmsProvider,
-                    rotationPolicy: {
-                        enabled: entity.rotationEnabled,
-                        intervalDays: entity.rotationIntervalDays ?? undefined,
-                        certValidityDays: entity.certValidityDays ?? undefined,
-                    },
                 };
             }
             case "RegistrarConfig":

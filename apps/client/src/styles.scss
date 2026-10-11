@@ -1,5 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 @use '@angular/material' as mat;
+@use 'styles/a11y';
 
 :root {
   --eudiplo-info: #1976d2;
@@ -80,4 +81,9 @@ app-root {
 // why. Hide the press ripple, as Material does for a disabled button.
 .config-managed-action .mat-mdc-button-ripple {
   display: none;
+}
+
+// Content for screen readers only, such as a label without a visible counterpart
+.visually-hidden {
+  @include a11y.visually-hidden;
 }

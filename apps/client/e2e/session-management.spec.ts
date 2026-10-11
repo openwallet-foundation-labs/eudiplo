@@ -1,7 +1,6 @@
-import { randomBytes } from 'node:crypto';
-import type { APIRequestContext } from '@playwright/test';
 import { expect, test } from './support/test';
-import { hasAuthCredentials, resolvedE2EConfig } from './support/e2e-config';
+import { useTenantClient } from './support/clients';
+import { hasAuthCredentials } from './support/e2e-config';
 import { loginWithClientCredentials } from './support/login';
 
 test('session management list is reachable when authenticated', async ({ page }) => {
@@ -15,54 +14,13 @@ test('session management list is reachable when authenticated', async ({ page })
   await expect(page).toHaveURL(/\/session-management(\/.*)?$/);
 });
 
-/** Access token of the tenant client the other specs sign in with. */
-async function tenantToken(request: APIRequestContext): Promise<string> {
-  const response = await request.post(`${resolvedE2EConfig.apiBaseUrl}/api/oauth2/token`, {
-    form: {
-      grant_type: 'client_credentials',
-      client_id: resolvedE2EConfig.clientId!,
-      client_secret: resolvedE2EConfig.clientSecret!,
-    },
-  });
-  expect(response.ok(), 'tenant client token').toBe(true);
-  return ((await response.json()) as { access_token: string }).access_token;
-}
-
 test.describe('verifier admin', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
-  // One worker, so beforeAll creates the client once: the backend allows one
-  // config write per tenant at a time (409 CONFIG_WRITER_ACTIVE otherwise).
-  test.describe.configure({ mode: 'default' });
-
-  // A client per run, so the spec also passes against a reused dev backend.
-  const clientId = `session-settings-${randomBytes(4).toString('hex')}`;
-  const clientSecret = randomBytes(16).toString('hex');
-
-  test.beforeAll(async ({ request }) => {
-    test.skip(
-      !hasAuthCredentials,
-      'Set E2E_TENANT_CLIENT_ID and E2E_TENANT_CLIENT_SECRET for tenant flow tests.'
-    );
-    const response = await request.post(`${resolvedE2EConfig.apiBaseUrl}/api/client`, {
-      headers: { Authorization: `Bearer ${await tenantToken(request)}` },
-      data: {
-        clientId,
-        secret: clientSecret,
-        description: 'E2E verifier admin without issuance or session roles',
-        roles: ['presentation:manage'],
-      },
-    });
-    expect(response.ok(), `create the verifier admin: ${await response.text()}`).toBe(true);
-  });
-
-  test.afterAll(async ({ request }) => {
-    if (!hasAuthCredentials) return;
-    const response = await request.delete(
-      `${resolvedE2EConfig.apiBaseUrl}/api/client/${clientId}`,
-      { headers: { Authorization: `Bearer ${await tenantToken(request)}` } }
-    );
-    expect(response.ok(), 'delete the verifier admin').toBe(true);
-  });
+  const { clientId, clientSecret } = useTenantClient(
+    'session-settings',
+    ['presentation:manage'],
+    'E2E verifier admin without issuance or session roles'
+  );
 
   test('opens Session Settings without issuance roles', async ({ page }) => {
     await loginWithClientCredentials(page, clientId, clientSecret);

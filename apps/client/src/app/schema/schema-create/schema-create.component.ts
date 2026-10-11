@@ -37,7 +37,7 @@ import {
 import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
 import { SchemaService } from '../schema.service';
 import { getApiErrorMessage } from '../../utils/error-message';
-import { SourceLoadState, loadSource } from '../load-source';
+import { SourceLoadState, loadSource, sourceFailuresMessage } from '../load-source';
 import { SEMVER_REGEX } from '../schema-version';
 
 @Component({
@@ -325,40 +325,30 @@ export class SchemaCreateComponent implements OnInit {
    */
   async loadData(): Promise<void> {
     const failures = await Promise.all([
-      loadSource(
-        this.loadState,
-        'credentialConfigs',
-        'Failed to load credential configs',
-        async () => {
-          const configs = await this.credentialConfigService.loadConfigurations();
-          this.credentialConfigs = configs;
-          // Auto-select linked credential config when provided via query param.
-          if (this.credentialConfigId && configs.some((c) => c.id === this.credentialConfigId)) {
-            this.importSchemaConfigIds.setValue([this.credentialConfigId]);
-          }
-          this.syncSchemaURIsFromSelection();
+      loadSource(this.loadState, 'credentialConfigs', 'credential configs', async () => {
+        const configs = await this.credentialConfigService.loadConfigurations();
+        this.credentialConfigs = configs;
+        // Auto-select linked credential config when provided via query param.
+        if (this.credentialConfigId && configs.some((c) => c.id === this.credentialConfigId)) {
+          this.importSchemaConfigIds.setValue([this.credentialConfigId]);
         }
-      ),
-      loadSource(this.loadState, 'trustLists', 'Failed to load trust lists', async () => {
+        this.syncSchemaURIsFromSelection();
+      }),
+      loadSource(this.loadState, 'trustLists', 'trust lists', async () => {
         const response = await trustListControllerGetAllTrustLists();
         this.trustLists = Array.isArray(response.data) ? response.data : [];
         this.syncTrustedAuthoritiesFromSelection();
       }),
-      loadSource(
-        this.loadState,
-        'vocabularies',
-        'Failed to load categories and tags from the registrar',
-        async () => {
-          const vocabularies = await this.schemaService.getVocabularies();
-          this.categoryVocabularies = vocabularies.categories;
-          this.tagVocabularies = vocabularies.tags;
-        }
-      ),
+      loadSource(this.loadState, 'vocabularies', 'the registrar vocabulary', async () => {
+        const vocabularies = await this.schemaService.getVocabularies();
+        this.categoryVocabularies = vocabularies.categories;
+        this.tagVocabularies = vocabularies.tags;
+      }),
     ]);
 
-    const messages = failures.filter((message): message is string => !!message);
-    if (messages.length > 0) {
-      this.snackBar.open(messages.join('; '), 'Close', { duration: 10000 });
+    const message = sourceFailuresMessage(failures);
+    if (message) {
+      this.snackBar.open(message, 'Close', { duration: 10000 });
     }
   }
 

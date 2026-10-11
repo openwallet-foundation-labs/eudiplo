@@ -18,6 +18,7 @@ import {
 } from "./cert/certificate-builder.service.js";
 import { KeyChainImportDto } from "./dto/key-chain-import.dto.js";
 import { KeyChainEntity, KeyUsage } from "./entities/key-chain.entity.js";
+import { importedRotationIntervals } from "./key-chain-import-rotation.js";
 import type { KmsAdapter, KmsKeyRef } from "./kms/kms-adapter.js";
 import { KmsProviderRegistry } from "./kms/kms-provider.registry.js";
 
@@ -208,8 +209,8 @@ export class KeyChainImportService {
         dto: KeyChainImportDto,
     ): Promise<string> {
         const now = new Date();
-        const certValidityDays = dto.rotationPolicy?.certValidityDays || 365;
-        const rotationIntervalDays = dto.rotationPolicy?.intervalDays || 90;
+        const { intervalDays: rotationIntervalDays, certValidityDays } =
+            importedRotationIntervals(dto.rotationPolicy);
         const notAfter = new Date(
             now.getTime() + certValidityDays * 24 * 60 * 60 * 1000,
         );

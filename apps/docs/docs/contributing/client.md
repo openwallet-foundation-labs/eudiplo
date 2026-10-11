@@ -54,6 +54,7 @@ apps/client/src/
 │   ├── registrar/, schema/, webhook-endpoint/, config-portability/
 │   ├── tenants/, users/, admin/   # tenants and clients, users, activity log
 │   └── types/
+├── styles/                  # shared Sass mixins, e.g. _a11y.scss behind the global .visually-hidden class
 ├── environments/
 └── test-setup.ts            # shared unit-test setup
 ```

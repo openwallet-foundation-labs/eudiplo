@@ -17,7 +17,7 @@ import {
   SessionStatusCountsDto,
 } from '@eudiplo/sdk-core';
 import { JwtService } from '../services/jwt.service';
-import { apiErrorDetail, hasHttpStatus } from '../utils/error-message';
+import { apiErrorDetail, groupUnreachable, hasHttpStatus } from '../utils/error-message';
 import { lastDays, lastHours } from '../utils/local-day';
 
 type AccessCertificateStatus = 'missing' | 'expired' | 'expiring' | 'healthy';
@@ -581,15 +581,24 @@ export class DashboardService {
 
   get warnings(): DashboardWarning[] {
     const warnings: DashboardWarning[] = [];
-    for (const [source, reason] of this.failedSources) {
+    const failures = [...this.failedSources]
       // Activity and window build on the session counts; their failure is the same one.
-      if (DERIVED_FROM_STATS.has(source) && this.hasFailed('sessionStats')) continue;
-      const detail = apiErrorDetail(reason);
+      .filter(([source]) => !(DERIVED_FROM_STATS.has(source) && this.hasFailed('sessionStats')))
+      .map(([source, error]) => ({ label: sourceLabels[source], error }));
+    // One warning for all requests the backend did not answer, so the hint appears once. It comes
+    // first: an unreachable backend is the likeliest cause of the other failures too.
+    const { unreachable, other } = groupUnreachable(
+      failures,
+      (labels) => `Could not load ${labels}`
+    );
+    if (unreachable) {
+      warnings.push({ message: unreachable, retry: true });
+    }
+    for (const { label, error } of other) {
+      const detail = apiErrorDetail(error);
       warnings.push({
-        message: detail
-          ? `Could not load ${sourceLabels[source]}: ${detail}`
-          : `Could not load ${sourceLabels[source]}.`,
-        retry: isRetryable(reason),
+        message: detail ? `Could not load ${label}: ${detail}` : `Could not load ${label}.`,
+        retry: isRetryable(error),
       });
     }
 
