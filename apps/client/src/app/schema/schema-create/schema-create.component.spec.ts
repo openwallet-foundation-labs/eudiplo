@@ -8,6 +8,11 @@ import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angul
 import { client } from '@eudiplo/sdk-core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
+import {
+  OTHER_TEST_ROOT_CERTIFICATE_PEM,
+  pemToBase64Der,
+  TEST_ROOT_CERTIFICATE_PEM,
+} from '../../utils/certificate-validator.testing';
 import { SchemaService } from '../schema.service';
 import { SchemaCreateComponent } from './schema-create.component';
 
@@ -320,6 +325,8 @@ describe('SchemaCreateComponent loading its sources', () => {
 });
 
 describe('SchemaCreateComponent required fields', () => {
+  const root = pemToBase64Der(TEST_ROOT_CERTIFICATE_PEM);
+  const other = pemToBase64Der(OTHER_TEST_ROOT_CERTIFICATE_PEM);
   let publishSchemaMetadata: ReturnType<typeof vi.fn>;
   let loadConfigurations: ReturnType<typeof vi.fn>;
   /** Answer of the backend to the trust-list request. */
@@ -434,8 +441,8 @@ describe('SchemaCreateComponent required fields', () => {
     const element = fixture.nativeElement as HTMLElement;
     component.addX509TrustAnchor();
     component.addX509TrustAnchor();
-    component.trustedAuthorities.at(0).patchValue({ value: 'MIIBFIRST0==' });
-    component.trustedAuthorities.at(1).patchValue({ value: 'MIIBSECOND==' });
+    component.trustedAuthorities.at(0).patchValue({ value: root });
+    component.trustedAuthorities.at(1).patchValue({ value: other });
     component.importTrustListIds.setValue(['tl-1']);
     component.syncTrustedAuthoritiesFromSelection();
     fixture.detectChanges();
@@ -454,8 +461,8 @@ describe('SchemaCreateComponent required fields', () => {
     ];
 
     expect(fields()).toEqual([
-      { label: 'Root certificate 1 (PEM or base64 DER)', value: 'MIIBFIRST0==' },
-      { label: 'Root certificate 2 (PEM or base64 DER)', value: 'MIIBSECOND==' },
+      { label: 'Root certificate 1 (PEM or base64 DER)', value: root },
+      { label: 'Root certificate 2 (PEM or base64 DER)', value: other },
     ]);
     expect(removeButtons().map((b) => b.getAttribute('aria-label'))).toEqual([
       'Remove root certificate 1',
@@ -473,9 +480,7 @@ describe('SchemaCreateComponent required fields', () => {
     removeButtons()[0].click();
     fixture.detectChanges();
 
-    expect(fields()).toEqual([
-      { label: 'Root certificate 1 (PEM or base64 DER)', value: 'MIIBSECOND==' },
-    ]);
+    expect(fields()).toEqual([{ label: 'Root certificate 1 (PEM or base64 DER)', value: other }]);
     expect(removeButtons().map((b) => b.getAttribute('aria-label'))).toEqual([
       'Remove root certificate 1',
     ]);
@@ -483,7 +488,7 @@ describe('SchemaCreateComponent required fields', () => {
 
     // The remaining row still edits its own entry, behind the trust list.
     const textarea = element.querySelector<HTMLTextAreaElement>('#root-certificate-1')!;
-    textarea.value = 'MIIBTYPED0==';
+    textarea.value = TEST_ROOT_CERTIFICATE_PEM;
     textarea.dispatchEvent(new Event('input'));
     component.importSchemaConfigIds.setValue(['pid']);
     component.syncSchemaURIsFromSelection();
@@ -492,7 +497,7 @@ describe('SchemaCreateComponent required fields', () => {
 
     expect(publishSchemaMetadata.mock.calls[0][0].trustedAuthorities).toEqual([
       { trustListId: 'tl-1' },
-      { frameworkType: 'x509', value: 'MIIBTYPED0==' },
+      { frameworkType: 'x509', value: root },
     ]);
   });
 
@@ -526,21 +531,49 @@ describe('SchemaCreateComponent required fields', () => {
     expect(publishSchemaMetadata).not.toHaveBeenCalled();
   });
 
+  it('flags a pasted certificate chain at its field, without sending it', async () => {
+    const fixture = await render();
+    const component = fixture.componentInstance;
+    component.importSchemaConfigIds.setValue(['pid']);
+    component.syncSchemaURIsFromSelection();
+    component.addX509TrustAnchor();
+    // A fullchain.pem: the first certificate's base64 has no padding, so
+    // without the PEM armor the two read as one base64 value.
+    component.trustedAuthorities.at(0).patchValue({
+      value: TEST_ROOT_CERTIFICATE_PEM + OTHER_TEST_ROOT_CERTIFICATE_PEM,
+    });
+    const fieldText = () =>
+      (fixture.nativeElement as HTMLElement)
+        .querySelector('#root-certificate-1')!
+        .closest('mat-form-field')!
+        .textContent!.replace(/\s+/g, ' ');
+
+    submitButton(fixture).click();
+    fixture.detectChanges();
+
+    expect(publishSchemaMetadata).not.toHaveBeenCalled();
+    expect(fieldText()).toContain('Contains 2 certificates. Paste only the root certificate.');
+    expect(fieldText()).not.toContain('Must be a base64-encoded DER or PEM certificate.');
+
+    component.trustedAuthorities.at(0).patchValue({ value: OTHER_TEST_ROOT_CERTIFICATE_PEM });
+    fixture.detectChanges();
+
+    expect(fieldText()).not.toContain('Contains 2 certificates');
+  });
+
   it('sends a pasted PEM root certificate as base64 DER', async () => {
     const fixture = await render();
     const component = fixture.componentInstance;
     component.importSchemaConfigIds.setValue(['pid']);
     component.syncSchemaURIsFromSelection();
     component.addX509TrustAnchor();
-    component.trustedAuthorities.at(0).patchValue({
-      value: '-----BEGIN CERTIFICATE-----\nMIIBkTCB\n+wIJ\n-----END CERTIFICATE-----\n',
-    });
+    component.trustedAuthorities.at(0).patchValue({ value: OTHER_TEST_ROOT_CERTIFICATE_PEM });
     vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 
     await component.submit();
 
     expect(publishSchemaMetadata.mock.calls[0][0].trustedAuthorities).toEqual([
-      { frameworkType: 'x509', value: 'MIIBkTCB+wIJ' },
+      { frameworkType: 'x509', value: other },
     ]);
   });
 
