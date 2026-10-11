@@ -76,6 +76,9 @@ export class ApiRefusalService implements OnDestroy {
         if (!this.apiService.areCredentialsRejected()) return;
       }
     }
+    // The backend refuses an expired token as it should; TokenExpiryService reports
+    // the expiry, for example of a reloaded session, which cannot renew its token.
+    if (this.apiService.getTokenTimeRemaining() === 0) return;
     // Concurrent refusals of the same token report it once.
     if (token !== this.apiService.accessToken || token === this.refusedToken) return;
     this.refusedToken = token;

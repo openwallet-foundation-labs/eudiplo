@@ -72,8 +72,6 @@ describe('ApiService.syncWithOidcSession', () => {
 describe('ApiService token refresh', () => {
   const backend = 'http://backend.test';
   const tokenEndpoint = `${backend}/api/oauth2/token`;
-  /** Differs from the fallback built from the base URL, so tests see which one is used. */
-  const storedTokenEndpoint = 'http://auth.test/token';
   const oidcStub: { mode: 'local' | 'oidc' } = { mode: 'local' };
   const fetchMock = vi.fn<typeof fetch>();
   let store: Map<string, string>;
@@ -103,7 +101,6 @@ describe('ApiService token refresh', () => {
   const runScheduledRefresh = () => vi.advanceTimersByTimeAsync(55 * 60_000);
   const reload = () =>
     new ApiService(TestBed.inject(HttpClient), oidcStub as unknown as OidcService);
-  const requestedUrls = () => fetchMock.mock.calls.map(([url]) => String(url));
   const requestedClientIds = () =>
     fetchMock.mock.calls.map(
       ([, init]) =>
@@ -121,10 +118,9 @@ describe('ApiService token refresh', () => {
         server: backend,
         clientId: 'client',
         baseUrl: backend,
-        tokenEndpoint: storedTokenEndpoint,
+        tokenEndpoint,
       })
     );
-    store.set('oauth_client_secret', 'secret');
   }
 
   async function signIn(): Promise<ApiService> {
@@ -173,7 +169,6 @@ describe('ApiService token refresh', () => {
     expect(service.isReconnecting()).toBe(true);
     expect(store.get('access_token')).toBe('first');
     expect(store.has('oauth_config')).toBe(true);
-    expect(store.get('oauth_client_secret')).toBe('secret');
 
     fetchMock.mockResolvedValueOnce(tokenResponse('second'));
     await vi.advanceTimersByTimeAsync(5_000);
@@ -204,7 +199,6 @@ describe('ApiService token refresh', () => {
     expect(service.isReconnecting()).toBe(true);
     expect(service.hasKeptSession()).toBe(true);
     expect(store.has('oauth_config')).toBe(true);
-    expect(store.get('oauth_client_secret')).toBe('secret');
 
     answerAlways(() => tokenResponse('second'));
     await vi.advanceTimersByTimeAsync(60_000);
@@ -222,7 +216,6 @@ describe('ApiService token refresh', () => {
       await runScheduledRefresh();
 
       expect(service.isReconnecting()).toBe(true);
-      expect(store.get('oauth_client_secret')).toBe('secret');
       fetchMock.mockResolvedValueOnce(tokenResponse('second'));
       await vi.advanceTimersByTimeAsync(5_000);
       expect(store.get('access_token')).toBe('second');
@@ -276,13 +269,14 @@ describe('ApiService token refresh', () => {
     }
   );
 
-  it('ends a restored session without a stored secret instead of retrying', async () => {
+  it('ends a restored session, which has no secret, instead of retrying', async () => {
     storeSession(10 * 60_000);
-    store.delete('oauth_client_secret');
     const service = TestBed.inject(ApiService);
 
     await expect(service.refreshAccessToken()).rejects.toThrow('not properly configured');
 
+    expect(service.getAuthenticationStatus()).toBe(false);
+    expect([...store.keys()]).toEqual([]);
     expect(service.isReconnecting()).toBe(false);
     expect(vi.getTimerCount()).toBe(0);
     expect(fetchMock).not.toHaveBeenCalled();
@@ -340,76 +334,185 @@ describe('ApiService token refresh', () => {
     expect(fetchMock).toHaveBeenCalledOnce();
   });
 
-  it('keeps a stored session whose token expired while the backend is down', async () => {
-    storeSession(-1_000);
-    fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+  it('never stores the client secret', async () => {
+    const service = await signIn();
+    await runScheduledRefresh();
 
-    const service = TestBed.inject(ApiService);
-    // The login page waits for it from the start, before the first attempt fails.
-    expect(service.hasKeptSession()).toBe(true);
-    await vi.advanceTimersByTimeAsync(0);
-
-    expect(service.getAuthenticationStatus()).toBe(false);
-    expect(service.hasKeptSession()).toBe(true);
-    expect(store.has('oauth_config')).toBe(true);
-    expect(store.get('oauth_client_secret')).toBe('secret');
-
-    fetchMock.mockResolvedValueOnce(tokenResponse('second'));
-    await vi.advanceTimersByTimeAsync(5_000);
-
-    expect(service.getAuthenticationStatus()).toBe(true);
-    expect(store.get('access_token')).toBe('second');
-    expect(requestedUrls()).toEqual([storedTokenEndpoint, storedTokenEndpoint]);
+    expect(service.canRefreshToken()).toBe(true);
+    expect([...store.keys()].sort()).toEqual(['access_token', 'oauth_config', 'token_expiration']);
+    expect([...store.values()].some((value) => value.includes('secret'))).toBe(false);
   });
 
-  it('forgets a stored session whose credentials are rejected on reload', async () => {
+  it('removes a client secret stored by an earlier version on startup', () => {
+    store.set('oauth_client_secret', 'secret');
+
+    const service = TestBed.inject(ApiService);
+
+    expect(store.has('oauth_client_secret')).toBe(false);
+    expect(service.canRefreshToken()).toBe(false);
+  });
+
+  it('keeps a restored session until its token expires, without renewing it', async () => {
+    store.set('oauth_client_secret', 'secret');
+    storeSession(10 * 60_000);
+
+    const service = TestBed.inject(ApiService);
+
+    expect(store.has('oauth_client_secret')).toBe(false);
+    expect(service.getAuthenticationStatus()).toBe(true);
+    expect(service.accessToken).toBe('stored');
+    expect(service.getClientId()).toBe('client');
+    expect(service.getBaseUrl()).toBe(backend);
+    expect(service.canRefreshToken()).toBe(false);
+    expect(service.hasKeptSession()).toBe(false);
+    expect(vi.getTimerCount()).toBe(0);
+
+    await vi.advanceTimersByTimeAsync(10 * 60_000);
+
+    expect(service.getAuthenticationStatus()).toBe(false);
+    expect(service.hasKeptSession()).toBe(false);
+    await expect(service.ensureAuthenticated()).resolves.toBe(false);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  describe('token renewed by another tab', () => {
+    /** Another tab of the same browser stores its new token; only other tabs get the event. */
+    function storeFromOtherTab(
+      token: string,
+      expiresInMs: number,
+      { clientId = 'client', baseUrl = backend } = {}
+    ): void {
+      store.set('access_token', token);
+      store.set('token_expiration', String(Date.now() + expiresInMs));
+      store.set(
+        'oauth_config',
+        JSON.stringify({ server: baseUrl, clientId, baseUrl, tokenEndpoint })
+      );
+      globalThis.dispatchEvent(new StorageEvent('storage', { key: 'token_expiration' }));
+    }
+
+    it('is taken by a restored session, which cannot renew its own token', async () => {
+      storeSession(2 * 60_000);
+      const service = TestBed.inject(ApiService);
+      const renewed = vi.fn();
+      service.tokenRenewed$.subscribe(renewed);
+      await vi.advanceTimersByTimeAsync(2 * 60_000);
+      expect(service.getAuthenticationStatus()).toBe(false);
+
+      storeFromOtherTab('other-tab', 60 * 60_000);
+
+      expect(service.accessToken).toBe('other-tab');
+      expect(service.getAuthenticationStatus()).toBe(true);
+      expect(renewed).toHaveBeenCalledOnce();
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('is not taken when it belongs to another client or backend, or is older', async () => {
+      storeSession(30 * 60_000);
+      const service = TestBed.inject(ApiService);
+
+      storeFromOtherTab('other-client', 60 * 60_000, { clientId: 'other' });
+      storeFromOtherTab('other-backend', 60 * 60_000, { baseUrl: 'http://other.test' });
+      storeFromOtherTab('older', 10 * 60_000);
+
+      expect(service.accessToken).toBe('stored');
+    });
+
+    it('is not taken by a tab that logged out', async () => {
+      storeSession(30 * 60_000);
+      const service = TestBed.inject(ApiService);
+      const renewed = vi.fn();
+      service.tokenRenewed$.subscribe(renewed);
+      service.logout();
+
+      storeFromOtherTab('other-tab', 60 * 60_000);
+
+      expect(service.accessToken).toBe('');
+      expect(service.getAuthenticationStatus()).toBe(false);
+      expect(renewed).not.toHaveBeenCalled();
+    });
+
+    it('is not taken in SSO mode', async () => {
+      storeSession(30 * 60_000);
+      const service = TestBed.inject(ApiService);
+      const renewed = vi.fn();
+      service.tokenRenewed$.subscribe(renewed);
+      oidcStub.mode = 'oidc';
+
+      storeFromOtherTab('other-tab', 60 * 60_000);
+
+      expect(renewed).not.toHaveBeenCalled();
+      oidcStub.mode = 'local';
+      expect(service.accessToken).toBe('stored');
+    });
+
+    it('is taken by a tab whose credentials were rejected, which then reports no rejection', async () => {
+      const service = await signIn();
+      fetchMock.mockResolvedValueOnce(oauthError(401, 'invalid_client'));
+      await runScheduledRefresh();
+      expect(service.areCredentialsRejected()).toBe(true);
+
+      storeFromOtherTab('other-tab', 2 * 60 * 60_000);
+
+      expect(service.accessToken).toBe('other-tab');
+      expect(service.getAuthenticationStatus()).toBe(true);
+      expect(service.areCredentialsRejected()).toBe(false);
+      expect(service.takeRejectedSession()).toBeUndefined();
+    });
+
+    it('is not taken by a tab that renews its own token', async () => {
+      const service = await signIn();
+
+      storeFromOtherTab('other-tab', 2 * 60 * 60_000);
+
+      expect(service.accessToken).toBe('first');
+    });
+
+    it('is not stored again after another tab logged out, so a reload stays logged out', async () => {
+      const service = await signIn();
+      store.clear();
+
+      fetchMock.mockResolvedValueOnce(tokenResponse('second'));
+      await runScheduledRefresh();
+
+      expect(service.accessToken).toBe('second');
+      expect([...store.keys()]).toEqual([]);
+    });
+
+    it('is stored with the settings of the tab that renews it', async () => {
+      const service = await signIn();
+      store.set(
+        'oauth_config',
+        JSON.stringify({ server: backend, clientId: 'other', baseUrl: backend, tokenEndpoint })
+      );
+
+      fetchMock.mockResolvedValueOnce(tokenResponse('second'));
+      await runScheduledRefresh();
+
+      expect(service.accessToken).toBe('second');
+      expect(store.get('access_token')).toBe('second');
+      expect(JSON.parse(store.get('oauth_config') ?? '{}').clientId).toBe('client');
+    });
+  });
+
+  it('forgets a stored session whose token expired, without a token request', async () => {
+    store.set('oauth_client_secret', 'secret');
     storeSession(-1_000);
-    fetchMock.mockResolvedValueOnce(oauthError(401, 'invalid_client'));
 
     const service = TestBed.inject(ApiService);
     await vi.advanceTimersByTimeAsync(10 * 60_000);
 
     expect(service.getAuthenticationStatus()).toBe(false);
-    expect(service.takeRejectedSession()).toEqual({ clientId: 'client', baseUrl: backend });
+    expect(service.hasKeptSession()).toBe(false);
+    expect(service.takeRejectedSession()).toBeUndefined();
     expect([...store.keys()]).toEqual([]);
-    expect(fetchMock).toHaveBeenCalledOnce();
-  });
-
-  it('refreshes settings stored without a token endpoint at the backend default', async () => {
-    storeSession(-1_000);
-    store.set(
-      'oauth_config',
-      JSON.stringify({ server: backend, clientId: 'client', baseUrl: backend })
-    );
-    fetchMock.mockResolvedValueOnce(tokenResponse('second'));
-
-    const service = TestBed.inject(ApiService);
-    await vi.advanceTimersByTimeAsync(0);
-
-    expect(requestedUrls()).toEqual([tokenEndpoint]);
-    expect(service.accessToken).toBe('second');
-  });
-
-  it('refreshes a restored session at the stored token endpoint, so a failed refresh can be retried', async () => {
-    // A ten-minute token is refreshed with a quarter of its lifetime left.
-    storeSession(10 * 60_000);
-    const service = TestBed.inject(ApiService);
-    expect(service.getAuthenticationStatus()).toBe(true);
-
-    fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'));
-    await vi.advanceTimersByTimeAsync(7.5 * 60_000);
-    fetchMock.mockResolvedValueOnce(tokenResponse('second'));
-    await vi.advanceTimersByTimeAsync(5_000);
-
-    expect(requestedUrls()).toEqual([storedTokenEndpoint, storedTokenEndpoint]);
-    expect(service.accessToken).toBe('second');
-    expect(store.get('access_token')).toBe('second');
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('signs in with new credentials while a refresh for the previous ones is still pending', async () => {
-    storeSession(-1_000);
+    const service = await signIn();
     const answerPrevious = holdNextRequest();
-    const service = TestBed.inject(ApiService);
+    void service.refreshAccessToken().catch(() => undefined);
     await vi.advanceTimersByTimeAsync(0);
 
     fetchMock.mockResolvedValueOnce(tokenResponse('other'));
@@ -427,7 +530,7 @@ describe('ApiService token refresh', () => {
     await login;
     await vi.advanceTimersByTimeAsync(0);
 
-    expect(requestedClientIds()).toEqual(['client', 'other']);
+    expect(requestedClientIds()).toEqual(['client', 'client', 'other']);
     expect(service.accessToken).toBe('other');
     expect(store.get('access_token')).toBe('other');
     expect(JSON.parse(store.get('oauth_config') ?? '{}').clientId).toBe('other');
@@ -455,10 +558,29 @@ describe('ApiService token refresh', () => {
     expect(reloaded.canRefreshToken()).toBe(false);
   });
 
-  it('keeps a new sign-in when the previous credentials are rejected afterwards', async () => {
-    storeSession(-1_000);
-    const answerPrevious = holdNextRequest();
+  it('renews a reloaded session again with a rotated secret of its client', async () => {
+    storeSession(10 * 60_000);
+    store.set(
+      'oauth_config',
+      JSON.stringify({ server: backend, clientId: 'client', baseUrl: backend })
+    );
     const service = TestBed.inject(ApiService);
+    fetchMock.mockResolvedValueOnce(tokenResponse('rotated'));
+
+    await service.useRotatedSecret('new-secret');
+
+    // Settings stored without a token endpoint use the backend default.
+    expect(String(fetchMock.mock.lastCall?.[0])).toBe(tokenEndpoint);
+    expect(service.accessToken).toBe('rotated');
+    expect(service.canRefreshToken()).toBe(true);
+    expect(store.get('access_token')).toBe('rotated');
+    expect([...store.values()].some((value) => value.includes('secret'))).toBe(false);
+  });
+
+  it('keeps a new sign-in when the previous credentials are rejected afterwards', async () => {
+    const service = await signIn();
+    const answerPrevious = holdNextRequest();
+    void service.refreshAccessToken().catch(() => undefined);
     await vi.advanceTimersByTimeAsync(0);
 
     fetchMock.mockResolvedValueOnce(tokenResponse('other'));
@@ -475,7 +597,8 @@ describe('ApiService token refresh', () => {
 
     expect(service.accessToken).toBe('other');
     expect(service.getAuthenticationStatus()).toBe(true);
-    expect(store.get('oauth_client_secret')).toBe('other-secret');
+    expect(service.getClientSecret()).toBe('other-secret');
+    expect(store.get('access_token')).toBe('other');
     expect(JSON.parse(store.get('oauth_config') ?? '{}').clientId).toBe('other');
   });
 
@@ -563,13 +686,41 @@ describe('ApiService token refresh', () => {
 
     it('ends the access of a session that cannot renew its token without a token request', async () => {
       storeSession(10 * 60_000);
-      store.delete('oauth_client_secret');
       const refusals = TestBed.inject(ApiRefusalService);
 
       refusals.handleApiResponse(401, 'stored');
       await settle();
 
       expect(refusals.isAccessRevoked()).toBe(true);
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('does not renew a restored session for its roles, which has no secret', async () => {
+      storeSession(10 * 60_000);
+      const service = TestBed.inject(ApiService);
+      const refusals = TestBed.inject(ApiRefusalService);
+
+      refusals.handleApiResponse(403, 'stored');
+      await settle();
+
+      expect(fetchMock).not.toHaveBeenCalled();
+      expect(refusals.isAccessRevoked()).toBe(false);
+      expect(service.accessToken).toBe('stored');
+    });
+
+    it('leaves an expired token of a restored session to the expiry notice', async () => {
+      storeSession(2 * 60_000);
+      TestBed.inject(ApiService);
+      const refusals = TestBed.inject(ApiRefusalService);
+      const revoked = vi.fn();
+      refusals.accessRevoked$.subscribe(revoked);
+      await vi.advanceTimersByTimeAsync(2 * 60_000);
+
+      refusals.handleApiResponse(401, 'stored');
+      await settle();
+
+      expect(refusals.isAccessRevoked()).toBe(false);
+      expect(revoked).not.toHaveBeenCalled();
       expect(fetchMock).not.toHaveBeenCalled();
     });
 
