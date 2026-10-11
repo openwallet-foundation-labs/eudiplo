@@ -164,7 +164,7 @@ export class ConfigBundleService {
             "tenant",
             {
                 name: tenant.name,
-                description: tenant.description,
+                description: tenant.description ?? undefined,
                 sessionConfig: tenant.sessionConfig ?? undefined,
                 statusListConfig: tenant.statusListConfig ?? undefined,
             },
@@ -173,7 +173,7 @@ export class ConfigBundleService {
         for (const client of await this.clients.find({ where: { tenantId } })) {
             const spec: Record<string, unknown> = {
                 clientId: client.clientId,
-                description: client.description,
+                description: client.description ?? undefined,
                 roles: client.roles,
                 allowedPresentationConfigs: client.allowedPresentationConfigs,
                 allowedIssuanceConfigs: client.allowedIssuanceConfigs,
@@ -239,7 +239,7 @@ export class ConfigBundleService {
                 : { type: "required", publicJwk };
             const spec: Record<string, unknown> = {
                 id: keyChain.id,
-                description: keyChain.description,
+                description: keyChain.description ?? undefined,
                 usageType: keyChain.usageType,
                 kmsProvider: keyChain.kmsProvider,
                 keySource,
@@ -338,7 +338,7 @@ export class ConfigBundleService {
                 trustList.id,
                 {
                     id: trustList.id,
-                    description: trustList.description,
+                    description: trustList.description ?? undefined,
                     keyChainId: trustList.keyChainId,
                     entities: trustList.entityConfig ?? [],
                     data: trustList.data,
@@ -1390,7 +1390,7 @@ export class ConfigBundleService {
                       };
                 return {
                     id,
-                    description: entity.description,
+                    description: entity.description ?? undefined,
                     usageType: entity.usageType,
                     keySource,
                     crt: [
@@ -1444,7 +1444,7 @@ export class ConfigBundleService {
                 return entity
                     ? {
                           id,
-                          description: entity.description,
+                          description: entity.description ?? undefined,
                           keyChainId: entity.keyChainId,
                           entities: entity.entityConfig ?? [],
                           data: entity.data,
