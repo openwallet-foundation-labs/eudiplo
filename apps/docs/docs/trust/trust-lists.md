@@ -84,7 +84,7 @@ These entries count as a reference. "The list URL" is `<TENANT_URL>/trust-list/<
 
 Remove these references, or point them to another list, then delete the list. Deleting an unknown ID answers `204`. EUDIPLO does not see references from other tenants or other systems that fetch the list from its public URL.
 
-A [configuration bundle](../operate/configuration-as-code.md#plan-and-import) or a [config folder](../operate/configuration-as-code.md#provision-tenants-from-a-folder) imported in `replace` mode (`CONFIG_IMPORT_MODE=replace` at startup) deletes a list that it created and no longer contains. Its plan is blocked when a document of the bundle names that list by `trustListId`, but it does not check configurations outside the bundle or references by URL.
+A [configuration bundle](../operate/configuration-as-code.md#plan-and-import) or a [config folder](../operate/configuration-as-code.md#provision-tenants-from-a-folder) imported in `replace` mode (`CONFIG_IMPORT_MODE=replace` at startup) deletes a list that it created and no longer contains. Its plan is blocked with `TRUST_LIST_IN_USE` on that list while a configuration that survives the import references it by the rules above: a stored configuration the import neither deletes nor rewrites, or a document of the bundle with its new content. A document the plan skips, for example a detached one, counts with its stored content. The message names the configurations; a document of the bundle that names the list by `trustListId` is also blocked with `MISSING_RESOURCE_REFERENCE`. Keep the list in the bundle, or remove the references (in the bundle or through the API), then plan again.
 
 ### Validity and renewal
 

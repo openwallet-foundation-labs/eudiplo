@@ -484,7 +484,10 @@ export class ConfigBundleApplyService {
                 return;
             case "TrustList":
                 // Unlike DELETE /trust-list/{id}, without the reference check:
-                // the plan only blocks references by documents of the bundle.
+                // the plan, which apply runs again under the import lock, blocks
+                // deleting a list that a surviving configuration references.
+                // Checking here would refuse a list whose referencing
+                // configuration this plan deletes later (lower import phase).
                 await this.trustListService.remove(tenantId, id);
                 return;
             case "StatusList":

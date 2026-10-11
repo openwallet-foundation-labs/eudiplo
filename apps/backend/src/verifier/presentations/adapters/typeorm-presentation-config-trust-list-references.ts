@@ -34,7 +34,16 @@ function dcqlQueryReferencesList(
 export class TypeOrmPresentationConfigTrustListReferences
     implements TrustListReferenceSource
 {
+    readonly kind = "PresentationConfig";
+
     constructor(private readonly repository: Repository<PresentationConfig>) {}
+
+    namesList(config: unknown, list: ManagedTrustList): boolean {
+        return dcqlQueryReferencesList(
+            (config as Partial<PresentationConfig> | null)?.dcql_query,
+            list,
+        );
+    }
 
     async findReferences(
         list: ManagedTrustList,
@@ -44,9 +53,7 @@ export class TypeOrmPresentationConfigTrustListReferences
             select: { id: true, description: true, dcql_query: true },
         });
         return configs
-            .filter((config) =>
-                dcqlQueryReferencesList(config.dcql_query, list),
-            )
+            .filter((config) => this.namesList(config, list))
             .map((config) => ({
                 kind: "PresentationConfig",
                 id: config.id,

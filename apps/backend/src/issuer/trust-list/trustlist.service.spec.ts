@@ -369,7 +369,11 @@ describe("TrustListService", () => {
             const findReferences = vi.fn(
                 async (_list: ManagedTrustList) => found,
             );
-            references.register({ findReferences });
+            references.register({
+                kind: "PresentationConfig",
+                findReferences,
+                namesList: () => false,
+            });
             return { references, findReferences };
         }
 
@@ -417,9 +421,11 @@ describe("TrustListService", () => {
         it("keeps the list when a reference source fails", async () => {
             const references = new TrustListReferences();
             references.register({
+                kind: "PresentationConfig",
                 findReferences: async () => {
                     throw new Error("database unavailable");
                 },
+                namesList: () => false,
             });
             const { service, store, trustListRepo } = createService(
                 [storedList("list", inDays(20))],

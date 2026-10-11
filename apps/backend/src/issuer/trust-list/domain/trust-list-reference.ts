@@ -5,10 +5,20 @@ export interface ManagedTrustList {
 }
 
 /** Kinds of configuration that can reference a managed trust list. */
+const TRUST_LIST_REFERENCE_KINDS = [
+    "PresentationConfig",
+    "CredentialConfig",
+    "IssuanceConfig",
+] as const;
+
 export type TrustListReferenceKind =
-    | "PresentationConfig"
-    | "CredentialConfig"
-    | "IssuanceConfig";
+    (typeof TRUST_LIST_REFERENCE_KINDS)[number];
+
+export function isTrustListReferenceKind(
+    kind: string,
+): kind is TrustListReferenceKind {
+    return (TRUST_LIST_REFERENCE_KINDS as readonly string[]).includes(kind);
+}
 
 /** A configuration of the list's tenant that references the list. */
 export interface TrustListReference {
@@ -16,6 +26,17 @@ export interface TrustListReference {
     /** Configuration ID; absent for the issuance configuration, one per tenant. */
     id?: string;
     description?: string;
+}
+
+/**
+ * The ID a reference to the configuration carries: none for the issuance
+ * configuration, which a tenant has once.
+ */
+export function trustListReferenceId(
+    kind: TrustListReferenceKind,
+    id: string,
+): string | undefined {
+    return kind === "IssuanceConfig" ? undefined : id;
 }
 
 function decoded(segment: string): string {
@@ -149,11 +170,12 @@ export function referencesVisibleTo(
 }
 
 /**
- * Message that names the configurations referencing the list; kinds whose
- * references carry no ID are only counted, with the roles that show them.
+ * Names the configurations referencing a list, such as `1 presentation config
+ * ("pid") and the issuance configuration (wallet provider trust lists)`;
+ * kinds whose references carry no ID are only counted, with the roles that
+ * show them.
  */
-export function trustListInUseMessage(
-    trustListId: string,
+export function describeTrustListReferences(
     references: TrustListReference[],
     readRoles?: TrustListReferenceReadRoles,
 ): string {
@@ -164,7 +186,16 @@ export function trustListInUseMessage(
             ? "the issuance configuration (wallet provider trust lists)"
             : undefined,
     ].filter((part): part is string => part !== undefined);
-    return `Trust list ${JSON.stringify(trustListId)} is still referenced by ${joinWithAnd(parts)}. Remove these references before deleting the trust list.`;
+    return joinWithAnd(parts);
+}
+
+/** Message that names the configurations referencing the list. */
+export function trustListInUseMessage(
+    trustListId: string,
+    references: TrustListReference[],
+    readRoles?: TrustListReferenceReadRoles,
+): string {
+    return `Trust list ${JSON.stringify(trustListId)} is still referenced by ${describeTrustListReferences(references, readRoles)}. Remove these references before deleting the trust list.`;
 }
 
 /** Thrown when a trust list cannot be deleted because configurations reference it. */

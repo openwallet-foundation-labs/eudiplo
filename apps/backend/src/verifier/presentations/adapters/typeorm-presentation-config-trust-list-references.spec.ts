@@ -98,4 +98,31 @@ describe("TypeOrmPresentationConfigTrustListReferences", () => {
             expect.objectContaining({ where: { tenantId: "acme" } }),
         );
     });
+
+    it("checks the spec of a configuration document that is not stored", () => {
+        const { source: references } = source([]);
+
+        expect(
+            references.namesList(
+                config("in-bundle", [
+                    {
+                        id: "pid",
+                        trusted_authorities: [
+                            {
+                                type: "etsi_tl",
+                                values: [
+                                    {
+                                        url: "<TENANT_URL>/trust-list/pid-issuers",
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ]),
+                list,
+            ),
+        ).toBe(true);
+        expect(references.namesList({ id: "no-query" }, list)).toBe(false);
+        expect(references.namesList(undefined, list)).toBe(false);
+    });
 });

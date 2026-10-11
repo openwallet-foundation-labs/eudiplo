@@ -13,7 +13,7 @@ import type { CredentialConfig } from "../entities/credential.entity.js";
  * or as an `etsi_tl` authority whose value is the list ID or its URL.
  */
 function schemaMetaReferencesList(
-    schemaMeta: CredentialConfig["schemaMeta"],
+    schemaMeta: CredentialConfig["schemaMeta"] | undefined,
     list: ManagedTrustList,
 ): boolean {
     const authorities: unknown = schemaMeta?.trustedAuthorities;
@@ -31,7 +31,16 @@ function schemaMetaReferencesList(
 export class TypeOrmCredentialConfigTrustListReferences
     implements TrustListReferenceSource
 {
+    readonly kind = "CredentialConfig";
+
     constructor(private readonly repository: Repository<CredentialConfig>) {}
+
+    namesList(config: unknown, list: ManagedTrustList): boolean {
+        return schemaMetaReferencesList(
+            (config as Partial<CredentialConfig> | null)?.schemaMeta,
+            list,
+        );
+    }
 
     async findReferences(
         list: ManagedTrustList,
@@ -41,9 +50,7 @@ export class TypeOrmCredentialConfigTrustListReferences
             select: { id: true, description: true, schemaMeta: true },
         });
         return configs
-            .filter((config) =>
-                schemaMetaReferencesList(config.schemaMeta, list),
-            )
+            .filter((config) => this.namesList(config, list))
             .map((config) => ({
                 kind: "CredentialConfig",
                 id: config.id,

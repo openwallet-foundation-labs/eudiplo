@@ -66,4 +66,27 @@ describe("TypeOrmIssuanceConfigTrustListReferences", () => {
             source(null).references.findReferences(list),
         ).resolves.toEqual([]);
     });
+
+    it("checks the spec of an issuance configuration document that is not stored", () => {
+        const { references } = source(null);
+
+        expect(
+            references.namesList(
+                {
+                    authorizationServers: [
+                        {
+                            id: "built-in",
+                            type: "built-in",
+                            walletProviderTrustLists: [
+                                { trustListId: "wallet-providers" },
+                            ],
+                        },
+                    ],
+                },
+                list,
+            ),
+        ).toBe(true);
+        expect(references.namesList({ batchSize: 1 }, list)).toBe(false);
+        expect(references.namesList(null, list)).toBe(false);
+    });
 });

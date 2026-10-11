@@ -21,7 +21,22 @@ function refsNameList(refs: unknown, list: ManagedTrustList): boolean {
 export class TypeOrmIssuanceConfigTrustListReferences
     implements TrustListReferenceSource
 {
+    readonly kind = "IssuanceConfig";
+
     constructor(private readonly repository: Repository<IssuanceConfig>) {}
+
+    namesList(config: unknown, list: ManagedTrustList): boolean {
+        const { walletProviderTrustLists, authorizationServers } =
+            (config as Partial<IssuanceConfig> | null) ?? {};
+        const servers: unknown = authorizationServers;
+        return (
+            refsNameList(walletProviderTrustLists, list) ||
+            (Array.isArray(servers) &&
+                servers.some((server) =>
+                    refsNameList(server?.walletProviderTrustLists, list),
+                ))
+        );
+    }
 
     async findReferences(
         list: ManagedTrustList,
@@ -34,14 +49,8 @@ export class TypeOrmIssuanceConfigTrustListReferences
                 authorizationServers: true,
             },
         });
-        if (!config) return [];
-        const servers: unknown = config.authorizationServers;
-        const referenced =
-            refsNameList(config.walletProviderTrustLists, list) ||
-            (Array.isArray(servers) &&
-                servers.some((server) =>
-                    refsNameList(server?.walletProviderTrustLists, list),
-                ));
-        return referenced ? [{ kind: "IssuanceConfig" }] : [];
+        return config && this.namesList(config, list)
+            ? [{ kind: "IssuanceConfig" }]
+            : [];
     }
 }
