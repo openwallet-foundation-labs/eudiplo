@@ -3,6 +3,11 @@ import {
     ACTIVE_CREDENTIALS_REQUIRE_STATUS_MANAGEMENT,
     activeCredentialsLackStatusManagement,
 } from "../domain/active-credential-policy.js";
+import {
+    AttestationLoS,
+    SchemaMetaBindingType,
+    SchemaMetaFrameworkType,
+} from "../dto/schema-meta-config.schema.js";
 
 const FieldDisplaySchema = z
     .object({
@@ -232,13 +237,17 @@ const TrustAuthorityEntrySchema = z
     .object({
         trustListId: z.string().optional().describe("Optional trust list id."),
         frameworkType: z
-            .enum(["aki", "etsi_tl", "openid_federation"])
+            .enum(SchemaMetaFrameworkType)
             .optional()
-            .describe("Trust framework type."),
+            .describe(
+                "Trust framework type. `x509` takes a root certificate in `value` and no `verificationMethod`.",
+            ),
         value: z
             .string()
             .optional()
-            .describe("Framework-specific authority value."),
+            .describe(
+                "Framework-specific authority value, for example the trust list URL for `etsi_tl` or the root certificate (base64 DER or PEM) for `x509`.",
+            ),
         verificationMethod: z
             .union([z.record(z.string(), z.unknown()), z.string()])
             .optional()
@@ -260,15 +269,10 @@ const SchemaMetaConfigSchema = z
             .optional()
             .describe("Optional rulebook URI reference."),
         attestationLoS: z
-            .enum([
-                "iso_18045_high",
-                "iso_18045_moderate",
-                "iso_18045_enhanced-basic",
-                "iso_18045_basic",
-            ])
+            .enum(AttestationLoS)
             .describe("Assurance level for attestation requirements."),
         bindingType: z
-            .enum(["claim", "key", "biometric", "none"])
+            .enum(SchemaMetaBindingType)
             .describe("Subject binding type."),
         schemaURIs: z
             .array(SchemaUriEntrySchema)
@@ -477,7 +481,7 @@ export const CredentialConfigCreateSchema = z
             .nullable()
             .optional()
             .describe(
-                "Optional webhook endpoint id notified during issuance events.",
+                "Not used for notifications: they go to the webhook endpoint of the offer.",
             ),
         vct: z
             .union([z.string(), VctSchema, z.null()])
@@ -505,7 +509,9 @@ export const CredentialConfigCreateSchema = z
             .array(IaeActionSchema)
             .nullable()
             .optional()
-            .describe("Optional in-app experience actions for wallet flows."),
+            .describe(
+                "Interactive authorization steps (a presentation or a web flow) that the wallet completes, in order, before the credential is issued.",
+            ),
         sdJwtTrustFormat: z
             .enum(["x5c", "federation"])
             .nullable()

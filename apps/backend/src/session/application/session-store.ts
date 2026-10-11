@@ -6,7 +6,9 @@ import type {
 } from "../domain/session-list.js";
 import { SessionStatus } from "../domain/session-state.js";
 import {
+    MAX_FAILURE_CODES,
     type SessionStats,
+    type SessionStatsFilter,
     sessionTypeStats,
 } from "../domain/session-stats.js";
 import type {
@@ -34,6 +36,7 @@ type SessionStoreRepository = Pick<
     | "consumeRequestUri"
     | "listForTenant"
     | "countForTenant"
+    | "topFailureCodesForTenant"
     | "lastUpdatedForTenant"
     | "deleteForTenant"
     | "findCredentialOffer"
@@ -169,31 +172,47 @@ export class SessionStore {
         };
     }
 
-    /** Session counts per type and status, for the types in `scope` only. */
+    /** Session counts per type, status and failure code, for the types in `scope` only. */
     async statsForTenant(
         tenantId: string,
         scope?: SessionType,
+        filter: SessionStatsFilter = {},
     ): Promise<SessionStats> {
         const types: SessionType[] = scope
             ? [scope]
             : ["issuance", "presentation"];
-        const [counts, lastCompleted] = await Promise.all([
-            this.sessions.countForTenant(tenantId, scope),
+        const [counts, perType] = await Promise.all([
+            this.sessions.countForTenant(tenantId, { ...filter, type: scope }),
             Promise.all(
                 types.map((type) =>
-                    this.sessions.lastUpdatedForTenant(
-                        tenantId,
-                        type,
-                        SessionStatus.Completed,
-                    ),
+                    Promise.all([
+                        this.sessions.topFailureCodesForTenant(
+                            tenantId,
+                            { ...filter, type },
+                            MAX_FAILURE_CODES,
+                        ),
+                        this.sessions.lastUpdatedForTenant(tenantId, {
+                            ...filter,
+                            type,
+                            status: SessionStatus.Completed,
+                        }),
+                    ]),
                 ),
             ),
         ]);
         return Object.fromEntries(
-            types.map((type, index) => [
-                type,
-                sessionTypeStats(type, counts, lastCompleted[index]),
-            ]),
+            types.map((type, index) => {
+                const [failureCodes, lastCompletedAt] = perType[index];
+                return [
+                    type,
+                    sessionTypeStats(
+                        type,
+                        counts,
+                        failureCodes,
+                        lastCompletedAt,
+                    ),
+                ];
+            }),
         );
     }
 

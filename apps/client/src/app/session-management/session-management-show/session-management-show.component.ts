@@ -20,6 +20,7 @@ import {
 } from '../cancel-session-dialog/cancel-session-dialog.component';
 import {
   isCancelConflict,
+  isPresentationSession,
   isCancellable,
   SessionManagementService,
   type SessionLogEntry,
@@ -448,7 +449,7 @@ export class SessionManagementShowComponent implements OnInit, OnDestroy {
 
   // Helper to check if this is an issuance session that might have a QR code
   isIssuanceSession(): boolean {
-    return !this.session?.requestId;
+    return !isPresentationSession(this.session);
   }
 
   // Get the offer URI if available in session data

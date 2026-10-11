@@ -10,7 +10,7 @@ A web interface for interacting with an **eudiplo instance** to manage digital c
 - **Presentation Management**: Configure credential presentation and verification settings
 - **Session Management**: Monitor and manage active credential sessions with multi-select operations
 - **Real-time Updates**: Background polling for session status and QR code generation
-- **Dashboard Overview**: Real-time monitoring of your eudiplo instance
+- **Dashboard Overview**: Setup status, session counts, recent activity and warnings with links to their fix
 
 ## Prerequisites
 

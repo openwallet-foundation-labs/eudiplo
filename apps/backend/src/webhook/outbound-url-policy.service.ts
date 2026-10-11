@@ -190,10 +190,14 @@ export class OutboundUrlPolicyService {
     /**
      * @param overrides.allowHttp allow `http:` even when
      * `OUTBOUND_URL_ALLOW_HTTP` is off
+     * @param overrides.resolveHost `false` skips the DNS lookup of a host
+     * name, for URLs that are stored now and requested later: the scheme,
+     * allowlist, reserved names and address literals are still checked, and
+     * {@link safeLookup} checks the address when the URL is requested
      */
     async assertSafeUrl(
         url: string,
-        overrides: { allowHttp?: boolean } = {},
+        overrides: { allowHttp?: boolean; resolveHost?: boolean } = {},
     ): Promise<void> {
         let parsed: URL;
         try {
@@ -243,6 +247,10 @@ export class OutboundUrlPolicyService {
                     "Outbound URL target resolves to a private or loopback IP",
                 );
             }
+            return;
+        }
+
+        if (overrides.resolveHost === false) {
             return;
         }
 

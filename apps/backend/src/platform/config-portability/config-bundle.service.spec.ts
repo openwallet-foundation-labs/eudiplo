@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { CreateRegistrarConfigSchema } from "../../registrar/schemas/registrar.schema.js";
 import { ConfigBundleService } from "./config-bundle.service.js";
 import { ConfigResourceRegistry } from "./config-resource.registry.js";
 import type {
     ConfigBundleRequirement,
+    ConfigDocument,
     ConfigResourceKind,
 } from "./config-resource.types.js";
 
@@ -100,6 +102,61 @@ describe("ConfigBundleService secret handling", () => {
                 path: "/spec/authorizationServers/1/upstream/clientSecret",
             },
         ]);
+    });
+
+    it("exports a registrar configuration without client secret without requiring one", async () => {
+        const requirements: ConfigBundleRequirement[] = [];
+        const documents: ConfigDocument[] = [];
+        const canonicalEntitySpec = Reflect.get(
+            service,
+            "canonicalEntitySpec",
+        ) as (
+            kind: ConfigResourceKind,
+            entity: Record<string, unknown>,
+        ) => Record<string, unknown>;
+        const addDocument = Reflect.get(service, "addDocument") as (
+            documents: ConfigDocument[],
+            requirements: ConfigBundleRequirement[],
+            tenantId: string,
+            kind: ConfigResourceKind,
+            id: string,
+            rawSpec: Record<string, unknown>,
+        ) => Promise<void>;
+        Reflect.set(service, "ownershipService", {
+            get: async () => ({ generation: 1, ownership: "unmanaged" }),
+        });
+
+        await addDocument.call(
+            service,
+            documents,
+            requirements,
+            "tenant",
+            "RegistrarConfig",
+            "registrar",
+            canonicalEntitySpec.call(service, "RegistrarConfig", {
+                registrarUrl: "https://registrar.example/api",
+                oidcUrl: "https://auth.example/realms/registrar",
+                clientId: "client",
+                clientSecret: null,
+                username: "user",
+                password: "registrar-password",
+                registrationCertificateDefaults: null,
+            }),
+        );
+
+        const { spec } = documents[0];
+        expect(spec).not.toHaveProperty("clientSecret");
+        expect(spec).not.toHaveProperty("registrationCertificateDefaults");
+        expect(spec.password).toBe("${REGISTRARCONFIG_REGISTRAR_PASSWORD}");
+        expect(requirements).toMatchObject([
+            { code: "SECRET_REQUIRED", path: "/spec/password" },
+        ]);
+        expect(
+            CreateRegistrarConfigSchema.safeParse({
+                ...spec,
+                password: "supplied",
+            }).success,
+        ).toBe(true);
     });
 
     it("removes private parameters from exported public JWKs", () => {

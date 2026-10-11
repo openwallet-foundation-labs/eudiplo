@@ -105,17 +105,26 @@ export class RegistrarAuthService {
      * policy, so a configuration pointing at a blocked target is rejected
      * before it is saved. The 400 names each rejected field, like a
      * validation error.
+     *
+     * @param options.resolveHosts `false` skips the DNS lookup, so a host
+     * that does not resolve yet is accepted; the address is checked when
+     * the URL is requested
      */
-    async assertSafeUrls(urls: {
-        registrarUrl?: string;
-        oidcUrl?: string;
-    }): Promise<void> {
+    async assertSafeUrls(
+        urls: {
+            registrarUrl?: string;
+            oidcUrl?: string;
+        },
+        options: { resolveHosts?: boolean } = {},
+    ): Promise<void> {
         const fields = (["registrarUrl", "oidcUrl"] as const).filter(
             (field) => urls[field] !== undefined,
         );
         const results = await Promise.allSettled(
             fields.map((field) =>
-                this.outboundUrlPolicy.assertSafeUrl(urls[field]!),
+                this.outboundUrlPolicy.assertSafeUrl(urls[field]!, {
+                    resolveHost: options.resolveHosts,
+                }),
             ),
         );
         const issues = results.flatMap((result, index) =>

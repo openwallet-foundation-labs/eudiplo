@@ -22,6 +22,7 @@ import {
   keyChainControllerUpdateTenantKmsConfig,
 } from '@eudiplo/sdk-core';
 import type { Role } from '../services/jwt.service';
+import { hasHttpStatus } from '../utils/error-message';
 
 /**
  * Roles allowed to export key material and to manage the tenant KMS provider
@@ -36,7 +37,7 @@ export const KEY_ADMIN_FORBIDDEN_MESSAGE =
 
 /** True when the SDK error is the backend's 403 response. */
 export function isForbidden(error: unknown): boolean {
-  return (error as { statusCode?: number } | undefined)?.statusCode === 403;
+  return hasHttpStatus(error, 403);
 }
 
 /**

@@ -104,7 +104,7 @@ export class RegistrarConfigService {
                 await this.configRepository.delete({ tenantId });
             }
 
-            await this.configRepository.save({ tenantId, ...config });
+            await this.replaceConfig(tenantId, config);
             await this.configOwnershipService.markApplied({
                 tenantId,
                 kind: "RegistrarConfig",
@@ -149,10 +149,9 @@ export class RegistrarConfigService {
     }
 
     /**
-     * Create or replace the registrar configuration for a tenant.
-     * URLs and credentials are validated before saving. A client secret
-     * missing from `dto` removes the stored one, so only the tested
-     * credentials are kept.
+     * Create or replace the registrar configuration for a tenant. The URLs
+     * are checked against the outbound URL policy and the credentials against
+     * the OIDC provider before saving.
      */
     async saveConfig(
         tenantId: string,
@@ -160,12 +159,43 @@ export class RegistrarConfigService {
     ): Promise<RegistrarConfigEntity> {
         await this.authService.assertSafeUrls(dto);
         await this.authService.testCredentials(dto);
+        return this.store(tenantId, dto);
+    }
 
+    /**
+     * Create or replace the registrar configuration for a tenant without
+     * checking the credentials. Configuration imports use this: the
+     * registrar may be unreachable at startup, and a failed check would stop
+     * the rest of the import. Wrong credentials fail on first use instead.
+     * The URLs are still checked against the outbound URL policy, without
+     * resolving their hosts: a host that does not resolve at startup must
+     * not stop the import either. Its address is checked on first use.
+     */
+    async replaceConfig(
+        tenantId: string,
+        dto: CreateRegistrarConfig,
+    ): Promise<RegistrarConfigEntity> {
+        await this.authService.assertSafeUrls(dto, { resolveHosts: false });
+        return this.store(tenantId, dto);
+    }
+
+    /**
+     * Store `dto` as the whole configuration. A `clientSecret` or
+     * `registrationCertificateDefaults` missing from `dto` removes the stored
+     * one, so a stored secret is never sent to the `oidcUrl` of a
+     * replacement.
+     */
+    private async store(
+        tenantId: string,
+        dto: CreateRegistrarConfig,
+    ): Promise<RegistrarConfigEntity> {
         const config = await this.configRepository.save({
             tenantId,
             ...dto,
-            // `save` skips undefined columns and would keep the stored secret.
+            // `save` skips undefined columns and would keep the stored values.
             clientSecret: dto.clientSecret ?? null,
+            registrationCertificateDefaults:
+                dto.registrationCertificateDefaults ?? null,
         });
 
         this.authService.invalidateToken(tenantId);

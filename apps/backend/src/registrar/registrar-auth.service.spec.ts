@@ -402,7 +402,24 @@ describe("RegistrarAuthService outbound requests", () => {
             expect(assertSafeUrl).toHaveBeenCalledTimes(1);
             expect(assertSafeUrl).toHaveBeenCalledWith(
                 "https://registrar.example",
+                { resolveHost: undefined },
             );
+        });
+
+        it("passes on that the hosts are not resolved", async () => {
+            const outboundUrlPolicy = policy();
+            const assertSafeUrl = vi
+                .spyOn(outboundUrlPolicy, "assertSafeUrl")
+                .mockResolvedValue();
+
+            await service(outboundUrlPolicy).assertSafeUrls(
+                { oidcUrl: "https://auth.example" },
+                { resolveHosts: false },
+            );
+
+            expect(assertSafeUrl).toHaveBeenCalledWith("https://auth.example", {
+                resolveHost: false,
+            });
         });
 
         it("names every rejected field", async () => {

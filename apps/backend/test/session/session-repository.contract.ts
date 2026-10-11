@@ -13,6 +13,7 @@ import {
     SessionStatus,
     stateUpdate,
 } from "../../src/session/domain/session-state.js";
+import { MAX_FAILURE_CODE_LENGTH } from "../../src/session/domain/session-stats.js";
 import { Session } from "../../src/session/entities/session.entity.js";
 
 export const sessionEntities = [Session, TenantEntity, ClientEntity];
@@ -802,7 +803,7 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
             });
 
             it("counts the tenant's sessions per type and status", async () => {
-                const counts = await adapter.countForTenant("tenant-a");
+                const counts = await adapter.countForTenant("tenant-a", {});
                 expect(counts).toHaveLength(4);
                 expect(counts).toEqual(
                     expect.arrayContaining([
@@ -828,17 +829,130 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
                         },
                     ]),
                 );
-                const presentations = await adapter.countForTenant(
-                    "tenant-a",
-                    "presentation",
-                );
+                const presentations = await adapter.countForTenant("tenant-a", {
+                    type: "presentation",
+                });
                 expect(presentations.map((count) => count.type)).toEqual([
                     "presentation",
                     "presentation",
                 ]);
                 await expect(
-                    adapter.countForTenant("tenant-unknown"),
+                    adapter.countForTenant("tenant-unknown", {}),
                 ).resolves.toEqual([]);
+            });
+
+            it("counts only sessions created in the time range, bounds included", async () => {
+                const counts = await adapter.countForTenant("tenant-a", {
+                    createdFrom: new Date("2026-10-02T09:00:00Z"),
+                    createdTo: new Date("2026-10-02T10:00:00Z"),
+                });
+
+                expect(counts).toHaveLength(2);
+                expect(counts).toEqual(
+                    expect.arrayContaining([
+                        {
+                            type: "issuance",
+                            status: SessionStatus.Fetched,
+                            count: 1,
+                        },
+                        {
+                            type: "presentation",
+                            status: SessionStatus.Failed,
+                            count: 1,
+                        },
+                    ]),
+                );
+            });
+
+            it("returns the most frequent failure codes of one type, within the tenant", async () => {
+                const failed = (
+                    tenantId: string,
+                    requestId: string | null,
+                    failureCode: string | null,
+                ) => ({
+                    id: randomUUID(),
+                    tenantId,
+                    requestId: requestId ?? undefined,
+                    status: SessionStatus.Failed,
+                    failureCode: failureCode ?? undefined,
+                    createdAt: new Date("2026-10-04T08:00:00Z"),
+                });
+                await getDataSource()
+                    .getRepository(Session)
+                    .save([
+                        failed("tenant-a", "age-check", "invalid_proof"),
+                        failed("tenant-a", "age-check", "invalid_proof"),
+                        failed("tenant-a", "age-check", "access_denied"),
+                        failed("tenant-a", null, "credential_failure"),
+                        failed("tenant-a", "age-check", null),
+                        failed("tenant-b", "age-check", "invalid_proof"),
+                        // Only failed sessions count, even if another one has a code.
+                        {
+                            ...failed("tenant-a", "age-check", "invalid_proof"),
+                            status: SessionStatus.Cancelled,
+                        },
+                    ]);
+                const top = (
+                    type: "issuance" | "presentation",
+                    limit = 10,
+                    createdFrom?: Date,
+                ) =>
+                    adapter.topFailureCodesForTenant(
+                        "tenant-a",
+                        { type, createdFrom },
+                        limit,
+                    );
+
+                // The list fixture adds one trust_chain_not_trusted failure of 2026-10-02.
+                await expect(top("presentation")).resolves.toEqual([
+                    { code: "invalid_proof", count: 2 },
+                    { code: "access_denied", count: 1 },
+                    { code: "trust_chain_not_trusted", count: 1 },
+                ]);
+                await expect(top("presentation", 1)).resolves.toEqual([
+                    { code: "invalid_proof", count: 2 },
+                ]);
+                await expect(top("issuance")).resolves.toEqual([
+                    { code: "credential_failure", count: 1 },
+                ]);
+                await expect(
+                    top("presentation", 10, new Date("2026-10-03T00:00:00Z")),
+                ).resolves.toEqual([
+                    { code: "invalid_proof", count: 2 },
+                    { code: "access_denied", count: 1 },
+                ]);
+            });
+
+            it("cuts long failure codes, so a wallet cannot blow up the result", async () => {
+                const long = "x".repeat(MAX_FAILURE_CODE_LENGTH + 100);
+                // Two codes that differ only after the cut count as one.
+                await getDataSource()
+                    .getRepository(Session)
+                    .save(
+                        [`${long}a`, `${long}b`].map((failureCode) => ({
+                            id: randomUUID(),
+                            tenantId: "tenant-a",
+                            requestId: "age-check",
+                            status: SessionStatus.Failed,
+                            failureCode,
+                        })),
+                    );
+
+                const codes = await adapter.topFailureCodesForTenant(
+                    "tenant-a",
+                    { type: "presentation" },
+                    10,
+                );
+
+                expect(codes).toContainEqual({
+                    code: long.slice(0, MAX_FAILURE_CODE_LENGTH),
+                    count: 2,
+                });
+                expect(
+                    codes.every(
+                        ({ code }) => code.length <= MAX_FAILURE_CODE_LENGTH,
+                    ),
+                ).toBe(true);
             });
 
             it("returns the last update per type and status, within the tenant", async () => {
@@ -861,7 +975,13 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
                 const last = (
                     type: "issuance" | "presentation",
                     status: SessionStatus,
-                ) => adapter.lastUpdatedForTenant("tenant-a", type, status);
+                    range: { createdFrom?: Date; createdTo?: Date } = {},
+                ) =>
+                    adapter.lastUpdatedForTenant("tenant-a", {
+                        ...range,
+                        type,
+                        status,
+                    });
 
                 await expect(
                     last("presentation", SessionStatus.Completed),
@@ -871,6 +991,11 @@ export function sessionRepositoryContract(getDataSource: () => DataSource) {
                 ).resolves.toEqual(new Date("2026-10-02T09:00:00Z"));
                 await expect(
                     last("issuance", SessionStatus.Completed),
+                ).resolves.toBeNull();
+                await expect(
+                    last("presentation", SessionStatus.Completed, {
+                        createdTo: new Date("2026-10-03T07:00:00Z"),
+                    }),
                 ).resolves.toBeNull();
             });
 
