@@ -124,8 +124,7 @@ export class RegistrarAuthService {
         const destination = tokenDestination(config);
         const cached = this.tokenCache.get(tenantId);
         if (
-            cached &&
-            cached.destination === destination &&
+            cached?.destination === destination &&
             cached.expiresAt > Date.now() + 5000
         ) {
             return cached.token;
