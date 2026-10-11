@@ -2,8 +2,10 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { MatSelectHarness } from '@angular/material/select/testing';
-import { ActivatedRoute, provideRouter, Router } from '@angular/router';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
+import { client } from '@eudiplo/sdk-core';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
 import { SchemaService } from '../schema.service';
 import { SchemaCreateComponent } from './schema-create.component';
@@ -74,6 +76,400 @@ describe('SchemaCreateComponent', () => {
       { duration: 5000 }
     );
     expect(component.loading).toBe(false);
+  });
+});
+
+describe('SchemaCreateComponent loading its sources', () => {
+  const pendingFetch = () => new Promise<Response>(() => undefined);
+  let loadConfigurations: ReturnType<typeof vi.fn>;
+  let getVocabularies: ReturnType<typeof vi.fn>;
+  let openSnackBar: ReturnType<typeof vi.fn>;
+
+  function respondToTrustLists(status: number, body: unknown) {
+    client.setConfig({
+      fetch: async () =>
+        new Response(JSON.stringify(body), {
+          status,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+    });
+  }
+
+  function createComponent() {
+    return TestBed.runInInjectionContext(
+      () =>
+        new SchemaCreateComponent(
+          new FormBuilder(),
+          { getVocabularies } as any,
+          { loadConfigurations } as any,
+          { open: openSnackBar } as any
+        )
+    );
+  }
+
+  beforeEach(() => {
+    loadConfigurations = vi
+      .fn()
+      .mockResolvedValue([{ id: 'pid', vct: 'urn:eudi:pid:1', config: { format: 'dc+sd-jwt' } }]);
+    getVocabularies = vi.fn().mockResolvedValue({
+      version: '1',
+      categories: [{ code: 'identity', label: 'Identity', status: 'active' }],
+      tags: [{ code: 'pid', label: 'PID', status: 'active' }],
+    });
+    openSnackBar = vi.fn();
+    respondToTrustLists(200, [{ id: 'tl-1' }]);
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: Router, useValue: { navigate: vi.fn() } },
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { queryParamMap: convertToParamMap({}) } },
+        },
+      ],
+    });
+  });
+
+  afterEach(() => {
+    client.setConfig({ fetch: pendingFetch });
+  });
+
+  it('keeps credential configs and trust lists when the registrar vocabularies fail', async () => {
+    getVocabularies.mockRejectedValue({
+      statusCode: 400,
+      message: 'Registrar is not configured for this tenant',
+    });
+    const component = createComponent();
+    component.credentialConfigId = 'pid';
+
+    await component.loadData();
+
+    expect(component.credentialConfigs.map((c) => c.id)).toEqual(['pid']);
+    expect(component.importSchemaConfigIds.value).toEqual(['pid']);
+    expect(component.schemaURIs.length).toBe(1);
+    expect(component.trustLists.map((t) => t.id)).toEqual(['tl-1']);
+    expect(component.loadState).toEqual({
+      credentialConfigs: 'loaded',
+      trustLists: 'loaded',
+      vocabularies: 'failed',
+    });
+    expect(openSnackBar).toHaveBeenCalledWith(
+      'Failed to load categories and tags from the registrar: Registrar is not configured for this tenant',
+      'Close',
+      { duration: 10000 }
+    );
+  });
+
+  it('names every source that failed to load', async () => {
+    loadConfigurations.mockRejectedValue({ statusCode: 403, message: 'Forbidden resource' });
+    respondToTrustLists(403, { statusCode: 403, message: 'Forbidden resource' });
+    const component = createComponent();
+
+    await component.loadData();
+
+    expect(component.categoryVocabularies.map((v) => v.code)).toEqual(['identity']);
+    expect(component.loadState).toEqual({
+      credentialConfigs: 'failed',
+      trustLists: 'failed',
+      vocabularies: 'loaded',
+    });
+    expect(openSnackBar).toHaveBeenCalledWith(
+      'Failed to load credential configs: Forbidden resource; Failed to load trust lists: Forbidden resource',
+      'Close',
+      { duration: 10000 }
+    );
+  });
+
+  it('names each source when the backend cannot be reached', async () => {
+    loadConfigurations.mockRejectedValue(new TypeError('Failed to fetch'));
+    getVocabularies.mockRejectedValue(new TypeError('Failed to fetch'));
+    client.setConfig({
+      fetch: async () => {
+        throw new TypeError('Failed to fetch');
+      },
+    });
+
+    await createComponent().loadData();
+
+    expect(openSnackBar).toHaveBeenCalledWith(
+      'Failed to load credential configs: Failed to fetch; ' +
+        'Failed to load trust lists: Failed to fetch; ' +
+        'Failed to load categories and tags from the registrar: Failed to fetch',
+      'Close',
+      { duration: 10000 }
+    );
+  });
+
+  it('shows no snackbar when every source loads', async () => {
+    await createComponent().loadData();
+
+    expect(openSnackBar).not.toHaveBeenCalled();
+  });
+
+  function createFixture() {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [SchemaCreateComponent],
+      providers: [
+        provideRouter([]),
+        { provide: MatSnackBar, useValue: { open: openSnackBar } },
+        { provide: SchemaService, useValue: { getVocabularies } },
+        { provide: CredentialConfigService, useValue: { loadConfigurations } },
+      ],
+    });
+    return TestBed.createComponent(SchemaCreateComponent);
+  }
+
+  /** Renders the form and returns its text once `ngOnInit` has loaded the sources. */
+  async function render(): Promise<string> {
+    const fixture = createFixture();
+    const loadData = vi.spyOn(fixture.componentInstance, 'loadData');
+    fixture.detectChanges();
+    await loadData.mock.results[0].value;
+    fixture.detectChanges();
+    return (fixture.nativeElement as HTMLElement).textContent ?? '';
+  }
+
+  it('says in the hints that sources are loading, and fills each in as it answers', async () => {
+    const pending = () => new Promise<never>(() => undefined);
+    getVocabularies.mockImplementation(pending);
+    client.setConfig({ fetch: pendingFetch });
+    const fixture = createFixture();
+
+    fixture.detectChanges();
+    let text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Loading credential configs…');
+    expect(text).toContain('Loading trust lists…');
+    expect(text).toContain('Loading categories…');
+    expect(text).toContain('Loading tags…');
+    expect(text).not.toContain('No credential configs available.');
+
+    // The credential configs answer while the registrar and trust lists are still pending.
+    await vi.waitFor(() =>
+      expect(fixture.componentInstance.loadState.credentialConfigs).toBe('loaded')
+    );
+    fixture.detectChanges();
+    text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).not.toContain('Loading credential configs…');
+    expect(fixture.componentInstance.credentialConfigs.map((c) => c.id)).toEqual(['pid']);
+    expect(text).toContain('Loading tags…');
+  });
+
+  it('says in the hints that sources failed instead of claiming none exist', async () => {
+    loadConfigurations.mockRejectedValue({ statusCode: 403, message: 'Forbidden resource' });
+    respondToTrustLists(403, { statusCode: 403, message: 'Forbidden resource' });
+    getVocabularies.mockRejectedValue({ statusCode: 503, message: 'Registrar unreachable' });
+
+    const text = await render();
+
+    expect(text).toContain('Could not load credential configs.');
+    expect(text).toContain('Could not load trust lists.');
+    expect(text).toContain('Could not load categories from the registrar.');
+    expect(text).toContain('Could not load tags from the registrar.');
+    expect(text).not.toContain('No credential configs available.');
+    expect(text).not.toContain('No trust lists available.');
+    expect(text).not.toContain('No predefined categories available.');
+    expect(text).not.toContain('No predefined tags available.');
+  });
+
+  it('says in the hints that nothing exists when the sources load empty', async () => {
+    loadConfigurations.mockResolvedValue([]);
+    respondToTrustLists(200, []);
+    getVocabularies.mockResolvedValue({ version: '1', categories: [], tags: [] });
+
+    const text = await render();
+
+    expect(text).toContain('No credential configs available.');
+    expect(text).toContain('No trust lists available.');
+    expect(text).toContain('No predefined categories available.');
+    expect(text).toContain('No predefined tags available.');
+    expect(text).not.toContain('Could not load');
+    expect(openSnackBar).not.toHaveBeenCalled();
+  });
+});
+
+describe('SchemaCreateComponent required fields', () => {
+  let publishSchemaMetadata: ReturnType<typeof vi.fn>;
+  let loadConfigurations: ReturnType<typeof vi.fn>;
+  /** Answer of the backend to the trust-list request. */
+  let trustLists: { status: number; body: unknown };
+
+  async function render() {
+    client.setConfig({
+      fetch: async () =>
+        new Response(JSON.stringify(trustLists.body), {
+          status: trustLists.status,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+    });
+    TestBed.configureTestingModule({
+      imports: [SchemaCreateComponent],
+      providers: [
+        provideRouter([]),
+        { provide: MatSnackBar, useValue: { open: vi.fn() } },
+        {
+          provide: SchemaService,
+          useValue: {
+            getVocabularies: async () => ({ version: '1', categories: [], tags: [] }),
+            publishSchemaMetadata,
+          },
+        },
+        { provide: CredentialConfigService, useValue: { loadConfigurations } },
+      ],
+    });
+    const fixture = TestBed.createComponent(SchemaCreateComponent);
+    const loadData = vi.spyOn(fixture.componentInstance, 'loadData');
+    fixture.detectChanges();
+    await loadData.mock.results[0].value;
+    fixture.componentInstance.composeForm.patchValue({
+      name: 'German PID',
+      version: '1.0.0',
+      rulebookURI: 'https://rules.example/pid.md',
+      attestationLoS: 'iso_18045_high',
+      bindingType: 'key',
+    });
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  function text(fixture: { nativeElement: HTMLElement }): string {
+    return (fixture.nativeElement.textContent ?? '').replace(/\s+/g, ' ');
+  }
+
+  function submitButton(fixture: { nativeElement: HTMLElement }): HTMLButtonElement {
+    return [...fixture.nativeElement.querySelectorAll<HTMLButtonElement>('button')].find((b) =>
+      b.textContent?.includes('Submit')
+    )!;
+  }
+
+  beforeEach(() => {
+    publishSchemaMetadata = vi.fn().mockResolvedValue({ id: 'schema-1' });
+    loadConfigurations = vi
+      .fn()
+      .mockResolvedValue([{ id: 'pid', vct: 'urn:eudi:pid:1', config: { format: 'dc+sd-jwt' } }]);
+    trustLists = { status: 200, body: [{ id: 'tl-1' }] };
+  });
+
+  afterEach(() => {
+    client.setConfig({ fetch: () => new Promise<Response>(() => undefined) });
+  });
+
+  it('says what is missing when Submit is pressed without schema URI and trusted authority', async () => {
+    const fixture = await render();
+    expect(text(fixture)).not.toContain('At least one schema URI is required');
+
+    const submit = submitButton(fixture);
+    expect(submit.disabled).toBe(false);
+    submit.click();
+    fixture.detectChanges();
+
+    expect(publishSchemaMetadata).not.toHaveBeenCalled();
+    expect(text(fixture)).toContain('At least one schema URI is required.');
+    expect(text(fixture)).toContain('At least one trusted authority is required.');
+    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain(
+      'Some required fields are missing or invalid.'
+    );
+  });
+
+  it('flags a trust-list select that was left empty, and clears it for a root certificate', async () => {
+    const fixture = await render();
+    const component = fixture.componentInstance;
+
+    component.importTrustListIds.markAsTouched();
+    fixture.detectChanges();
+    expect(text(fixture)).toContain('At least one trusted authority is required.');
+    expect(text(fixture)).not.toContain('At least one schema URI is required');
+
+    component.addX509TrustAnchor();
+    fixture.detectChanges();
+    expect(text(fixture)).not.toContain('At least one trusted authority is required.');
+  });
+
+  it('does not navigate after a submit that finishes once the user has left', async () => {
+    let finishPublish!: (entry: unknown) => void;
+    publishSchemaMetadata.mockReturnValue(new Promise((resolve) => (finishPublish = resolve)));
+    const fixture = await render();
+    const component = fixture.componentInstance;
+    component.importSchemaConfigIds.setValue(['pid']);
+    component.syncSchemaURIsFromSelection();
+    component.importTrustListIds.setValue(['tl-1']);
+    component.syncTrustedAuthoritiesFromSelection();
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigate');
+
+    const submitting = component.submit();
+    fixture.destroy();
+    finishPublish({ id: 'schema-1' });
+    await submitting;
+
+    expect(publishSchemaMetadata).toHaveBeenCalledOnce();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('names every missing required field after Submit', async () => {
+    const fixture = await render();
+    const component = fixture.componentInstance;
+    component.composeForm.patchValue({
+      name: '',
+      version: '',
+      rulebookURI: '',
+      attestationLoS: '',
+      bindingType: '',
+    });
+    component.addX509TrustAnchor();
+
+    submitButton(fixture).click();
+    fixture.detectChanges();
+
+    const page = text(fixture);
+    expect(page).toContain('Version is required.');
+    expect(page).not.toContain('Must be a valid semantic version');
+    expect(page).toContain('Rulebook URI is required.');
+    expect(page).toContain('Attestation LoS is required.');
+    expect(page).toContain('Binding type is required.');
+    expect(page).toContain('Name is required.');
+    expect(page).toContain('Paste the root certificate or remove this entry.');
+  });
+
+  it('keeps saying why a select is empty when Submit marks it as missing', async () => {
+    loadConfigurations.mockRejectedValue({ statusCode: 403, message: 'Forbidden resource' });
+    trustLists = { status: 200, body: [] };
+    const fixture = await render();
+
+    submitButton(fixture).click();
+    fixture.detectChanges();
+
+    expect(text(fixture)).toContain(
+      'At least one schema URI is required. The credential configs could not be loaded.'
+    );
+    expect(text(fixture)).toContain(
+      'At least one trusted authority is required. No trust lists exist; add a root certificate.'
+    );
+  });
+
+  it('says to create a credential config first when none exist', async () => {
+    loadConfigurations.mockResolvedValue([]);
+    const fixture = await render();
+
+    submitButton(fixture).click();
+    fixture.detectChanges();
+
+    expect(text(fixture)).toContain(
+      'At least one schema URI is required. Create a credential config first.'
+    );
+    expect(text(fixture)).toContain(
+      'At least one trusted authority is required. Select a trust list or add a root certificate.'
+    );
+  });
+
+  it('suggests a root certificate when the trust lists could not be loaded', async () => {
+    trustLists = { status: 403, body: { statusCode: 403, message: 'Forbidden resource' } };
+    const fixture = await render();
+
+    submitButton(fixture).click();
+    fixture.detectChanges();
+
+    expect(text(fixture)).toContain(
+      'At least one trusted authority is required. The trust lists could not be loaded; add a root certificate.'
+    );
   });
 });
 

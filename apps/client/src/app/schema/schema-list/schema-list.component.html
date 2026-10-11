@@ -1,7 +1,7 @@
 <div fxLayout="row" fxLayoutAlign="space-between center">
   <div fxLayout="column" fxLayoutGap="4px">
     <h2>Schema</h2>
-    @if (!loading) {
+    @if (!loading && !loadError) {
       <p>
         {{ schemaMetadataCount }}
         {{ schemaMetadataCount === 1 ? 'schema entry' : 'schema entries' }}
@@ -11,16 +11,58 @@
     }
   </div>
   <div fxLayout="row" fxLayoutGap="8px">
-    <button matIconButton [routerLink]="['create']" matTooltip="Submit signed schema">
-      <mat-icon>add</mat-icon>
-    </button>
+    @if (canCreate) {
+      <button
+        matIconButton
+        [routerLink]="['create']"
+        matTooltip="Create schema"
+        aria-label="Create schema"
+      >
+        <mat-icon>add</mat-icon>
+      </button>
+    } @else {
+      <button
+        matIconButton
+        disabled
+        disabledInteractive
+        matTooltip="Creating a schema needs the issuance:manage role"
+        aria-label="Create schema"
+      >
+        <mat-icon>add</mat-icon>
+      </button>
+    }
   </div>
 </div>
 
 @if (loading) {
-  <p>Loading schema...</p>
+  <p><output>Loading schemas…</output></p>
+} @else if (loadError) {
+  <mat-card appearance="outlined" role="alert">
+    <mat-card-content>
+      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
+        <mat-icon color="warn">error</mat-icon>
+        <span>{{ loadError }}</span>
+      </div>
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <a mat-button routerLink="/registrar">Registrar configuration</a>
+      <button mat-stroked-button type="button" (click)="loadItems()">Retry</button>
+    </mat-card-actions>
+  </mat-card>
 } @else if (groupedItems.length === 0) {
-  <p>No schema found.</p>
+  <div class="empty-state" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="16px">
+    <mat-icon class="empty-icon">schema</mat-icon>
+    <h3>No schemas published</h3>
+    <p>Create a schema for a credential type to list it here.</p>
+    @if (canCreate) {
+      <a mat-flat-button color="primary" [routerLink]="['create']">
+        <mat-icon>add</mat-icon>
+        Create Schema
+      </a>
+    } @else {
+      <p>Creating a schema needs the issuance:manage role.</p>
+    }
+  </div>
 } @else {
   <table mat-table [dataSource]="groupedItems" class="mat-elevation-z8">
     <ng-container matColumnDef="id">
@@ -54,7 +96,12 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef>Actions</th>
       <td mat-cell *matCellDef="let item">
-        <button matIconButton [routerLink]="[item.id]" matTooltip="View details">
+        <button
+          matIconButton
+          [routerLink]="[item.id]"
+          matTooltip="View details"
+          [attr.aria-label]="'View details of ' + item.id"
+        >
           <mat-icon>visibility</mat-icon>
         </button>
       </td>

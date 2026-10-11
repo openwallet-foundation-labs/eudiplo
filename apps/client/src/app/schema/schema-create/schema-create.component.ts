@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, isDevMode, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnInit,
+  inject,
+  isDevMode,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import {
   FormArray,
   FormBuilder,
@@ -11,6 +18,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { ErrorStateMatcher } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -29,9 +37,8 @@ import {
 import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
 import { SchemaService } from '../schema.service';
 import { getApiErrorMessage } from '../../utils/error-message';
-
-const SEMVER_REGEX =
-  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
+import { SourceLoadState, loadSource } from '../load-source';
+import { SEMVER_REGEX } from '../schema-version';
 
 @Component({
   selector: 'app-schema-create',
@@ -58,8 +65,11 @@ const SEMVER_REGEX =
 export class SchemaCreateComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
 
   loading = false;
+  /** Set by the first Submit, so the missing-fields note does not show while filling in. */
+  submitAttempted = false;
   readonly demoDefaultsEnabled = isDevMode();
   /** Credential config ID passed via query param — linked back to the schema metadata on submit */
   credentialConfigId: string | undefined;
@@ -72,6 +82,9 @@ export class SchemaCreateComponent implements OnInit {
   categoryVocabularies: VocabularyEntryDto[] = [];
   /** Predefined vocabulary entries for tag selection */
   tagVocabularies: VocabularyEntryDto[] = [];
+  /** Load state of each source, so an empty select is not mistaken for "none exist" */
+  readonly loadState: Record<'credentialConfigs' | 'trustLists' | 'vocabularies', SourceLoadState> =
+    { credentialConfigs: 'loading', trustLists: 'loading', vocabularies: 'loading' };
 
   readonly attestationLoSOptions = [
     { value: 'iso_18045_high', label: 'High (ISO 18045)' },
@@ -115,6 +128,23 @@ export class SchemaCreateComponent implements OnInit {
   importSchemaConfigIds = new FormControl<string[]>([]);
   /** For selecting trust lists to include as trusted authorities */
   importTrustListIds = new FormControl<string[]>([]);
+
+  /**
+   * The import selects are not validated themselves: they fill the
+   * `schemaURIs` and `trustedAuthorities` arrays, which are required. These
+   * matchers show the arrays' error on the selects once the user opened one
+   * or tried to submit.
+   */
+  readonly schemaURIsErrorMatcher: ErrorStateMatcher = {
+    isErrorState: () =>
+      this.schemaURIs.hasError('required') &&
+      (this.schemaURIs.touched || this.importSchemaConfigIds.touched),
+  };
+  readonly trustedAuthoritiesErrorMatcher: ErrorStateMatcher = {
+    isErrorState: () =>
+      this.trustedAuthorities.hasError('required') &&
+      (this.trustedAuthorities.touched || this.importTrustListIds.touched),
+  };
 
   constructor(
     private readonly fb: FormBuilder,
@@ -287,29 +317,48 @@ export class SchemaCreateComponent implements OnInit {
     }
   }
 
+  /**
+   * Loads the three sources independently: each select fills in as soon as
+   * its source answers, and one that fails (registrar not configured or
+   * unreachable, or a missing role) leaves the others usable. Failed sources
+   * are named in a snackbar and in the hint of their select.
+   */
   async loadData(): Promise<void> {
-    try {
-      const [configs, tlResponse, vocabularies] = await Promise.all([
-        this.credentialConfigService.loadConfigurations(),
-        trustListControllerGetAllTrustLists(),
-        this.schemaService.getVocabularies(),
-      ]);
-      this.credentialConfigs = configs;
-      this.trustLists = Array.isArray(tlResponse.data) ? tlResponse.data : [];
-      this.categoryVocabularies = Array.isArray(vocabularies?.categories)
-        ? vocabularies.categories
-        : [];
-      this.tagVocabularies = Array.isArray(vocabularies?.tags) ? vocabularies.tags : [];
+    const failures = await Promise.all([
+      loadSource(
+        this.loadState,
+        'credentialConfigs',
+        'Failed to load credential configs',
+        async () => {
+          const configs = await this.credentialConfigService.loadConfigurations();
+          this.credentialConfigs = configs;
+          // Auto-select linked credential config when provided via query param.
+          if (this.credentialConfigId && configs.some((c) => c.id === this.credentialConfigId)) {
+            this.importSchemaConfigIds.setValue([this.credentialConfigId]);
+          }
+          this.syncSchemaURIsFromSelection();
+        }
+      ),
+      loadSource(this.loadState, 'trustLists', 'Failed to load trust lists', async () => {
+        const response = await trustListControllerGetAllTrustLists();
+        this.trustLists = Array.isArray(response.data) ? response.data : [];
+        this.syncTrustedAuthoritiesFromSelection();
+      }),
+      loadSource(
+        this.loadState,
+        'vocabularies',
+        'Failed to load categories and tags from the registrar',
+        async () => {
+          const vocabularies = await this.schemaService.getVocabularies();
+          this.categoryVocabularies = vocabularies.categories;
+          this.tagVocabularies = vocabularies.tags;
+        }
+      ),
+    ]);
 
-      // Auto-select linked credential config when provided via query param.
-      if (this.credentialConfigId && configs.some((c) => c.id === this.credentialConfigId)) {
-        this.importSchemaConfigIds.setValue([this.credentialConfigId]);
-      }
-
-      this.syncSchemaURIsFromSelection();
-      this.syncTrustedAuthoritiesFromSelection();
-    } catch {
-      // non-fatal — selects will simply be empty
+    const messages = failures.filter((message): message is string => !!message);
+    if (messages.length > 0) {
+      this.snackBar.open(messages.join('; '), 'Close', { duration: 10000 });
     }
   }
 
@@ -384,6 +433,7 @@ export class SchemaCreateComponent implements OnInit {
   }
 
   async submit(): Promise<void> {
+    this.submitAttempted = true;
     if (this.composeForm.invalid) {
       this.composeForm.markAllAsTouched();
       return;
@@ -411,7 +461,10 @@ export class SchemaCreateComponent implements OnInit {
       );
 
       this.snackBar.open('Schema submitted', 'Close', { duration: 3000 });
-      this.router.navigate(['/schema', created.id]);
+      // The user may have left the page while the publish was running.
+      if (!this.destroyRef.destroyed) {
+        this.router.navigate(['/schema', created.id]);
+      }
     } catch (error) {
       console.error('Failed to submit schema metadata:', error);
       this.snackBar.open(getApiErrorMessage(error, 'Failed to submit schema'), 'Close', {
