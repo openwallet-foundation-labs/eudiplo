@@ -219,4 +219,66 @@ describe("ConfigBundleService issuance export", () => {
             { type: "chained", id: "chained", upstream },
         ]);
     });
+
+    it("leaves out unset fields whose schema does not accept null", () => {
+        const canonicalEntitySpec = Reflect.get(
+            service,
+            "canonicalEntitySpec",
+        ) as (
+            kind: ConfigResourceKind,
+            entity: Record<string, unknown>,
+        ) => Record<string, unknown>;
+
+        const spec = canonicalEntitySpec.call(service, "IssuanceConfig", {
+            authorizationServers: [{ type: "built-in", id: "built-in" }],
+            walletProviderTrustLists: null,
+            signingKeyId: null,
+            federation: null,
+            registrationCertificate: null,
+            display: null,
+            txCodeMaxAttempts: null,
+        });
+
+        for (const field of [
+            "walletProviderTrustLists",
+            "signingKeyId",
+            "display",
+        ]) {
+            expect(spec[field], field).toBeUndefined();
+        }
+        // Their schema accepts null, and applying null clears them.
+        expect(spec).toMatchObject({
+            federation: null,
+            registrationCertificate: null,
+            txCodeMaxAttempts: null,
+        });
+    });
+});
+
+describe("ConfigBundleService status list export", () => {
+    const service = Object.create(
+        ConfigBundleService.prototype,
+    ) as ConfigBundleService;
+    const statusListSpec = Reflect.get(service, "statusListSpec") as (
+        statusList: Record<string, unknown>,
+    ) => Record<string, unknown>;
+    const list = {
+        id: "list",
+        credentialConfigurationId: null,
+        elements: [0, 1, 2],
+        bits: 1,
+    };
+
+    it("exports the key chain of a list that has its own", () => {
+        expect(
+            statusListSpec.call(service, { ...list, keyChainId: "signer" }),
+        ).toMatchObject({ keyChainId: "signer", capacity: 3 });
+    });
+
+    it("leaves out the key chain of a list without its own", () => {
+        expect(
+            statusListSpec.call(service, { ...list, keyChainId: null })
+                .keyChainId,
+        ).toBeUndefined();
+    });
 });

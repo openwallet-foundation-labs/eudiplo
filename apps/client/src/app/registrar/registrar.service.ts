@@ -4,6 +4,7 @@ import { ApiService } from '../core';
 import { firstValueFrom } from 'rxjs';
 import type {
   CreateAccessKeyChainDto,
+  RegistrarControllerCreateAccessCertificateResponse,
   RegistrarControllerCreateAccessKeyChainResponse,
 } from '@eudiplo/sdk-core';
 
@@ -42,6 +43,34 @@ export interface RegistrarConfigRequest {
  * Response from creating an access key enrolled at the registrar.
  */
 export type AccessCertificateResponse = RegistrarControllerCreateAccessKeyChainResponse;
+
+/**
+ * Response from enrolling an existing key at the registrar.
+ */
+export type AccessCertificateEnrollmentResponse =
+  RegistrarControllerCreateAccessCertificateResponse;
+
+/**
+ * Why EUDIPLO refused {@link RegistrarService.createAccessCertificate}. It
+ * refuses before it stores the certificate, its last step, so the key keeps
+ * the certificate it had: `role` (403) without registrar:manage; `registrar`
+ * (400) when the registrar authentication, the relying party registration or
+ * the certificate request fails and the registrar lists no other certificate
+ * for the key, or (404) without registrar configuration or key. The backend's
+ * access-certificate.service.spec.ts pins that order.
+ */
+export type AccessCertificateRefusal = 'role' | 'registrar';
+
+/**
+ * Why a failed {@link RegistrarService.createAccessCertificate} was refused;
+ * undefined when it failed otherwise and the certificate may have been stored.
+ */
+export function accessCertificateRefusal(error: unknown): AccessCertificateRefusal | undefined {
+  const status = (error as { status?: unknown } | null)?.status;
+  if (status === 403) return 'role';
+  if (status === 400 || status === 404) return 'registrar';
+  return undefined;
+}
 
 /**
  * How {@link RegistrarService.createAccessKeyChain} failed, which decides
@@ -148,6 +177,19 @@ export class RegistrarService {
    * Create a standalone access key and enroll it at the registrar in one
    * request. When the enrollment fails, the backend deletes the key again.
    */
+  /**
+   * Create an access certificate for an existing key.
+   * The certificate is fetched from the registrar and stored in EUDIPLO.
+   */
+  createAccessCertificate(keyId: string): Promise<AccessCertificateEnrollmentResponse> {
+    return firstValueFrom(
+      this.http.post<AccessCertificateEnrollmentResponse>(
+        `${this.getBaseUrl()}/api/registrar/access-certificate`,
+        { keyId }
+      )
+    );
+  }
+
   createAccessKeyChain(body: CreateAccessKeyChainDto): Promise<AccessCertificateResponse> {
     return firstValueFrom(
       this.http.post<AccessCertificateResponse>(

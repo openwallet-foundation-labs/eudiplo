@@ -623,8 +623,8 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
       case 'keyLeft':
         return {
           message:
-            `${reason} The new key has only its self-signed certificate: ` +
-            'delete it before you try again.',
+            `${reason} The new key has only its self-signed certificate: open it and ` +
+            'select Enroll with Registrar on its Active Certificate, or delete it.',
           offerRegistrar: false,
           keptKeyId: failure.keyId,
         };
@@ -633,7 +633,8 @@ export class KeyCreateWizardComponent implements OnInit, OnDestroy {
           message:
             `${reason} EUDIPLO may still have created the key. If Keys lists a new access key, open it: ` +
             'a different Issuer than Subject in its Active Certificate means it is enrolled; ' +
-            'the same Issuer as Subject means it is self-signed and can be deleted.',
+            'the same Issuer as Subject means it is self-signed: select Enroll with Registrar ' +
+            'on that certificate, or delete the key.',
           offerRegistrar: false,
           offerKeys: true,
         };

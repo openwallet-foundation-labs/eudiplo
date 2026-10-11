@@ -9,6 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from 'ngx-flexible-layout';
 import { ApiService } from '../../core';
+import { OidcService } from '../../core/oidc.service';
 import { FrontendConfigService } from '../../services/frontend-config.service';
 import { formatBuild, VersionService } from '../../services/version.service';
 
@@ -35,6 +36,7 @@ export class ConnectionSettingsComponent implements OnInit {
     public apiService: ApiService,
     public versionService: VersionService,
     public frontendConfigService: FrontendConfigService,
+    private readonly oidcService: OidcService,
     private readonly snackBar: MatSnackBar
   ) {}
 
@@ -75,8 +77,14 @@ export class ConnectionSettingsComponent implements OnInit {
     return this.apiService.getClientId() || 'Not configured';
   }
 
-  get currentClientSecret(): string {
-    return this.apiService.getClientSecret() || 'Not configured';
+  /** Undefined without the secret, for example after a reload: it is kept in memory only. */
+  get currentClientSecret(): string | undefined {
+    return this.apiService.getClientSecret();
+  }
+
+  /** Shown instead of the secret: SSO uses none, and a reloaded tab no longer has it. */
+  get missingSecretText(): string {
+    return this.oidcService.mode === 'oidc' ? 'Not used with SSO' : 'Not available in this tab';
   }
 
   get currentOidcUrl(): string {

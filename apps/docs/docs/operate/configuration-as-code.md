@@ -170,16 +170,28 @@ eudiplo config import acme-upgraded.zip --instance staging --mode upsert --plan 
 ```
 
 The plan lists every resource as `create`, `update`, `unchanged`, `skip`,
-`delete` or `blocked`, with redacted field changes. A plan with a `blocked` item
+`delete` or `blocked`, with its field changes (secrets redacted). A plan with a `blocked` item
 cannot be applied: fix the reported issue (missing secret, stale generation,
-unknown reference, client ID used by another tenant) and plan again. A plan
+unknown reference, client ID used by another tenant, a deleted trust list that
+a configuration still uses) and plan again. A plan
 that grants roles beyond the caller's own, or changes a client with more
 roles, answers `403` ([granting roles](../reference/roles.md#granting-roles)). The import sends the plan's fingerprint; if
 the bundle, the mode or the target configuration changed in between, it fails
 with `CONFIG_PLAN_STALE` before writing anything.
 
+The web client does the same under **Settings > Config Portability**:
+**Plan and validate** lists each changed field with its current value and its
+value after the import, marking secrets as `secret`, values whose type changes
+as `changed`, and values the import deletes as `removed`, and **Apply bundle**
+imports that plan. It asks for confirmation before applying a plan that removes
+stored values, and before every `replace` import.
+
 `replace` deletes resources that the same bundle source created earlier and the
-bundle no longer contains. It needs its own plan and an explicit confirmation:
+bundle no longer contains. The plan blocks deleting a trust list that a
+configuration surviving the import still references, including a configuration
+created through the API or Web Client (`TRUST_LIST_IN_USE`, see
+[Delete a trust list](../trust/trust-lists.md#delete-a-trust-list)). It needs
+its own plan and an explicit confirmation:
 
 ```bash
 eudiplo config plan acme.zip --instance staging --mode replace --output replace-plan.json

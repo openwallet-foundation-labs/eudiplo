@@ -311,7 +311,8 @@ describe('KeyCreateWizardComponent registrar enrollment', () => {
         'Failed to enroll certificate from registrar: the backend could not be reached. Check the connection and try again. ' +
         'EUDIPLO may still have created the key. If Keys lists a new access key, open it: ' +
         'a different Issuer than Subject in its Active Certificate means it is enrolled; ' +
-        'the same Issuer as Subject means it is self-signed and can be deleted.',
+        'the same Issuer as Subject means it is self-signed: select Enroll with Registrar ' +
+        'on that certificate, or delete the key.',
       offerRegistrar: false,
       offerKeys: true,
     });
@@ -384,7 +385,8 @@ describe('KeyCreateWizardComponent registrar enrollment', () => {
     expect(component.enrollmentError).toEqual({
       message:
         'Failed to create access certificate. The new access key chain key-1 could not be deleted; delete it. ' +
-        'The new key has only its self-signed certificate: delete it before you try again.',
+        'The new key has only its self-signed certificate: open it and ' +
+        'select Enroll with Registrar on its Active Certificate, or delete it.',
       offerRegistrar: false,
       keptKeyId: 'key-1',
     });

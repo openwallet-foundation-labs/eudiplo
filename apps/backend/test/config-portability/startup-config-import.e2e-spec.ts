@@ -249,7 +249,7 @@ describe("startup configuration reconciliation", () => {
             .expect(403);
     });
 
-    it("exports resources created without a description as a bundle that passes its own schema validation", async () => {
+    it("exports resources created without optional fields as a bundle that passes its own schema validation", async () => {
         const appConfig = app.get(ConfigService);
         const bootstrap = await request(app.getHttpServer())
             .post("/api/oauth2/token")
@@ -309,12 +309,25 @@ describe("startup configuration reconciliation", () => {
                 ],
             })
             .expect(201);
+        // Without display, and a status list without a key chain.
+        await request(app.getHttpServer())
+            .post("/issuer/config")
+            .set("Authorization", authorization)
+            .send({})
+            .expect(201);
+        const statusList = await request(app.getHttpServer())
+            .post("/status-lists")
+            .set("Authorization", authorization)
+            .send({})
+            .expect(201);
         const created = new Set([
             "Tenant/tenant",
             "Client/no-description",
             `KeyChain/${issuerKeyChain.body.id}`,
             `KeyChain/${signerKeyChain.body.id}`,
             `TrustList/${trustList.body.id}`,
+            "IssuanceConfig/issuance",
+            `StatusList/${statusList.body.id}`,
         ]);
 
         const service = app.get(ConfigBundleService);
@@ -326,26 +339,44 @@ describe("startup configuration reconciliation", () => {
         );
         expect(exported).toHaveLength(created.size);
         for (const document of exported) {
+            const kind = normalizeDocument(document).kind;
             expect(document.spec).not.toHaveProperty("description");
-            if (normalizeDocument(document).kind === "KeyChain")
+            if (kind === "KeyChain")
                 expect(document.spec.rotationPolicy).toEqual({
                     enabled: false,
                 });
+            if (kind === "IssuanceConfig")
+                expect(document.spec).not.toHaveProperty("display");
+            if (kind === "StatusList")
+                expect(document.spec).not.toHaveProperty("keyChainId");
         }
         const plan = await service.plan(tenantId, bundle, "upsert");
         expect(
-            plan.issues.filter(
-                (issue) => issue.code === "CONFIG_SCHEMA_VALIDATION_FAILED",
+            plan.issues.filter((issue) =>
+                [
+                    "CONFIG_SCHEMA_VALIDATION_FAILED",
+                    "CURRENT_SCHEMA_VALIDATION_FAILED",
+                ].includes(issue.code),
             ),
             JSON.stringify(plan.issues, null, 2),
         ).toEqual([]);
         // Client and key chains are blocked on their secret and private key
-        // requirements, so only these two reach the comparison.
+        // requirements, so only these reach the comparison.
         expect(
             plan.items
-                .filter((item) => ["Tenant", "TrustList"].includes(item.kind))
-                .map(({ kind, action }) => ({ kind, action })),
+                .filter((item) =>
+                    [
+                        "Tenant",
+                        "TrustList",
+                        "IssuanceConfig",
+                        "StatusList",
+                    ].includes(item.kind),
+                )
+                .map(({ kind, action }) => ({ kind, action }))
+                .sort((left, right) => left.kind.localeCompare(right.kind)),
         ).toEqual([
+            { kind: "IssuanceConfig", action: "unchanged" },
+            { kind: "StatusList", action: "unchanged" },
             { kind: "Tenant", action: "unchanged" },
             { kind: "TrustList", action: "unchanged" },
         ]);
@@ -417,6 +448,24 @@ describe("startup configuration reconciliation", () => {
                 }),
             ]),
         );
+        // The deleted list is blocked as well, naming every configuration
+        // that still uses it, so its deletion never happens unchecked.
+        const trustListItem = replacePlan.items.find(
+            (item) => item.kind === "TrustList",
+        );
+        expect(trustListItem?.action).toBe("blocked");
+        expect(trustListItem?.issues).toEqual([
+            {
+                severity: "error",
+                code: "TRUST_LIST_IN_USE",
+                path: "/metadata/id",
+                message: `Trust list "580831bc-ef11-43f4-a3be-a2b6bf1b29a3" is left out of this import, so replace mode deletes it, but it is still referenced by 2 presentation configs ("age-over-18" and "pid"). Keep the trust list in the bundle or folder, or remove these references.`,
+                resource: {
+                    kind: "TrustList",
+                    id: "580831bc-ef11-43f4-a3be-a2b6bf1b29a3",
+                },
+            },
+        ]);
     });
 
     it("exports schema documents in a version 2 bundle and packs matching checksums", async () => {
