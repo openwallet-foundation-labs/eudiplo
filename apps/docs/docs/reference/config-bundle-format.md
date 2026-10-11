@@ -46,14 +46,15 @@ rejects versions newer than its own.
 | `KeyChain`           | `KeyChainConfigFile`          | 1               |           |
 | `RegistrarConfig`    | `RegistrarConfigFile`         | 1               | yes       |
 | `IssuanceConfig`     | `IssuanceConfigFile`          | 3               | yes       |
-| `CredentialConfig`   | `CredentialConfigFile`        | 1               |           |
+| `CredentialConfig`   | `CredentialConfigFile`        | 2               |           |
 | `PresentationConfig` | `PresentationConfigFile`      | 3               |           |
 | `AttributeProvider`  | `AttributeProviderConfigFile` | 1               |           |
 | `WebhookEndpoint`    | `WebhookEndpointConfigFile`   | 1               |           |
 | `TrustList`          | `TrustListConfigFile`         | 1               |           |
 | `StatusList`         | `StatusListConfigFile`        | 1               |           |
 
-Versions 2 and 3 were introduced with EUDIPLO 9.0; 8.x cannot read them:
+IssuanceConfig v2 and PresentationConfig v2 and v3 were introduced with EUDIPLO
+9.0; 8.x cannot read them:
 
 - **IssuanceConfig v2** adds the optional `offerLifetimeSeconds`. A v1 document
   is migrated unchanged.
@@ -70,6 +71,11 @@ Versions 2 and 3 were introduced with EUDIPLO 9.0; 8.x cannot read them:
 (PEM public key of the list signer) to `walletProviderTrustLists` entries. A v2
 document is migrated unchanged; releases that only know v2, such as 9.0, cannot
 read v3 files.
+
+**CredentialConfig v2** came with EUDIPLO 10.0. It accepts `x509` as
+`frameworkType` of `schemaMeta.trustedAuthorities` entries, with the root
+certificate in `value`. A v1 document is migrated unchanged; 9.x cannot read v2
+files.
 
 ## Tenant folder layout
 
