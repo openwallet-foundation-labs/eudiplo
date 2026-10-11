@@ -77,6 +77,13 @@ function policyIssuePaths(error: any): Set<string> {
   );
 }
 
+/** The message of a failed save that names no field. */
+function requestErrorMessage(error: unknown): string {
+  const message = getHttpErrorMessage(error, 'Failed to save configuration');
+  // A blocked token endpoint or redirect target has no field to show it.
+  return message.includes('outbound URL policy') ? `${message}. ${policyHint(message)}` : message;
+}
+
 /** Examples in the message for a URL field whose value is not a full URL. */
 const URL_EXAMPLES: Record<string, string> = {
   registrarUrl: 'https://registrar.example.com/api',
@@ -303,7 +310,8 @@ export class RegistrarComponent implements OnInit {
       this.snackBar.open('Configuration saved successfully', 'Close', { duration: 3000 });
     } catch (error: any) {
       console.error('Error saving config:', error);
-      this.snackBar.open(this.saveErrorMessage(error), 'Close', { duration: 5000 });
+      // Long enough to read a message that names a URL for the operator.
+      this.snackBar.open(this.saveErrorMessage(error), 'Close', { duration: 12000 });
     } finally {
       this.isSaving = false;
     }
@@ -316,11 +324,7 @@ export class RegistrarComponent implements OnInit {
    */
   private saveErrorMessage(error: any): string {
     const issues = getValidationIssues(error);
-    if (!issues.length) {
-      const message = getHttpErrorMessage(error, 'Failed to save configuration');
-      // A blocked token endpoint or redirect target has no field to show it.
-      return message.includes('outbound URL policy') ? `${message}. ${POLICY_HINT}` : message;
-    }
+    if (!issues.length) return requestErrorMessage(error);
     const policyPaths = policyIssuePaths(error);
     const others: string[] = [];
     let hint: string | undefined;
@@ -330,18 +334,24 @@ export class RegistrarComponent implements OnInit {
       const policy = policyPaths.has(path) ? policyHint(message) : undefined;
       hint = policy ?? hint;
       const text = policy ? `${message}. ${policy}` : message;
-      const control = path in FIELD_LABELS ? this.configForm.get(path) : null;
-      if (control) {
-        control.setErrors({ ...control.errors, server: text });
-        control.markAsTouched();
-      } else {
-        others.push(path ? `${path}: ${text}` : text);
-      }
+      if (!this.showAtField(path, text)) others.push(path ? `${path}: ${text}` : text);
     }
     const parts = ['Failed to save configuration.'];
     if (others.length < issues.length) parts.push(hint ?? 'Check the highlighted fields.');
     if (others.length) parts.push(others.join('; '));
     return parts.join(' ');
+  }
+
+  /**
+   * Puts a backend issue under its form field, until the field is edited.
+   * @returns false when the form has no field for `path`
+   */
+  private showAtField(path: string, text: string): boolean {
+    const control = path in FIELD_LABELS ? this.configForm.get(path) : null;
+    if (!control) return false;
+    control.setErrors({ ...control.errors, server: text });
+    control.markAsTouched();
+    return true;
   }
 
   /** Message under a form field for its current error. */

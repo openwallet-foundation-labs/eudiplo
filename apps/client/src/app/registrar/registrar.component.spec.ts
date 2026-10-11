@@ -654,8 +654,9 @@ describe('RegistrarComponent load and save errors', () => {
 
     await component.saveConfig();
 
-    expect(snackBar.open.mock.calls.at(-1)?.[0]).toContain(
-      "ask the operator to allow it in this instance's outbound URL policy"
+    expect(snackBar.open.mock.calls.at(-1)?.[0]).toBe(
+      'Failed to save configuration: Registrar credentials could not be verified: Request to https://idp.internal/token is blocked by the outbound URL policy: Outbound URL host is not in the allowlist. ' +
+        "Check the URL; if it is correct, ask the operator to allow it in this instance's outbound URL policy."
     );
   });
 
@@ -686,6 +687,51 @@ describe('RegistrarComponent load and save errors', () => {
       password: 'new-password',
     });
     expect(registrarService.updateConfig).not.toHaveBeenCalled();
+  });
+
+  it('suggests checking the host name when the discovered token endpoint does not resolve', async () => {
+    await load(stored);
+    registrarService.updateConfig.mockRejectedValue(
+      new HttpErrorResponse({
+        status: 400,
+        error: {
+          statusCode: 400,
+          message:
+            'Registrar credentials could not be verified: Request to https://idp.example/token is blocked by the outbound URL policy: Outbound URL host cannot be resolved',
+        },
+      })
+    );
+    component.configForm.patchValue({ clientId: 'other-client' });
+
+    await component.saveConfig();
+
+    expect(snackBar.open.mock.calls.at(-1)?.[0]).toMatch(
+      /cannot be resolved\. Check the host name, or try again later\.$/
+    );
+  });
+
+  it('shows field issues at their fields and lists the others', async () => {
+    await load(stored);
+    registrarService.updateConfig.mockRejectedValue(
+      validationFailed([
+        { path: ['clientId'], message: 'Too small', code: 'too_small' },
+        {
+          path: ['registrationCertificateDefaults'],
+          message: 'Invalid input',
+          code: 'invalid_type',
+        },
+      ])
+    );
+    component.configForm.patchValue({ clientId: 'other-client' });
+
+    await component.saveConfig();
+
+    expect(component.fieldError('clientId')).toBe('Too small');
+    expect(snackBar.open).toHaveBeenCalledWith(
+      'Failed to save configuration. Check the highlighted fields. registrationCertificateDefaults: Invalid input',
+      'Close',
+      expect.anything()
+    );
   });
 
   it('lists issues outside the form fields in the message', async () => {
