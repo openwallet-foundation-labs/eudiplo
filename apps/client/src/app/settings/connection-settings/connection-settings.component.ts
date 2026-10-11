@@ -44,10 +44,11 @@ export class ConnectionSettingsComponent implements OnInit {
   ngOnInit(): void {
     // Both reuse a result already loaded for this instance (the app shell checks the
     // version). Waiting for them tells a failed request from one that is still running.
-    this.versionService
+    // Neither rejects: a failure leaves the value empty.
+    void this.versionService
       .check(this.apiService.getBaseUrl())
       .finally(() => (this.versionChecked = true));
-    this.frontendConfigService.getConfig().finally(() => (this.importModeChecked = true));
+    void this.frontendConfigService.getConfig().finally(() => (this.importModeChecked = true));
   }
 
   get backendVersion(): string {

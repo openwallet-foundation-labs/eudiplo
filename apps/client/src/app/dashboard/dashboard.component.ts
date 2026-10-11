@@ -90,7 +90,8 @@ export class DashboardComponent implements OnInit {
   }
 
   refresh(): void {
-    this.dashboardService.getCounters({ keepPrevious: true });
+    // Failures end up in the service's warnings.
+    void this.dashboardService.getCounters({ keepPrevious: true });
   }
 
   /** Session KPIs for users who can read sessions, configuration counts for the others. */

@@ -599,8 +599,9 @@ export class DashboardService {
     }
 
     for (const provider of this.unhealthyKmsProviders) {
+      const reason = provider.error ? `: ${provider.error}` : '.';
       warnings.push({
-        message: `KMS provider ${provider.providerId} is not reachable${provider.error ? `: ${provider.error}` : '.'}`,
+        message: `KMS provider ${provider.providerId} is not reachable${reason}`,
         action: { label: 'Open KMS Providers', route: ['/kms'] },
       });
     }
