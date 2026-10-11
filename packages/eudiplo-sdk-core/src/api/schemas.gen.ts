@@ -10334,6 +10334,98 @@ export const UpdateIssuanceDtoSchema = {
     }
 } as const;
 
+export const PublishSchemaMetaConfigSchema = {
+    type: 'object',
+    properties: {
+        id: {
+            type: 'string',
+            description: 'Optional override for the schema ID (attestation identifier URI). When not set, derived from vct (dc+sd-jwt) or docType (mso_mdoc).',
+            example: 'https://example.com/attestations/my-credential'
+        },
+        name: {
+            type: 'string',
+            description: 'Human-readable name of the schema metadata entry. Required when publishing new schema metadata; optional when linking an existing schema metadata id to a credential config.',
+            example: 'German PID'
+        },
+        version: {
+            type: 'string',
+            description: 'Schema version in SemVer format',
+            example: '1.0.0'
+        },
+        rulebookURI: {
+            type: 'string',
+            description: 'URI of the Attestation Rulebook. Required when publishing new schema metadata; optional when linking an existing schema metadata id to a credential config.',
+            example: 'https://example.com/rulebooks/my-credential/1.0.0.md'
+        },
+        attestationLoS: {
+            enum: [
+                'iso_18045_high',
+                'iso_18045_moderate',
+                'iso_18045_enhanced-basic',
+                'iso_18045_basic'
+            ],
+            type: 'string',
+            description: 'Attestation Level of Security'
+        },
+        bindingType: {
+            enum: [
+                'claim',
+                'key',
+                'biometric',
+                'none'
+            ],
+            type: 'string',
+            description: 'Cryptographic binding type'
+        },
+        schemaURIs: {
+            description: 'Schema URIs per attestation format. When omitted, the format is derived from the credential config format field.',
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/SchemaUriEntry'
+            }
+        },
+        trustedAuthorities: {
+            description: 'Trust authorities for this attestation schema',
+            type: 'array',
+            items: {
+                $ref: '#/components/schemas/TrustAuthorityEntry'
+            }
+        },
+        category: {
+            enum: [
+                'identity',
+                'health',
+                'finance',
+                'education',
+                'mobility',
+                'employment',
+                'other'
+            ],
+            type: 'string',
+            description: 'Domain category for filtering'
+        },
+        tags: {
+            type: 'array',
+            items: {
+                type: 'string',
+                enum: [
+                    'pid',
+                    'eudi',
+                    'kyc',
+                    'aml',
+                    'age-verification',
+                    'residency',
+                    'membership',
+                    'education',
+                    'employment',
+                    'mobility'
+                ]
+            },
+            description: 'Predefined tags for filtering and search'
+        }
+    }
+} as const;
+
 export const SignSchemaMetaConfigDtoSchema = {
     type: 'object',
     properties: {
@@ -10431,13 +10523,43 @@ export const SignSchemaMetaConfigDtoSchema = {
                         },
                         additionalProperties: false
                     }
+                },
+                category: {
+                    type: 'string',
+                    enum: [
+                        'identity',
+                        'health',
+                        'finance',
+                        'education',
+                        'mobility',
+                        'employment',
+                        'other'
+                    ]
+                },
+                tags: {
+                    type: 'array',
+                    items: {
+                        type: 'string',
+                        enum: [
+                            'pid',
+                            'eudi',
+                            'kyc',
+                            'aml',
+                            'age-verification',
+                            'residency',
+                            'membership',
+                            'education',
+                            'employment',
+                            'mobility'
+                        ]
+                    }
                 }
             },
             additionalProperties: false,
             description: 'The schema metadata configuration to submit. Registrar builds and signs the final schema metadata.',
             allOf: [
                 {
-                    $ref: '#/components/schemas/SchemaMetaConfig'
+                    $ref: '#/components/schemas/PublishSchemaMetaConfig'
                 }
             ]
         },
@@ -10559,13 +10681,43 @@ export const SignVersionSchemaMetaConfigDtoSchema = {
                         },
                         additionalProperties: false
                     }
+                },
+                category: {
+                    type: 'string',
+                    enum: [
+                        'identity',
+                        'health',
+                        'finance',
+                        'education',
+                        'mobility',
+                        'employment',
+                        'other'
+                    ]
+                },
+                tags: {
+                    type: 'array',
+                    items: {
+                        type: 'string',
+                        enum: [
+                            'pid',
+                            'eudi',
+                            'kyc',
+                            'aml',
+                            'age-verification',
+                            'residency',
+                            'membership',
+                            'education',
+                            'employment',
+                            'mobility'
+                        ]
+                    }
                 }
             },
             additionalProperties: false,
             description: 'The schema metadata configuration to submit as a new version. Must include the existing id.',
             allOf: [
                 {
-                    $ref: '#/components/schemas/SchemaMetaConfig'
+                    $ref: '#/components/schemas/PublishSchemaMetaConfig'
                 }
             ]
         },

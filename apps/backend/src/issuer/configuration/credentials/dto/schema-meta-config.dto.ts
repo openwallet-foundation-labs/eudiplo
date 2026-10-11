@@ -1,7 +1,13 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import {
+    ApiProperty,
+    ApiPropertyOptional,
+    IntersectionType,
+    PickType,
+} from "@nestjs/swagger";
 import { SchemaURIMeta } from "@owf/eudi-attestation-schema";
 import { createZodDto } from "nestjs-zod";
 import { z } from "zod";
+import { UpdateSchemaMetadataDto } from "../../../../registrar/schema-metadata/dto/schema-metadata.dto.js";
 
 /**
  * Attestation Level of Security (LoS) as defined in TS11.
@@ -80,9 +86,18 @@ const SchemaMetaConfigSchema = z
     })
     .strict();
 
+/**
+ * Registrar catalogue fields, validated like a registrar metadata update.
+ * They are only sent with a publish request and are not part of a
+ * credential configuration's schemaMeta.
+ */
+const PublishSchemaMetaConfigSchema = SchemaMetaConfigSchema.extend(
+    UpdateSchemaMetadataDto.schema.pick({ category: true, tags: true }).shape,
+);
+
 const SignSchemaMetaConfigSchema = z
     .object({
-        config: SchemaMetaConfigSchema,
+        config: PublishSchemaMetaConfigSchema,
         credentialConfigId: z.string().optional(),
         pinMode: z.enum(SchemaMetadataPinMode).optional(),
     })
@@ -90,7 +105,7 @@ const SignSchemaMetaConfigSchema = z
 
 const SignVersionSchemaMetaConfigSchema = z
     .object({
-        config: SchemaMetaConfigSchema,
+        config: PublishSchemaMetaConfigSchema,
         credentialConfigId: z.string().optional(),
         pinMode: z.enum(SchemaMetadataPinMode).optional(),
     })
@@ -241,6 +256,15 @@ export class SchemaMetaConfig extends createZodDto(SchemaMetaConfigSchema) {
 }
 
 /**
+ * Schema metadata configuration of a publish request: the credential
+ * config's SchemaMetaConfig plus the registrar catalogue fields.
+ */
+export class PublishSchemaMetaConfig extends IntersectionType(
+    SchemaMetaConfig,
+    PickType(UpdateSchemaMetadataDto, ["category", "tags"]),
+) {}
+
+/**
  * Request body for schema metadata submission.
  *
  * The registrar builds and signs schema metadata from the submitted values.
@@ -250,11 +274,11 @@ export class SignSchemaMetaConfigDto extends createZodDto(
     SignSchemaMetaConfigSchema,
 ) {
     @ApiProperty({
-        type: () => SchemaMetaConfig,
+        type: () => PublishSchemaMetaConfig,
         description:
             "The schema metadata configuration to submit. Registrar builds and signs the final schema metadata.",
     })
-    config!: SchemaMetaConfig;
+    config!: PublishSchemaMetaConfig;
 
     @ApiPropertyOptional({
         description:
@@ -281,11 +305,11 @@ export class SignVersionSchemaMetaConfigDto extends createZodDto(
     SignVersionSchemaMetaConfigSchema,
 ) {
     @ApiProperty({
-        type: () => SchemaMetaConfig,
+        type: () => PublishSchemaMetaConfig,
         description:
             "The schema metadata configuration to submit as a new version. Must include the existing id.",
     })
-    config!: SchemaMetaConfig;
+    config!: PublishSchemaMetaConfig;
 
     @ApiPropertyOptional({
         description:

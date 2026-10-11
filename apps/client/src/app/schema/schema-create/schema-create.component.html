@@ -87,6 +87,7 @@
         <mat-form-field fxFlex appearance="outline">
           <mat-label>Category (optional)</mat-label>
           <mat-select formControlName="category" [disabled]="categoryVocabularies.length === 0">
+            <mat-option value="">— None —</mat-option>
             @for (entry of categoryVocabularies; track entry.code) {
               <mat-option [value]="entry.code" [disabled]="entry.status === 'deprecated'">
                 {{ vocabularyLabel(entry) }}

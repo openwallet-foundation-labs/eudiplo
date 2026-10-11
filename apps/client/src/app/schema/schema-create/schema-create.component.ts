@@ -27,6 +27,7 @@ import {
 } from '@eudiplo/sdk-core';
 import { CredentialConfigService } from '../../issuance/credential-config/credential-config.service';
 import { SchemaService } from '../schema.service';
+import { getApiErrorMessage } from '../../utils/error-message';
 
 const SEMVER_REGEX =
   /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
@@ -411,8 +412,9 @@ export class SchemaCreateComponent implements OnInit {
       this.router.navigate(['/schema', created.id]);
     } catch (error) {
       console.error('Failed to submit schema metadata:', error);
-      const msg = error instanceof Error ? error.message : 'Failed to submit schema';
-      this.snackBar.open(msg, 'Close', { duration: 5000 });
+      this.snackBar.open(getApiErrorMessage(error, 'Failed to submit schema'), 'Close', {
+        duration: 5000,
+      });
     } finally {
       this.loading = false;
     }

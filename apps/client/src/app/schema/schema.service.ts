@@ -13,7 +13,7 @@ import {
   schemaMetadataControllerRemove,
   schemaMetadataControllerUpdate,
   type DeprecateSchemaMetadataDto,
-  type SchemaMetaConfig,
+  type PublishSchemaMetaConfig,
   type SchemaMetadataResponseDto,
   type SchemaMetadataVocabulariesDto,
   type UpdateSchemaMetadataDto,
@@ -117,11 +117,11 @@ export class SchemaService {
   }
 
   /**
-   * Publishes the supplied SchemaMetaConfig (with existing `id`) as a new
-   * version via the non-deprecated publish-version endpoint.
+   * Publishes the supplied schema metadata config (with existing `id`) as a
+   * new version via the non-deprecated publish-version endpoint.
    */
   async publishSchemaMetadataVersion(
-    config: SchemaMetaConfig,
+    config: PublishSchemaMetaConfig,
     keyChainId?: string,
     credentialConfigId?: string,
     pinMode?: 'keep_current' | 'update_to_new_version' | 'replace_id'
@@ -140,13 +140,13 @@ export class SchemaService {
 
   /**
    * Reserve an attestation id at the registrar and publish the supplied
-   * SchemaMetaConfig in a single backend round-trip. Returns the
+   * schema metadata config in a single backend round-trip. Returns the
    * registrar's metadata entry for the freshly created attestation.
    *
    * `keyChainId` is optional (defaults to the tenant's default key chain).
    */
   async publishSchemaMetadata(
-    config: Omit<SchemaMetaConfig, 'id'>,
+    config: Omit<PublishSchemaMetaConfig, 'id'>,
     keyChainId?: string,
     credentialConfigId?: string,
     pinMode?: 'keep_current' | 'update_to_new_version' | 'replace_id'

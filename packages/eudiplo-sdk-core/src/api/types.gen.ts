@@ -4754,11 +4754,54 @@ export type UpdateIssuanceDto = {
     display?: Array<DisplayInfo>;
 };
 
+export type PublishSchemaMetaConfig = {
+    /**
+     * Optional override for the schema ID (attestation identifier URI). When not set, derived from vct (dc+sd-jwt) or docType (mso_mdoc).
+     */
+    id?: string;
+    /**
+     * Human-readable name of the schema metadata entry. Required when publishing new schema metadata; optional when linking an existing schema metadata id to a credential config.
+     */
+    name?: string;
+    /**
+     * Schema version in SemVer format
+     */
+    version?: string;
+    /**
+     * URI of the Attestation Rulebook. Required when publishing new schema metadata; optional when linking an existing schema metadata id to a credential config.
+     */
+    rulebookURI?: string;
+    /**
+     * Attestation Level of Security
+     */
+    attestationLoS?: 'iso_18045_high' | 'iso_18045_moderate' | 'iso_18045_enhanced-basic' | 'iso_18045_basic';
+    /**
+     * Cryptographic binding type
+     */
+    bindingType?: 'claim' | 'key' | 'biometric' | 'none';
+    /**
+     * Schema URIs per attestation format. When omitted, the format is derived from the credential config format field.
+     */
+    schemaURIs?: Array<SchemaUriEntry>;
+    /**
+     * Trust authorities for this attestation schema
+     */
+    trustedAuthorities?: Array<TrustAuthorityEntry>;
+    /**
+     * Domain category for filtering
+     */
+    category?: 'identity' | 'health' | 'finance' | 'education' | 'mobility' | 'employment' | 'other';
+    /**
+     * Predefined tags for filtering and search
+     */
+    tags?: Array<'pid' | 'eudi' | 'kyc' | 'aml' | 'age-verification' | 'residency' | 'membership' | 'education' | 'employment' | 'mobility'>;
+};
+
 export type SignSchemaMetaConfigDto = {
     /**
      * The schema metadata configuration to submit. Registrar builds and signs the final schema metadata.
      */
-    config: SchemaMetaConfig & {
+    config: PublishSchemaMetaConfig & {
         id?: string;
         name?: string;
         version?: string;
@@ -4781,6 +4824,8 @@ export type SignSchemaMetaConfigDto = {
                 [key: string]: unknown;
             } | string;
         }>;
+        category?: 'identity' | 'health' | 'finance' | 'education' | 'mobility' | 'employment' | 'other';
+        tags?: Array<'pid' | 'eudi' | 'kyc' | 'aml' | 'age-verification' | 'residency' | 'membership' | 'education' | 'employment' | 'mobility'>;
     };
     /**
      * ID of the credential config to link back after submission. When provided, schemaMeta.id on the credential config is updated with the reserved attestation ID.
@@ -4796,7 +4841,7 @@ export type SignVersionSchemaMetaConfigDto = {
     /**
      * The schema metadata configuration to submit as a new version. Must include the existing id.
      */
-    config: SchemaMetaConfig & {
+    config: PublishSchemaMetaConfig & {
         id?: string;
         name?: string;
         version?: string;
@@ -4819,6 +4864,8 @@ export type SignVersionSchemaMetaConfigDto = {
                 [key: string]: unknown;
             } | string;
         }>;
+        category?: 'identity' | 'health' | 'finance' | 'education' | 'mobility' | 'employment' | 'other';
+        tags?: Array<'pid' | 'eudi' | 'kyc' | 'aml' | 'age-verification' | 'residency' | 'membership' | 'education' | 'employment' | 'mobility'>;
     };
     /**
      * Optional credential config to update pinning for after successful version publish.
