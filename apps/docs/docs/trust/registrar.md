@@ -98,7 +98,7 @@ Schema metadata is versioned: the list groups versions by ID. To publish a new v
 
 On the details of a version, **Catalog Metadata** changes its name, category and tags, **Deprecate** deprecates it later (marked as superseded by the newest version, if there is a newer one), and **Delete** removes it at the registrar. Deprecate and Delete ask for confirmation first.
 
-Via the API, `POST /api/schema-metadata/publish` and `POST /api/schema-metadata/publish-version` publish (role `issuance:manage`); the other `/api/schema-metadata` endpoints list, read, update, deprecate (`PATCH /api/schema-metadata/{id}/versions/{version}/deprecation`) and delete entries (role `registrar:manage`); see [Publish via the API](#publish-via-the-api).
+Via the API, `POST /api/schema-metadata/publish` and `POST /api/schema-metadata/publish-version` publish (roles `issuance:manage` and `registrar:manage`, both required); the other `/api/schema-metadata` endpoints list, read, update, deprecate (`PATCH /api/schema-metadata/{id}/versions/{version}/deprecation`) and delete entries (role `registrar:manage`); see [Publish via the API](#publish-via-the-api). All endpoints and their roles: [Roles](../reference/roles.md#endpoints).
 
 The `schemaMeta` of each credential configuration determines the `provides_attestations` of the [issuer registration certificate](registration-certificates.md#issuer-registration-certificate). Verifiers can start a presentation configuration from schema metadata with **Import from Schema** ([Configure Verification](../presentation/configure-verification.md)).
 
