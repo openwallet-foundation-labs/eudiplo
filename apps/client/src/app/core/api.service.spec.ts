@@ -199,11 +199,13 @@ describe('ApiService token refresh', () => {
     await vi.advanceTimersByTimeAsync(5 * 60_000);
     expect(service.getAuthenticationStatus()).toBe(false);
     expect(service.isReconnecting()).toBe(true);
+    expect(service.hasKeptSession()).toBe(true);
     expect(store.has('oauth_config')).toBe(true);
     expect(store.get('oauth_client_secret')).toBe('secret');
 
     answerAlways(() => tokenResponse('second'));
     await vi.advanceTimersByTimeAsync(60_000);
+    expect(service.hasKeptSession()).toBe(false);
     expect(service.getAuthenticationStatus()).toBe(true);
     expect(store.get('access_token')).toBe('second');
   });
@@ -245,12 +247,20 @@ describe('ApiService token refresh', () => {
     'ends the session and stops sending the credentials when the token endpoint answers %s',
     async (_, rejection) => {
       const service = await signIn();
+      // The waiting login page takes the rejection while sessionEnded$ emits.
+      const ended = vi.fn(() => service.takeRejectedSession());
+      service.sessionEnded$.subscribe(ended);
 
       fetchMock.mockResolvedValueOnce(rejection());
       await runScheduledRefresh();
 
+      expect(ended).toHaveBeenCalledOnce();
+      expect(ended).toHaveReturnedWith({ clientId: 'client', baseUrl: backend });
+      // Reported once.
+      expect(service.takeRejectedSession()).toBeUndefined();
       expect(service.getAuthenticationStatus()).toBe(false);
       expect(service.isReconnecting()).toBe(false);
+      expect(service.hasKeptSession()).toBe(false);
       expect(service.canRefreshToken()).toBe(false);
       expect([...store.keys()]).toEqual([]);
       // The token stays usable until it expires, and the menu still names the client.
@@ -275,6 +285,46 @@ describe('ApiService token refresh', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it('does not report a rejected first sign-in, which the login form reports itself', async () => {
+    const service = TestBed.inject(ApiService);
+    fetchMock.mockResolvedValueOnce(backendRejection());
+    await service.loginWithClientCredentials('client', 'wrong', backend, backend, tokenEndpoint);
+
+    await expect(service.refreshAccessToken()).rejects.toThrow();
+
+    expect(service.takeRejectedSession()).toBeUndefined();
+    expect([...store.keys()]).toEqual([]);
+  });
+
+  it('keeps a rejection to report through the logout of the expired notice', async () => {
+    const service = await signIn();
+    fetchMock.mockResolvedValueOnce(backendRejection());
+    await runScheduledRefresh();
+
+    service.logout();
+
+    expect(service.takeRejectedSession()).toEqual({ clientId: 'client', baseUrl: backend });
+  });
+
+  it('stops renewing the previous session when a new sign-in starts, even if discovery fails', async () => {
+    const service = await signIn();
+    fetchMock.mockRejectedValue(new TypeError('Failed to fetch'));
+    await vi.advanceTimersByTimeAsync(60 * 60_000);
+    expect(service.hasKeptSession()).toBe(true);
+    const requests = fetchMock.mock.calls.length;
+    vi.spyOn(service, 'fetchDiscovery').mockRejectedValue(new Error('Discovery failed'));
+
+    await expect(service.loginWithClientCredentials('other', 'secret', backend)).rejects.toThrow(
+      'Discovery failed'
+    );
+    answerAlways(() => tokenResponse('previous'));
+    await vi.advanceTimersByTimeAsync(10 * 60_000);
+
+    expect(service.isReconnecting()).toBe(false);
+    expect(service.hasKeptSession()).toBe(false);
+    expect(fetchMock).toHaveBeenCalledTimes(requests);
+  });
+
   it('does not keep or retry credentials whose first token request fails', async () => {
     const service = TestBed.inject(ApiService);
     fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'));
@@ -292,9 +342,12 @@ describe('ApiService token refresh', () => {
     fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'));
 
     const service = TestBed.inject(ApiService);
+    // The login page waits for it from the start, before the first attempt fails.
+    expect(service.hasKeptSession()).toBe(true);
     await vi.advanceTimersByTimeAsync(0);
 
     expect(service.getAuthenticationStatus()).toBe(false);
+    expect(service.hasKeptSession()).toBe(true);
     expect(store.has('oauth_config')).toBe(true);
     expect(store.get('oauth_client_secret')).toBe('secret');
 
@@ -314,6 +367,7 @@ describe('ApiService token refresh', () => {
     await vi.advanceTimersByTimeAsync(10 * 60_000);
 
     expect(service.getAuthenticationStatus()).toBe(false);
+    expect(service.takeRejectedSession()).toEqual({ clientId: 'client', baseUrl: backend });
     expect([...store.keys()]).toEqual([]);
     expect(fetchMock).toHaveBeenCalledOnce();
   });
@@ -406,11 +460,15 @@ describe('ApiService token refresh', () => {
     const pending = service.refreshAccessToken();
     await vi.advanceTimersByTimeAsync(0);
 
+    const ended = vi.fn();
+    service.sessionEnded$.subscribe(ended);
     service.logout();
+    expect(ended).toHaveBeenCalledOnce();
     answerPending(tokenResponse('late'));
     await pending;
 
     expect(service.getAuthenticationStatus()).toBe(false);
+    expect(service.hasKeptSession()).toBe(false);
     expect(service.accessToken).toBe('');
     expect([...store.keys()]).toEqual([]);
     expect(vi.getTimerCount()).toBe(0);

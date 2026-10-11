@@ -60,6 +60,14 @@ export class ApiService {
   private readonly renewed = new Subject<void>();
   /** Emits after each new token, for example when a kept session resumes after an outage. */
   readonly tokenRenewed$ = this.renewed.asObservable();
+  private readonly ended = new Subject<void>();
+  /**
+   * Emits when the client forgets its credentials: on logout, when the token
+   * endpoint rejects them, and when the first token request of a sign-in fails.
+   */
+  readonly sessionEnded$ = this.ended.asObservable();
+  /** A started session whose credentials the token endpoint rejected, until the login page reports it. */
+  private rejectedSession?: { clientId: string; baseUrl?: string };
 
   constructor(
     private readonly httpClient: HttpClient,
@@ -137,6 +145,10 @@ export class ApiService {
     issuerUrl?: string,
     tokenEndpoint?: string
   ) {
+    // New credentials start a new session, even if discovery fails: the previous
+    // session stops renewing, and a failure of the first token request ends the new one.
+    this.resetRefresh();
+    this.rejectedSession = undefined;
     const discovery = tokenEndpoint ? undefined : await this.fetchDiscovery(baseUrl);
     const oidcUrl = issuerUrl ?? discovery?.issuer;
     const resolvedTokenEndpoint = tokenEndpoint ?? discovery?.token_endpoint;
@@ -145,8 +157,6 @@ export class ApiService {
       throw new Error('OIDC discovery response is missing an issuer or token endpoint.');
     }
 
-    // New credentials start a new session; a failure of their first token request ends it.
-    this.resetRefresh();
     this.oauth2Client = new OAuth2Client({
       discoveryEndpoint: `${oidcUrl}/.well-known/oauth-authorization-server`,
       tokenEndpoint: resolvedTokenEndpoint,
@@ -260,15 +270,17 @@ export class ApiService {
       if (generation !== this.refreshGeneration) {
         throw error;
       }
-      if (
-        this.sessionStarted &&
-        this.oauth2Client?.settings.clientSecret &&
-        !isCredentialRejection(error)
-      ) {
+      const rejected = isCredentialRejection(error);
+      if (this.keepsCredentials() && !rejected) {
         const delay = this.scheduleRefreshRetry();
         console.warn(`Failed to refresh access token, retrying in ${delay / 1000} s:`, error);
       } else {
         console.error('Failed to refresh access token:', error);
+        const clientId = this.oauth2Client?.settings.clientId;
+        if (rejected && this.sessionStarted && clientId) {
+          // Before forgetCredentials announces the end, so listeners can report it.
+          this.rejectedSession = { clientId, baseUrl: this.baseUrl };
+        }
         this.forgetCredentials();
       }
       throw error;
@@ -297,6 +309,31 @@ export class ApiService {
    */
   isReconnecting(): boolean {
     return this.refreshRetries > 0;
+  }
+
+  /**
+   * True when a session has no valid token but keeps its credentials and renews
+   * itself, for example after a reload while the backend was down. The login page
+   * waits for it instead of asking for credentials again.
+   */
+  hasKeptSession(): boolean {
+    return this.keepsCredentials() && !this.getAuthenticationStatus();
+  }
+
+  /**
+   * Returns the session whose credentials the token endpoint rejected, once, so
+   * the login page can say why it ended even when it opens afterwards, for
+   * example after a logout from the expired notice. A new sign-in clears it.
+   */
+  takeRejectedSession(): { clientId: string; baseUrl?: string } | undefined {
+    const session = this.rejectedSession;
+    this.rejectedSession = undefined;
+    return session;
+  }
+
+  /** A started session keeps its credentials through failures other than rejection, and retries. */
+  private keepsCredentials(): boolean {
+    return this.sessionStarted && !!this.oauth2Client?.settings.clientSecret;
   }
 
   /**
@@ -576,6 +613,7 @@ export class ApiService {
     }
     this.clearTokenFromStorage();
     localStorage.removeItem('oauth_client_secret');
+    this.ended.next();
   }
 
   /** Stops refreshing for the current credentials, including a refresh still in flight. */
