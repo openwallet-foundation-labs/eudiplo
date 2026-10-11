@@ -3,7 +3,7 @@
   <div fxLayout="row" fxLayoutAlign="space-between center">
     <div>
       <h2>Status List Configuration</h2>
-      <p class="subtitle">Configure status list settings for newly issued credentials</p>
+      <p class="subtitle">Configure how this tenant's status lists are created and signed</p>
     </div>
     <a
       mat-stroked-button
@@ -20,14 +20,28 @@
     <div fxLayout="row" fxLayoutAlign="center center" class="loading-container">
       <mat-spinner diameter="48"></mat-spinner>
     </div>
+  } @else if (loadError) {
+    <mat-card appearance="outlined" class="load-error">
+      <mat-card-content fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="16px">
+        <mat-icon>error</mat-icon>
+        <div fxFlex role="alert">
+          <strong>{{ loadError }}</strong>
+          <p>The settings can only be changed after they have been loaded.</p>
+        </div>
+        <button mat-stroked-button type="button" (click)="loadConfig()">
+          <mat-icon>refresh</mat-icon>
+          Retry
+        </button>
+      </mat-card-content>
+    </mat-card>
   } @else {
     <mat-card>
       <mat-card-header>
         <mat-icon mat-card-avatar>list_alt</mat-icon>
         <mat-card-title>Status List Settings</mat-card-title>
         <mat-card-subtitle>
-          Configure how credential status is tracked. Changes only affect newly created status
-          lists.
+          Configure how credential status is tracked. Capacity and bits only affect newly created
+          status lists.
         </mat-card-subtitle>
       </mat-card-header>
 
@@ -307,7 +321,7 @@
           mat-button
           color="warn"
           (click)="onReset()"
-          [disabled]="isSaving"
+          [disabled]="isSaving || !hasStoredOverride"
           appConfigManaged
           managedKind="Tenant"
           managedResourceId="tenant"
@@ -338,8 +352,9 @@
     <div class="info-banner">
       <mat-icon>warning</mat-icon>
       <span>
-        <strong>Note:</strong> Changes to status list configuration only affect newly created status
-        lists. Existing status lists retain their original configuration.
+        <strong>Note:</strong> Capacity and bits only affect newly created status lists; existing
+        lists keep theirs. TTL, regeneration mode and aggregation apply to all status lists,
+        including existing ones, the next time they are signed or updated.
       </span>
     </div>
   }
