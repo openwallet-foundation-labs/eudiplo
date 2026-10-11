@@ -24,9 +24,9 @@ export interface RoleDoc {
     description: string;
 }
 
-export type RoleMatch = "any" | "all";
+type RoleMatch = "any" | "all";
 
-export interface RoleRequirement {
+interface RoleRequirement {
     /** Empty: any valid access token (JwtAuthGuard without @Secured). */
     roles: string[];
     /** `any`: one of the roles is enough. `all`: the token needs every role. */
