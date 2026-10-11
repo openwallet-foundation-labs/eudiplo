@@ -6,7 +6,7 @@ describe('clientDeleteConfirmation', () => {
   it('names the client and the consequence', () => {
     expect(clientDeleteConfirmation('offer-client', 'admin')).toBe(
       'Are you sure you want to delete client "offer-client"?\n\n' +
-        'Services can no longer sign in with this client, but tokens already issued to it stay valid until they expire. This cannot be undone.'
+        'Services can no longer sign in with this client, and tokens already issued to it stop working unless a client with this ID is created again. If your instance offers single sign-on (Keycloak), those tokens stay valid until they expire. This cannot be undone.'
     );
   });
 

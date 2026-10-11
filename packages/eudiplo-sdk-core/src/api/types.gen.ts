@@ -75,10 +75,6 @@ export type TokenResponse = {
      */
     access_token: string;
     /**
-     * Optional refresh token
-     */
-    refresh_token?: string;
-    /**
      * Token type
      */
     token_type: 'Bearer';

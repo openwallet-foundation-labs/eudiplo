@@ -50,7 +50,7 @@ curl -X POST https://eudiplo.example.com/api/oauth2/token \
   -d client_secret="$CLIENT_SECRET"
 ```
 
-The endpoint accepts the credentials in the form or JSON body or as HTTP Basic authentication. The response contains an `access_token` that is valid for 24 hours (`expires_in: 86400`); send it as `Authorization: Bearer <token>`. `GET /.well-known/oauth-authorization-server` advertises the token endpoint for OAuth client libraries.
+The endpoint accepts the credentials in the form or JSON body or as HTTP Basic authentication. The response contains an `access_token` that is valid for 24 hours (`expires_in: 86400`) and no refresh token; send it as `Authorization: Bearer <token>`, and request a new one when it expires. `GET /.well-known/oauth-authorization-server` advertises the token endpoint for OAuth client libraries.
 
 When `OIDC` is set, for example to use [Keycloak](../operate/keycloak.md), `/api/oauth2/token` is disabled and tokens come from the external provider.
 
