@@ -1,4 +1,12 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  Injector,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -16,7 +24,9 @@ import { StatusListConfigService, bitsOptions } from './status-list-config.servi
 import { StatusListConfig } from '@eudiplo/sdk-core';
 import { ConfigOwnershipDirective } from '../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../config-portability/config-ownership-notice.component';
+import { focusAfterRenderIfLost } from '../common/focus-if-lost.util';
 import { LoadErrorComponent } from '../common/load-error.component';
+import { resetDefaultsTooltip } from '../common/reset-defaults';
 import { getApiErrorMessage } from '../utils/error-message';
 import { openErrorSnackBar } from '../utils/error-snackbar';
 
@@ -66,6 +76,17 @@ export class StatusListConfigComponent implements OnInit {
   loadError = '';
   currentConfig: StatusListConfig | null = null;
 
+  /**
+   * Where focus goes when a retry removes the error card with its focused
+   * Retry button, or a reset ends while focus is nowhere.
+   */
+  @ViewChild('settingsTitle', { read: ElementRef })
+  private readonly settingsTitle?: ElementRef<HTMLElement>;
+  /** Natively disabled while saving, so it loses focus to `<body>` until it is back. */
+  @ViewChild('saveButton', { read: ElementRef })
+  private readonly saveButton?: ElementRef<HTMLButtonElement>;
+  private readonly injector = inject(Injector);
+
   bitsOptions = bitsOptions;
   Math = Math;
 
@@ -88,6 +109,7 @@ export class StatusListConfigComponent implements OnInit {
   }
 
   async loadConfig(): Promise<void> {
+    const retrying = this.loadError !== '';
     this.isLoading = true;
     this.loadError = '';
     try {
@@ -100,11 +122,18 @@ export class StatusListConfigComponent implements OnInit {
       this.isLoading = false;
     }
     this.patchForm(this.currentConfig);
+    if (retrying && !this.loadError) {
+      focusAfterRenderIfLost(this.injector, () => this.settingsTitle?.nativeElement);
+    }
   }
 
   /** Whether the tenant overrides any global default, so Reset has something to do. */
   get hasStoredOverride(): boolean {
     return this.storedSettings().length > 0;
+  }
+
+  get resetTooltip(): string {
+    return resetDefaultsTooltip(this.isSaving, this.hasStoredOverride);
   }
 
   async onSave(): Promise<void> {
@@ -130,11 +159,13 @@ export class StatusListConfigComponent implements OnInit {
       openErrorSnackBar(this.snackBar, getApiErrorMessage(error, 'Failed to save configuration'));
     } finally {
       this.isSaving = false;
+      focusAfterRenderIfLost(this.injector, () => this.saveButton?.nativeElement);
     }
   }
 
   async onReset(): Promise<void> {
-    if (!this.hasStoredOverride || !confirm(this.resetConfirmation())) {
+    // `disabledInteractive` keeps the button clickable while it looks disabled.
+    if (this.isSaving || !this.hasStoredOverride || !confirm(this.resetConfirmation())) {
       return;
     }
 
@@ -146,6 +177,7 @@ export class StatusListConfigComponent implements OnInit {
       return;
     } finally {
       this.isSaving = false;
+      focusAfterRenderIfLost(this.injector, () => this.settingsTitle?.nativeElement);
     }
     this.currentConfig = null;
     this.patchForm(this.currentConfig);

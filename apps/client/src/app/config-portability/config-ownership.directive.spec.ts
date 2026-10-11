@@ -43,6 +43,26 @@ import { ConfigOwnershipService, ConfigResourceOwnership } from './config-owners
     >
       Save
     </button>
+    <button
+      class="reset"
+      mat-button
+      [disabled]="nothingToReset()"
+      disabledInteractive
+      appConfigManaged
+      managedKind="PresentationConfig"
+      [managedResourceId]="id()"
+    >
+      Reset
+    </button>
+    <button
+      class="plain"
+      type="button"
+      appConfigManaged
+      managedKind="PresentationConfig"
+      [managedResourceId]="id()"
+    >
+      Plain
+    </button>
     <form (ngSubmit)="submitted = submitted + 1">
       <button
         class="submit"
@@ -70,6 +90,8 @@ class HostComponent {
   readonly editTooltip = signal('Edit Configuration');
   /** Disabled for a reason of the screen's own, like an invalid form. */
   readonly disabled = signal(false);
+  /** Disabled for a reason of the screen's own that its tooltip explains. */
+  readonly nothingToReset = signal(true);
   clicked = 0;
   submitted = 0;
 }
@@ -120,8 +142,10 @@ describe('ConfigOwnershipDirective', () => {
     const save = element.querySelector('button.save') as HTMLButtonElement;
     const setup = element.querySelector('a.setup') as HTMLAnchorElement;
     const submit = element.querySelector('button.submit') as HTMLButtonElement;
+    const reset = element.querySelector('button.reset') as HTMLButtonElement;
+    const plain = element.querySelector('button.plain') as HTMLButtonElement;
     const tooltip = fixture.debugElement.query(By.css('button.edit')).injector.get(MatTooltip);
-    return { fixture, remove, edit, save, setup, submit, navigate, tooltip };
+    return { fixture, remove, edit, save, setup, submit, reset, plain, navigate, tooltip };
   }
 
   async function answer(
@@ -156,6 +180,8 @@ describe('ConfigOwnershipDirective', () => {
 
     expect(remove.getAttribute('aria-busy')).toBeNull();
     expect(remove.getAttribute('aria-disabled')).toBe('true');
+    expect(edit.getAttribute('aria-disabled')).toBe('true');
+    expect(setup.getAttribute('aria-disabled')).toBe('true');
     remove.click();
     edit.click();
     setup.click();
@@ -216,6 +242,52 @@ describe('ConfigOwnershipDirective', () => {
 
     expect(save.classList).toContain('mat-mdc-button-disabled');
     expect(save.classList).not.toContain('mat-mdc-button-disabled-interactive');
+  });
+
+  it("keeps a disabledInteractive button's aria-disabled while it is not locked", async () => {
+    const { fixture, reset } = render();
+    expect(reset.getAttribute('aria-disabled')).toBe('true');
+    await answer(fixture, undefined);
+    expect(reset.getAttribute('aria-disabled')).toBe('true');
+    expect(reset.hasAttribute('disabled')).toBe(false);
+
+    fixture.componentInstance.nothingToReset.set(false);
+    rerender(fixture);
+    expect(reset.getAttribute('aria-disabled')).toBeNull();
+
+    fixture.componentInstance.nothingToReset.set(true);
+    rerender(fixture);
+    expect(reset.getAttribute('aria-disabled')).toBe('true');
+  });
+
+  it('keeps a locked disabledInteractive button aria-disabled when its own reason ends', async () => {
+    const { fixture, reset } = render();
+    await answer(fixture, fileManaged);
+    expect(reset.getAttribute('aria-disabled')).toBe('true');
+
+    fixture.componentInstance.nothingToReset.set(false);
+    rerender(fixture);
+    expect(reset.getAttribute('aria-disabled')).toBe('true');
+
+    // Unlocking hands aria-disabled back to the button.
+    fixture.componentInstance.id.set('manual');
+    rerender(fixture);
+    await answer(fixture, undefined);
+    expect(reset.getAttribute('aria-disabled')).toBeNull();
+    fixture.componentInstance.nothingToReset.set(true);
+    rerender(fixture);
+    expect(reset.getAttribute('aria-disabled')).toBe('true');
+  });
+
+  it('sets aria-disabled itself on a host that is not a Material button', async () => {
+    const { fixture, plain } = render();
+    await answer(fixture, fileManaged);
+    expect(plain.getAttribute('aria-disabled')).toBe('true');
+
+    fixture.componentInstance.id.set('manual');
+    rerender(fixture);
+    await answer(fixture, undefined);
+    expect(plain.hasAttribute('aria-disabled')).toBe(false);
   });
 
   it('says why an action is locked and keeps its name', async () => {

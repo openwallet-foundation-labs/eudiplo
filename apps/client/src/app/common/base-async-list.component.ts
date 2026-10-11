@@ -1,16 +1,7 @@
-import {
-  afterNextRender,
-  DestroyRef,
-  Directive,
-  ElementRef,
-  inject,
-  Injector,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Directive, ElementRef, inject, Injector, OnInit, ViewChild } from '@angular/core';
 
 import { getApiErrorMessage } from '../utils/error-message';
-import { focusIfFocusWasLost } from './focus-if-lost.util';
+import { focusAfterRenderIfLost } from './focus-if-lost.util';
 
 /**
  * Base of a list screen that loads its items on init and again on Retry.
@@ -31,7 +22,6 @@ export abstract class BaseAsyncListComponent<T> implements OnInit {
 
   @ViewChild('listHeading') private readonly listHeading?: ElementRef<HTMLElement>;
   private readonly injector = inject(Injector);
-  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     void this.loadItems();
@@ -51,11 +41,8 @@ export abstract class BaseAsyncListComponent<T> implements OnInit {
     } finally {
       this.loading = false;
     }
-    // Not when the user has left the page while the retry was running.
-    if (retrying && !this.loadError && !this.destroyRef.destroyed) {
-      afterNextRender(() => focusIfFocusWasLost(this.listHeading?.nativeElement), {
-        injector: this.injector,
-      });
+    if (retrying && !this.loadError) {
+      focusAfterRenderIfLost(this.injector, () => this.listHeading?.nativeElement);
     }
   }
 }

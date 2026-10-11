@@ -1,3 +1,5 @@
+import { afterNextRender, DestroyRef, type Injector } from '@angular/core';
+
 /**
  * Focuses `element` when focus has fallen back to `<body>`, for example
  * because the focused control was removed with the content it belonged to.
@@ -8,4 +10,18 @@ export function focusIfFocusWasLost(element: HTMLElement | undefined): void {
   if (!active || active === document.body) {
     element?.focus();
   }
+}
+
+/**
+ * Calls `focusIfFocusWasLost` after the next render, when content shown by
+ * the change that just happened exists. Nothing happens once the component
+ * behind `injector` is destroyed, for example because the user left the page
+ * while a request was running.
+ */
+export function focusAfterRenderIfLost(
+  injector: Injector,
+  element: () => HTMLElement | undefined
+): void {
+  if (injector.get(DestroyRef).destroyed) return;
+  afterNextRender(() => focusIfFocusWasLost(element()), { injector });
 }
