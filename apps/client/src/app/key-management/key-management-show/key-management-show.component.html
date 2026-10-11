@@ -242,6 +242,25 @@
               <mat-icon>content_copy</mat-icon>
               Copy Public Key (JWK)
             </button>
+            @if (canEnrollWithRegistrar) {
+              <button
+                mat-stroked-button
+                (click)="enrollWithRegistrar()"
+                [disabled]="isEnrolling"
+                matTooltip="Request a certificate for this key from the registrar"
+                appConfigManaged
+                managedKind="KeyChain"
+                [managedResourceId]="keyId"
+              >
+                <mat-icon>how_to_reg</mat-icon>
+                {{ isEnrolling ? 'Enrolling...' : 'Enroll with Registrar' }}
+              </button>
+            } @else if (needsRegistrarConfig) {
+              <a mat-button routerLink="/registrar">
+                <mat-icon>settings</mat-icon>
+                Configure the registrar to enroll this key
+              </a>
+            }
           </div>
         </mat-card-content>
       </mat-card>

@@ -218,15 +218,16 @@ export class ApiService implements OnDestroy {
    * memory: after a reload, the session lasts until its token expires.
    */
   async useRotatedSecret(clientSecret: string): Promise<void> {
+    // A reloaded tab has only the stored settings; with the new secret it renews its token again.
     const config = this.sessionConfig ?? this.storedConfigOfThisSession();
-    const rotated = this.clientFromStoredConfig(config, clientSecret);
-    if (!rotated) {
+    const settings = this.clientFromStoredConfig(config ?? null)?.settings;
+    if (!config || !settings) {
       throw new Error('OAuth2 client not properly configured. Please log in again.');
     }
     this.resetRefresh();
     this.credentialsRejected = false;
-    this.oauth2Client = rotated;
     this.sessionConfig = config;
+    this.oauth2Client = new OAuth2Client({ ...settings, clientSecret });
     await this.refreshAccessToken();
   }
 
@@ -513,20 +514,20 @@ export class ApiService implements OnDestroy {
 
   /**
    * Builds the OAuth2 client for stored settings, or undefined when they are incomplete.
-   * Without a secret, it names the signed-in client but never sends a token request.
+   * It has no secret, so it names the signed-in client; only `useRotatedSecret` adds one.
    */
-  private clientFromStoredConfig(
-    oauthConfig: StoredOAuthConfig | null | undefined,
-    clientSecret?: string
-  ): OAuth2Client | undefined {
+  private clientFromStoredConfig(oauthConfig: StoredOAuthConfig | null): OAuth2Client | undefined {
     if (!oauthConfig?.server || !oauthConfig.clientId) {
       return undefined;
     }
+    // Without a token endpoint the library would run discovery, and it keeps a failed
+    // discovery for good; settings stored by older versions may lack one.
     return new OAuth2Client({
       discoveryEndpoint: `${oauthConfig.server}/.well-known/oauth-authorization-server`,
-      tokenEndpoint: oauthConfig.tokenEndpoint,
+      tokenEndpoint:
+        oauthConfig.tokenEndpoint ??
+        (oauthConfig.baseUrl ? `${oauthConfig.baseUrl}/api/oauth2/token` : undefined),
       clientId: oauthConfig.clientId,
-      clientSecret,
     });
   }
 
@@ -602,7 +603,7 @@ export class ApiService implements OnDestroy {
     if (stored?.clientId !== clientId || stored.baseUrl !== this.baseUrl) return;
     const token = localStorage.getItem('access_token');
     const expirationTime = Number.parseInt(localStorage.getItem('token_expiration') ?? '', 10);
-    // Only a newer token is taken; an unreadable expiration is not.
+    // A missing or unreadable expiry parses to NaN.
     if (
       !token ||
       Number.isNaN(expirationTime) ||

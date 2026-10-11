@@ -376,6 +376,11 @@ describe('ApiService token refresh', () => {
   });
 
   describe('token renewed by another tab', () => {
+    /** The event a browser sends to the other tabs after one stored a token; the listener reads only its key. */
+    function announceStoredToken(): void {
+      globalThis.dispatchEvent(Object.assign(new Event('storage'), { key: 'token_expiration' }));
+    }
+
     /** Another tab of the same browser stores its new token; only other tabs get the event. */
     function storeFromOtherTab(
       token: string,
@@ -388,7 +393,7 @@ describe('ApiService token refresh', () => {
         'oauth_config',
         JSON.stringify({ server: baseUrl, clientId, baseUrl, tokenEndpoint })
       );
-      globalThis.dispatchEvent(new StorageEvent('storage', { key: 'token_expiration' }));
+      announceStoredToken();
     }
 
     it('is taken by a restored session, which cannot renew its own token', async () => {
@@ -407,16 +412,16 @@ describe('ApiService token refresh', () => {
       expect(fetchMock).not.toHaveBeenCalled();
     });
 
-    it('is not taken when it belongs to another client or backend, or is older', async () => {
+    it('is not taken when it belongs to another client or backend, is older or has no expiry', async () => {
       storeSession(30 * 60_000);
       const service = TestBed.inject(ApiService);
 
       storeFromOtherTab('other-client', 60 * 60_000, { clientId: 'other' });
       storeFromOtherTab('other-backend', 60 * 60_000, { baseUrl: 'http://other.test' });
       storeFromOtherTab('older', 10 * 60_000);
-      store.set('access_token', 'unreadable');
-      store.set('token_expiration', 'not a number');
-      globalThis.dispatchEvent(new StorageEvent('storage', { key: 'token_expiration' }));
+      store.set('access_token', 'no-expiry');
+      store.delete('token_expiration');
+      announceStoredToken();
 
       expect(service.accessToken).toBe('stored');
     });
@@ -552,7 +557,7 @@ describe('ApiService token refresh', () => {
     );
     expect(service.accessToken).toBe('rotated');
     expect(service.getClientSecret()).toBe('new-secret');
-    // Kept in memory only.
+    // Kept in memory only; the stored old secret is refused now.
     expect(store.has('oauth_client_secret')).toBe(false);
 
     // A reload keeps the renewed token until it expires, without renewing it.
@@ -561,30 +566,35 @@ describe('ApiService token refresh', () => {
     expect(reloaded.canRefreshToken()).toBe(false);
   });
 
-  it('lets a reloaded tab renew and store tokens once it rotated the secret', async () => {
-    await signIn();
-    const reloaded = reload();
+  it('renews a reloaded session again with a rotated secret of its client', async () => {
+    storeSession(10 * 60_000);
+    store.set(
+      'oauth_config',
+      JSON.stringify({ server: backend, clientId: 'client', baseUrl: backend })
+    );
+    const service = TestBed.inject(ApiService);
     fetchMock.mockResolvedValueOnce(tokenResponse('rotated'));
 
-    await reloaded.useRotatedSecret('new-secret');
+    await service.useRotatedSecret('new-secret');
 
-    expect(reloaded.canRefreshToken()).toBe(true);
-    expect(reloaded.accessToken).toBe('rotated');
+    // Settings stored without a token endpoint use the backend default.
+    expect(String(fetchMock.mock.lastCall?.[0])).toBe(tokenEndpoint);
+    expect(service.accessToken).toBe('rotated');
+    expect(service.canRefreshToken()).toBe(true);
     expect(store.get('access_token')).toBe('rotated');
-    expect(store.has('oauth_client_secret')).toBe(false);
+    expect([...store.values()].some((value) => value.includes('secret'))).toBe(false);
   });
 
   it('sends a rotated secret of a reloaded tab nowhere once another client signed in', async () => {
-    await signIn();
-    const reloaded = reload();
+    storeSession(10 * 60_000);
+    const service = TestBed.inject(ApiService);
     const stored = JSON.parse(store.get('oauth_config') ?? '{}');
     store.set('oauth_config', JSON.stringify({ ...stored, clientId: 'other' }));
-    fetchMock.mockClear();
 
-    await expect(reloaded.useRotatedSecret('new-secret')).rejects.toThrow('Please log in again');
+    await expect(service.useRotatedSecret('new-secret')).rejects.toThrow('Please log in again');
 
     expect(fetchMock).not.toHaveBeenCalled();
-    expect(reloaded.canRefreshToken()).toBe(false);
+    expect(service.canRefreshToken()).toBe(false);
   });
 
   it('keeps a new sign-in when the previous credentials are rejected afterwards', async () => {

@@ -5,6 +5,7 @@ import type { Page } from '@playwright/test';
 import { expect, test } from './support/test';
 import { hasRootCredentials, resolvedE2EConfig } from './support/e2e-config';
 import { loginWithClientCredentials } from './support/login';
+import { createTenant as createTestTenant } from './support/tenants';
 
 // The Registrar Config screen against the real backend. The backend checks the
 // registrar credentials at the token endpoint of the OIDC realm before it
@@ -76,20 +77,6 @@ test.afterAll(async () => {
   await new Promise<void>((resolve) => realms.close(() => resolve()));
 });
 
-async function accessToken(clientId: string, clientSecret: string): Promise<string> {
-  const response = await fetch(`${api}/api/oauth2/token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'client_credentials',
-      client_id: clientId,
-      client_secret: clientSecret,
-    }),
-  });
-  expect(response.ok).toBe(true);
-  return (await response.json()).access_token;
-}
-
 interface Tenant {
   clientId: string;
   clientSecret: string;
@@ -99,22 +86,11 @@ interface Tenant {
 
 /** A new tenant whose admin client may manage the registrar configuration and these roles. */
 async function createTenant(extraRoles: string[] = []): Promise<Tenant> {
-  const root = await accessToken(
-    resolvedE2EConfig.rootClientId!,
-    resolvedE2EConfig.rootClientSecret!
+  const { clientId, clientSecret, token } = await createTestTenant(
+    'registrar-e2e',
+    'Registrar E2E',
+    ['registrar:manage', ...extraRoles]
   );
-  const response = await fetch(`${api}/api/tenant`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${root}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      id: `registrar-e2e-${randomBytes(4).toString('hex')}`,
-      name: 'Registrar E2E',
-      roles: ['registrar:manage', ...extraRoles],
-    }),
-  });
-  expect(response.status).toBe(201);
-  const { clientId, clientSecret } = (await response.json()).client;
-  const token = await accessToken(clientId, clientSecret);
   return {
     clientId,
     clientSecret,
@@ -346,5 +322,63 @@ test('deletes the new access key when the registrar refuses its enrollment', asy
   );
 
   await refusal.getByRole('link', { name: 'Go to Registrar' }).click();
+  await expect(page.getByRole('heading', { name: 'Registrar Configuration' })).toBeVisible();
+});
+
+/** A new self-signed standalone access key chain of the tenant. */
+async function createAccessKey(tenant: Tenant): Promise<string> {
+  const response = await tenant.call('POST', '/api/key-chain', {
+    usageType: 'access',
+    type: 'standalone',
+    description: `Access key ${randomBytes(4).toString('hex')}`,
+  });
+  expect(response.status).toBe(201);
+  return (await response.json()).id;
+}
+
+test('enrolls an existing access key from its page and reports a refusal', async ({ page }) => {
+  const tenant = await createTenant(['keys:manage']);
+  // Saved while the realm accepts the account, refused when the key is enrolled.
+  const realm = `locked-${randomBytes(4).toString('hex')}`;
+  await storeConfig(tenant, { oidcUrl: realmUrl(realm) });
+  lockedRealms.add(realm);
+  const keyId = await createAccessKey(tenant);
+  await signIn(page, tenant);
+
+  await page.goto(`/keys/${keyId}`);
+  await expect(page.getByText('This is a self-signed standalone key.')).toBeVisible();
+  const enroll = page.getByRole('button', { name: 'Enroll with Registrar' });
+  // Clicks are held back while the key's config ownership is looked up.
+  await expect(enroll).not.toHaveAttribute('aria-busy', 'true');
+  await enroll.click();
+
+  await expect(
+    page.getByText(
+      /Failed to authenticate with registrar: the OIDC provider answered with HTTP 401/
+    )
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Go to Registrar' }).click();
+  await expect(page.getByRole('heading', { name: 'Registrar Configuration' })).toBeVisible();
+  // A refused enrollment keeps the key as it was.
+  expect((await tenant.call('GET', `/api/key-chain/${keyId}`)).status).toBe(200);
+});
+
+test('links to the registrar configuration instead of the enrollment without one', async ({
+  page,
+}) => {
+  const tenant = await createTenant(['keys:manage']);
+  const keyId = await createAccessKey(tenant);
+  await signIn(page, tenant);
+
+  // The action stays hidden while the configuration is read, so wait for the answer.
+  const configRead = page.waitForResponse(
+    (response) =>
+      response.url().endsWith('/api/registrar/config') && response.request().method() === 'GET'
+  );
+  await page.goto(`/keys/${keyId}`);
+  expect((await configRead).status()).toBe(404);
+  await expect(page.getByRole('button', { name: 'Copy PEM' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Enroll with Registrar' })).toHaveCount(0);
+  await page.getByRole('link', { name: 'Configure the registrar to enroll this key' }).click();
   await expect(page.getByRole('heading', { name: 'Registrar Configuration' })).toBeVisible();
 });
