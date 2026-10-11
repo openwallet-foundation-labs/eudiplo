@@ -429,7 +429,7 @@ export class KeyCreateWizardComponent implements OnInit {
           // settings. A key cannot be enrolled later, so say how to retry.
           this.snackBar
             .open(
-              `Key created without a registrar certificate: ${message}. Fix the Registrar Config, then create the key again or enroll this key through the API.`,
+              `Key created without a registrar certificate: ${message}. Fix the Registrar Config, then delete this key and create it again, or enroll it through the API.`,
               'Go to Registrar',
               { duration: 12000 }
             )

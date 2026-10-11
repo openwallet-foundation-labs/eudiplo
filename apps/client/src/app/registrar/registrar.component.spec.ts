@@ -151,7 +151,9 @@ describe('RegistrarComponent', () => {
     await component.saveConfig();
 
     const [body] = service.updateConfig.mock.calls[0];
-    expect(body).toMatchObject({ registrarUrl: stored.registrarUrl, clientSecret: undefined });
+    // Unchanged URLs are left out of the PATCH.
+    expect(body).not.toHaveProperty('registrarUrl');
+    expect(body).toMatchObject({ clientSecret: undefined });
     expect(body.registrationCertificateDefaults).toEqual({ privacy_policy: 'https://p.example' });
     expect(body).not.toHaveProperty('password');
   });
@@ -188,15 +190,6 @@ describe('RegistrarComponent', () => {
 
     component.configForm.get('password')?.setValue('');
     expect(component.configForm.get('password')?.valid).toBe(true);
-  });
-
-  it('requires the password again after a delete', async () => {
-    await render(stored);
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
-
-    await component.deleteConfig();
-
-    expect(component.configForm.get('password')?.hasError('required')).toBe(true);
   });
 
   it('sends an edited stored default with its new value', async () => {
@@ -269,6 +262,92 @@ describe('RegistrarComponent', () => {
     );
   });
 
+  it('shows why loading failed instead of an empty form, and retries', async () => {
+    service.getConfig.mockRejectedValueOnce(
+      new HttpErrorResponse({ status: 503, error: { message: 'Database unavailable' } })
+    );
+    await render(stored);
+
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('[role="alert"]')?.textContent).toContain('Database unavailable');
+    expect(element.querySelector('form')).toBeNull();
+
+    const retry = Array.from(element.querySelectorAll('button')).find(
+      (button) => button.textContent?.trim() === 'Retry'
+    );
+    retry?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(service.getConfig).toHaveBeenCalledTimes(2);
+    expect(element.querySelector('[role="alert"]')).toBeNull();
+    expect(element.querySelector('form')).not.toBeNull();
+  });
+
+  it('suggests checking the host name when it cannot be resolved', async () => {
+    await render(stored);
+    service.updateConfig.mockRejectedValueOnce(
+      new HttpErrorResponse({
+        status: 400,
+        error: {
+          errors: [
+            {
+              path: ['oidcUrl'],
+              message: 'Outbound URL host cannot be resolved',
+              code: 'outbound_url_policy',
+            },
+          ],
+        },
+      })
+    );
+
+    await component.saveConfig();
+
+    expect(component.configForm.get('oidcUrl')?.getError('server')).toBe(
+      'Outbound URL host cannot be resolved. Check the host name, or try again later.'
+    );
+    expect(snackBar.open).toHaveBeenLastCalledWith(
+      'Check the host name, or try again later.',
+      'Close',
+      expect.anything()
+    );
+  });
+
+  it('shows a rejected new URL at its field and saves it again with POST', async () => {
+    await render(stored);
+    service.saveConfig.mockRejectedValueOnce(
+      new HttpErrorResponse({
+        status: 400,
+        error: {
+          errors: [
+            {
+              path: ['registrarUrl'],
+              message: 'Outbound URL host is not in the allowlist',
+              code: 'outbound_url_policy',
+            },
+          ],
+        },
+      })
+    );
+    component.configForm.patchValue({
+      registrarUrl: 'https://registrar.other.example/api',
+      password: 'new-password',
+    });
+
+    await component.saveConfig();
+    fixture.detectChanges();
+    expect(errorsShown().join(' ')).toContain('Outbound URL host is not in the allowlist');
+
+    service.saveConfig.mockResolvedValueOnce(stored);
+    await component.saveConfig();
+
+    expect(service.saveConfig).toHaveBeenCalledTimes(2);
+    expect(service.saveConfig.mock.calls[1][0]).toMatchObject({
+      registrarUrl: 'https://registrar.other.example/api',
+      password: 'new-password',
+    });
+    expect(service.updateConfig).not.toHaveBeenCalled();
+  });
+
   it('highlights a stored URL that breaks the base URL rule right after loading', async () => {
     await render({ ...stored, oidcUrl: 'https://auth.example/realms/registrar#' });
 
@@ -318,7 +397,7 @@ describe('RegistrarComponent', () => {
     await component.saveConfig();
 
     const hint =
-      "This instance's outbound URL policy blocks the URL; ask the operator to allow it.";
+      "Check the URL; if it is correct, ask the operator to allow it in this instance's outbound URL policy.";
     expect(component.configForm.get('registrarUrl')?.getError('server')).toBe(
       `Outbound URL must use HTTPS in this environment. ${hint}`
     );

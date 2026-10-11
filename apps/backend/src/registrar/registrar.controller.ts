@@ -57,7 +57,8 @@ export class RegistrarController {
 
     /**
      * Create or replace the registrar configuration for the tenant.
-     * Credentials are validated before saving.
+     * Credentials are validated before saving. Without `clientSecret`, a
+     * stored client secret is removed.
      * @param token - The token payload from the auth context
      * @param dto - The configuration data
      * @returns The saved configuration
@@ -92,7 +93,9 @@ export class RegistrarController {
 
     /**
      * Update the registrar configuration for the tenant.
-     * Credentials are validated if auth-related fields are changed.
+     * Credentials are validated if auth-related fields are changed. A new
+     * `oidcUrl` or `registrarUrl` needs the password, and the client secret
+     * if one is stored, sent again.
      * @param token - The token payload from the auth context
      * @param dto - The partial configuration data to update
      * @returns The updated configuration
@@ -107,7 +110,7 @@ export class RegistrarController {
     @ApiResponse({
         status: 400,
         description:
-            "The token endpoint answered with an error status (for example wrong credentials), or a registrar or OIDC URL is malformed or blocked by the outbound URL policy",
+            "The token endpoint answered with an error status (for example wrong credentials), a registrar or OIDC URL is malformed or blocked by the outbound URL policy, or oidcUrl or registrarUrl changes without password (and clientSecret, if one is stored) sent again",
     })
     @ApiResponse({
         status: 503,

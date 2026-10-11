@@ -264,6 +264,16 @@ describe("authorization server requests", () => {
             expect(requests.at(-1)).toMatchObject({ method: "GET" });
         });
 
+        it("rejects redirects of token introspection", async () => {
+            await expect(
+                authorizationServerFetch(http, permissive())(
+                    `${localhost}/redirect`,
+                    { method: "POST", body: "token=opaque" },
+                ),
+            ).rejects.toThrow("redirects are not followed");
+            expect(requests.map(({ url }) => url)).toEqual(["/redirect"]);
+        });
+
         it("applies the outbound URL policy", async () => {
             await expect(
                 authorizationServerFetch(http, policy())(`${loopbackIp}/ok`, {

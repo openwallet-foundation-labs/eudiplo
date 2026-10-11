@@ -11,6 +11,13 @@
       <mat-spinner diameter="40"></mat-spinner>
       <p>Loading registrar data...</p>
     </div>
+  } @else if (loadError) {
+    <div fxLayout="column" fxLayoutGap="8px">
+      <p role="alert">{{ loadError }}</p>
+      <div>
+        <button matButton (click)="loadData()">Retry</button>
+      </div>
+    </div>
   } @else {
     <!-- Main Content -->
     <div fxLayout="column" fxLayoutGap="24px">
@@ -52,7 +59,7 @@
 
           <form [formGroup]="configForm" fxLayout="column" fxLayoutGap="16px">
             <div fxLayout="row" fxLayoutGap="16px" fxLayout.lt-md="column">
-              <mat-form-field fxFlex appearance="outline">
+              <mat-form-field fxFlex appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Registrar URL</mat-label>
                 <input
                   matInput
@@ -71,7 +78,7 @@
                 }
               </mat-form-field>
 
-              <mat-form-field fxFlex appearance="outline">
+              <mat-form-field fxFlex appearance="outline" subscriptSizing="dynamic">
                 <mat-label>OIDC URL</mat-label>
                 <input
                   matInput
@@ -100,14 +107,14 @@
                 }
               </mat-form-field>
 
-              <mat-form-field fxFlex appearance="outline">
+              <mat-form-field fxFlex appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Client Secret (optional)</mat-label>
                 <input
                   matInput
                   formControlName="clientSecret"
                   [type]="showPassword ? 'text' : 'password'"
                   [placeholder]="
-                    config?.hasClientSecret
+                    config?.hasClientSecret && !urlsChanged
                       ? 'Leave empty to keep existing'
                       : 'Optional client secret'
                   "
@@ -122,7 +129,9 @@
                 >
                   <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
                 </button>
-                @if (config?.hasClientSecret) {
+                @if (config?.hasClientSecret && urlsChanged) {
+                  <mat-hint>The URL changed. Enter it again, or leave empty to remove it.</mat-hint>
+                } @else if (config?.hasClientSecret) {
                   <mat-hint>Client secret is set. Enter a new value to change it.</mat-hint>
                 }
               </mat-form-field>
@@ -137,14 +146,16 @@
                 }
               </mat-form-field>
 
-              <mat-form-field fxFlex appearance="outline">
+              <mat-form-field fxFlex appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Password</mat-label>
                 <input
                   matInput
                   formControlName="password"
                   [type]="showPassword ? 'text' : 'password'"
                   placeholder="Enter password"
-                  [placeholder]="config?.hasPassword ? 'Leave empty to keep existing' : ''"
+                  [placeholder]="
+                    config?.hasPassword && !urlsChanged ? 'Leave empty to keep existing' : ''
+                  "
                 />
                 <button
                   mat-icon-button
@@ -156,11 +167,19 @@
                 >
                   <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
                 </button>
-                @if (config?.hasPassword) {
+                @if (config?.hasPassword && urlsChanged) {
+                  <mat-hint>The URL changed. Enter the password again.</mat-hint>
+                } @else if (config?.hasPassword) {
                   <mat-hint>Password is set. Enter a new value to change it.</mat-hint>
                 }
                 @if (configForm.get('password')?.hasError('required')) {
-                  <mat-error>Password is required</mat-error>
+                  <mat-error>
+                    {{
+                      urlsChanged
+                        ? 'The URL changed. Enter the password again.'
+                        : 'Password is required'
+                    }}
+                  </mat-error>
                 }
               </mat-form-field>
             </div>

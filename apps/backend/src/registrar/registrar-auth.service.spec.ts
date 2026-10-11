@@ -294,13 +294,25 @@ describe("RegistrarAuthService outbound requests", () => {
         });
     });
 
-    describe("getAccessToken", () => {
+    describe("token errors of getClient", () => {
+        /** The token request of getClient, the path wallets can reach. */
+        const accessToken = (
+            outboundUrlPolicy: OutboundUrlPolicyService,
+            oidcUrl: string,
+        ) =>
+            service(outboundUrlPolicy, {
+                tenant: {
+                    tenantId: "tenant",
+                    registrarUrl: `${localhost}/registrar`,
+                    ...credentials,
+                    oidcUrl,
+                },
+            }).getClient("tenant");
+
         it("does not pass on the OIDC provider's error description", async () => {
-            const result = service(permissive(), {
-                // No discovery document under this path, so the
-                // client falls back to its default token endpoint.
-                tenant: { ...credentials, oidcUrl: `${localhost}/plain` },
-            }).getAccessToken("tenant");
+            // No discovery document under this path, so the client falls
+            // back to its default token endpoint.
+            const result = accessToken(permissive(), `${localhost}/plain`);
 
             await expect(result).rejects.toThrow(
                 new BadRequestException(
@@ -312,9 +324,7 @@ describe("RegistrarAuthService outbound requests", () => {
         // The message can reach a wallet through the OID4VP request object,
         // so it names no URL.
         it("does not pass on connection errors or URLs", async () => {
-            const result = service(permissive(), {
-                tenant: { ...credentials, oidcUrl: `${closedUrl}/oidc` },
-            }).getAccessToken("tenant");
+            const result = accessToken(permissive(), `${closedUrl}/oidc`);
 
             await expect(result).rejects.toThrow(
                 new BadRequestException(
@@ -324,9 +334,7 @@ describe("RegistrarAuthService outbound requests", () => {
         });
 
         it("does not name a token endpoint that the policy blocks", async () => {
-            const result = service(localhostOnly(), {
-                tenant: { ...credentials, oidcUrl: `${localhost}/oidc` },
-            }).getAccessToken("tenant");
+            const result = accessToken(localhostOnly(), `${localhost}/oidc`);
 
             await expect(result).rejects.toThrow(
                 new BadRequestException(
@@ -348,7 +356,10 @@ describe("RegistrarAuthService outbound requests", () => {
                     },
                 },
             );
-            const getAccessToken = vi.spyOn(authService, "getAccessToken");
+            const getAccessToken = vi.spyOn(
+                authService as any,
+                "getAccessToken",
+            );
 
             await expect(authService.getClient("tenant")).rejects.toThrow(
                 "private or loopback IP",
@@ -357,32 +368,13 @@ describe("RegistrarAuthService outbound requests", () => {
             expect(requests).toEqual([]);
         });
 
-        it("creates a separate client per call", async () => {
-            const authService = service(localhostOnly(), {
-                a: { registrarUrl: `${localhost}/registrar-a` },
-                b: { registrarUrl: `${localhost}/registrar-b` },
-            });
-            vi.spyOn(authService, "getAccessToken").mockImplementation(
-                async (tenantId) => `token-${tenantId}`,
-            );
-
-            const [a, b] = await Promise.all([
-                authService.getClient("a"),
-                authService.getClient("b"),
-            ]);
-
-            expect(a).not.toBe(b);
-            expect(a.getConfig().baseUrl).toBe(`${localhost}/registrar-a`);
-            expect(b.getConfig().baseUrl).toBe(`${localhost}/registrar-b`);
-            expect((a.getConfig().auth as () => string)()).toBe("token-a");
-            expect((b.getConfig().auth as () => string)()).toBe("token-b");
-        });
-
         it("sends registrar requests through the outbound URL policy", async () => {
             const authService = service(localhostOnly(), {
                 tenant: { registrarUrl: `${localhost}/registrar` },
             });
-            vi.spyOn(authService, "getAccessToken").mockResolvedValue("token");
+            vi.spyOn(authService as any, "getAccessToken").mockResolvedValue(
+                "token",
+            );
             const client = await authService.getClient("tenant");
 
             const result = await client.get({ url: "/redirect" });

@@ -23,16 +23,22 @@ import { RegistrarConfig, RegistrarConfigRequest, RegistrarService } from './reg
 import { registrarBaseUrlValidator } from './registrar-url.validator';
 import { ConfigOwnershipDirective } from '../config-portability/config-ownership.directive';
 import { ConfigOwnershipNoticeComponent } from '../config-portability/config-ownership-notice.component';
+import { getApiErrorMessage } from '../utils/error-message';
 
 /** What to do when the instance's outbound URL policy blocks a URL. */
 const POLICY_HINT =
-  "This instance's outbound URL policy blocks the URL; ask the operator to allow it.";
+  "Check the URL; if it is correct, ask the operator to allow it in this instance's outbound URL policy.";
 
-/** Snackbar text when the backend's issues were shown at the fields. */
-const FIELD_ERROR_MESSAGES = {
-  policy: POLICY_HINT,
-  input: 'Please correct the highlighted fields',
-};
+/** What to do when the policy check could not resolve the host. */
+const DNS_HINT = 'Check the host name, or try again later.';
+
+/** Snackbar text when other issues were shown at the fields. */
+const INPUT_HINT = 'Please correct the highlighted fields';
+
+/** The hint for an outbound URL policy rejection, by its reason. */
+function policyHint(message: string): string {
+  return message.includes('cannot be resolved') ? DNS_HINT : POLICY_HINT;
+}
 
 /** Registration certificate defaults the form edits. */
 const DEFAULTS_FIELDS = ['privacy_policy', 'support_uri', 'intermediary'];
@@ -79,6 +85,12 @@ export class RegistrarComponent implements OnInit {
   selectedPreset = '';
 
   isLoading = true;
+  /**
+   * Why the configuration could not be loaded. The form stays hidden then:
+   * an empty form would look like no configuration, and saving it would
+   * replace the stored one.
+   */
+  loadError: string | null = null;
   isSaving = false;
   showPassword = false;
 
@@ -109,6 +121,9 @@ export class RegistrarComponent implements OnInit {
         intermediary: [''],
       }),
     });
+    for (const url of URL_FIELDS) {
+      this.configForm.get(url)?.valueChanges.subscribe(() => this.updateCredentialValidators());
+    }
   }
 
   ngOnInit(): void {
@@ -117,6 +132,7 @@ export class RegistrarComponent implements OnInit {
 
   async loadData(): Promise<void> {
     this.isLoading = true;
+    this.loadError = null;
     try {
       this.config = await this.registrarService.getConfig();
 
@@ -143,7 +159,7 @@ export class RegistrarComponent implements OnInit {
                 : '',
           },
         });
-        this.updatePasswordRule();
+        this.updateCredentialValidators();
         // A URL stored before the base URL rule shows its error right away.
         for (const field of URL_FIELDS) {
           const control = this.configForm.get(field);
@@ -152,7 +168,10 @@ export class RegistrarComponent implements OnInit {
       }
     } catch (error) {
       console.error('Error loading registrar data:', error);
-      this.snackBar.open('Failed to load registrar data', 'Close', { duration: 3000 });
+      this.loadError = getApiErrorMessage(
+        (error as { error?: unknown })?.error,
+        'Failed to load registrar data'
+      );
     } finally {
       this.isLoading = false;
     }
@@ -169,10 +188,33 @@ export class RegistrarComponent implements OnInit {
     );
   }
 
+  /**
+   * The backend keeps the stored password and client secret only while the
+   * registrar URL and OIDC URL stay the same. A changed URL therefore
+   * replaces the whole configuration.
+   */
+  get urlsChanged(): boolean {
+    // The group value lags behind while a control emits valueChanges.
+    const { registrarUrl, oidcUrl } = this.configForm.getRawValue();
+    return (
+      this.config !== null &&
+      (registrarUrl !== this.config.registrarUrl || oidcUrl !== this.config.oidcUrl)
+    );
+  }
+
+  /** Require the password unless the stored one is kept. */
+  private updateCredentialValidators(): void {
+    const password = this.configForm.get('password');
+    password?.setValidators(
+      !this.config?.hasPassword || this.urlsChanged ? [Validators.required] : []
+    );
+    password?.updateValueAndValidity({ emitEvent: false });
+  }
+
   async saveConfig(): Promise<void> {
     if (this.hasInvalidInput) {
       this.configForm.markAllAsTouched();
-      this.snackBar.open(FIELD_ERROR_MESSAGES.input, 'Close', { duration: 3000 });
+      this.snackBar.open(INPUT_HINT, 'Close', { duration: 3000 });
       return;
     }
     // Drop the previous backend rejections; the backend checks again.
@@ -183,27 +225,28 @@ export class RegistrarComponent implements OnInit {
     const formValue = this.configForm.value;
     const isUpdate = this.config !== null;
 
-    // Password is required for new config
-    if (!isUpdate && !formValue.password) {
-      this.snackBar.open('Password is required for new configuration', 'Close', { duration: 3000 });
-      return;
-    }
-
     this.isSaving = true;
     try {
       const configRequest = this.buildRequest(formValue);
-      this.config = isUpdate
-        ? await this.registrarService.updateConfig(configRequest)
-        : await this.registrarService.saveConfig(configRequest);
-      this.updatePasswordRule();
+      if (isUpdate && !this.urlsChanged) {
+        // Use PATCH for updates. The URLs are unchanged, so leave them out:
+        // URLs changed elsewhere since loading would otherwise be rejected
+        const changes: Partial<RegistrarConfigRequest> = { ...configRequest };
+        delete changes.registrarUrl;
+        delete changes.oidcUrl;
+        this.config = await this.registrarService.updateConfig(changes);
+      } else {
+        // Use POST for a new config or new URLs: it replaces the stored
+        // credentials, and an empty client secret removes the stored one
+        this.config = await this.registrarService.saveConfig(configRequest);
+      }
+      this.updateCredentialValidators();
       this.snackBar.open('Configuration saved successfully', 'Close', { duration: 3000 });
     } catch (error: any) {
       console.error('Error saving config:', error);
-      const shown = this.showFieldErrors(error.error?.errors);
       const message =
-        shown === 'none'
-          ? error.error?.message || 'Failed to save configuration'
-          : FIELD_ERROR_MESSAGES[shown];
+        this.showFieldErrors(error.error?.errors) ??
+        (error.error?.message || 'Failed to save configuration');
       this.snackBar.open(message, 'Close', { duration: 8000 });
     } finally {
       this.isSaving = false;
@@ -211,19 +254,8 @@ export class RegistrarComponent implements OnInit {
   }
 
   /**
-   * The password is optional once one is stored (an empty field keeps it)
-   * and required otherwise.
-   */
-  private updatePasswordRule(): void {
-    const password = this.configForm.get('password');
-    if (this.config?.hasPassword) password?.clearValidators();
-    else password?.setValidators(Validators.required);
-    password?.updateValueAndValidity();
-  }
-
-  /**
-   * The request body for POST (new) and PATCH (update). The password is only
-   * sent when one was entered. Certificate defaults the form does not show,
+   * The request body for POST (a new configuration or new URLs) and PATCH.
+   * The password is only sent when one was entered. Certificate defaults the form does not show,
    * such as ones set through the API, are kept; empty defaults are sent as
    * null.
    */
@@ -260,26 +292,28 @@ export class RegistrarComponent implements OnInit {
   /**
    * Puts the backend's validation issues on the matching form fields, so a
    * rejected URL is shown where it was entered. Editing the field clears it.
-   * @returns `policy` if the instance's outbound URL policy rejected a URL,
-   * which no edit in the form fixes; `input` for other issues shown on a
-   * field; `none` otherwise
+   * An outbound URL policy rejection gets a hint on what to do, since a typo
+   * can cause it but otherwise only the operator can change the policy.
+   * @returns the snackbar text, or null when no issue was shown at a field
    */
-  private showFieldErrors(issues: unknown): 'policy' | 'input' | 'none' {
-    if (!Array.isArray(issues)) return 'none';
-    let shown: 'policy' | 'input' | 'none' = 'none';
+  private showFieldErrors(issues: unknown): string | null {
+    if (!Array.isArray(issues)) return null;
+    let policyMessage: string | null = null;
+    let shown = false;
     for (const issue of issues) {
       const field = issue?.path?.[0];
       const control = typeof field === 'string' ? this.configForm.get(field) : null;
       // Only input fields have a place to show the error.
       if (control instanceof FormControl && typeof issue.message === 'string') {
-        const policy = issue.code === 'outbound_url_policy';
-        control.setErrors({ server: policy ? `${issue.message}. ${POLICY_HINT}` : issue.message });
+        const hint = issue.code === 'outbound_url_policy' ? policyHint(issue.message) : null;
+        control.setErrors({ server: hint ? `${issue.message}. ${hint}` : issue.message });
         control.markAsTouched();
-        if (policy) shown = 'policy';
-        else if (shown === 'none') shown = 'input';
+        policyMessage = hint ?? policyMessage;
+        shown = true;
       }
     }
-    return shown;
+    if (!shown) return null;
+    return policyMessage ?? INPUT_HINT;
   }
 
   async deleteConfig(): Promise<void> {
@@ -292,7 +326,7 @@ export class RegistrarComponent implements OnInit {
       await this.registrarService.deleteConfig();
       this.config = null;
       this.configForm.reset();
-      this.updatePasswordRule();
+      this.updateCredentialValidators();
       this.snackBar.open('Configuration deleted', 'Close', { duration: 3000 });
     } catch (error) {
       console.error('Error deleting config:', error);

@@ -22,10 +22,10 @@ import { OutboundUrlPolicyService } from "../webhook/outbound-url-policy.service
 import { RegistrarConfigEntity } from "./entities/registrar-config.entity.js";
 import { createClient, createConfig } from "./generated/client/index.js";
 import {
+    type ClientOptions,
     relyingPartyControllerFindAll,
     relyingPartyControllerRegister,
 } from "./generated/index.js";
-import type { ClientOptions } from "./generated/types.gen.js";
 
 /**
  * Limits for every request to the registrar API and its OIDC provider: one
@@ -54,6 +54,23 @@ const OAUTH2_ERROR_CODES = new Set([
 interface CachedToken {
     token: string;
     expiresAt: number;
+    /** {@link tokenDestination} of the configuration the token was obtained with. */
+    destination: string;
+}
+
+/**
+ * The account a token belongs to and the addresses it is obtained from and
+ * sent to. A cached token is only used for the same destination, so a token
+ * that a request still in flight caches after the configuration changed
+ * never reaches a new registrar URL.
+ */
+function tokenDestination(config: RegistrarConfigEntity): string {
+    return JSON.stringify([
+        config.oidcUrl,
+        config.clientId,
+        config.username,
+        config.registrarUrl,
+    ]);
 }
 
 /**
@@ -129,7 +146,7 @@ export class RegistrarAuthService {
     async testCredentials(config: {
         oidcUrl: string;
         clientId: string;
-        clientSecret?: string;
+        clientSecret?: string | null;
         username: string;
         password: string;
     }): Promise<void> {
@@ -165,19 +182,20 @@ export class RegistrarAuthService {
     }
 
     /**
-     * Get or refresh the access token for a tenant using the ROPC flow.
+     * Get or refresh the access token for a tenant configuration using the
+     * ROPC flow.
      */
-    async getAccessToken(tenantId: string): Promise<string> {
+    private async getAccessToken(
+        config: RegistrarConfigEntity,
+    ): Promise<string> {
+        const { tenantId } = config;
+        const destination = tokenDestination(config);
         const cached = this.tokenCache.get(tenantId);
-        if (cached && cached.expiresAt > Date.now() + 5000) {
+        if (
+            cached?.destination === destination &&
+            cached.expiresAt > Date.now() + 5000
+        ) {
             return cached.token;
-        }
-
-        const config = await this.configRepository.findOneBy({ tenantId });
-        if (!config) {
-            throw new NotFoundException(
-                `No registrar configuration found for tenant ${tenantId}`,
-            );
         }
 
         const oauth2Client = await this.createOAuth2Client(config);
@@ -208,17 +226,16 @@ export class RegistrarAuthService {
         this.tokenCache.set(tenantId, {
             token: tokenResponse.accessToken,
             expiresAt,
+            destination,
         });
 
         return tokenResponse.accessToken;
     }
 
     /**
-     * Create a configured registrar API client for the given tenant.
-     *
-     * Every call gets its own client: a shared client reconfigured per call
-     * could send one tenant's request with another tenant's URL and token
-     * when both call the registrar at the same time.
+     * Create a registrar API client for the given tenant. Each call gets its
+     * own client, so concurrent requests of other tenants cannot change its
+     * URL or token.
      */
     async getClient(tenantId: string) {
         const config = await this.configRepository.findOneBy({ tenantId });
@@ -231,7 +248,7 @@ export class RegistrarAuthService {
         // Checked before the token is requested, so no credentials are sent
         // for a configuration whose registrar URL is blocked.
         await this.outboundUrlPolicy.assertSafeUrl(config.registrarUrl);
-        const accessToken = await this.getAccessToken(tenantId);
+        const accessToken = await this.getAccessToken(config);
 
         return createClient(
             createConfig<ClientOptions>({
@@ -289,13 +306,13 @@ export class RegistrarAuthService {
     private async createOAuth2Client(config: {
         oidcUrl: string;
         clientId: string;
-        clientSecret?: string;
+        clientSecret?: string | null;
     }): Promise<OAuth2Client> {
         await this.outboundUrlPolicy.assertSafeUrl(config.oidcUrl);
         return new OAuth2Client({
             server: `${config.oidcUrl}/protocol/openid-connect/token`,
             clientId: config.clientId,
-            clientSecret: config.clientSecret,
+            clientSecret: config.clientSecret ?? undefined,
             discoveryEndpoint: `${config.oidcUrl}/.well-known/openid-configuration`,
             fetch: this.fetch,
         });

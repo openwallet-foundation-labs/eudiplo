@@ -6201,7 +6201,7 @@ export type RegistrarControllerUpdateConfigData = {
 
 export type RegistrarControllerUpdateConfigErrors = {
     /**
-     * The token endpoint answered with an error status (for example wrong credentials), or a registrar or OIDC URL is malformed or blocked by the outbound URL policy
+     * The token endpoint answered with an error status (for example wrong credentials), a registrar or OIDC URL is malformed or blocked by the outbound URL policy, or oidcUrl or registrarUrl changes without password (and clientSecret, if one is stored) sent again
      */
     400: unknown;
     /**
