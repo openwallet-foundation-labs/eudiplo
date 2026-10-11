@@ -47,6 +47,19 @@ mat-card {
   min-width: 300px;
 }
 
+.error-card {
+  background-color: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+
+  p {
+    margin: 0;
+  }
+
+  p + p {
+    margin-top: 4px;
+  }
+}
+
 .section-help {
   margin: 0;
   color: var(--mat-sys-on-surface-variant);

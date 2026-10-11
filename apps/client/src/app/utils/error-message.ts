@@ -51,3 +51,26 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
 export function hasHttpStatus(error: unknown, status: number): boolean {
   return (error as { statusCode?: unknown } | null | undefined)?.statusCode === status;
 }
+
+/** A field the backend rejected in a `400 Validation failed` response. */
+export interface ValidationIssue {
+  /** Dot-separated path of the field in the request body, empty for the body itself. */
+  path: string;
+  message: string;
+}
+
+/**
+ * The `errors` of a `400 Validation failed` response, from an Angular
+ * `HttpErrorResponse` or from the response body the SDK throws; empty for any
+ * other error.
+ */
+export function getValidationIssues(error: unknown): ValidationIssue[] {
+  const record = error as { errors?: unknown; error?: { errors?: unknown } | null } | null;
+  const issues = record?.error?.errors ?? record?.errors;
+  if (!Array.isArray(issues)) return [];
+  return issues.flatMap((issue) => {
+    const { path, message } = (issue ?? {}) as { path?: unknown; message?: unknown };
+    if (typeof message !== 'string') return [];
+    return [{ path: Array.isArray(path) ? path.join('.') : '', message }];
+  });
+}
