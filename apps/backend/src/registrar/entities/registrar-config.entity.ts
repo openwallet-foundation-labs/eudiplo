@@ -88,7 +88,7 @@ export class RegistrarConfigEntity {
         nullable: true,
         transformer: EncryptedStringTransformer,
     })
-    clientSecret?: string;
+    clientSecret?: string | null;
 
     /**
      * The username for OIDC Resource Owner Password Credentials (ROPC) flow.
