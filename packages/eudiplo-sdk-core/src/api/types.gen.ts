@@ -1944,6 +1944,17 @@ export type PaginatedSessionResponseDto = {
     totalPages: number;
 };
 
+export type SessionRetentionDto = {
+    /**
+     * Seconds after creation when the maintenance job processes a session
+     */
+    ttlSeconds: number;
+    /**
+     * full: processed sessions are deleted and no longer counted; anonymize: they are kept with their status and still counted
+     */
+    cleanupMode: 'full' | 'anonymize';
+};
+
 export type SessionStatusCountsDto = {
     /**
      * Sessions waiting for the wallet
@@ -1971,6 +1982,17 @@ export type SessionStatusCountsDto = {
     cancelled: number;
 };
 
+export type SessionFailureCodeCountDto = {
+    /**
+     * Failure code, see the session outcome reference; presentation errors a wallet sent keep their own code
+     */
+    code: string;
+    /**
+     * Number of failed sessions with this code
+     */
+    count: number;
+};
+
 export type SessionTypeStatsDto = {
     /**
      * Number of sessions of this type
@@ -1981,12 +2003,20 @@ export type SessionTypeStatsDto = {
      */
     byStatus: SessionStatusCountsDto;
     /**
+     * Failure codes of the failed sessions, most frequent first, at most 10, cut to 255 characters. Failed sessions without a code are not listed.
+     */
+    failureCodes: Array<SessionFailureCodeCountDto>;
+    /**
      * Last update of the most recently updated completed session, or null when none completed
      */
     lastCompletedAt: string | null;
 };
 
 export type SessionStatsResponseDto = {
+    /**
+     * Effective session retention of the tenant; tells how far back the counts reach
+     */
+    retention: SessionRetentionDto;
     /**
      * Issuance sessions; present only when the caller may read them, as in GET /api/session
      */
@@ -2699,8 +2729,7 @@ export type CredentialConfig = {
     attributeProviderId?: string | null;
     attributeProvider?: AttributeProviderEntity;
     /**
-     * Reference to the webhook endpoint used for notifications.
-     * Optional: if set, notifications will be sent to this endpoint.
+     * Not used for notifications: they go to the webhook endpoint of the offer.
      */
     webhookEndpointId?: string | null;
     webhookEndpoint?: WebhookEndpointEntity;
@@ -2766,8 +2795,7 @@ export type CredentialConfigCreate = {
      */
     attributeProviderId?: string | null;
     /**
-     * Reference to the webhook endpoint used for notifications.
-     * Optional: if set, notifications will be sent to this endpoint.
+     * Not used for notifications: they go to the webhook endpoint of the offer.
      */
     webhookEndpointId?: string | null;
     keyBinding?: boolean;
@@ -2831,8 +2859,7 @@ export type CredentialConfigUpdate = {
      */
     attributeProviderId?: string | null;
     /**
-     * Reference to the webhook endpoint used for notifications.
-     * Optional: if set, notifications will be sent to this endpoint.
+     * Not used for notifications: they go to the webhook endpoint of the offer.
      */
     webhookEndpointId?: string | null;
     keyBinding?: boolean;
@@ -6201,7 +6228,7 @@ export type RegistrarControllerUpdateConfigData = {
 
 export type RegistrarControllerUpdateConfigErrors = {
     /**
-     * Invalid credentials
+     * Invalid credentials, or oidcUrl or registrarUrl changes without password (and clientSecret, if one is stored) sent again
      */
     400: unknown;
     /**
@@ -6831,7 +6858,16 @@ export type SessionControllerGetAllSessionsResponse = SessionControllerGetAllSes
 export type SessionControllerGetSessionStatsData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Only sessions created at or after this time (ISO 8601)
+         */
+        createdFrom?: string;
+        /**
+         * Only sessions created at or before this time (ISO 8601)
+         */
+        createdTo?: string;
+    };
     url: '/api/session/stats';
 };
 

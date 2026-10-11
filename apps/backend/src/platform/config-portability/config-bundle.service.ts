@@ -1287,7 +1287,8 @@ export class ConfigBundleService {
             ...document,
             spec: replacesSpec ? desired : { ...current, ...desired },
         });
-        // Omitted top-level fields retain their existing values in the importers.
+        // Omitted top-level fields retain their existing values in the importers,
+        // except the registrar client secret, which a write removes.
         const previous = replacesSpec
             ? before
             : Object.fromEntries(

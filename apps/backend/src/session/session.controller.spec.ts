@@ -13,6 +13,7 @@ import type { SessionStore } from "./application/session-store.js";
 import { SessionStatus } from "./domain/session-state.js";
 import type { SessionLogStoreService } from "./logging/session-log-store.service.js";
 import { SessionController } from "./session.controller.js";
+import type { SessionConfigService } from "./session-config.service.js";
 
 function createController() {
     const sessions = {
@@ -24,13 +25,19 @@ function createController() {
     const logs = { findBySessionId: vi.fn().mockResolvedValue([]) };
     const cancel = { execute: vi.fn().mockResolvedValue(undefined) };
     const statusList = { getSessionStatus: vi.fn().mockResolvedValue([]) };
+    const sessionConfig = {
+        getEffectiveConfig: vi
+            .fn()
+            .mockResolvedValue({ ttlSeconds: 86400, cleanupMode: "full" }),
+    };
     const controller = new SessionController(
         sessions as unknown as SessionStore,
         statusList as unknown as StatusListService,
         logs as unknown as SessionLogStoreService,
         cancel as unknown as CancelSession,
+        sessionConfig as unknown as SessionConfigService,
     );
-    return { controller, sessions, logs, cancel, statusList };
+    return { controller, sessions, logs, cancel, statusList, sessionConfig };
 }
 
 const token = (roles: Role[]) =>
@@ -87,7 +94,7 @@ describe("SessionController", () => {
             const caller = token(roles);
 
             await controller.getAllSessions(caller, query);
-            await controller.getSessionStats(caller);
+            await controller.getSessionStats(caller, {});
             await controller.getSession("session-1", caller);
             await controller.deleteSession("session-1", caller);
             await controller.getSessionLogs("session-1", caller);
@@ -100,6 +107,7 @@ describe("SessionController", () => {
             expect(sessions.statsForTenant).toHaveBeenCalledExactlyOnceWith(
                 "tenant-1",
                 scope,
+                {},
             );
             expect(sessions.getForTenant).toHaveBeenCalledTimes(2);
             for (const call of sessions.getForTenant.mock.calls) {
@@ -223,6 +231,26 @@ describe("SessionController", () => {
                     {},
                 ),
             ).rejects.toBeInstanceOf(SessionNotFound);
+        });
+    });
+
+    describe("stats", () => {
+        it("reports the tenant's effective retention with the counts", async () => {
+            const { controller, sessions, sessionConfig } = createController();
+            sessions.statsForTenant.mockResolvedValue({ presentation: {} });
+
+            await expect(
+                controller.getSessionStats(
+                    token([Role.PresentationRequest]),
+                    {},
+                ),
+            ).resolves.toEqual({
+                presentation: {},
+                retention: { ttlSeconds: 86400, cleanupMode: "full" },
+            });
+            expect(sessionConfig.getEffectiveConfig).toHaveBeenCalledWith(
+                "tenant-1",
+            );
         });
     });
 });

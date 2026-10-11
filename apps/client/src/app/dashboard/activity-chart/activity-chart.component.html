@@ -1,0 +1,69 @@
+<figure class="activity-chart">
+  @if (maxTotal === 0) {
+    <p class="empty">No sessions created in the last {{ windowLabel }}.</p>
+  } @else {
+    <div class="legend" aria-hidden="true">
+      <span class="key completed"><span class="swatch"></span>Completed</span>
+      <span class="key not-completed"><span class="swatch"></span>Not completed</span>
+      <span class="key failed"><span class="swatch"></span>Failed</span>
+    </div>
+
+    <div class="plot" [class.hourly]="unit === 'hour'">
+      @for (bucket of buckets; track bucket.start.getTime()) {
+        <!-- The table below gives the same numbers to assistive technology. -->
+        <div class="column" [matTooltip]="describe(bucket)">
+          <span class="total">{{ bucket.total }}</span>
+          @if (bucket.total > 0) {
+            <div class="stack" [style.height.%]="heightOf(bucket)">
+              @if (bucket.failed > 0) {
+                <span class="segment failed" [style.flex-grow]="bucket.failed"></span>
+              }
+              @if (bucket.notCompleted > 0) {
+                <span class="segment not-completed" [style.flex-grow]="bucket.notCompleted"></span>
+              }
+              @if (bucket.completed > 0) {
+                <span class="segment completed" [style.flex-grow]="bucket.completed"></span>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="axis" [class.hourly]="unit === 'hour'" aria-hidden="true">
+      @for (bucket of buckets; track bucket.start.getTime(); let index = $index) {
+        <span>{{ axisLabel(bucket, index) }}</span>
+      }
+    </div>
+  }
+
+  <table class="visually-hidden">
+    <caption>
+      Sessions per
+      {{
+        unit
+      }}
+      by outcome
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col">{{ unit === 'day' ? 'Day' : 'Hour' }}</th>
+        <th scope="col">Completed</th>
+        <th scope="col">Not completed</th>
+        <th scope="col">Failed</th>
+        <th scope="col">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (bucket of buckets; track bucket.start.getTime()) {
+        <tr>
+          <th scope="row">{{ bucketName(bucket) }}</th>
+          <td>{{ bucket.completed }}</td>
+          <td>{{ bucket.notCompleted }}</td>
+          <td>{{ bucket.failed }}</td>
+          <td>{{ bucket.total }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</figure>

@@ -1,4 +1,5 @@
-export function getApiErrorMessage(error: unknown, fallback: string): string {
+/** The backend's message from an SDK error body or an `Error`, if it has one. */
+export function apiErrorDetail(error: unknown): string | undefined {
   const firstString = (value: unknown): string | undefined => {
     if (!value) return undefined;
     if (typeof value === 'string' && value.trim()) return value;
@@ -30,11 +31,12 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
   };
 
   const extracted = firstString(error);
-  if (!extracted) {
-    return fallback;
-  }
+  return extracted && extracted.toLowerCase() !== '[object object]' ? extracted : undefined;
+}
 
-  if (extracted.toLowerCase() === '[object object]') {
+export function getApiErrorMessage(error: unknown, fallback: string): string {
+  const extracted = apiErrorDetail(error);
+  if (!extracted) {
     return fallback;
   }
 
@@ -43,4 +45,9 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
   }
 
   return `${fallback}: ${extracted}`;
+}
+
+/** True when the SDK error is the backend's error body with this HTTP status. */
+export function hasHttpStatus(error: unknown, status: number): boolean {
+  return (error as { statusCode?: unknown } | null | undefined)?.statusCode === status;
 }
