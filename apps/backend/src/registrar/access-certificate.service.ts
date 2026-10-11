@@ -195,6 +195,7 @@ export class AccessCertificateService {
             certId = await this.certService.addCertificate(tenantId, {
                 crt: [crt],
                 keyId,
+                defaultDescription: `Access certificate from registrar (ID: ${id})`,
             });
         } catch (error) {
             if (issuedNow) await this.revoke(tenantId, client, id);

@@ -205,7 +205,7 @@ placeholders are handled according to `CONFIG_VARIABLE_STRICT`:
 | ----------- | ------------------------------------------------------------------------------------------- |
 | `create`    | The resource will be created                                                                |
 | `update`    | The resource will change; the plan lists its field changes, secrets redacted               |
-| `unchanged` | Already matches, or a key chain document this source already applied (see below); only ownership metadata may be updated |
+| `unchanged` | Already matches, or a key chain or `!generate` client document this source already applied (see below); only ownership metadata may be updated |
 | `skip`      | Exists and is left alone: in `create` mode (`RESOURCE_EXISTS`), in a startup import when the resource was detached from that folder (`RESOURCE_DETACHED`) or has a newer stored generation (`STALE_GENERATION`), or because it is the tenant's encryption key chain (`KEY_CHAIN_ID_RESERVED`) |
 | `delete`    | Will be removed (`replace` mode)                                                            |
 | `blocked`   | Cannot be applied, for example `STALE_GENERATION`, `MISSING_RESOURCE_REFERENCE`, `STATUS_LIST_LAYOUT_IMMUTABLE`, a missing secret or key, or `TRUST_LIST_IN_USE` on a trust list that `replace` would delete while a configuration still references it ([Delete a trust list](../trust/trust-lists.md#delete-a-trust-list)). One blocked item blocks the whole plan |
@@ -222,6 +222,8 @@ A `KmsConfig` or `RegistrarConfig` document replaces the stored resource: fields
 The plan lists these values as they will be stored. For the other kinds, a top-level field the document leaves out keeps its stored value.
 
 A `KeyChain` document that is identical to the one last applied from the same source (the same config folder, or bundles whose manifest names the same tenant) plans `unchanged` while the key chain is `file-managed`, without comparing it with the stored key chain: importers add key IDs, EUDIPLO creates the signing key of a CA key, and rotation or registrar enrollment replace keys and certificates later. These changes stay, so certificates EUDIPLO created during the import are only renewed by rotation. Reattaching always applies the folder version. To apply an unchanged document again, for example to regenerate a key, raise `metadata.generation`; in a bundle, also update the document's `sha256` in `manifest.json`.
+
+The same rule covers a `Client` document with `"secret": "!generate"`, since applying it generates a new secret: once this source applied it, the client keeps its secret while the document stays the same. A changed document, a raised `metadata.generation`, another source or reattaching generates a new secret, returned once in `generatedSecrets`. Other `Client` documents are compared field by field. With Keycloak (`OIDC` set), every `Client` document is applied on every import, because the plan cannot see changes made in Keycloak; a `!generate` client applied as it is keeps its secret.
 
 The tenant's encryption key chain is managed by EUDIPLO and is not configuration: exports leave it out, and plans neither change nor delete it. A `KeyChain` document with its ID, such as the one exports of earlier versions contain, is skipped (warning `KEY_CHAIN_ID_RESERVED`).
 

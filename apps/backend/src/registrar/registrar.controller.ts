@@ -198,6 +198,10 @@ export class RegistrarController {
             "Authentication with the registrar failed (for example wrong credentials or an unreachable OIDC provider), the registrar or OIDC URL is blocked by the outbound URL policy, or the registrar rejected the relying-party lookup or registration or the certificate request",
     })
     @ApiResponse({
+        status: 403,
+        description: "The caller lacks the registrar:manage role",
+    })
+    @ApiResponse({
         status: 404,
         description: "No registrar configuration found or key not found",
     })

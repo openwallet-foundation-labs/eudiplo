@@ -1,13 +1,9 @@
-import { schemaUrl } from "@eudiplo/config-format/config-format.js";
 import * as x509 from "@peculiar/x509";
 import { beforeAll, describe, expect, it } from "vitest";
-import type { ConfigDocument } from "./config-resource.types.js";
-import { documentSourceHash } from "./config-source-hash.js";
 import {
     appliedKeyChainType,
     internalChainProblems,
     isInternalChainWithPrivateKeys,
-    keyChainAppliedAsIs,
 } from "./key-chain-document.js";
 
 const algorithm = { name: "ECDSA", namedCurve: "P-256", hash: "SHA-256" };
@@ -247,59 +243,5 @@ describe("appliedKeyChainType", () => {
             appliedKeyChainType({ keySource, activeCertificate: "leaf" }),
         ).toBe("internalChain");
         expect(appliedKeyChainType({ keySource })).toBe("standalone");
-    });
-});
-
-describe("key chain documents applied as they are", () => {
-    const document = (kind: "KeyChain" | "Client"): ConfigDocument => ({
-        $schema: schemaUrl(kind),
-        kind,
-        metadata: { generation: 1 },
-        spec: { id: "issuer", keySource: { type: "regenerate" } },
-    });
-    const applied = (overrides: Record<string, unknown> = {}) => ({
-        ownership: "file-managed" as const,
-        source: "folder:/config/demo",
-        sourceHash: documentSourceHash(document("KeyChain")),
-        ...overrides,
-    });
-
-    it("skips the comparison for the document a source last applied", () => {
-        expect(
-            keyChainAppliedAsIs(
-                document("KeyChain"),
-                applied(),
-                "folder:/config/demo",
-            ),
-        ).toBe(true);
-    });
-
-    it("compares other kinds, ownership, sources and documents", () => {
-        const client = document("Client");
-        expect(
-            keyChainAppliedAsIs(
-                client,
-                applied({ sourceHash: documentSourceHash(client) }),
-                "folder:/config/demo",
-            ),
-        ).toBe(false);
-        for (const ownership of ["detached", "unmanaged"])
-            expect(
-                keyChainAppliedAsIs(
-                    document("KeyChain"),
-                    applied({ ownership }),
-                    "folder:/config/demo",
-                ),
-            ).toBe(false);
-        expect(
-            keyChainAppliedAsIs(document("KeyChain"), applied(), "bundle:demo"),
-        ).toBe(false);
-        expect(
-            keyChainAppliedAsIs(
-                document("KeyChain"),
-                applied({ sourceHash: "other" }),
-                "folder:/config/demo",
-            ),
-        ).toBe(false);
     });
 });

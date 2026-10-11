@@ -34,12 +34,13 @@ describe('authInterceptor', () => {
   async function answer(
     url: string,
     status: number,
-    beforeAnswer = () => {}
+    beforeAnswer = () => {},
+    body: object | null = null
   ): Promise<string | null> {
     const response = firstValueFrom(http.get(url)).catch(() => undefined);
     const request = controller.expectOne(url);
     beforeAnswer();
-    request.flush(null, { status, statusText: 'Refused' });
+    request.flush(body, { status, statusText: 'Refused' });
     await response;
     return request.request.headers.get('Authorization');
   }
@@ -48,7 +49,14 @@ describe('authInterceptor', () => {
     const authorization = await answer('http://backend.test/api/registrar/config', 401);
 
     expect(authorization).toBe('Bearer token-1');
-    expect(refusals.handleApiResponse).toHaveBeenCalledWith(401, 'token-1');
+    expect(refusals.handleApiResponse).toHaveBeenCalledWith(401, 'token-1', null);
+  });
+
+  it('passes the body of a refusal on, which says why', async () => {
+    const reason = { statusCode: 403, message: 'Forbidden resource' };
+    await answer('http://backend.test/api/registrar/config', 403, undefined, reason);
+
+    expect(refusals.handleApiResponse).toHaveBeenCalledWith(403, 'token-1', reason);
   });
 
   it('reports the token the request was sent with, not one renewed meanwhile', async () => {
@@ -56,7 +64,7 @@ describe('authInterceptor', () => {
       api.accessToken = 'token-2';
     });
 
-    expect(refusals.handleApiResponse).toHaveBeenCalledWith(401, 'token-1');
+    expect(refusals.handleApiResponse).toHaveBeenCalledWith(401, 'token-1', null);
   });
 
   it('does not report answers of other addresses', async () => {

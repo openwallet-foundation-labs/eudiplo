@@ -43,6 +43,7 @@ import type {
     ConfigBundle,
     ConfigFile,
     ConfigImportMode,
+    ConfigImportPlan,
     ConfigResourceKind,
 } from "./config-resource.types.js";
 import { CONFIG_RESOURCE_KINDS } from "./config-resource.types.js";
@@ -254,18 +255,7 @@ export class ConfigPortabilityController {
             },
             requestMeta: extractRequestMeta(request),
         });
-        if (plan.generatedSecrets?.length) {
-            await this.auditLogService.record({
-                tenantId,
-                actionType: "config_client_secret_generated",
-                actor: resolveAuditActor(token),
-                after: {
-                    clients: plan.generatedSecrets.map(({ id }) => id),
-                    count: plan.generatedSecrets.length,
-                },
-                requestMeta: extractRequestMeta(request),
-            });
-        }
+        await this.recordGeneratedSecrets(tenantId, token, request, plan);
         return plan;
     }
 
@@ -436,7 +426,28 @@ export class ConfigPortabilityController {
             },
             requestMeta: extractRequestMeta(request),
         });
+        await this.recordGeneratedSecrets(tenantId, token, request, plan);
         return plan;
+    }
+
+    /** Records which clients got a generated secret, never the secret. */
+    private async recordGeneratedSecrets(
+        tenantId: string,
+        token: TokenPayload,
+        request: Request,
+        plan: ConfigImportPlan,
+    ): Promise<void> {
+        if (!plan.generatedSecrets?.length) return;
+        await this.auditLogService.record({
+            tenantId,
+            actionType: "config_client_secret_generated",
+            actor: resolveAuditActor(token),
+            after: {
+                clients: plan.generatedSecrets.map(({ id }) => id),
+                count: plan.generatedSecrets.length,
+            },
+            requestMeta: extractRequestMeta(request),
+        });
     }
 
     private assertKind(kind: string): ConfigResourceKind {

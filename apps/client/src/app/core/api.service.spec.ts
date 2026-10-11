@@ -585,6 +585,18 @@ describe('ApiService token refresh', () => {
     expect([...store.values()].some((value) => value.includes('secret'))).toBe(false);
   });
 
+  it('sends a rotated secret of a reloaded tab nowhere once another client signed in', async () => {
+    storeSession(10 * 60_000);
+    const service = TestBed.inject(ApiService);
+    const stored = JSON.parse(store.get('oauth_config') ?? '{}');
+    store.set('oauth_config', JSON.stringify({ ...stored, clientId: 'other' }));
+
+    await expect(service.useRotatedSecret('new-secret')).rejects.toThrow('Please log in again');
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(service.canRefreshToken()).toBe(false);
+  });
+
   it('keeps a new sign-in when the previous credentials are rejected afterwards', async () => {
     const service = await signIn();
     const answerPrevious = holdNextRequest();
@@ -703,17 +715,53 @@ describe('ApiService token refresh', () => {
       expect(fetchMock).not.toHaveBeenCalled();
     });
 
-    it('does not renew a restored session for its roles, which has no secret', async () => {
+    it('reports a role check refusal of a restored session, which has no secret to renew', async () => {
       storeSession(10 * 60_000);
       const service = TestBed.inject(ApiService);
       const refusals = TestBed.inject(ApiRefusalService);
+      const rolesRefused = vi.fn();
+      refusals.rolesRefusedWithoutRenewal$.subscribe(rolesRefused);
 
-      refusals.handleApiResponse(403, 'stored');
+      refusals.handleApiResponse(403, 'stored', { statusCode: 403, message: 'Forbidden resource' });
       await settle();
 
+      expect(rolesRefused).toHaveBeenCalledOnce();
       expect(fetchMock).not.toHaveBeenCalled();
       expect(refusals.isAccessRevoked()).toBe(false);
       expect(service.accessToken).toBe('stored');
+    });
+
+    it('does not report 403s that a new token would not change', async () => {
+      storeSession(10 * 60_000);
+      const refusals = TestBed.inject(ApiRefusalService);
+      const rolesRefused = vi.fn();
+      refusals.rolesRefusedWithoutRenewal$.subscribe(rolesRefused);
+
+      // A reason of its own, no reason, and a refusal of a token that was replaced.
+      refusals.handleApiResponse(403, 'stored', {
+        statusCode: 403,
+        message: 'This endpoint requires a tenant context. Use a tenant-bound account.',
+      });
+      refusals.handleApiResponse(403, 'stored');
+      refusals.handleApiResponse(403, 'older', { statusCode: 403, message: 'Forbidden resource' });
+      oidcStub.mode = 'oidc';
+      refusals.handleApiResponse(403, 'stored', { statusCode: 403, message: 'Forbidden resource' });
+      await settle();
+
+      expect(rolesRefused).not.toHaveBeenCalled();
+    });
+
+    it('renews a session with its secret instead of reporting a role check refusal', async () => {
+      const { refusals } = await signedInWithRefusals();
+      const rolesRefused = vi.fn();
+      refusals.rolesRefusedWithoutRenewal$.subscribe(rolesRefused);
+      fetchMock.mockResolvedValueOnce(tokenResponse('next'));
+
+      refusals.handleApiResponse(403, 'first', { statusCode: 403, message: 'Forbidden resource' });
+      await settle();
+
+      expect(rolesRefused).not.toHaveBeenCalled();
+      expect(fetchMock).toHaveBeenCalledTimes(2);
     });
 
     it('leaves an expired token of a restored session to the expiry notice', async () => {
@@ -803,9 +851,26 @@ describe('ApiService token refresh', () => {
       await refused();
       expect(handle).toHaveBeenCalledWith(401, 'first');
 
+      // A 403 is reported with its body, which tells a role check refusal from other reasons.
+      const reason = { statusCode: 403, message: 'Forbidden resource' };
+      await clientControllerGetClients({
+        fetch: () => Promise.resolve(Response.json(reason, { status: 403 })),
+        throwOnError: false,
+      });
+      await settle();
+      expect(handle).toHaveBeenLastCalledWith(403, 'first', reason);
+      // A body that is not JSON still reports the refusal, without a reason.
+      await clientControllerGetClients({
+        fetch: () => Promise.resolve(new Response('', { status: 403 })),
+        throwOnError: false,
+      });
+      await settle();
+      expect(handle).toHaveBeenLastCalledWith(403, 'first', undefined);
+      handle.mockClear();
+
       refusals.ngOnDestroy();
       await refused();
-      expect(handle).toHaveBeenCalledOnce();
+      expect(handle).not.toHaveBeenCalled();
     });
   });
 });

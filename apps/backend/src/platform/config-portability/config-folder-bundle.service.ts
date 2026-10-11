@@ -20,6 +20,7 @@ import { ConfigBundleService } from "./config-bundle.service.js";
 import { ConfigBundleApplyService } from "./config-bundle-apply.service.js";
 import { ConfigMigrationService } from "./config-migration.service.js";
 import { ConfigResourceRegistry } from "./config-resource.registry.js";
+import { generatedSecretsOf } from "./generated-secrets.js";
 import type {
     ConfigBundle,
     ConfigBundleAsset,
@@ -88,12 +89,19 @@ export class ConfigFolderBundleService {
         const tenantRoot = join(configRoot, tenantId);
         const bundle = this.buildBundle(tenantId, tenantRoot);
         const source = folderSource(tenantRoot);
-        const plan = await this.applyService.apply(
-            tenantId,
-            bundle,
-            mode,
-            source,
-        );
+        let plan: ConfigImportPlan;
+        try {
+            plan = await this.applyService.apply(
+                tenantId,
+                bundle,
+                mode,
+                source,
+            );
+        } catch (error) {
+            this.warnGeneratedSecrets(tenantId, generatedSecretsOf(error));
+            throw error;
+        }
+        this.warnGeneratedSecrets(tenantId, plan.generatedSecrets);
         for (const item of plan.items) {
             if (item.action !== "skip") continue;
             for (const issue of item.issues) {
@@ -122,6 +130,21 @@ export class ConfigFolderBundleService {
                     .join(", ") || "no resources"
             }`,
         );
+    }
+
+    /**
+     * A startup import has no caller to return generated secrets to. Name each
+     * client, never its secret, and say how to get a secret that can be read.
+     */
+    private warnGeneratedSecrets(
+        tenantId: string,
+        generatedSecrets: ConfigImportPlan["generatedSecrets"],
+    ): void {
+        for (const { id } of generatedSecrets ?? []) {
+            this.logger.warn(
+                `[${tenantId}] Client '${id}' got a generated secret ("secret": "!generate"), which a startup import does not show. To get a new secret, reattach the client: POST /api/config-bundles/resources/Client/${id}/reattach/plan, then /reattach with the plan's fingerprint, or "Apply from file" under Settings > Config Portability.`,
+            );
+        }
     }
 
     /** Plans resetting one resource to its version in the startup config folder. */

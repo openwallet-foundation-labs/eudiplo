@@ -57,9 +57,85 @@ test.describe('client with changed roles', () => {
       )
     ).toBeVisible();
     await expect(nav.getByText('Credential Types', { exact: true })).toHaveCount(0);
+    // With the secret, the new token names the role; no new login is suggested.
+    await expect(page.getByText('Your API client may have lost a role')).toHaveCount(0);
     await expect(page).toHaveURL(/\/credential-config$/);
     await page.getByRole('button', { name: 'Leave page' }).click();
     await expect(page).toHaveURL(/\/dashboard$/);
     await expect(nav.getByText('Session Settings', { exact: true })).toBeVisible();
+  });
+});
+
+test.describe('reloaded session with changed roles', () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+  const { clientId, clientSecret } = useTenantClient(
+    'reloaded-roles',
+    ['presentation:manage', 'issuance:manage'],
+    'E2E client whose roles change while a reloaded tab is signed in'
+  );
+
+  test('suggests a new login, as the tab has no secret to renew its token', async ({
+    page,
+    request,
+  }) => {
+    await loginWithClientCredentials(page, clientId, clientSecret);
+    // A reload drops the client secret: the tab keeps its token but cannot renew it.
+    await page.reload();
+    const nav = page.locator('mat-sidenav');
+    await expect(nav.getByText('Credential Types', { exact: true })).toBeVisible();
+    await page.waitForLoadState('networkidle');
+
+    await setTenantClientRoles(request, clientId, ['presentation:manage']);
+    const refused = page.waitForResponse(
+      (response) => response.url().includes('/api/issuer/credentials') && response.status() === 403
+    );
+    await nav.getByText('Credential Types', { exact: true }).click();
+    await refused;
+
+    await expect(
+      page.getByText('Your API client may have lost a role this page needs')
+    ).toBeVisible();
+    await expect(page).toHaveURL(/\/credential-config$/);
+    await page.getByRole('button', { name: 'Log in' }).click();
+    await expect(page).toHaveURL(/\/login$/);
+  });
+});
+
+test.describe('reloaded session that saves after its roles changed', () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+  const { clientId, clientSecret } = useTenantClient(
+    'reloaded-save',
+    ['presentation:manage', 'issuance:manage'],
+    'E2E client whose roles change before a reloaded tab saves'
+  );
+
+  test('keeps the suggestion visible when the page reports a refused save', async ({
+    page,
+    request,
+  }) => {
+    await loginWithClientCredentials(page, clientId, clientSecret);
+    // Opening the page by address reloads the app, which drops the client secret.
+    await page.goto('/attribute-providers/create');
+    await page.getByLabel('ID').fill('reloaded-save');
+    await page.getByLabel('Name').fill('Reloaded save');
+    await page.getByLabel('URL').fill('https://example.com/attributes');
+    const create = page.getByRole('button', { name: 'Create' });
+    await expect(create).toBeEnabled();
+    await page.waitForLoadState('networkidle');
+
+    await setTenantClientRoles(request, clientId, ['presentation:manage']);
+    const refused = page.waitForResponse(
+      (response) =>
+        response.url().includes('/api/issuer/attribute-providers') && response.status() === 403
+    );
+    await create.click();
+    await refused;
+
+    // The page's own "Failed to create" message must not hide the suggestion.
+    await expect(
+      page.getByText('Your API client may have lost a role this page needs')
+    ).toBeVisible();
+    await expect(page.getByText('Failed to create attribute provider')).toHaveCount(0);
+    await expect(page).toHaveURL(/\/attribute-providers\/create$/);
   });
 });

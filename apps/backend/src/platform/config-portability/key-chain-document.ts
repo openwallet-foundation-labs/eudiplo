@@ -5,9 +5,6 @@ import {
     importedKeyChainType,
 } from "../../crypto/key/domain/key-chain-import-type.js";
 import { importedRotationIntervals } from "../../crypto/key/key-chain-import-rotation.js";
-import type { ConfigDocument } from "./config-resource.types.js";
-import { documentSourceHash } from "./config-source-hash.js";
-import type { ConfigResourceMetadataEntity } from "./entities/config-resource-metadata.entity.js";
 
 type Spec = Record<string, any>;
 
@@ -32,29 +29,6 @@ interface InternalChainProblem {
  */
 export function isInternalChainWithPrivateKeys(spec: Spec): boolean {
     return spec.keySource?.type === "private-jwk" && !!spec.keySource.activeJwk;
-}
-
-/**
- * A key chain never equals its document once applied: importers add key IDs,
- * EUDIPLO creates the signing key of a CA key, and rotation or registrar
- * enrollment replace keys and certificates. So a key chain that this source
- * applied from the same document and that stayed file-managed is unchanged,
- * without comparing it with the stored key chain.
- */
-export function keyChainAppliedAsIs(
-    document: ConfigDocument,
-    metadata: Pick<
-        ConfigResourceMetadataEntity,
-        "ownership" | "source" | "sourceHash"
-    >,
-    source: string,
-): boolean {
-    return (
-        document.kind === "KeyChain" &&
-        metadata.ownership === "file-managed" &&
-        metadata.source === source &&
-        metadata.sourceHash === documentSourceHash(document)
-    );
 }
 
 /**
