@@ -77,6 +77,10 @@ describe("outboundFetch", () => {
                         response.writeHead(302, { location: "http://[" });
                         response.end();
                         return;
+                    case "/redirect-301-same-origin":
+                        response.writeHead(301, { location: "/ok" });
+                        response.end();
+                        return;
                     case "/redirect-303":
                         response.writeHead(303, { location: "/ok" });
                         response.end();
@@ -395,6 +399,45 @@ describe("outboundFetch", () => {
                 { method: "POST", body: "data" },
                 { method: "GET", url: "/ok", body: "" },
             ]);
+        });
+
+        it("continues a 301 after a POST with a GET without body", async () => {
+            await following(permissive())(
+                `${localhost}/redirect-301-same-origin`,
+                { method: "POST", body: "data" },
+            );
+
+            expect(requests[1]).toMatchObject({ method: "GET", body: "" });
+        });
+
+        it("keeps method and body of a PUT on a 302", async () => {
+            await following(permissive())(`${localhost}/redirect-same-origin`, {
+                method: "PUT",
+                body: "data",
+            });
+
+            expect(requests[1]).toMatchObject({ method: "PUT", body: "data" });
+        });
+
+        it("continues a 303 after a PUT with a GET without body", async () => {
+            await following(permissive())(`${localhost}/redirect-303`, {
+                method: "PUT",
+                body: "data",
+            });
+
+            expect(requests[1]).toMatchObject({
+                method: "GET",
+                url: "/ok",
+                body: "",
+            });
+        });
+
+        it("keeps HEAD on a 303", async () => {
+            await following(permissive())(`${localhost}/redirect-303`, {
+                method: "HEAD",
+            });
+
+            expect(requests[1]).toMatchObject({ method: "HEAD", url: "/ok" });
         });
 
         it("continues a 303 with a GET without body", async () => {

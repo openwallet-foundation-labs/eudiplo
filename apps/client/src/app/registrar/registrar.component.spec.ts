@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { provideRouter } from '@angular/router';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ConfigOwnershipService } from '../config-portability/config-ownership.service';
 import { RegistrarComponent } from './registrar.component';
 import { RegistrarConfig, RegistrarService } from './registrar.service';
@@ -23,6 +23,7 @@ describe('RegistrarComponent', () => {
     getConfig: ReturnType<typeof vi.fn>;
     saveConfig: ReturnType<typeof vi.fn>;
     updateConfig: ReturnType<typeof vi.fn>;
+    deleteConfig: ReturnType<typeof vi.fn>;
   };
   let snackBar: { open: ReturnType<typeof vi.fn> };
 
@@ -40,8 +41,17 @@ describe('RegistrarComponent', () => {
       error.textContent?.trim()
     );
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   beforeEach(async () => {
-    service = { getConfig: vi.fn(), saveConfig: vi.fn(), updateConfig: vi.fn() };
+    service = {
+      getConfig: vi.fn(),
+      saveConfig: vi.fn(),
+      updateConfig: vi.fn(),
+      deleteConfig: vi.fn().mockResolvedValue(undefined),
+    };
     snackBar = { open: vi.fn() };
     await TestBed.configureTestingModule({
       imports: [RegistrarComponent],
@@ -125,6 +135,138 @@ describe('RegistrarComponent', () => {
     expect(service.updateConfig).toHaveBeenCalledTimes(2);
     expect(component.configForm.get('oidcUrl')?.getError('server')).toBeNull();
     expect(errorsShown().join(' ')).not.toContain('allowlist');
+  });
+
+  it('sends trimmed certificate defaults and no empty password on update', async () => {
+    await render(stored);
+    service.updateConfig.mockResolvedValue(stored);
+    component.configForm.patchValue({
+      registrationCertificateDefaults: {
+        privacy_policy: '  https://p.example  ',
+        support_uri: '',
+        intermediary: '',
+      },
+    });
+
+    await component.saveConfig();
+
+    const [body] = service.updateConfig.mock.calls[0];
+    expect(body).toMatchObject({ registrarUrl: stored.registrarUrl, clientSecret: undefined });
+    expect(body.registrationCertificateDefaults).toEqual({ privacy_policy: 'https://p.example' });
+    expect(body).not.toHaveProperty('password');
+  });
+
+  it('keeps certificate defaults that the form does not show', async () => {
+    await render({
+      ...stored,
+      registrationCertificateDefaults: {
+        privacy_policy: 'https://old.example',
+        provides_attestations: [{ format: 'dc+sd-jwt' }],
+      },
+    });
+    service.updateConfig.mockResolvedValue(stored);
+    component.configForm.patchValue({ registrationCertificateDefaults: { privacy_policy: '' } });
+
+    await component.saveConfig();
+
+    expect(service.updateConfig.mock.calls[0][0].registrationCertificateDefaults).toEqual({
+      provides_attestations: [{ format: 'dc+sd-jwt' }],
+    });
+  });
+
+  it('makes the password optional once a new configuration is saved', async () => {
+    await render(null);
+    service.saveConfig.mockResolvedValue({ ...stored, hasPassword: true });
+    component.configForm.patchValue({
+      registrarUrl: stored.registrarUrl,
+      oidcUrl: stored.oidcUrl,
+      clientId: stored.clientId,
+      username: stored.username,
+      password: 'secret',
+    });
+    await component.saveConfig();
+
+    component.configForm.get('password')?.setValue('');
+    expect(component.configForm.get('password')?.valid).toBe(true);
+  });
+
+  it('requires the password again after a delete', async () => {
+    await render(stored);
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+    await component.deleteConfig();
+
+    expect(component.configForm.get('password')?.hasError('required')).toBe(true);
+  });
+
+  it('sends an edited stored default with its new value', async () => {
+    const attestations = [{ format: 'dc+sd-jwt' }];
+    await render({
+      ...stored,
+      registrationCertificateDefaults: {
+        privacy_policy: 'https://old.example',
+        provides_attestations: attestations,
+      },
+    });
+    service.updateConfig.mockResolvedValue(stored);
+    component.configForm.patchValue({
+      registrationCertificateDefaults: { privacy_policy: 'https://new.example' },
+    });
+
+    await component.saveConfig();
+
+    expect(service.updateConfig.mock.calls[0][0].registrationCertificateDefaults).toEqual({
+      privacy_policy: 'https://new.example',
+      provides_attestations: attestations,
+    });
+  });
+
+  it('sends null certificate defaults when all are empty', async () => {
+    await render(stored);
+    service.updateConfig.mockResolvedValue(stored);
+
+    await component.saveConfig();
+
+    expect(service.updateConfig.mock.calls[0][0].registrationCertificateDefaults).toBeNull();
+  });
+
+  it('creates a new configuration with POST', async () => {
+    await render(null);
+    service.saveConfig.mockResolvedValue(stored);
+    component.configForm.patchValue({
+      registrarUrl: stored.registrarUrl,
+      oidcUrl: stored.oidcUrl,
+      clientId: stored.clientId,
+      username: stored.username,
+      password: 'secret',
+    });
+
+    await component.saveConfig();
+
+    expect(service.saveConfig).toHaveBeenCalledTimes(1);
+    expect(service.saveConfig.mock.calls[0][0]).toMatchObject({ password: 'secret' });
+    expect(service.updateConfig).not.toHaveBeenCalled();
+  });
+
+  it('shows the backend message when no field error applies', async () => {
+    await render(stored);
+    service.updateConfig.mockRejectedValueOnce(
+      new HttpErrorResponse({ status: 503, error: { message: 'Registrar unreachable' } })
+    );
+    await component.saveConfig();
+    expect(snackBar.open).toHaveBeenLastCalledWith(
+      'Registrar unreachable',
+      'Close',
+      expect.anything()
+    );
+
+    service.updateConfig.mockRejectedValueOnce(new HttpErrorResponse({ status: 500, error: {} }));
+    await component.saveConfig();
+    expect(snackBar.open).toHaveBeenLastCalledWith(
+      'Failed to save configuration',
+      'Close',
+      expect.anything()
+    );
   });
 
   it('highlights a stored URL that breaks the base URL rule right after loading', async () => {

@@ -143,95 +143,129 @@ export function outboundFetch(
         const deadline = AbortSignal.timeout(limits.timeoutMs);
         const signal = AbortSignal.any([request.signal, deadline]);
         const origin = new URL(request.url).origin;
-        let url = request.url;
-        let method = request.method;
-        let headers: Record<string, string> = Object.fromEntries(
-            request.headers,
-        );
-        let body = request.body
-            ? Buffer.from(await request.arrayBuffer())
-            : undefined;
+        const first: Hop = {
+            url: request.url,
+            method: request.method,
+            headers: Object.fromEntries(request.headers),
+            body: request.body
+                ? Buffer.from(await request.arrayBuffer())
+                : undefined,
+        };
 
-        await policy.assertSafeUrl(url).catch((error: Error) => {
+        await policy.assertSafeUrl(first.url).catch((error: Error) => {
             throw new OutboundFetchError(
-                `Request to ${url} is blocked by the outbound URL policy: ${error.message}`,
+                `Request to ${first.url} is blocked by the outbound URL policy: ${error.message}`,
                 { blocked: true },
             );
         });
-        for (let redirects = 0; ; redirects++) {
+
+        // Recursion instead of a loop: its depth is bounded by maxRedirects.
+        const send = async (hop: Hop, redirects: number): Promise<Response> => {
             let response: AxiosResponse<ArrayBuffer>;
             try {
                 response = await firstValueFrom(
                     http.request<ArrayBuffer>({
                         ...policyRequestConfig(policy, limits, signal),
-                        url,
-                        method,
-                        headers,
-                        data: body,
+                        url: hop.url,
+                        method: hop.method,
+                        headers: hop.headers,
+                        data: hop.body,
                         responseType: "arraybuffer",
                     }),
                 );
             } catch (error) {
                 if (request.signal.aborted) throw request.signal.reason;
-                throw toOutboundFetchError(error, url, limits, deadline);
+                throw toOutboundFetchError(error, hop.url, limits, deadline);
             }
-
             if (!REDIRECT_STATUSES.has(response.status)) {
                 return toFetchResponse(response);
             }
 
-            const location = response.headers.location;
-            if (typeof location !== "string") {
+            const next = redirectHop(hop, response, {
+                origin,
+                redirects,
+                maxRedirects,
+            });
+            await policy.assertSafeUrl(next.url).catch((error: Error) => {
                 throw new OutboundFetchError(
-                    `Request to ${url} returned redirect status ${response.status} without a location`,
-                );
-            }
-            const target = URL.parse(location, url)?.toString();
-            if (target === undefined) {
-                throw new OutboundFetchError(
-                    `Request to ${url} was redirected to an invalid location`,
-                );
-            }
-            if (redirects === maxRedirects) {
-                throw new OutboundFetchError(
-                    maxRedirects === 0
-                        ? `Request to ${url} was redirected to ${target}; redirects are not followed`
-                        : `Request to ${url} was redirected to ${target}; more than ${maxRedirects} redirects are not followed`,
-                );
-            }
-
-            // As the Fetch standard does: 303, and 301/302 after a POST,
-            // continue with a GET without body.
-            if (
-                response.status === 303 ||
-                ((response.status === 301 || response.status === 302) &&
-                    method === "POST")
-            ) {
-                if (method !== "HEAD") method = "GET";
-                body = undefined;
-                headers = withoutHeaders(headers, [
-                    "content-type",
-                    "content-length",
-                ]);
-            }
-            if (new URL(target).origin !== origin) {
-                if (body) {
-                    throw new OutboundFetchError(
-                        `Request to ${url} was redirected to ${target}; a request body is not resent to another origin`,
-                    );
-                }
-                headers = withoutHeaders(headers, CREDENTIAL_HEADERS);
-            }
-
-            await policy.assertSafeUrl(target).catch((error: Error) => {
-                throw new OutboundFetchError(
-                    `Request to ${url} was redirected to ${target}, which the outbound URL policy blocks: ${error.message}`,
+                    `Request to ${hop.url} was redirected to ${next.url}, which the outbound URL policy blocks: ${error.message}`,
                     { blocked: true },
                 );
             });
-            url = target;
-        }
+            return send(next, redirects + 1);
+        };
+        return send(first, 0);
     };
+}
+
+/** One request of an {@link outboundFetch}, the first or after a redirect. */
+interface Hop {
+    url: string;
+    method: string;
+    headers: Record<string, string>;
+    body?: Buffer;
+}
+
+/**
+ * The request that follows a redirect response, or an error when the
+ * redirect is not followed. As the Fetch standard does, 303, and 301/302
+ * after a POST, continue with a GET without body; credential headers and
+ * bodies never go to another origin than `origin`.
+ */
+function redirectHop(
+    hop: Hop,
+    response: AxiosResponse<ArrayBuffer>,
+    context: { origin: string; redirects: number; maxRedirects: number },
+): Hop {
+    const location = response.headers.location;
+    if (typeof location !== "string") {
+        throw new OutboundFetchError(
+            `Request to ${hop.url} returned redirect status ${response.status} without a location`,
+        );
+    }
+    const target = URL.parse(location, hop.url)?.toString();
+    if (target === undefined) {
+        throw new OutboundFetchError(
+            `Request to ${hop.url} was redirected to an invalid location`,
+        );
+    }
+    if (context.redirects === context.maxRedirects) {
+        const limit =
+            context.maxRedirects === 0
+                ? "redirects are not followed"
+                : `more than ${context.maxRedirects} redirects are not followed`;
+        throw new OutboundFetchError(
+            `Request to ${hop.url} was redirected to ${target}; ${limit}`,
+        );
+    }
+
+    let next: Hop = { ...hop, url: target };
+    const toGet =
+        response.status === 303 ||
+        ((response.status === 301 || response.status === 302) &&
+            hop.method === "POST");
+    if (toGet) {
+        next = {
+            url: target,
+            method: hop.method === "HEAD" ? "HEAD" : "GET",
+            headers: withoutHeaders(hop.headers, [
+                "content-type",
+                "content-length",
+            ]),
+        };
+    }
+    if (new URL(target).origin !== context.origin) {
+        if (next.body) {
+            throw new OutboundFetchError(
+                `Request to ${hop.url} was redirected to ${target}; a request body is not resent to another origin`,
+            );
+        }
+        next = {
+            ...next,
+            headers: withoutHeaders(next.headers, CREDENTIAL_HEADERS),
+        };
+    }
+    return next;
 }
 
 function withoutHeaders(

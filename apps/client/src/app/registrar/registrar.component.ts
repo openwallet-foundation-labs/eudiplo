@@ -28,6 +28,15 @@ import { ConfigOwnershipNoticeComponent } from '../config-portability/config-own
 const POLICY_HINT =
   "This instance's outbound URL policy blocks the URL; ask the operator to allow it.";
 
+/** Snackbar text when the backend's issues were shown at the fields. */
+const FIELD_ERROR_MESSAGES = {
+  policy: POLICY_HINT,
+  input: 'Please correct the highlighted fields',
+};
+
+/** Registration certificate defaults the form edits. */
+const DEFAULTS_FIELDS = ['privacy_policy', 'support_uri', 'intermediary'];
+
 /** Fields checked against the registrar base URL rule. */
 const URL_FIELDS = ['registrarUrl', 'oidcUrl'] as const;
 
@@ -134,11 +143,7 @@ export class RegistrarComponent implements OnInit {
                 : '',
           },
         });
-        // If config exists with a password, password field is optional (keep existing)
-        if (this.config.hasPassword) {
-          this.configForm.get('password')?.clearValidators();
-          this.configForm.get('password')?.updateValueAndValidity();
-        }
+        this.updatePasswordRule();
         // A URL stored before the base URL rule shows its error right away.
         for (const field of URL_FIELDS) {
           const control = this.configForm.get(field);
@@ -167,7 +172,7 @@ export class RegistrarComponent implements OnInit {
   async saveConfig(): Promise<void> {
     if (this.hasInvalidInput) {
       this.configForm.markAllAsTouched();
-      this.snackBar.open('Please correct the highlighted fields', 'Close', { duration: 3000 });
+      this.snackBar.open(FIELD_ERROR_MESSAGES.input, 'Close', { duration: 3000 });
       return;
     }
     // Drop the previous backend rejections; the backend checks again.
@@ -186,59 +191,70 @@ export class RegistrarComponent implements OnInit {
 
     this.isSaving = true;
     try {
-      const configRequest: RegistrarConfigRequest = {
-        registrarUrl: formValue.registrarUrl,
-        oidcUrl: formValue.oidcUrl,
-        clientId: formValue.clientId,
-        clientSecret: formValue.clientSecret || undefined,
-        username: formValue.username,
-      };
-
-      const defaultsGroup = formValue.registrationCertificateDefaults || {};
-      const registrationCertificateDefaults: Record<string, unknown> = {};
-
-      if (defaultsGroup['privacy_policy']?.trim()) {
-        registrationCertificateDefaults['privacy_policy'] = defaultsGroup['privacy_policy'].trim();
-      }
-      if (defaultsGroup['support_uri']?.trim()) {
-        registrationCertificateDefaults['support_uri'] = defaultsGroup['support_uri'].trim();
-      }
-      if (defaultsGroup['intermediary']?.trim()) {
-        registrationCertificateDefaults['intermediary'] = defaultsGroup['intermediary'].trim();
-      }
-
-      if (Object.keys(registrationCertificateDefaults).length > 0) {
-        configRequest.registrationCertificateDefaults = registrationCertificateDefaults;
-      } else {
-        configRequest.registrationCertificateDefaults = null;
-      }
-
-      // Only include password if user entered one (for updates) or always for new config
-      if (formValue.password) {
-        configRequest.password = formValue.password;
-      }
-
-      if (isUpdate) {
-        // Use PATCH for updates - only send fields that should be updated
-        this.config = await this.registrarService.updateConfig(configRequest);
-      } else {
-        // Use POST for new config
-        this.config = await this.registrarService.saveConfig(configRequest);
-      }
+      const configRequest = this.buildRequest(formValue);
+      this.config = isUpdate
+        ? await this.registrarService.updateConfig(configRequest)
+        : await this.registrarService.saveConfig(configRequest);
+      this.updatePasswordRule();
       this.snackBar.open('Configuration saved successfully', 'Close', { duration: 3000 });
     } catch (error: any) {
       console.error('Error saving config:', error);
       const shown = this.showFieldErrors(error.error?.errors);
       const message =
-        shown === 'policy'
-          ? POLICY_HINT
-          : shown === 'input'
-            ? 'Please correct the highlighted fields'
-            : error.error?.message || 'Failed to save configuration';
+        shown === 'none'
+          ? error.error?.message || 'Failed to save configuration'
+          : FIELD_ERROR_MESSAGES[shown];
       this.snackBar.open(message, 'Close', { duration: 8000 });
     } finally {
       this.isSaving = false;
     }
+  }
+
+  /**
+   * The password is optional once one is stored (an empty field keeps it)
+   * and required otherwise.
+   */
+  private updatePasswordRule(): void {
+    const password = this.configForm.get('password');
+    if (this.config?.hasPassword) password?.clearValidators();
+    else password?.setValidators(Validators.required);
+    password?.updateValueAndValidity();
+  }
+
+  /**
+   * The request body for POST (new) and PATCH (update). The password is only
+   * sent when one was entered. Certificate defaults the form does not show,
+   * such as ones set through the API, are kept; empty defaults are sent as
+   * null.
+   */
+  private buildRequest(formValue: any): RegistrarConfigRequest {
+    const configRequest: RegistrarConfigRequest = {
+      registrarUrl: formValue.registrarUrl,
+      oidcUrl: formValue.oidcUrl,
+      clientId: formValue.clientId,
+      clientSecret: formValue.clientSecret || undefined,
+      username: formValue.username,
+    };
+
+    const defaultsGroup = formValue.registrationCertificateDefaults || {};
+    // The PATCH replaces the stored defaults as a whole.
+    const registrationCertificateDefaults: Record<string, unknown> = {
+      ...this.config?.registrationCertificateDefaults,
+    };
+    for (const key of DEFAULTS_FIELDS) {
+      const value = defaultsGroup[key]?.trim();
+      if (value) registrationCertificateDefaults[key] = value;
+      else delete registrationCertificateDefaults[key];
+    }
+    configRequest.registrationCertificateDefaults =
+      Object.keys(registrationCertificateDefaults).length > 0
+        ? registrationCertificateDefaults
+        : null;
+
+    if (formValue.password) {
+      configRequest.password = formValue.password;
+    }
+    return configRequest;
   }
 
   /**
@@ -276,6 +292,7 @@ export class RegistrarComponent implements OnInit {
       await this.registrarService.deleteConfig();
       this.config = null;
       this.configForm.reset();
+      this.updatePasswordRule();
       this.snackBar.open('Configuration deleted', 'Close', { duration: 3000 });
     } catch (error) {
       console.error('Error deleting config:', error);
