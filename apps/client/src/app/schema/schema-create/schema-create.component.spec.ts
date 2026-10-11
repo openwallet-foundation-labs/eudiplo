@@ -415,6 +415,18 @@ describe('SchemaCreateComponent required fields', () => {
     expect(text(fixture)).not.toContain('At least one trusted authority is required.');
   });
 
+  it('labels a root certificate field once, through its mat-label', async () => {
+    const fixture = await render();
+    fixture.componentInstance.addX509TrustAnchor();
+    fixture.detectChanges();
+
+    const labels = (fixture.nativeElement as HTMLElement).querySelectorAll(
+      'label[for="root-certificate-0"]'
+    );
+    expect(labels).toHaveLength(1);
+    expect(labels[0].textContent).toContain('Root certificate (base64 DER)');
+  });
+
   it('does not navigate after a submit that finishes once the user has left', async () => {
     let finishPublish!: (entry: unknown) => void;
     publishSchemaMetadata.mockReturnValue(new Promise((resolve) => (finishPublish = resolve)));
